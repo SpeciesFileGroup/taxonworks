@@ -11,11 +11,11 @@ describe TaxonName, typein_scope_observation_matrix_row_items: :model, group: [:
   let!(:genus2) { Protonym.create!(name: 'Boat', parent: family, rank_class: Ranks.lookup(:iczn, :genus)) }
 
   let!(:observation_matrix) { ObservationMatrix.create!(name: 'foo')  }
-  
+
   let!(:otu) { Otu.create!(taxon_name: species) }
 
   context 'setup' do
-    let!(:d) { ::ObservationMatrixRowItem::Dynamic::TaxonName.create!( observation_matrix: observation_matrix, taxon_name: genus1 )}
+    let!(:d) { ::ObservationMatrixRowItem::Dynamic::TaxonName.create!( observation_matrix:, observation_object: genus1 )}
 
     # NOTE: Specs in this block should also work if :otu is created in this position
 
@@ -29,7 +29,7 @@ describe TaxonName, typein_scope_observation_matrix_row_items: :model, group: [:
       end
 
       specify '#member_update_matrix_items? 2' do
-        otu.taxon_name_id = nil 
+        otu.taxon_name_id = nil
         expect(otu.member_update_matrix_items?('row')).to be_truthy
       end
 
@@ -38,33 +38,33 @@ describe TaxonName, typein_scope_observation_matrix_row_items: :model, group: [:
       end
 
       specify '#member_remove_from_matrix_items 2' do
-        otu.taxon_name_id = nil 
+        otu.taxon_name_id = nil
         expect(otu.member_remove_from_matrix_items('row')).to contain_exactly(d)
       end
 
       specify '#member_of_old_matrix_row_items 1' do
-        otu.taxon_name_id = nil 
+        otu.taxon_name_id = nil
         expect(otu.member_of_old_matrix_row_items).to contain_exactly(d)
       end
 
       specify '#member_of_new_matrix_row_items 1' do
-        otu.taxon_name_id = nil 
+        otu.taxon_name_id = nil
         expect(otu.member_of_new_matrix_row_items).to contain_exactly()
       end
 
       specify 'move out of scope 1' do
-        otu.update(taxon_name: nil, name: 'out of scope')
+        otu.update!(taxon_name: nil, name: 'out of scope')
         expect(observation_matrix.observation_matrix_rows.count).to eq(0)
       end
 
       specify 'move out of scope 2' do
-        otu.update(taxon_name: genus2)
+        otu.update!(taxon_name: genus2)
         expect(observation_matrix.observation_matrix_rows.count).to eq(0)
       end
     end
 
     context 'add species' do
-      let!(:d) { ::ObservationMatrixRowItem::Dynamic::TaxonName.create!( observation_matrix: observation_matrix, taxon_name: genus1 )}
+      let!(:d) { ::ObservationMatrixRowItem::Dynamic::TaxonName.create!( observation_matrix:, observation_object: genus1 )}
       let!(:species2) { Protonym.create!(name: 'gus', parent: genus1, rank_class: Ranks.lookup(:iczn, :species)) }
       let!(:otu2) { Otu.create!(taxon_name: species2) }
 
@@ -73,7 +73,7 @@ describe TaxonName, typein_scope_observation_matrix_row_items: :model, group: [:
       end
 
       specify 'adding species to scope 2' do
-        expect(observation_matrix.observation_matrix_rows.map(&:otu)).to contain_exactly(otu, otu2)
+        expect(observation_matrix.observation_matrix_rows.map(&:observation_object)).to contain_exactly(otu, otu2)
       end
 
       specify 'otus can be destroyed' do
@@ -100,31 +100,31 @@ describe TaxonName, typein_scope_observation_matrix_row_items: :model, group: [:
       end
 
       specify 'exit scope' do
-        species.update(parent: genus2) # Otu is not in scope
+        species.update!(parent: genus2) # Otu is not in scope
         expect(observation_matrix.observation_matrix_rows.count).to eq(0)
       end
 
       specify '#otus 1' do
-        expect(d.otus).to contain_exactly(otu)
+        expect(d.observation_objects).to contain_exactly(otu)
       end
 
       specify '#otus 2' do
-        species2.update(parent: genus1)
-        expect(d.otus).to contain_exactly(otu, otu2)
+        species2.update!(parent: genus1)
+        expect(d.observation_objects).to contain_exactly(otu, otu2)
       end
 
-      specify '#row_objects' do
-        species2.update(parent: genus1)
-        expect(d.row_objects).to contain_exactly(otu, otu2)
+      specify '#observation_objects' do
+        species2.update!(parent: genus1)
+        expect(d.observation_objects).to contain_exactly(otu, otu2)
       end
 
-      specify '#row_objects 2' do
+      specify '#observation_objects 2' do
         species2.update!(parent: species, rank_class: Ranks.lookup(:iczn, :subspecies))
-        expect(d.row_objects).to contain_exactly(otu, otu2)
+        expect(d.observation_objects).to contain_exactly(otu, otu2)
       end
 
       specify 'enter scope' do
-        species2.update(parent: genus1)
+        species2.update!(parent: genus1)
         expect(observation_matrix.observation_matrix_rows.reload.count).to eq(2) # contains otu1 and otu2
       end
 
@@ -142,10 +142,10 @@ describe TaxonName, typein_scope_observation_matrix_row_items: :model, group: [:
 
     context 'overlapping' do
       let(:keyword) { FactoryBot.create(:valid_keyword) }
-      let!(:t) { ::ObservationMatrixRowItem::Dynamic::Tag.create!( observation_matrix: observation_matrix, controlled_vocabulary_term: keyword )}
+      let!(:t) { ::ObservationMatrixRowItem::Dynamic::Tag.create!( observation_matrix:, observation_object: keyword )}
 
       specify 'dynamic groups increment count' do
-        Tag.create!(keyword: keyword, tag_object: otu)
+        Tag.create!(keyword:, tag_object: otu)
         expect(ObservationMatrixRow.first.reference_count).to eq(2)
       end
     end
@@ -154,10 +154,10 @@ describe TaxonName, typein_scope_observation_matrix_row_items: :model, group: [:
   # TODO: move to tag matrix hook specs
   context 'tag alone' do
     let(:keyword) { FactoryBot.create(:valid_keyword) }
-    let!(:t) { ::ObservationMatrixRowItem::Dynamic::Tag.create!( observation_matrix: observation_matrix, controlled_vocabulary_term: keyword )}
-    
+    let!(:t) { ::ObservationMatrixRowItem::Dynamic::Tag.create!( observation_matrix:, observation_object: keyword )}
+
     specify 'dynamic groups increment count' do
-      Tag.create!(keyword: keyword, tag_object: otu) 
+      Tag.create!(keyword:, tag_object: otu)
       expect(ObservationMatrixRow.first.reference_count).to eq(1)
     end
   end

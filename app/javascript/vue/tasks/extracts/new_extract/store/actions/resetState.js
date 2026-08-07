@@ -1,19 +1,29 @@
 import { makeInitialState } from '../store'
 import { MutationNames } from '../mutations/mutations'
-import { RouteNames } from 'routes/routes'
-import SetParam from 'helpers/setParam.js'
+import { RouteNames } from '@/routes/routes'
+import SetParam from '@/helpers/setParam.js'
 
 export default ({ state, commit }) => {
   const initState = makeInitialState()
-  const { settings: { lock }, recents, preferences, extract } = state
+  const {
+    settings: { lock },
+    recents,
+    preferences,
+    extract
+  } = state
 
   Object.entries(lock).forEach(([key, isLocked]) => {
     if (isLocked) {
-      console.log(state[key])
       initState[key] = Array.isArray(state[key])
-        ? state[key].map(item => ({ ...item, id: undefined }))
-        : state[key]?.id ? { ...state[key], id: undefined } : state[key]
+        ? state[key].map((item) => ({ ...item, id: undefined }))
+        : state[key]?.id
+        ? { ...state[key], id: undefined }
+        : state[key]
     }
+  })
+
+  initState.confidences.forEach((item) => {
+    item.isUnsaved = true
   })
 
   if (lock.made) {

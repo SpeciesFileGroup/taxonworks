@@ -1,29 +1,38 @@
 <template>
   <div class="horizontal-left-content">
-    <autocomplete
+    <VAutocomplete
+      ref="autocomplete"
       url="/taxon_names/autocomplete"
       label="label_html"
       display="label"
       min="3"
-      event-send="autocompleteType"
-      @getItem="$emit('getItem', $event)"
-      @found="nothing = !$event"
-      @getInput="name = $event"
       placeholder="Search taxon name for the new relationship..."
-      :add-params="{ type: 'Protonym', 'nomenclature_group[]': group }"
-      param="term"/>
+      :add-params="{ 'type[]': 'Protonym', 'nomenclature_group[]': group }"
+      param="term"
+      @get-item="selectTaxon"
+      @get-input="name = $event"
+    />
     <button
-      v-if="nothing"
       type="button"
-      @click="showModal = true"
-      class="button normal-input button-default margin-small-left">
+      class="button normal-input button-default margin-small-left"
+      @click="
+        () => {
+          isModalVisible = true
+        }
+      "
+    >
       New
     </button>
-    <modal-component
-      v-if="showModal"
-      @close="showModal = false">
+    <VModal
+      v-if="isModalVisible"
+      @close="
+        () => {
+          isModalVisible = false
+        }
+      "
+    >
       <template #header>
-        <h3>Create new species taxon name</h3>
+        <h3>Create new {{ group }} taxon name</h3>
       </template>
       <template #body>
         <div>
@@ -31,109 +40,116 @@
           <input
             type="text"
             v-model="name"
-            class="full_width">
-          <p>Are you sure you want to proceed? Type "{{ checkWord }}" to proceed.</p>
+            class="full_width"
+          />
+          <p>
+            Are you sure you want to proceed? Type "{{ CONFIRMATION_WORD }}" to
+            proceed.
+          </p>
           <input
             type="text"
             class="full_width"
             v-model="confirmInput"
-            @keypress.enter.prevent="create()"
             ref="inputtext"
-            :placeholder="`Write ${checkWord} to continue`">
+            :placeholder="`Write ${CONFIRMATION_WORD} to continue`"
+            @keypress.enter.prevent="create()"
+          />
         </div>
       </template>
       <template #footer>
-        <button 
+        <button
           type="button"
           class="button normal-input button-submit"
           :disabled="!checkInput"
-          @click="create()">
+          @click="create()"
+        >
           Create
         </button>
       </template>
-    </modal-component>
+    </VModal>
   </div>
 </template>
 
-<script>
-
-import Autocomplete from 'components/ui/Autocomplete'
-import ModalComponent from 'components/ui/Modal'
+<script setup>
+import { computed, ref, onMounted } from 'vue'
+import { useStore } from 'vuex'
 import { GetterNames } from '../store/getters/getters'
-import { TaxonName } from 'routes/endpoints'
+import { TaxonName } from '@/routes/endpoints'
+import VAutocomplete from '@/components/ui/Autocomplete'
+import VModal from '@/components/ui/Modal'
 
-export default {
-  components: {
-    Autocomplete,
-    ModalComponent
-  },
+const CONFIRMATION_WORD = 'CREATE'
 
-  props: {
-    group: {
-      type: String,
-      required: true
-    }
-  },
-
-  emits: ['getItem'],
-
-  computed: {
-    nomenclatureCode () {
-      return this.$store.getters[GetterNames.GetNomenclaturalCode]
-    },
-    ranks () {
-      return this.$store.getters[GetterNames.GetRankList][this.nomenclatureCode]
-    },
-    speciesRank () {
-      return this.ranksList.find(rank => { return rank.endsWith('::Species') })
-    },
-    taxon () {
-      return this.$store.getters[GetterNames.GetTaxon]
-    },
-    checkInput() {
-      return this.name.length > 1 && this.checkWord === this.confirmInput.toUpperCase()
-    }
-  },
-
-  data () {
-    return {
-      nothing: false,
-      ranksList: [],
-      confirmInput: '',
-      name: '',
-      checkWord: 'CREATE',
-      showModal: false
-    }
-  },
-
-  mounted () {
-    this.ranksList = [].concat(...this.flatRankList(this.ranks))
-  },
-
-  methods: {
-    flatRankList (rank) {
-      if (Array.isArray(rank)) {
-        return rank.map(item => item.rank_class)
-      }
-      else {
-        const keys = Object.keys(rank)
-
-        return keys.map(key => this.flatRankList(rank[key]))
-      }
-    },
-
-    create () {
-      TaxonName.create({
-        taxon_name: {
-          name: this.name,
-          rank_class: this.speciesRank,
-          parent_id: this.taxon.id,
-          type: 'Protonym'
-        }
-      }).then(response => {
-        this.$emit('getItem', response.body)
-      })
-    }
+const props = defineProps({
+  group: {
+    type: String,
+    required: true
   }
+})
+
+const emit = defineEmits(['select'])
+
+const store = useStore()
+
+const autocomplete = ref(null)
+
+defineExpose({
+  focus() { autocomplete.value?.setFocus() }
+})
+
+const ranksList = ref([])
+const confirmInput = ref('')
+const name = ref('')
+const isModalVisible = ref(false)
+
+const nomenclatureCode = computed(
+  () => store.getters[GetterNames.GetNomenclaturalCode]
+)
+const ranks = computed(
+  () => store.getters[GetterNames.GetRankList][nomenclatureCode.value]
+)
+const childRank = computed(() =>
+  ranksList.value.find((rank) =>
+    rank.endsWith(props.group === 'genus' ? '::Genus' : '::Species')
+  )
+)
+
+const taxon = computed(() => store.getters[GetterNames.GetTaxon])
+
+const checkInput = computed(
+  () =>
+    name.value.length > 1 &&
+    CONFIRMATION_WORD === confirmInput.value.toUpperCase()
+)
+
+onMounted(() => {
+  ranksList.value = [].concat(...flatRankList(ranks.value))
+})
+
+function flatRankList(rank) {
+  return Array.isArray(rank)
+    ? rank.map((item) => item.rank_class)
+    : Object.keys(rank).map((key) => flatRankList(rank[key]))
+}
+
+function selectTaxon({ id }) {
+  TaxonName.find(id).then(({ body }) => {
+    emit('select', body)
+  })
+}
+
+function create() {
+  TaxonName.create({
+    taxon_name: {
+      name: name.value,
+      rank_class: childRank.value,
+      parent_id: taxon.value.id,
+      type: 'Protonym'
+    }
+  })
+    .then((response) => {
+      emit('select', response.body)
+    })
+    .catch(() => {})
 }
 </script>

@@ -12,7 +12,10 @@ class LabelsController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @labels = Label.where(filter_params).with_project_id(sessions_current_project_id)
+        @labels = Label.where(filter_params)
+        .with_project_id(sessions_current_project_id)
+        .page(params[:page])
+        .per(params[:per])
       }
     end
   end
@@ -46,7 +49,7 @@ class LabelsController < ApplicationController
         format.json { render :show, status: :created, location: @label.metamorphosize }
       else
         format.html { render :new }
-        format.json { render json: @label.errors, status: :unprocessable_entity }
+        format.json { render json: @label.errors, status: :unprocessable_content }
       end
     end
   end
@@ -56,11 +59,12 @@ class LabelsController < ApplicationController
   def update
     respond_to do |format|
       if @label.update(label_params)
+        @label = @label.becomes((@label.type || 'Label').constantize)
         format.html { redirect_to @label, notice: 'Label was successfully updated.' }
         format.json { render :show, status: :ok, location: @label.metamorphosize }
       else
         format.html { render :edit }
-        format.json { render json: @label.errors, status: :unprocessable_entity }
+        format.json { render json: @label.errors, status: :unprocessable_content }
       end
     end
   end
@@ -75,6 +79,22 @@ class LabelsController < ApplicationController
     end
   end
 
+  def batch_create
+    begin
+      r = Label.batch_create(
+        params[:collecting_event_query],
+        params[:label_attribute],
+        params[:total],
+        params[:preview]
+      )
+    rescue TaxonWorks::Error => e
+      render json: { errors: e.message },  status: :unprocessable_content
+      return
+    end
+
+    render json: r.to_json, status: :ok
+  end
+
   private
 
   def set_label
@@ -82,7 +102,7 @@ class LabelsController < ApplicationController
   end
 
   def filter_params
-    params.permit(:label_object_id, :label_object_type) 
+    params.permit(:label_object_id, :label_object_type)
   end
 
   def label_params

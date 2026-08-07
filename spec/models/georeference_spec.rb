@@ -2,37 +2,122 @@ require 'rails_helper'
 require 'support/shared_contexts/shared_geo'
 
 describe Georeference, type: :model, group: [:geo, :shared_geo, :georeferences] do
+  include ActiveJob::TestHelper
+
   include_context 'stuff for complex geo tests'
   let(:georeference) { Georeference.new }
 
   let(:earth) { FactoryBot.create(:earth_geographic_area) }
   let(:g_a_t) { FactoryBot.create(:testbox_geographic_area_type) }
 
-  let(:e_g_i) { GeographicItem.create(polygon: box_1) }
-  let(:item_d) { GeographicItem.create(polygon: box_4) }
+  let(:e_g_i) { GeographicItem.create!(geography: box_1) }
+  let(:item_d) { GeographicItem.create!(geography: box_4) }
 
-  let!(:g_a) {
-    GeographicArea.create(name:                 'Box_4',
-                          data_origin:          'Test Data',
-                          geographic_area_type: g_a_t,
-                          parent:               earth)
+  let!(:g_a) { GeographicArea.create!(
+    name: 'Box_4',
+    data_origin: 'Test Data',
+    geographic_area_type: g_a_t,
+    parent: earth)
   }
 
   # this collecting event should produce a georeference.geographic_item.geo_object of 'Point(0.1 0.1 0.1)'
   let(:collecting_event_with_geographic_area) {
-    CollectingEvent.create(
-      geographic_area:    g_a,
-      verbatim_locality:  'Test Event',
-      minimum_elevation:  0.1,
-      verbatim_latitude:  '0.1',
+    CollectingEvent.create!(
+      geographic_area: g_a,
+      verbatim_locality: 'Test Event',
+      minimum_elevation: 0.1,
+      verbatim_latitude: '0.1',
       verbatim_longitude: '0.1')
   }
 
   let(:collecting_event_without_geographic_area) {
-    CollectingEvent.create(verbatim_locality: 'without geographic area')
+    CollectingEvent.create!(verbatim_locality: 'without geographic area')
   }
 
-  let!(:gagi) { GeographicAreasGeographicItem.create(geographic_item: item_d, geographic_area: g_a) }
+  let!(:gagi) { GeographicAreasGeographicItem.create!(geographic_item: item_d, geographic_area: g_a) }
+
+  let(:ce) { FactoryBot.create(:valid_collecting_event) }
+
+  specify '#dwc_occurrences' do
+    s = Specimen.create!(collecting_event: ce)
+    g = FactoryBot.create(:valid_georeference, collecting_event: ce)
+
+    expect(g.dwc_occurrences).to contain_exactly(DwcOccurrence.first)
+  end
+
+  # If updated you should also manually test the delayed version using
+  # Delayed::Worker.new.work_off
+  specify 'on create triggers dwc rebuild' do
+    s = Specimen.create!(collecting_event: ce)
+
+    expect(s.dwc_occurrence.decimalLatitude).to eq(nil)
+    g = FactoryBot.create(:valid_georeference, collecting_event: ce)
+
+    perform_enqueued_jobs
+
+    expect(s.dwc_occurrence.reload.decimalLatitude).to eq(g.latitude)
+  end
+
+  context 'destroying geographic items' do
+    specify 'destroys the geographic_item when it becomes orphaned' do
+      georeference = FactoryBot.create(:valid_georeference)
+      geographic_item = georeference.geographic_item
+
+      georeference.destroy!
+
+      expect(GeographicItem.where(id: geographic_item.id).exists?).to be(false)
+    end
+
+    specify 'destroys the error_geographic_item when it becomes orphaned' do
+      geographic_item = FactoryBot.create(:geographic_item, geography: 'POINT(0 0 0)')
+      error_geographic_item = GeographicItem.create!(geography: 'POLYGON((-1 -1 0, 1 -1 0, 1 1 0, -1 1 0, -1 -1 0))')
+      georeference = FactoryBot.create(:valid_georeference, geographic_item:)
+      georeference.update!(error_geographic_item:)
+
+      georeference.destroy!
+
+      expect(GeographicItem.where(id: error_geographic_item.id).exists?).to be(false)
+    end
+
+    # I don't think this scenario can happen from the UI, but the model allows it.
+    specify 'does not destroy a shared error_geographic_item until the last georeference is destroyed' do
+      error_geographic_item = GeographicItem.create!(geography: 'POLYGON((-1 -1 0, 1 -1 0, 1 1 0, -1 1 0, -1 -1 0))')
+      geographic_item1 = FactoryBot.create(:geographic_item, geography: 'POINT(0 0 0)')
+      geographic_item2 = FactoryBot.create(:geographic_item, geography: 'POINT(0 0 0)')
+      georeference1 = FactoryBot.create(:valid_georeference, geographic_item: geographic_item1, error_geographic_item:)
+      georeference2 = FactoryBot.create(
+        :valid_georeference,
+        collecting_event: FactoryBot.create(:valid_collecting_event),
+        geographic_item: geographic_item2,
+        error_geographic_item:
+      )
+
+      georeference1.destroy!
+      expect(GeographicItem.where(id: error_geographic_item.id).exists?).to be(true)
+
+      georeference2.destroy!
+      expect(GeographicItem.where(id: error_geographic_item.id).exists?).to be(false)
+    end
+
+    # I don't think this scenario can happen from the UI, but the model allows it.
+    specify 'does not destroy a shared geographic_item until the last georeference is destroyed' do
+      geographic_item = FactoryBot.create(:valid_geographic_item)
+
+      georeference1 = FactoryBot.create(:valid_georeference, geographic_item:)
+      georeference2 = FactoryBot.create(
+        :valid_georeference,
+        collecting_event: FactoryBot.create(:valid_collecting_event),
+        geographic_item:
+      )
+
+      georeference1.destroy!
+      expect(GeographicItem.where(id: geographic_item.id).exists?).to be(true)
+
+      georeference2.destroy!
+      expect(GeographicItem.where(id: geographic_item.id).exists?).to be(false)
+    end
+  end
+
 
   context 'associations' do
     context 'belongs_to' do
@@ -48,17 +133,18 @@ describe Georeference, type: :model, group: [:geo, :shared_geo, :georeferences] 
         expect(georeference.collecting_event = CollectingEvent.new).to be_truthy
       end
     end
+
   end
 
   context 'georeference role' do
     let(:georeference) { FactoryBot.create(:valid_georeference) }
     specify 'with << and an existing object' do
       expect(georeference.roles.count).to eq(0)
-      georeference.georeferencers << Person.new(last_name: 'Smith')
+      georeference.georeference_authors << Person.new(last_name: 'Smith')
       expect(georeference.save).to be_truthy
 
-      expect(georeference.georeferencers.first.creator.nil?).to be_falsey
-      expect(georeference.georeferencers.first.updater.nil?).to be_falsey
+      expect(georeference.georeference_authors.first.creator.nil?).to be_falsey
+      expect(georeference.georeference_authors.first.updater.nil?).to be_falsey
 
       expect(georeference.roles.first.creator.nil?).to be_falsey
       expect(georeference.roles.first.updater.nil?).to be_falsey
@@ -66,18 +152,16 @@ describe Georeference, type: :model, group: [:geo, :shared_geo, :georeferences] 
   end
 
   context 'validation' do
-    before(:each) {
-      georeference.valid?
-    }
+    before(:each) { georeference.valid?  }
 
     specify '#geographic_item is required' do
       expect(georeference.errors.include?(:geographic_item)).to be_truthy
     end
 
-    specify '#collecting_event is required' do
+    # specify '#collecting_event is required' do
       # no longer true at this level: 'not null' is now enforced at the table level.
       # expect(georeference.errors.include?(:collecting_event)).to be_truthy
-    end
+    # end
 
     specify '#type is required' do
       expect(georeference.errors.include?(:type)).to be_truthy
@@ -97,9 +181,7 @@ describe Georeference, type: :model, group: [:geo, :shared_geo, :georeferences] 
 
     context 'legal values' do
       context '#error_radius' do
-        before {
-          georeference.geographic_item = FactoryBot.create(:valid_geographic_item)
-        }
+        before { georeference.geographic_item = FactoryBot.create(:valid_geographic_item) }
 
         specify 'is > some Earth-based limit' do
           # 12,400 miles, 20,000 km (an approximation of less than half of the circumference of the earth)
@@ -115,6 +197,13 @@ describe Georeference, type: :model, group: [:geo, :shared_geo, :georeferences] 
           georeference.valid?
           expect(georeference.errors[:error_radius]).to_not be_present
         end
+
+        specify 'is rounded to nearest meter' do
+          georeference.error_radius = 1.23
+          georeference.valid?
+          expect(georeference.error_radius).to eq(1)
+        end
+
       end
 
       specify '#error_depth is < some Earth-based limit' do
@@ -131,26 +220,26 @@ describe Georeference, type: :model, group: [:geo, :shared_geo, :georeferences] 
       end
 
       context 'allowed combinations of values' do
-        before {
-          georeference.type             = 'Georeference::GoogleMap'
+        before do
+          georeference.type  = 'Georeference::GoogleMap'
           georeference.collecting_event = collecting_event_without_geographic_area
-        }
+        end
 
         specify 'geographic_item without error_radius, error_depth, or error_geographic_item' do
-          georeference.geographic_item = GeographicItem.new(point: simple_shapes[:point])
+          georeference.geographic_item = GeographicItem.new(geography: simple_shapes[:point])
           expect(georeference.valid?).to be_truthy
         end
 
         specify 'geographic_item with error_radius' do
-          georeference.geographic_item = GeographicItem.new(point: simple_shapes[:point])
-          georeference.error_radius    = 10000
+          georeference.geographic_item = GeographicItem.new(geography: simple_shapes[:point])
+          georeference.error_radius = 10000
           expect(georeference.valid?).to be_truthy
         end
 
         specify 'geographic_item with error_geographic_item' do
-          georeference.geographic_item = GeographicItem.new(point: 'POINT(5 5 0)')
-          georeference.geographic_item = GeographicItem.new(polygon: 'POLYGON((0.0 0.0 0.0, 10.0 0.0 0.0, ' \
-                                                                      '10.0 10.0 0.0, 0.0 10.0 0.0, 0.0 0.0 0.0))')
+          georeference.geographic_item = GeographicItem.new(geography: 'POINT(5 5 0)')
+          georeference.geographic_item = GeographicItem.new(geography: 'POLYGON((0.0 0.0 0.0, 10.0 0.0 0.0, ' \
+                                                                     '10.0 10.0 0.0, 0.0 10.0 0.0, 0.0 0.0 0.0))')
           expect(georeference.valid?).to be_truthy
         end
       end
@@ -164,7 +253,7 @@ describe Georeference, type: :model, group: [:geo, :shared_geo, :georeferences] 
         specify 'errors which result from badly formed error_geographic_item values' do
           g = Georeference::VerbatimData.new(
             collecting_event: collecting_event_with_geographic_area,
-            error_geographic_item: GeographicItem.new(polygon: poly_e1))
+            error_geographic_item: GeographicItem.new(geography: poly_e1))
           g.valid?
           expect(g.errors[:error_geographic_item]).to be_present
           expect(g.errors[:collecting_event]).to be_present
@@ -183,22 +272,21 @@ describe Georeference, type: :model, group: [:geo, :shared_geo, :georeferences] 
       end
 
       context 'testing geographic_item/error against geographic area provided through collecting event' do
-        let(:p0) { GeographicItem.new(point: point0) }
-        let(:p18) { GeographicItem.new(point: point18) }
-        let(:gi_b1) { GeographicItem.create!(polygon: shape_b_outer) }
-        let(:gi_b2) { GeographicItem.create!(polygon: shape_b_inner) }
-        let(:gi_e1) { GeographicItem.create!(polygon: poly_e1) }
-        let(:ga_e1) {
-          GeographicArea.create!(
-            name:                                         'test area E1',
-            data_origin:                                  'Test Data',
-            geographic_area_type:                         g_a_t,
-            parent:                                       earth,
-            geographic_areas_geographic_items_attributes: [{geographic_item: gi_e1,
-                                                            data_origin:     'Test Data'}]
+        let(:p0) { GeographicItem.new(geography: point0) }
+        let(:p18) { GeographicItem.new(geography: point18) }
+        let(:gi_b1) { GeographicItem.create!(geography: shape_b_outer) }
+        let(:gi_b2) { GeographicItem.create!(geography: shape_b_inner) }
+        let(:gi_e1) { GeographicItem.create!(geography: poly_e1) }
+        let(:ga_e1) { GeographicArea.create!(
+            name: 'test area E1',
+            data_origin: 'Test Data',
+            geographic_area_type: g_a_t,
+            parent: earth,
+            geographic_areas_geographic_items_attributes: [
+              {geographic_item: gi_e1,
+               data_origin: 'Test Data'}]
           ) }
-        let(:ga_b1) {
-          GeographicArea.create!(
+        let(:ga_b1) { GeographicArea.create!(
             name: 'test area B1',
             data_origin: 'Test Data',
             geographic_area_type: g_a_t,
@@ -210,10 +298,10 @@ describe Georeference, type: :model, group: [:geo, :shared_geo, :georeferences] 
         let(:ce_e1) { CollectingEvent.new(geographic_area: ga_e1) }
         let(:ce_b1) { CollectingEvent.new(geographic_area: ga_b1) }
 
-        before {
+        before do
           GeographicAreasGeographicItem.create!(geographic_area: ga_e1, geographic_item: gi_e1)
           GeographicAreasGeographicItem.create!(geographic_area: ga_b1, geographic_item: gi_b1)
-        }
+        end
 
         specify 'errors which result from badly formed collecting_event area values and error_geographic_item' do
           # error_geographic_item exists,  but is not inside ce_e1
@@ -229,14 +317,30 @@ describe Georeference, type: :model, group: [:geo, :shared_geo, :georeferences] 
 
         specify 'an error is added to #geographic_item if collecting_event.geographic_area.geo_object does ' \
           'not contain #geographic_item' do
-            g = Georeference::VerbatimData.new(
-              collecting_event: ce_e1, # p0 is outside of both e_g_i and ce.geographic_area
-              geographic_item: p0, # e_g_i is test_box_1
-              error_geographic_item: e_g_i)
+          g = Georeference::VerbatimData.new(
+            collecting_event: ce_e1, # p0 is outside of both e_g_i and ce.geographic_area
+            geographic_item: p0, # e_g_i is test_box_1
+            error_geographic_item: e_g_i)
             g.valid?
 
             expect(g.errors[:geographic_item]).to be_present
-          end
+        end
+
+        specify 'If point is within 10km from collecting event''s geographic area georeference is valid' do
+          g = Georeference::VerbatimData.new(
+            collecting_event: ce_e1, # p0 is outside of both e_g_i and ce.geographic_area
+            geographic_item: GeographicItem.new(geography: RSPEC_GEO_FACTORY.point(-9.0, 9.0904, 0.0)) # e_g_i is test_box_1
+          )
+          expect(g).to be_valid
+        end
+
+        specify 'If point is exceeds 10km from collecting event''s geographic area georeference is valid' do
+          g = Georeference::VerbatimData.new(
+            collecting_event: ce_e1, # p0 is outside of both e_g_i and ce.geographic_area
+            geographic_item: GeographicItem.new(geography: RSPEC_GEO_FACTORY.point(-9.0, 9.0907, 0.0)) # e_g_i is test_box_1
+          )
+          expect(g).to_not be_valid
+        end
 
         specify 'an error is added to #error_geographic_item if collecting_event.geographic_area.geo_object ' \
                           'does not contain #error_geographic_item' do
@@ -309,16 +413,19 @@ describe Georeference, type: :model, group: [:geo, :shared_geo, :georeferences] 
       specify 'with error_geographic_item returns a shape' do
         # case 2a - error geo_item
         e_g_i.save!
-        georeference = Georeference::VerbatimData.new(collecting_event:      collecting_event_with_geographic_area,
-                                                      error_geographic_item: e_g_i)
+        georeference = Georeference::VerbatimData.new(
+          collecting_event: collecting_event_with_geographic_area,
+          error_geographic_item: e_g_i)
         expect(georeference.save!).to be_truthy
         expect(georeference.error_box.geo_object.to_s).to eq(box_1.to_s)
       end
     end
+
     context 'batch_create_from_georeference_matcher' do
       specify 'adding this georeference to two collecting events' do
-        georeference = Georeference::VerbatimData.new(collecting_event: collecting_event_with_geographic_area,
-                                                      error_radius:     6000)
+        georeference = Georeference::VerbatimData.new(
+          collecting_event: collecting_event_with_geographic_area,
+          error_radius: 6000)
         georeference.save!
         ce1 = collecting_event_with_geographic_area
         ce2 = collecting_event_without_geographic_area
@@ -333,43 +440,28 @@ describe Georeference, type: :model, group: [:geo, :shared_geo, :georeferences] 
   end
 
   context 'scopes' do
-    # build some geo-references for testing using existing factories and geometries
-    before(:each) {
-      # gr1 = FactoryBot.create(:valid_georeference,
-      #                           collecting_event: FactoryBot.create(:valid_collecting_event),
-      #                           geographic_item:  FactoryBot.create(:geographic_item_with_polygon,
-      #                                                               polygon: shape_k))
-      # # swap out the polygon with another shape if needed
-      #
-      # @gr_poly  = FactoryBot.create(:valid_georeference_geo_locate)
-      # @gr_point = FactoryBot.create(:valid_georeference_verbatim_data)
-      #
-      # # using linting to check validity of valid_ models! for things like
-      # # gr1.save!
-    }
-    let(:gr1) { FactoryBot.create(:valid_georeference,
-                                  collecting_event: FactoryBot.create(:valid_collecting_event),
-                                  geographic_item:  FactoryBot.create(:geographic_item_with_polygon,
-                                                                      polygon: shape_k)) }
+    let(:gr1) { FactoryBot.create(
+      :valid_georeference,
+      collecting_event: FactoryBot.create(:valid_collecting_event),
+      geographic_item: FactoryBot.create(:geographic_item, geography: shape_k)
+    ) }
+
     let(:gr_poly) { FactoryBot.create(:valid_georeference_geo_locate) }
     let(:gr_point) { FactoryBot.create(:valid_georeference_verbatim_data) }
 
     specify '.within_radius_of(geographic_item_id, distance)' do
       [gr_poly, gr_point, gr1].each
       expect(Georeference.within_radius_of_item(gr_point.geographic_item.to_param, 112000).to_a)
-        .to contain_exactly(gr_poly, gr_point)      # but specifically *not* gr1
+        .to contain_exactly(gr_poly, gr_point) # but specifically *not* gr1
     end
 
+    # TODO: doesn't belong in this mode, reference via CollectingEvent filter
     context '.with_locality_like(string)' do
-      # return all Georeferences that are attached to a CollectingEvent that has a verbatim_locality that
+      # Return all Georeferences that are attached to a CollectingEvent that has a verbatim_locality that
       # includes String somewhere
       # Joins collecting_event.rb and matches %String% against verbatim_locality
 
       # .where(id in CollectingEvent.where{verbatim_locality like "%var%"})
-      specify 'respondes to .with_locality_like' do
-        expect(Georeference).to respond_to :with_locality_like
-      end
-
       specify 'finds one' do
         expect(Georeference.with_locality_like('Illinois')).to contain_exactly(gr_point)
       end
@@ -385,11 +477,6 @@ describe Georeference, type: :model, group: [:geo, :shared_geo, :georeferences] 
     end
 
     context '.with_locality(String)' do
-
-      specify 'responds to .with_locality' do
-        expect(Georeference).to respond_to :with_locality
-      end
-
       specify 'finds one' do
         expect(Georeference.with_locality('Champaign Co., Illinois')).to contain_exactly(gr_point)
       end
@@ -404,41 +491,43 @@ describe Georeference, type: :model, group: [:geo, :shared_geo, :georeferences] 
 
       p_a = earth
 
-      g_a1 = GeographicArea.new(name:        'Box_1',
-                                data_origin: 'Test Data',
-                                #                       neID:                 'TD-001',
-                                geographic_area_type:                         g_a_t,
-                                parent:                                       p_a,
-                                level0:                                       p_a,
-                                geographic_areas_geographic_items_attributes: [{geographic_item: item_a,
-                                                                                data_origin:     'Test Data'}])
+      g_a1 = GeographicArea.new(
+        name: 'Box_1',
+        data_origin: 'Test Data',
+        #                       neID:                 'TD-001',
+        geographic_area_type: g_a_t,
+        parent: p_a,
+        level0: p_a,
+        geographic_areas_geographic_items_attributes: [
+          {geographic_item: item_a,
+           data_origin:     'Test Data'}])
 
-      g_a2 = GeographicArea.new(name:        'Box_2',
-                                data_origin: 'Test Data',
-                                # gadmID:               2,
-                                geographic_area_type:                         g_a_t,
-                                parent:                                       p_a,
-                                level0:                                       p_a,
-                                geographic_areas_geographic_items_attributes: [{geographic_item: item_b,
-                                                                                data_origin:     'Test Data'}])
+      g_a2 = GeographicArea.new(
+        name: 'Box_2',
+        data_origin: 'Test Data',
+        # gadmID:               2,
+        geographic_area_type: g_a_t,
+        parent: p_a,
+        level0: p_a,
+        geographic_areas_geographic_items_attributes: [{geographic_item: item_b, data_origin: 'Test Data'}])
 
-      g_a3 = GeographicArea.new(name:        'Box_3',
-                                data_origin: 'Test Data',
-                                # tdwgID:               '12ABC',
-                                geographic_area_type:                         g_a_t,
-                                parent:                                       p_a,
-                                level0:                                       p_a,
-                                geographic_areas_geographic_items_attributes: [{geographic_item: item_c,
-                                                                                data_origin:     'Test Data'}]
+      g_a3 = GeographicArea.new(
+        name: 'Box_3',
+        data_origin: 'Test Data',
+        # tdwgID: '12ABC',
+        geographic_area_type: g_a_t,
+        parent: p_a,
+        level0: p_a,
+        geographic_areas_geographic_items_attributes: [{geographic_item: item_c, data_origin: 'Test Data'}]
       )
 
-      g_a4 = GeographicArea.new(name:                                         'Box_4',
-                                data_origin:                                  'Test Data',
-                                geographic_area_type:                         g_a_t,
-                                parent:                                       p_a,
-                                level0:                                       p_a,
-                                geographic_areas_geographic_items_attributes: [{geographic_item: item_d,
-                                                                                data_origin:     'Test Data'}])
+      g_a4 = GeographicArea.new(
+        name: 'Box_4',
+        data_origin: 'Test Data',
+        geographic_area_type: g_a_t,
+        parent: p_a,
+        level0: p_a,
+        geographic_areas_geographic_items_attributes: [{geographic_item: item_d, data_origin: 'Test Data'}])
 
       g_a4.save!
 
@@ -451,7 +540,7 @@ describe Georeference, type: :model, group: [:geo, :shared_geo, :georeferences] 
       expect(Georeference.with_geographic_area(g_a4).to_a).to eq([])
 
       gr1.collecting_event.geographic_area = g_a4
-      gr1.geographic_item                  = item_a
+      gr1.geographic_item = item_a
       gr1.collecting_event.save!
       gr1.save!
 
@@ -464,5 +553,3 @@ describe Georeference, type: :model, group: [:geo, :shared_geo, :georeferences] 
   end
 
 end
-
-

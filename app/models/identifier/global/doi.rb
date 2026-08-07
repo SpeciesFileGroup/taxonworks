@@ -37,7 +37,7 @@ class Identifier::Global::Doi < Identifier::Global
 
   protected
 
-  DOI_MATCH = /^(doi:|http(s)*:\/\/(dx.)*doi.org\/)/i
+  DOI_MATCH = /^(doi:|http(s)?:\/\/(dx\.)?doi\.org\/)/i
 
   # permit and remove various preambles: 'doi:', 'http://dx.doi.org/', 'https://doi.org/'
   def handle_prefixes

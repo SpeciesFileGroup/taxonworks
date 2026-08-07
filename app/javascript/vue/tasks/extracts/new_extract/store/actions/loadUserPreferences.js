@@ -1,4 +1,4 @@
-import { User } from 'routes/endpoints'
+import { User } from '@/routes/endpoints'
 import { MutationNames } from '../mutations/mutations'
 
 export default ({ commit }) => {

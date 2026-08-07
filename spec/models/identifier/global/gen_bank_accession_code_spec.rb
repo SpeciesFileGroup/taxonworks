@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe Identifier::Global::GenBankAccessionCode, type: :model, group: :identifiers do
   context 'GenBankAccessionCode' do
-    let(:id) { FactoryBot.build(:identifier_global_gen_bank_accession_code) }
+    let(:id) { Identifier::Global::GenBankAccessionCode.new(identifier_object: FactoryBot.create(:valid_sequence)) }
 
     context '#identifier is invalid format' do
       specify 'empty' do

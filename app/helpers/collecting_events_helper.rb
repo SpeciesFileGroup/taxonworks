@@ -16,18 +16,19 @@ module CollectingEventsHelper
     collecting_event.cached
   end
 
-  def collecting_event_autocomplete_tag(collecting_event, join_string = '<br>')
+  def collecting_event_autocomplete_tag(collecting_event, join_string = '<br>', term: nil)
     return nil if collecting_event.nil?
-    [ collecting_event_identifiers_tag(collecting_event),
+    s = [ collecting_event_identifiers_tag(collecting_event),
       collecting_event_geographic_names_tag(collecting_event),
       collecting_event_verbatim_locality_tag(collecting_event),
       collecting_event_dates_tag(collecting_event),
       collecting_event_collectors_tag(collecting_event),
       collecting_event_verbatim_coordinates_tag(collecting_event),
-     # collecting_event_coordinates_tag(collecting_event), # this is very slow
+      # collecting_event_coordinates_tag(collecting_event), # this is very slow
       collecting_event_method_habitat_tag(collecting_event),
       collecting_event_uses_tag(collecting_event)
-    ].compact.join(join_string).html_safe
+    ].compact.join(join_string)
+    mark_tag(s, term)
   end
 
   def collecting_event_uses_tag(collecting_event)
@@ -43,9 +44,9 @@ module CollectingEventsHelper
   def collecting_event_identifiers_tag(collecting_event)
     return nil if collecting_event.nil?
     if i = collecting_event.identifiers.load.first
-      collecting_event.identifiers.collect{|j|
+      collecting_event.identifiers.limit(10).collect{|j|
         content_tag(:span, j.cached, class: [ :feedback, 'feedback-thin', 'feedback-secondary' ])
-      }.join
+      }.join + ( collecting_event.identifiers.size > 10 ? ' ... and more!' : '')
     else
       nil
     end
@@ -77,7 +78,7 @@ module CollectingEventsHelper
     ) if collecting_event.collectors.any?
 
     a << '&nbsp;'.html_safe + content_tag(:span,  collecting_event.verbatim_collectors, class: [:feedback, 'feedback-thin','feedback-secondary']) if collecting_event.verbatim_collectors
-    a
+    a.html_safe
   end
 
   # Slow, but accurate
@@ -118,14 +119,6 @@ module CollectingEventsHelper
 
   def collecting_events_search_form
     render('/collecting_events/quick_search_form')
-  end
-
-  def next_without_georeference_for_google_maps_link(collecting_event)
-    if n = collecting_event.next_without_georeference
-      link_to('Skip to next CE without georeference', new_georeferences_google_map_path(georeference: {collecting_event_id: n.to_param}), id: :next_without_georeference)
-    else
-      nil
-    end
   end
 
   # @return [String]
@@ -176,7 +169,7 @@ module CollectingEventsHelper
     return nil if collecting_event.nil?
     o = collecting_event.previous_by_identifier
     return content_tag(:div, 'None', 'class' => 'navigation-item disable') if o.nil?
-    link_text = content_tag(:span, 'Previous by id', 'class' => 'small-icon icon-left', 'data-icon' => 'arrow-left')
+    link_text = safe_join([content_tag(:span, '', class: 'small-icon', data: { icon: 'arrow-left' }), 'Previous by id'], '')
     link_to(
       link_text, browse_collecting_events_task_path(collecting_event_id: o.id),
       data: {
@@ -192,7 +185,7 @@ module CollectingEventsHelper
     return nil if collecting_event.nil?
     o = collecting_event.next_by_identifier
     return content_tag(:div, 'None', 'class' => 'navigation-item disable') if o.nil?
-    link_text = content_tag(:span, 'Next by id', 'class' => 'small-icon icon-right', 'data-icon' => 'arrow-right')
+    link_text = safe_join(['Next by id', content_tag(:span, '', class: 'small-icon margin-small-left', data: { icon: 'arrow-right' })], '')
     link_to(
       link_text, browse_collecting_events_task_path(collecting_event_id: o.id),
       data: {
@@ -202,8 +195,69 @@ module CollectingEventsHelper
         class:'navigation-item')
   end
 
-  def collecting_event_next_by_start_date(collecting_event)
+  # @return [GeoJSON::Feature]
+  #   the first geographic item of the first georeference on this collecting event
+  def collecting_event_to_geo_json_feature(collecting_event, skip_geometry: false)
+    return nil if collecting_event.nil?
+
+    if skip_geometry
+      shape_type, shape_id = collecting_event.geo_json_shape_key
+      return nil if shape_type.nil?
+      geometry = nil
+    else
+      geometry, shape_type, shape_id = collecting_event.geo_json_data
+      return nil if geometry.nil?
+    end
+
+    l = label_for_collecting_event(collecting_event)
+
+    return {
+      'type' => 'Feature',
+      'geometry' => geometry,
+      'properties' => {
+        'target' => {
+          'type' => 'CollectingEvent',
+          'id' => collecting_event.id,
+          'label' => l
+        },
+        'base' => {
+          'type' => 'CollectingEvent',
+          'id' => collecting_event.id,
+          'label' => l
+        },
+        'shape' => {
+          'type' => shape_type,
+          'id' => shape_id }
+      }
+    }
   end
 
+  # TODO: deprecate
+  # TODO: parametrize to include gazetteer
+  #   i.e. geographic_areas_geographic_items.where( gaz = 'some string')
+  # !! avoid loading the whole GeographicItem, just grab the bits we need.
+  def collecting_event_to_simple_json_feature(collecting_event)
+    base = {
+      'type' => 'Feature',
+      'properties' => {
+        'target' => {
+          'type' => 'CollectingEvent',
+          'id' => collecting_event.id },
+          'label' => label_for_collecting_event(collecting_event) }
+    }
+
+    if collecting_event.geographic_items.any?
+      geo_item_id = collecting_event.geographic_items.select(:id).first.id
+      base['geometry'] = GeographicItem.find(geo_item_id).to_geo_json
+    end
+    base
+  end
+
+  def collecting_event_georeference_points(collecting_events)
+    GeographicItem.joins(:collecting_events_through_georeferences)
+      .where(georeferences: {collecting_event: collecting_events})
+      .select(GeographicItem.lat_long_sql(:latitude), GeographicItem.lat_long_sql(:longitude) )
+      .collect{|g| [g.longitude, g.latitude]}.uniq
+  end
 
 end

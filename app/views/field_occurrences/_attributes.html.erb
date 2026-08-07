@@ -1,0 +1,19 @@
+<p>
+  <strong>Total:</strong>
+  <%= @field_occurrence.total %>
+</p>
+
+<p>
+  <strong>Collecting event:</strong>
+  <%= collecting_event_link(@field_occurrence.collecting_event) %>
+</p>
+
+<p>
+  <strong>TaxonDetermination:</strong>
+  <%= otu_link(@field_occurrence.otu) %>
+</p>
+
+<p>
+  <strong>Is absent:</strong>
+  <%= @field_occurrence.is_absent ? 'true' : 'false' %>
+</p>

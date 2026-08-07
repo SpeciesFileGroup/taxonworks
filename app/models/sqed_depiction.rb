@@ -38,22 +38,37 @@ class SqedDepiction < ApplicationRecord
   include Shared::Tags
   include Shared::Notes
 
+  # True?!
+  include Shared::IsData
+
   attr_accessor :rebuild
 
   belongs_to :depiction
   has_one :image, through: :depiction
 
-  has_one :collection_object, through: :depiction, source_type: 'CollectionObject', source: :depiction_object 
+  has_one :collection_object, through: :depiction, source_type: 'CollectionObject', source: :depiction_object, inverse_of: :sqed_depictions
 
   validates_presence_of :depiction
   validates_presence_of  :metadata_map, :boundary_color
   validates_inclusion_of :layout, in: SqedConfig::LAYOUTS.keys.map(&:to_s)
   validates_inclusion_of :boundary_finder, in: %w{Sqed::BoundaryFinder::ColorLineFinder Sqed::BoundaryFinder::Cross}
   validates_inclusion_of :has_border, in: [true, false]
+  validate :depiction_is_of_collection_object
 
   accepts_nested_attributes_for :depiction
 
+  before_validation :set_invisible_boundary, if: -> { layout.presence == 'stage' }
+
+  def set_invisible_boundary
+    self.boundary_color = 'invisible'
+  end
+
   after_save :recalculate, if: -> { rebuild }
+  after_create_commit :enqueue_preprocess
+
+  def self.is_containable?
+    false
+  end
 
   def rebuild=(value)
     @rebuild = value
@@ -63,18 +78,24 @@ class SqedDepiction < ApplicationRecord
     preprocess(true)
   end
 
+  def enqueue_preprocess
+    SqedDepictionPreprocessJob.perform_later(sqed_depiction_id: id)
+  end
+
   def extraction_metadata
     {
       boundary_color: boundary_color.to_sym,
       boundary_finder: boundary_finder&.constantize,
-      has_border: has_border,
+      has_border:,
       layout: layout.to_sym,
       metadata_map: sqed_metadata_map
     }
   end
 
-  def depiction_object
-    depiction.depiction_object
+  delegate :depiction_object, to: :depiction
+
+  def self.annotates?
+    false
   end
 
   def self.with_collection_object_data
@@ -99,12 +120,12 @@ class SqedDepiction < ApplicationRecord
   #   the next record in which the collection object has no buffered data
   def next_without_data(progress = false)
     if progress
-      SqedDepiction.clear_stale_progress(self) 
+      SqedDepiction.clear_stale_progress(self)
       object = SqedDepiction.without_collection_object_data.with_project_id(project_id).where('collection_objects.id <> ?', depiction_object.id).where('sqed_depictions.id > ?', id).order(:id).first
-      object.nil? ? SqedDepiction.where(in_progress: false, project_id: project_id).order(:id).first : object
+      object || SqedDepiction.where(in_progress: nil, project_id:).order(:id).first
     else
       object = SqedDepiction.without_collection_object_data.with_project_id(project_id).where('collection_objects.id <> ?', depiction_object.id).where('sqed_depictions.id > ?', id).order(:id).first
-      object.nil? ? SqedDepiction.where(project_id: project_id).order(:id).first : object
+      object || SqedDepiction.where(project_id:).order(:id).first
     end
   end
 
@@ -125,13 +146,13 @@ class SqedDepiction < ApplicationRecord
 
   def self.last_without_data(project_id)
     object = SqedDepiction.without_collection_object_data.with_project_id(project_id).order(:id).first
-    object.nil? ? SqedDepiction.where(project_id: project_id).order(id: :asc).first : object
+    object.nil? ? SqedDepiction.where(project_id:).order(id: :asc).first : object
   end
 
   # @return [CollectionObject, nil]
   #    the next collection object, by :id, created from the addition of a SqedDepiction
   def next_collection_object
-    object = CollectionObject.joins(:sqed_depictions).where(project_id: project_id).where('sqed_depictions.id > ?', id).where('collection_objects.id <> ?', depiction_object.id).order(:id).first
+    object = CollectionObject.joins(:sqed_depictions).where(project_id:).where('sqed_depictions.id > ?', id).where('collection_objects.id <> ?', depiction_object.id).order(:id).first
     object = CollectionObject.joins(:sqed_depictions).order(:id).first if object.nil?
     object
   end
@@ -144,7 +165,7 @@ class SqedDepiction < ApplicationRecord
   end
 
   def nearby_sqed_depictions(before = 5, after = 5, progress = false)
-    q = SqedDepiction.where(project_id: project_id)
+    q = SqedDepiction.where(project_id:)
 
     if progress == true
       SqedDepiction.clear_stale_progress(self)
@@ -158,21 +179,21 @@ class SqedDepiction < ApplicationRecord
   end
 
   def next_sqed_depiction
-    sd = SqedDepiction.where(project_id: project_id).where('id > ?', id).order(:id).limit(1)
-    sd.any? ? sd.first : SqedDepiction.where(project_id: project_id).first
+    sd = SqedDepiction.where(project_id:).where('id > ?', id).order(:id).limit(1)
+    sd.any? ? sd.first : SqedDepiction.where(project_id:).first
   end
 
   def preprocess(force = true)
-    return true if !File.exists?(depiction.image.image_file.path(:original))
+    return true if !File.exist?(depiction.image.image_file.path(:original))
     # don't rebuild if not forced and one or both cache is empty
     if !force
-      if !result_ocr.blank? || !result_boundary_coordinates.blank?
+      if result_ocr.present? || result_boundary_coordinates.present?
         return true
       end
     end
 
     # otherwise rebuild
-    result = SqedToTaxonworks::Result.new(depiction_id: depiction.id)
+    result = Vendor::SqedToTaxonworks::Result.new(depiction_id: depiction.id)
     result.cache_all
   end
 
@@ -191,6 +212,12 @@ class SqedDepiction < ApplicationRecord
   end
 
   protected
+
+  def depiction_is_of_collection_object
+    if depiction
+      errors.add(:depiction, 'must be of a collection object') if !(depiction.depiction_object_type =~ /CollectionObject/)
+    end
+  end
 
   def sqed_metadata_map
     metadata_map.inject({}){|hsh, i| hsh.merge(i[0].to_i => i[1].to_sym)}

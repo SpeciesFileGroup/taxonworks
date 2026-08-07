@@ -12,7 +12,10 @@ class GeoreferencesController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @georeferences = Queries::Georeference::Filter.new(filter_params).all.where(project_id: sessions_current_project_id).page(params[:page]).per(50)
+        @georeferences = Queries::Georeference::Filter.new(params).all
+        .where(project_id: sessions_current_project_id)
+        .page(params[:page])
+        .per(params[:per])
       }
     end
   end
@@ -59,7 +62,7 @@ class GeoreferencesController < ApplicationController
   #        }
   #        format.json { render action: 'show', status: :created }
   #      else
-  #  
+  #
   #        format.html {
   #          if @georeference.method_name
   #            render "/georeferences/#{@georeference.method_name}/new"
@@ -67,37 +70,43 @@ class GeoreferencesController < ApplicationController
   #            if @georeference.collecting_event
   #              redirect_to collecting_event_path(@georeference.collecting_event), notice: 'Georeference not created, check verbatim values of collecting event'
   #            else
-  #              redirect_to georeferences_path, notice: 'Georeference not created.  Contact administrator with details if you recieved this message.'
+  #              redirect_to georeferences_path, notice: 'Georeference not created.  Contact administrator with details if you receive this message.'
   #            end
   #          end
   #        }
-  #  
-  #        format.json { render json: @georeference.errors, status: :unprocessable_entity }
+  #
+  #        format.json { render json: @georeference.errors, status: :unprocessable_content }
   #      end
   #    end
   #  else
   #    skip
   #  end
 
-  # TODO: Fix other georefernce Tasks/interfaces to use JSON, not this ^
+  # TODO: Fix other georeference Tasks/interfaces to use JSON, not this ^
 
   # POST /georeferences
   # POST /georeferences.json
   def create
     @georeference = Georeference.new(georeference_params)
+    saved = nil
+    begin
+      saved = @georeference.save
+    rescue RGeo::Error::InvalidGeometry, RGeo::Error::GeosError => e
+      @georeference.errors.add(:geometry_error, "Georeference geometry error: #{e}")
+    end
+
     respond_to do |format|
-      if @georeference.save
+      if saved
         format.html {
           redirect_to collecting_event_path(@georeference.collecting_event), notice: 'Georeference was successfully created.'
         }
         format.json { render :show, status: :created, location: @georeference.metamorphosize }
       else
         format.html { render action: :new }
-        format.json { render json: @georeference.errors, status: :unprocessable_entity }
+        format.json { render json: @georeference.errors, status: :unprocessable_content }
       end
     end
   end
-
 
   def batch_create
   end
@@ -111,7 +120,7 @@ class GeoreferencesController < ApplicationController
         format.json { render :show, status: :ok, location: @georeference.metamorphosize }
       else
         format.html { render action: :edit} #  "/georeferences/#{@georeference.method_name}/edit"}
-        format.json { render json: @georeference.errors, status: :unprocessable_entity }
+        format.json { render json: @georeference.errors, status: :unprocessable_content }
       end
     end
   end
@@ -119,29 +128,27 @@ class GeoreferencesController < ApplicationController
   # DELETE /georeferences/1
   # DELETE /georeferences/1.json
   def destroy
-    @georeference.destroy!
+    @georeference.destroy
     respond_to do |format|
-      format.html { redirect_to georeferences_url }
-      format.json { head :no_content }
+      if @georeference.destroyed?
+        format.html { destroy_redirect @georeference, notice: 'Georeference was successfully destroyed.' }
+        format.json { head :no_content}
+      else
+        format.html { destroy_redirect @georeference, notice: 'Georeference was not destroyed, ' + @georeference.errors.full_messages.join('; ') }
+        format.json { render json: @georeference.errors, status: :unprocessable_content }
+      end
     end
   end
 
   # GET /georeferences/download
   def download
     send_data(
-      Export::Download.generate_csv(Georeference.where(project_id: sessions_current_project_id)),
+      Export::CSV.generate_csv(Georeference.where(project_id: sessions_current_project_id)),
       type: 'text',
-      filename: "georeferences_#{DateTime.now}.csv")
+      filename: "georeferences_#{DateTime.now}.tsv")
   end
 
   private
-
-  def filter_params
-    params.permit(
-      :collecting_event_id,
-      collecting_event_ids: [],
-    )
-  end
 
   def set_georeference
     @georeference = Georeference.with_project_id(sessions_current_project_id).find(params[:id])
@@ -161,9 +168,11 @@ class GeoreferencesController < ApplicationController
       :position,
       :is_public,
       :api_request,
-      :is_undefined_z,
-      :is_median_z,
+      :year_georeferenced,
+      :day_georeferenced,
+      :month_georeferenced,
       :wkt,
+      :gazetteer_id,
       geographic_item_attributes: [:shape],
       origin_citation_attributes: [:id, :_destroy, :source_id, :pages]
     )

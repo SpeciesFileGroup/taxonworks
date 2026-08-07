@@ -1,5 +1,3 @@
-import setGeographicArea from './setGeographicArea'
-import setGeoreferences from './setGeoreferences'
 import setSubsequentialUses from './setSubsequentialUses'
 
 import setLocked from './setLocked'
@@ -15,14 +13,12 @@ import setPreparationType from './setPreparationType'
 import resetStore from './resetStore'
 
 import setDepictions from './setDepictions'
-
-import setNamespaceSelected from './setNamespaceSelected'
+import setPendingDepictions from './setPendingDepictions'
 
 import setBiocurations from './setBiocurations'
 import addBiocuration from './addBiocuration'
 import removeBiocuration from './removeBiocuration'
 
-import setLabel from './Label/setLabel'
 import setComponentsOrder from './setComponentsOrder'
 
 import setCollectionObjects from './CollectionObject/setCollectionObjects'
@@ -32,41 +28,17 @@ import removeCollectionObject from './CollectionObject/removeCollectionObject'
 import setCollectionObject from './CollectionObject/setCollectionObject'
 import setCOCitations from './setCOCitations'
 
-import SetCollectingEvent from './CollectingEvent/setCollectingEvent'
-import setCollectingEventIdentifier from './CollectingEvent/setCollectingEventIdentifier'
-
 import setTypeMaterial from './TypeMaterial/setTypeMaterial'
 import setTypeMaterials from './TypeMaterial/setTypeMaterials'
-import setTypeMaterialBiologicalObjectId from './TypeMaterial/setTypeMaterialBiologicalObjectId'
-import setTypeMaterialProtonymId from './TypeMaterial/setTypeMaterialProtonymId'
-import setTypeMaterialTaxon from './TypeMaterial/setTypeMaterialTaxon'
 import addTypeMaterial from './TypeMaterial/addMaterialTypes'
 import newTypeMaterial from './TypeMaterial/newTypeMaterial'
 import removeTypeMaterial from './TypeMaterial/removeTypeMaterial'
 
-import setIdentifiers from './setIdentifiers'
-import setIdentifier from './Identifier/setIdentifier'
-import setIdentifierObjectId from './Identifier/setIdentifierObjectId'
-
-import addTaxonDetermination from './TaxonDetermination/addTaxonDetermination'
-import removeTaxonDetermination from './TaxonDetermination/removeTaxonDetermination'
-import newTaxonDetermination from './TaxonDetermination/newTaxonDetermination'
-import setTaxonDetermination from './TaxonDetermination/setTaxonDetermination'
-import setTaxonDeterminations from './TaxonDetermination/setTaxonDeterminations'
-
 import setSoftValidations from './setSoftValidations'
-import setBiologicalAssociations from './setBiologicalAssociations'
 
-import setTmpDataOtu from './tmpData/setTmpDataOtu'
 import setProjectPreferences from './setProjectPreferences'
 
 const MutationNames = {
-
-  SetBiologicalAssociations: 'setBiologicalAssociations',
-
-  SetGeographicArea: 'setGeographicArea',
-  SetGeoreferences: 'setGeoreferences',
-  SetTmpDataOtu: 'setTmpDataOtu',
   SetSubsequentialUses: 'setSubsequentialUses',
 
   SetLocked: 'setLocked',
@@ -81,9 +53,7 @@ const MutationNames = {
   ResetStore: 'resetStore',
 
   SetDepictions: 'setDepictions',
-  SetNamespaceSelected: 'setNamespaceSelected',
-
-  SetLabel: 'setLabel',
+  SetPendingDepictions: 'setPendingDepictions',
 
   SetPreparationType: 'setPreparationType',
 
@@ -91,27 +61,11 @@ const MutationNames = {
   AddBiocuration: 'AddBiocuration',
   RemoveBiocuration: 'RemoveBiocuration',
 
-  NewTaxonDetermination: 'newTaxonDetermination',
-  RemoveTaxonDetermination: 'removeTaxonDetermination',
-  AddTaxonDetermination: 'addTaxonDetermination',
-  SetTaxonDeterminations: 'setTaxonDeterminations',
-  SetTaxonDetermination: 'setTaxonDetermination',
-
-  SetIdentifiers: 'setIdentifiers',
-  SetIdentifier: 'setIdentifier',
-  SetIdentifierObjectId: 'setIdentifierObjectId',
-
   SetTypeMaterial: 'setTypeMaterial',
   SetTypeMaterials: 'setTypeMaterials',
-  SetTypeMaterialBiologicalObjectId: 'setTypeMaterialBiologicalObjectId',
-  SetTypeMaterialProtonymId: 'setTypeMaterialProtonymId',
-  SetTypeMaterialTaxon: 'setTypeMaterialTaxon',
   AddTypeMaterial: 'addTypeMaterial',
   NewTypeMaterial: 'newTypeMaterial',
   RemoveTypeMaterial: 'removeTypeMaterial',
-
-  SetCollectingEvent: 'SetCollectingEvent',
-  SetCollectingEventIdentifier: 'setCollectingEventIdentifier',
 
   SetCOCitations: 'setCOCitations',
   SetCollectionObject: 'setCollectionObject',
@@ -126,11 +80,7 @@ const MutationNames = {
 }
 
 const MutationFunctions = {
-  [MutationNames.SetBiologicalAssociations]: setBiologicalAssociations,
   [MutationNames.SetProjectPreferences]: setProjectPreferences,
-  [MutationNames.SetGeographicArea]: setGeographicArea,
-  [MutationNames.SetGeoreferences]: setGeoreferences,
-  [MutationNames.SetTmpDataOtu]: setTmpDataOtu,
   [MutationNames.SetSubsequentialUses]: setSubsequentialUses,
 
   [MutationNames.SetLocked]: setLocked,
@@ -146,33 +96,17 @@ const MutationFunctions = {
   [MutationNames.ResetStore]: resetStore,
 
   [MutationNames.SetDepictions]: setDepictions,
-  [MutationNames.SetNamespaceSelected]: setNamespaceSelected,
+  [MutationNames.SetPendingDepictions]: setPendingDepictions,
 
   [MutationNames.SetBiocurations]: setBiocurations,
   [MutationNames.AddBiocuration]: addBiocuration,
   [MutationNames.RemoveBiocuration]: removeBiocuration,
 
-  [MutationNames.AddTaxonDetermination]: addTaxonDetermination,
-  [MutationNames.RemoveTaxonDetermination]: removeTaxonDetermination,
-  [MutationNames.NewTaxonDetermination]: newTaxonDetermination,
-  [MutationNames.SetTaxonDeterminations]: setTaxonDeterminations,
-  [MutationNames.SetTaxonDetermination]: setTaxonDetermination,
-
-  [MutationNames.SetIdentifiers]: setIdentifiers,
-  [MutationNames.SetIdentifier]: setIdentifier,
-  [MutationNames.SetIdentifierObjectId]: setIdentifierObjectId,
-
   [MutationNames.AddTypeMaterial]: addTypeMaterial,
   [MutationNames.NewTypeMaterial]: newTypeMaterial,
   [MutationNames.RemoveTypeMaterial]: removeTypeMaterial,
-  [MutationNames.SetTypeMaterialBiologicalObjectId]: setTypeMaterialBiologicalObjectId,
-  [MutationNames.SetTypeMaterialProtonymId]: setTypeMaterialProtonymId,
-  [MutationNames.SetTypeMaterialTaxon]: setTypeMaterialTaxon,
   [MutationNames.SetTypeMaterial]: setTypeMaterial,
   [MutationNames.SetTypeMaterials]: setTypeMaterials,
-
-  [MutationNames.SetCollectingEvent]: SetCollectingEvent,
-  [MutationNames.SetCollectingEventIdentifier]: setCollectingEventIdentifier,
 
   [MutationNames.SetCOCitations]: setCOCitations,
   [MutationNames.SetCollectionObject]: setCollectionObject,
@@ -181,12 +115,7 @@ const MutationFunctions = {
   [MutationNames.RemoveCollectionObject]: removeCollectionObject,
   [MutationNames.SetCollectionObjects]: setCollectionObjects,
   [MutationNames.SetComponentsOrder]: setComponentsOrder,
-  [MutationNames.SetSoftValidations]: setSoftValidations,
-
-  [MutationNames.SetLabel]: setLabel
+  [MutationNames.SetSoftValidations]: setSoftValidations
 }
 
-export {
-  MutationNames,
-  MutationFunctions
-}
+export { MutationNames, MutationFunctions }

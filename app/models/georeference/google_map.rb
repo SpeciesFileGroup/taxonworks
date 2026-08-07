@@ -14,9 +14,8 @@ class Georeference::GoogleMap < Georeference
     super(h)
     h.merge!(
       georeferenceSources: 'Google Maps',
-      georeferenceRemarks: 'Created from a TaxonWorks interface that integrates Google Maps.',
-      georeferenceProtocol: 'Shape "drawn" on a Google Map.'
-    )
+      georeferenceRemarks: 'Created from a TaxonWorks interface that integrates Google Maps.')
+    h[:georeferenceProtocol] = 'Shape "drawn" on a Google Map.' if h[:georeferenceProtocol].blank? 
     h
   end
 

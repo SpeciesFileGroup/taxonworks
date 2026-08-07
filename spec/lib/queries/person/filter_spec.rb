@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-# These specs also contain the canonical specs for Queries::Concerns::Users.
+# !! These specs also contain the canonical specs for Queries::Concerns::Users.
 
 describe Queries::Person::Filter, type: :model, group: :people do
 
@@ -23,27 +23,64 @@ describe Queries::Person::Filter, type: :model, group: :people do
 
   let(:collecting_event) {
     CollectingEvent.create!(
-      verbatim_locality: 'Neverland',
+      verbatim_locality: 'Alwaysland',
       with_verbatim_data_georeference: true,
       verbatim_latitude: '10',
       verbatim_longitude: '10',
       collectors: [p2]) }
 
-  let(:georeference) do
-    collecting_event.georeferences.first.georeferencers << p3
-    collecting_event.georeferences.first.georeferencers << p2
+  let(:query) { Queries::Person::Filter.new() }
+
+  specify '#use_min' do
+    query.use_min = 2
+    expect(query.all.map(&:id)).to be_empty
   end
 
-  let(:query) { Queries::Person::Filter.new({}) }
+  specify '#use_min 2' do
+    collecting_event
+    s = FactoryBot.create(:valid_source, authors: [p2]) # p1 an author, not eliminated
+    query.use_min = 2
+    expect(query.all.map(&:id)).to contain_exactly(p2.id)
+  end
+
+  specify '#repeated_total' do
+    query.repeated_total = 2
+    expect(query.all.map(&:id)).to be_empty
+  end
+
+  specify '#without' do
+    query.without = ['first_name']
+    expect(query.all.map(&:id)).to contain_exactly(p1.id)
+  end
+
+  specify '#without 2' do
+    query.without = ['prefix']
+    expect(query.all.map(&:id)).to contain_exactly(p1.id, p2.id, p4.id)
+  end
+
+  specify '#regex' do
+    query.regex = '.*t[h]'
+    expect(query.all.map(&:id)).to contain_exactly(p1.id, p2.id)
+  end
+
+  specify '#regex 2' do
+    query.regex = '\AS.*t'
+    expect(query.all.map(&:id)).to contain_exactly(p1.id, p2.id)
+  end
+
+  specify '#regex 3' do
+    query.regex = 'p.p'
+    expect(query.all.map(&:id)).to contain_exactly(p4.id)
+  end
 
   specify '#first_name 1' do
     query.first_name = 'e'
     expect(query.all.map(&:id)).to contain_exactly()
   end
 
-  specify '#first_name, #person_wildcard' do
+  specify '#first_name, #exact' do
     query.first_name = 'e'
-    query.person_wildcard = ['first_name']
+    query.exact = ['first_name']
     expect(query.all.map(&:id)).to contain_exactly(p3.id, p4.id)
   end
 
@@ -52,10 +89,25 @@ describe Queries::Person::Filter, type: :model, group: :people do
     expect(query.all.map(&:id)).to contain_exactly(p1.id, p2.id)
   end
 
-  specify '#last_name, #person_wildcard' do
+  specify '#last_name, #exact' do
     query.last_name = 'op'
-    query.person_wildcard = ['last_name']
+    query.exact = ['last_name']
     expect(query.all.map(&:id)).to contain_exactly(p4.id)
+  end
+
+  specify '#except_role' do
+    collecting_event # p2 eliminated
+    query.last_name = 'Smith'
+    query.except_role = ['Collector']
+    expect(query.all.map(&:id)).to contain_exactly(p1.id)
+  end
+
+  specify '#except_role 2' do
+    collecting_event # p2 eliminated
+    s = FactoryBot.create(:valid_source, authors: [p1]) # p1 an author, not eliminated
+    query.last_name = 'Smith'
+    query.except_role = ['Collector']
+    expect(query.all.map(&:id)).to contain_exactly(p1.id)
   end
 
   specify '#role' do
@@ -71,15 +123,24 @@ describe Queries::Person::Filter, type: :model, group: :people do
     expect(query.all.pluck(:id)).to contain_exactly(p2.id)
   end
 
-  specify '#name' do
-    query.name = 'Smith'
-    expect(query.all.pluck(:id)).to contain_exactly(p1.id)
+  specify '#role + other 1' do
+    s = Source::Bibtex.create!(bibtex_type: :article, title: 'Title', year: 1293)
+    s.editors << p3
+
+    query.role = ['SourceEditor']
+    query.last_name_starts_with = p3.last_name[0..3]
+    expect(query.all.map(&:id)).to contain_exactly(p3.id)
   end
 
   specify '#name' do
     query.name = 'Smith'
-    query.person_wildcard = ['name']
     expect(query.all.pluck(:id)).to contain_exactly(p1.id, p2.id)
+  end
+
+  specify '#name' do
+    query.name = 'Smith'
+    query.exact = ['name']
+    expect(query.all.pluck(:id)).to contain_exactly(p1.id)
   end
 
   specify '#name, #levenshtein_cuttoff 1' do
@@ -147,6 +208,160 @@ describe Queries::Person::Filter, type: :model, group: :people do
     expect(query.all.pluck(:id)).to contain_exactly(p1.id, p2.id)
   end
 
+  context '#first_name_like' do
+    let!(:john)         { Person.create!(last_name: 'Smith', first_name: 'John') }
+    let!(:jack)         { Person.create!(last_name: 'Smith', first_name: 'Jack') }
+    let!(:john_k)       { Person.create!(last_name: 'Smith', first_name: 'John K.') }
+    let!(:john_kenneth) { Person.create!(last_name: 'Smith', first_name: 'John Kenneth') }
+    let!(:j_abbr)       { Person.create!(last_name: 'Smith', first_name: 'J.') }
+    let!(:j_k_abbr)     { Person.create!(last_name: 'Smith', first_name: 'J. K.') }
+    let!(:j_kenneth)    { Person.create!(last_name: 'Smith', first_name: 'J. Kenneth') }
+    let!(:j_james)      { Person.create!(last_name: 'Smith', first_name: 'J. James') }
+
+    specify 'single initial matches all names with that first letter' do
+      query.first_name_like = 'J.'
+      expect(query.all.pluck(:id)).to contain_exactly(
+        john.id, jack.id, john_k.id, john_kenneth.id,
+        j_abbr.id, j_k_abbr.id, j_kenneth.id, j_james.id
+      )
+    end
+
+    specify 'initial without period matches same set as initial with period' do
+      query.first_name_like = 'J'
+      expect(query.all.pluck(:id)).to contain_exactly(
+        john.id, jack.id, john_k.id, john_kenneth.id,
+        j_abbr.id, j_k_abbr.id, j_kenneth.id, j_james.id
+      )
+    end
+
+    specify 'full name matches initial stored values and names with trailing parts, excludes different full name' do
+      query.first_name_like = 'John'
+      expect(query.all.pluck(:id)).to contain_exactly(
+        john.id, john_k.id, john_kenneth.id,
+        j_abbr.id, j_k_abbr.id, j_kenneth.id, j_james.id
+      )
+    end
+
+    # Inputs containing at least one initial are explicit about all parts — all required.
+    ['J. K.', 'J K', 'John K.', 'J. Kenneth'].each do |input|
+      specify "multi-part '#{input}' matches names with J and K parts" do
+        query.first_name_like = input
+        expect(query.all.pluck(:id)).to contain_exactly(
+          john_k.id, john_kenneth.id, j_k_abbr.id, j_kenneth.id
+        )
+      end
+    end
+
+    # All-full-name input: subsequent parts are optional so stored values with fewer
+    # parts (e.g. 'J.' or 'John') are also returned as candidates.
+    specify "all-full-name 'John Kenneth' also matches stored values with fewer name parts" do
+      query.first_name_like = 'John Kenneth'
+      expect(query.all.pluck(:id)).to contain_exactly(
+        john.id, john_k.id, john_kenneth.id, j_abbr.id, j_k_abbr.id, j_kenneth.id
+      )
+    end
+
+    context 'all-full-name input with a second name absent from stored values' do
+      let!(:j_s)         { Person.create!(last_name: 'Smith', first_name: 'J. S.') }
+      let!(:j_s_no_dot)  { Person.create!(last_name: 'Smith', first_name: 'J S') }
+      let!(:john_s)      { Person.create!(last_name: 'Smith', first_name: 'John S.') }
+      let!(:john_s_no_dot) { Person.create!(last_name: 'Smith', first_name: 'John S') }
+      let!(:j_stuart)    { Person.create!(last_name: 'Smith', first_name: 'J. Stuart') }
+      let!(:j_stuart_no_dot) { Person.create!(last_name: 'Smith', first_name: 'J Stuart') }
+      let!(:john_stuart) { Person.create!(last_name: 'Smith', first_name: 'John Stuart') }
+
+      specify "'John Stuart' matches all combinations of abbreviated/full parts, not K-initial names" do
+        query.first_name_like = 'John Stuart'
+        expect(query.all.pluck(:id)).to contain_exactly(
+          john.id, j_abbr.id,
+          j_s.id, j_s_no_dot.id,
+          john_s.id, john_s_no_dot.id,
+          j_stuart.id, j_stuart_no_dot.id,
+          john_stuart.id
+        )
+      end
+    end
+
+    context 'hyphen normalization' do
+      let!(:ya_lin)       { Person.create!(last_name: 'Zhang', first_name: 'Ya-Lin') }
+      let!(:yalin)        { Person.create!(last_name: 'Zhang', first_name: 'Yalin') }
+      let!(:y_l_dot)      { Person.create!(last_name: 'Zhang', first_name: 'Y.L.') }
+      let!(:y_dash_l_dot) { Person.create!(last_name: 'Zhang', first_name: 'Y.-L.') }
+      let!(:y_abbr)       { Person.create!(last_name: 'Zhang', first_name: 'Y.') }
+
+      specify "'Ya-Lin' matches hyphen, fused, dotted, and initial-only stored values" do
+        query.first_name_like = 'Ya-Lin'
+        expect(query.all.pluck(:id)).to contain_exactly(
+          ya_lin.id, yalin.id, y_l_dot.id, y_dash_l_dot.id, y_abbr.id
+        )
+      end
+
+      specify "'Y.L.' matches hyphenated and dotted forms but not fused or single-initial" do
+        query.first_name_like = 'Y.L.'
+        expect(query.all.pluck(:id)).to contain_exactly(
+          ya_lin.id, y_l_dot.id, y_dash_l_dot.id
+        )
+      end
+
+      specify "'Y.-L.' matches the same set as 'Y.L.'" do
+        query.first_name_like = 'Y.-L.'
+        expect(query.all.pluck(:id)).to contain_exactly(
+          ya_lin.id, y_l_dot.id, y_dash_l_dot.id
+        )
+      end
+    end
+
+    specify 'matches AlternateValue' do
+      AlternateValue::Abbreviation.create!(
+        alternate_value_object: john,
+        alternate_value_object_attribute: :first_name,
+        value: 'Johann'
+      )
+      query.first_name_like = 'Johann'
+      # john matched via AlternateValue; j_abbr/j_k_abbr/j_kenneth/j_james matched because
+      # 'Johann' also generates a j\.? branch that matches stored 'J.' prefixed names
+      expect(query.all.pluck(:id)).to contain_exactly(john.id, j_abbr.id, j_k_abbr.id, j_kenneth.id, j_james.id)
+    end
+  end
+
+  context '#last_name_like' do
+    let!(:smith)       { Person.create!(last_name: 'Smith') }
+    let!(:smith_jones) { Person.create!(last_name: 'Smith Jones') }
+    let!(:blacksmith)  { Person.create!(last_name: 'Blacksmith') }
+    let!(:jones)       { Person.create!(last_name: 'Jones') }
+
+    # p1 and p2 from the outer context both have last_name 'Smith' so appear in Smith queries
+    specify 'single word matches exact and compound last names, word boundary excludes partial' do
+      query.last_name_like = 'Smith'
+      expect(query.all.pluck(:id)).to contain_exactly(p1.id, p2.id, smith.id, smith_jones.id)
+    end
+
+    specify 'multi-word: forward finds compound, backward finds each single-word stored value' do
+      query.last_name_like = 'Smith Jones'
+      expect(query.all.pluck(:id)).to contain_exactly(p1.id, p2.id, smith.id, smith_jones.id, jones.id)
+    end
+
+    specify 'matches AlternateValue' do
+      AlternateValue::Misspelling.create!(
+        alternate_value_object: smith,
+        alternate_value_object_attribute: :last_name,
+        value: 'Smythe'
+      )
+      query.last_name_like = 'Smythe'
+      expect(query.all.pluck(:id)).to contain_exactly(smith.id)
+    end
+
+    context 'hyphen normalization' do
+      let!(:van_der_hyphen) { Person.create!(last_name: 'Van-Der-Berg') }
+      let!(:van_der_space)  { Person.create!(last_name: 'Van Der Berg') }
+
+      specify 'hyphenated input matches stored hyphenated and space-separated forms' do
+        query.last_name_like = 'Van-Der-Berg'
+        expect(query.all.pluck(:id)).to contain_exactly(van_der_hyphen.id, van_der_space.id)
+      end
+    end
+  end
+
   specify '#identifier' do
     i = 'http://orcid.org/0000-0003-5000-0001'
     j = Identifier::Global::Orcid.create!(identifier: i, identifier_object: p1)
@@ -179,30 +394,39 @@ describe Queries::Person::Filter, type: :model, group: :people do
     expect(query.all.pluck(:id)).to contain_exactly(p2.id)
   end
 
-  specify '#in_project_id 1' do
-    query.used_in_project_id = [collecting_event.project_id]
+  specify '#only_project_id 1' do
+    FactoryBot.create(:valid_person) # not this one 
+    query.only_project_id = [collecting_event.project_id] # Create the collector and reference project in one place
     expect(query.all.map(&:id)).to contain_exactly(p2.id)
   end
 
-  specify '#in_project_id 2' do
+  specify '#only_project_id 2' do
+    FactoryBot.create(:valid_person) # not this one 
+
     s = Source::Bibtex.create!(bibtex_type: :article, title: 'Title', year: 1293)
     s.authors << p3
-    c = ProjectSource.create!(source: s, project_id: Current.project_id)
+    c = ProjectSource.create!(source: s, project_id: project_id)
 
-    query.used_in_project_id = [collecting_event.project_id]
+    query.only_project_id = [collecting_event.project_id] # Create the collector and reference project in one place
+
     expect(query.all.map(&:id)).to contain_exactly(p2.id, p3.id)
   end
 
-  specify '#role + other 1' do
-    s = Source::Bibtex.create!(bibtex_type: :article, title: 'Title', year: 1293)
-    s.editors << p3
+  specify '#except_project_id 3' do
+    p = FactoryBot.create(:valid_project)
+    u = FactoryBot.create(:valid_project_member, user: FactoryBot.create(:valid_user))
 
-    query.role = ['SourceEditor']
-    query.last_name_starts_with = p3.last_name[0..3]
+    s = Source::Bibtex.create!(bibtex_type: :article, title: 'Title', year: 1293)
+    s.authors << p3
+    c = ProjectSource.create!(source: s, project_id: p.id)
+
+    collecting_event # not this collector (p2)
+
+    query.except_project_id = [project_id]
     expect(query.all.map(&:id)).to contain_exactly(p3.id)
   end
 
-  #
+
   # Tested elsewhere, just check to see that they are initialized here
   #
   specify 'tag hooks' do
@@ -215,27 +439,27 @@ describe Queries::Person::Filter, type: :model, group: :people do
   context 'user (Queries::Concerns::Users)' do
 
     specify '#user_id' do
-      query.user_id = Current.user_id
+      query.user_id = user_id
       expect(query.all.pluck(:id)).to contain_exactly(p1.id, p2.id, p3.id, p4.id)
     end
 
     specify '#user_start_date 1' do
       query.user_date_start = '1999-01-01'
-      query.user_id = Current.user_id
+      query.user_id = user_id
       p1.update!(updated_at: '1999-01-01')
       expect(query.all.map(&:id)).to contain_exactly(p1.id)
     end
 
     specify '#user_start_date 2' do
       query.user_date_start = '1999-01-01'
-      query.user_id = Current.user_id
+      query.user_id = user_id
       p1.update!(created_at: '1999-01-01')
       expect(query.all.map(&:id)).to contain_exactly(p1.id)
     end
 
     specify '#user_start_date 3' do
       query.user_date_start = '1999-01-01'
-      query.user_id = Current.user_id
+      query.user_id = user_id
       p1.update!(created_at: '1999-01-01')
       p2.update!(updated_at: '1999-01-01')
       expect(query.all.map(&:id)).to contain_exactly(p1.id, p2.id)
@@ -243,21 +467,21 @@ describe Queries::Person::Filter, type: :model, group: :people do
 
     specify '#user_end_date 1' do
       query.user_date_end = '1999-01-01'
-      query.user_id = Current.user_id
+      query.user_id = user_id
       p1.update!(updated_at: '1999-01-01')
       expect(query.all.map(&:id)).to contain_exactly(p1.id)
     end
 
     specify '#user_end_date 2' do
       query.user_date_end = '1999-01-01'
-      query.user_id = Current.user_id
+      query.user_id = user_id
       p1.update!(created_at: '1999-01-01')
       expect(query.all.map(&:id)).to contain_exactly(p1.id)
     end
 
     specify '#user_end_date 3' do
       query.user_date_end = '1999-01-01'
-      query.user_id = Current.user_id
+      query.user_id = user_id
       p1.update!(created_at: '1999-01-01')
       p2.update!(updated_at: '1999-01-01')
       expect(query.all.map(&:id)).to contain_exactly(p1.id, p2.id)
@@ -266,7 +490,7 @@ describe Queries::Person::Filter, type: :model, group: :people do
     specify '#user_start_date, #user_end_date' do
       query.user_date_start = '1998-01-01'
       query.user_date_end = '1999-01-01'
-      query.user_id = Current.user_id
+      query.user_id = user_id
       p1.update!(created_at: '1998-01-01')
       p2.update!(updated_at: '1999-01-01')
       expect(query.all.map(&:id)).to contain_exactly(p1.id, p2.id)
@@ -275,7 +499,7 @@ describe Queries::Person::Filter, type: :model, group: :people do
     specify '#user_start_date, #user_end_date, #user_target' do
       query.user_date_start = '1998-01-01'
       query.user_date_end = '1999-01-01'
-      query.user_id = Current.user_id
+      query.user_id = user_id
       query.user_target = 'updated'
       p1.update!(created_at: '1998-01-01')
       p2.update!(updated_at: '1999-01-01')
@@ -298,5 +522,4 @@ describe Queries::Person::Filter, type: :model, group: :people do
       expect(query.all.map(&:id)).to contain_exactly(p2.id)
     end
   end
-
 end

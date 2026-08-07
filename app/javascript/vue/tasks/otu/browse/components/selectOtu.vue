@@ -1,7 +1,8 @@
 <template>
   <modal-component
-    :containerStyle="{ width: '500px'}"
-    v-if="showModal">
+    :containerStyle="{ width: '500px' }"
+    v-if="showModal"
+  >
     <template #header>
       <h3>Select OTU</h3>
     </template>
@@ -9,12 +10,14 @@
       <ul class="no_bullets">
         <li
           v-for="otu in otus"
-          :key="otu.id">
+          :key="otu.id"
+        >
           <label class="horizontal-left-content middle">
             <input
               type="radio"
-              @click="setOtu(otu)">
-            <span v-html="otu.object_tag"/>
+              @click="setOtu(otu)"
+            />
+            <span v-html="otu.object_tag" />
           </label>
         </li>
       </ul>
@@ -23,7 +26,7 @@
 </template>
 
 <script>
-import ModalComponent from 'components/ui/Modal'
+import ModalComponent from '@/components/ui/Modal'
 export default {
   components: {
     ModalComponent
@@ -39,19 +42,19 @@ export default {
   emits: ['selected'],
 
   computed: {
-    showModal () {
+    showModal() {
       return this.otus.length && !this.otuSelected
     }
   },
 
-  data () {
+  data() {
     return {
       otuSelected: undefined
     }
   },
 
   methods: {
-    setOtu (otu) {
+    setOtu(otu) {
       this.$emit('selected', otu)
     }
   }

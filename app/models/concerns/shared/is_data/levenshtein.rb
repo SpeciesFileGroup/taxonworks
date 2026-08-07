@@ -9,6 +9,8 @@ module Shared::IsData::Levenshtein
   # @return [Scope]
   def nearest_by_levenshtein(compared_string = nil, column = nil, limit = 10)
     return self.class.none if compared_string.nil? || column.nil?
+    column = column.to_s
+    raise ArgumentError, "Invalid column name: #{column}" unless self.class.column_names.include?(column)
     order_str = self.class.send(:sanitize_sql_for_conditions, ["levenshtein(left(#{self.class.table_name}.#{column}, 255), ?)", compared_string[0..254] ])
     self.class.where('id <> ?', self.to_param).
       select("sources.*, #{order_str}").

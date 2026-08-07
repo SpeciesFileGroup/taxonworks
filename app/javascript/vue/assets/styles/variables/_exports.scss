@@ -1,7 +1,0 @@
-@import "./_palette";
-
-:export {
-  @each $key, $value in $tw-colors {
-    #{unquote($key)}: #{$value};
-  }
-}

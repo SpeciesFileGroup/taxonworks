@@ -123,19 +123,51 @@ describe TaxonNameClassificationsController, type: :controller do
     end
   end
 
-  describe 'DELETE destroy' do
-    it 'destroys the requested taxon_name_classification' do
-      taxon_name_classification = TaxonNameClassification.create! valid_attributes
-      expect {
-        delete :destroy, params: {id: taxon_name_classification.to_param}, session: valid_session
-      }.to change(TaxonNameClassification, :count).by(-1)
+  include_examples 'DELETE #destroy', TaxonNameClassification
+
+  describe 'POST batch_by_filter_scope' do
+    let(:root) { FactoryBot.create(:root_taxon_name) }
+    let(:iczn_name) {
+      Protonym.create!(
+        parent: root,
+        name: 'Biidae',
+        rank_class: Ranks.lookup(:iczn, 'family')
+      )
+    }
+
+    context ':add' do
+      it 'returns ok and creates a fossil classification' do
+        q = Queries::TaxonName::Filter.new(taxon_name_id: iczn_name.id)
+        expect {
+          post :batch_by_filter_scope, params: {
+            filter_query: { taxon_name_query: q.params },
+            mode: 'add',
+            params: {}
+          }, session: valid_session
+        }.to change(TaxonNameClassification, :count).by(1)
+        expect(response).to have_http_status(:ok)
+      end
     end
 
-    it 'redirects to :back' do
-      taxon_name_classification = TaxonNameClassification.create! valid_attributes
-      delete :destroy, params: {id: taxon_name_classification.to_param}, session: valid_session
-      expect(response).to redirect_to(list_otus_path)
+    context ':remove' do
+      before {
+        TaxonNameClassification.create!(
+          taxon_name: iczn_name,
+          type: 'TaxonNameClassification::Iczn::Fossil'
+        )
+      }
+
+      it 'returns ok and removes the fossil classification' do
+        q = Queries::TaxonName::Filter.new(taxon_name_id: iczn_name.id)
+        expect {
+          post :batch_by_filter_scope, params: {
+            filter_query: { taxon_name_query: q.params },
+            mode: 'remove',
+            params: {}
+          }, session: valid_session
+        }.to change(TaxonNameClassification, :count).by(-1)
+        expect(response).to have_http_status(:ok)
+      end
     end
   end
-
 end

@@ -1,7 +1,7 @@
 json.array! @collection_objects do |s|
-  v = collection_object_autocomplete_tag(s)
+  v = collection_object_autocomplete_tag(s, params[:term])
   json.id s.id
-  json.label  label_for_collection_object(s)
+  json.label label_for_collection_object(s)
   json.gid s.to_global_id.to_s
   json.label_html v
 

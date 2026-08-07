@@ -1,5 +1,5 @@
 # A middle-layer wrapper between Sqed and TaxonWorks
-module GlobalIdHelper 
+module Vendor::GlobalIdHelper 
 
   # @return [Array of Strings]
   #  the ids of strings from mixed 

@@ -1,14 +1,14 @@
 <template>
   <div
     class="table-grid"
-    :style="gridStyle">
+    :style="gridStyle"
+  >
     <slot />
   </div>
 </template>
 
 <script>
-
-import { convertToUnit } from 'helpers/style'
+import { convertToUnit } from '@/helpers/style'
 
 export default {
   props: {
@@ -29,7 +29,7 @@ export default {
   },
 
   computed: {
-    styleColumnWidth () {
+    styleColumnWidth() {
       const columnsCount = Number(this.columns)
       const values = []
       let index = 0
@@ -49,32 +49,33 @@ export default {
         values.push(index)
       }
 
-      const data = values.reduce((accumulator, currentValue) =>
-        accumulator + (isNaN(currentValue)
-          ? `${currentValue} `
-          : `repeat(${currentValue}, ${this.columnWidth.default || 'auto'}) `
-        ), ''
+      const data = values.reduce(
+        (accumulator, currentValue) =>
+          accumulator +
+          (isNaN(currentValue)
+            ? `${currentValue} `
+            : `repeat(${currentValue}, ${
+                this.columnWidth.default || 'auto'
+              }) `),
+        ''
       )
 
       return { 'grid-template-columns': data }
     },
 
-    styleGap () {
+    styleGap() {
       return { gap: convertToUnit(this.gap) }
     },
 
-    gridStyle () {
-      return Object.assign({},
-        this.styleColumnWidth,
-        this.styleGap
-      )
+    gridStyle() {
+      return Object.assign({}, this.styleColumnWidth, this.styleGap)
     }
   }
 }
 </script>
 
 <style lang="scss" scoped>
-  .table-grid {
-    display: grid;
-  }
+.table-grid {
+  display: grid;
+}
 </style>

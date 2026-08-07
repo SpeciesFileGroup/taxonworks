@@ -17,7 +17,7 @@ class Identifier::Global::Uri::Grscicoll < Identifier::Global::Uri
   end
 
   def used_on_repository
-    errors.add(:identifier_object_type, 'Grscicoll identifiers May only be used on Repositories') if identifier_object_type != 'Repository'
+    errors.add(:identifier_object_type, 'Grscicoll identifiers may only be used on Repositories') if identifier_object_type != 'Repository'
   end
 
 end

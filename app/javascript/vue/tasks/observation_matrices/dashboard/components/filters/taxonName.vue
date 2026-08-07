@@ -1,8 +1,8 @@
 <template>
-  <div>
+  <FacetContainer>
     <h3>Taxon name</h3>
     <div class="field">
-      <autocomplete
+      <VAutocomplete
         class="fill_width"
         url="/taxon_names/autocomplete"
         param="term"
@@ -13,66 +13,74 @@
         :add-params="{
           'type[]': 'Protonym'
         }"
-        @getItem="getTaxon"/>
+        @select="({ id }) => loadTaxon(id)"
+      />
     </div>
-    <span
-      class="horizontal-left-content"
-      v-if="modelValue">
-      <span v-html="modelValue.object_tag"/>
-      <span
-        class="button circle-button btn-undo button-default"
-        @click="$emit('update:modelValue', undefined)"/>
-    </span>
-  </div>
+    <div
+      class="horizontal-left-content gap-small"
+      v-if="taxon"
+    >
+      <span v-html="taxon.object_tag" />
+      <VBtn
+        color="primary"
+        circle
+        @click="() => loadTaxon()"
+      >
+        <VIcon
+          name="undo"
+          small
+        />
+      </VBtn>
+    </div>
+  </FacetContainer>
 </template>
 
-<script>
-
-import Autocomplete from 'components/ui/Autocomplete'
-import { TaxonName } from 'routes/endpoints'
+<script setup>
+import VAutocomplete from '@/components/ui/Autocomplete'
+import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
+import { TaxonName } from '@/routes/endpoints'
 import { MutationNames } from '../../store/mutations/mutations'
-import { URLParamsToJSON } from 'helpers/url/parse.js'
+import { onMounted } from 'vue'
+import { useStore } from 'vuex'
+import { URLParamsToJSON } from '@/helpers/url/parse.js'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 
-export default {
-  components: { Autocomplete },
+const taxon = defineModel({
+  type: Object,
+  default: undefined
+})
 
-  props: {
-    modelValue: {
-      type: Object,
-      default: undefined
-    }
-  },
+const store = useStore()
 
-  emits: ['update:modelValue'],
+onMounted(() => {
+  const { taxon_name_id } = URLParamsToJSON(location.href)
 
-  mounted () {
-    const params = URLParamsToJSON(location.href)
-    if (params.ancestor_id) {
-      this.getTaxon({ id: params.ancestor_id })
-    }
-  },
-
-  methods: {
-    getTaxon (event) {
-      TaxonName.find(event.id).then(response => {
-        this.$store.commit(MutationNames.SetTaxon, response.body)
-        this.$emit('update:modelValue', response.body)
-      })
-    }
+  if (taxon_name_id) {
+    loadTaxon(taxon_name_id)
   }
+})
+
+async function loadTaxon(id) {
+  try {
+    const data = id ? (await TaxonName.find(id)).body : undefined
+
+    store.commit(MutationNames.SetTaxon, data)
+    taxon.value = data
+  } catch {}
 }
 </script>
 
 <style lang="scss" scoped>
-  .field {
-    label {
-      display: block;
-    }
+.field {
+  label {
+    display: block;
   }
-  .field-year {
-    width: 60px;
-  }
-  :deep(.vue-autocomplete-list) {
-    min-width: 800px;
-  }
+}
+.field-year {
+  width: 60px;
+}
+:deep(.vue-autocomplete-list) {
+  min-width: 800px;
+}
 </style>

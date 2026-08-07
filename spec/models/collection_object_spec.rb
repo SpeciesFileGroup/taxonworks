@@ -1,9 +1,91 @@
 require 'rails_helper'
 require 'support/shared_contexts/shared_geo'
 
-# See spec/models/biological_collection_object for nested attributes and taxon determinations
 describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_objects] do
   include_context 'stuff for complex geo tests'
+
+  specify '#is_image_stub? 1'  do
+    s = FactoryBot.create(:valid_specimen)
+    expect(s.is_image_stub?).to be_truthy
+  end
+
+  specify '#is_image_stub? 2'  do
+    s = FactoryBot.create(:valid_specimen)
+    FactoryBot.create(:valid_type_material, collection_object: s)
+    expect(s.is_image_stub?).to be_falsey
+  end
+
+  specify '.batch_update() (async)' do
+    s1, s2 = Specimen.create!, Specimen.create!
+    o = FactoryBot.create(:valid_otu)
+
+    q = ::Queries::CollectionObject::Filter.new({collection_object_id: [ s1.id, s2.id ]})
+
+    params = {
+      async_cutoff: 1,
+      collection_object: {taxon_determinations_attributes: [{otu_id: o.id} ]},
+      user_id: Current.user_id,
+      project_id: Current.project_id
+    }.merge( collection_object_query: q.params )
+
+    CollectionObject.batch_update(params)
+
+    sleep(2) # jobs trigger in 2 seconds
+    Delayed::Worker.new.work_off
+
+    expect(TaxonDetermination.all.count).to eq(2)
+  end
+
+  specify '.batch_update() (sync)' do
+    s1, s2 = Specimen.create!, Specimen.create!
+    o = FactoryBot.create(:valid_otu)
+
+    q = ::Queries::CollectionObject::Filter.new({collection_object_id: [ s1.id, s2.id ]})
+
+    params = {
+      collection_object: {taxon_determinations_attributes: [{otu_id: o.id}]}
+    }.merge(collection_object_query: q.params)
+
+    CollectionObject.batch_update(params)
+
+    expect(TaxonDetermination.all.count).to eq(2)
+  end
+
+  specify '.batch_update() rejects when the record count exceeds the cap' do
+    s1, s2 = Specimen.create!, Specimen.create!
+    o = FactoryBot.create(:valid_otu)
+
+    q = ::Queries::CollectionObject::Filter.new({collection_object_id: [ s1.id, s2.id ]})
+
+    allow_any_instance_of(QueryBatchRequest).to receive(:cap).and_return(1)
+
+    params = {
+      collection_object: {taxon_determinations_attributes: [{otu_id: o.id}]}
+    }.merge(collection_object_query: q.params)
+
+    response = CollectionObject.batch_update(params)
+
+    expect(response.cap).to eq(1)
+    expect(response.cap_reason).to eq('Update to more objects than allowed (1) requested.')
+    expect(response.errors).to eq({'Update to more objects than allowed (1) requested.' => 1})
+    expect(TaxonDetermination.all.count).to eq(0)
+  end
+
+  specify '.batch_update() sets type_materials_attributes' do
+    s1, s2 = Specimen.create!, Specimen.create!
+    protonym = FactoryBot.create(:relationship_species)
+
+    q = ::Queries::CollectionObject::Filter.new({collection_object_id: [ s1.id, s2.id ]})
+
+    params = {
+      collection_object: {type_materials_attributes: [{protonym_id: protonym.id, type_type: 'paratype'}]}
+    }.merge(collection_object_query: q.params)
+
+    CollectionObject.batch_update(params)
+
+    expect(TypeMaterial.all.count).to eq(2)
+    expect(TypeMaterial.pluck(:type_type)).to eq(['paratype', 'paratype'])
+  end
 
   context 'dwc_occurrence' do
     let(:collection_object) { CollectionObject.new() }
@@ -116,12 +198,12 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
           end
 
           specify 'a Lot when assigned a ranged lot and nilled total changes to RangedLot' do
-            l.update!(total: nil, ranged_lot_category: ranged_lot_category)
+            l.update!(total: nil, ranged_lot_category:)
             expect(l.type).to eq('RangedLot')
           end
 
           specify 'a Specimen when assigned a ranged lot and nilled total changes to RangedLot' do
-            s.update!(total: nil, ranged_lot_category: ranged_lot_category)
+            s.update!(total: nil, ranged_lot_category:)
             expect(s.type).to eq('RangedLot')
           end
         end
@@ -146,6 +228,19 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
 
         specify 'repository' do
           expect(collection_object.repository = FactoryBot.create(:valid_repository)).to be_truthy
+        end
+
+        specify 'repository and current_repository are independent when both are set' do
+          home = FactoryBot.create(:valid_repository)
+          loaned_to = FactoryBot.create(:valid_repository, name: 'Loaned To', acronym: 'LOAN')
+
+          collection_object.total = 1
+          collection_object.repository = home
+          collection_object.current_repository = loaned_to
+          collection_object.save!
+
+          expect(collection_object.repository_id).to eq(home.id)
+          expect(collection_object.current_repository_id).to eq(loaned_to.id)
         end
 
         specify 'collecting_event' do
@@ -295,7 +390,7 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
           specify 'should find 2 records' do
             [co_m2, co_p1b, co_m1a]
             collection_objects = CollectionObject.in_date_range(search_start_date: '1974-03-01',
-                                                                 search_end_date:   '1975-06-30')
+                                                                search_end_date:   '1975-06-30')
             expect(collection_objects.map(&:collecting_event)).to contain_exactly(ce_m2, ce_p1b)
           end
         end
@@ -431,14 +526,14 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
 
       let(:id_attributes) {
         { namespace:  nil,
-          project_id: project_id,
+          project_id:,
           type: nil,
           identifier: nil} }
 
       let!(:s1) {Specimen.create}
       let!(:s2) {Specimen.create}
 
-      let!(:i1) { 
+      let!(:i1) {
         FactoryBot.create(
           :identifier_local_import,
           identifier_object: s1,
@@ -466,19 +561,19 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
           id = nil
           while new
             id = rand(99999) + 10 - identifier
-            if !Specimen.where(id: id).any?
+            if !Specimen.where(id:).any?
               new = false
             end
           end
 
           # Force strange id order so we don't assume anything
-          Specimen.create!(id: id)
+          Specimen.create!(id:)
         }
 
         let!(i) { Identifier::Local::CatalogNumber.create!(
           identifier_object: send(n),
           namespace: (identifier.even? ? ns2 : ns1),
-          identifier: identifier) }
+          identifier:) }
       end
 
       let(:evens) { [sp_2, sp_4] }
@@ -515,7 +610,7 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
         expect(sp_4.previous_by_identifier).to eq(sp_2)
       end
 
-      specify '#next_by_identifier, no identifier' do 
+      specify '#next_by_identifier, no identifier' do
         collection_object.update!(total: 1)
         expect(collection_object.next_by_identifier).to eq(nil)
       end
@@ -621,8 +716,8 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
         :valid_biological_association,
         biological_association_subject: collection_object) }
       let!(:taxon_determination) { FactoryBot.create(
-        :valid_taxon_determination, otu: otu,
-        biological_collection_object: collection_object) }
+        :valid_taxon_determination, otu:,
+        taxon_determination_object: collection_object) }
 
       specify ".used_recently('TaxonDetermination')" do
         expect(CollectionObject.used_recently(otu.created_by_id, otu.project_id,'TaxonDetermination').to_a)
@@ -630,7 +725,7 @@ describe CollectionObject, type: :model, group: [:geo, :shared_geo, :collection_
       end
 
       specify ".used_recently('BiologicalAssociation')" do
-        expect(CollectionObject.used_recently(otu.created_by_id, otu.project_id,'BiologicalAssociation').to_a)
+        expect(CollectionObject.used_recently(otu.created_by_id, otu.project_id,'BiologicalAssociation', 'subject').to_a)
           .to include(collection_object.becomes!(Specimen).id)
       end
 

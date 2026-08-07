@@ -1,39 +1,39 @@
 <template>
-  <navbar-component v-hotkey="shortcuts">
+  <navbar-component>
     <div class="flex-separate middle">
       <div
-        class="horizontal-left-content"
-        v-if="extract.id">
-        <span v-html="extract.object_tag"/>
-        <radial-annotator
-          :global-id="extract.global_id"
-        />
+        class="horizontal-left-content gap-small"
+        v-if="extract.id"
+      >
+        <span v-html="extract.object_tag" />
+        <RadialAnnotator :global-id="extract.global_id" />
+        <RadialNavigator :global-id="extract.global_id" />
       </div>
-      <span v-else>
-        New
-      </span>
-      <div class="horizontal-right-content">
-        <tippy
+      <span v-else> New </span>
+      <div class="horizontal-right-content gap-small">
+        <VTooltip
           v-if="unsavedChanges"
-          animation="scale"
-          placement="bottom"
-          size="small"
-          inertia
-          arrow
-          content="You have unsaved changes.">
-          <span data-icon="warning"/>
-        </tippy>
+          content="You have unsaved changes."
+        >
+          <VIcon
+            name="attention"
+            color="attention"
+            small
+          />
+        </VTooltip>
 
         <button
           type="button"
-          class="button normal-input button-submit margin-small-right margin-small-left"
-          @click="emitSave">
+          class="button normal-input button-submit"
+          @click="emit('onSave')"
+        >
           Save
         </button>
         <button
           type="button"
           class="button normal-input button-default"
-          @click="emitReset">
+          @click="emit('onReset')"
+        >
           New
         </button>
       </div>
@@ -41,61 +41,43 @@
   </navbar-component>
 </template>
 
-<script>
-
+<script setup>
 import { GetterNames } from '../store/getters/getters'
-import { Tippy } from 'vue-tippy'
-import NavbarComponent from 'components/layout/NavBar'
-import RadialAnnotator from 'components/radials/annotator/annotator.vue'
-import platformKey from 'helpers/getPlatformKey.js'
+import VTooltip from '@/components/ui/VTooltip/VTooltip.vue'
+import { useStore } from 'vuex'
+import { ref, computed } from 'vue'
+import { useHotkey } from '@/composables'
+import NavbarComponent from '@/components/layout/NavBar'
+import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
+import RadialNavigator from '@/components/radials/navigation/radial.vue'
+import platformKey from '@/helpers/getPlatformKey.js'
+import VIcon from '@/components/ui/VIcon/index.vue'
 
-export default {
-  components: {
-    NavbarComponent,
-    Tippy,
-    RadialAnnotator
-  },
+const emit = defineEmits(['onSave', 'onReset'])
 
-  emits: [
-    'onSave',
-    'onReset'
-  ],
+const store = useStore()
 
-  computed: {
-    extract () {
-      return this.$store.getters[GetterNames.GetExtract]
-    },
+const extract = computed(() => store.getters[GetterNames.GetExtract])
+const unsavedChanges = computed(
+  () =>
+    store.getters[GetterNames.GetLastChange] >
+    store.getters[GetterNames.GetLastSave]
+)
 
-    lastChange () {
-      return this.$store.getters[GetterNames.GetLastChange]
-    },
-
-    lastSave () {
-      return this.$store.getters[GetterNames.GetLastSave]
-    },
-
-    unsavedChanges () {
-      return this.lastChange > this.lastSave
-    },
-
-    shortcuts () {
-      const keys = {}
-
-      keys[`${platformKey()}+s`] = this.emitSave
-      keys[`${platformKey()}+n`] = this.emitReset
-
-      return keys
+const shortcuts = ref([
+  {
+    keys: [platformKey(), 's'],
+    handler() {
+      emit('onSave')
     }
   },
-
-  methods: {
-    emitSave () {
-      this.$emit('onSave')
-    },
-
-    emitReset () {
-      this.$emit('onReset')
+  {
+    keys: [platformKey(), 'n'],
+    handler() {
+      emit('onReset')
     }
   }
-}
+])
+
+useHotkey(shortcuts.value)
 </script>

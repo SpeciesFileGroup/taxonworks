@@ -33,6 +33,14 @@ $font_light: 300;
   font-weight: $font_light;
 }
 
+.font-bold {
+  font-weight: bold;
+}
+
+.font-medium {
+  font-weight: 700;
+}
+
 /* no longer used unless Rails generated
 .regular_type {
   font-size: 14pt;
@@ -78,7 +86,7 @@ $font_light: 300;
 }
 
 .line-nowrap {
-  white-space: nowrap
+  white-space: nowrap;
 }
 /*
 

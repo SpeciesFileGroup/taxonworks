@@ -6,21 +6,21 @@ json.set! :keywords do
       end
       json.set! :totals do
         t = 0
-        [Otu, CollectionObject].each do |k|
+        [Otu, CollectionObject, Sound].each do |k|
           c = k.joins(:tags).where(tags: {keyword: kw}).count
           json.set! k, c
           t = t + c
         end
         json.total t
-      end 
+      end
     end
   end
 end
 
 json.set! :pinboard do
   json.set! :totals do
-    [Otu, CollectionObject].each do |k|
-      json.set! k.name, PinboardItem.where(user_id: sessions_current_user_id, project_id: sessions_current_project_id, pinned_object_type: k.to_s).count
-    end 
+    OBSERVABLE_TYPES.each do |k|
+      json.set! k, PinboardItem.where(user_id: sessions_current_user_id, project_id: sessions_current_project_id, pinned_object_type: k).count
+    end
   end
 end

@@ -1,10 +1,78 @@
 require 'rails_helper'
 
 describe TaxonDetermination, type: :model, group: [:collection_objects] do
+  include ActiveJob::TestHelper
 
   let(:taxon_determination) {TaxonDetermination.new}
   let(:otu) { Otu.create!(name: 'Foo')  }
   let(:specimen) { Specimen.create! }
+
+  specify 'determiner roles are destroyed' do
+    a = FactoryBot.create(:valid_taxon_determination)
+    a.determiners << FactoryBot.create(:valid_person)
+    expect(a.determiner_roles.count).to eq(1)
+    a.destroy
+    expect(Role.all.count).to eq(0)
+  end
+
+  specify 'after_save dwc_occurrence 1' do
+    o1 = Otu.create!(name: 'ploz' )
+    o2 = Otu.create!(name: 'froz' )
+
+    specimen.taxon_determinations << TaxonDetermination.new(otu: o1)
+    specimen.taxon_determinations << TaxonDetermination.new(otu: o2)
+
+    expect(specimen.dwc_occurrence.is_stale?).to be_truthy
+  end
+
+  specify 'during save dwc_occurrence 2' do
+    o1 = Otu.create!(name: 'ploz' )
+    o2 = Otu.create!(taxon_name: FactoryBot.create(:iczn_species, name: 'froz') )
+
+    s = Specimen.create!(taxon_determinations_attributes: [{otu: o1}, {otu: o2}])
+
+    # hmmm - why passing
+    expect(s.dwc_occurrence.reload.scientificName).to match(/froz/)
+  end
+
+  specify 'during save dwc_occurrence 3' do
+    o1 = Otu.create!(name: 'ploz' )
+    o2 = Otu.create!(name: 'froz' )
+
+    s = Specimen.create!(taxon_determinations_attributes: [{otu: o1}, {otu: o2}])
+
+    s.taxon_determinations.first.move_to_top # first is last (position)
+
+    expect(s.dwc_occurrence.is_stale?).to be_truthy
+  end
+
+  specify '.batch_create' do
+    params = {
+      otu: FactoryBot.create(:valid_otu),
+      by: user_id,
+      project_id:
+    }
+
+    s1 = FactoryBot.create(:valid_specimen)
+    s2 = FactoryBot.create(:valid_lot)
+
+    r =  TaxonDetermination.batch_create([s1.id, s2.id], params)
+    expect(r[:total_created]).to eq(2)
+  end
+
+  specify '.batch_create handles bad data' do
+    params = {
+      otu: nil,
+      by: user_id,
+      project_id:
+    }
+
+    s1 = FactoryBot.create(:valid_specimen)
+    s2 = FactoryBot.create(:valid_lot)
+
+    r =  TaxonDetermination.batch_create([s1.id, s2.id], params)
+    expect(r[:failed]).to contain_exactly(s1.id, s2.id)
+  end
 
   context 'associations' do
     context 'belongs_to' do
@@ -12,14 +80,18 @@ describe TaxonDetermination, type: :model, group: [:collection_objects] do
         expect(taxon_determination).to respond_to(:otu)
       end
 
-      specify 'biological_collection_object' do
-        expect(taxon_determination).to respond_to(:biological_collection_object)
+      specify 'taxon_determination_object' do
+        expect(taxon_determination).to respond_to(:taxon_determination_object)
       end
     end
 
     context 'has_many' do
       specify 'determiners' do
         expect(taxon_determination).to respond_to(:determiners)
+      end
+
+      specify 'determiners_organization' do
+        expect(taxon_determination).to respond_to(:determiners_organization)
       end
     end
   end
@@ -29,8 +101,8 @@ describe TaxonDetermination, type: :model, group: [:collection_objects] do
   end
 
   context 'multiple determinations' do
-    let!(:a) {TaxonDetermination.create!(biological_collection_object: specimen, otu: otu) }
-    let!(:b) {TaxonDetermination.create!(biological_collection_object: specimen, otu: otu) }
+    let!(:a) {TaxonDetermination.create!(taxon_determination_object: specimen, otu:) }
+    let!(:b) {TaxonDetermination.create!(taxon_determination_object: specimen, otu:) }
 
     specify 'two determinations, one deleted other has position "1"' do
       a.destroy!
@@ -44,7 +116,7 @@ describe TaxonDetermination, type: :model, group: [:collection_objects] do
 
     specify '#move_to_top is position 1' do
       expect(b.reload.position).to eq(1)
-      a.move_to_top 
+      a.move_to_top
       expect(a.reload.position).to eq(1)
     end
 
@@ -66,9 +138,9 @@ describe TaxonDetermination, type: :model, group: [:collection_objects] do
     let(:otu1) { FactoryBot.create(:valid_otu) }
     let(:otu2) { FactoryBot.create(:valid_otu) }
 
-    before do 
-      specimen.taxon_determinations << TaxonDetermination.new(otu: otu)
-    end 
+    before do
+      specimen.taxon_determinations << TaxonDetermination.new(otu:)
+    end
 
     specify 'determinations are added to the bottom of the stack with <<' do
       t = TaxonDetermination.new(otu: otu1)
@@ -80,7 +152,7 @@ describe TaxonDetermination, type: :model, group: [:collection_objects] do
       t = TaxonDetermination.new(otu: otu1)
       specimen.taxon_determinations << t
       specimen.taxon_determinations.last.move_to_top
-      expect(specimen.reload.current_taxon_determination.otu).to eq(otu1)
+      expect(specimen.current_taxon_determination.otu).to eq(otu1)
     end
   end
 
@@ -89,7 +161,7 @@ describe TaxonDetermination, type: :model, group: [:collection_objects] do
   end
 
   specify '#print_label is not trimmed' do
-    s = " asdf sd  \n  asdfd \r\n" 
+    s = " asdf sd  \n  asdfd \r\n"
     taxon_determination.print_label = s
     taxon_determination.valid?
     expect(taxon_determination.print_label).to eq(s)
@@ -97,6 +169,7 @@ describe TaxonDetermination, type: :model, group: [:collection_objects] do
 
   context 'concerns' do
     it_behaves_like 'citations'
+    it_behaves_like 'identifiable'
     it_behaves_like 'has_roles'
     it_behaves_like 'is_data'
   end

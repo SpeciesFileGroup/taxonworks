@@ -19,7 +19,7 @@
 #
 # @!attribute pages
 #   @return [String, nil]
-#     a specific location/localization for the data in the Source, if you lead with an integer seperated by space or punctation that
+#     a specific location/localization for the data in the Source, if you lead with an integer separated by space or punctation that
 #     integer will be returned as the "first" page and usable in direct linkouts to Documents if available
 #
 # @!attribute is_original
@@ -35,24 +35,30 @@ class Citation < ApplicationRecord
   include Shared::Tags
   include Shared::IsData
   include Shared::PolymorphicAnnotator
+  include Shared::BiologicalAssociationIndexHooks
   include SoftValidation
 
   attr_accessor :no_cached
 
+  # unify's dedup logic resets is_original to false on a would-be duplicate
+  # before comparing it to the surviving Citation via #identical; if
+  # is_original weren't ignored here that reset would make the two look
+  # different and the duplicate would never be matched.
+  IGNORE_IDENTICAL = [:is_original].freeze
+
   polymorphic_annotates('citation_object')
 
+  # belongs_to :source, inverse_of: :origin_citations
   belongs_to :source, inverse_of: :citations
 
   has_many :citation_topics, inverse_of: :citation, dependent: :destroy
   has_many :topics, through: :citation_topics, inverse_of: :citations
   has_many :documents, through: :source
 
-  # TODO: This is wrong, should be source
-  validates_presence_of  :source_id
+  validates_presence_of :source
 
   validates_uniqueness_of :source_id, scope: [:citation_object_id, :citation_object_type, :pages]
-
-  validates_uniqueness_of :is_original, scope: [:citation_object_type, :citation_object_id], message: 'origin can only be assigned once', allow_nil: true, if: :is_original?
+  validates_uniqueness_of :is_original, scope: [:citation_object_type, :citation_object_id], message: 'can only be assigned once per object.', allow_nil: true, if: -> { is_original? }
 
   accepts_nested_attributes_for :citation_topics, allow_destroy: true, reject_if: :reject_citation_topics
   accepts_nested_attributes_for :topics, allow_destroy: true, reject_if: :reject_topic
@@ -71,6 +77,27 @@ class Citation < ApplicationRecord
   after_destroy :set_cached_names_for_taxon_names, unless: -> {self.no_cached}
 
   soft_validate(:sv_page_range, set: :page_range)
+
+  def self.batch_create(params)
+    ids = params[:citation_object_id]
+    params.delete(:citation_object_id)
+
+    citations = []
+    Citation.transaction do
+      begin
+        ids.each do |id|
+          citations.push Citation.create!(
+            params.merge(
+              citation_object_id: id
+            )
+          )
+        end
+      rescue ActiveRecord::RecordInvalid
+        return false
+      end
+    end
+    citations
+  end
 
   # TODO: deprecate
   # @return [Scope of matching sources]
@@ -105,10 +132,18 @@ class Citation < ApplicationRecord
     documents.order('documentation.position').first
   end
 
+  # @return [ActiveRecord::Relation]
+  #   BiologicalAssociationIndex records for the association cited by this citation
+  def biological_association_indices
+    return BiologicalAssociationIndex.none unless citation_object_type == 'BiologicalAssociation'
+
+    BiologicalAssociationIndex.where(biological_association_id: citation_object_id)
+  end
+
   protected
 
   def add_source_to_project
-    !!ProjectSource.find_or_create_by(project: project, source: source)
+    !!ProjectSource.find_or_create_by(project:, source:)
   end
 
   def reject_citation_topics(attributed)
@@ -122,18 +157,31 @@ class Citation < ApplicationRecord
   def update_related_cached_values
     if is_original != @old_is_original || citation_object_id != @old_citation_object_id || source_id != @old_source_id
       if citation_object_type == 'TaxonName'
-        citation_object.update_columns(cached_author_year: citation_object.get_author_and_year,
-                                       cached_nomenclature_date: citation_object.nomenclature_date)  if citation_object.persisted?
+        citation_object.update_columns(
+          cached_author_year: citation_object.get_author_and_year,
+          cached_nomenclature_date: citation_object.nomenclature_date)  if citation_object.persisted?
       end
     end
     true
   end
 
-  # TODO: modify for asserted distributions and other origin style relationships
   def prevent_if_required
-    if !marked_for_destruction? && !new_record? && citation_object.requires_citation? && citation_object.citations.reload.count == 1
+    # Note this ignores nested _destroys; for rails reasons we do that on
+    # the parent instead, where everything 'just works'.
+    return if marked_for_destruction?
+    return if citation_object && citation_object.respond_to?(:ignore_citation_restriction) && citation_object.ignore_citation_restriction
+
+    # Allow the destroy if citation_object itself is already committed to
+    # being destroyed by an enclosing Shared::Unify#unify call - it's not
+    # losing its last citation, it's going away entirely, so the "must have
+    # at least one citation" guard below is moot.
+    return if citation_object && UnifyDestroyContext.objects_in_destroy&.include?(
+      { id: citation_object.id, type: citation_object.class.base_class.name }
+    )
+
+    if citation_object.requires_citation? && citation_object.citations.count == 1
       errors.add(:base, 'at least one citation is required')
-      throw :abort
+      throw(:abort)
     end
   end
 
@@ -145,10 +193,14 @@ class Citation < ApplicationRecord
             t = citation_object.subject_taxon_name
             vn = t.get_valid_taxon_name
 
+            n = t.get_full_name
+
             t.update_columns(
-              cached: t.get_full_name,
-              cached_html: t.get_full_name_html,
+              cached: n,
+              cached_html: t.get_full_name_html(n),
               cached_valid_taxon_name_id: vn.id)
+
+            # @proceps: This and below is not updating cached names.  Is this required because timing (new dates) may change synonymy?
             t.combination_list_self.each do |c|
               c.update_column(:cached_valid_taxon_name_id, vn.id)
             end
@@ -171,7 +223,7 @@ class Citation < ApplicationRecord
   def sv_page_range
     if pages.blank?
       soft_validations.add(:pages, 'Citation pages are not provided')
-    elsif !source.pages.blank?
+    elsif source.pages.present?
       matchdata1 = pages.match(/(\d+) ?[-–] ?(\d+)|(\d+)/)
       if matchdata1
         citMinP = matchdata1[1] ? matchdata1[1].to_i : matchdata1[3].to_i

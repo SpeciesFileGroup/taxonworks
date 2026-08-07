@@ -7,14 +7,15 @@ module NotesHelper
     # to remove/hide this class, do NOT replace it here or post-process it (for the time being).
     content_tag(:div, MARKDOWN_HTML.render(note.text).html_safe, class: [:annotation__note])
   end
-  alias_method :note_annotation_tag, :note_tag 
+  alias_method :note_annotation_tag, :note_tag
 
+  # @return [String] with html
   def note_list_tag(object)
     return nil unless object.has_notes? && object.notes.any?
     content_tag(:h3, 'Notes') +
       content_tag(:ul, class: 'annotations__note_list') do
-      object.notes.collect{|a| content_tag(:li, note_annotation_tag(a)) }.join.html_safe 
-    end
+        object.notes.collect{|a| content_tag(:li, note_annotation_tag(a)) }.join.html_safe
+      end
   end
 
   def note_autocomplete_tag(note, term)
@@ -35,9 +36,10 @@ module NotesHelper
   end
 
   def link_to_add_note(link_text, f)
-    new_object = f.object.class.reflect_on_association(:notes).klass.new({note_object_type: f.object.class.base_class.name,
-                                                                          note_object_id: f.object.id,
-                                                                          note_object_attribute: 'name'})
+    new_object = f.object.class.reflect_on_association(:notes).klass.new(
+      {note_object_type: f.object.class.base_class.name,
+       note_object_id: f.object.id,
+       note_object_attribute: 'name'})
     fields = f.fields_for(:notes, new_object, child_index: 'new_notes') do |builder|
       render('notes/note_fields', avf: builder)
     end
@@ -46,9 +48,9 @@ module NotesHelper
 
   def add_note_link(object: nil, attribute: nil)
     link_to('Add note', new_note_path(note: {
-                                          note_object_type: object.class.base_class.name,
-                                          note_object_id: object.id,
-                                          note_object_attribute: attribute})) if object.has_notes?
+      note_object_type: object.class.base_class.name,
+      note_object_id: object.id,
+      note_object_attribute: attribute})) if object.has_notes?
   end
 
   def edit_note_link(note)
@@ -60,7 +62,6 @@ module NotesHelper
     destroy_object_link(note)
   end
 
-
   def note_link(note)
     return nil if note.nil?
     link_to(note_tag(note).html_safe, metamorphosize_if(note.note_object)  )
@@ -70,10 +71,10 @@ module NotesHelper
     render('/notes/quick_search_form')
   end
 
-   # @return [True]
+  # @return [True]
   #   indicates a custom partial should be used, see list_helper.rb
   def notes_recent_objects_partial
-    true 
+    true
   end
 
 end

@@ -26,18 +26,18 @@ jobs:
       REF_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
       CACHE_PATH: ".github/.docker-cache"
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
     - name: Get startup date
       id: datetime
-      run: echo "::set-output name=year_week::$(date -u +'%Y-%U')"
+      run: echo "year_week=$(date -u +'%Y-%U')" >> $GITHUB_OUTPUT
 
     - name: Git checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v6
 
     - name: Set up Docker images cache
       id: docker_cache
-      uses: actions/cache@v2
+      uses: actions/cache@v5
       with:
         path: .github/.docker-cache
         key: ${{ runner.os }}-docker-${{ steps.datetime.outputs.year_week }}-${{ hashFiles('**/package-lock.json', '**/Gemfile.lock') }}
@@ -49,22 +49,22 @@ jobs:
         [ ! -f ${CACHE_PATH}/images.tar ] || docker load -i ${CACHE_PATH}/images.tar
 
     - name: Build the Docker image
-      run: docker build . -t sfgrp/taxonworks --build-arg REVISION=$(echo $GITHUB_SHA | cut -c1-9) --build-arg BUNDLER_WORKERS=3
+      run: docker build . -t sfgrp/taxonworks:latest --build-arg REVISION=$(echo $GITHUB_SHA | cut -c1-9) --build-arg BUNDLER_WORKERS=3
 
     - name: Run image tests
       run: .github/docker-tests/test.sh
 
     - name: Wait build workflow to complete successfully
       if: ${{ github.event_name != 'pull_request' }}
-      uses: actions/github-script@v3
+      uses: actions/github-script@v8
       with:
         script: |
           const suiteId = (
-            await github.checks.listForRef({
+            await github.rest.checks.listForRef({
               owner: context.repo.owner,
               repo: context.repo.repo,
               ref: process.env.REF_SHA,
-              check_name: 'build (0)'
+              check_name: 'build (ubuntu-24.04, 0)'
             })
           ).data.check_runs[0].check_suite.id
 
@@ -74,11 +74,11 @@ jobs:
             })
           }
 
-          let suite, attempts = 20
+          let suite, attempts = 30
           do {
             core.info(`Checking suite completed successfully (${attempts} remaining). [check_suite_id = ${suiteId}]`)
             suite = (
-              await github.checks.getSuite({
+              await github.rest.checks.getSuite({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 check_suite_id: suiteId
@@ -92,14 +92,14 @@ jobs:
 
     - name: Login to DockerHub
       if: ${{ github.event_name != 'pull_request' }}
-      uses: docker/login-action@v1
+      uses: docker/login-action@v4
       with:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
     - name: Get tag for docker image
       id: docker_tag
-      uses: actions/github-script@v3
+      uses: actions/github-script@v8
       with:
         result-encoding: string
         script: |

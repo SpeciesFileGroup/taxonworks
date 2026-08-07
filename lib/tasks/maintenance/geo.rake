@@ -3,11 +3,12 @@ namespace :tw do
 
     # !! All tasks here must be idempotent - https://en.wikipedia.org/wiki/Idempotence
 
+    # See also lib/maintenance/cached
     namespace :geo do
-      desc 'refine geographic areas types'
-
+      
       # Exectuted in db/migrate/20200326194426_data_refine_geographic_areas1.rb
       # https://github.com/SpeciesFileGroup/taxonworks/issues/1373
+      desc 'refine geographic areas types'
       task refine_geographic_areas_1: [:environment] do |t|
 
         ApplicationRecord.transaction do

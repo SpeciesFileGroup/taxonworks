@@ -1,6 +1,15 @@
 require 'rails_helper'
 
 describe 'Shared::PolymorphicAnnotator', type: :model do
+  before(:all) do
+    Otu.class_eval { has_many :test_polymorphic_annotators, foreign_key: :sti_id }
+  end
+
+  after(:all) do
+    Otu._reflections.delete(:test_polymorphic_annotators)
+    Otu.clear_reflections_cache
+  end
+
   let(:class_with_polymorphic_annotator) {TestPolymorphicAnnotator}
   let(:class_with_polymorphic_annotator_instance) {TestPolymorphicAnnotator.new}
 
@@ -11,11 +20,11 @@ describe 'Shared::PolymorphicAnnotator', type: :model do
 
   specify '.annotator_id' do
     expect(TestPolymorphicAnnotator.annotator_id).to eq('sti_id')
-  end 
+  end
 
   specify '.annotator_type' do
     expect(TestPolymorphicAnnotator.annotator_type).to eq('sti_type')
-  end 
+  end
 
   context 'related foreign_keys' do
     before do
@@ -40,7 +49,7 @@ describe 'Shared::PolymorphicAnnotator', type: :model do
     end
 
     context 'after save' do
-      before do 
+      before do
         class_with_polymorphic_annotator_instance.save!
         class_with_polymorphic_annotator_instance.reload
       end

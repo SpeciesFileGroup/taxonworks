@@ -3,26 +3,25 @@
     <custom-links
       v-if="showCustomLinks"
       @close="showCustomLinks = false"
-      @selected="setCustomLink"/>
+      @selected="setCustomLink"
+    />
     <div ref="markdown">
-      <textarea/>
+      <textarea />
     </div>
   </div>
 </template>
 
 <script>
-
-import EasyMDE from 'easymde'
+import EasyMDE from 'easymde/dist/easymde.min.js'
 import DOMPurify from 'dompurify'
-import 'easymde/dist/easymde.min.css'
 import CustomLinks from './markdown/customLinks.vue'
-import GetOSKey from 'helpers/getPlatformKey.js'
+import GetOSKey from '@/helpers/getPlatformKey.js'
 
 export default {
   components: { CustomLinks },
 
   props: {
-    modelValue:{
+    modelValue: {
       type: String
     },
 
@@ -36,16 +35,17 @@ export default {
     configs: {
       type: Object,
       default: () => ({})
+    },
+
+    stripNewlinesOnPaste: {
+      type: Boolean,
+      default: false
     }
   },
 
-  emits: [
-    'update:modelValue',
-    'blur',
-    'dblclick'
-  ],
+  emits: ['update:modelValue', 'blur', 'dblclick'],
 
-  data () {
+  data() {
     return {
       clicks: 0,
       timerClicks: undefined,
@@ -54,25 +54,46 @@ export default {
     }
   },
 
-  mounted () {
+  created() {
+    TW.workbench.keyboard.createLegend(
+      `${GetOSKey()}+shift+l`,
+      'Open data links modal',
+      'Markdown editor'
+    )
+  },
+
+  mounted() {
     this.initialize()
   },
 
   methods: {
-    initialize () {
+    initialize() {
       const configs = {
         renderingConfig: {
           sanitizerFunction: (renderedHTML) => DOMPurify.sanitize(renderedHTML)
         },
-        toolbar: ['bold', 'italic', 'code', 'heading', '|', 'quote', 'unordered-list', 'ordered-list', '|', 'link', 'table', 'preview', {
-          name: 'width-auto',
-          action: (editor) => {
-            // this.openCustomLinks()
-          },
-          icon: '<span class="word-keep-all subtle">Data links</span>',
-          title: 'Data links',
-          disable: true
-        }]
+        toolbar: [
+          'bold',
+          'italic',
+          'code',
+          'heading',
+          '|',
+          'quote',
+          'unordered-list',
+          'ordered-list',
+          '|',
+          'link',
+          'table',
+          'preview',
+          {
+            name: 'width-auto',
+            action: (_) => {
+              this.openCustomLinks()
+            },
+            icon: '<span class="word-keep-all">Data links</span>',
+            title: 'Data links'
+          }
+        ]
       }
       Object.assign(configs, this.configs)
       configs.element = configs.element || this.$refs.markdown.firstElementChild
@@ -83,7 +104,16 @@ export default {
       this.addPreviewClass(className)
       this.bindingEvents()
     },
-    bindingEvents () {
+
+    bindingEvents() {
+      if (this.stripNewlinesOnPaste) {
+        this.simplemde.codemirror.on('beforeChange', (cm, change) => {
+          if (change.origin === 'paste') {
+            change.update(change.from, change.to, [change.text.join(' ')])
+          }
+        })
+      }
+
       this.simplemde.codemirror.on('change', () => {
         this.$emit('update:modelValue', this.simplemde.value())
       })
@@ -95,7 +125,9 @@ export default {
 
         if (this.clicks === 1) {
           setTimeout(() => {
-            this.cursorPosition = this.simplemde.codemirror.doc.indexFromPos(this.simplemde.codemirror.doc.getCursor())
+            this.cursorPosition = this.simplemde.codemirror.doc.indexFromPos(
+              this.simplemde.codemirror.doc.getCursor()
+            )
           }, 100)
         }
 
@@ -107,23 +139,30 @@ export default {
         }, 300)
       })
     },
-    addPreviewClass (className) {
+
+    addPreviewClass(className) {
       const wrapper = this.simplemde.codemirror.getWrapperElement()
       const preview = document.createElement('div')
       wrapper.nextSibling.className += ` ${className}`
       preview.className = `editor-preview ${className}`
       wrapper.appendChild(preview)
     },
-    setCustomLink (item) {
+
+    setCustomLink(item) {
       const cm = this.simplemde.codemirror
-      const output = ''
       const selectedText = cm.getSelection()
       const text = selectedText || item.label
+      const output = `[${text}](${item.link})`
 
-      output = `[${text}](${item.link})`
       cm.replaceSelection(output)
+
+      setTimeout(() => {
+        cm.focus()
+        cm.setCursor(cm.getCursor(false))
+      }, 100)
     },
-    customShortcuts () {
+
+    customShortcuts() {
       const codemirror = this.simplemde.codemirror
       const keys = codemirror.getOption('extraKeys')
       const key = GetOSKey().charAt(0).toUpperCase() + GetOSKey().slice(1)
@@ -132,15 +171,25 @@ export default {
       }
       codemirror.setOption('extraKeys', keys)
     },
-    openCustomLinks () {
+
+    openCustomLinks() {
       this.showCustomLinks = true
+    },
+
+    setFocus() {
+      const codemirror = this.simplemde.codemirror
+
+      codemirror.focus()
+      codemirror.setCursor(codemirror.lineCount(), 0)
     }
   },
-  unmounted () {
+
+  unmounted() {
     this.simplemde = null
   },
+
   watch: {
-    modelValue (val) {
+    modelValue(val) {
       if (val === this.simplemde.value()) return
       this.simplemde.value(val)
     }

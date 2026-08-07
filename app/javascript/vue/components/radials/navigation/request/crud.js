@@ -1,4 +1,4 @@
-import ajaxCall from 'helpers/ajaxCall'
+import ajaxCall from '@/helpers/ajaxCall'
 
 const create = function (url, data) {
   return ajaxCall('post', url, data)

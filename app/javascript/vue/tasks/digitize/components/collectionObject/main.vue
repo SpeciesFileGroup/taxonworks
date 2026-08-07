@@ -1,358 +1,300 @@
 <template>
+  <VSpinner
+    v-if="isLoading"
+    full-screen
+    legend="Converting to field occurrence..."
+  />
   <div class="flexbox align-start">
-    <block-layout :warning="!collectionObject.id">
+    <BlockLayout :warning="!collectionObject.id">
       <template #header>
         <h3>Collection Object</h3>
       </template>
       <template #options>
         <div
-          v-hotkey="shortcuts"
           v-if="collectionObject.id"
-          class="horizontal-left-content">
-          <radial-annotator :global-id="collectionObject.global_id" />
-          <default-tag :global-id="collectionObject.global_id" />
-          <radial-object :global-id="collectionObject.global_id" />
-          <radial-navigation :global-id="collectionObject.global_id" />
+          class="horizontal-left-content gap-small"
+        >
+          <RadialAnnotator
+            :global-id="collectionObject.global_id"
+            @delete="handleRadialDestroy"
+            @create="handleRadialCreate"
+          />
+          <ButtonTag :global-id="collectionObject.global_id" />
+          <RadialObject :global-id="collectionObject.global_id" />
+          <RadialNavigation :global-id="collectionObject.global_id" />
         </div>
       </template>
       <template #body>
         <div id="collection-object-form">
-          <catalogue-number class="panel content"/>
-          <repository-component class="panel content" />
-          <preparation-type class="panel content" />
-          <div class="row-item panel content">
-            <h2 class="flex-separate">
-              Buffered
-              <expand-component
-                class="margin-small-left"
-                v-model="showBuffered"
-                @update:modelValue="updatePreferences('tasks::digitize::collectionObjects::showBuffered', $event)"
-              />
-            </h2>
-            <buffered-component
-              v-if="showBuffered"
-              class="field"/>
+          <CatalogueNumber
+            v-if="
+              !layout[COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_CATALOG_NUMBER]
+            "
+            class="panel content"
+          />
+          <RecordNumber
+            v-if="!layout[COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_RECORD_NUMBER]"
+            class="panel content"
+          />
+          <RepositoryComponent
+            v-if="!layout[COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_REPOSITORY]"
+            class="panel content"
+          />
+          <PreparationType
+            v-if="!layout[COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_PREPARATION]"
+            class="panel content"
+          />
+          <BufferedComponent
+            v-if="!layout[COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_BUFFERED]"
+            class="panel content"
+          />
+
+          <div
+            v-if="!layout[COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_DEPICTIONS]"
+            class="panel content column-depictions"
+          >
+            <h2 class="flex-separate">Depictions</h2>
+            <DepictionsComponent
+              :object-value="collectionObject"
+              object-type="CollectionObject"
+              default-message="Drop images or click here<br> to add collection object figures"
+              action-save="SaveCollectionObject"
+              @create="createDepictionForAll"
+              @delete="removeAllDepictionsByImageId"
+            />
           </div>
-          <div class="row-item">
-            <div class="depict-validation-row">
-              <div class="panel content column-depictions">
-                <h2 class="flex-separate">
-                  Depictions
-                  <expand-component
-                    class="margin-small-left"
-                    v-model="showDepictions"
-                    @update:modelValue="updatePreferences('tasks::digitize::collectionObjects::showDepictions', $event)"
-                  />
-                </h2>
-                <depictions-component
-                  v-if="showDepictions"
-                  :object-value="collectionObject"
-                  :get-depictions="GetCollectionObjectDepictions"
-                  object-type="CollectionObject"
-                  @create="createDepictionForAll"
-                  @delete="removeAllDepictionsByImageId"
-                  default-message="Drop images or click here<br> to add collection object figures"
-                  action-save="SaveCollectionObject"/>
-              </div>
-              <soft-validations
-                class="column-validation"
-                :validations="validations"
-              />
-            </div>
+          <SoftValidations
+            v-if="!layout[COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_VALIDATIONS]"
+            class="column-validation"
+            :validations="validations"
+          />
+          <div
+            v-if="!layout[COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_CITATIONS]"
+            class="panel content column-citations"
+          >
+            <h2 class="flex-separate">Citations</h2>
+            <CitationComponent />
           </div>
-          <div class="panel content column-citations">
-            <h2 class="flex-separate">
-              Citations
-              <expand-component
-                class="margin-small-left"
-                v-model="showCitations"
-                @update:modelValue="updatePreferences('tasks::digitize::collectionObjects::showCitations', $event)"
-              />
-            </h2>
-            <citation-component v-if="showCitations"/>
-          </div>
-          <div class="panel content column-attribute">
-            <h2 class="flex-separate">
-              Attributes
-              <expand-component
-                class="margin-small-left"
-                v-model="showAttributes"
-                @update:modelValue="updatePreferences('tasks::digitize::collectionObjects::showAttributes', $event)"
-              />
-            </h2>
-            <div v-if="showAttributes">
-              <spinner-component
+          <div
+            v-if="!layout[COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_ATTRIBUTES]"
+            class="panel content column-attribute"
+          >
+            <h2 class="flex-separate">Attributes</h2>
+            <div>
+              <VSpinner
                 v-if="!collectionObject.id"
                 :show-spinner="false"
                 :legend-style="{
-                  color: '#444',
                   textAlign: 'center'
                 }"
-                legend="Locked until first save"/>
-              <predicates-component
-                v-if="projectPreferences"
-                :object-id="collectionObject.id"
-                object-type="CollectionObject"
-                model="CollectionObject"
-                :model-preferences="projectPreferences.model_predicate_sets.CollectionObject"
-                @onUpdate="setAttributes"
+                legend="Locked until first save"
               />
+              <PredicatesComponent />
             </div>
           </div>
-          <container-items class="row-item"/>
+          <ContainerItems class="row-item" />
         </div>
       </template>
-    </block-layout>
+    </BlockLayout>
   </div>
 </template>
 
-<script>
+<script setup>
+import { GetterNames } from '../../store/getters/getters'
+import { MutationNames } from '../../store/mutations/mutations.js'
+import { ActionNames } from '../../store/actions/actions'
+import { Depiction } from '@/routes/endpoints'
+import {
+  COLLECTION_OBJECT,
+  IDENTIFIER_LOCAL_CATALOG_NUMBER,
+  IDENTIFIER_LOCAL_RECORD_NUMBER
+} from '@/constants/index.js'
+import {
+  COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_CITATIONS,
+  COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_ATTRIBUTES,
+  COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_BUFFERED,
+  COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_DEPICTIONS,
+  COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_PREPARATION,
+  COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_REPOSITORY,
+  COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_CATALOG_NUMBER,
+  COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_VALIDATIONS,
+  COMPREHENSIVE_COLLECTION_OBJECT_LAYOUT_RECORD_NUMBER
+} from '@/tasks/digitize/const/layout'
+import { computed, ref, watch } from 'vue'
+import { useStore } from 'vuex'
+import { useIdentifierStore } from '../../store/pinia'
 
-import SpinnerComponent from 'components/spinner'
+import VSpinner from '@/components/ui/VSpinner'
 import ContainerItems from './containerItems.vue'
 import PreparationType from './preparationType.vue'
 import CatalogueNumber from '../catalogueNumber/catalogNumber.vue'
 import BufferedComponent from './bufferedData.vue'
 import DepictionsComponent from '../shared/depictions.vue'
-import RepositoryComponent from './repository.vue'
+import RepositoryComponent from './Repository/main.vue'
 import CitationComponent from './Citation/CitationMain.vue'
-import ExpandComponent from 'components/expand.vue'
-import { GetterNames } from '../../store/getters/getters'
-import { MutationNames } from '../../store/mutations/mutations.js'
-import { ActionNames } from '../../store/actions/actions'
-import BlockLayout from 'components/layout/BlockLayout.vue'
-import RadialAnnotator from 'components/radials/annotator/annotator.vue'
-import RadialNavigation from 'components/radials/navigation/radial.vue'
-import RadialObject from 'components/radials/object/radial.vue'
-import PredicatesComponent from 'components/custom_attributes/predicates/predicates'
-import DefaultTag from 'components/defaultTag.vue'
-import platformKey from 'helpers/getPlatformKey'
-import SoftValidations from 'components/soft_validations/panel.vue'
-import { Depiction, User, CollectionObject } from 'routes/endpoints'
-import { COLLECTION_OBJECT } from 'constants/index.js'
+import BlockLayout from '@/components/layout/BlockLayout.vue'
+import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
+import RadialNavigation from '@/components/radials/navigation/radial.vue'
+import RadialObject from '@/components/radials/object/radial.vue'
+import PredicatesComponent from './predicates.vue'
+import ButtonTag from '@/components/ui/Button/ButtonTag.vue'
+import platformKey from '@/helpers/getPlatformKey'
+import SoftValidations from '@/components/soft_validations/panel.vue'
+import RecordNumber from '../recordNumber/recordNumber.vue'
+import { useHotkey } from '@/composables'
 
-export default {
-  components: {
-    CitationComponent,
-    SpinnerComponent,
-    ContainerItems,
-    PreparationType,
-    CatalogueNumber,
-    BufferedComponent,
-    DepictionsComponent,
-    RepositoryComponent,
-    BlockLayout,
-    RadialAnnotator,
-    PredicatesComponent,
-    RadialObject,
-    DefaultTag,
-    ExpandComponent,
-    RadialNavigation,
-    SoftValidations
-  },
-  computed: {
-    preferences: {
-      get () {
-        return this.$store.getters[GetterNames.GetPreferences]
-      },
-      set (value) {
-        this.$store.commit(MutationNames.SetPreferences, value)
-      }
-    },
+const store = useStore()
+const recordNumber = useIdentifierStore(IDENTIFIER_LOCAL_RECORD_NUMBER)()
+const catalogNumber = useIdentifierStore(IDENTIFIER_LOCAL_CATALOG_NUMBER)()
+const isLoading = ref(false)
 
-    projectPreferences () {
-      return this.$store.getters[GetterNames.GetProjectPreferences]
-    },
-
-    collectionObject: {
-      get () {
-        return this.$store.getters[GetterNames.GetCollectionObject]
-      },
-      set (value) {
-        this.$store.commit(MutationNames.SetCollectionObject, value)
-      }
-    },
-
-    collectionObjects() {
-      return this.$store.getters[GetterNames.GetCollectionObjects]
-    },
-
-    depictions: {
-      get () {
-        return this.$store.getters[GetterNames.GetDepictions]
-      },
-      set (value) {
-        this.$store.commit(MutationNames.SetDepictions)
-      }
-    },
-
-    shortcuts () {
-      const keys = {}
-
-      keys[`${platformKey()}+e`] = this.openBrowse
-
-      return keys
-    },
-
-    validations () {
-      const { Specimen } = this.$store.getters[GetterNames.GetSoftValidations]
-
-      return Specimen
-        ? { Specimen }
-        : {}
+const shortcuts = ref([
+  {
+    keys: [platformKey(), 'e'],
+    handler() {
+      openBrowse
     }
-  },
+  }
+])
 
-  data () {
-    return {
-      types: [],
-      labelRepository: undefined,
-      labelEvent: undefined,
-      showAttributes: true,
-      showBuffered: true,
-      showCitations: true,
-      showDepictions: true,
-      GetCollectionObjectDepictions: CollectionObject.depictions
+useHotkey(shortcuts.value)
+
+const collectionObject = computed({
+  get() {
+    return store.getters[GetterNames.GetCollectionObject]
+  },
+  set(value) {
+    store.commit(MutationNames.SetCollectionObject, value)
+  }
+})
+
+const collectionObjects = computed(
+  () => store.getters[GetterNames.GetCollectionObjects]
+)
+
+const depictions = computed({
+  get() {
+    return store.getters[GetterNames.GetDepictions]
+  },
+  set(value) {
+    store.commit(MutationNames.SetDepictions, value)
+  }
+})
+
+const validations = computed(() => {
+  const { Specimen } = store.getters[GetterNames.GetSoftValidations]
+
+  return Specimen ? { Specimen } : {}
+})
+
+const layout = computed(
+  () => store.getters[GetterNames.GetPreferences]?.layout || {}
+)
+
+watch(collectionObject, (newVal) => {
+  if (newVal.id) {
+    cloneDepictions(newVal)
+  }
+})
+
+function cloneDepictions(co) {
+  const unique = new Set()
+  const depictionsRemovedDuplicate = depictions.value.filter((depiction) => {
+    const key = depiction.image_id
+    const isNew = !unique.has(key)
+
+    if (isNew) unique.add(key)
+    return isNew
+  })
+
+  const coDepictions = depictions.value.filter(
+    (depiction) => depiction.depiction_object_id === co.id
+  )
+
+  depictionsRemovedDuplicate.forEach((depiction) => {
+    if (!coDepictions.find((item) => item.image_id === depiction.image_id)) {
+      saveDepiction(co.id, depiction)
     }
-  },
-  watch: {
-    collectionObject(newVal) {
-      if(newVal.id) {
-        this.cloneDepictions(newVal)
-      }
-    },
-    preferences: {
-      handler(newVal) {
-        if (newVal) {
-          const layout = newVal['layout']
-          if (layout) {
-            const sDepictions = layout['tasks::digitize::collectionObjects::showDepictions']
-            const sBuffered = layout['tasks::digitize::collectionObjects::showBuffered']
-            const sAttributes = layout['tasks::digitize::collectionObjects::showAttributes']
-            const sCitations = layout['tasks::digitize::collectionObjects::showCitations']
-            this.showDepictions = sDepictions !== undefined ? sDepictions : true
-            this.showBuffered = sBuffered !== undefined ? sBuffered : true
-            this.showAttributes = sAttributes !== undefined ? sAttributes : true
-            this.showCitations = sCitations !== undefined ? sCitations : true
-          }
-        }
-      },
-      deep: true
+  })
+}
+
+function saveDepiction(coId, data) {
+  const payload = {
+    depiction: {
+      depiction_object_id: coId,
+      depiction_object_type: COLLECTION_OBJECT,
+      image_id: data.image_id
     }
-  },
-  methods: {
-    setAttributes (value) {
-      this.collectionObject.data_attributes_attributes = value
-    },
+  }
 
-    updatePreferences (key, value) {
-      User.update(this.preferences.id, { user: { layout: { [key]: value } } }).then(response => {
-        this.preferences.layout = response.body.preferences.layout
-      })
-    },
+  Depiction.create(payload).then(({ body }) => {
+    depictions.value.push(body)
+  })
+}
 
-    newDigitalization () {
-      this.$store.dispatch(ActionNames.NewCollectionObject)
-      this.$store.dispatch(ActionNames.NewIdentifier)
-      this.$store.commit(MutationNames.NewTaxonDetermination)
-      this.$store.commit(MutationNames.SetTaxonDeterminations, [])
-    },
+function createDepictionForAll(depiction) {
+  const coIds = collectionObjects.value
+    .map((co) => co.id)
+    .filter((id) => collectionObject.value.id !== id)
 
-    saveCollectionObject() {
-      this.$store.dispatch(ActionNames.SaveDigitalization).then(() => {
-        this.$store.commit(MutationNames.SetTaxonDeterminations, [])
-      })
-    },
+  depictions.value.push(depiction)
+  coIds.forEach((id) => {
+    saveDepiction(id, depiction)
+  })
+}
 
-    saveAndNew() {
-      this.$store.dispatch(ActionNames.SaveDigitalization).then(() => {
-        setTimeout(() => {
-          this.newDigitalization()
-        }, 500)
-      })
-    },
+function removeAllDepictionsByImageId(depiction) {
+  store.dispatch(ActionNames.RemoveDepictionsByImageId, depiction)
+}
 
-    cloneDepictions (co) {
-      const unique = new Set()
-      const depictionsRemovedDuplicate = this.depictions.filter(depiction => {
-        const key = depiction.image_id
-        const isNew = !unique.has(key)
+function openBrowse() {
+  if (collectionObject.value.id) {
+    window.open(
+      `/tasks/collection_objects/browse?collection_object_id=${collectionObject.value.id}`,
+      '_self'
+    )
+  }
+}
 
-        if (isNew) unique.add(key)
-        return isNew
-      })
+function handleRadialDestroy({ slice, item }) {
+  if (slice === 'identifiers') {
+    if (item.type === IDENTIFIER_LOCAL_CATALOG_NUMBER) {
+      catalogNumber.reset({})
+    } else if (item.type === IDENTIFIER_LOCAL_RECORD_NUMBER) {
+      recordNumber.reset({})
+    }
+  }
+}
 
-      const coDepictions = this.depictions.filter(depiction => depiction.depiction_object_id === co.id)
-
-      depictionsRemovedDuplicate.forEach(depiction => {
-        if (!coDepictions.find(item => item.image_id === depiction.image_id)) {
-          this.saveDepiction(co.id, depiction)
-        }
-      })
-    },
-
-    saveDepiction (coId, depiction) {
-      const data = {
-        depiction_object_id: coId,
-        depiction_object_type: COLLECTION_OBJECT,
-        image_id: depiction.image_id
-      }
-      Depiction.create({ depiction: data }).then(response => {
-        this.depictions.push(response.body)
-      })
-    },
-
-    createDepictionForAll(depiction) {
-      const coIds = this.collectionObjects.map((co) => co.id).filter(id => this.collectionObject.id !== id)
-
-      this.depictions.push(depiction)
-      coIds.forEach((id) => {
-        this.saveDepiction(id, depiction)
-      })
-    },
-
-    removeAllDepictionsByImageId(depiction) {
-      this.$store.dispatch(ActionNames.RemoveDepictionsByImageId, depiction)
-    },
-
-    openBrowse () {
-      if (this.collectionObject.id) {
-        window.open(`/tasks/collection_objects/browse?collection_object_id=${this.collectionObject.id}`, '_self')
-      }
+function handleRadialCreate({ slice, item }) {
+  if (slice === 'identifiers') {
+    if (item.type === IDENTIFIER_LOCAL_CATALOG_NUMBER) {
+      catalogNumber.setIdentifier(item)
+    } else if (item.type === IDENTIFIER_LOCAL_RECORD_NUMBER) {
+      recordNumber.setIdentifier(item)
     }
   }
 }
 </script>
 
 <style scoped>
-  #collection-object-form {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 0.5em;
-  }
+#collection-object-form {
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(min(100%, max(500px, calc((100% - 1em) / 3))), 1fr)
+  );
+  gap: 0.5em;
+  grid-auto-flow: dense;
+}
 
-  .depict-validation-row {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    gap: 0.5em;
-  }
+.depict-validation-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 0.5em;
+}
 
-  .column-validation {
-    grid-column: 3 / 4;
-  }
-  .column-depictions {
-    grid-column: 1 / 3;
-  }
-  .row-1-3 {
-    grid-column: 1 / 3;
-  }
-  .row-item {
-    grid-column: 1 / 4;
-  }
-  .column-attribute {
-    grid-column: 3 / 4;
-  }
-  .column-citations {
-    grid-column: 1 / 3;
-  }
+.row-item {
+  grid-column: 1 / -1;
+}
 </style>

@@ -1,5 +1,6 @@
 require 'rails_helper'
 
+# TODO: remove all @ variables and init_housekeeping
 describe Protonym, type: :model, group: [:nomenclature, :protonym] do
 
   before(:all) do
@@ -23,6 +24,9 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
     before(:all) {
       TaxonNameRelationship.delete_all
       TaxonName.delete_all 
+
+      init_housekeeping
+
       @species = FactoryBot.create(:iczn_species)
       @s = Protonym.where(name: 'vitis').first
       @g = Protonym.where(name: 'Erythroneura', rank_class: 'NomenclaturalRank::Iczn::GenusGroup::Genus').first
@@ -90,6 +94,9 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
 
     context 'relationships' do
       before(:all) do
+
+        init_housekeeping
+
         @s.original_genus = @g   # @g 'TaxonNameRelationship::OriginalCombination::OriginalGenus' @s
         @s.save
         @s.reload
@@ -163,6 +170,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
 
     context 'classifications' do
       before(:all) do
+        init_housekeeping
         FactoryBot.create(:taxon_name_classification, type: 'TaxonNameClassification::Iczn::Available', taxon_name: @s)
         FactoryBot.create(:taxon_name_classification, type: 'TaxonNameClassification::Iczn::Available::Valid', taxon_name: @g )
       end

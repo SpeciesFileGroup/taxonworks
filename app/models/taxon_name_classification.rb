@@ -17,18 +17,26 @@ require_dependency Rails.root.to_s + '/app/models/taxon_name_relationship.rb'
 #
 class TaxonNameClassification < ApplicationRecord
   include Housekeeping
+  include Shared::BatchByFilterScope
   include Shared::Citations
   include Shared::Notes
   include Shared::IsData
   include SoftValidation
 
+  FOSSIL_TYPE_FOR = {
+    iczn: 'TaxonNameClassification::Iczn::Fossil',
+    icn:  'TaxonNameClassification::Icn::Fossil'
+  }.freeze
+
   belongs_to :taxon_name, inverse_of: :taxon_name_classifications
 
   before_validation :validate_taxon_name_classification
   before_validation :validate_uniqueness_of_latinized
+  after_commit :set_cached
+
   validates_presence_of :taxon_name
   validates_presence_of :type
-  validates_uniqueness_of :taxon_name_id, scope: :type
+  validates_uniqueness_of :taxon_name_id, scope: [:type, :project_id]
 
   validate :nomenclature_code_matches
 
@@ -40,6 +48,7 @@ class TaxonNameClassification < ApplicationRecord
 
   soft_validate(:sv_proper_classification,
                 set: :proper_classification,
+                fix: :sv_fix_proper_classification,
                 name: 'Applicable status',
                 description: 'Check the status applicability.' )
 
@@ -57,9 +66,6 @@ class TaxonNameClassification < ApplicationRecord
                 set: :not_specific_classes,
                 name: 'Not specific status',
                 description: 'More specific statuses are preffered, for example: "Nomen nudum, no description" is better than "Nomen nudum".' )
-
-  after_save :set_cached
-  after_destroy :set_cached
 
   def nomenclature_code
     return :iczn if type.match(/::Iczn/)
@@ -181,12 +187,14 @@ class TaxonNameClassification < ApplicationRecord
   end
 
   # TODO: move these to individual classes?!
+  # Starting to move to individual classes
+  #     Gender is sone
   def set_cached_names_for_taxon_names
+    t = taxon_name
+    return if t.destroyed?
     begin
       TaxonName.transaction_with_retry do
-        t = taxon_name
-
-        if type_name =~ /(Fossil|Hybrid|Candidatus)/
+        if type_name =~ /(Fossil|Hybrid|Candidatus)/ # Break these out, they don't all apply to the same codes
           n = t.get_full_name
           t.update_columns(
             cached: n,
@@ -194,7 +202,7 @@ class TaxonNameClassification < ApplicationRecord
             cached_original_combination: t.get_original_combination,
             cached_original_combination_html: t.get_original_combination_html
           )
-        elsif type_name =~ /Latinized::PartOfSpeach/
+        elsif type_name =~ /Latinized::PartOfSpeech/
           n = t.get_full_name
           t.update_columns(
               cached: n,
@@ -215,35 +223,15 @@ class TaxonNameClassification < ApplicationRecord
                 cached_html: t1.get_full_name_html(n)
             )
           end
+
         elsif type_name =~ /Latinized::Gender/
-          t.descendants.with_same_cached_valid_id.each do |t1|
-            n = t1.get_full_name
-            t1.update_columns(
-                cached: n,
-                cached_html: t1.get_full_name_html(n)
-            )
-          end
-
-          TaxonNameRelationship::OriginalCombination.where(subject_taxon_name: t).collect{|i| i.object_taxon_name}.uniq.each do |t1|
-            t1.update_cached_original_combinations
-          end
-
-          TaxonNameRelationship::Combination.where(subject_taxon_name: t).collect{|i| i.object_taxon_name}.uniq.each do |t1|
-            t1.update_column(:verbatim_name, t1.cached) if t1.verbatim_name.nil?
-            n = t1.get_full_name
-            t1.update_columns(
-                cached: n,
-                cached_html: t1.get_full_name_html(n)
-            )
-          end
+          # Handled in subclasses
+          raise
         elsif TAXON_NAME_CLASS_NAMES_VALID.include?(type_name)
-#          TaxonName.where(cached_valid_taxon_name_id: t.cached_valid_taxon_name_id).each do |vn|
-          #            vn.update_column(:cached_valid_taxon_name_id, vn.get_valid_taxon_name.id)  # update self too!
-          #          end
           vn = t.get_valid_taxon_name
           vn.update_columns(
             cached_valid_taxon_name_id: vn.id,
-            cached_is_valid: !vn.unavailable_or_invalid?) # Do not change!  
+            cached_is_valid: !vn.unavailable_or_invalid?) # Do not change!
           vn.list_of_invalid_taxon_names.each do |s|
             s.update_columns(
               cached_valid_taxon_name_id: vn.id,
@@ -258,6 +246,12 @@ class TaxonNameClassification < ApplicationRecord
         else
           t.update_columns(cached_is_valid: false)
         end
+
+        if TAXON_NAME_CLASS_NAMES_UNAVAILABLE.include?( type_name )
+          t.update_columns(
+            cached_is_available: false
+          )
+        end
       end
     rescue ActiveRecord::RecordInvalid
       false
@@ -265,28 +259,34 @@ class TaxonNameClassification < ApplicationRecord
     true
   end
 
-  #region Validation
   def validate_uniqueness_of_latinized
     true # moved to subclasses
   end
-
-  #endregion
-
-  #region Soft validation
 
   def sv_proper_classification
     if TAXON_NAME_CLASSIFICATION_NAMES.include?(self.type)
       # self.type_class is a Class
       if not self.type_class.applicable_ranks.include?(self.taxon_name.rank_string)
-        soft_validations.add(:type, "The status '#{self.classification_label}' is unapplicable to the taxon #{self.taxon_name.cached_html} at the rank of #{self.taxon_name.rank_class.rank_name}")
+        soft_validations.add(:type, "The status '#{self.classification_label}' is not applicable to the taxon #{self.taxon_name.cached_html} at the rank of #{self.taxon_name.rank_class.rank_name}", success_message: 'The status was deleted', failure_message:  'Fail to delete the status')
       end
+    end
+  end
+
+  def sv_fix_proper_classification
+    begin
+      TaxonNameClassification.transaction do
+        self.destroy
+      end
+      return true
+    rescue
+      return false
     end
   end
 
   def sv_proper_year
     y = self.taxon_name.year_of_publication
     if !y.nil? && (y > self.type_class.code_applicability_end_year || y < self.type_class.code_applicability_start_year)
-      soft_validations.add(:type, "The status '#{self.classification_label}' is unapplicable to the taxon #{self.taxon_name.cached_html} published in the year #{y}")
+      soft_validations.add(:type, "The status '#{self.classification_label}' is not applicable to the taxon #{self.taxon_name.cached_html} published in the year #{y}")
     end
   end
 
@@ -301,8 +301,6 @@ class TaxonNameClassification < ApplicationRecord
     true # moved to subclasses
   end
 
-  #endregion
-
   def self.annotates?
     true
   end
@@ -311,18 +309,160 @@ class TaxonNameClassification < ApplicationRecord
     taxon_name
   end
 
-  private
+  # @param batch_response [BatchResponse]
+  # @param query [ActiveRecord::Relation] TaxonName scope from the filter
+  # @param hash_query [Hash] serialized filter params, used to re-run the query in async jobs
+  # @param mode [Symbol, String] :add, :remove (fossil); :set, :remove_gender (gender)
+  # @param params [Hash] unused for fossil modes; :type required for :change
+  # @param async [Boolean]
+  # @param project_id [Integer]
+  # @param user_id [Integer]
+  # @param called_from_async [Boolean] prevents re-dispatching when already inside a job
+  # @return [BatchResponse]
+  def self.process_batch_by_filter_scope(
+    batch_response: nil, query: nil, hash_query: nil, mode: nil,
+    params: nil, async: nil, project_id: nil, user_id: nil,
+    called_from_async: false
+  )
+    async = false if called_from_async == true
+    r = batch_response
+
+    case mode.to_sym
+    when :add # fossil
+      if async && !called_from_async
+        BatchByFilterScopeJob.perform_later(
+          klass: self.name,
+          hash_query:,
+          mode:,
+          params:,
+          project_id:,
+          user_id:
+        )
+      else
+        existing_fossil_classifications = TaxonNameClassification
+          .with_type_array(TAXON_NAME_CLASSIFICATIONS_FOR_FOSSILS)
+          .where(taxon_name: query)
+          .pluck(:taxon_name_id)
+          .to_set
+
+        query.find_each do |taxon_name|
+          fossil_type = FOSSIL_TYPE_FOR[taxon_name.rank_class&.nomenclatural_code]
+          if fossil_type.nil? || existing_fossil_classifications.include?(taxon_name.id)
+            r.not_updated.push taxon_name.id
+            next
+          end
+          classification = TaxonNameClassification.create(taxon_name: taxon_name, type: fossil_type)
+          if classification.persisted?
+            r.updated.push classification.id
+          else
+            r.not_updated.push taxon_name.id
+          end
+        end
+      end
+
+    when :remove # fossil
+      if async && !called_from_async
+        BatchByFilterScopeJob.perform_later(
+          klass: self.name,
+          hash_query:,
+          mode:,
+          params:,
+          project_id:,
+          user_id:
+        )
+      else
+        TaxonNameClassification
+          .with_type_array(TAXON_NAME_CLASSIFICATIONS_FOR_FOSSILS)
+          .where(taxon_name: query)
+          .find_each do |c|
+            c.destroy # destroy is necessary for cached processing
+            if c.destroyed?
+              r.updated.push nil
+            else
+              r.not_updated.push c.taxon_name_id
+            end
+          end
+      end
+
+    when :set # gender
+      gender_type = params[:type]
+      return r unless TAXON_NAME_CLASSIFICATIONS_FOR_GENDER.include?(gender_type)
+
+      if async && !called_from_async
+        BatchByFilterScopeJob.perform_later(
+          klass: self.name,
+          hash_query:,
+          mode:,
+          params:,
+          project_id:,
+          user_id:
+        )
+      else
+        existing_by_taxon_name_id = TaxonNameClassification
+          .with_type_array(TAXON_NAME_CLASSIFICATIONS_FOR_GENDER)
+          .where(taxon_name: query)
+          .index_by(&:taxon_name_id)
+
+        query.find_each do |taxon_name|
+          if existing = existing_by_taxon_name_id[taxon_name.id]
+            if existing.update(type: gender_type)
+              r.updated.push existing.id
+            else
+              r.not_updated.push taxon_name.id
+            end
+          else
+            classification = TaxonNameClassification.create(taxon_name: taxon_name, type: gender_type)
+            if classification.persisted?
+              r.updated.push classification.id
+            else
+              r.not_updated.push taxon_name.id
+            end
+          end
+        end
+      end
+
+    when :remove_gender
+      if async && !called_from_async
+        BatchByFilterScopeJob.perform_later(
+          klass: self.name,
+          hash_query:,
+          mode:,
+          params:,
+          project_id:,
+          user_id:
+        )
+      else
+        TaxonNameClassification
+          .with_type_array(TAXON_NAME_CLASSIFICATIONS_FOR_GENDER)
+          .where(taxon_name: query)
+          .find_each do |c|
+            c.destroy # destroy is necessary to updated cached values
+            if c.destroyed?
+              r.updated.push nil
+            else
+              r.not_updated.push c.taxon_name_id
+            end
+          end
+      end
+    end
+
+    r
+  end
+
+ private
 
   def nomenclature_code_matches
     if taxon_name && type && nomenclature_code
-      errors.add(:taxon_name, "#{taxon_name.cached_html} belongs to #{taxon_name.rank_class.nomenclatural_code} nomenclatural code, but the status used from #{nomenclature_code} nomenclature code") if nomenclature_code != taxon_name.rank_class.nomenclatural_code
+      tn = taxon_name.is_combination? ? taxon_name.protonyms.last : taxon_name
+      nc = tn.rank_class.nomenclatural_code
+      errors.add(:taxon_name, "#{taxon_name.cached_html} belongs to #{taxon_name.rank_class.nomenclatural_code} nomenclatural code, but the status used from #{nomenclature_code} nomenclature code") if nomenclature_code != nc
     end
   end
 
+  # TODO: unnecessary! Type handling will raise here
   def validate_taxon_name_classification
     errors.add(:type, 'Status not found') if !self.type.nil? and !TAXON_NAME_CLASSIFICATION_NAMES.include?(self.type.to_s)
   end
-
 
   # @todo move these to a shared library (see NomenclaturalRank too)
   def self.collect_to_s(*args)
@@ -345,6 +485,13 @@ class TaxonNameClassification < ApplicationRecord
     classes.collect{|k| k.to_s} + self.collect_descendants_to_s(*classes)
   end
 
+  # Force loading all descendants as soon as this class is referenced
+  Dir.glob("#{Rails.root}/app/models/taxon_name_classification/**/*.rb")
+    .sort { |a, b| a.split('/').count <=> b.split('/').count }
+    .map { |p| p.split('/app/models/').last.sub(/\.rb$/, '') }
+    .map { |p| p.split('/') }
+    .map { |c| c.map { |n| ActiveSupport::Inflector.camelize(n) } }
+    .map { |c| c.join('::') }.map(&:constantize)
 end
 
-Dir[Rails.root.to_s + '/app/models/taxon_name_classification/**/*.rb'].each { |file| require_dependency file }
+#Dir[Rails.root.to_s + '/app/models/taxon_name_classification/**/*.rb'].each { |file| require_dependency file }

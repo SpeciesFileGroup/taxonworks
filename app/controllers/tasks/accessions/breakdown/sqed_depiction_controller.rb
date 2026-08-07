@@ -2,16 +2,27 @@ class Tasks::Accessions::Breakdown::SqedDepictionController < ApplicationControl
   include TaskControllerConfiguration
 
   before_action :set_sqed_depiction, except: [:todo_map]
+  after_action -> { set_pagination_headers(:sqed_depictions) }, only: [:todo_map], if: :json_request?
 
   # /tasks/accessions/breakdown/sqed_depiction/todo_map
   def todo_map
     SqedDepiction.clear_stale_progress
-    @sqed_depictions = SqedDepiction.where(project_id: sessions_current_project_id).order(:id).page(params[:page]).per(100)
+
+    @sqed_depictions = ::Queries::SqedDepiction::Filter.new(params).all
+      .where(project_id: sessions_current_project_id)
+      .order(:id)
+      .page(params[:page])
+      .per(params[:per])
+
+    respond_to do |format|
+      format.html {}
+      format.json {}
+    end
   end
 
-  # GET /tasks/accession/breakdown/depiction/:id # id is a collection_object_id
+  # GET /tasks/accession/breakdown/depiction/:id # id is a collection_object_id !!
   def index
-    @result = SqedToTaxonworks::Result.new(
+    @result = Vendor::SqedToTaxonworks::Result.new(
       depiction_id: @sqed_depiction.depiction.id,
       namespace_id: params[:namespace_id]
     )
@@ -23,17 +34,29 @@ class Tasks::Accessions::Breakdown::SqedDepictionController < ApplicationControl
     next_sqed_depiction = @sqed_depiction
 
     if @sqed_depiction.depiction.depiction_object.update(collection_object_params)
-      flash[:notice] = 'Successfully updated'
+      notice = 'Successfully updated.'
 
       next_sqed_depiction =
         case params[:commit]
         when 'Save and next w/out data [n]'
-          @sqed_depiction.next_without_data(true) # true handles stale settings
+          d = @sqed_depiction.next_without_data(true) # true handles stale settings
+          if d.nil? || d.id == @sqed_depiction.id
+            d = @sqed_depiction
+            notice = notice + ' No next depiction without data.'
+          end
+          d
         when 'Save and next'
-          @sqed_depiction.nearby_sqed_depictions(0, 1, true)[:after].first # true handles stale settings
+          d = @sqed_depiction.nearby_sqed_depictions(0, 1, true)[:after].first # true handles stale settings
+          if d.nil? || d.id == @sqed_depiction.id
+            d = @sqed_depiction
+            notice = notice + ' No next depiction.'
+          end
+          d
         else
           @sqed_depiction
         end
+
+      flash[:notice] = notice
     else
       flash[:alert] = 'Failed to update! ' + @sqed_depiction.depiction.depiction_object.errors.full_messages.join('; ').html_safe
     end
@@ -58,8 +81,6 @@ class Tasks::Accessions::Breakdown::SqedDepictionController < ApplicationControl
   def set_sqed_depiction
     @sqed_depiction = SqedDepiction.where(project_id: sessions_current_project_id).find(params[:id])
     @sqed_depiction.update_column(:in_progress, Time.now)
-    # TODO: Run jobs in background with admin task.
-    # @sqed_depiction.preprocess
   end
 
 end

@@ -1,0 +1,6 @@
+export const OBSERVATION_QUALITATIVE = 'Observation::Qualitative'
+export const OBSERVATION_PRESENCE = 'Observation::PresenceAbsence'
+export const OBSERVATION_CONTINUOUS = 'Observation::Continuous'
+export const OBSERVATION_SAMPLE = 'Observation::Sample'
+export const OBSERVATION_MEDIA = 'Observation::Media'
+export const OBSERVATION_WORKING = 'Observation::Working'

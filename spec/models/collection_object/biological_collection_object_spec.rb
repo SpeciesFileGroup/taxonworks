@@ -44,20 +44,20 @@ describe CollectionObject::BiologicalCollectionObject, type: :model, group: :col
     before { biological_collection_object.update(total: 1) }
 
     specify '#taxon_determinations are destroyed' do
-      d = TaxonDetermination.create!(biological_collection_object: biological_collection_object, otu: otu)
+      d = TaxonDetermination.create!(taxon_determination_object: biological_collection_object, otu:)
       biological_collection_object.destroy
       expect(TaxonDetermination.where(id: d.id).any?).to be_falsey
-    end 
+    end
 
     specify '#biocuration_classifications are destroyed' do
       b = FactoryBot.create(:valid_biocuration_class)
-      d = BiocurationClassification.create!(biological_collection_object: biological_collection_object, biocuration_class: b) 
+      d = BiocurationClassification.create!(biocuration_classification_object: biological_collection_object, biocuration_class: b)
       biological_collection_object.destroy
       expect(BiocurationClassification.where(id: d.id).any?).to be_falsey
-    end 
+    end
 
     specify '#observations prevent destruction' do
-      o = Observation::Continuous.create!(observation_object_global_id: biological_collection_object.to_global_id.to_s, continuous_value: 22, descriptor: descriptor)
+      o = Observation::Continuous.create!(observation_object_global_id: biological_collection_object.to_global_id.to_s, continuous_value: 22, descriptor:)
       expect(biological_collection_object.destroy).to be_falsey
       expect(biological_collection_object.errors.include?(:base)).to be_truthy
     end
@@ -91,23 +91,32 @@ describe CollectionObject::BiologicalCollectionObject, type: :model, group: :col
     end
 
     specify 'can be destroyed' do
-      s.update(taxon_determinations_attributes: [{id: s.taxon_determinations.first.id, _destroy: '1'}])
-      s.save
+      s.update!(taxon_determinations_attributes: [{id: s.taxon_determinations.first.id, _destroy: '1'}])
       expect(s.taxon_determinations.reload.count).to eq(1)
     end
   end
 
   context 'ordering deteriminations' do
-    let!(:o) {
-      Specimen.create!(total: 1, otus_attributes: [{name: 'one'}, {name: 'two'}, {name: 'three'}])
-    }
+    let!(:o) { Specimen.create!(total: 1, otus_attributes: [{name: 'one'}, {name: 'two'}, {name: 'three'}]) }
+
+    specify 'three determinations' do
+      expect(o.taxon_determinations.count).to eq(3)
+    end
 
     specify '#current_taxon_determination, last created, first on list by default' do
-      expect(o.current_taxon_determination.reload.position).to eq(1)
+      expect(o.current_taxon_determination.otu.name).to eq('three')
+    end
+
+    specify 'three determinations' do
+      expect(o.taxon_determinations.count).to eq(3)
+    end
+
+    specify '#current_taxon_determination, last created, first on list by default' do
+      expect(o.current_taxon_determination.position).to eq(1)
     end
 
     specify '#current_otu (is last created)' do
-      expect(o.current_otu.reload.name).to eq('three')
+      expect(o.current_otu.name).to eq('three')
     end
 
     specify '#reorder_determinations_by(:year)' do
@@ -179,4 +188,3 @@ describe CollectionObject::BiologicalCollectionObject, type: :model, group: :col
   end
 
 end
-

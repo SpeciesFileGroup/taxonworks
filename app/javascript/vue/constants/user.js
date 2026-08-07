@@ -1,2 +1,5 @@
-export const ATTR_CURRENT_USER_IS_ADMINISTRATOR = 'data-current-user-is-administrator'
+export const ATTR_CURRENT_PROJECT_ID = 'data-current-project-id'
+export const ATTR_CURRENT_PROJECT_TOKEN = 'data-current-project-token'
 export const ATTR_CURRENT_USER_ID = 'data-current-user-id'
+export const ATTR_CURRENT_USER_IS_ADMINISTRATOR =
+  'data-current-user-is-administrator'

@@ -2,9 +2,20 @@ class TaxonNameRelationship::Icn::Unaccepting::Synonym < TaxonNameRelationship::
 
   NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000372'.freeze
 
+  # Override the base-class metadata for this SV
+  soft_validate(
+    :sv_not_specific_relationship,
+    set: :not_specific_relationship,
+    fix: :sv_fix_specify_synonymy_type,
+    name: 'Not specific relationship',
+    description: 'More specific relationship is preferred, for example "Subjective synonym" instead of "Synonym".'
+  )
+
   def self.disjoint_taxon_name_relationships
     self.parent.disjoint_taxon_name_relationships +
-        self.collect_to_s(TaxonNameRelationship::Icn::Unaccepting) +
+        self.collect_to_s(TaxonNameRelationship::Icn::Unaccepting,
+                          TaxonNameRelationship::Icn::Unaccepting::OriginallyInvalid,
+                          TaxonNameRelationship::Icn::Unaccepting::Misapplication) +
         self.collect_descendants_to_s(TaxonNameRelationship::Icn::Unaccepting::Usage)
   end
 
@@ -33,9 +44,9 @@ class TaxonNameRelationship::Icn::Unaccepting::Synonym < TaxonNameRelationship::
   def sv_synonym_relationship
     if self.source
       date1 = self.source.cached_nomenclature_date.to_time
-      date2 = self.subject_taxon_name.nomenclature_date
+      date2 = self.subject_taxon_name.cached_nomenclature_date
       if !!date1 && !!date2
-        soft_validations.add(:base, "#{self.subject_taxon_name.cached_html_name_and_author_year} was not described at the time of citation (#{date1}") if date2 > date1
+        soft_validations.add(:base, "#{self.subject_taxon_name.cached_html_name_and_author_year} was not described at the time of citation (#{date1.to_date})") if date2.to_date > date1.to_date
       end
     else
       soft_validations.add(:base, 'The original publication is not selected')
@@ -43,8 +54,12 @@ class TaxonNameRelationship::Icn::Unaccepting::Synonym < TaxonNameRelationship::
   end
 
   def sv_not_specific_relationship
-    soft_validations.add(:type, 'Please specify if this is a homotypic or heterotypic synonym',
-                         fix: :sv_fix_specify_synonymy_type, success_message: 'Synonym updated to being homotypic or heterotypic')
+    soft_validations.add(
+      :type,
+      'Please specify if this is a homotypic or heterotypic synonym',
+      success_message: 'Synonym updated to being homotypic or heterotypic',
+      failure_message: 'Failed to set homotypic or heterotypic'
+    )
   end
 
   def sv_fix_specify_synonymy_type
@@ -61,10 +76,8 @@ class TaxonNameRelationship::Icn::Unaccepting::Synonym < TaxonNameRelationship::
     if self.type_name != new_relationship_name
       self.type = new_relationship_name
       begin
-        TaxonNameRelationship.transaction do
-          self.save
-          return true
-        end
+        self.save
+        return true
       rescue
       end
     end

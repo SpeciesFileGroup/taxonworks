@@ -3,12 +3,14 @@
     <label class="display-block">Descriptor filter</label>
     <button
       class="button normal-input button-default"
-      @click="setModalView(true)">
+      @click="setModalView(true)"
+    >
       Keywords
     </button>
     <modal-component
       v-if="showModal"
-      @close="setModalView(false)">
+      @close="setModalView(false)"
+    >
       <template #header>
         <h3>Keywords</h3>
       </template>
@@ -16,12 +18,14 @@
         <ul class="no_bullets">
           <li
             v-for="keyword in observationMatrix.descriptor_available_keywords"
-            :key="keyword.id">
+            :key="keyword.id"
+          >
             <label>
               <input
                 v-model="filters.keyword_id_and"
                 :value="keyword.id"
-                type="checkbox">
+                type="checkbox"
+              />
               {{ keyword.name }}
             </label>
           </li>
@@ -31,7 +35,8 @@
         <button
           type="button"
           class="button normal-input button-default"
-          @click="applyChanges">
+          @click="applyChanges"
+        >
           Apply
         </button>
       </template>
@@ -40,8 +45,7 @@
 </template>
 
 <script>
-
-import ModalComponent from 'components/ui/Modal'
+import ModalComponent from '@/components/ui/Modal'
 import scrollToTop from '../../utils/scrollToTop.js'
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
@@ -51,35 +55,40 @@ export default {
   components: { ModalComponent },
 
   computed: {
-    observationMatrix () {
+    observationMatrix() {
       return this.$store.getters[GetterNames.GetObservationMatrix]
     },
 
     filters: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetParamsFilter]
       },
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetParamsFilter, value)
       }
     }
   },
 
-  data () {
+  data() {
     return {
       showModal: false
     }
   },
 
   methods: {
-    setModalView (value) {
+    setModalView(value) {
       this.showModal = value
     },
 
-    applyChanges () {
-      this.$store.dispatch(ActionNames.LoadObservationMatrix, this.observationMatrix.observation_matrix_id).then(() => {
-        this.setModalView(false)
-      })
+    applyChanges() {
+      this.$store
+        .dispatch(
+          ActionNames.LoadObservationMatrix,
+          this.observationMatrix.observation_matrix_id
+        )
+        .then(() => {
+          this.setModalView(false)
+        })
       scrollToTop()
     }
   }

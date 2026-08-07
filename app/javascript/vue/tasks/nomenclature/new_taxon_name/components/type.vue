@@ -1,9 +1,10 @@
 <template>
-  <block-layout
+  <BlockLayout
     anchor="type"
     :warning="checkValidation"
     :spinner="!taxon.id"
-    v-help.section.type.container>
+    v-help.section.type.container
+  >
     <template #header>
       <h3>Type</h3>
     </template>
@@ -11,278 +12,362 @@
       <div v-if="!taxonRelation">
         <div
           v-if="editType"
-          class="horizontal-left-content">
+          class="horizontal-left-content"
+        >
           <span>
-            <span v-html="GetRelationshipsCreated[0].object_status_tag"/>
+            <span v-html="relationshipsCreated[0].object_tag" />
             <a
-              v-html="GetRelationshipsCreated[0].subject_object_tag"
-              :href="`/tasks/nomenclature/browse?taxon_name_id=${GetRelationshipsCreated[0].subject_taxon_name_id}`"/>
+              v-html="relationshipsCreated[0].subject_object_tag"
+              :href="`${RouteNames.BrowseNomenclature}?taxon_name_id=${relationshipsCreated[0].subject_taxon_name_id}`"
+            />
           </span>
           <span
             class="button circle-button btn-undo button-default"
-            @click="editType = undefined"/>
+            @click="editType = undefined"
+          />
         </div>
-        <quick-taxon-name
-          v-if="!showForThisGroup(['SpeciesGroup', 'SpeciesAndInfraspeciesGroup'], taxon) && (!(GetRelationshipsCreated.length) || editType)"
-          @getItem="addTaxonType"
-          :group="childOfParent[getRankGroup.toLowerCase()]"/>
-        <template v-if="showForThisGroup(['SpeciesGroup', 'SpeciesAndInfraspeciesGroup'], taxon)">
+        <QuickTaxonName
+          ref="quickTaxonName"
+          v-if="
+            !showForThisGroup(
+              ['SpeciesGroup', 'SpeciesAndInfraspeciesGroup'],
+              taxon
+            ) &&
+            (!relationshipsCreated.length || editType)
+          "
+          :group="childOfParent[rankGroup.toLowerCase()]"
+          @select="addTaxonType"
+        />
+        <template
+          v-if="
+            showForThisGroup(
+              ['SpeciesGroup', 'SpeciesAndInfraspeciesGroup'],
+              taxon
+            )
+          "
+        >
           <ul class="no_bullets context-menu">
             <li>
-              <a
-                :href="`/tasks/type_material/edit_type_material?taxon_name_id=${taxon.id}`"
-                v-hotkey="shortcuts">Quick</a>
+              <a :href="`${RouteNames.TypeMaterial}?taxon_name_id=${taxon.id}`">
+                Quick
+              </a>
             </li>
             <li>
-              <a :href="`/tasks/accessions/comprehensive?taxon_name_id=${taxon.id}`">Comprehensive</a>
+              <a :href="`${RouteNames.DigitizeTask}?taxon_name_id=${taxon.id}`">
+                Comprehensive
+              </a>
             </li>
           </ul>
           <ul class="table-entrys-list">
             <li
               class="flex-separate list-complete-item"
               v-for="typeSpecimen in typeMaterialList"
-              :key="typeSpecimen.id">
+              :key="typeSpecimen.id"
+            >
               <a
-                :href="`/tasks/type_material/edit_type_material?taxon_name_id=${taxon.id}&type_material_id=${typeSpecimen.id}`"
-                v-html="typeSpecimen.object_tag"/>
-              <a :href="`/tasks/accessions/comprehensive?collection_object_id=${typeSpecimen.collection_object_id}`">Open comprehensive</a>
+                :href="`${RouteNames.TypeMaterial}?taxon_name_id=${taxon.id}&type_material_id=${typeSpecimen.id}`"
+                v-html="typeSpecimen.object_tag"
+              />
+              <a
+                :href="`${RouteNames.DigitizeTask}?collection_object_id=${typeSpecimen.collection_object_id}`"
+                >Open comprehensive</a
+              >
             </li>
           </ul>
         </template>
       </div>
       <div v-else>
-        <tree-display
-          :tree-list="{ treeList }"
+        <VSwitch
+          :options="Object.values(TAB)"
+          v-model="view"
+        />
+        <TreeDisplay
+          v-if="view === TAB.showAll"
           :parent="parent"
-          :object-lists="objectLists"
-          :show-modal="showModal"
+          :list="objectLists.tree"
+          :taxon-rank="taxon.rank_string"
           valid-property="valid_object_ranks"
+          display-name="subject_status_tag"
           @selected="addEntry"
-          mutation-name-add="AddTaxonType"
-          mutation-name-modal="SetModalType"
-          name-module="Types"
-          display-name="subject_status_tag"/>
-        <div class="switch-radio">
-          <input
-            name="type-picker-options"
-            id="type-picker-common"
-            checked
-            type="radio"
-            class="normal-input button-active"
-            @click="showAdvance = false">
-          <label for="type-picker-common">Common</label>
-          <input
-            name="type-picker-options"
-            id="type-picker-showall"
-            type="radio"
-            class="normal-input"
-            @click="activeModal(true)">
-          <label for="type-picker-showall">Show all</label>
-        </div>
-        <p class="inline">
-          <span v-html="taxonRelation.hasOwnProperty('label_html') ? taxonRelation.label_html : taxonRelation.object_tag"/>
-          <span
-            type="button"
+          @close="view = TAB.common"
+        />
+
+        <div
+          class="flex-row gap-small middle margin-medium-top margin-medium-bottom"
+        >
+          <span v-html="taxonRelation.object_tag" />
+          <VBtn
+            v-if="!editType"
+            circle
+            color="primary"
             title="Undo"
-            class="circle-button button-default btn-undo"
-            @click="taxonRelation = undefined"/>
-        </p>
-        <div class="separate-top">
-          <list-common
-            :object-lists="objectLists.common"
-            :filter="true"
-            @addEntry="addEntry"
-            display="subject_status_tag"
-            :list-created="GetRelationshipsCreated"/>
+            @click="taxonRelation = undefined"
+          >
+            <VIcon
+              name="trash"
+              x-small
+            />
+          </VBtn>
         </div>
+
+        <ListCommon
+          v-if="view === TAB.common"
+          class="separate-top"
+          filter
+          display="subject_status_tag"
+          :object-lists="objectLists.common"
+          :list-created="relationshipsCreated"
+          @add-entry="addEntry"
+        />
       </div>
-      <list-entrys
-        @update="loadTaxonRelationships"
-        @addCitation="setType"
-        :edit="true"
-        :list="GetRelationshipsCreated"
+      <ListEntrys
+        :list="relationshipsCreated"
+        :display="[
+          {
+            link: '/tasks/nomenclature/browse?taxon_name_id=',
+            label: 'subject_object_tag',
+            param: 'subject_taxon_name_id'
+          },
+          'subject_status_tag',
+          'object_object_tag'
+        ]"
+        edit
         @delete="removeType"
         @edit="setEdit"
-        :display="['subject_status_tag', { link: '/tasks/nomenclature/browse?taxon_name_id=', label: 'subject_object_tag', param: 'subject_taxon_name_id'}]"/>
+        @update="loadTaxonRelationships"
+        @add-citation="setType"
+      />
     </template>
-  </block-layout>
+  </BlockLayout>
 </template>
-<script>
 
-import showForThisGroup from '../helpers/showForThisGroup'
-import BlockLayout from 'components/layout/BlockLayout'
-
+<script setup>
+import { computed, ref, watch, onMounted } from 'vue'
+import { useStore } from 'vuex'
+import { RouteNames } from '@/routes/routes.js'
 import { ActionNames } from '../store/actions/actions'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
-import { TypeMaterial } from 'routes/endpoints'
+import { TypeMaterial } from '@/routes/endpoints'
 import TreeDisplay from './treeDisplay.vue'
 import ListEntrys from './listEntrys.vue'
 import ListCommon from './commonList.vue'
 import getRankGroup from '../helpers/getRankGroup'
 import childOfParent from '../helpers/childOfParent'
 import QuickTaxonName from './quickTaxonName'
-import platformKey from 'helpers/getPlatformKey.js'
+import VSwitch from '@/components/ui/VSwitch.vue'
+import BlockLayout from '@/components/layout/BlockLayout'
+import platformKey from '@/helpers/getPlatformKey.js'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
+import showForThisGroup from '../helpers/showForThisGroup'
+import { useHotkey } from '@/composables'
 
-export default {
-  components: {
-    ListEntrys,
-    BlockLayout,
-    TreeDisplay,
-    ListCommon,
-    QuickTaxonName
-  },
-  computed: {
-    treeList () {
-      return this.$store.getters[GetterNames.GetRelationshipList]
-    },
-    getRankGroup () {
-      return getRankGroup(this.$store.getters[GetterNames.GetTaxon].rank_string)
-    },
-    taxon () {
-      return this.$store.getters[GetterNames.GetTaxon]
-    },
-    GetRelationshipsCreated () {
-      return this.$store.getters[GetterNames.GetTaxonRelationshipList].filter((item) => item.type.split('::')[1] === 'Typification')
-    },
-    parent () {
-      return this.$store.getters[GetterNames.GetParent]
-    },
-    softValidation () {
-      return this.$store.getters[GetterNames.GetSoftValidation].taxonRelationshipList.list
-    },
-    checkValidation () {
-      return !!this.softValidation.filter(item => this.GetRelationshipsCreated.find(created => created.id === item.instance.id)).length
-    },
-    taxonRelation: {
-      get () {
-        return this.$store.getters[GetterNames.GetTaxonType]
-      },
-      set (value) {
-        this.$store.commit(MutationNames.SetTaxonType, value)
-      }
-    },
-    nomenclaturalCode () {
-      return this.$store.getters[GetterNames.GetNomenclaturalCode]
-    },
-    showModal () {
-      return this.$store.getters[GetterNames.ActiveModalType]
-    },
-    shortcuts () {
-      const keys = {}
+const TAB = {
+  common: 'Common',
+  showAll: 'Show all'
+}
 
-      keys[`${platformKey()}+m`] = this.switchTypeMaterial
-      keys[`${platformKey()}+e`] = this.switchComprehensive
+const quickTaxonName = ref(null)
 
-      return keys
+const store = useStore()
+
+const shortcuts = ref([
+  {
+    keys: [platformKey(), 'm'],
+    preventDefault: true,
+    handler() {
+      switchTypeMaterial()
     }
   },
-  data: function () {
-    return {
-      objectLists: this.makeLists(),
-      showAdvance: false,
-      editType: undefined,
-      childOfParent: childOfParent,
-      typeMaterialList: []
+  {
+    keys: [platformKey(), 'e'],
+    preventDefault: true,
+    handler() {
+      switchComprehensive()
     }
+  }
+])
+
+useHotkey(shortcuts.value)
+
+const treeList = computed(() => store.getters[GetterNames.GetRelationshipList])
+const taxon = computed(() => store.getters[GetterNames.GetTaxon])
+const parent = computed(() => store.getters[GetterNames.GetParent])
+const rankGroup = computed(() =>
+  getRankGroup(store.getters[GetterNames.GetTaxon].rank_string)
+)
+
+const relationshipsCreated = computed(() =>
+  store.getters[GetterNames.GetTaxonRelationshipList].filter(
+    ({ type }) => type.split('::')[1] === 'Typification'
+  )
+)
+
+const softValidation = computed(
+  () => store.getters[GetterNames.GetSoftValidation].taxonRelationshipList.list
+)
+
+const checkValidation = computed(() =>
+  softValidation.value.some((item) =>
+    relationshipsCreated.value.some(
+      (created) => created.id === item.instance.id
+    )
+  )
+)
+
+const taxonRelation = computed({
+  get() {
+    return store.getters[GetterNames.GetTaxonType]
   },
-  watch: {
-    parent: {
-      handler: function (newVal) {
-        if (newVal == null) return true
-        this.refresh()
-      },
-      immediate: true
-    },
-    taxon: {
-      handler (newVal, oldVal) {
-        if (newVal.id && (!oldVal || newVal.id !== oldVal.id)) {
-          TypeMaterial.where({ protonym_id: newVal.id }).then(response => {
-            this.typeMaterialList = response.body
-          })
-        }
-      },
-      immediate: true,
-      deep: true
-    }
+  set(value) {
+    store.commit(MutationNames.SetTaxonType, value)
+  }
+})
+
+const objectLists = ref(makeLists())
+const editType = ref()
+const typeMaterialList = ref([])
+const view = ref(TAB.common)
+
+watch(
+  parent,
+  (newVal) => {
+    if (newVal == null) return true
+    refresh()
   },
-  mounted () {
-    TW.workbench.keyboard.createLegend((platformKey() + '+' + 'm'), 'Go to new type material', 'New taxon name')
-    TW.workbench.keyboard.createLegend((platformKey() + '+' + 'c'), 'Go to comprehensive specimen digitization', 'New taxon name')
-  },
-  methods: {
-    setEdit(relationship) {
-      this.editType = relationship
-      this.addTaxonType({
-        id: relationship.subject_taxon_name_id,
-        label_html: relationship.object_tag
+  { immediate: true }
+)
+
+watch(
+  taxon,
+  (newVal, oldVal) => {
+    if (newVal.id && (!oldVal || newVal.id !== oldVal.id)) {
+      TypeMaterial.where({ protonym_id: newVal.id }).then(({ body }) => {
+        typeMaterialList.value = body
       })
-    },
-    loadTaxonRelationships: function () {
-      this.$store.dispatch(ActionNames.LoadTaxonRelationships, this.taxon.id)
-    },
-    setType (item) {
-      this.$store.dispatch(ActionNames.UpdateTaxonRelationship, item)
-    },
-    removeType: function (item) {
-      let taxonName = Object.assign({}, this.$store.getters[GetterNames.GetTaxon])
+    }
+  },
+  {
+    immediate: true,
+    deep: true
+  }
+)
 
-      taxonName['type_taxon_name_relationship'] = undefined
-      this.$store.dispatch(ActionNames.RemoveTaxonRelationship, item)
-      this.$store.commit(MutationNames.SetTaxon, taxonName)
-    },
-    refresh: function () {
-      this.objectLists.tree = this.filterList(this.addType(Object.assign({}, this.treeList.typification.all)), this.getRankGroup)
-      this.objectLists.common = this.filterList(this.addType(Object.assign({}, this.treeList.typification.common)), this.getRankGroup)
-    },
-    activeModal: function (value) {
-      this.$store.commit(MutationNames.SetModalType, value)
-    },
-    makeLists: function () {
-      return {
-        tree: undefined,
-        common: undefined
-      }
-    },
-    addTaxonType: function (taxon) {
-      this.taxonRelation = taxon
-      if (this.getRankGroup == 'Family') { this.addEntry(this.objectLists.tree[Object.keys(this.objectLists.tree)[0]]) }
-    },
-    addEntry: function (item) {
-      if(this.editType) {
-        item.id = this.editType.id
-        this.$store.dispatch(ActionNames.UpdateTaxonType, item).then(() => {
-          this.$store.commit(MutationNames.UpdateLastChange)
-          this.editType = undefined
-        })
-      }
-      else {
-        this.$store.dispatch(ActionNames.AddTaxonType, item).then(() => {
-          this.$store.commit(MutationNames.UpdateLastChange)
-        })
-      }
-    },
-    filterList: function (list, filter) {
-      let tmp = {}
+onMounted(() => {
+  TW.workbench.keyboard.createLegend(
+    platformKey() + '+' + 'm',
+    'Go to new type material',
+    'New taxon name'
+  )
+  TW.workbench.keyboard.createLegend(
+    platformKey() + '+' + 'c',
+    'Go to comprehensive specimen digitization',
+    'New taxon name'
+  )
+})
 
-      for (var key in list) {
-        if (key.split('::')[2] == filter) { tmp[key] = list[key] }
-      }
-      return tmp
-    },
-    addType (list) {
-      for (var key in list) {
-        Object.defineProperty(list[key], 'type', { writable: true, value: key })
-      }
-      return list
-    },
-    switchTypeMaterial () {
-      window.open(`/tasks/type_material/edit_type_material?taxon_name_id=${this.taxon.id}`, '_self')
-    },
-    switchComprehensive () {
-      window.open(`/tasks/accessions/comprehensive?taxon_name_id=${this.taxon.id}`, '_self')
-    },
-    showForThisGroup: showForThisGroup,
+function setEdit(relationship) {
+  editType.value = relationship
+  addTaxonType({
+    id: relationship.subject_taxon_name_id,
+    object_tag: relationship.object_tag
+  })
+}
+
+function loadTaxonRelationships() {
+  store.dispatch(ActionNames.LoadTaxonRelationships, taxon.value.id)
+}
+
+function setType(item) {
+  store.dispatch(ActionNames.UpdateTaxonRelationship, item)
+}
+
+function removeType(item) {
+  store.dispatch(ActionNames.RemoveTaxonRelationship, item)
+  store.commit(MutationNames.SetTaxon, {
+    ...taxon.value,
+    type_taxon_name_relationship: undefined
+  })
+
+  if (item.id === editType.value?.id) {
+    editType.value = undefined
+    taxonRelation.value = undefined
   }
 }
+
+function refresh() {
+  objectLists.value.tree = filterList(
+    addType(Object.assign({}, treeList.value.typification.all)),
+    rankGroup.value
+  )
+  objectLists.value.common = filterList(
+    addType(Object.assign({}, treeList.value.typification.common)),
+    rankGroup.value
+  )
+}
+
+function makeLists() {
+  return {
+    tree: undefined,
+    common: undefined
+  }
+}
+
+function addTaxonType(taxon) {
+  taxonRelation.value = taxon
+  if (rankGroup.value == 'Family') {
+    addEntry(objectLists.value.tree[Object.keys(objectLists.value.tree)[0]])
+  }
+}
+
+function addEntry(item) {
+  const saveRequest = editType.value
+    ? store.dispatch(ActionNames.UpdateTaxonType, {
+        ...item,
+        id: editType.value.id
+      })
+    : store.dispatch(ActionNames.AddTaxonType, item)
+
+  saveRequest.then(() => {
+    store.commit(MutationNames.UpdateLastChange)
+    editType.value = undefined
+  })
+}
+
+function filterList(list, filter) {
+  const tmp = {}
+
+  for (const key in list) {
+    if (key.split('::')[2] === filter) {
+      tmp[key] = list[key]
+    }
+  }
+  return tmp
+}
+
+function addType(list) {
+  for (const key in list) {
+    list[key].type = key
+  }
+  return list
+}
+
+function switchTypeMaterial() {
+  window.open(
+    `${RouteNames.TypeMaterial}?taxon_name_id=${taxon.value.id}`,
+    '_self'
+  )
+}
+
+function switchComprehensive() {
+  window.open(
+    `${RouteNames.DigitizeTask}?taxon_name_id=${taxon.value.id}`,
+    '_self'
+  )
+}
+
+defineExpose({
+  focus() { quickTaxonName.value?.focus() }
+})
 </script>

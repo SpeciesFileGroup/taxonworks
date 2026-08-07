@@ -1,49 +1,82 @@
 <template>
-  <div id="typeBox">
+  <div>
     <div class="panel separate-bottom">
       <div class="content header">
         <h3
-          v-if="taxon.id"
+          v-if="store.taxonName?.id"
           class="flex-separate middle"
         >
           <a
-            :href="`/tasks/nomenclature/browse?taxon_name_id=${taxon.id}`"
+            :href="`${RouteNames.BrowseNomenclature}?taxon_name_id=${store.taxonName.id}`"
             class="taxonname"
-            v-hotkey="shortcuts">
+          >
             <span v-html="taxonNameAndAuthor" />
           </a>
           <div>
-            <div class="horizontal-right-content margin-small-bottom">
-              <otu-radial
+            <div
+              class="horizontal-right-content margin-small-bottom gap-xsmall"
+            >
+              <VIcon
+                v-if="store.hasUnsavedChanges"
+                name="attention"
+                color="attention"
+                title="You have unsaved changes."
+              />
+              <OtuRadial
                 ref="browseOtu"
-                :object-id="taxon.id"
-                :taxon-name="taxon.object_tag"/>
-              <radial-annotator :global-id="taxon.global_id"/>
-              <radial-object :global-id="taxon.global_id"/>
+                :object-id="store.taxonName.id"
+                :taxon-name="store.taxonName.object_tag"
+              />
+              <RadialAnnotator :global-id="store.taxonName.global_id" />
+              <RadialObject :global-id="store.taxonName.global_id" />
             </div>
-            <div class="horizontal-right-content">
-              <pin-component
-                class="circle-button"
+            <div class="horizontal-right-content gap-xsmall">
+              <VBtn
+                circle
+                color="primary"
+                title="Change taxon name"
+                @click="reset"
+              >
+                <VIcon
+                  title="Change taxon name"
+                  name="undo"
+                  x-small
+                />
+              </VBtn>
+              <VPin
                 type="TaxonName"
-                :object-id="taxon.id"/>
-              <a
-                class="circle-button btn-edit button-default"
-                :href="`/tasks/nomenclature/new_taxon_name?taxon_name_id=${taxon.id}`"/>
+                :object-id="store.taxonName.id"
+              />
+              <VBtn
+                circle
+                color="primary"
+                :href="`${RouteNames.NewTaxonName}?taxon_name_id=${store.taxonName.id}`"
+              >
+                <VIcon
+                  x-small
+                  name="pencil"
+                />
+              </VBtn>
             </div>
           </div>
         </h3>
         <span
-          v-if="typeMaterial.id"
-          v-html="typeMaterial.object_tag"/>
+          v-if="store.typeMaterial.id"
+          v-html="store.typeMaterial.label"
+        />
       </div>
     </div>
     <div
       class="panel content"
-      v-if="typesMaterial.length">
+      v-if="store.typeMaterials.length"
+    >
       <button
         type="button"
-        @click="newType"
-        class="button normal-input button-default">New type</button>
+        class="button normal-input button-default"
+        @click="() => store.setNewTypeMaterial()"
+      >
+        New type
+      </button>
 
       <table class="margin-medium-top full_width">
         <thead>
@@ -54,21 +87,34 @@
         </thead>
         <tbody>
           <tr
-            v-for="item in typesMaterial"
+            v-for="item in store.typeMaterials"
             :key="item.id"
-            :class="{ highlight: typeMaterial.id === item.id }">
+            :class="{ highlight: store.typeMaterial.id === item.id }"
+          >
+            <td>{{ item.type }} ({{ item.collectionObject.total }})</td>
             <td>
-              {{ item.type_type }} ({{ item.collection_object.total }})
-            </td>
-            <td>
-              <div class="horizontal-right-content">
-                <radial-annotator :global-id="item.global_id"/>
-                <span 
-                  @click="setTypeMaterial(item)"
-                  class="button circle-button btn-edit button-default"/>
-                <span
-                  @click="removeTypeSpecimen(item)"
-                  class="button circle-button btn-delete"/>
+              <div class="horizontal-right-content gap-xsmall">
+                <RadialAnnotator :global-id="item.globalId" />
+                <VBtn
+                  circle
+                  color="primary"
+                  @click="() => store.setTypeMaterial(item)"
+                >
+                  <VIcon
+                    name="pencil"
+                    x-small
+                  />
+                </VBtn>
+                <VBtn
+                  circle
+                  color="destroy"
+                  @click="() => removeTypeMaterial(item)"
+                >
+                  <VIcon
+                    name="trash"
+                    x-small
+                  />
+                </VBtn>
               </div>
             </td>
           </tr>
@@ -77,98 +123,51 @@
     </div>
   </div>
 </template>
-<script>
 
-import RadialAnnotator from 'components/radials/annotator/annotator.vue'
-import RadialObject from 'components/radials/navigation/radial.vue'
-import { GetterNames } from '../store/getters/getters'
-import ActionNames from '../store/actions/actionNames'
-import PinComponent from 'components/ui/Pinboard/VPin.vue'
-import OtuRadial from 'components/otu/otu.vue'
-import platformKey from 'helpers/getPlatformKey'
-import { RouteNames } from 'routes/routes'
+<script setup>
+import { computed } from 'vue'
+import { RouteNames } from '@/routes/routes.js'
+import useStore from '../store/store.js'
+import useDepictionStore from '../store/depictions.js'
+import useBiocurationStore from '@/tasks/field_occurrences/new/store/biocurations.js'
+import useSoftvalidationStore from '@/components/Form/FormCollectingEvent/store/softValidations'
+import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
+import RadialObject from '@/components/radials/navigation/radial.vue'
+import VPin from '@/components/ui/Button/ButtonPin.vue'
+import OtuRadial from '@/components/otu/otu.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 
-export default {
-  components: {
-    RadialAnnotator,
-    RadialObject,
-    OtuRadial,
-    PinComponent
-  },
+const store = useStore()
+const depictionStore = useDepictionStore()
+const biocurationStore = useBiocurationStore()
+const validationStore = useSoftvalidationStore()
 
-  computed: {
-    typeMaterial () {
-      return this.$store.getters[GetterNames.GetTypeMaterial]
-    },
+const taxonNameAndAuthor = computed(() =>
+  [store.taxonName.cached_html, store.taxonName.cached_author_year]
+    .filter(Boolean)
+    .join(' ')
+)
 
-    typesMaterial () {
-      return this.$store.getters[GetterNames.GetTypeMaterials]
-    },
+function reset() {
+  store.$reset()
+  depictionStore.$reset()
+  biocurationStore.reset()
+  validationStore.$reset()
+}
 
-    taxon () {
-      return this.$store.getters[GetterNames.GetTaxon]
-    },
-
-    taxonNameAndAuthor () {
-      return `${this.taxon.cached_html} ${this.taxon.cached_author_year || ''}`
-    },
-
-    shortcuts () {
-      const keys = {}
-
-      keys[`${platformKey()}+o`] = this.switchBrowseOtu
-      keys[`${platformKey()}+e`] = this.switchComprehensive
-      keys[`${platformKey()}+t`] = this.switchNewTaxonName
-
-      return keys
-    }
-  },
-
-  methods: {
-    reloadPage () {
-      window.location.href = '/tasks/type_material/edit_type_material'
-    },
-
-    removeTypeSpecimen (item) {
-      if (window.confirm('Are you sure you want to destroy this record?')) {
-        this.$store.dispatch(ActionNames.RemoveTypeSpecimen, item.id)
-      }
-    },
-
-    setTypeMaterial (material) {
-      this.$store.dispatch(ActionNames.LoadTypeMaterial, material)
-    },
-
-    newType () {
-      this.$store.dispatch(ActionNames.SetNewTypeMaterial)
-    },
-
-    switchComprehensive () {
-      const coId = this.typeMaterial.collection_object_id
-      const coParam = coId
-        ? `&collection_object_id=${coId}`
-        : ''
-
-      window.open(`${RouteNames.DigitizeTask}?taxon_name_id=${this.taxon.id}${coParam}`, '_self')
-    },
-
-    switchBrowseOtu () {
-      this.$refs.browseOtu.openApp()
-    },
-
-    switchNewTaxonName () {
-      window.open(`${RouteNames.NewTaxonName}?taxon_name_id=${this.taxon.id}`, '_self')
-    }
+function removeTypeMaterial(item) {
+  if (
+    window.confirm(
+      `You're trying to delete this record. Are you sure you want to proceed?`
+    )
+  ) {
+    store.remove(item)
   }
 }
 </script>
 <style lang="scss" scoped>
-  .taxon-options {
-    display: flex;
-    justify-content: space-between;
-  }
-
-  .taxonname {
-    font-size: 14px;
-  }
+.taxonname {
+  font-size: 14px;
+}
 </style>

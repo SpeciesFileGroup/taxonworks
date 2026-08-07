@@ -14,7 +14,10 @@ class PeopleController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @people = Queries::Person::Filter.new(filter_params).all.order(:cached).page(params[:page]).per(params[:per])
+        @people = Queries::Person::Filter.new(params).all
+        .order(:cached)
+        .page(params[:page])
+        .per(params[:per])
       }
     end
   end
@@ -44,7 +47,7 @@ class PeopleController < ApplicationController
         format.json {render action: 'show', status: :created, location: @person}
       else
         format.html {render action: 'new'}
-        format.json {render json: @person.errors, status: :unprocessable_entity}
+        format.json {render json: @person.errors, status: :unprocessable_content}
       end
     end
   end
@@ -58,7 +61,7 @@ class PeopleController < ApplicationController
         format.json {head :no_content}
       else
         format.html {render action: 'edit'}
-        format.json {render json: @person.errors, status: :unprocessable_entity}
+        format.json {render json: @person.errors, status: :unprocessable_content}
       end
     end
   end
@@ -73,7 +76,7 @@ class PeopleController < ApplicationController
         format.json {head :no_content}
       else
         format.html { destroy_redirect @person, notice: 'Person was not destroyed, ' + @person.errors.full_messages.join('; ') }
-        format.json { render json: @person.errors, status: :unprocessable_entity }
+        format.json { render json: @person.errors, status: :unprocessable_content }
       end
     end
   end
@@ -101,7 +104,7 @@ class PeopleController < ApplicationController
 
   # GET /people/select_options
   def select_options
-    @people = Person.select_optimized(sessions_current_user_id, sessions_current_project_id, params[:role_type])
+    @people = Person.select_optimized(sessions_current_user_id, sessions_current_project_id, params[:target])
   end
 
   # POST /people/merge
@@ -111,13 +114,24 @@ class PeopleController < ApplicationController
     if @person.hard_merge(person_to_remove.id)
       render 'show'
     else
-      render json: {status: 'Failed. Check to see that both People are not linked to the same record, e.g. Authors on the same Source.'}
+      render json: { error: 'Failed. Check to see that both People are not linked to the same record, e.g. Authors on the same Source.' }, status: :conflict
     end
+  end
+
+  # GET /people/author_match.json
+  def author_match
+    first_name = params[:first_name].presence || params[:first_name_like].presence
+    last_name = params[:last_name].presence || params[:last_name_like].presence
+
+    people = Queries::Person::Filter.new(author_match_params).all.to_a
+
+    @people = Utilities::PersonNameMatch.sort_by_match(people, first_name, last_name)
+    @project_use_counts = Person.project_use_counts(@people.map(&:id), sessions_current_project_id)
   end
 
   # GET /people/download
   def download
-    send_data Export::Download.generate_csv(Person.all), type: 'text', filename: "people_#{DateTime.now}.csv"
+    send_data Export::CSV.generate_csv(Person.all), type: 'text', filename: "people_#{DateTime.now}.tsv"
   end
 
   # GET /people/123/roles
@@ -137,9 +151,10 @@ class PeopleController < ApplicationController
 
   # GET /api/v1/people
   def api_index
-    @people = Queries::Person::Filter.new(api_params).all
+    @people = Queries::Person::Filter.new(params.merge!(api: true)).all
       .order('people.id')
-      .page(params[:page]).per(params[:per])
+      .page(params[:page])
+      .per(params[:per])
     render '/people/api/v1/index'
   end
 
@@ -150,62 +165,12 @@ class PeopleController < ApplicationController
 
   private
 
-  def filter_params
-    params.permit(
-      :name,
-      :last_name,
-      :first_name,
-      :last_name_starts_with,
-      :born_after_year, :born_before_year,
-      :active_after_year, :active_before_year,
-      :died_before_year, :died_after_year,
-      :levenshtein_cuttoff,
-      :identifier,
-      :identifier_end,
-      :identifier_exact,
-      :identifier_start,
-      :user_date_end,
-      :user_date_start,
-      :user_id,
-      :user_target,
-      used_in_project_id: [],
-      keyword_id_and: [],
-      keyword_id_or: [],
-      role: [],
-      person_wildcard: [],
-      user_id: []
-    )
-  end
-
-  def api_params
-    params.permit(
-      :name,
-      :last_name,
-      :first_name,
-      :last_name_starts_with,
-      :born_after_year, :born_before_year,
-      :active_after_year, :active_before_year,
-      :died_before_year, :died_after_year,
-      :role,
-      :identifier,
-      :identifier_end,
-      :identifier_exact,
-      :identifier_start,
-      :user_date_end,
-      :user_date_start,
-      :user_id,
-      :user_target,
-      :tags,
-      # user_id: [],
-      keyword_id_and: [],
-      keyword_id_or: [],
-      role: [],
-      person_wildcard: []
-    )
-  end
-
   def autocomplete_params
-    params.permit(roles: []).to_h.symbolize_keys
+    params.permit(
+      :in_project,
+      :role_type,
+      role_type: []
+    ).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
   end
 
   def set_person
@@ -221,6 +186,10 @@ class PeopleController < ApplicationController
       :suffix, :prefix,
       :year_born, :year_died, :year_active_start, :year_active_end
     )
+  end
+
+  def author_match_params
+    params.permit(:first_name, :last_name, :first_name_like, :last_name_like)
   end
 
   def merge_params

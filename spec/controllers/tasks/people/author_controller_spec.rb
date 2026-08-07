@@ -5,9 +5,9 @@ RSpec.describe Tasks::People::AuthorController, type: :controller do
     sign_in
   }
 
-  describe 'GET #list' do
+  describe 'GET #index' do
     it 'returns http success' do
-      get :list
+      get :index 
       expect(response).to have_http_status(:success)
     end
   end

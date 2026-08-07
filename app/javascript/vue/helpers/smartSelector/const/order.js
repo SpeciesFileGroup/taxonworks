@@ -1,3 +1,12 @@
-export default function() {
-  return ['quick', 'recent', 'pinboard', 'all', 'new/search', 'new', 'search']
+export default function () {
+  return [
+    'quick',
+    'recent',
+    'pinboard',
+    'all',
+    'map',
+    'new/search',
+    'new',
+    'search'
+  ]
 }

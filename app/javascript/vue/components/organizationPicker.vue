@@ -1,26 +1,35 @@
 <template>
   <div class="horizontal-left-content organization-picker">
-    <autocomplete
+    <VAutocomplete
+      class="margin-small-right"
+      ref="autocomplete"
       url="/organizations/autocomplete"
       param="term"
       label="label"
       placeholder="Search an organization"
-      ref="autocomplete"
+      clear-after
       @found="nothing = !$event"
-      @getInput="organization.name = $event"
-      @getItem="setOrganization"
-      :clear-after="true"
+      @get-input="(item) => (organization.name = item)"
+      @get-item="loadOrganization"
     />
     <button
-      v-if="nothing"
+      v-if="showNewButton && nothing"
       type="button"
-      @click="showModal = true"
-      class="button normal-input button-default">
+      @click="isModalVisible = true"
+      class="button normal-input button-default"
+    >
       New
     </button>
-    <modal-component
-      v-if="showModal"
-      @close="showModal = false">
+    <DefaultPin
+      class="button-circle"
+      type="Organization"
+      section="Organizations"
+      @get-item="loadOrganization"
+    />
+    <VModal
+      v-if="isModalVisible"
+      @close="isModalVisible = false"
+    >
       <template #header>
         <h3>Create organization</h3>
       </template>
@@ -31,34 +40,39 @@
               <label>Name</label>
               <input
                 type="text"
-                v-model="organization.name">
+                v-model="organization.name"
+              />
             </div>
             <div class="field">
               <label>Alternate name</label>
               <input
                 type="text"
-                v-model="organization.alternate_name">
+                v-model="organization.alternate_name"
+              />
             </div>
             <div class="field">
               <label>Description</label>
               <textarea
                 type="text"
                 rows="2"
-                v-model="organization.description"/>
+                v-model="organization.description"
+              />
             </div>
             <div class="field">
               <label>Disambiguating description</label>
               <textarea
                 type="text"
                 rows="2"
-                v-model="organization.disambiguating_description"/>
+                v-model="organization.disambiguating_description"
+              />
             </div>
             <div class="field">
               <label>Address</label>
               <textarea
                 type="text"
                 rows="5"
-                v-model="organization.address"/>
+                v-model="organization.address"
+              />
             </div>
           </div>
           <div class="margin-medium-right">
@@ -66,73 +80,93 @@
               <label>Telephone</label>
               <input
                 type="text"
-                v-model="organization.telephone">
+                v-model="organization.telephone"
+              />
             </div>
             <div class="field">
               <label>Email</label>
               <input
                 type="email"
-                v-model="organization.email">
+                v-model="organization.email"
+              />
             </div>
             <div class="field">
               <label>Duns</label>
               <input
                 type="text"
-                v-model="organization.duns">
+                v-model="organization.duns"
+              />
             </div>
             <div class="field">
               <label>Global location number</label>
               <input
                 type="text"
-                v-model="organization.global_location_number">
+                v-model="organization.global_location_number"
+              />
             </div>
             <div class="field">
               <label>Legal name</label>
               <input
                 type="text"
-                v-model="organization.legal_name">
+                v-model="organization.legal_name"
+              />
             </div>
           </div>
           <div>
             <div class="field">
-              <label>Area served</label>
-              <autocomplete
+              <label>Geographic area</label>
+              <VAutocomplete
                 url="/geographic_areas/autocomplete"
                 placeholder="Search a geographic area"
                 param="term"
                 label="label_html"
-                @getItem="organization.area_served_id = $event.id"
-                display="label"/>
+                display="label"
+                @get-item="organization.geographic_area_id = $event.id"
+              />
+            </div>
+            <div class="field">
+              <label>Area served</label>
+              <VAutocomplete
+                url="/geographic_areas/autocomplete"
+                placeholder="Search a geographic area"
+                param="term"
+                label="label_html"
+                @get-item="organization.area_served_id = $event.id"
+                display="label"
+              />
             </div>
             <div class="field">
               <label>Same as</label>
-              <autocomplete
+              <VAutocomplete
                 url="/organizations/autocomplete"
                 placeholder="Search an organization"
                 param="term"
                 label="label_html"
-                @getItem="organization.same_as_id = $event.id"
-                display="label"/>
+                @get-item="organization.same_as_id = $event.id"
+                display="label"
+              />
             </div>
             <div class="field">
               <label>Department</label>
-              <autocomplete
+              <VAutocomplete
                 url="/organizations/autocomplete"
                 placeholder="Search an organization"
                 param="term"
                 label="label_html"
-                @getItem="organization.department_id = $event.id"
-                display="label"/>
+                display="label"
+                @get-item="organization.department_id = $event.id"
+              />
             </div>
             <div class="field">
               <label>Parent organization</label>
-              <autocomplete
+              <VAutocomplete
                 url="/organizations/autocomplete"
                 placeholder="Search an organization"
                 param="term"
                 label="label_html"
-                @getItem="organization.parent_organization_id = $event.id"
-                display="label"/>
+                display="label"
+                @get-item="organization.parent_organization_id = $event.id"
+              />
             </div>
           </div>
         </div>
@@ -141,88 +175,91 @@
         <button
           type="button"
           class="button normal-input button-submit"
-          @click="createOrganization">
+          @click="createOrganization"
+        >
           Create organization
         </button>
       </template>
-    </modal-component>
+    </VModal>
   </div>
 </template>
 
-<script>
+<script setup>
+import VAutocomplete from '@/components/ui/Autocomplete'
+import VModal from '@/components/ui/Modal'
+import DefaultPin from '@/components/ui/Button/ButtonPinned.vue'
+import { Organization } from '@/routes/endpoints'
+import { ref, useTemplateRef, watch } from 'vue'
 
-import Autocomplete from 'components/ui/Autocomplete'
-import ModalComponent from 'components/ui/Modal'
-import AjaxCall from 'helpers/ajaxCall'
+const emit = defineEmits(['select'])
 
-export default {
-  components: {
-    Autocomplete,
-    ModalComponent
-  },
-
-  emits: ['getItem'],
-
-  data () {
-    return {
-      showModal: false,
-      nothing: false,
-      organization: this.newOrganization()
-    }
-  },
-
-  watch: {
-    showModal (newVal) {
-      if (!newVal)
-        this.organization = this.newOrganization()
-    }
-  },
-
-  methods: {
-    newOrganization () {
-      return {
-        name: undefined,
-        alternate_name: undefined,
-        description: undefined,
-        disambiguating_description: undefined,
-        same_as_id: undefined,
-        address: undefined,
-        email: undefined,
-        telephone: undefined,
-        duns: undefined,
-        global_location_number: undefined,
-        legal_name: undefined,
-        area_served_id: undefined,
-        department_id: undefined,
-        parent_organization_id: undefined
-      }
-    },
-
-    createOrganization () {
-      AjaxCall('post', '/organizations', { organization: this.organization }).then(response => {
-        this.setOrganization(response.body)
-        this.showModal = false
-        this.nothing = false
-        this.$refs.autocomplete.cleanInput()
-      })
-    },
-
-    setOrganization (organization) {
-      this.$emit('getItem', organization)
-    }
+const props = defineProps({
+  showNewButton: {
+    type: Boolean,
+    default: true
   }
+})
+
+const isModalVisible = ref(false)
+const nothing = ref(false)
+const organization = ref(makeOrganization())
+const autocompleteRef = useTemplateRef('autocomplete')
+
+watch(isModalVisible, (newVal) => {
+  if (!newVal) {
+    organization.value = makeOrganization()
+  }
+})
+
+function makeOrganization() {
+  return {
+    name: undefined,
+    alternate_name: undefined,
+    description: undefined,
+    disambiguating_description: undefined,
+    same_as_id: undefined,
+    address: undefined,
+    email: undefined,
+    telephone: undefined,
+    duns: undefined,
+    global_location_number: undefined,
+    legal_name: undefined,
+    area_served_id: undefined,
+    geographic_area_id: undefined,
+    department_id: undefined,
+    parent_organization_id: undefined
+  }
+}
+
+function createOrganization() {
+  Organization.create({ organization: organization.value }).then(({ body }) => {
+    setOrganization(body)
+    isModalVisible.value = false
+    nothing.value = false
+    autocompleteRef.value.cleanInput()
+  })
+}
+
+function loadOrganization(item) {
+  Organization.find(item.id).then(({ body }) => {
+    emit('select', body)
+  })
+}
+
+function setOrganization(organization) {
+  emit('select', organization)
 }
 </script>
 
 <style lang="scss">
-  .organization-picker {
-    label {
-      display: block;
-    }
-    .modal-container {
-      background-color: white !important;
-      min-width: auto !important;
-      width: 600px !important;
-    }
+.organization-picker {
+  label {
+    display: block;
   }
+  .modal-container {
+    background-color: white !important;
+    min-width: auto !important;
+    width: 600px !important;
+  }
+}
 </style>

@@ -1,26 +1,35 @@
-import SetParam from 'helpers/setParam.js'
+import SetParam from '@/helpers/setParam.js'
 import ActionNames from './actionNames'
 import { MutationNames } from '../mutations/mutations'
-import { RouteNames } from 'routes/routes'
-import { Extract, SoftValidation } from 'routes/endpoints'
+import { RouteNames } from '@/routes/routes'
+import { Extract, SoftValidation } from '@/routes/endpoints'
 
-export default ({ commit, dispatch }, id) => {
-  return Extract.find(id).then(({ body }) => {
-    const promises = []
-    SetParam(RouteNames.NewExtract, 'extract_id', id)
-    body.roles_attributes = body.extractor_roles || []
+export default ({ commit, dispatch }, id) =>
+  Extract.find(id)
+    .then(({ body }) => {
+      const roles = (body.extractor_roles || []).map((role) => ({
+        ...role,
+        person_id: role.person.id
+      }))
 
-    commit(MutationNames.SetExtract, body)
-    promises.push(dispatch(ActionNames.LoadOriginRelationship, body))
-    promises.push(dispatch(ActionNames.LoadProtocols, body))
-    promises.push(dispatch(ActionNames.LoadIdentifiers, body))
+      commit(MutationNames.SetRoles, roles)
+      commit(MutationNames.SetExtract, body)
 
-    SoftValidation.find(body.global_id).then(response => {
-      commit(MutationNames.SetSoftValidation, response.body)
+      const actions = [
+        dispatch(ActionNames.LoadOriginRelationship, body),
+        dispatch(ActionNames.LoadProtocols, body),
+        dispatch(ActionNames.LoadIdentifiers, body),
+        dispatch(ActionNames.LoadConfidence, body.id)
+      ]
+
+      SetParam(RouteNames.NewExtract, 'extract_id', id)
+
+      SoftValidation.find(body.global_id).then((response) => {
+        commit(MutationNames.SetSoftValidation, response.body)
+      })
+
+      Promise.all(actions).then(() => {
+        commit(MutationNames.SetLastChange, 0)
+      })
     })
-
-    Promise.all(promises).then(() => {
-      commit(MutationNames.SetLastChange, 0)
-    })
-  })
-}
+    .catch(() => {})

@@ -36,7 +36,7 @@ class RepositoriesController < ApplicationController
         format.json { render action: 'show', status: :created, location: @repository }
       else
         format.html { render action: 'new' }
-        format.json { render json: @repository.errors, status: :unprocessable_entity }
+        format.json { render json: @repository.errors, status: :unprocessable_content }
       end
     end
   end
@@ -50,7 +50,7 @@ class RepositoriesController < ApplicationController
         format.json { head :no_content }
       else
         format.html { render action: 'edit' }
-        format.json { render json: @repository.errors, status: :unprocessable_entity }
+        format.json { render json: @repository.errors, status: :unprocessable_content }
       end
     end
   end
@@ -78,12 +78,12 @@ class RepositoriesController < ApplicationController
   end
 
   def autocomplete
-    @repositories = Queries::Repository::Autocomplete.new(params[:term], **autocomplete_params).autocomplete
+    @repositories = ::Queries::Repository::Autocomplete.new(params[:term], **autocomplete_params).autocomplete
   end
 
   # GET /repositories/download
   def download
-    send_data Export::Download.generate_csv(Repository.all), type: 'text', filename: "repositories_#{DateTime.now}.csv"
+    send_data Export::CSV.generate_csv(Repository.all), type: 'text', filename: "repositories_#{DateTime.now}.tsv"
   end
 
   # GET /repositories/select_options
@@ -103,6 +103,6 @@ class RepositoriesController < ApplicationController
   end
 
   def repository_params
-    params.require(:repository).permit(:name, :url, :acronym, :status, :institutional_LSID, :is_index_herbarioum_record)
+    params.require(:repository).permit(:name, :url, :acronym, :status, :institutional_LSID, :is_index_herbariorum)
   end
 end

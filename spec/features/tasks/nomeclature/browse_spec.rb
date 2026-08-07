@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'Browse nomenclature task', type: :feature, group: :nomenclature do
+describe 'Browse taxon names task', type: :feature, group: :nomenclature do
   context 'when signed in and a project is selected' do
 
     before { sign_in_user_and_select_project}
@@ -12,7 +12,7 @@ describe 'Browse nomenclature task', type: :feature, group: :nomenclature do
       before { visit browse_nomenclature_task_path(taxon_name_id: genus.id) }
 
       specify "#{OS.mac? ? 'ctrl': 'alt'}-t navigates to New taxon name task" do
-        expect(page).to have_text('Browse nomenclature')
+        expect(page).to have_text('Browse taxon names')
         find('body').send_keys([OS.mac? ? :control : :alt, 't'])
         expect(page).to have_text('Edit taxon name')
       end
@@ -34,16 +34,19 @@ describe 'Browse nomenclature task', type: :feature, group: :nomenclature do
           expect(@hierarchy).to have_link('Root', href: browse_nomenclature_task_path(taxon_name_id: TaxonName.first.id))
         end
 
-        specify 'displaying invalid should only show invalid names' do
+        
+        specify 'displaying valid and invalid names' do
           visit browse_nomenclature_task_path(taxon_name_id: root.id)
-          @hierarchy.find('label[for=display_herarchy_invalid]').click
           expect(@hierarchy).to have_link('Bus', href: browse_nomenclature_task_path(taxon_name_id: genus_synonym.id))
-          expect(@hierarchy).to_not have_link('Aus', href: browse_nomenclature_task_path(taxon_name_id: genus.id))
+          expect(@hierarchy).to have_link('Aus', href: browse_nomenclature_task_path(taxon_name_id: genus.id))
         end
 
         specify 'selecting the valid filter should not show invalid names' do
           visit browse_nomenclature_task_path(taxon_name_id: root.id)
-          @hierarchy.find('label[for=display_herarchy_valid]').click
+          @navigate_options = page.find_by_id('navigate-options')
+          @navigate_options.find('button').click
+          @navigate_options.check('Show only valid names')
+          
           expect(@hierarchy).to have_link('Aus')
           expect(@hierarchy).to_not have_link('Bus')
         end

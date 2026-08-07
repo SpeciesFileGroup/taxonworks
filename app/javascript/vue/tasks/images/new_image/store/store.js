@@ -4,7 +4,7 @@ import { MutationFunctions } from './mutations/mutations'
 import { ActionFunctions } from './actions/actions'
 import makeTaxonDetermination from '../const/makeTaxonDetermination'
 
-function makeInitialState () {
+function makeInitialState() {
   return {
     settings: {
       saving: false,
@@ -12,6 +12,13 @@ function makeInitialState () {
         repository: false,
         taxon_determination: false,
         taxon_determinations: false
+      },
+      applied: {
+        depiction: false,
+        source: false,
+        attribution: false,
+        tags: false,
+        pixel: false
       }
     },
     collection_object: {
@@ -44,17 +51,19 @@ function makeInitialState () {
     imagesCreated: [],
     newCOForSqed: true,
     objectsForDepictions: [],
-    pixels_to_centimeter: undefined,
+    pixelsToCentimeter: undefined,
     repository: undefined,
     source: undefined,
+    isOriginal: undefined,
     tags: [],
+    tagsForImage: [],
     taxonDetermination: makeTaxonDetermination(),
     taxon_determinations: [],
     yearCopyright: undefined
   }
 }
 
-function newStore () {
+function newStore() {
   return createStore({
     state: makeInitialState(),
     getters: GetterFunctions,
@@ -63,7 +72,4 @@ function newStore () {
   })
 }
 
-export {
-  newStore,
-  makeInitialState
-}
+export { newStore, makeInitialState }

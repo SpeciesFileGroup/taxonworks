@@ -1,3 +1,4 @@
+import addNewColumn from './addNewColumn'
 import setObservationMatrix from './setObservationMatrix'
 import setObservations from './setObservations'
 import setObservationColumns from './setObservationColumns'
@@ -6,12 +7,15 @@ import setObservationRows from './setObservationRows'
 import setObservationMoved from './setObservationMoved'
 import setIsSaving from './setIsSaving'
 import setDepictionMoved from './setDepictionMoved'
+import setPagination from './setPagination'
 import addDepiction from './addDepiction'
 import removeDepiction from './removeDepiction'
 import removeOtuDepiction from './removeOtuDepiction'
+import setClone from './setClone.js'
 
 const MutationNames = {
   AddDepiction: 'addDepiction',
+  AddNewColumn: 'addNewColumn',
   SetObservationMatrix: 'setObservationMatrix',
   SetObservations: 'setObservations',
   SetObservationColumns: 'setObservationColumns',
@@ -21,11 +25,14 @@ const MutationNames = {
   SetIsSaving: 'setIsSaving',
   SetDepictionMoved: 'setDepictionMoved',
   RemoveDepiction: 'removeDepiction',
-  RemoveOtuDepiction: 'removeOtuDepiction'
+  RemoveOtuDepiction: 'removeOtuDepiction',
+  SetPagination: 'setPagination',
+  SetClone: 'setClone'
 }
 
 const MutationFunctions = {
   [MutationNames.AddDepiction]: addDepiction,
+  [MutationNames.AddNewColumn]: addNewColumn,
   [MutationNames.SetObservationMatrix]: setObservationMatrix,
   [MutationNames.SetObservations]: setObservations,
   [MutationNames.SetObservationColumns]: setObservationColumns,
@@ -34,11 +41,10 @@ const MutationFunctions = {
   [MutationNames.SetObservationMoved]: setObservationMoved,
   [MutationNames.SetIsSaving]: setIsSaving,
   [MutationNames.SetDepictionMoved]: setDepictionMoved,
+  [MutationNames.SetPagination]: setPagination,
   [MutationNames.RemoveDepiction]: removeDepiction,
-  [MutationNames.RemoveOtuDepiction]: removeOtuDepiction
+  [MutationNames.RemoveOtuDepiction]: removeOtuDepiction,
+  [MutationNames.SetClone]: setClone
 }
 
-export {
-  MutationNames,
-  MutationFunctions
-}
+export { MutationNames, MutationFunctions }

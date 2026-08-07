@@ -1,4 +1,4 @@
-class TaxonNameRelationship::Icn::Unaccepting::Synonym::Homotypic::Basionym < TaxonNameRelationship::Icn::Unaccepting::Usage
+class TaxonNameRelationship::Icn::Unaccepting::Synonym::Homotypic::Basionym < TaxonNameRelationship::Icn::Unaccepting::Synonym::Homotypic
 
   NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000004'.freeze
 

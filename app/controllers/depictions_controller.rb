@@ -1,7 +1,9 @@
 class DepictionsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_depiction, only: [:show, :edit, :update, :destroy]
+  before_action :set_depiction, only: [:show, :edit, :update, :destroy,
+    :api_show, :navigation]
+  after_action -> { set_pagination_headers(:depictions) }, only: [:index, :api_index, :api_gallery], if: :json_request?
 
   # GET /depictions
   # GET /depictions.json
@@ -12,9 +14,12 @@ class DepictionsController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @depictions = Depiction.where(project_id: sessions_current_project_id).where(
-          Queries::Annotator::polymorphic_params(params, Depiction)
-        )
+        @depictions = Queries::Depiction::Filter.new(params)
+        .all
+        .where(project_id: sessions_current_project_id)
+        .where(Queries::Annotator::polymorphic_params(params, Depiction))
+        .page(params[:page])
+        .per(params[:per])
       }
     end
   end
@@ -27,6 +32,29 @@ class DepictionsController < ApplicationController
   # GET /depictions/1.json
   def show
     @depiction.sqed_depiction.preprocess(false) if @depiction.sqed_depiction
+  end
+
+  def api_show
+    render '/depictions/api/v1/show'
+  end
+
+  # GET /api/v1/otus
+  def api_index
+    @depictions = Queries::Depiction::Filter.new(params.merge!(api: true)).all
+      .where(project_id: sessions_current_project_id)
+      .order('depictions.depiction_object_type, depictions.depiction_object_id, depictions.position')
+      .page(params[:page])
+      .per(params[:per])
+    render '/depictions/api/v1/index'
+  end
+
+  def api_gallery
+    @depictions = Queries::Depiction::Filter.new(params.merge!(api: true)).all
+      .where(project_id: sessions_current_project_id)
+      .order('depictions.depiction_object_type, depictions.depiction_object_id, depictions.position')
+      .page(params[:page])
+      .per(params[:per])
+    render '/depictions/api/v1/gallery'
   end
 
   # GET /depictions/new
@@ -48,7 +76,7 @@ class DepictionsController < ApplicationController
         format.json { render :show, status: :created, location: @depiction }
       else
         format.html { render :new }
-        format.json { render json: @depiction.errors, status: :unprocessable_entity }
+        format.json { render json: @depiction.errors, status: :unprocessable_content }
       end
     end
   end
@@ -62,7 +90,7 @@ class DepictionsController < ApplicationController
         format.json { render :show, status: :ok, location: @depiction }
       else
         format.html { render :edit }
-        format.json { render json: @depiction.errors, status: :unprocessable_entity }
+        format.json { render json: @depiction.errors, status: :unprocessable_content }
       end
     end
   end
@@ -80,14 +108,14 @@ class DepictionsController < ApplicationController
   # PATCH /sort?depiction_ids[]=1&depiction_ids[]=2.json
   def sort
     respond_to do |format|
-      begin 
+      begin
         params.require(:depiction_ids).each_with_index do |d, i|
           Depiction.find(d).update_column(:position, i + 1)
         end
-      rescue ActionController::ParameterMissing  
-        format.json { render json: {success: false}, status: :unprocessable_entity and return }
+      rescue ActionController::ParameterMissing
+        format.json { render json: {success: false}, status: :unprocessable_content and return }
       rescue ActiveRecord::RecordInvalid
-        format.json { render json: {success: false}, status: :unprocessable_entity and return }
+        format.json { render json: {success: false}, status: :unprocessable_content and return }
       end
 
       format.json { render json: {success: true}, status: :ok and return }
@@ -96,11 +124,25 @@ class DepictionsController < ApplicationController
 
   # GET /depictions/download
   def download
-    send_data Export::Download.generate_csv(
-      Depiction.where(project_id: sessions_current_project_id)), type: 'text', filename: "depictions_#{DateTime.now}.csv"
+    send_data Export::CSV.generate_csv(
+      Depiction.where(project_id: sessions_current_project_id)), type: 'text', filename: "depictions_#{DateTime.now}.tsv"
   end
 
-  private 
+  def autocomplete
+    @depictions = Queries::Depiction::Autocomplete.new(
+      params[:term], project_id: sessions_current_project_id,
+      polymorphic_types: params[:polymorphic_types_allowed]
+    ).autocomplete
+  end
+
+  def navigation
+  end
+
+  def select_options
+    @depictions = Depiction.select_optimized(sessions_current_user_id, sessions_current_project_id, params.require(:target))
+  end
+
+  private
 
   def set_depiction
     @depiction = Depiction.where(project_id: sessions_current_project_id).find(params[:id])
@@ -115,6 +157,7 @@ class DepictionsController < ApplicationController
       :figure_label,
       image_attributes: [
         :image_file,
+        :pixels_to_centimeter,
         tags_attributes: [:id, :keyword_id, :_destroy],
         identifiers_attributes: [:id, :namespace_id, :identifier, :type, :_destroy]
       ],

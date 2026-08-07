@@ -1,5 +1,5 @@
 import baseCRUD from './base'
-import AjaxCall from 'helpers/ajaxCall'
+import AjaxCall from '@/helpers/ajaxCall'
 
 const permitParams = {
   depiction: {
@@ -37,8 +37,13 @@ const permitParams = {
   }
 }
 
+const controller = 'depictions'
 export const Depiction = {
   ...baseCRUD('depictions', permitParams),
 
-  sort: data => AjaxCall('patch', '/depictions/sort', data)
+  sort: (data) => AjaxCall('patch', `/${controller}/sort`, data),
+
+  filter: (params) => AjaxCall('post', `/${controller}/filter.json`, params),
+
+  navigation: (id) => AjaxCall('get', `/${controller}/${id}/navigation`)
 }

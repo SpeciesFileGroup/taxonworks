@@ -1,4 +1,7 @@
-# An Image is just that, as it is stored in the filesystem.  No additional metadata beyond file descriptors is included here.
+# An Image is just that, as it is stored in the filesystem. No additional metadata beyond file descriptors is included here.
+# More broadly we consider an Image to be the digital encoding of a radiation-derived observation. This lets Images
+# conceptually include things like 3D volumetric models, ASCII drawings, or other data that were generated from (originated based on)
+# light (radiation) interacting with life.
 #
 # This class relies on the paperclip gem and the ImageMagik app to link, store and manipulate images.
 #
@@ -42,7 +45,6 @@
 #   @return [Float, nil]
 #      used to generate scale bars on the fly
 #
-
 class Image < ApplicationRecord
   include Housekeeping
   include Shared::Identifiers
@@ -51,6 +53,7 @@ class Image < ApplicationRecord
   include Shared::ProtocolRelationships
   include Shared::Citations
   include Shared::Attributions
+  include Image::DwcMediaExtensions
   include Shared::IsData
   include SoftValidation
 
@@ -58,29 +61,34 @@ class Image < ApplicationRecord
 
   attr_accessor :rotate
 
+  # ANY non-blank? value here will attempt to also create a depiction
+  # for the Image, linking it to a CollectionObject
+  attr_accessor :filename_depicts_object
+
   MISSING_IMAGE_PATH = '/public/images/missing.jpg'.freeze
+
+  GRAPH_ENTRY_POINTS = [:depictions]
 
   DEFAULT_SIZES = {
     thumb: { width: 100, height: 100 },
     medium: { width: 300, height: 300 }
   }.freeze
 
-  has_one :sled_image, dependent: :destroy
+  has_one :sled_image, dependent: :destroy, inverse_of: :image
 
   has_many :depictions, inverse_of: :image, dependent: :restrict_with_error
 
   has_many :collection_objects, through: :depictions, source: :depiction_object, source_type: 'CollectionObject'
   has_many :otus, through: :depictions, source: :depiction_object, source_type: 'Otu'
-  has_many :taxon_names, through: :otus
 
+  after_validation :stub_depiction, if: Proc.new {|n| !n.filename_depicts_object.blank?}
   before_save :extract_tw_attributes
 
   # also using https://github.com/teeparham/paperclip-meta
   has_attached_file :image_file,
     styles: {
-    thumb: [ "#{DEFAULT_SIZES[:thumb][:width]}x#{DEFAULT_SIZES[:thumb][:height]}>", :png ] ,
-    medium: [ "#{DEFAULT_SIZES[:medium][:width]}x#{DEFAULT_SIZES[:medium][:height]}>", :jpg ]
-  },
+      thumb: [ "#{DEFAULT_SIZES[:thumb][:width]}x#{DEFAULT_SIZES[:thumb][:height]}>", :png ] ,
+      medium: [ "#{DEFAULT_SIZES[:medium][:width]}x#{DEFAULT_SIZES[:medium][:height]}>", :jpg ] },
   default_url: MISSING_IMAGE_PATH,
   filename_cleaner: Utilities::CleanseFilename,
   processors: [:rotator]
@@ -90,15 +98,69 @@ class Image < ApplicationRecord
   validates_attachment_presence :image_file
   validate :image_dimensions_too_short
 
-  soft_validate(:sv_duplicate_image?)
+  validates_uniqueness_of :image_file_fingerprint, scope: :project_id
 
   accepts_nested_attributes_for :sled_image, allow_destroy: true
 
+  accepts_nested_attributes_for :depictions, allow_destroy: false
+
+  scope :with_taxon_names, -> {
+    joins(:depictions)
+    .joins("JOIN otus ON depictions.depiction_object_type = 'Otu' AND depictions.depiction_object_id = otus.id")
+    .joins("JOIN taxon_names ON taxon_names.id = otus.taxon_name_id")
+  }
+
+  # This is bad and you should feel bad if your digitization workflow uses it.
+  def stub_depiction
+    identifier = File.basename(
+      image_file.queued_for_write[:original].original_filename,
+      '.*'
+    )
+
+    co = CollectionObject.joins(:identifiers).where(
+      identifiers: {cached: identifier},
+      project_id: Current.project_id,
+    ).first
+
+    if co.nil?
+      errors.add(:base, 'filename does not match any known CollectionObject identifier')
+      return
+    end
+
+    depictions.build(
+      depiction_object_id: co.id,
+      depiction_object_type: 'CollectionObject',
+      by: Current.user_id,
+      project_id: Current.project_id
+    )
+  end
+
+  # Replaces Image.create!
+  def self.deduplicate_create(image_params)
+    image = Image.new(image_params)
+
+    if i = Image.where(project_id: Current.project_id, image_file_fingerprint: image.image_file_fingerprint).first
+      return i
+    else
+      return image
+    end
+  end
+
+  def sqed_depiction
+    depictions.joins(:sqed_depiction).first&.sqed_depiction
+  end
+
+  # TODO:
+  # Deprecated, once images are de-duplicated
+  #   this will be removed
   # @return [Boolean]
   def has_duplicate?
     Image.where(image_file_fingerprint: self.image_file_fingerprint).count > 1
   end
 
+  # TODO:
+  # Deprecated, once images are de-duplicated
+  #   this will be removed. No duplicate images can now be created
   # @return [Array]
   def duplicate_images
     Image.where(image_file_fingerprint: self.image_file_fingerprint).not_self(self).to_a
@@ -111,7 +173,7 @@ class Image < ApplicationRecord
     ret_val = {} # return value
 
     unless self.new_record? # only process if record exists
-      tmp     = `identify -format "%[EXIF:*]" #{self.image_file.url}` # returns a string (exif:tag=value\n)
+      tmp     = `identify -format "%[EXIF:*]\n" #{self.image_file.path}` # returns a string (exif:tag=value\n)
       # following removes the exif, spits and recombines string as a hash
       ret_val = tmp.split("\n").collect { |b| b.gsub('exif:', '').split('=') }
         .inject({}) { |hsh, c| hsh.merge(c[0] => c[1]) }
@@ -125,6 +187,7 @@ class Image < ApplicationRecord
     ret_val # return
   end
 
+  # TODO: move to /lib
   # @return [Nil]
   #  currently handling this client side
   def gps_data
@@ -233,10 +296,15 @@ class Image < ApplicationRecord
   def self.cropped(params)
     image = Image.find(params[:id])
     img = Magick::Image.read(image.image_file.path(:original)).first
+    x = params[:x].to_i
+    y = params[:y].to_i
+    w = params[:width].to_i
+    h = params[:height].to_i
     begin
-    # img.crop(x, y, width, height, true)
-      cropped = img.crop( params[:x].to_i, params[:y].to_i, params[:width].to_i, params[:height].to_i, true)
-    rescue RuntimeError
+      raise ArgumentError, "invalid crop parameters: x=#{x}, y=#{y}, width=#{w}, height=#{h}" if w <= 0 || h <= 0 || x < 0 || y < 0
+      # img.crop(x, y, width, height, true)
+      cropped = img.crop(x, y, w, h, true)
+    rescue ArgumentError, RuntimeError, Magick::ImageMagickError
       cropped = img.crop(0,0, 1, 1)  # return a single pixel on error ! TODO: make/return an error image
     ensure
       img.destroy!
@@ -254,40 +322,44 @@ class Image < ApplicationRecord
   end
 
   # @param [ActionController::Parameters] params
-  # @return [Magick::Image]
+  # @return [Magick::Image, nil]
   def self.scaled_to_box(params)
-    c = cropped(params)
-    ratio = c.columns.to_f / c.rows.to_f
-    box_ratio = params[:box_width].to_f / params[:box_height].to_f
-    # TODO: special considerations for 1:1?
+    return nil if params[:box_width].to_f == 0 || params[:box_height].to_f == 0
+    begin
+      c = cropped(params)
+      ratio = c.columns.to_f / c.rows.to_f
+      box_ratio = params[:box_width].to_f / params[:box_height].to_f
+      # TODO: special considerations for 1:1?
 
-    if box_ratio > 1
-      if ratio > 1 # wide into wide
-        scaled = c.resize(
-          params[:box_width].to_i,
-          (params[:box_height].to_f / ratio * box_ratio).to_i
-        ) #.sharpen(0x1)
-      else # tall into wide
-        scaled = c.resize(
-          (params[:box_width ].to_f * ratio / box_ratio).to_i,
-          params[:box_height].to_i
-        ) #.sharpen(0x1)
+      if box_ratio > 1
+        if ratio > 1 # wide into wide
+          scaled = c.resize(
+            params[:box_width].to_i,
+            (params[:box_height].to_f / ratio * box_ratio).to_i
+          ) #.sharpen(0x1)
+        else # tall into wide
+          scaled = c.resize(
+            (params[:box_width ].to_f * ratio / box_ratio).to_i,
+            params[:box_height].to_i
+          ) #.sharpen(0x1)
+        end
+      else # <
+        if ratio > 1 # wide into tall
+          scaled = c.resize(
+            params[:box_width].to_i,
+            (params[:box_height].to_f / ratio * box_ratio).to_i
+          ) #.sharpen(0x1)
+        else # tall into tall # TODO: or 1:1?!
+          scaled = c.resize(
+            (params[:box_width].to_f * ratio / box_ratio ).to_i,
+            (params[:box_height].to_f ).to_i
+          ) #.sharpen(0x1)
+        end
       end
-    else # <
-      if ratio > 1 # wide into tall
-        scaled = c.resize(
-          params[:box_width].to_i,
-          (params[:box_height].to_f / ratio * box_ratio).to_i
-        ) #.sharpen(0x1)
-      else # tall into tall # TODO: or 1:1?!
-        scaled = c.resize(
-          (params[:box_width ].to_f * ratio / box_ratio ).to_i,
-          (params[:box_height].to_f ).to_i
-        ) #.sharpen(0x1)
-      end
+      c.destroy!
+    rescue Magick::ImageMagickError
+      nil
     end
-    c.destroy!
-
     scaled
   end
 
@@ -309,6 +381,11 @@ class Image < ApplicationRecord
     self.to_blob!(cropped(params))
   end
 
+  def original_as_png
+    img = Magick::Image.read(self.image_file.path(:original)).first
+    self.class.to_blob!(img, 'png')
+  end
+
   # @param used_on [String] required, a depictable base class name like  `Otu`, `Content`, or `CollectionObject`
   # @return [Scope]
   #   the max 10 most recently used images, as `used_on`
@@ -318,8 +395,8 @@ class Image < ApplicationRecord
 
     # i is a select manager
     j = d.project(d['image_id'], d['updated_at'], d['depiction_object_type']).from(d)
-      .where(d['updated_at'].gt( 1.weeks.ago ))
-      .where(d['created_by_id'].eq(user_id))
+      .where(d['updated_at'].gt( 1.week.ago ))
+      .where(d['updated_by_id'].eq(user_id))
       .where(d['project_id'].eq(project_id))
       .order(d['updated_at'].desc)
 
@@ -338,25 +415,25 @@ class Image < ApplicationRecord
     r = used_recently(user_id, project_id, target)
     h = {
       quick: [],
-      pinboard: Image.pinned_by(user_id).where(project_id: project_id).to_a,
+      pinboard: Image.pinned_by(user_id).where(project_id:).to_a,
       recent: []
     }
 
     if target && !r.empty?
       h[:recent] = (
         Image.where('"images"."id" IN (?)', r.first(5) ).to_a +
-        Image.where(project_id: project_id, created_by_id: user_id, created_at: 3.hours.ago..Time.now)
+        Image.where(project_id:, created_by_id: user_id, created_at: 3.hours.ago..Time.now)
         .order('updated_at DESC')
         .limit(3).to_a
       ).uniq.sort{|a,b| a.updated_at <=> b.updated_at}
 
       h[:quick] = (
-        Image.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a +
+        Image.pinned_by(user_id).pinboard_inserted.where(project_id:).to_a +
         Image.where('"images"."id" IN (?)', r.first(4) ).to_a)
         .uniq.sort{|a,b| a.updated_at <=> b.updated_at}
     else
-      h[:recent] = Image.where(project_id: project_id).order('updated_at DESC').limit(10).to_a
-      h[:quick] = Image.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id: project_id}).order('updated_at DESC')
+      h[:recent] = Image.where(project_id:).order('updated_at DESC').limit(10).to_a
+      h[:quick] = Image.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id:}).order('updated_at DESC')
     end
 
     h
@@ -368,25 +445,11 @@ class Image < ApplicationRecord
   def extract_tw_attributes
     # NOTE: assumes content type is an image.
     tempfile = image_file.queued_for_write[:original]
-    if tempfile.nil?
-      self.width = 0
-      self.height = 0
-      self.user_file_name = nil
-    else
+    if tempfile
       self.user_file_name = tempfile.original_filename
       geometry = Paperclip::Geometry.from_file(tempfile)
       self.width = geometry.width.to_i
       self.height = geometry.height.to_i
-    end
-  end
-
-  # Check md5 fingerprint against existing fingerprints
-  # @return [Object]
-  def sv_duplicate_image?
-    if has_duplicate?
-      soft_validations.add(
-        :image_file_fingerprint,
-        'This image is a duplicate of an image already stored.')
     end
   end
 
@@ -395,9 +458,11 @@ class Image < ApplicationRecord
   # Converts image to blob and releases memory of img (image cannot be used afterwards)
   # @param [Magick::Image] img
   # @return [String] a JPG representation of the image
-  # !! Always converts to .jpg, this may need abstraction later
-  def self.to_blob!(img)
-    img.format = 'jpg'
+  #   !! Always converts to .jpg, this may need abstraction later
+  #   Returns an empty string if no image
+  def self.to_blob!(img, format = 'jpg')
+    return '' if img.nil?
+    img.format = format
     blob = img.to_blob
     img.destroy!
     blob
@@ -408,10 +473,10 @@ class Image < ApplicationRecord
 
     dimensions = Paperclip::Geometry.from_file(original)
 
-    errors.add(:image_file, "width must be at least 16 pixels") if dimensions.width < 16
-    errors.add(:image_file, "height must be at least 16 pixels") if dimensions.height < 16
+    errors.add(:image_file, 'width must be at least 16 pixels') if dimensions.width < 16
+    errors.add(:image_file, 'height must be at least 16 pixels') if dimensions.height < 16
   rescue
-    errors.add(:image_file, "unable to extract image dimensions")
+    errors.add(:image_file, 'unable to extract image dimensions')
   end
 
 end

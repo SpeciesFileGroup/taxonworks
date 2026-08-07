@@ -1,4 +1,4 @@
-import { Citation } from 'routes/endpoints'
+import { Citation } from '@/routes/endpoints'
 export default ({ state }, index) => {
   const citation = state.coCitations[index]
 

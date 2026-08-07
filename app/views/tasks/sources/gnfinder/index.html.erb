@@ -15,7 +15,7 @@
 
 <%= content_tag(:a, '', id: :top) -%>
 
-<% sections = %i{missing_new_names missing_other_names missing_low_probability_names found_names} %>
+<% sections = %i{missing_new_names low_probability_missing_new_names missing_other_names missing_low_probability_names found_names} %>
 
 <% unless @result.ocr_failure %>
 
@@ -25,7 +25,7 @@
     <%= content_tag(:a, '', id: t) -%>
     <div>
       <%= link_to('Top', "#top", class: [:right_float], data: {turbolinks: false}) -%>
-      <%= content_tag(:h2, t.to_s.humanize) -%>
+      <%= content_tag(:h2, t.to_s.humanize + ' (' + @result.send(t).count.to_s + ')' ) -%>
     </div>
 
     <% if @result.send(t).count > 0 -%>

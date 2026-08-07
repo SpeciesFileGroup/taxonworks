@@ -1,8 +1,11 @@
+import areDescriptorsUnsaved from './areDescriptorsUnsaved'
 import getDescription from './getDescription'
 import getFreeTextValueFor from './getFreeTextValueFor'
+import getLock from './getLock'
 import getObservationsFor from './getObservationsFor'
 import getContinuousValueFor from './getContinuousValueFor'
 import getContinuousUnitFor from './getContinuousUnitFor'
+import getDisplayUnscoredRows from './getDisplayUnscoredRows'
 import getPresenceFor from './getPresenceFor'
 import getSampleMinFor from './getSampleMinFor'
 import getSampleMaxFor from './getSampleMaxFor'
@@ -18,13 +21,17 @@ import isDescriptorSaving from './isDescriptorSaving'
 import doesDescriptorNeedCountdown from './doesDescriptorNeedCountdown'
 import getMatrixRow from './getMatrixRow'
 import getUnits from './getUnits'
+import getObservations from './getObservations'
 
 export const GetterNames = {
+  AreDescriptorsUnsaved: 'areDescriptorsUnsaved',
   GetDescription: 'getDescription',
   GetFreeTextValueFor: 'getFreeTextValueFor',
   GetObservationsFor: 'getObservationsFor',
   GetContinuousValueFor: 'getContinuousValueFor',
   GetContinuousUnitFor: 'getContinuousUnitFor',
+  GetDisplayUnscoredRows: 'getDisplayUnscoredRows',
+  GetLock: 'getLock',
   GetPresenceFor: 'getPresenceFor',
   GetSampleMinFor: 'getSampleMinFor',
   GetSampleMaxFor: 'getSampleMaxFor',
@@ -39,15 +46,19 @@ export const GetterNames = {
   IsDescriptorUnsaved: 'isDescriptorUnsaved',
   IsDescriptorSaving: 'isDescriptorSaving',
   DoesDescriptorNeedCountdown: 'doesDescriptorNeedCountdown',
-  GetUnits: 'getUnits'
+  GetUnits: 'getUnits',
+  GetObservations: 'getObservations'
 }
 
 export const GetterFunctions = {
+  [GetterNames.AreDescriptorsUnsaved]: areDescriptorsUnsaved,
   [GetterNames.GetDescription]: getDescription,
   [GetterNames.GetFreeTextValueFor]: getFreeTextValueFor,
   [GetterNames.GetObservationsFor]: getObservationsFor,
   [GetterNames.GetContinuousValueFor]: getContinuousValueFor,
   [GetterNames.GetContinuousUnitFor]: getContinuousUnitFor,
+  [GetterNames.GetDisplayUnscoredRows]: getDisplayUnscoredRows,
+  [GetterNames.GetLock]: getLock,
   [GetterNames.GetPresenceFor]: getPresenceFor,
   [GetterNames.GetSampleMinFor]: getSampleMinFor,
   [GetterNames.GetSampleMaxFor]: getSampleMaxFor,
@@ -62,5 +73,6 @@ export const GetterFunctions = {
   [GetterNames.IsDescriptorUnsaved]: isDescriptorUnsaved,
   [GetterNames.IsDescriptorSaving]: isDescriptorSaving,
   [GetterNames.DoesDescriptorNeedCountdown]: doesDescriptorNeedCountdown,
-  [GetterNames.GetUnits]: getUnits
+  [GetterNames.GetUnits]: getUnits,
+  [GetterNames.GetObservations]: getObservations
 }

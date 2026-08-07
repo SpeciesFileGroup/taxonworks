@@ -1,10 +1,6 @@
 const IllegalBaseClassCallError = `Illegal call to base class IMatrixRowCoderRequest`
 
 export default class IMatrixRowCoderRequest {
-  setApi () {
-    throw IllegalBaseClassCallError
-  }
-
   getMatrixRow () {
     throw IllegalBaseClassCallError
   }
@@ -33,31 +29,11 @@ export default class IMatrixRowCoderRequest {
     throw IllegalBaseClassCallError
   }
 
-  getDescriptorNotes () {
-    throw IllegalBaseClassCallError
-  }
-
   getDescriptorDepictions () {
     throw IllegalBaseClassCallError
   }
 
-  getObservationNotes () {
-    throw IllegalBaseClassCallError
-  }
-
   getObservationDepictions () {
-    throw IllegalBaseClassCallError
-  }
-
-  getObservationConfidences () {
-    throw IllegalBaseClassCallError
-  }
-
-  getObservationCitations () {
-    throw IllegalBaseClassCallError
-  }
-
-  getConfidenceLevels () {
     throw IllegalBaseClassCallError
   }
 

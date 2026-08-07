@@ -18,6 +18,18 @@ describe Queries::TaxonName::Autocomplete, type: :model do
 
   let(:query) { Queries::TaxonName::Autocomplete.new('') }
 
+  specify '#parent_id 1' do
+    query.terms = species.name
+    query.parent_id = [genus.id]
+    expect(query.autocomplete.map(&:id)).to contain_exactly(species.id)
+  end
+
+  specify '#parent_id 2' do
+    query.terms = species.name
+    query.parent_id = [original_genus.id]
+    expect(query.autocomplete.map(&:id)).to be_empty
+  end
+
   specify '#no_leaves 1' do
     query.terms = genus.name
     query.no_leaves = true
@@ -31,23 +43,57 @@ describe Queries::TaxonName::Autocomplete, type: :model do
   end
 
   specify '#autocomplete_exact_name_and_year 1' do
-    query.terms = 'vulnerata' 
+    query.terms = 'vulnerata'
     expect(query.autocomplete_exact_name_and_year).to eq(nil)
   end
 
   specify '#autocomplete_exact_name_and_year 2' do
-    query.terms = 'vulnerata 1800' 
+    query.terms = 'vulnerata 1800'
     expect(query.autocomplete_exact_name_and_year.all).to include(species)
   end
 
   specify '#autocomplete_exact_cached' do
-    query.terms = name 
+    query.terms = name
     expect(query.autocomplete_exact_cached.all).to include(species)
   end
 
   specify '#autocomplete_exact_cached_original_combination' do
     query.terms = original_combination
     expect(query.autocomplete_exact_cached_original_combination.all).to include(species)
+  end
+
+  specify '#autocomplete_exact_cached_name_and_author_year matches the full displayed label' do
+    query.terms = species.cached_name_and_author_year
+    expect(query.autocomplete_exact_cached_name_and_author_year.all).to include(species)
+  end
+
+  specify '#autocomplete_exact_cached_name_and_author_year is nil without a parsed authorship' do
+    query.terms = name # no author/year present
+    expect(query.autocomplete_exact_cached_name_and_author_year).to be_nil
+  end
+
+  specify '#autocomplete_exact_cached_name_and_author_year is nil without a parsed name' do
+    query.terms = 'Needham & Claassen, 1925' # author/year alone, no taxon name
+    expect(query.autocomplete_exact_cached_name_and_author_year).to be_nil
+  end
+
+  specify '#autocomplete_exact_cached_name_and_author_year normalizes " and " to " & "' do
+    expect(species.cached_author_year).to include(' & ') # guard: this spec needs a multi-author name
+
+    query.terms = species.cached_name_and_author_year.sub(' & ', ' and ')
+    expect(query.autocomplete_exact_cached_name_and_author_year.all).to include(species)
+  end
+
+  specify '#autocomplete finds the full name and author year label with exact: true' do
+    query.exact = true
+    query.terms = species.cached_name_and_author_year
+    expect(query.autocomplete.map(&:id)).to include(species.id)
+  end
+
+  specify '#autocomplete finds the full name and author year label with exact: false' do
+    query.exact = false
+    query.terms = species.cached_name_and_author_year
+    expect(query.autocomplete.map(&:id)).to include(species.id)
   end
 
   specify '#autocomplete_cached_wildcard_whitespace open paren' do
@@ -70,18 +116,30 @@ describe Queries::TaxonName::Autocomplete, type: :model do
     expect(query.autocomplete).to be_truthy
   end
 
-  specify '#autocomplete_top_name 1' do
-    query.terms = 'vulnerata' 
-    expect(query.autocomplete_top_name.first).to eq(species)
+  # These specs were not top, they are exact
+
+  # specify '#autocomplete_top_name 1' do
+  #   query.terms = 'vulnerata'
+  #   expect(query.autocomplete_top_name.first).to eq(species)
+  # end
+
+  # specify '#autocomplete_top_name 2' do
+  #   query.terms = 'Erasmoneura'
+  #   expect(query.autocomplete_top_name.first).to eq(genus)
+  # end
+
+  specify '#autocomplete_exact_name 1' do
+    query.terms = 'vulnerata'
+    expect(query.autocomplete_exact_name.first).to eq(species)
   end
 
-  specify '#autocomplete_top_name 2' do
-    query.terms = 'Erasmoneura' 
-    expect(query.autocomplete_top_name.first).to eq(genus) 
+  specify '#autocomplete_exact_name 2' do
+    query.terms = 'Erasmoneura'
+    expect(query.autocomplete_exact_name.first).to eq(genus)
   end
 
   specify '#autocomplete_top_cached' do
-    query.terms = name 
+    query.terms = name
     expect(query.autocomplete_top_cached.first).to eq(species)
   end
 
@@ -141,6 +199,17 @@ describe Queries::TaxonName::Autocomplete, type: :model do
   end
 
   context 'methods' do
+
+    specify '#authorship 0' do
+      query.query_string = 'bus Smith'
+      expect(query.authorship).to eq('Smith')
+    end
+
+    specify '#authorship 0' do
+      query.query_string = 'bus Smith 2010'
+      expect(query.authorship).to eq('Smith 2010')
+    end
+
     specify '#authorship 1' do
       query.query_string = 'Aus bus Smith'
       expect(query.authorship).to eq('Smith')

@@ -1,11 +1,15 @@
 <template>
   <div class="position-absolute">
-    <button
-      @click="show = true"
-      class="button normal-input button-default grid-button">#</button>
+    <VBtn
+      color="primary"
+      @click="isModalVisible = true"
+    >
+      #
+    </VBtn>
     <modal-component
-      v-if="show"
-      @close="show = false">
+      v-if="isModalVisible"
+      @close="isModalVisible = false"
+    >
       <template #header>
         <h3>Quick grid</h3>
       </template>
@@ -19,29 +23,43 @@
                 <input
                   class="grid-input"
                   v-model="rows"
-                  type="number">
+                  type="number"
+                />
               </div>
               <div class="margin-small-right">
                 <label>Columns:</label>
                 <input
                   class="grid-input"
                   v-model="columns"
-                  type="number"> 
+                  type="number"
+                />
               </div>
               <button
                 class="button normal-input button-default"
-                @click="createGrid">Set</button>
+                @click="createGrid"
+              >
+                Set
+              </button>
             </div>
             <div class="horizontal-left-content margin-medium-left">
               <button
                 class="button normal-input button-default margin-small-right"
-                @click="setGrid(10, 2)">10x2</button>
+                @click="setGrid(10, 2)"
+              >
+                10x2
+              </button>
               <button
                 class="button normal-input button-default margin-small-right"
-                @click="setGrid(10, 3)">10x3</button>
-              <button 
+                @click="setGrid(10, 3)"
+              >
+                10x3
+              </button>
+              <button
                 class="button normal-input button-default"
-                @click="setGrid(1, 1)">1x1</button>
+                @click="setGrid(1, 1)"
+              >
+                1x1
+              </button>
             </div>
           </div>
         </fieldset>
@@ -50,73 +68,59 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref } from 'vue'
+import ModalComponent from '@/components/ui/Modal'
+import VBtn from '@/components/ui/VBtn/index.vue'
 
-import ModalComponent from 'components/ui/Modal'
-
-export default {
-  components: { ModalComponent },
-
-  props: {
-    height: {
-      type: Number,
-      required: true
-    },
-    width: {
-      type: Number,
-      required: true
-    }
+const props = defineProps({
+  height: {
+    type: Number,
+    required: true
   },
-
-  emits: ['grid'],
-
-  data () {
-    return {
-      rows: 1,
-      columns: 1,
-      show: false
-    }
-  },
-
-  methods: {
-    createGrid () {
-      const wSize = this.width / this.columns
-      const hSize = this.height / this.rows
-      const vlines = this.segments(wSize, this.columns)
-      const hlines = this.segments(hSize, this.rows)
-
-      this.$emit('grid', { vlines, hlines })
-    },
-
-    segments (size, parts) {
-      const segments = []
-
-      for (let i = 0; i <= parts; i++) {
-        segments.push(size * i)
-      }
-      return segments
-    },
-
-    setGrid (rows, columns) {
-      this.columns = columns
-      this.rows = rows
-      this.createGrid()
-    }
+  width: {
+    type: Number,
+    required: true
   }
+})
+
+const emit = defineEmits(['grid'])
+
+const rows = ref(1)
+const columns = ref(1)
+const isModalVisible = ref(false)
+
+function createGrid() {
+  const wSize = props.width / columns.value
+  const hSize = props.height / rows.value
+  const vlines = segments(wSize, columns.value)
+  const hlines = segments(hSize, rows.value)
+
+  emit('grid', { vlines, hlines })
+}
+
+function segments(size, parts) {
+  const segments = []
+
+  for (let i = 0; i <= parts; i++) {
+    segments.push(size * i)
+  }
+  return segments
+}
+
+function setGrid(r, c) {
+  columns.value = c
+  rows.value = r
+  createGrid()
 }
 </script>
 
 <style lang="scss" scoped>
-  :deep(.modal-container) {
-    width: 500px
-  }
-  .grid-button {
-    top: 10px;
-    width: 22px;
-    height: 22px;
-    text-align: center;
-  }
-  .grid-input {
-    width: 50px;
-  }
+:deep(.modal-container) {
+  width: 500px;
+}
+
+.grid-input {
+  width: 50px;
+}
 </style>

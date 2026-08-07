@@ -4,21 +4,17 @@ module ContainersHelper
     return nil if container.nil?
     a = []
 
+    a.push container.name if container.name
+
     a.push identifier_short_tag(container.identifiers.first)
-
-    if container.name
-      a.push container.class.name
-    else
-      a.push tag.i container.type, class: [:feedback, 'feedback-thin', 'feedback-secondary']
-    end
-
+    a.push tag.i(container.type, class: [:feedback, 'feedback-thin', 'feedback-secondary'])
     a.push tag.span container.container_items.count.to_s + ' inside', class: [:feedback, 'feedback-thin', 'feedback-info']
 
     if container.print_label
       a.push tag.span container.print_label, class: [:feedback, 'feedback-thin', 'feedback-light']
     end
 
-    a.push tag.span 'id: ' + container.to_param
+   # a.push tag.span 'id: ' + container.to_param
 
     a.compact.join('&nbsp;').html_safe
   end
@@ -36,8 +32,14 @@ module ContainersHelper
     ].compact.join(': ').html_safe
   end
 
-  def container_autocomplete_tag(container)
-    container_tag(container)
+  # TODO: Clean, refactor
+  def label_for_container_container(container)
+    return nil if container.nil?
+    container.name || container.print_label || label_for_identifier(container.identifiers.first) || container.id.to_s
+  end
+
+  def container_autocomplete_tag(container, term = nil)
+    mark_tag(container_tag(container), term)
   end
 
   def container_parent_tag(container)
@@ -69,8 +71,8 @@ module ContainersHelper
     return nil if !object.containable?
     parts = []
     object.enclosing_containers.each do |c|
-      s = c.name.blank? ? c.class.class_name : c.name
-      s += " [#{c.disposition}]" if !c.disposition.blank?
+      s = (c.name.presence || c.class.class_name)
+      s += " [#{c.disposition}]" if c.disposition.present?
       parts.push s
     end
     parts.join('; ')
@@ -99,5 +101,19 @@ module ContainersHelper
 
   def add_or_move_to_container_link(object)
     link_to( (object.contained? ? 'Move to another' : 'Add to' ) + ' container', containerize_collection_object_path(object) )
+  end
+
+  def container_types
+    r = []
+    Container.descendants.each do |t|
+      r.push({
+        type: t.name,
+        name: t.class_name,
+        dimensions: t.dimensions.presence,
+        valid_parents: t.valid_parents.presence
+      })
+    end
+    r.sort!{|a,b| a[:type] <=> b[:type]}
+    r
   end
 end

@@ -1,0 +1,34 @@
+<% content_for :warn_level do -%>
+  <%= warn_level_input(@result) -%>
+<% end %>
+
+<%= content_for :batch_form do -%>
+  <%= render partial: '/descriptors/batch_load/qualitative_descriptor/form', locals: {url:  create_qualitative_descriptor_batch_load_descriptors_path, submit: :create} -%>
+<% end %>
+
+<%= content_for :line_breakdown do -%>
+  <table class="top_align_text"> 
+    <tr>
+      <th class="four_character_width">line</th>
+      <th class="four_character_width">data count</th>
+      <th> Descriptor name </th>
+      <th class=""> data errors* </th>
+      <th class=""> parse errors </th>
+    </tr>
+
+    <% @result.sorted_processed_rows.each do |i, rp| -%>
+      <tr>
+        <%= batch_line_link_td(i) -%> 
+        <%= batch_all_objects_count_td(rp) -%>
+        <td>
+          <%= tag.span rp.objects[:descriptor].first.name.html_safe, class: [:feedback, 'feedback-info', 'feedback-thin'] %>
+          <%= rp.objects[:character_states].each_with_index.collect{|n, i| tag.span("#{n.label}: " + n.name, class: [:feedback, 'feedback-secondary', 'feedback-thin']) }.join('<br>').html_safe -%>
+        </td> 
+        <%= batch_data_errors_td(rp) -%>
+        <%= batch_parse_errors_td(rp) -%>
+      </tr>
+    <% end -%> 
+  </table>
+<% end %>
+
+<%= render partial: '/shared/data/all/batch_load/preview' -%>

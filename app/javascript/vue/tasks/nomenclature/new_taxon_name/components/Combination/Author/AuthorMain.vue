@@ -8,15 +8,15 @@
   />
   <component
     :is="componentName"
+    ref="activeTab"
     v-model="combination"
   />
 </template>
 
 <script setup>
-
-import { computed, ref } from 'vue'
-import { NOMENCLATURE_CODE_BOTANY } from 'constants/index.js'
-import SwitchComponent from 'components/switch.vue'
+import { computed, ref, watch, nextTick } from 'vue'
+import { NOMENCLATURE_CODE_BOTANY } from '@/constants/index.js'
+import SwitchComponent from '@/components/ui/VSwitch.vue'
 import AuthorPerson from './AuthorPeople.vue'
 import AuthorSource from './AuthorSource.vue'
 import AuthorVerbatim from './AuthorVerbatim.vue'
@@ -25,10 +25,6 @@ const TAB = {
   Source: AuthorSource,
   Verbatim: AuthorVerbatim,
   Person: AuthorPerson
-}
-
-function getTabLabel (label, hasData) {
-  return label + (hasData ? ' ✓' : '')
 }
 
 const props = defineProps({
@@ -46,22 +42,39 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue'])
 
 const tabIndex = ref(0)
+const activeTab = ref(null)
+
 const combination = computed({
   get: () => props.modelValue,
-  set: value => emit('update:modelValue', value)
+  set: (value) => emit('update:modelValue', value)
 })
 
 const componentName = computed(() => Object.values(TAB)[tabIndex.value])
 
-const verbatimFilled = computed(() => combination.value.verbatim_author || combination.value.verbatim_year)
+const verbatimFilled = computed(
+  () => combination.value.verbatim_author || combination.value.verbatim_year
+)
 const hasRoles = computed(() => combination.value.roles_attributes.length)
 const sections = computed(() =>
   props.taxon.nomenclatural_code === NOMENCLATURE_CODE_BOTANY
     ? [
-        getTabLabel('Source', combination.value.origin_citation_attributes.source_id),
+        getTabLabel(
+          'Source',
+          combination.value.origin_citation_attributes.source_id
+        ),
         getTabLabel('Verbatim', verbatimFilled.value),
         getTabLabel('Person', hasRoles.value)
       ]
-    : [getTabLabel('Source', combination.value.origin_citation_attributes.source_id)]
+    : []
 )
+
+function getTabLabel(label, hasData) {
+  return label + (hasData ? ' ✓' : '')
+}
+
+watch(tabIndex, () => nextTick(() => activeTab.value?.focus?.()))
+
+defineExpose({
+  focus() { activeTab.value?.focus?.() }
+})
 </script>

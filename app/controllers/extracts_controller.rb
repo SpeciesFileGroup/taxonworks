@@ -2,21 +2,23 @@ class ExtractsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_extract, only: [:show, :edit, :update, :destroy]
+  after_action -> { set_pagination_headers(:extracts) }, only: [:index], if: :json_request?
 
   # GET /extracts
   # GET /extracts.json
   def index
-      respond_to do |format|
+    respond_to do |format|
       format.html do
         @recent_objects = Extract.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
         render '/shared/data/all/index'
       end
       format.json {
-        @extracts = Queries::Extract::Filter.
-        new(filter_params).all.where(project_id: sessions_current_project_id).
-        page(params[:page]).per(params[:per] || 500)
+        @extracts = Queries::Extract::Filter
+          .new(params).all
+          .where(project_id: sessions_current_project_id)
+          .page(params[:page]).per(params[:per])
       }
-      end
+    end
   end
 
   # GET /extracts/1
@@ -48,7 +50,7 @@ class ExtractsController < ApplicationController
         format.json { render :show, status: :created, location: @extract }
       else
         format.html { render :new }
-        format.json { render json: @extract.errors, status: :unprocessable_entity }
+        format.json { render json: @extract.errors, status: :unprocessable_content }
       end
     end
   end
@@ -62,7 +64,7 @@ class ExtractsController < ApplicationController
         format.json { render :show, status: :ok, location: @extract }
       else
         format.html { render :edit }
-        format.json { render json: @extract.errors, status: :unprocessable_entity }
+        format.json { render json: @extract.errors, status: :unprocessable_content }
       end
     end
   end
@@ -75,6 +77,13 @@ class ExtractsController < ApplicationController
       format.html { redirect_to extracts_url, notice: 'Extract was successfully destroyed.' }
       format.json { head :no_content }
     end
+  end
+
+  def autocomplete
+    @extracts = ::Queries::Extract::Autocomplete.new(
+      params[:term],
+      project_id: sessions_current_project_id
+    ).autocomplete
   end
 
   def search
@@ -91,79 +100,62 @@ class ExtractsController < ApplicationController
   end
 
   private
-    def set_extract
-      @extract = Extract.where(project_id: sessions_current_project_id).find(params[:id])
-    end
+  def set_extract
+    @extract = Extract.where(project_id: sessions_current_project_id).find(params[:id])
+  end
 
-    def filter_params
-      params.permit(
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def extract_params
+    params.require(:extract).permit(
+      :repository_id,
+      :verbatim_anatomical_origin,
+      :year_made,
+      :month_made,
+      :day_made,
+
+      roles_attributes: [
         :id,
-        :user_date_end,
-        :user_date_start,
-        :user_id,
-        :identifier,
-        :identifier_end,
-        :identifier_exact,
-        :identifier_start,
-        :identifier_type,
-        :recent,
-        :repository_id,
-        repository_id: [],
-      )
-    end
-
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def extract_params
-      params.require(:extract).permit(
-        :repository_id,
-        :verbatim_anatomical_origin,
-        :year_made,
-        :month_made,
-        :day_made,
-
-        roles_attributes: [
-          :id,
-          :_destroy,
-          :type,
-          :person_id,
-          :position,
-          person_attributes: [
-            :last_name,
-            :first_name,
-            :suffix, :prefix
-          ]
-        ],
-
-        identifiers_attributes: [
-          :id,
-          :namespace_id,
-          :identifier,
-          :type,
-          :_destroy
-        ],
-
-        data_attributes_attributes: [
-          :id,
-          :_destroy,
-          :controlled_vocabulary_term_id,
-          :type,
-          :attribute_subject_id,
-          :attribute_subject_type,
-          :value
-        ],
-
-        protocol_relationships_attributes: [
-          :id,
-          :_destroy,
-          :protocol_id
-        ],
-
-        origin_relationships_attributes: [
-          :id,
-          :_destroy,
-          :old_object_id,
-          :old_object_type
+        :_destroy,
+        :type,
+        :person_id,
+        :position,
+        person_attributes: [
+          :last_name,
+          :first_name,
+          :suffix, :prefix
         ]
-      )
-    end
+      ],
+
+      identifiers_attributes: [
+        :id,
+        :namespace_id,
+        :identifier,
+        :type,
+        :_destroy
+      ],
+
+      data_attributes_attributes: [
+        :id,
+        :_destroy,
+        :controlled_vocabulary_term_id,
+        :type,
+        :attribute_subject_id,
+        :attribute_subject_type,
+        :value
+      ],
+
+      protocol_relationships_attributes: [
+        :id,
+        :_destroy,
+        :protocol_id
+      ],
+
+      origin_relationships_attributes: [
+        :id,
+        :_destroy,
+        :old_object_id,
+        :old_object_type
+      ]
+    )
+  end
 end

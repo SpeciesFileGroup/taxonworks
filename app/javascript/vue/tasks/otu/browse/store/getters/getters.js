@@ -1,7 +1,8 @@
 import getBiologicalAssociations from './getBiologicalAssociations'
-import getCollectingEvents from './getCollectingEvents'
+import getCachedMap from './getCachedMap'
 import getCollectionObjects from './getCollectionObjects'
 import getCommonNames from './getCommonNames'
+import getConveyances from './getConveyances'
 import getDepictions from './getDepictions'
 import getDescendants from './getDescendants'
 import getGeoreferences from './getGeoreferences'
@@ -9,36 +10,46 @@ import getPreferences from './getPreferences'
 import getUserId from './getUserId'
 import getAssertedDistributions from './getAssertedDistributions'
 import getCurrentOtu from './getCurrentOtu'
+import getFieldOccurrences from './getFieldOccurrences'
 import getLoadState from './getLoadState'
 import getTaxonName from './getTaxonName'
 import getTaxonNames from './getTaxonNames'
 import getOtus from './getOtus'
 import getObservationsDepictions from './getObservationsDepictions'
+import getRelatedBiologicalAssociations from './getRelatedBiologicalAssociations'
+import isSpeciesGroup from './isSpeciesGroup'
+import getLegend from './getLegend'
 
 const GetterNames = {
   GetBiologicalAssociations: 'getBiologicalAssociations',
+  GetCachedMap: 'getCachedMap',
   GetCollectionObjects: 'getCollectionObjects',
-  GetCollectingEvents: 'getCollectingEvents',
   GetCommonNames: 'getCommonNames',
+  GetConveyances: 'getConveyances',
   GetDepictions: 'getDepictions',
   GetDescendants: 'getDescendants',
   GetGeoreferences: 'getGeoreferences',
+  GetFieldOccurrences: 'getFieldOccurrences',
   GetPreferences: 'getPreferences',
   GetUserId: 'getUserId',
   GetAssertedDistributions: 'getAssertedDistributions',
+  GetRelatedBiologicalAssociations: 'getRelatedBiologicalAssociations',
   GetObservationsDepictions: 'getObservationsDepictions',
   GetCurrentOtu: 'getCurrentOtu',
+  GetLegend: 'getLegend',
   GetLoadState: 'getLoadState',
   GetTaxonName: 'getTaxonName',
   GetTaxonNames: 'getTaxonNames',
-  GetOtus: 'getOtus'
+  GetOtus: 'getOtus',
+  IsSpeciesGroup: 'isSpeciesGroup'
 }
 
 const GetterFunctions = {
   [GetterNames.GetBiologicalAssociations]: getBiologicalAssociations,
-  [GetterNames.GetCollectingEvents]: getCollectingEvents,
+  [GetterNames.GetCachedMap]: getCachedMap,
   [GetterNames.GetCollectionObjects]: getCollectionObjects,
   [GetterNames.GetCommonNames]: getCommonNames,
+  [GetterNames.GetConveyances]: getConveyances,
   [GetterNames.GetDepictions]: getDepictions,
   [GetterNames.GetDescendants]: getDescendants,
   [GetterNames.GetGeoreferences]: getGeoreferences,
@@ -46,14 +57,16 @@ const GetterFunctions = {
   [GetterNames.GetUserId]: getUserId,
   [GetterNames.GetAssertedDistributions]: getAssertedDistributions,
   [GetterNames.GetCurrentOtu]: getCurrentOtu,
+  [GetterNames.GetLegend]: getLegend,
   [GetterNames.GetLoadState]: getLoadState,
   [GetterNames.GetTaxonName]: getTaxonName,
   [GetterNames.GetTaxonNames]: getTaxonNames,
   [GetterNames.GetOtus]: getOtus,
-  [GetterNames.GetObservationsDepictions]: getObservationsDepictions
+  [GetterNames.GetObservationsDepictions]: getObservationsDepictions,
+  [GetterNames.GetRelatedBiologicalAssociations]:
+    getRelatedBiologicalAssociations,
+  [GetterNames.GetFieldOccurrences]: getFieldOccurrences,
+  [GetterNames.IsSpeciesGroup]: isSpeciesGroup
 }
 
-export {
-  GetterNames,
-  GetterFunctions
-}
+export { GetterNames, GetterFunctions }

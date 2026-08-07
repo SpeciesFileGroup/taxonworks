@@ -2,17 +2,24 @@
   <div
     class="circle-button circle-button-big btn-delete"
     v-if="citation"
-    @click="removeCitation(citation)"/>
+    @click="removeCitation(citation)"
+  />
 </template>
 
-<script>
-import { GetterNames } from '../store/getters/getters'
-import { MutationNames } from '../store/mutations/mutations'
-import { Citation } from 'routes/endpoints'
+<script setup>
+import { Citation } from '@/routes/endpoints'
+import useStore from '../store/store.js'
+import { computed } from 'vue'
 
+const store = useStore()
+
+const citation = computed(() => store.selected.citation)
+
+function removeCitation() {}
+/* 
 export default {
   computed: {
-    citation () {
+    citation() {
       return this.$store.getters[GetterNames.GetCitationSelected]
     }
   },
@@ -26,5 +33,5 @@ export default {
       })
     }
   }
-}
+} */
 </script>

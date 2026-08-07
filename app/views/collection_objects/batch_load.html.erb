@@ -1,3 +1,6 @@
 <h1>Batch load collection objects</h1>
+
+<%= tag.span 'You should likely be using the DwC Importer.', class: [:feedback, 'feedback-info'] %> <%= link_to('Go to DwCA Importer.', dwca_import_task_path) %>
+
 <%= render 'collection_objects/batch_load/castor/batch_load' -%>
 <%= render 'collection_objects/batch_load/buffered/batch_load' -%>

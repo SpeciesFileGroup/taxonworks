@@ -1,0 +1,32 @@
+:root {
+  --container-sm: 60rem;
+  --container-md: 71.25rem;
+  --container-lg: 77.5rem;
+  --container-xl: 90rem;
+  --container-2xl: 100rem;
+  --container-full: 100%;
+}
+
+.container-sm {
+  max-width: var(--container-sm);
+}
+
+.container-md {
+  max-width: var(--container-md);
+}
+
+.container-lg {
+  max-width: var(--container-lg);
+}
+
+.container-xl {
+  max-width: var(--container-xl);
+}
+
+.container-2xl {
+  max-width: var(--container-2xl);
+}
+
+.container-full {
+  max-width: var(--container-full);
+}

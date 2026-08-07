@@ -1,0 +1,70 @@
+
+require 'catalog/entry_item'
+class Catalog::Distribution::EntryItem < ::Catalog::EntryItem
+
+  attr_accessor :geographic_name_classification
+
+  def initialize(params = {})
+    super(**params)
+    # geographic_name_classification
+    true
+  end
+
+  def html_helper
+    :otu_catalog_entry_item_tag
+  end
+
+  # @return [Boolean]
+  def linked_to_valid_taxon_name?
+    if object&.respond_to?(:taxon_name)
+      object&.taxon_name&.is_valid?
+    else
+      nil
+    end
+  end
+
+  def data_attributes
+    # TODO item objects may have once had a taxon_name association, but
+    # currently none of them do (perhaps lost to new polymorphisms over time),
+    # so the extra data here will always be nil.
+    base_data_attributes.merge(
+      'history-otu-taxon-name-id' => taxon_name_global_id,
+      'history-is-valid' => linked_to_valid_taxon_name?
+    )
+  end
+
+  def taxon_name_global_id
+    if object&.respond_to?(:taxon_name)
+      object&.taxon_name&.to_global_id&.to_s
+    else
+      nil
+    end
+  end
+
+  def geographic_name_classification
+    return @geographic_name_classification if @geographic_name_classification
+    case object.class.base_class.name
+    when 'AssertedDistribution'
+      @geographic_name_classification ||= object.asserted_distribution_shape.geographic_name_classification
+    when 'TypeMaterial'
+      @geographic_name_classification ||= object.collection_object.geographic_name_classification
+    when 'CollectionObject'
+      @geographic_name_classification ||= object.geographic_name_classification
+    end
+    @geographic_name_classification ||= {country: nil, state: nil, county: nil}
+  end
+
+  def country
+    @geographic_name_classification[:country]
+  end
+
+  def state
+    @geographic_name_classification[:state]
+  end
+
+  def county
+    @geographic_name_classification[:county]
+  end
+
+end
+

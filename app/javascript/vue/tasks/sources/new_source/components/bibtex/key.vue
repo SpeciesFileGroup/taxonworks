@@ -1,42 +1,34 @@
 <template>
-  <div class="horizontal-left-content">
-    <div class="field separate-right">
-      <label>Key</label><br>
+  <div class="horizontal-left-content gap-small">
+    <div class="label-above">
+      <label>Key</label>
       <input
         type="text"
-        v-model="source.key">
+        v-model="source.key"
+        @change="() => (source.isUnsaved = true)"
+      />
     </div>
 
-    <div class="field separate-right">
-      <label>Crossref</label><br>
+    <div class="label-above">
+      <label>Crossref</label>
       <input
         type="text"
-        v-model="source.crossref">
+        v-model="source.crossref"
+        @change="() => (source.isUnsaved = true)"
+      />
     </div>
   </div>
 </template>
 
-<script>
-
-import { GetterNames } from '../../store/getters/getters'
-import { MutationNames } from '../../store/mutations/mutations'
-
-export default {
-  computed: {
-    source: {
-      get () {
-        return this.$store.getters[GetterNames.GetSource]
-      },
-      set (value) {
-        this.$store.commit(MutationNames.SetSource, value)
-      }
-    }
-  }
-}
+<script setup>
+const source = defineModel({
+  type: Object,
+  required: true
+})
 </script>
 
 <style scoped>
-  input[type="number"] {
-    width: 80px;
-  }
+input[type='number'] {
+  width: 80px;
+}
 </style>

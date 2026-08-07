@@ -4,14 +4,14 @@
 # Roles are the only place where person_id and organization_id must be referenced.
 
 # Had we started from scratch we might have implemented a polymorphic `role_agent`,
-# though we reference people *far* more often than organziations, so it would 
+# though we reference people *far* more often than organziations, so it would
 # have felt klunky to always de-reference to role_agent.
 #
 # @!attribute person_id
 #   @return [Integer]
 #    The ID of the Person in the role.
 #
-# @!attribute organization_id 
+# @!attribute organization_id
 #   @return [Integer]
 #    The ID of the Organization in the role.
 #
@@ -38,28 +38,27 @@
 class Role < ApplicationRecord
   include Housekeeping::Users
   include Housekeeping::Timestamps
+  include Shared::PolymorphicAnnotator # must be before Shared::IsData (for now)
   include Shared::IsData
 
+  polymorphic_annotates(:role_object, presence_validate: false)
   acts_as_list scope: [:type, :role_object_type, :role_object_id]
 
-  belongs_to :organization, inverse_of: :roles, validate: true
-  belongs_to :person, inverse_of: :roles, validate: true
-  belongs_to :role_object, polymorphic: :true #, validate: true
+  # !! Has to be after after_save to not interfer with initial calls
+  # !! TODO: revist
+  after_commit :set_cached
 
-  after_save :update_cached
-  
-  validates_presence_of :type
-  validate :agent_present,
-    :only_one_agent,
-    :agent_is_legal
-
-  # validates_uniqueness_of :person_id, scope: [:project_id, :role_object_type, :role_object_id]
-
-  # role_object presence is a database constraint level
-  # validates :role_object, presence: true
+  belongs_to :organization, inverse_of: :roles
+  belongs_to :person, inverse_of: :roles
 
   # Must come after belongs_to associations
+  # !! This is only code isolation, not a shared library, probably should be removed
   include Roles::Person
+
+  validates :person, presence: true, unless: Proc.new { organization.present? }
+  validates :organization, presence: true, unless: Proc.new { person.present? }
+  validates_presence_of :type
+  validate :only_one_agent, :agent_is_legal #, :agent_present
 
   # Overrode in Roles::Organization
   def organization_allowed?
@@ -67,20 +66,33 @@ class Role < ApplicationRecord
   end
 
   def agent_type
-    if person
+    if person_id
       :person
-    elsif organization
+    elsif organization_id
       :organization
     else
       nil
     end
   end
 
+  def agent
+    return person if person_id
+    organization
+  end
+
   protected
 
   def agent_present
-    if !person.present? && !organization.present? 
+    if person.blank? && organization.blank?
       errors.add(:base, 'missing an agent (person or organization)')
+    end
+  end
+
+  # TODO: redundant?
+  def only_one_agent
+    if person && organization
+      errors.add(:person_id, 'organization is also selected')
+      errors.add(:organization_id, 'person is also selected')
     end
   end
 
@@ -90,43 +102,84 @@ class Role < ApplicationRecord
     end
   end
 
-  def only_one_agent
-    if person && organization
-      errors.add(:person_id, 'organization is also selected') 
-      errors.add(:organization_id, 'organization is also selected') 
-    end
-  end
-
-  def update_cached
-    # TODO: optimize, perhaps on set_author_year
-    role_object.send(:set_cached) if role_object.respond_to?(:set_cached, true)
-  end
-
   def is_last_role?
     role_object.roles.count == 0
   end
+
+  #
+  # Cache related methods
+  #
+
+  # Optionally defined in subclasses to limit
+  # which cached (sub) methods should be called
+  #   base_class_name: [:method, :method, :method]
+  def cached_triggers
+    {}
+  end
+
+  # @return boolean
+  #   true in roles that should have no impact
+  #   in any cached value setting.  If false then `set_cached`
+  #   will be called unless cached_triggers.presence
+  def do_not_set_cached
+    false
+  end
+
+  def set_cached
+    set_role_object_cached
+  end
+
+  def set_role_object_cached
+    a = self.dup
+    a.becomes(type.constantize).cached_trigger_methods(role_object).each do |m|
+      role_object.send(m) unless role_object.destroyed?
+    end
+  end
+
+  def cached_trigger_methods(object)
+    k = object.class.base_class.name.to_sym
+    if cached_triggers[k]
+      cached_triggers[k]
+    elsif
+      object.respond_to?(:set_cached)
+      if do_not_set_cached
+        return []
+      elsif role_object.respond_to?(:no_cached) && role_object.no_cached
+        return []
+      else
+        return [:set_cached]
+      end
+    else
+      []
+    end
+  end
+
 end
 
 # This list can be reconsidered, but for now:
 #
 # Person only roles
 
-require_dependency 'taxon_name_author'
-require_dependency 'source_source'
-require_dependency 'source_author'
-require_dependency 'source_editor'
-require_dependency 'collector'
-require_dependency 'georeferencer'
-require_dependency 'determiner'
-require_dependency 'loan_recipient'
-require_dependency 'loan_supervisor'
-require_dependency 'accession_provider'
-require_dependency 'deaccession_recipient'
+# require_dependency 'taxon_name_author'
+# require_dependency 'source_source'
+# require_dependency 'source_author'
+# require_dependency 'source_editor'
+# require_dependency 'collector'
+# require_dependency 'georeferencer'
+# require_dependency 'loan_recipient'
+# require_dependency 'loan_supervisor'
 
-require_dependency 'attribution_creator'
-require_dependency 'attribution_editor'
+# # Records below have not been hooked to Person activity years
 
-# Person OR Organization roles
+# require_dependency 'accession_provider'
+# require_dependency 'deaccession_recipient'
+# require_dependency 'verifier'
 
-require_dependency 'attribution_copyright_holder'
-require_dependency 'attribution_owner'
+# # TODO: these are being used in Attribution, or not?
+# require_dependency 'attribution_creator'
+# require_dependency 'attribution_editor'
+
+# # Person OR Organization roles
+# require_dependency 'attribution_copyright_holder'
+# require_dependency 'attribution_owner'
+# require_dependency 'determiner'

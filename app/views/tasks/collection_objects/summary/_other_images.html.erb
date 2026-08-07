@@ -1,0 +1,14 @@
+<h3> Other images </h3>
+<table>
+  <tr><th></th><th>Count</th><th> % total </th> </tr>
+  <tr>
+    <td> Non-stage images on collection objects </td>
+    <td> <%= image_on_collection_objects = @images.includes(depictions: [:sqed_depiction]).where( sqed_depictions: {id: nil}).count -%> </td>
+  </tr>
+
+  <tr>
+    <td> Images on collecting events </td>
+    <td> <%= image_on_collecting_events = Image.joins(:collecting_events).where(collecting_events: @collecting_events).count -%> </td>
+  </tr>
+</table>
+

@@ -1,35 +1,59 @@
-import { attention } from './Paths/attention.js'
-import { confidence } from './Paths/confidence'
-import { download } from './Paths/download'
-import { hexagon } from './Paths/hexagon.js'
-import { image } from './Paths/image.js'
-import { label } from './Paths/label.js'
-import { check } from './Paths/check.js'
-import { pencil } from './Paths/pencil'
-import { pin } from './Paths/pin'
-import { reset } from './Paths/reset'
-import { trash } from './Paths/trash'
-import { undo } from './Paths/undo.js'
-import { expand } from './Paths/expand'
-import { question } from './Paths/question'
-import { scrollV } from './Paths/scrollV.js'
-
-const Icons = {
-  attention,
-  download,
-  check,
-  confidence,
-  expand,
-  hexagon,
-  image,
-  label,
-  pencil,
-  pin,
-  trash,
-  reset,
-  undo,
-  question,
-  scrollV
-}
-
-export { Icons }
+export * from './Paths/arrowLeft.js'
+export * from './Paths/arrowRight.js'
+export * from './Paths/attention.js'
+export * from './Paths/confidence'
+export * from './Paths/download'
+export * from './Paths/hexagon.js'
+export * from './Paths/image.js'
+export * from './Paths/label.js'
+export * from './Paths/link.js'
+export * from './Paths/check.js'
+export * from './Paths/pencil'
+export * from './Paths/pin'
+export * from './Paths/reset'
+export * from './Paths/trash'
+export * from './Paths/undo.js'
+export * from './Paths/expand'
+export * from './Paths/question'
+export * from './Paths/scrollV.js'
+export * from './Paths/clock.js'
+export * from './Paths/plus.js'
+export * from './Paths/compass'
+export * from './Paths/funnel.js'
+export * from './Paths/chain.js'
+export * from './Paths/radialAnnotator.js'
+export * from './Paths/radialObject.js'
+export * from './Paths/radialNavigator.js'
+export * from './Paths/radialOtuRedirect.js'
+export * from './Paths/radialMassAnnotator.js'
+export * from './Paths/eye.js'
+export * from './Paths/swap.js'
+export * from './Paths/picking.js'
+export * from './Paths/polyline.js'
+export * from './Paths/square.js'
+export * from './Paths/text.js'
+export * from './Paths/zoomIn.js'
+export * from './Paths/zoomOut.js'
+export * from './Paths/move.js'
+export * from './Paths/matrix.js'
+export * from './Paths/marker.js'
+export * from './Paths/batch.js'
+export * from './Paths/folderArrowDown.js'
+export * from './Paths/folderArrowUp.js'
+export * from './Paths/cursorMove.js'
+export * from './Paths/contract.js'
+export * from './Paths/clip.js'
+export * from './Paths/merge.js'
+export * from './Paths/close.js'
+export * from './Paths/eraser.js'
+export * from './Paths/pointer.js'
+export * from './Paths/alphabeticSort.js'
+export * from './Paths/arrowDown.js'
+export * from './Paths/focus.js'
+export * from './Paths/numberSort.js'
+export * from './Paths/show.js'
+export * from './Paths/hide.js'
+export * from './Paths/broadcast.js'
+export * from './Paths/hamburger.js'
+export * from './Paths/synchronize.js'
+export * from './Paths/person.js'

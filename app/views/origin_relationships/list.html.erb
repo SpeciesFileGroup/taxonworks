@@ -2,22 +2,26 @@
 
 <table class="tablesorter">
   <thead>
-  <tr>
-    <%= fancy_th_tag(name: 'Source object') -%>
-    <%= fancy_th_tag(name: 'Target object') -%>
-    <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
-    <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
-  </tr>
+    <tr>
+      <%= fancy_th_tag(name: 'Source object type') -%>
+      <%= fancy_th_tag(name: 'Source object') -%>
+      <%= fancy_th_tag(name: 'Target object type') -%>
+      <%= fancy_th_tag(name: 'Target object') -%>
+      <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
+      <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
+    </tr>
   </thead>
 
   <tbody>
-  <% @origin_relationships.each do |origin_relationship| %>
+    <% @origin_relationships.each do |origin_relationship| %>
       <%= content_tag(:tr, class: :contextMenuCells) do -%>
-          <td><%= object_link(origin_relationship.old_object) %></td>
-          <td><%= object_link(origin_relationship.new_object) %></td>
-          <%= fancy_metadata_cells_tag(origin_relationship) -%>
+        <td><%= origin_relationship.old_object_type %></td>
+        <td><%= object_link(origin_relationship.old_object) %></td>
+        <td><%= origin_relationship.new_object_type %></td>
+        <td><%= object_link(origin_relationship.new_object) %></td>
+        <%= fancy_metadata_cells_tag(origin_relationship) -%>
       <% end %>
-  <% end %>
+    <% end %>
   </tbody>
 </table>
 

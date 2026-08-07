@@ -7,24 +7,55 @@ module Shared::Identifiers
     Identifier.related_foreign_keys.push self.name.foreign_key
 
     # Validation happens on the parent side!
-    has_many :identifiers, as: :identifier_object, validate: true, dependent: :destroy # TODO: add for validation, inverse_of: :identifier_object
+    has_many :identifiers, as: :identifier_object, validate: true, dependent: :destroy, inverse_of: :identifier_object # should be delete
     accepts_nested_attributes_for :identifiers, reject_if: :reject_identifiers, allow_destroy: true
+
+    has_many :uuids, -> { where('identifiers.type like ?', 'Identifier::Global::Uuid%').order(:position) }, class_name: 'Identifier', as: :identifier_object
+    has_many :uris, -> { where(type: 'Identifier::Global::Uri').order(:position) }, class_name: 'Identifier', as: :identifier_object
 
     scope :with_identifier_type, ->(identifier_type) { joins(:identifiers).where('identifiers.type = ?', identifier_type).references(:identifiers) }
     scope :with_identifier_namespace, ->(namespace_id) { joins(:identifiers).where('identifiers.namespace_id = ?', namespace_id).references(:identifiers) }
 
     # !! This only is able to match numeric identifiers, other results are excluded !!
     def self.with_identifiers_sorted(sort_order = 'ASC')
-      raise "illegal sort_order" if !['ASC', 'DESC'].include?(sort_order)
+      raise 'illegal sort_order' if !['ASC', 'DESC'].include?(sort_order)
       includes(:identifiers)
-        .where("LENGTH(identifier) < 10 AND identifiers.identifier ~ '\^\\d{1,9}\$'")
-        .order(Arel.sql("CAST(identifiers.identifier AS bigint) #{sort_order}"))
+        .where('identifiers.cached_numeric_identifier is not null')
+        .order(cached_numeric_identifier: sort_order)
         .references(:identifiers)
     end
 
     scope :with_identifier_type_and_namespace, ->(identifier_type = nil, namespace_id = nil, sorted = nil) {
       with_identifier_type_and_namespace_method(identifier_type, namespace_id, sorted)
     }
+
+    # Used to memoize identifier for navigating purposes
+    attr_accessor :navigating_identifier
+
+    # builds a new identifier, incremented from previous target, and assigns it to `to_object`
+    # @return the identifier
+    def add_incremented_identifier(to_object: nil, incremented_identifier_id: nil)
+      if to_object.respond_to?(:identifiers)
+        i = Identifier.find(incremented_identifier_id).dup
+        return false if !i.increment_identifier
+        i.identifier_object = to_object
+        i.save!
+      else
+        false
+      end
+    end
+
+    def local_identifiers
+      identifiers.where("type ilike 'Identifier::Local%'")
+    end
+  end
+
+  def visible_identifiers_for(project_id)
+    if association(:identifiers).loaded?
+      identifiers.select { |i| i.visible_to_project?(project_id) }
+    else
+      identifiers.visible(project_id)
+    end
   end
 
   module ClassMethods
@@ -59,22 +90,30 @@ module Shared::Identifiers
     def with_identifier(value)
       value = [value] if value.class == String
       t = Identifier.arel_table
-      a = t[:cached].eq_any(value)
+      a = t[:cached].in(value)
       self.joins(:identifiers).where(a.to_sql).references(:identifiers)
     end
 
     # @param sorted ['ASC', 'DESC', nil]
-    # @param identifier_type [like 'Identifier::Local::TripCode', nil]
+    # @param identifier_type [like 'Identifier::Local::FieldNumber', nil]
     # @param namespace_id [Integer, nil]
     # !! Note that adding a sort also adds a where clause that constrains results to those that have numeric identifier.identifier
     def with_identifier_type_and_namespace_method(identifier_type, namespace_id, sorted = nil)
       return self.none if identifier_type.blank? && namespace_id.blank? && sorted.blank?
       q = nil
-      q = with_identifier_type(identifier_type) if !identifier_type.blank?
-      q = (!q.nil? ? q.with_identifier_namespace(namespace_id) :  with_identifier_namespace(namespace_id) ) if !namespace_id.blank?
-      q = (!q.nil? ? q.with_identifiers_sorted(sorted) :  with_identifiers_sorted(sorted) ) if !sorted.blank?
+      q = with_identifier_type(identifier_type) if identifier_type.present?
+      q = (!q.nil? ? q.with_identifier_namespace(namespace_id) :  with_identifier_namespace(namespace_id) ) if namespace_id.present?
+      q = (!q.nil? ? q.with_identifiers_sorted(sorted) :  with_identifiers_sorted(sorted) ) if sorted.present?
       q
     end
+  end
+
+  def uri
+    uris.first&.cached
+  end
+
+  def uuid
+    uuids.first&.cached
   end
 
   def dwc_occurrence_id
@@ -82,17 +121,22 @@ module Shared::Identifiers
   end
 
   def identified?
-    self.identifiers.any?
+    if respond_to?(:project_id)
+      identifiers.visible(self.project_id).any?
+    else
+      identifiers.any?
+    end
   end
 
   def next_by_identifier
-    if i = identifiers.order(:position).first
+    # TODO: Memoize i so it can be shared with previous etc.
+    # LIke attr_accessor @navigating_identifier
+    if @navigating_identifier ||= identifiers.where("identifiers.type ILIKE 'Identifier::Local%'").order(:position).first
       self.class
-        .where(project_id: project_id)
-        .where.not(id: id)
-        .with_identifier_type_and_namespace_method(i.type, i.namespace_id, 'ASC')
-        .where(Utilities::Strings.is_i?(i.identifier) ?
-               ["CAST(identifiers.identifier AS bigint) > #{i.identifier}"] : ["identifiers.identifier > ?", i.identifier])
+        .where(project_id:)
+        .where.not(id:)
+        .with_identifier_type_and_namespace_method(navigating_identifier.type, navigating_identifier.namespace_id, 'ASC')
+        .where('cached_numeric_identifier > ?', navigating_identifier.cached_numeric_identifier)
         .first
     else
       nil
@@ -100,17 +144,17 @@ module Shared::Identifiers
   end
 
   def previous_by_identifier
-    if i = identifiers.order(:position).first
+    if @navigating_identifier ||= identifiers.where("type ILIKE 'Identifier::Local%'").order(:position).first
       self.class
-        .where(project_id: project_id)
-        .where.not(id: id)
-        .with_identifier_type_and_namespace_method(i.type, i.namespace_id, 'DESC')
-        .where(Utilities::Strings.is_i?(i.identifier) ?
-               ["CAST(identifiers.identifier AS bigint) < #{i.identifier}"] : ["identifiers.identifier < ?", i.identifier])
+        .where(project_id:)
+        .where.not(id:)
+        .with_identifier_type_and_namespace_method(navigating_identifier.type, navigating_identifier.namespace_id, 'DESC')
+        .where('cached_numeric_identifier < ?', navigating_identifier.cached_numeric_identifier)
         .first
     else
       nil
     end
+
   end
 
   protected

@@ -28,7 +28,6 @@ describe OtusController, type: :controller do
   # adjust the attributes here as well.
   let(:valid_attributes) { strip_housekeeping_attributes(FactoryBot.build(:valid_otu).attributes) }
 
-
   # This should return the minimal set of values that should be in the session
   # in order to pass any filters (e.g. authentication) defined in
   # OtusController. Be sure to keep this updated too.
@@ -160,21 +159,6 @@ describe OtusController, type: :controller do
       end
     end
 
-    describe 'DELETE destroy' do
-      it 'destroys the requested otu' do
-        otu = Otu.create! valid_attributes
-        expect {
-          delete :destroy, params: {id: otu.to_param}, session: valid_session
-        }.to change(Otu, :count).by(-1)
-      end
-
-      it 'redirects to the otus list' do
-        request.env['HTTP_REFERER'] = otus_url
-        otu = Otu.create! valid_attributes
-        delete :destroy, params: {id: otu.to_param}, session: valid_session
-        expect(response).to redirect_to(otus_url)
-      end
-    end
-
+    include_examples 'DELETE #destroy', Otu
   end
 end

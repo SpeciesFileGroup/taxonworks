@@ -1,164 +1,153 @@
 <template>
   <div class="custom_attributes">
     <fieldset>
-      <spinner-component
-        v-if="loading"
-      />
+      <VSpinner v-if="isLoading" />
       <legend>Custom attributes</legend>
-      <template
-        v-if="predicatesList.length">
-        <predicate-row
+      <template v-if="predicatesList.length">
+        <PredicateRow
           v-for="item in predicatesList"
+          ref="rowRefs"
           :key="item.id"
           :object-id="objectId"
           :object-type="objectType"
           :predicate-object="item"
           :existing="findExisting(item.id)"
-          @onUpdate="addDataAttribute"
+          @on-update="addDataAttribute"
         />
       </template>
       <a
         v-else
-        href="/tasks/projects/preferences/index">Select visible predicates
+        href="/tasks/projects/preferences/index"
+        >Select visible predicates
       </a>
     </fieldset>
   </div>
 </template>
 
-<script>
-
-import SpinnerComponent from 'components/spinner'
+<script setup>
+import VSpinner from '@/components/ui/VSpinner'
 import PredicateRow from './components/predicateRow'
 import {
   Project,
   ControlledVocabularyTerm,
   DataAttribute
-} from 'routes/endpoints'
+} from '@/routes/endpoints'
+import { addToArray } from '@/helpers/arrays'
+import { DATA_ATTRIBUTE_INTERNAL_ATTRIBUTE, PREDICATE } from '@/constants'
+import { ref, watch } from 'vue'
 
-export default {
-  components: {
-    PredicateRow,
-    SpinnerComponent
-  },
-  props: {
-    model: {
-      type: String,
-      required: true
-    },
-
-    objectId: {
-      required: true
-    },
-
-    objectType: {
-      type: String,
-      required: true
-    },
-
-    modelPreferences: {
-      type: Array,
-      required: false
-    }
+const props = defineProps({
+  model: {
+    type: String,
+    required: true
   },
 
-  emits: ['onUpdate'],
-
-  data () {
-    return {
-      loading: true,
-      createdList: [],
-      list: [],
-      data_attributes: [],
-      modelPreferencesIds: undefined,
-      predicatesList: []
-    }
+  objectId: {
+    type: Number,
+    default: undefined
   },
 
-  watch: {
-    objectId (newVal) {
-      if (newVal && this.objectType) {
-        this.loading = true
-        DataAttribute.where({
-          attribute_subject_type: this.objectType,
-          attribute_subject_id: this.objectId,
-          type: 'InternalAttribute'
-        }).then(response => {
-          this.createdList = response.body
-          this.loading = false
-        })
-      } else {
-        this.createdList = []
-      }
-    }
+  objectType: {
+    type: String,
+    required: true
   },
 
-  created () {
-    this.loadPreferences()
-  },
+  modelPreferences: {
+    type: Array,
+    required: false
+  }
+})
 
-  methods: {
-    loadPreferences () {
-      if (this.modelPreferences?.length) {
-        this.loadPredicates(this.modelPreferences)
-      } else {
-        Project.preferences().then(response => {
-          this.modelPreferencesIds = response.body.model_predicate_sets[this.model]
-          this.loadPredicates(this.modelPreferencesIds)
-        })
-      }
-    },
+const emit = defineEmits(['onUpdate'])
 
-    loadPredicates (ids) {
-      const promises = []
-      if (ids?.length) {
-        promises.push(ControlledVocabularyTerm.where({ type: ['Predicate'], id: ids }).then(response => {
-          this.predicatesList = response.body
-        }))
-      } else {
-        this.predicatesList = []
-      }
+const rowRefs = ref([])
+const isLoading = ref(true)
+const list = ref([])
+const dataAttributes = ref([])
+const modelPreferencesIds = ref()
+const predicatesList = ref([])
+const sortedIds = ref([])
 
-      if (this.objectId) {
-        promises.push(DataAttribute.where({
-          attribute_subject_type: this.objectType,
-          attribute_subject_id: this.objectId,
-          type: 'InternalAttribute'
-        }).then(response => {
-          this.createdList = response.body
-        }))
-      }
+watch(() => props.objectId, loadDataAttributes, {
+  immediate: true
+})
 
-      Promise.all(promises).then(() => {
-        this.loading = false
+function loadDataAttributes() {
+  dataAttributes.value = []
+  list.value = []
+  resetRows()
+
+  if (props.objectType && props.objectId) {
+    isLoading.value = true
+    DataAttribute.where({
+      attribute_subject_type: props.objectType,
+      attribute_subject_id: props.objectId,
+      type: DATA_ATTRIBUTE_INTERNAL_ATTRIBUTE
+    })
+      .then((response) => {
+        list.value = response.body
       })
-    },
-
-    findExisting (id) {
-      return this.createdList.find(item => item.controlled_vocabulary_term_id === id)
-    },
-
-    addDataAttribute (dataAttribute) {
-      const index = this.data_attributes.findIndex(item => item.controlled_vocabulary_term_id === dataAttribute.controlled_vocabulary_term_id)
-
-      if (index > -1) {
-        this.data_attributes[index] = dataAttribute
-      } else {
-        this.data_attributes.push(dataAttribute)
-      }
-
-      this.$emit('onUpdate', this.data_attributes)
-    }
+      .finally(() => {
+        isLoading.value = false
+      })
   }
 }
+
+function resetRows() {
+  rowRefs.value.forEach((row) => row.reset())
+}
+
+async function loadPredicates(ids) {
+  isLoading.value = true
+
+  predicatesList.value = ids?.length
+    ? (
+        await ControlledVocabularyTerm.where({
+          type: [PREDICATE],
+          id: ids
+        })
+      ).body
+    : []
+
+  predicatesList.value.sort(
+    (a, b) => sortedIds.value.indexOf(a.id) - sortedIds.value.indexOf(b.id)
+  )
+
+  isLoading.value = false
+}
+
+function findExisting(id) {
+  return list.value.find((item) => item.controlled_vocabulary_term_id === id)
+}
+
+function addDataAttribute(dataAttribute) {
+  addToArray(dataAttributes.value, dataAttribute, {
+    property: 'controlled_vocabulary_term_id'
+  })
+  emit('onUpdate', dataAttributes.value)
+}
+
+Project.preferences().then((response) => {
+  const modelPredicateSets = response.body.model_predicate_sets
+
+  modelPreferencesIds.value = modelPredicateSets[props.model]
+  sortedIds.value = modelPredicateSets?.predicate_index || []
+  loadPredicates(modelPreferencesIds.value)
+})
+
+defineExpose({
+  loadDataAttributes,
+  resetRows
+})
 </script>
 
 <style lang="scss">
-  .custom_attributes {
-    input {
-      width: 100%;
-    }
-    .vue-autocomplete-input {
-      width: 100% !important;
-    }
+.custom_attributes {
+  input {
+    width: 100%;
   }
+  .vue-autocomplete-input {
+    width: 100% !important;
+  }
+}
 </style>

@@ -3,9 +3,33 @@
 # Protocols are simple records, they can be Document(ed) with
 #  external files (pdfs, text files, etc.)
 #
+# @!attribute name
+#   @return [String]
+#   The full name of the Protocol
+#
+# @!attribute short_name
+#   @return [String]
+#   A shortened version of the name used in search
+#
+# @!attribute description
+#   @return [String]
+#     The procotol to follow. Must be provided, even if using a Document to produce the full version.
+#     Describes one or more steps that were taken to generate some or all of the object in questin.
+#
+# @!attribute is_machine_output
+#   @return [Boolean, nil]
+#     true - the protocol results in some or all of the object attributes being a result of direct,
+#            unadulterated by human, output
+#     false - the output may have been changed through human intervention (potentially changed from a machine-provided),
+#             or is directly human derived (typing a value in a cell)
+#     nil - nothing is stated regarding how values were derived from the protocol, we don't know
+#  The idea is to support provenance chains that indicate objects came from machine-originating capture,
+#  for example FieldOccurrence data from camera-traps set DwcOccurrence to MachineObservation when
+#  the FieldOccurrence has a Protocol with this true.
+#
 class Protocol < ApplicationRecord
   include Housekeeping
-  include Shared::Documentation 
+  include Shared::Documentation
   include Shared::Citations
   include Shared::IsData
 
@@ -16,26 +40,26 @@ class Protocol < ApplicationRecord
   validates_presence_of :short_name
   validates_presence_of :description
 
-  scope :used_on_klass, -> (klass) { joins(:protocol_relationships).where(protocol_relationships: {protocol_relationship_object: klass} ) } # remember to .distinct 
+  scope :used_on_klass, -> (klass) { joins(:protocol_relationships).where(protocol_relationships: {protocol_relationship_object_type: klass} ) } # remember to .distinct
 
   # TODO: unify, perhaps, with annotator logic, this is identical to Keyword methods
   # @return [Scope]
-  #    the max 10 most recently used Protocols 
+  #    the max 10 most recently used Protocols
   def self.used_recently(user_id, project_id, klass)
     t = ProtocolRelationship.arel_table
-    k = Protocol.arel_table 
+    k = self.arel_table
 
     # i is a select manager
-    i = t.project(t['protocol_id'], t['created_at']).from(t)
-      .where(t['created_at'].gt( 1.weeks.ago ))
-      .where(t['created_by_id'].eq(user_id))
+    i = t.project(t['protocol_id'], t['updated_at']).from(t)
+      .where(t['updated_at'].gt( 10.weeks.ago ))
+      .where(t['updated_by_id'].eq(user_id))
       .where(t['project_id'].eq(project_id))
-      .order(t['created_at'].desc)
+      .order(t['updated_at'].desc)
 
-    # z is a table alias 
+    # z is a table alias
     z = i.as('recent_t')
 
-    Protocol.used_on_klass(klass).joins(
+    used_on_klass(klass).joins(
       Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['protocol_id'].eq(k['id'])))
     ).pluck(:id).uniq
   end
@@ -59,7 +83,8 @@ class Protocol < ApplicationRecord
     h
   end
 
-
-
+  def is_machine_output?
+    is_machine_output
+  end
 
 end

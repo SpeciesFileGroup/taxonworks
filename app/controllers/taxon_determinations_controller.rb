@@ -1,7 +1,8 @@
 class TaxonDeterminationsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_taxon_determination, only: [:show, :edit, :update, :destroy]
+  before_action :set_taxon_determination, only: [:show, :edit, :update, :destroy, :api_show]
+  after_action -> { set_pagination_headers(:taxon_determinations) }, only: [:index, :api_index], if: :json_request?
 
   # GET /taxon_determinations
   # GET /taxon_determinations.json
@@ -12,9 +13,30 @@ class TaxonDeterminationsController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @taxon_determinations = Queries::TaxonDetermination::Filter.new(filter_params).all.with_project_id(sessions_current_project_id).page(params[:page]).per(params[:per] || 500)
+        @taxon_determinations = Queries::TaxonDetermination::Filter.new(params).all
+        .page(params[:page])
+        .per(params[:per])
       }
     end
+  end
+
+  # GET /api/v1/taxon_determinations
+  def api_index
+    q = ::Queries::TaxonDetermination::Filter.new(params.merge!(api: true)).all
+      .where(project_id: sessions_current_project_id)
+      .order('taxon_determinations.id')
+
+    respond_to do |format|
+      format.json {
+        @taxon_determinations = q.page(params[:page]).per(params[:per])
+        render '/taxon_determinations/api/v1/index'
+      }
+    end
+  end
+
+  # GET /api/v1/taxon_determinations/:id
+  def api_show
+    render '/taxon_determinations/api/v1/show'
   end
 
   def list
@@ -46,7 +68,7 @@ class TaxonDeterminationsController < ApplicationController
         format.json { render action: 'show', status: :created, location: @taxon_determination }
       else
         format.html { render action: 'new' }
-        format.json { render json: @taxon_determination.errors, status: :unprocessable_entity }
+        format.json { render json: @taxon_determination.errors, status: :unprocessable_content }
       end
     end
   end
@@ -60,7 +82,7 @@ class TaxonDeterminationsController < ApplicationController
         format.json { render action: 'show', status: :created, location: @taxon_determination }
       else
         format.html { render action: 'edit' }
-        format.json { render json: @taxon_determination.errors, status: :unprocessable_entity }
+        format.json { render json: @taxon_determination.errors, status: :unprocessable_content }
       end
     end
   end
@@ -70,9 +92,22 @@ class TaxonDeterminationsController < ApplicationController
   def destroy
     @taxon_determination.destroy
     respond_to do |format|
-      format.html { redirect_to taxon_determinations_url }
-      format.json { head :no_content }
+      if @taxon_determination.destroyed?
+        format.html { destroy_redirect @taxon_determination, notice: 'Taxon determination was successfully destroyed.' }
+        format.json { head :no_content }
+      else
+        format.html { destroy_redirect @taxon_determination, notice: 'Taxon determination was not destroyed, ' + @taxon_determination.errors.full_messages.join('; ') }
+        format.json { render json: @taxon_determination.errors, status: :unprocessable_content }
+      end
     end
+  end
+
+  # PATCH /taxon_determinations/reorder?id[]=1
+  def reorder
+    params[:id].reverse.each do |taxon_determination_id|
+      TaxonDetermination.find(taxon_determination_id).move_to_top
+    end
+    render json: true
   end
 
   # GET /taxon_determinations/search
@@ -85,14 +120,17 @@ class TaxonDeterminationsController < ApplicationController
   end
 
   def autocomplete
-    @taxon_determinations = taxon_determination.find_for_autocomplete(params.merge(project_id: sessions_current_project_id))
+    @taxon_determinations = TaxonDetermination.find_for_autocomplete(params)
+      .where(project_id: sessions_current_project_id)
+      .limit(40)
+      .distinct
     data = @taxon_determinations.collect do |t|
       {id: t.id,
-       label: TaxonDeterminationsHelper.taxon_determination_tag(t),
+       label: helpers.taxon_determination_tag(t),
        response_values: {
-           params[:method] => t.id
+         params[:method] => t.id
        },
-       label_html: TaxonDeterminationsHelper.taxon_determination_tag(t) #  render_to_string(:partial => 'shared/autocomplete/taxon_name.html', :object => t)
+       label_html: helpers.taxon_determination_tag(t) 
       }
     end
 
@@ -101,26 +139,35 @@ class TaxonDeterminationsController < ApplicationController
 
   # GET /taxon_determinations/download
   def download
-    send_data Export::Download.generate_csv(TaxonDetermination.where(project_id: sessions_current_project_id)),
-              type: 'text',
-              filename: "taxon_determinations_#{DateTime.now}.csv"
+    send_data Export::CSV.generate_csv(TaxonDetermination.where(project_id: sessions_current_project_id)),
+      type: 'text',
+      filename: "taxon_determinations_#{DateTime.now}.tsv"
+  end
+
+  # POST /taxon_determinations/batch_create
+  def batch_create
+    render json: TaxonDetermination.batch_create(
+      params[:collection_object_id],
+      taxon_determination_params.to_h.merge(
+        project_id: sessions_current_project_id,
+        by: sessions_current_user_id
+      )
+    )
   end
 
   private
-    def set_taxon_determination
-      @taxon_determination = TaxonDetermination.with_project_id(sessions_current_project_id).find(params[:id])
-      @recent_object = @taxon_determination
-    end
+  def set_taxon_determination
+    @taxon_determination = TaxonDetermination.with_project_id(sessions_current_project_id).find(params[:id])
+    @recent_object = @taxon_determination
+  end
 
-    def taxon_determination_params
-      params.require(:taxon_determination).permit(
-        :biological_collection_object_id, :otu_id, :year_made, :month_made, :day_made, :position,
-        roles_attributes: [:id, :_destroy, :type, :person_id, :position, person_attributes: [:last_name, :first_name, :suffix, :prefix]],
-        otu_attributes: [:id, :_destroy, :name, :taxon_name_id]
-      )
-    end
+  def taxon_determination_params
+    params.require(:taxon_determination).permit(
+      :taxon_determination_object_id, :taxon_determination_object_type,
+      :otu_id, :year_made, :month_made, :day_made, :position,
+      roles_attributes: [:id, :_destroy, :type, :organization_id, :person_id, :position, person_attributes: [:last_name, :first_name, :suffix, :prefix]],
+      otu_attributes: [:id, :_destroy, :name, :taxon_name_id]
+    )
+  end
 
-    def filter_params
-      params.permit(:collection_object_id, :otu_id, otu_ids: [], determiner_ids: [], biological_collection_object_ids: [])
-    end
 end

@@ -4,12 +4,13 @@
       <label
         v-for="rank in rankGroup"
         class="row capitalize"
-        :key="rank">
+        :key="rank"
+      >
         {{ rank }}
       </label>
     </div>
     <div>
-      <draggable
+      <Draggable
         class="flex-wrap-column"
         v-model="taxonList"
         :options="options"
@@ -21,67 +22,76 @@
         <template #item="{ element, index }">
           <div
             class="horizontal-left-content middle"
-            v-if="!element.taxon">
-            <autocomplete
+            v-if="!element.taxon"
+          >
+            <Autocomplete
+              :ref="(el) => setAutocompleteRef(el, index)"
               url="/taxon_names/autocomplete"
               label="label_html"
               min="2"
               clear-after
-              :add-params="{ type: 'Protonym', 'nomenclature_group[]': nomenclatureGroup }"
+              :add-params="{
+                type: 'Protonym',
+                'nomenclature_group[]': nomenclatureGroup
+              }"
               :disabled="disabled"
-              @getItem="setTaxon(index, $event)"
-              param="term"/>
-            <v-btn
+              @get-item="(item) => setTaxon(index, item)"
+              param="term"
+            />
+            <VBtn
               color="primary"
               circle
               title="Press and hold to drag input"
               class="margin-small-left"
             >
-              <v-icon
+              <VIcon
+                color="white"
                 name="scrollV"
                 small
               />
-            </v-btn>
+            </VBtn>
           </div>
           <div
-            class="original-combination-item horizontal-left-content middle"
-            v-else>
+            class="original-combination-item horizontal-left-content middle gap-small"
+            v-else
+          >
             <div>
-              <span class="vue-autocomplete-input normal-input combination middle">
-                <span v-html="element.taxon.object_label"/>
+              <span
+                class="vue-autocomplete-input normal-input combination middle"
+              >
+                <span v-html="element.taxon.object_label" />
               </span>
             </div>
-            <v-btn
-              class="margin-small-left"
+            <VBtn
               color="primary"
               circle
               title="Press and hold to drag input"
             >
-              <v-icon
+              <VIcon
                 name="scrollV"
                 small
               />
-            </v-btn>
-            <radial-annotator :global-id="element.taxon.global_id"/>
+            </VBtn>
+            <RadialAnnotator :global-id="element.taxon.global_id" />
             <span
               class="circle-button btn-delete"
-              @click="removeTaxonFromCombination(index)"/>
+              @click="removeTaxonFromCombination(index)"
+            />
           </div>
         </template>
-      </draggable>
+      </Draggable>
     </div>
   </div>
 </template>
 
 <script setup>
-
 import Draggable from 'vuedraggable'
-import RadialAnnotator from 'components/radials/annotator/annotator.vue'
-import Autocomplete from 'components/ui/Autocomplete.vue'
-import VBtn from 'components/ui/VBtn/index.vue'
-import VIcon from 'components/ui/VIcon/index.vue'
-import { ref, watch, computed } from 'vue'
-import { TaxonName } from 'routes/endpoints'
+import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
+import Autocomplete from '@/components/ui/Autocomplete.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
+import { ref, watch, watchPostEffect, computed } from 'vue'
+import { TaxonName } from '@/routes/endpoints'
 
 const props = defineProps({
   options: {
@@ -115,15 +125,22 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits([
-  'update:modelValue',
-  'onUpdate'
-])
+const emit = defineEmits(['update:modelValue', 'onUpdate'])
 const taxonList = ref([])
+const autocompleteRefs = {}
+const pendingFocusIndex = ref(-1)
+
+const setAutocompleteRef = (el, index) => {
+  if (el) {
+    autocompleteRefs[index] = el
+  } else {
+    delete autocompleteRefs[index]
+  }
+}
 
 const combination = computed({
   get: () => props.modelValue,
-  set: value => emit('update:modelValue', value)
+  set: (value) => emit('update:modelValue', value)
 })
 
 const setTaxon = (index, taxon) => {
@@ -140,11 +157,11 @@ const updateOrder = () => {
 }
 
 const checkForDuplicate = (newIndex) => {
-  if ((taxonList.value.length - 1) === newIndex) {
-    taxonList.value.splice((newIndex - 1), 1)
+  if (taxonList.value.length - 1 === newIndex) {
+    taxonList.value.splice(newIndex - 1, 1)
     newIndex = newIndex - 1
   }
-  taxonList.value.splice((newIndex + 1), 1)
+  taxonList.value.splice(newIndex + 1, 1)
 }
 
 const onAdd = ({ newIndex }) => {
@@ -159,20 +176,37 @@ const onUpdate = () => {
 }
 
 const removeTaxonFromCombination = (index) => {
+  pendingFocusIndex.value = index
   taxonList.value[index].taxon = null
   updateCombination()
 }
 
 const updateCombination = () => {
-  combination.value = Object.assign({}, combination.value,
+  combination.value = Object.assign(
+    {},
+    combination.value,
     ...taxonList.value.map(({ rank, taxon }) => ({ [rank]: taxon }))
   )
 }
 
-watch(combination, () => {
-  taxonList.value = props.rankGroup.map(rank => ({ rank, taxon: combination.value[rank] }))
-}, {
-  immediate: true
-})
+watch(
+  combination,
+  () => {
+    taxonList.value = props.rankGroup.map((rank) => ({
+      rank,
+      taxon: combination.value[rank]
+    }))
+  },
+  {
+    immediate: true
+  }
+)
 
+watchPostEffect(() => {
+  if (pendingFocusIndex.value >= 0) {
+    const index = pendingFocusIndex.value
+    pendingFocusIndex.value = -1
+    autocompleteRefs[index]?.setFocus()
+  }
+})
 </script>

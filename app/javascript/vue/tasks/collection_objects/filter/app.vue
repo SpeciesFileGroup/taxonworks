@@ -1,213 +1,197 @@
 <template>
-  <div>
-    <div class="flex-separate middle">
-      <h1>Collection objects filter</h1>
-      <ul class="context-menu">
-        <li>
-          <label>
-            <input
-              type="checkbox"
-              v-model="activeFilter">
-            Show filter
-          </label>
-        </li>
-        <li>
-          <label>
-            <input
-              type="checkbox"
-              v-model="activeJSONRequest">
-            Show JSON Request
-          </label>
-        </li>
-        <li>
-          <label>
-            <input
-              type="checkbox"
-              v-model="append">
-            Append results
-          </label>
-        </li>
-      </ul>
-    </div>
-    <div
-      v-show="activeJSONRequest"
-      class="panel content separate-bottom">
-      <div class="flex-separate middle">
-        <span>
-          JSON Request: {{ urlRequest }}
-        </span>
-      </div>
-    </div>
-
-    <div class="horizontal-left-content align-start">
-      <filter-component
-        class="separate-right"
-        ref="filterComponent"
-        v-show="activeFilter"
-        @urlRequest="urlRequest = $event"
-        @result="loadList"
-        @pagination="pagination = getPagination($event)"
-        @reset="resetTask"/>
-      <div class="full_width overflow-x-auto">
-        <div
-          v-if="recordsFound"
-          class="horizontal-left-content flex-separate separate-bottom">
-          <div class="horizontal-left-content">
-            <button
-              v-if="ids.length"
-              type="button"
-              @click="ids = []"
-              class="button normal-input button-default">
-              Unselect all
-            </button>
-            <button
-              v-else
-              type="button"
-              @click="ids = coIds"
-              class="button normal-input button-default">
-              Select all
-            </button>
-            <span class="separate-left separate-right">|</span>
-            <csv-button
-              :url="urlRequest"
-              :options="{ fields: csvFields }"/>
-            <dwc-download
-              class="margin-small-left"
-              :params="$refs.filterComponent.parseParams"
-              :total="pagination.total"/>
-            <dwc-reindex
-              class="margin-small-left"
-              :params="$refs.filterComponent.parseParams"
-              :total="pagination.total"
-            />
-          </div>
+  <div class="margin-medium-top">
+    <FilterLayout
+      :url-request="urlRequest"
+      :pagination="pagination"
+      :selected-ids="sortedSelectedIds"
+      :object-type="COLLECTION_OBJECT"
+      :list="list"
+      :extend-download="extendDownload"
+      :csv-options="csvOptions"
+      v-model="parameters"
+      v-model:append="append"
+      @filter="makeFilterRequest({ ...parameters, extend, exclude, page: 1 })"
+      @per="makeFilterRequest({ ...parameters, extend, exclude, page: 1 })"
+      @nextpage="loadPage"
+      @reset="resetFilter"
+    >
+      <template #nav-query-right>
+        <RadialCollectionObject
+          :disabled="!list.length"
+          :parameters="parameters"
+          :count="pagination?.total || 0"
+          @update="() => makeFilterRequest({ ...parameters, extend, exclude })"
+        />
+        <RadialLoan
+          :disabled="!list.length"
+          :parameters="parameters"
+        />
+        <RadialMatrix
+          :disabled="!list.length"
+          :parameters="parameters"
+          :object-type="COLLECTION_OBJECT"
+        />
+      </template>
+      <template #nav-right>
+        <div class="horizontal-right-content gap-small">
+          <RadialCollectionObject
+            :disabled="!list.length"
+            :ids="sortedSelectedIds"
+            :count="sortedSelectedIds.length"
+            @update="
+              () => makeFilterRequest({ ...parameters, extend, exclude })
+            "
+          />
+          <RadialLoan
+            :disabled="!list.length"
+            :ids="sortedSelectedIds"
+          />
+          <RadialMatrix
+            :ids="sortedSelectedIds"
+            :disabled="!list.length"
+            :object-type="COLLECTION_OBJECT"
+          />
+          <DeleteCollectionObjects
+            :ids="sortedSelectedIds"
+            :disabled="!sortedSelectedIds.length"
+            @delete="removeCOFromList"
+          />
+          <span class="separate-left separate-right">|</span>
+          <TableLayoutSelector
+            v-model="currentLayout"
+            v-model:includes="includes"
+            v-model:properties="properties"
+            :layouts="layouts"
+            @reset="resetPreferences"
+            @sort="updatePropertiesPositions"
+            @sort:column="forceUpdatePreference"
+            @update="saveLayoutPreferences"
+          />
         </div>
-        <div
-          class="flex-separate margin-medium-bottom"
-          v-if="pagination">
-          <pagination-component
-            v-if="pagination"
-            @nextPage="loadPage"
-            :pagination="pagination"/>
-          <pagination-count
-            :pagination="pagination"
-            v-model="per"/>
-        </div>
-        <list-component
-          v-if="Object.keys(list).length"
-          v-model="ids"
+      </template>
+      <template #facets>
+        <FilterComponent v-model="parameters" />
+      </template>
+      <template #table>
+        <TableResults
+          v-model="selectedIds"
           :list="list"
-          @onSort="list.data = $event"/>
-        <h2
-          v-if="alreadySearch && !list"
-          class="subtle middle horizontal-center-content no-found-message">No records found.
-        </h2>
-      </div>
-    </div>
+          :layout="currentLayout"
+          :hide-unfrozen="hideFrozen"
+          :preference-key="`tasks::filters::${COLLECTION_OBJECT}`"
+          radial-object
+          @on-sort="list = $event"
+          @remove="({ index }) => list.splice(index, 1)"
+        />
+      </template>
+      <template #nav-settings-start>
+        <VToggle
+          title="Hide/show non-frozen columns"
+          @click="() => (hideFrozen = !hideFrozen)"
+        >
+          <VIcon
+            :name="hideFrozen ? 'contract' : 'expand'"
+            x-small
+          />
+        </VToggle>
+      </template>
+    </FilterLayout>
+    <VSpinner
+      v-if="isLoading"
+      full-screen
+      legend="Searching..."
+      :logo-size="{ width: '100px', height: '100px' }"
+    />
   </div>
 </template>
 
-<script>
-
+<script setup>
+import FilterLayout from '@/components/layout/Filter/FilterLayout.vue'
 import FilterComponent from './components/filter.vue'
-import ListComponent from './components/list'
-import CsvButton from './components/csvDownload'
-import PaginationComponent from 'components/pagination'
-import PaginationCount from 'components/pagination/PaginationCount'
-import GetPagination from 'helpers/getPagination'
+import TableResults from '@/components/Filter/Table/TableResults.vue'
 import DwcDownload from './components/dwcDownload.vue'
-import DwcReindex from './components/dwcReindex.vue'
+import DeleteCollectionObjects from './components/DeleteCollectionObjects.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
+import VToggle from '@/components/ui/VToggle.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
+import TableLayoutSelector from '@/components/Filter/Table/TableLayoutSelector.vue'
+import RadialLoan from '@/components/radials/loan/radial.vue'
+import RadialMatrix from '@/components/radials/matrix/radial.vue'
+import RadialCollectionObject from '@/components/radials/co/radial.vue'
+import { computed, ref } from 'vue'
+import { CollectionObject } from '@/routes/endpoints'
+import { COLLECTION_OBJECT } from '@/constants/index.js'
+import { useTableLayoutConfiguration } from '@/components/Filter/composables/useTableLayoutConfiguration.js'
+import { LAYOUTS } from './constants/layouts.js'
+import { listParser } from './utils/listParser.js'
+import { useCSVOptions, useFilter } from '@/shared/Filter/composition'
 
-export default {
-  components: {
-    PaginationComponent,
-    FilterComponent,
-    ListComponent,
-    CsvButton,
-    PaginationCount,
-    DwcDownload,
-    DwcReindex
-  },
+const extend = [
+  'dwc_occurrence',
+  'repository',
+  'current_repository',
+  'collecting_event',
+  'taxon_determinations',
+  'identifiers',
+  'container_item',
+  'container'
+]
 
-  computed: {
-    csvFields () {
-      if (!Object.keys(this.list).length) return []
-      return this.list.column_headers.map((item, index) => {
-        return {
-          label: item,
-          value: (row, field) => row[index] || field.default,
-          default: ''
-        }
-      })
-    },
+const exclude = ['object_labels']
+const hideFrozen = ref(false)
 
-    coIds () {
-      return Object.keys(this.list).length ? this.list.data.map(item => item[0]) : []
-    },
+const {
+  currentLayout,
+  includes,
+  layouts,
+  properties,
+  updatePropertiesPositions,
+  saveLayoutPreferences,
+  resetPreferences,
+  forceUpdatePreference
+} = useTableLayoutConfiguration({ layouts: LAYOUTS, model: COLLECTION_OBJECT })
 
-    recordsFound () {
-      return Object.keys(this.list).length && this.list.data.length
+const {
+  append,
+  isLoading,
+  list,
+  loadPage,
+  makeFilterRequest,
+  pagination,
+  parameters,
+  resetFilter,
+  selectedIds,
+  sortedSelectedIds,
+  urlRequest
+} = useFilter(CollectionObject, {
+  initParameters: { extend, exclude },
+  listParser
+})
+
+const csvOptions = useCSVOptions({ layout: currentLayout, list })
+
+const extendDownload = computed(() => [
+  {
+    label: 'DwC',
+    component: DwcDownload,
+    bind: {
+      params: parameters.value,
+      total: pagination.value?.total,
+      selectedIds: selectedIds.value,
+      nestParameter: 'collection_object_query'
     }
-  },
-
-  data () {
-    return {
-      list: {},
-      urlRequest: '',
-      activeFilter: true,
-      activeJSONRequest: false,
-      append: false,
-      alreadySearch: false,
-      ids: [],
-      pagination: undefined,
-      maxRecords: [50, 100, 250, 500, 1000],
-      per: 500
-    }
-  },
-
-  watch: {
-    per(newVal) {
-      this.$refs.filterComponent.params.settings.per = newVal
-      this.loadPage(1)
-    }
-  },
-
-  methods: {
-    resetTask () {
-      this.alreadySearch = false
-      this.list = {}
-      this.urlRequest = ''
-      this.pagination = undefined
-      history.pushState(null, null, '/tasks/collection_objects/filter')
-    },
-
-    loadList(newList) {
-      if(this.append && this.list) {
-        let concat = newList.data.concat(this.list.data)
-
-        concat = concat.filter((item, index, self) =>
-          index === self.findIndex((i) => (
-            i[0] === item[0]
-          ))
-        )
-        newList.data = concat
-        this.list = newList
-      }
-      else {
-        this.list = newList
-      }
-      this.alreadySearch = true
-    },
-
-    loadPage(event) {
-      this.$refs.filterComponent.loadPage(event.page)
-    },
-    getPagination: GetPagination
   }
+])
+
+function removeCOFromList(ids) {
+  L
+  list.value = list.value.filter((item) => !ids.includes(item.id))
+  selectedIds.value = selectedIds.value.filter((id) => !ids.includes(id))
 }
 </script>
-<style scoped>
-  .no-found-message {
-    height: 70vh;
-  }
-</style>
+
+<script>
+export default {
+  name: 'FilterCollectionObjects'
+}
+</script>

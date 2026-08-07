@@ -5,6 +5,11 @@ module TaxonNameClassificationsHelper
     full_taxon_name_tag(taxon_name_classification.taxon_name) + ' (' + taxon_name_classification.classification_label + ')'
   end
 
+  def label_for_taxon_name_classification(taxon_name_classification)
+    return nil if taxon_name_classification.nil?
+    label_for_taxon_name(taxon_name_classification.taxon_name) + ' (' + taxon_name_classification.classification_label + ')'
+  end
+
   def taxon_name_classification_link(taxon_name_classification)
     return nil if taxon_name_classification.nil?
     link_to(taxon_name_classification_tag(taxon_name_classification).html_safe, metamorphosize_if(taxon_name_classification.taxon_name))

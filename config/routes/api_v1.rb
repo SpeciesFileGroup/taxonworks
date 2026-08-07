@@ -12,10 +12,9 @@ namespace :api, defaults: {format: :json} do
     get :ping, controller: 'ping'
     get :pingz, controller: 'ping'
 
-    # authenticated by user_token
-    defaults authenticate_user: true do
-      get '/user_authenticated', to: 'base#index'
-
+    # not authenticated
+    defaults authenticate_project: false, authenticate_user: false do
+      get '/sources/bibliography', to: '/sources#api_bibliography'
       get '/sources', to: '/sources#api_index'
       get '/sources/autocomplete', to: '/sources#autocomplete'
       get '/sources/:id', to: '/sources#api_show'
@@ -25,9 +24,16 @@ namespace :api, defaults: {format: :json} do
       get '/people/:id', to: '/people#api_show'
     end
 
+    # authenticated by user_token
+    defaults authenticate_user: true do
+      get '/user_authenticated', to: 'base#index'
+    end
+
     # authenticated by project token
     defaults authenticate_project: true do
+      get '/activity', to: 'stats#activity'
       get '/project_authenticated', to: 'base#index'
+
       # !@ may not be many things here, doesn't make a lot of sense?!
     end
 
@@ -36,18 +42,53 @@ namespace :api, defaults: {format: :json} do
       get '/both_authenticated', to: 'base#index'
     end
 
+    # There should be no post or delete in this section
     defaults authenticate_user_or_project: true do
+      get '/news', to: '/news#api_index'
+      get '/news/:id', to: '/news#api_show'
+
+      get '/downloads/dwc_archive_complete', to: '/downloads#api_dwc_archive_complete', as: :download_dwca_complete
+      get '/downloads/:id', to: '/downloads#api_show', as: :download_show
+      get '/downloads/:id/file', to: '/downloads#api_file', as: :download_file
+      get '/downloads', to: '/downloads#api_index'
+
       get '/otus', to: '/otus#api_index'
       get '/otus/autocomplete', to: '/otus#api_autocomplete'
+      get '/otus/inventory/alphabetical', to: '/otus#api_alphabetical_index', as: :api_alphabetical_index
+      get '/otus/:id/inventory/content', to: '/otus#api_content', as: :api_content
+      get '/otus/:id/inventory/distribution', to: '/otus#api_distribution', as: :api_distribution
+      get '/otus/:id/inventory/distribution_is_absent', to: '/otus#api_distribution_is_absent', as: :api_distribution_is_absent
+      get '/otus/:id/inventory/keys', to: '/otus#api_key_inventory', as: :key_inventory
+      get '/otus/:id/inventory/taxonomy', to: '/otus#api_taxonomy_inventory', as: :taxonomy_inventory
+      get '/otus/:otu_id/inventory/images', to: '/otus#api_image_inventory', as: :otu_images_inventory
+
+      get '/otus/:id/inventory/dwc_gallery', to: '/otus#api_dwc_gallery', as: :dwc_inventory_gallery
+      get '/otus/:id/inventory/dwc', to: '/otus#api_dwc_inventory', as: :dwc_inventory
+      get '/otus/:id/inventory/type_material', to: '/otus#api_type_material_inventory', as: :type_material_inventory
+      get '/otus/:id/inventory/citations', to: '/otus#api_citations_inventory', as: :citations_inventory
+      get '/otus/:id/inventory/nomenclature_citations', to: '/otus#api_nomenclature_citations', as: :nomenclature_citations_inventory
+
+      get '/otus/:id/inventory/determined_to_rank', to: '/otus#api_determined_to_rank', as: :determined_to_inventory
+
       get '/otus/:id', to: '/otus#api_show'
 
       get '/downloads/:id', to: '/downloads#api_show'
       get '/downloads', to: '/downloads#api_index'
       get '/downloads/:id/file', to: '/downloads#api_file', as: :api_download_file
 
+      get '/dwc_occurrences/area_autocomplete', to: '/dwc_occurrences#api_area_autocomplete'
+      get '/dwc_occurrences', to: '/dwc_occurrences#api_index'
+
+      get '/taxon_determinations', to: '/taxon_determinations#api_index'
+      get '/taxon_determinations/:id', to: '/taxon_determinations#api_show'
+
+      get '/taxon_names/origin_citation', to: '/taxon_names#api_origin_citation'
       get '/taxon_names', to: '/taxon_names#api_index'
       get '/taxon_names/autocomplete', to: '/taxon_names#autocomplete'
       get '/taxon_names/parse', to: '/taxon_names#parse'
+      get '/taxon_names/:id/inventory/catalog', to: '/taxon_names#api_catalog'
+      get '/taxon_names/:id/inventory/summary', to: '/taxon_names#api_summary'
+      get '/taxon_names/:id/monograph', to: '/taxon_names#api_monograph'
       get '/taxon_names/:id', to: '/taxon_names#api_show'
 
       get '/taxon_name_classifications', to: '/taxon_name_classifications#api_index'
@@ -65,6 +106,8 @@ namespace :api, defaults: {format: :json} do
       get '/identifiers/autocomplete', to: '/identifiers#api_autocomplete'
       get '/identifiers/:id', to: '/identifiers#api_show'
 
+      get '/cached_maps/:id', to: '/cached_maps#api_show'
+
       get '/collecting_events', to: '/collecting_events#api_index'
       get '/collecting_events/autocomplete', to: '/collecting_events#api_autocomplete'
       get '/collecting_events/:id', to: '/collecting_events#api_show'
@@ -74,8 +117,21 @@ namespace :api, defaults: {format: :json} do
       get '/collection_objects/:id/dwc', to: '/collection_objects#api_dwc'
       get '/collection_objects/:id', to: '/collection_objects#api_show'
 
+      get '/common_names', to: '/common_names#api_index'
+      get '/common_names/:id', to: '/common_names#api_show'
+
+      get '/biological_associations/:id/resource_relationship', to: '/biological_associations#api_resource_relationship'
+      get '/biological_associations/:id/globi', to: '/biological_associations#api_globi'
+      get '/biological_associations/extended', to: '/biological_associations#api_index_extended'
+      get '/biological_associations/simple', to: '/biological_associations#api_index_simple'
+      get '/biological_associations/basic', to: '/biological_associations#api_index_basic'
       get '/biological_associations', to: '/biological_associations#api_index'
       get '/biological_associations/:id', to: '/biological_associations#api_show'
+
+      get '/biological_associations_graphs', to: '/biological_associations_graphs#api_index'
+      get '/biological_associations_graphs/:id', to: '/biological_associations_graphs#api_show'
+
+      get '/biological_relationships', to: '/biological_relationships#api_index'
 
       get '/citations', to: '/citations#api_index'
       get '/citations/:id', to: '/citations#api_show'
@@ -83,16 +139,54 @@ namespace :api, defaults: {format: :json} do
       get '/contents', to: '/contents#api_index'
       get '/contents/:id', to: '/contents#api_show'
 
+      get '/controlled_vocabulary_terms', to: '/controlled_vocabulary_terms#api_index'
+      get '/controlled_vocabulary_terms/:id', to: '/controlled_vocabulary_terms#api_show'
+
       get '/asserted_distributions', to: '/asserted_distributions#api_index'
       get '/asserted_distributions/:id', to: '/asserted_distributions#api_show'
+
+      get '/conveyances', to: '/conveyances#api_index'
+      get '/conveyances/:id', to: '/conveyances#api_show'
+
+      get '/data_attributes', to: '/data_attributes#api_index'
+      get '/data_attributes/brief', to: '/data_attributes#api_brief'
+      get '/data_attributes/:id', to: '/data_attributes#api_show'
+
+      get '/depictions', to: '/depictions#api_index'
+      get '/depictions/gallery', to: '/depictions#api_gallery'
+      get '/depictions/:id', to: '/depictions#api_show'
+
+      get '/field_occurrences/:id/dwc', to: '/field_occurrences#api_dwc'
 
       get '/observations', to: '/observations#api_index'
       get '/observations/:id', to: '/observations#api_show'
 
-      get '/images', to: '/images#api_index'
-      get '/images/:id', to: '/images#api_show'
+      get '/observation_matrices/:observation_matrix_id/key', to: '/tasks/observation_matrices/interactive_key#api_key'
+      get '/observation_matrices/:observation_matrix_id/image_matrix', to: '/tasks/observation_matrices/image_matrix#api_key'
+      get '/observation_matrices', to: '/observation_matrices#api_index'
+      get '/observation_matrices/:id', to: '/observation_matrices#api_show'
 
-      # get '/controlled_vocabulary_terms'
+      get '/images', to: '/images#api_index'
+      get '/images/:id', to: '/images#api_show', as: :images_id
+      get '/images/:id/scale_to_box(/:x/:y/:width/:height/:box_width/:box_height)', to: '/images#api_scale_to_box'
+      get '/images/:id/as_png', to: '/images#api_as_png'
+      # was : get '/otus/:otu_id/inventory/images', to: '/images#api_image_inventory', as: :images_inventory
+      get '/images/:otu_id/inventory', to: '/images#api_image_inventory', as: :images_inventory
+      get '/images/sha/:sha', to: '/images#api_image_show_sha', as: :images_sha
+      get '/images/file/sha/:sha', to: '/images#api_image_file_sha', as: :images_file_sha
+      get '/images/file/sha/:sha/scale_to_box(/:x/:y/:width/:height/:box_width/:box_height)', to: '/images#api_scale_to_box_sha', as: :images_file_sha_scale_to_box
+
+      get '/tags', to: '/tags#api_index'
+      get '/tags/:id', to: '/tags#api_show'
+
+      get '/sounds', to: '/sounds#api_index'
+      get '/sounds/:id', to: '/sounds#api_show'
+
+      get '/leads', to: '/leads#api_index'
+      get '/leads/key/:id', to: '/leads#api_key'
+
+      get '/leads/:id/eliminated_otus', to: '/leads#api_eliminated_otus'
+      get '/leads/:id/remaining_otus', to: '/leads#api_remaining_otus'
     end
 
     # Authenticate membership at the data controller level
@@ -101,5 +195,3 @@ namespace :api, defaults: {format: :json} do
     match '/:path', to: 'base#not_found', via: :all
   end
 end
-
-

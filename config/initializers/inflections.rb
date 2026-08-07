@@ -11,6 +11,11 @@ ActiveSupport::Inflector.inflections(:en) do |inflect|
   inflect.irregular 'specimen', 'specimens'
   inflect.irregular 'documentation', 'documentation'
   inflect.irregular 'matrix', 'matrices'
+  inflect.irregular 'news', 'news'
+
+  inflect.acronym 'JSON'
+  inflect.acronym 'GPX'
+  inflect.acronym 'CSV'
 end
 
 # These inflection rules are supported but not enabled by default:

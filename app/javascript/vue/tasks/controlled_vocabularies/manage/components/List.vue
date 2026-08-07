@@ -1,22 +1,34 @@
 <template>
   <div class="three_quarter_width margin-medium-left">
-    <spinner-component v-if="isLoading"/>
+    <spinner-component v-if="isLoading" />
     <table class="full_width">
       <thead>
         <tr>
+          <th class="w-2">
+            <ButtonUnify
+              :model="CONTROLLED_VOCABULARY_TERM"
+              :ids="unifyIds"
+            />
+          </th>
           <th @click="sortTable('name')">Name</th>
           <th @click="sortTable('definition')">Definition</th>
           <th @click="sortTable('count')">Uses</th>
           <th>Show</th>
-          <th>Edit</th>
-          <th>Pin</th>
-          <th>Destroy</th>
+          <th />
         </tr>
       </thead>
       <tbody>
         <tr
           v-for="(item, index) in list"
-          :key="item.id">
+          :key="item.id"
+        >
+          <td>
+            <input
+              type="checkbox"
+              :value="item.id"
+              v-model="unifyIds"
+            />
+          </td>
           <td
             class="line-nowrap"
             v-html="item.object_tag"
@@ -27,23 +39,35 @@
             <a :href="`/controlled_vocabulary_terms/${item.id}`">Show</a>
           </td>
           <td>
-            <span
-              class="button button-circle btn-edit"
-              @click="editItem(index)"/>
-          </td>
-          <td>
-            <pin-component
-              class="button button-circle"
-              v-if="item.id"
-              :object-id="item.id"
-              :section="`${item.type}s`"
-              type="ControlledVocabularyTerm"
-            />
-          </td>
-          <td>
-            <span
-              class="button button-circle btn-delete"
-              @click="removeCTV(index)"/>
+            <div class="horizontal-right-content gap-small">
+              <VBtn
+                color="primary"
+                circle
+                @click="editItem(index)"
+              >
+                <VIcon
+                  name="pencil"
+                  x-small
+                />
+              </VBtn>
+              <PinComponent
+                class="button button-circle"
+                v-if="item.id"
+                :object-id="item.id"
+                :section="`${item.type}s`"
+                type="ControlledVocabularyTerm"
+              />
+              <VBtn
+                color="destroy"
+                circle
+                @click="emit('remove', item)"
+              >
+                <VIcon
+                  name="trash"
+                  x-small
+                />
+              </VBtn>
+            </div>
           </td>
         </tr>
       </tbody>
@@ -52,86 +76,50 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref, watch } from 'vue'
+import { sortArray } from '@/helpers'
+import { CONTROLLED_VOCABULARY_TERM } from '@/constants'
+import SpinnerComponent from '@/components/ui/VSpinner.vue'
+import PinComponent from '@/components/ui/Button/ButtonPin.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
+import ButtonUnify from '@/components/ui/Button/ButtonUnify.vue'
 
-import { ControlledVocabularyTerm } from 'routes/endpoints'
-import SpinnerComponent from 'components/spinner.vue'
-import PinComponent from 'components/ui/Pinboard/VPin.vue'
-
-export default {
-  components: {
-    SpinnerComponent,
-    PinComponent
-  },
-  props: {
-    type: {
-      type: String,
-      required: true
-    }
-  },
-
-  emits: ['edit'],
-
-  data () {
-    return {
-      list: [],
-      isLoading: false,
-      ascending: false
-    }
-  },
-
-  watch: {
-    type: {
-      handler (newVal, oldVal) {
-        if (newVal !== oldVal) {
-          this.isLoading = true
-          ControlledVocabularyTerm.where({ 'type[]': newVal }).then(response => {
-            this.list = response.body
-            this.isLoading = false
-          })
-        }
-      },
-      immediate: true
-    }
-  },
-
-  methods: {
-    editItem (index) {
-      this.$emit('edit', this.list[index])
-    },
-
-    removeCTV (index) {
-      if (window.confirm('You\'re trying to delete this record. Are you sure want to proceed?')) {
-        this.isLoading = true
-        ControlledVocabularyTerm.destroy(this.list[index].id).then(response => {
-          this.list.splice(index, 1)
-          this.isLoading = false
-        })
-      }
-    },
-
-    addCTV (item) {
-      const index = this.list.findIndex(ctv => ctv.id === item.id)
-
-      if (index > -1) {
-        this.list[index] = item
-      } else {
-        this.list.unshift(item)
-      }
-    },
-
-    sortTable (sortProperty) {
-      this.list.sort((a, b) => {
-        if (a[sortProperty] < b[sortProperty]) {
-          return (this.ascending ? -1 : 1)
-        }
-        if (a[sortProperty] > b[sortProperty]) {
-          return (this.ascending ? 1 : -1)
-        }
-        return 0
-      })
-      this.ascending = !this.ascending
-    }
+const props = defineProps({
+  list: {
+    type: Array,
+    default: () => []
   }
+})
+
+const emit = defineEmits(['edit', 'sort', 'remove'])
+
+const isLoading = ref(false)
+const ascending = ref(false)
+const unifyIds = ref([])
+
+function editItem(index) {
+  emit('edit', props.list[index])
 }
+
+function sortTable(sortProperty) {
+  emit('sort', sortArray(props.list, sortProperty, ascending.value))
+  ascending.value = !ascending.value
+}
+
+watch(unifyIds, (ids) => {
+  if (ids.length > 2) {
+    ids.shift()
+  }
+})
+
+watch(
+  () => props.list,
+  (newVal) => {
+    unifyIds.value = unifyIds.value.filter((id) =>
+      newVal.some((c) => c.id === id)
+    )
+  }
+)
 </script>

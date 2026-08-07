@@ -1,0 +1,242 @@
+<script>
+// Generated with Claude code/Zed interface and manually tuned
+document.addEventListener('DOMContentLoaded', function() {
+  //  console.log('Sankey script starting...');
+  //  console.log('D3 available:', typeof d3);
+  //  console.log('D3 sankey available:', typeof d3.sankey);
+
+  const data = <%= raw @coauthorship_data.to_json %>;
+  const baseParams = <%= raw base_params.to_json %>;
+  // console.log('Data:', data);
+  // console.log('Base params:', baseParams);
+
+  if (data.nodes.length === 0 || data.links.length === 0) {
+    document.getElementById('sankey-diagram').innerHTML = '<p class="feedback feedback-thin">No co-authorship relationships found in the current dataset.</p>';
+    return;
+  }
+
+  if (typeof d3 === 'undefined') {
+    document.getElementById('sankey-diagram').innerHTML = '<p class="feedback feedback-thin feedback-warning">D3.js library not loaded.</p>';
+    return;
+  }
+
+  if (typeof d3.sankey === 'undefined') {
+    document.getElementById('sankey-diagram').innerHTML = '<p class="feedback feedback-thin feedback-warning">D3 Sankey library not loaded.</p>';
+    return;
+  }
+
+  // Set up dimensions proportionate to data
+  const margin = {top: 20, right: 20, bottom: 20, left: 20 };
+  const width = document.getElementById('sankey-diagram').offsetWidth - margin.left - margin.right;
+  const baseHeight = 1000; // 2x original height
+  const nodeCount = data.nodes.length;
+  const height = Math.max(baseHeight, nodeCount * 40); // Scale with number of authors
+  // console.log('Dimensions:', {width, height, nodeCount});
+
+  // Create SVG
+  const svg = d3.select("#sankey-diagram")
+    .append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom);
+  // console.log('SVG created:', svg.node());
+
+  const g = svg.append("g")
+    .attr("transform", `translate(${margin.left},${margin.top})`);
+  // console.log('Group created:', g.node());
+
+  // Color scales
+  const nodeColor = d3.scaleOrdinal(d3.schemeCategory10);
+  const maxCollaborations = d3.max(data.links, d => d.value);
+  // Yellow to dark green heatmap (inverted - dark green for larger values)
+  const linkColorScale = d3.scaleSequential()
+    .domain([1, maxCollaborations])
+    .interpolator(t => d3.interpolateRgb("#d4d455", "darkgreen")(t)); // Less bright yellow
+
+  // Isolate max stroke width as variable
+  const maxStrokeWidth = 20;
+  const strokeWidthScale = d3.scaleLinear()
+    .domain([1, maxStrokeWidth])
+    .range([1, maxStrokeWidth]);
+
+  const fontSize = 12;
+  const nodeHeightPadding = 4; // Extra padding for node height in pixels
+
+  // Create sankey generator with nodeSort
+  const sankey = d3.sankey()
+    .nodeId(d => d.id)
+    .nodeWidth(20)
+    .nodePadding(8)
+    .nodeSort((a, b) => d3.descending(a.value, b.value))
+    .extent([[1, 1], [width - 1, height - 1]]);
+  //console.log('Sankey generator created');
+
+  // Process data
+  let graph;
+  try {
+    // console.log('Processing sankey data...');
+    // console.log('Input nodes:', data.nodes);
+    // console.log('Input links:', data.links);
+
+    graph = sankey({
+      nodes: data.nodes.map(d => Object.assign({}, d)),
+      links: data.links.map(d => Object.assign({}, d))
+    });
+    // console.log('Graph processed successfully:', graph);
+    // console.log('Processed nodes:', graph.nodes);
+    // console.log('Processed links:', graph.links);
+  } catch (error) {
+    console.error('Sankey processing error:', error);
+    document.getElementById('sankey-diagram').innerHTML = '<p class="feedback feedback-thin feedback-warning">Error processing Sankey data: ' + error.message + '</p>';
+    return;
+  }
+
+  // Set node height based on sum of scaled link widths
+  graph.nodes.forEach(node => {
+    const totalValue = graph.links
+      .filter(link => link.source.index === node.index || link.target.index === node.index)
+      .reduce((sum, link) => sum + strokeWidthScale(link.value), 0);
+
+    node.height = Math.max(fontSize, totalValue) + nodeHeightPadding; // Use calculated height with padding
+  });
+
+  // Recalculate link y-positions to align with custom node heights
+  graph.nodes.forEach(node => {
+    node.sourceLinks.sort((a, b) => a.target.y0 - b.target.y0);
+    node.targetLinks.sort((a, b) => a.source.y0 - b.source.y0);
+
+    // Start from top padding offset
+    let sourceY = node.y0 + nodeHeightPadding / 2;
+    node.sourceLinks.forEach(link => {
+      link.y0 = sourceY + strokeWidthScale(link.value) / 2;
+      sourceY += strokeWidthScale(link.value);
+    });
+
+    let targetY = node.y0 + nodeHeightPadding / 2;
+    node.targetLinks.forEach(link => {
+      link.y1 = targetY + strokeWidthScale(link.value) / 2;
+      targetY += strokeWidthScale(link.value);
+    });
+  });
+
+  // Custom link path generator - use full curvature to avoid sharp points
+  const linkPath = (d) => {
+    const x0 = d.source.x1,
+      y0 = d.y0,
+      x1 = d.target.x0,
+      y1 = d.y1;
+    const curvature = 1.0; // Lower this value to reduce the curve
+    const xi = d3.interpolateNumber(x0, x1);
+    const x2 = xi(curvature);
+    const x3 = xi(1 - curvature);
+    return "M" + x0 + "," + y0
+    + "C" + x2 + "," + y0
+    + " " + x3 + "," + y1
+    + " " + x1 + "," + y1;
+  };
+
+  // Add links using traditional D3 pattern
+  const links = g.selectAll(".link")
+    .data(graph.links)
+    .enter()
+    .append("path")
+    .attr("class", "link")
+    .attr("d", linkPath)
+    .attr("stroke", d => linkColorScale(d.value))
+    .attr("stroke-opacity", 0.6)
+    .attr("stroke-width", d => strokeWidthScale(d.value))
+    .attr("fill", "none");
+
+  // Helper to build filter URL with author IDs
+  function buildFilterUrl(personIds) {
+    const params = new URLSearchParams();
+
+    // Add base params
+    for (const [key, value] of Object.entries(baseParams)) {
+      if (key === 'taxon_name_query' && typeof value === 'object') {
+        for (const [subKey, subValue] of Object.entries(value)) {
+          params.append(`taxon_name_query[${subKey}]`, subValue);
+        }
+      } else if (Array.isArray(value)) {
+        value.forEach(v => params.append(`${key}[]`, v));
+      } else if (value !== null && value !== undefined) {
+        params.append(key, value);
+      }
+    }
+
+    // Add author IDs
+    personIds.forEach(id => params.append('taxon_name_author_id[]', id));
+
+    return '/tasks/taxon_names/filter?' + params.toString();
+  }
+
+  // Add tooltips and click handlers to links
+  links
+    .style("cursor", "pointer")
+    .on("click", function(event, d) {
+      const url = buildFilterUrl([d.source.person_id, d.target.person_id]);
+      window.open(url, '_blank');
+    })
+    .append("title")
+    .text(d => `${d.source.name} ↔ ${d.target.name}
+      ${d.value} jointly authored names
+      Click to filter`);
+
+  console.log('Links added:', links.size(), 'Max collaborations:', maxCollaborations);
+
+  // Add nodes using traditional D3 pattern
+  const nodes = g.selectAll(".node")
+    .data(graph.nodes)
+    .enter()
+    .append("rect")
+    .attr("class", "node")
+    .attr("x", d => d.x0)
+    .attr("y", d => d.y0)
+    .attr("height", d => d.height) // Use calculated height
+    .attr("width", d => d.x1 - d.x0)
+    .attr("fill", d => nodeColor(d.name))
+    .attr("stroke", "#000")
+    .attr("stroke-width", 1)
+    .style("cursor", "pointer")
+    .on("click", function(event, d) {
+      const url = buildFilterUrl([d.person_id]);
+      window.open(url, '_blank');
+    })
+    .append("title")
+    .text(d => `${d.name}\nClick to filter`);
+
+  console.log('Nodes added:', nodes.size());
+
+  // Add white backgrounds for labels
+  const labelBackgrounds = g.selectAll(".label-background")
+    .data(graph.nodes)
+    .enter()
+    .append("rect")
+    .attr("class", "label-background")
+    .attr("x", function(d) {
+      const textWidth = d.name.length * 7; // Approximate text width
+      const nodeWidth = d.x1 - d.x0;
+      // Position to the right of node if on left side, to the left if on right side
+      return d.x0 < width / 2 ? d.x1 + 6 : d.x0 - 6 - textWidth - 6;
+    })
+    .attr("y", d => d.y0 + d.height / 2 - 8) // Use custom height
+    .attr("width", d => d.name.length * 7 + 6)
+    .attr("height", 16)
+    .attr("fill", "white")
+    .attr("fill-opacity", 0.9);
+
+  // Add node labels
+  const labels = g.selectAll(".label")
+    .data(graph.nodes)
+    .enter()
+    .append("text")
+    .attr("class", "label")
+    .attr("x", d => d.x0 < width / 2 ? d.x1 + 9 : d.x0 - 9)
+    .attr("y", d => d.y0 + d.height / 2) // Use custom height
+    .attr("dy", "0.35em")
+    .attr("text-anchor", d => d.x0 < width / 2 ? "start" : "end")
+    .style("font-size", "12px")
+    .style("font-family", "sans-serif")
+    .text(d => d.name);
+  console.log('Labels added:', labels.size());
+});
+</script>

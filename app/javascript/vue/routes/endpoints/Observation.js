@@ -1,27 +1,34 @@
 import baseCRUD, { annotations } from './base'
+import ajaxCall from '@/helpers/ajaxCall.js'
 
 const controller = 'observations'
 const permitParams = {
   observation: {
-    observation_object_global_id: Number,
-    descriptor_id: Number,
-    otu_id: Number,
-    collection_object_id: Number,
     character_state_id: Number,
-    frequency: Number,
-    continuous_value: String,
+    collection_object_id: Number,
     continuous_unit: String,
-    sample_n: Number,
-    sample_min: Number,
+    continuous_value: String,
+    description: String,
+    descriptor_id: Number,
+    frequency: Number,
+    observation_object_id: Number,
+    observation_object_type: String,
+    observation_object_global_id: Number,
+    otu_id: Number,
+    presence: Boolean,
     sample_max: Number,
-    sample_median: Number,
     sample_mean: String,
-    sample_units: String,
+    sample_median: Number,
+    sample_min: Number,
+    sample_n: Number,
     sample_standard_deviation: String,
     sample_standard_error: String,
-    presence: Boolean,
-    description: String,
+    sample_units: String,
     type: String,
+    day_made: Number,
+    month_made: Number,
+    year_made: Number,
+    time_made: String,
     images_attributes: {
       id: Number,
       _destroy: Boolean,
@@ -47,5 +54,17 @@ const permitParams = {
 
 export const Observation = {
   ...baseCRUD(controller, permitParams),
-  ...annotations(controller)
+  ...annotations(controller),
+
+  codeRow: (params) => ajaxCall('post', `/${controller}/code_column`, params),
+
+  destroyColumn: (params) =>
+    ajaxCall('delete', `/${controller}/destroy_column.json`, { params }),
+
+  destroyRow: (params) =>
+    ajaxCall('delete', `/${controller}/destroy_row.json`, { params }),
+
+  filter: (params) => ajaxCall('post', `/${controller}/filter.json`, params),
+
+  navigation: (id) => ajaxCall('get', `/${controller}/${id}/navigation`),
 }

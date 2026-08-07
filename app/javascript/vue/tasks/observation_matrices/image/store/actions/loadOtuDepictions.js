@@ -1,28 +1,26 @@
-import { Otu, TaxonName, CollectionObject } from 'routes/endpoints'
+import { Depiction } from '@/routes/endpoints'
 import { MutationNames } from '../mutations/mutations'
 
-const objectClass = {
-  otu_id: Otu,
-  collection_object_id: CollectionObject,
-  taxon_name_id: TaxonName
-}
+function requestDepictions(item) {
+  const type = item.observation_object_type || item.base_class
+  const id = item.observation_object_id || item.id
 
-function requestDepictions (item) {
-  const [property, request] = item.base_class === 'Otu'
-    ? ['id', Otu]
-    : Object.entries(objectClass).find(([key, value]) => item[key])
-
-  return request.depictions(item[property])
+  return Depiction.where({
+    depiction_object_id: id,
+    depiction_object_type: type
+  })
 }
 
 export default ({ state: { observationRows }, commit }) => {
-  const promises = observationRows.map(item => requestDepictions(item.object))
+  const promises = observationRows.map((item) => requestDepictions(item.object))
 
-  Promise.all(promises).then(responses => {
-    commit(MutationNames.SetObservationRows,
+  Promise.all(promises).then((responses) => {
+    commit(
+      MutationNames.SetObservationRows,
       observationRows.map((row, index) => ({
         ...row,
         objectDepictions: responses[index].body
-      })))
+      }))
+    )
   })
 }

@@ -3,6 +3,29 @@ require 'rails_helper'
 describe 'Identifiable', type: :model, group: [:identifiers] do
   let(:identifiable_instance) {TestIdentifiable.new}
   let(:identifiable_class) {TestIdentifiable}
+  let(:namespace) { FactoryBot.create(:valid_namespace) }
+
+  specify '#add_incremented_identifier' do
+    a = FactoryBot.create(:valid_otu)
+    b = FactoryBot.create(:valid_otu)
+
+    i = Identifier::Local::OtuUtility.create!(identifier: '1', identifier_object: a, namespace:)
+
+    a.add_incremented_identifier(to_object: b, incremented_identifier_id: i.id)
+
+    expect(b.local_identifiers.first.identifier.to_f).to eq(i.identifier.to_f + 1.0)
+  end
+
+  specify '#add_incremented_identifier when increment fails' do
+    a = FactoryBot.create(:valid_otu)
+    b = FactoryBot.create(:valid_otu)
+
+    i = Identifier::Local::OtuUtility.create!(identifier: 'asdf', identifier_object: a, namespace:)
+
+    expect(
+      a.add_incremented_identifier(to_object: b, incremented_identifier_id: i.id)
+    ).to be_falsey
+  end
 
   context 'associations' do
     specify 'has many identifiers' do
@@ -16,6 +39,7 @@ describe 'Identifiable', type: :model, group: [:identifiers] do
     end
 
     specify '#identified? with some identifiers' do
+      identifiable_instance.save!
       identifiable_instance.identifiers << Identifier::Global::Uri.new(identifier: 'http:/uri.org/foo/123')
       expect(identifiable_instance.identified?).to eq(true)
     end
@@ -29,12 +53,12 @@ describe 'Identifiable', type: :model, group: [:identifiers] do
       let!(:n2) {FactoryBot.create(:valid_namespace, name: namespace_name2) }
       let!(:n3) {FactoryBot.create(:valid_namespace, short_name: namespace_name3) }
 
-      let!(:identifier1) { Identifier::Local::CatalogNumber.create!( identifier_object: identifiable_instance, identifier: '123', namespace: n1) }
-      let!(:identifier2) { Identifier::Local::CatalogNumber.create!( identifier_object: identifiable_instance, identifier: '456', namespace: n2) }
-      let!(:identifier3) { Identifier::Local::CatalogNumber.create!( identifier_object: identifiable_instance, identifier: '789', namespace: n3) }
+      let!(:identifier1) { Identifier::Local::OtuUtility.create!( identifier_object: identifiable_instance, identifier: '123', namespace: n1) }
+      let!(:identifier2) { Identifier::Local::OtuUtility.create!( identifier_object: identifiable_instance, identifier: '456', namespace: n2) }
+      let!(:identifier3) { Identifier::Local::OtuUtility.create!( identifier_object: identifiable_instance, identifier: '789', namespace: n3) }
 
       specify '#with_identifier_type_and_namespace' do
-        expect(identifiable_class.with_identifier_type_and_namespace('Identifier::Local::CatalogNumber', n1.id)).to contain_exactly(identifiable_instance)
+        expect(identifiable_class.with_identifier_type_and_namespace('Identifier::Local::OtuUtility', n1.id)).to contain_exactly(identifiable_instance)
       end
 
       specify '.with_identifiers_sorted' do
@@ -46,6 +70,7 @@ describe 'Identifiable', type: :model, group: [:identifiers] do
       end
 
       specify '#identified?' do
+        identifiable_instance.project_id = 1
         expect(identifiable_instance.identified?).to eq(true)
       end
 
@@ -57,6 +82,37 @@ describe 'Identifiable', type: :model, group: [:identifiers] do
       specify '#with_identifier(value)' do
         expect(identifiable_class.with_identifier('INHSIC 123').count).to eq(1)
         expect(identifiable_class.with_identifier(['INHSIC 123', 'CNC 789']).count).to eq(2)
+      end
+
+      context '#visible_identifiers_for' do
+        let!(:otu) { FactoryBot.create(:valid_otu) }
+        let!(:local_id) { Identifier::Local::OtuUtility.create!(identifier: '1', identifier_object: otu, namespace: n1) }
+        let!(:global_id) { Identifier::Global::Uri.create!(identifier: 'http://example.org/1', identifier_object: otu) }
+        let(:other_project_id) { otu.project_id + 1 }
+
+        context 'when association is not loaded' do
+          specify 'includes local and global identifiers for matching project' do
+            expect(otu.visible_identifiers_for(otu.project_id)).to include(local_id, global_id)
+          end
+
+          specify 'excludes local identifier for non-matching project' do
+            expect(otu.visible_identifiers_for(other_project_id)).to include(global_id)
+            expect(otu.visible_identifiers_for(other_project_id)).not_to include(local_id)
+          end
+        end
+
+        context 'when association is loaded' do
+          before { otu.identifiers.load }
+
+          specify 'includes local and global identifiers for matching project' do
+            expect(otu.visible_identifiers_for(otu.project_id)).to include(local_id, global_id)
+          end
+
+          specify 'excludes local identifier for non-matching project' do
+            expect(otu.visible_identifiers_for(other_project_id)).to include(global_id)
+            expect(otu.visible_identifiers_for(other_project_id)).not_to include(local_id)
+          end
+        end
       end
 
       context 'on destroy' do

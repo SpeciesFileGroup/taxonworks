@@ -1,145 +1,128 @@
 <template>
-  <nav-bar class="position-relative">
-    <div class="flex-separate">
+  <NavBar navbar-class="panel content relative">
+    <div class="flex-separate gap-small">
       <ul class="no_bullets context-menu">
         <template
-          v-for="(link, key, index) in menu"
-          :key="key">
-          <li
-            class="navigation-item context-menu-option"
-            v-if="link">
+          v-for="({ title, isAvailableFor }, index) in SectionComponents"
+          :key="title"
+        >
+          <li v-if="isAvailableFor(taxon)">
             <a
               data-turbolinks="false"
-              :class="{ active : (activePosition == index)}"
-              :href="'#' + key.toLowerCase().replace(' ','-')"
-              @click="activePosition = index">{{ key }}
+              :class="{ active: activePosition == index }"
+              @click.prevent="onNavClick(index)"
+              >{{ getTitle(title) }}
             </a>
           </li>
         </template>
       </ul>
-      <div class="horizontal-center-content">
-        <save-taxon-name
-          class="normal-input button button-submit separate-right"/>
-        <clone-taxon-name
-          v-help.section.navbar.clone
-          class="separate-right"/>
+      <div class="horizontal-center-content gap-small">
+        <SaveTaxonName
+          class="normal-input button button-submit navbar-button"
+        />
+        <CloneTaxonName v-help.section.navbar.clone />
         <button
           type="button"
           title="Create a child of this taxon name"
           v-help.section.navbar.sisterIcon
           @click="createNew(taxon.id)"
           :disabled="!taxon.id"
-          class="button normal-input button-default btn-create-child button-new-icon margin-small-right"/>
+          class="button normal-input button-default btn-create-child button-new-icon"
+        />
         <button
           type="button"
           @click="createNew(parentId)"
           :disabled="!parentId"
           title="Create a new taxon name with the same parent"
           v-help.section.navbar.childIcon
-          class="button normal-input button-default btn-create-sister button-new-icon margin-small-right"/>
-        <create-new-button />
+          class="button normal-input button-default btn-create-sister button-new-icon"
+        />
+        <CreateNewButton />
       </div>
     </div>
-    <autosave
-      style="bottom: 0px; left: 0px;"
+    <Autosave
+      style="bottom: 0px; left: 0px"
       class="position-absolute full_width"
-      :disabled="!taxon.id || !isAutosaveActive"/>
-  </nav-bar>
+      :disabled="!taxon.id || !isAutosaveActive"
+    />
+  </NavBar>
 </template>
-<script>
-
+<script setup>
 import SaveTaxonName from './saveTaxonName.vue'
 import CreateNewButton from './createNewButton.vue'
 import CloneTaxonName from './cloneTaxon'
-import NavBar from 'components/layout/NavBar'
+import NavBar from '@/components/layout/NavBar'
 import Autosave from './autosave'
+import { SectionComponents } from '../const/components'
 import { GetterNames } from '../store/getters/getters'
-import { RouteNames } from 'routes/routes'
+import { RouteNames } from '@/routes/routes'
+import { computed, ref } from 'vue'
+import { useStore } from 'vuex'
 
-export default {
-  components: {
-    SaveTaxonName,
-    CreateNewButton,
-    CloneTaxonName,
-    NavBar,
-    Autosave
-  },
+const emit = defineEmits(['section-clicked'])
+const store = useStore()
+const unsavedChanges = computed(() => {
+  return (
+    store.getters[GetterNames.GetLastChange] >
+    store.getters[GetterNames.GetLastSave]
+  )
+})
 
-  props: {
-    menu: {
-      type: Object,
-      required: true
+const taxon = computed(() => store.getters[GetterNames.GetTaxon])
+const parent = computed(() => store.getters[GetterNames.GetParent])
+
+const isAutosaveActive = computed(() => store.getters[GetterNames.GetAutosave])
+const parentId = computed(() => parent.value?.id)
+
+const activePosition = ref(0)
+
+function onNavClick(index) {
+  activePosition.value = index
+  emit('section-clicked', index)
+}
+
+function createNew(id) {
+  const url = `${RouteNames.NewTaxonName}?parent_id=${id}`
+
+  if (unsavedChanges.value) {
+    if (
+      window.confirm(
+        'You have unsaved changes. Are you sure you want to create a new taxon name? All unsaved changes will be lost.'
+      )
+    ) {
+      window.open(url, '_self')
     }
-  },
-
-  computed: {
-    unsavedChanges () {
-      return (this.$store.getters[GetterNames.GetLastChange] > this.$store.getters[GetterNames.GetLastSave])
-    },
-
-    taxon () {
-      return this.$store.getters[GetterNames.GetTaxon]
-    },
-
-    parent () {
-      return this.$store.getters[GetterNames.GetParent]
-    },
-
-    isAutosaveActive () {
-      return this.$store.getters[GetterNames.GetAutosave]
-    },
-
-    parentId () {
-      return this.parent?.id
-    }
-  },
-
-  data () {
-    return {
-      activePosition: 0
-    }
-  },
-
-  methods: {
-    createNew (id) {
-      this.url = `${RouteNames.NewTaxonName}?parent_id=${id}`
-      if (this.unsavedChanges) {
-        if (window.confirm('You have unsaved changes. Are you sure you want to create a new taxon name? All unsaved changes will be lost.')) {
-          window.open(this.url, '_self')
-        }
-      } else {
-        window.open(this.url, '_self')
-      }
-    }
+  } else {
+    window.open(url, '_self')
   }
+}
+
+function getTitle(title) {
+  return typeof title === 'function'
+    ? title({ code: store.getters[GetterNames.GetNomenclaturalCode] })
+    : title
 }
 </script>
 
 <style lang="scss" scoped>
+.button-new-icon {
+  min-width: 28px;
+  max-width: 28px;
+  background-position: center;
+  background-repeat: no-repeat;
+}
 
-  :deep(button) {
-    min-width: 80px;
-    width: 100%;
-  }
+.taxonname {
+  font-weight: 300;
+}
 
-  .button-new-icon {
-    min-width: 28px;
-    max-width: 28px;
-    background-position: center;
-    background-repeat: no-repeat;
-  }
+.context-menu a {
+  cursor: pointer;
+}
 
-  .taxonname {
-    font-weight: 300;
+.unsaved li {
+  a:first-child {
+    padding-left: 0px;
   }
-  .unsaved
-  li {
-    a {
-      font-size: 13px;
-    }
-    a:first-child {
-      padding-left: 0px;
-    }
-  }
-
+}
 </style>

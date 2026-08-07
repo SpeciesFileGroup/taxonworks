@@ -1,0 +1,65 @@
+<%= content_tag(:span, 'A new key task exists and should be used instead.', class: [:feedback, 'feedback-warning']) %>
+<br />
+<br />
+<%= link_to('New/edit key task', new_lead_task_path(id: @lead&.id )) %>
+<br />
+<br />
+
+<%= render 'shared/errors', object: @lead %>
+
+<%= form_with(model: lead) do |form| %>
+
+  <div class="field">
+    <%= form.label :parent_id %>
+    <%= form.number_field :parent_id %>
+  </div>
+
+  <div class="field">
+    <%= form.label :otu_id %>
+    <%= form.number_field :otu_id %>
+  </div>
+
+  <div class="field">
+    <%= form.label :text %>
+    <%= form.text_area :text %>
+  </div>
+
+  <div class="field">
+    <%= form.label :origin_label %>
+    <%= form.text_field :origin_label %>
+  </div>
+
+  <div class="field">
+    <%= form.label :description %>
+    <%= form.text_area :description %>
+  </div>
+
+  <div class="field">
+    <%= form.label :redirect_id %>
+    <%= form.number_field :redirect_id %>
+  </div>
+
+  <div class="field">
+    <%= form.label :link_out %>
+    <%= form.text_area :link_out %>
+  </div>
+
+  <div class="field">
+    <%= form.label :link_out_text %>
+    <%= form.text_field :link_out_text %>
+  </div>
+
+  <div class="field">
+    <%= form.label :position %>
+    <%= form.number_field :position %>
+  </div>
+
+  <div class="field">
+    <%= form.label :is_public %>
+    <%= form.check_box :is_public %>
+  </div>
+
+  <div class="actions">
+    <%= form.submit %>
+  </div>
+<% end %>

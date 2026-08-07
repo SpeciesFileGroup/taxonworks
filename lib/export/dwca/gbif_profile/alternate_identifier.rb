@@ -1,9 +1,17 @@
 # Alternate Identifiers extension class
 # Repository: http://rs.gbif.org/extension/gbif/1.0/identifier.xml
 
-module Dwca::GbifProfile
+module Export::Dwca::GbifProfile
 
   class AlternateIdentifier
+    NAMESPACES = {
+      :taxonID => 'http://rs.tdwg.org/dwc/terms/taxonID',
+      :identifier => 'http://purl.org/dc/terms/identifier',
+      :title => 'http://purl.org/dc/terms/title',
+      :subject => 'http://purl.org/dc/terms/subject',
+      :format => 'http://purl.org/dc/terms/format'
+    }.freeze
+
     # taxonID (http://rs.tdwg.org/dwc/terms/taxonID)
     #
     # @return [String]
@@ -19,7 +27,7 @@ module Dwca::GbifProfile
     # External identifier used for the same taxon. Can be a URL pointing to a
     # webpage, an xml or rdf document, a DOI, UUID or any other identifer
     #
-    # Example: “urn:lsid:ipni.org:names:692570-1:1.4”
+    # Example: "urn:lsid:ipni.org:names:692570-1:1.4"
     attr_accessor :identifier
 
     # title (http://purl.org/dc/terms/title)

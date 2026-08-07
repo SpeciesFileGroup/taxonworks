@@ -4,7 +4,7 @@ module BatchLoad
     # @param [Hash] args
     def initialize(**args)
       @sequence_relationships = {}
-      super(args)
+      super(**args)
     end
 
     # @return [Integer]

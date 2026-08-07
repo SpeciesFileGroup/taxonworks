@@ -1,13 +1,14 @@
-
 class CollectionObjectsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
-  include CollectionObjects::FilterParams
 
   before_action :set_collection_object, only: [
     :show, :edit, :update, :destroy, :navigation, :containerize,
     :depictions, :images, :geo_json, :metadata_badge, :biocuration_classifications,
-    :api_show, :api_dwc]
-  after_action -> { set_pagination_headers(:collection_objects) }, only: [:index], if: :json_request?
+    :timeline,
+    :api_show, :api_dwc,
+    :dwc, :dwc_verbose, :dwc_compact]
+
+  after_action -> { set_pagination_headers(:collection_objects) }, only: [:index, :api_index], if: :json_request?
 
   # GET /collecting_events
   # GET /collecting_events.json
@@ -20,16 +21,54 @@ class CollectionObjectsController < ApplicationController
           .limit(10)
         render '/shared/data/all/index'
       end
-      format.json {
-        # see app/controllers/collection_objects/filter_params.rb
-        @collection_objects = filtered_collection_objects.order('collection_objects.id').page(params[:page]).per(params[:per] || 500)
-      }
+      format.json do
+        collection_objects = ::Queries::CollectionObject::Filter.new(params).all
+
+        @collection_objects = add_includes_to_filter_result(collection_objects)
+
+        @collection_objects = @collection_objects
+          .page(params[:page])
+          .per(params[:per])
+      end
     end
+  end
+
+  # /collection_objects/index_metadata/.json
+  def index_metadata
+    render json: metadata_index( {
+      repository: Repository,
+      current_respository: Repository,
+      collecting_event: CollectingEvent,
+      taxon_determinations: TaxonDetermination })
+      .merge( dwc_occurrence:  DwcOccurrence.target_occurrence_columns.inject({}){|hsh,p| hsh[p] = nil; hsh}.delete_if{|k,v| k =~ /(_id|_type)\z/} )
+      .merge( CollectionObject.core_attributes.inject({}){|hsh,p| hsh[p] = nil; hsh})
+      .merge(
+        identifiers: nil,
+        object_tag: nil,
+        object_label: nil,
+      ).delete_if{|k,v| k =~ /(_id|_type)\z/}
+  end
+
+  # TODO: probably some deep clean
+  # TODO: Move
+  def metadata_index(models = {})
+    h = {}
+    models.each do |l, m|
+      h.merge!(
+        l => m.core_attributes.inject({}){|hsh,p| hsh[p] = nil; hsh}
+      )
+    end
+    h
   end
 
   # GET /collection_objects/1
   # GET /collection_objects/1.json
   def show
+  end
+
+  # GET /collection_objects/1/timeline.json
+  def timeline
+    @data = ::Catalog::CollectionObject.data_for(@collection_object)
   end
 
   def biocuration_classifications
@@ -49,23 +88,24 @@ class CollectionObjectsController < ApplicationController
 
   # Render DWC fields *only*
   def dwc_index
-    objects = filtered_collection_objects.order('collection_objects.id').includes(:dwc_occurrence).page(params[:page]).per(params[:per] || 500).all
+    objects = ::Queries::CollectionObject::Filter.new(params).all.order('collection_objects.id').includes(:dwc_occurrence).page(params[:page]).per(params[:per]).all
     assign_pagination(objects)
 
-    # Default to *exclude* some big fields, like geo spatial wkt
+    # Default to *exclude* some big fields, like geo-spatial wkt
     mode = params[:mode] || :view
     @objects = objects.pluck(*::CollectionObject.dwc_attribute_vector(mode))
     @headers = ::CollectionObject.dwc_attribute_vector_names(mode)
     render '/dwc_occurrences/dwc_index'
   end
 
+  # TODO: Not used in Vue
   # GET /collection_objects/123/dwc
+  #  !! Returns a keyless Array of data compatible with combining multiple rows
   def dwc
     o = nil
     ActiveRecord::Base.connection_pool.with_connection do
       o = CollectionObject.find(params[:id])
       if params[:rebuild] == 'true'
-        # get does not rebuild, but does set if it doesn't exist
         o.set_dwc_occurrence
       else
         o.get_dwc_occurrence
@@ -78,46 +118,69 @@ class CollectionObjectsController < ApplicationController
   end
 
   # GET /collection_objects/123/dwc_verbose
+  #
+  # !! Always calculates values, never reads from
+  # !! Allways returns all values
+  #
   def dwc_verbose
     o = nil
     ActiveRecord::Base.connection_pool.with_connection do
       o = CollectionObject.find(params[:id])
 
       if params[:rebuild] == 'true'
-        # get does not rebuild
         o.set_dwc_occurrence
       else
         o.get_dwc_occurrence
       end
     end
-    render json: o.dwc_occurrence_attributes
+    render json: helpers.format_dwc_occurrence_attributes_for_ui(o.dwc_occurrence_attributes)
+  end
+
+  # GET /collection_objects/123/dwc_compact
+  # !! Never recalculates !!
+  def dwc_compact
+    # Batch imports delay the indexing, so we need to be able to respond empty as well
+    render json: helpers.format_dwc_occurrence_attributes_for_ui(@collection_object.dwc_occurrence&.dwc_json || {})
   end
 
   # Intent is DWC fields + quick summary fields for reports
   # !! As currently implemented rebuilds DWC all
   def report
-    @collection_objects = filtered_collection_objects.order('collection_objects.id').includes(:dwc_occurrence).page(params[:page]).per(params[:per] || 500)
+    @collection_objects = ::Queries::CollectionObject::Filter.new(params).all.order('collection_objects.id').includes(:dwc_occurrence).page(params[:page]).per(params[:per] || 500)
   end
 
   # /collection_objects/preview?<filter params>
   def preview
-    @collection_objects = filtered_collection_objects.order('collection_objects.id').includes(:dwc_occurrence).page(params[:page]).per(params[:per] || 500)
+    @collection_objects = ::Queries::CollectionObject::Filter.new(params).all.order('collection_objects.id').includes(:dwc_occurrence).page(params[:page]).per(params[:per] || 500)
   end
 
   # GET /collection_objects/depictions/1
-  # GET /collection_objects/depictions/1.json
+  # GET /collection_objects/depictions/1.html
+  # This is
   def depictions
   end
 
   def metadata_badge
   end
 
-  # GET /collection_objects/1/images
+  # GET /collection_objects/1/inventory/images.html
   # GET /collection_objects/1/images.json
   def images
-    @images = @collection_object.images
+    @images = ::Queries::Image::Filter.new(
+      collection_object_id: [ params.require(:id)],
+      collection_object_scope: [:all]
+    )
+
+    respond_to do |format|
+      format.html { @images = @images.all }
+      format.json do  # rendered as Depictions for now
+        @depictions = @iamges.derived_depictions
+        render '/depictions/index' and return
+      end
+    end
   end
 
+  # TODO: render in view
   # GET /collection_objects/1/geo_json
   # GET /collection_objects/1/geo_json.json
   def geo_json
@@ -155,7 +218,7 @@ class CollectionObjectsController < ApplicationController
         format.json { render action: 'show', status: :created, location: @collection_object.metamorphosize }
       else
         format.html { render action: 'new' }
-        format.json { render json: @collection_object.errors, status: :unprocessable_entity }
+        format.json { render json: @collection_object.errors, status: :unprocessable_content }
       end
     end
   end
@@ -170,7 +233,7 @@ class CollectionObjectsController < ApplicationController
         format.json { render :show, status: :ok, location: @collection_object }
       else
         format.html { render action: 'edit' }
-        format.json { render json: @collection_object.errors, status: :unprocessable_entity }
+        format.json { render json: @collection_object.errors, status: :unprocessable_content }
       end
     end
   end
@@ -185,7 +248,7 @@ class CollectionObjectsController < ApplicationController
         format.json { head :no_content }
       else
         format.html { destroy_redirect @collection_object, notice: 'CollectionObject was not destroyed, ' + @collection_object.errors.full_messages.join('; ') }
-        format.json { render json: @collection_object.errors, status: :unprocessable_entity }
+        format.json { render json: @collection_object.errors, status: :unprocessable_content }
       end
     end
   end
@@ -208,7 +271,7 @@ class CollectionObjectsController < ApplicationController
 
   # GET /collection_objects/download
   def download
-    send_data Export::Download.generate_csv(CollectionObject.where(project_id: sessions_current_project_id), header_converters: []), type: 'text', filename: "collection_objects_#{DateTime.now}.csv"
+    send_data Export::CSV.generate_csv(CollectionObject.where(project_id: sessions_current_project_id), header_converters: []), type: 'text', filename: "collection_objects_#{DateTime.now}.tsv"
   end
 
   # GET collection_objects/batch_load
@@ -217,7 +280,7 @@ class CollectionObjectsController < ApplicationController
 
   def preview_simple_batch_load
     if params[:file]
-      @result = BatchLoad::Import::CollectionObjects.new(batch_params.merge(user_map))
+      @result = BatchLoad::Import::CollectionObjects.new(**batch_params.merge(user_map))
       digest_cookie(params[:file].tempfile, :batch_collection_objects_md5)
       render 'collection_objects/batch_load/simple/preview'
     else
@@ -230,7 +293,7 @@ class CollectionObjectsController < ApplicationController
     if params[:file] && digested_cookie_exists?(
         params[:file].tempfile,
         :batch_collection_objects_md5)
-      @result = BatchLoad::Import::CollectionObjects.new(batch_params.merge(user_map))
+      @result = BatchLoad::Import::CollectionObjects.new(**batch_params.merge(user_map))
       if @result.create
         flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} collection object-related object-sets were created."
         render 'collection_objects/batch_load/simple/create' and return
@@ -300,7 +363,7 @@ class CollectionObjectsController < ApplicationController
   end
 
   def select_options
-    @collection_objects = CollectionObject.select_optimized(sessions_current_user_id, sessions_current_project_id, params[:target])
+    @collection_objects = CollectionObject.select_optimized(sessions_current_user_id, sessions_current_project_id, params[:target], params['ba_target'])
   end
 
   def autocomplete
@@ -311,10 +374,10 @@ class CollectionObjectsController < ApplicationController
       ).autocomplete
   end
 
-
   # GET /api/v1/collection_objects
   def api_index
-    @collection_objects = ::Queries::CollectionObject::Filter.new(collection_object_api_params).all.where(project_id: sessions_current_project_id)
+    @collection_objects = ::Queries::CollectionObject::Filter.new(params.merge!(api: true)).all
+      .where(project_id: sessions_current_project_id)
       .order('collection_objects.id')
       .page(params[:page]).per(params[:per])
     render '/collection_objects/api/v1/index'
@@ -331,11 +394,35 @@ class CollectionObjectsController < ApplicationController
     render '/collection_objects/api/v1/autocomplete'
   end
 
-  # GET /collection_objects/api/v1/123/dwc
+  # GET /api/v1/collection_objects/123/dwc
   def api_dwc
     ActiveRecord::Base.connection_pool.with_connection do
       @collection_object.get_dwc_occurrence
       render json: @collection_object.dwc_occurrence_attributes
+    end
+  end
+
+  # PATCH /collection_object/batch_update_dwc_occurrence.json?<collection object query params>
+  def batch_update_dwc_occurrence
+    if c = CollectionObject.batch_update_dwc_occurrence(params)
+      render json: c.to_json, status: :ok
+    else
+      render json: {}, status: :unprocessable_content
+    end
+  end
+
+  # PATCH /collection_object/batch_update.json?collection_object_query=<>&collection_object={}
+  def batch_update
+    if c = CollectionObject.batch_update(
+        preview: params[:preview],
+        collection_object: collection_object_params.merge(by: sessions_current_user_id),
+        collection_object_query: params[:collection_object_query],
+        user_id: sessions_current_user_id,
+        project_id: sessions_current_project_id
+      )
+      render json: c.to_json, status: :ok
+    else
+      render json: {}, status: :unprocessable_content
     end
   end
 
@@ -360,7 +447,7 @@ class CollectionObjectsController < ApplicationController
 
   def collection_object_params
     params.require(:collection_object).permit(
-      :total, :preparation_type_id, :repository_id,
+      :total, :preparation_type_id, :repository_id, :current_repository_id,
       :ranged_lot_category_id, :collecting_event_id,
       :buffered_collecting_event, :buffered_determinations,
       :buffered_other_labels, :accessioned_at, :deaccessioned_at, :deaccession_reason,
@@ -369,6 +456,7 @@ class CollectionObjectsController < ApplicationController
       collecting_event_attributes: [],  # needs to be filled out!
       data_attributes_attributes: [ :id, :_destroy, :controlled_vocabulary_term_id, :type, :value ],
       tags_attributes: [:id, :_destroy, :keyword_id],
+      depictions_attributes: [:id, :_destroy, :svg_clip, :svg_view_box, :position, :caption, :figure_label, :image_id],
       identifiers_attributes: [
         :id,
         :_destroy,
@@ -381,7 +469,19 @@ class CollectionObjectsController < ApplicationController
           :text_method,
           :total
         ]
+      ],
+      taxon_determinations_attributes: [
+        :id, :_destroy, :otu_id, :year_made, :month_made, :day_made, :position,
+        roles_attributes: [:id, :_destroy, :type, :organization_id, :person_id, :position, person_attributes: [:last_name, :first_name, :suffix, :prefix]],
+        otu_attributes: [:id, :_destroy, :name, :taxon_name_id]
+      ],
+      type_materials_attributes: [
+        :id, :type_type, :protonym_id
+      ],
+      biocuration_classifications_attributes: [
+        :id, :_destroy, :biocuration_class_id
       ]
+
     )
   end
 
@@ -404,6 +504,35 @@ class CollectionObjectsController < ApplicationController
     }
   end
 
+  # An experiment to balance query/rendering times vs. extend[] requests
+  # Likely suggests we need some fundamental changes.
+  # @param CollectionObject::Filter.new() instance
+  def add_includes_to_filter_result(collection_objects)
+    a = %i(identifiers dwc_occurrence repository current_repository)
+
+    x = []
+    a.each do |e|
+      if helpers.extend_response_with(e.to_s)
+        x.push e
+      end
+    end
+
+    if x.any?
+      collection_objects = collection_objects.includes(*x)
+    end
+
+    if helpers.extend_response_with('collecting_event')
+      collection_objects = collection_objects.includes(collecting_event: [:identifiers])
+    end
+
+    if helpers.extend_response_with('taxon_determinations')
+      collection_objects = collection_objects.includes(taxon_determinations: [:otu, roles: [:person]])
+    end
+
+    collection_objects
+  end
+
 end
 
+# TODO: remove and test
 require_dependency Rails.root.to_s + '/lib/batch_load/import/collection_objects/castor_interpreter.rb'

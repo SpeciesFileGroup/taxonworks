@@ -1,7 +1,5 @@
-# TODO: Rename the insane column names here
-#
-# TypeMaterial links CollectionObjects to Protonyms.  It is the single direct relationship between nomenclature and collection objects in TaxonWorks (all other name/collection object relationships coming through OTUs).
-# TypeMaterial is based on specific rules of nomenclature, it only includes those types (e.g. "holotype") that are specifically goverened (e.g. "topotype" is not allowed).
+# TypeMaterial links CollectionObjects to Protonyms. It is the single direct relationship between nomenclature (TaxonName) and CollectionObject in TaxonWorks. Other name-collection object relationships coming through TaxonDeterminations, i.e. linking an OTU to a object.
+# TypeMaterial is used to encode specific rules of nomenclature, therefor it only includes those types (e.g. "holotype") that are specifically goverened, for example "topotype" is not allowed.
 #
 # @!attribute protonym_id
 #   @return [Integer]
@@ -27,11 +25,11 @@ class TypeMaterial < ApplicationRecord
   include Housekeeping
   include Shared::Citations
   include Shared::DataAttributes
-  include Shared::HasRoles
 
   include Shared::Notes
   include Shared::Tags
   include Shared::Confidences
+  include Shared::DwcOccurrenceHooks
   include Shared::IsData
   include SoftValidation
 
@@ -63,8 +61,9 @@ class TypeMaterial < ApplicationRecord
       'isosyntypes' => Lot
   }.freeze
 
-  belongs_to :collection_object, foreign_key: :collection_object_id, class_name: 'CollectionObject', inverse_of: :type_materials
+  belongs_to :collection_object, class_name: 'CollectionObject', inverse_of: :type_materials
   belongs_to :protonym, inverse_of: :type_materials
+  has_many :otus, through: :protonym, inverse_of: :type_materials
 
   scope :where_protonym, -> (taxon_name) { where(protonym_id: taxon_name) }
   scope :with_type_string, -> (base_string) { where('type_type LIKE ?', "#{base_string}" ) }
@@ -77,15 +76,13 @@ class TypeMaterial < ApplicationRecord
   validate :check_type_type
   validate :check_protonym_rank
 
+  validates_uniqueness_of :type_type, scope: [:protonym_id, :collection_object_id]
+
   soft_validate(:sv_single_primary_type, set: :single_primary_type)
   soft_validate(:sv_type_source, set: :type_source)
 
   accepts_nested_attributes_for :collection_object, allow_destroy: true
-
-  validates_presence_of :type_type, :protonym_id
-
-  # !! breaks nested attributes if validated as collection_object_id.  Seems to be belongs_to only related.
-  validates_presence_of :collection_object
+  validates_presence_of :type_type, :protonym, :collection_object
 
   # TODO: really should be validating uniqueness at this point, it's type material, not garbage records
 
@@ -93,7 +90,7 @@ class TypeMaterial < ApplicationRecord
     [source, protonym.try(:source), nil].compact.first
   end
 
-  def legal_type_type(code, type_type)
+  def self.legal_type_type(code, type_type)
     case code
     when :iczn
       ICZN_TYPES.keys.include?(type_type)
@@ -104,12 +101,20 @@ class TypeMaterial < ApplicationRecord
     end
   end
 
+  def dwc_occurrences
+    return DwcOccurrence.none unless collection_object.present?
+    DwcOccurrence.where(
+      dwc_occurrence_object_type: 'CollectionObject',
+      dwc_occurrence_object_id: collection_object_id
+    ).distinct
+  end
+
   protected
 
   def check_type_type
     if protonym
       code = protonym.rank_class.nomenclatural_code
-      errors.add(:type_type, 'Not a legal type for the nomenclatural code provided') if !legal_type_type(code, type_type)
+      errors.add(:type_type, 'Not a legal type for the nomenclatural code provided') unless TypeMaterial::legal_type_type(code, type_type)
     end
   end
 
@@ -131,13 +136,13 @@ class TypeMaterial < ApplicationRecord
   end
 
   def sv_type_source
-    soft_validations.add(:base, 'Source is not selected neither for type nor for taxon') unless type_source
+    soft_validations.add(:base, 'Both the type and the taxon are missing a source') unless type_source
     if %w(paralectotype neotype lectotype paralectotypes).include?(type_type)
       if source.nil?
         soft_validations.add(:base, "Source for #{type_type} designation is not selected ") if source.nil?
-      elsif !protonym.try(:source).nil? && source.nomenclature_date && protonym.nomenclature_date
+      elsif !protonym.try(:source).nil? && source.cached_nomenclature_date && protonym.cached_nomenclature_date
         soft_validations.add(:base, "#{type_type.capitalize} could not be designated in the original publication") if source == protonym.source
-        soft_validations.add(:base, "#{type_type.capitalize} could not be designated before taxon description") if source.nomenclature_date < protonym.nomenclature_date
+        soft_validations.add(:base, "#{type_type.capitalize} could not be designated before taxon description") if source.cached_nomenclature_date&.to_date < protonym.cached_nomenclature_date
       end
     end
   end

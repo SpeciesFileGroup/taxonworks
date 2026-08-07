@@ -1,15 +1,202 @@
 require 'rails_helper'
 describe CollectionObject::DwcExtensions, type: :model, group: [:collection_objects, :darwin_core] do
+  include ActiveJob::TestHelper
+
+  let(:root) { Project.find(Current.project_id).send(:create_root_taxon_name) }
+
+  specify '#dwc_scientific_name - invalid' do
+    s = Specimen.create!
+    p = Protonym.create!(
+      name: 'Aus',
+      verbatim_author: 'Smith',
+      year_of_publication: '1945',
+      rank_class: Ranks.lookup(:iczn, :genus),
+      parent: root
+    )
+
+    TaxonDetermination.create!(taxon_determination_object: s, otu: Otu.create!(taxon_name: p))
+
+    p1 = Protonym.create!(
+      name: 'Bus',
+      verbatim_author: 'Jones',
+      year_of_publication: '1933',
+      rank_class: Ranks.lookup(:iczn, :genus),
+      parent: root
+    )
+
+    TaxonNameRelationship::Iczn::Invalidating.create!(subject_taxon_name: p, object_taxon_name: p1)
+
+    expect(s.dwc_scientific_name).to eq('Bus Jones, 1933')
+    expect(s.dwc_taxon_name_authorship).to eq('Jones, 1933')
+  end
+
+  specify '#dwc_scientific_name' do
+    s = Specimen.create!
+    p = Protonym.create!(
+      name: 'Aus',
+      verbatim_author: 'Smith',
+      year_of_publication: '1945',
+      rank_class: Ranks.lookup(:iczn, :genus),
+      parent: root
+    )
+
+    TaxonDetermination.create!(taxon_determination_object: s, otu: Otu.create!(taxon_name: p))
+
+    expect(s.dwc_scientific_name).to eq('Aus Smith, 1945')
+    expect(s.dwc_taxon_name_authorship).to eq('Smith, 1945')
+  end
+
+  specify '#dwc_verbatim_label'  do
+    s = Specimen.create!(buffered_collecting_event: 'a', buffered_determinations: 'b', buffered_other_labels: 'c')
+
+    expect(s.dwc_verbatim_label).to eq("a\n\nb\n\nc")
+  end
+
+  specify '#dwc_collection_code 1' do
+    s = Specimen.create!
+    n = FactoryBot.create(:valid_namespace, verbatim_short_name: 'DEF')
+    s.identifiers << Identifier::Local::CatalogNumber.new(
+      namespace: n,
+      identifier: '123'
+    )
+    expect(s.dwc_collection_code).to eq('DEF')
+  end
+
+  specify '#dwc_collection_code 2' do
+    s = Specimen.create!
+    n = FactoryBot.create(:valid_namespace, short_name: 'ABC')
+    s.identifiers << Identifier::Local::CatalogNumber.new(
+      namespace: n,
+      identifier: '123'
+    )
+    expect(s.dwc_collection_code).to eq('ABC')
+  end
+
+  # TODO: WE may remove Note paradigm
+  specify '#dwc_occurrence_remarks' do
+    s = Specimen.create!
+    s.notes << Note.new(text: 'text')
+
+    perform_enqueued_jobs
+
+    expect(s.dwc_occurrence_remarks).to eq('text')
+  end
+
+  context '#dwc_identification_remarks' do
+    let(:s) { Specimen.create! }
+
+    specify 'with no notes' do
+      FactoryBot.create(:valid_taxon_determination, taxon_determination_object: s)
+      expect(s.dwc_identification_remarks).to eq(nil)
+    end
+
+    specify 'with one note' do
+      d = FactoryBot.create(:valid_taxon_determination, taxon_determination_object: s)
+      d.notes << Note.new(text: 'text')
+      expect(s.dwc_identification_remarks).to eq('text')
+    end
+
+    specify 'with multiple notes' do
+      d = FactoryBot.create(:valid_taxon_determination, taxon_determination_object: s)
+      d.notes << Note.new(text: 'text1')
+      d.notes << Note.new(text: 'text2')
+      expect(s.dwc_identification_remarks).to eq('text1 | text2')
+    end
+
+    it 'should only include remarks for the latest determination' do
+      otu = FactoryBot.create(:valid_otu)
+
+      d1 = TaxonDetermination.create!(taxon_determination_object: s, otu:)
+      d2 = TaxonDetermination.create!(taxon_determination_object: s, otu:)
+
+      d1.notes << Note.new(text: 'd1 text')
+      d2.notes << Note.new(text: 'd2 text')
+
+      expect(s.dwc_identification_remarks).to eq('d2 text')
+    end
+  end
+
+  specify '#dwc_georeference_protocol' do
+    p = FactoryBot.create(:valid_protocol)
+    g = FactoryBot.create(:valid_georeference, protocols: [p])
+    s = Specimen.create!(collecting_event: g.collecting_event)
+    expect(s.dwc_georeference_protocol).to eq(p.name)
+  end
+
+  specify '#dwc_georeferenced_by 1' do
+    p1 = Person.create!(last_name: 'Jones')
+    p2 = Person.create!(last_name: 'Janes')
+
+    g = FactoryBot.create(:valid_georeference, georeference_authors: [p1,p2])
+
+    s = Specimen.create!(collecting_event: g.collecting_event)
+    expect(s.dwc_georeferenced_by).to eq(p1.cached + '|' + p2.cached)
+  end
+
+  specify '#dwc_georeferenced_by 2' do
+    g = FactoryBot.create(:valid_georeference)
+    s = Specimen.create!(collecting_event: g.collecting_event)
+    expect(s.dwc_georeferenced_by).to eq(g.creator.name)  #
+  end
+
+  specify '#is_fossil? no' do
+    s = Specimen.create!
+    expect(s.is_fossil?).to eq(false)
+  end
+
+  specify '#is_fossil? yes' do
+    s = Specimen.create!
+    c = FactoryBot.create(:valid_biocuration_class, uri: DWC_FOSSIL_URI)
+    s.biocuration_classes << c
+    expect(s.is_fossil?).to eq(true)
+  end
 
   context '#dwc_occurrence' do
     let!(:ce) { CollectingEvent.create!(start_date_year: '2010') }
     let!(:s) { Specimen.create!(collecting_event: ce) }
-    let(:p) { Person.create!(last_name: 'Smith', first_name: 'Sue') }
+    let(:p) { Person.create!(last_name: 'Smith', first_name: 'Sue', suffix: 'Jr.') }
     let(:o) { Otu.create!(name: 'Barney') }
 
-    let(:root) { Project.find(Current.project_id).send(:create_root_taxon_name) }
+    specify '#dwc_decimal_latitude' do
+      a = Georeference::Wkt.create!(collecting_event: ce, wkt: 'POINT(9.0 60)' )
 
-    # Rough tests to detect infinite recursion
+      s.georeference_attributes(true) # force the rebuild
+      expect(s.dwc_decimal_latitude).to eq(60.0) # technically not correct significant figures :(
+    end
+
+    specify 'without start Year event_date is not populated' do
+      ce.update!(start_date_year: nil, start_date_month: 2, end_date_month: 4)
+      expect(s.dwc_event_date).to eq(nil)
+    end
+
+    specify '#dwc_year' do
+      expect(s.dwc_year).to eq(2010)
+    end
+
+    specify '#dwc_month' do
+      ce.update!( start_date_month: 1)
+      expect(s.dwc_month).to eq(1)
+    end
+
+    specify '#dwc_month is nil when range' do
+      ce.update!( start_date_month: 1, end_date_month: 2)
+      expect(s.dwc_month).to eq(nil)
+    end
+
+    specify '#dwc_day' do
+      ce.update!( start_date_month: 1, start_date_day: 10)
+      expect(s.dwc_day).to eq(10)
+    end
+
+    specify '#dwc_start_day_of_year' do
+      ce.update!( start_date_month: 1, start_date_day: 1)
+      expect(s.dwc_start_day_of_year).to eq(1)
+    end
+
+    specify '#dwc_end_day_of_year' do
+      ce.update!(start_date_year: 2000, start_date_month: 12, start_date_day: 31, end_date_year: 2000, end_date_month: 12, end_date_day: 31)
+      expect(s.dwc_end_day_of_year).to eq(366) # leap
+    end
 
     specify '#dwc_event_date 1' do
       expect(s.dwc_event_date).to eq('2010')
@@ -38,8 +225,12 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
       expect(s.dwc_occurrence).to be_truthy
     end
 
+    # TODO: duplicated in Ce
     specify 'updates after related CE save' do
       ce.update!(start_date_year: 2012)
+
+      perform_enqueued_jobs
+
       expect(s.dwc_occurrence.reload.eventDate).to match('2012')
     end
 
@@ -67,7 +258,7 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
     # Not sure of point of these now without downstream checks
     context 'with taxon determination' do
       let!(:o) { Otu.create!(name: 'Blob') }
-      let!(:td) { TaxonDetermination.create!(biological_collection_object: s, otu: o) }
+      let!(:td) { TaxonDetermination.create!(taxon_determination_object: s, otu: o) }
 
       specify 'taxon determination update' do
         expect(td.update!(otu: Otu.create!(name: 'Aus'))).to be_truthy
@@ -87,19 +278,22 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
     end
 
     specify '#dwc_identified_by' do
-      TaxonDetermination.create!(biological_collection_object: s, otu: o, roles_attributes: [{person: p, type: 'Determiner'}])
-      s.reload # why is it c
-      expect(s.dwc_identified_by).to eq('Smith, Sue')
+      TaxonDetermination.create!(taxon_determination_object: s, otu: o, determiners: [p]) # Bad mix of object/attributes now: roles_attributes: [{person: p, type: 'Determiner'}]
+      s.reload
+      expect(s.dwc_identified_by).to eq('Sue Smith Jr.')
     end
 
     specify '#dwc_date_identified' do
-      FactoryBot.create(:valid_taxon_determination, biological_collection_object: s, year_made: 2000, day_made: 1, month_made: 1 )
+      FactoryBot.create(:valid_taxon_determination, taxon_determination_object: s, year_made: 2000, day_made: 1, month_made: 1 )
       s.reload
       expect(s.dwc_date_identified).to eq('2000-1-1')
     end
 
     specify '#dwc_type_status' do
-      FactoryBot.create(:valid_type_material, collection_object: s)
+      a = FactoryBot.create(:valid_type_material, collection_object: s)
+      a.protonym.update!(original_genus: a.protonym.parent)
+      a.protonym.update!(original_species: a.protonym )
+
       expect(s.dwc_type_status).to eq('holotype of Erythroneura vitis McAtee, 1900')
     end
 
@@ -111,7 +305,7 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
       )
 
       d = TaxonDetermination.create!(
-        biological_collection_object: s,
+        taxon_determination_object: s,
         otu: Otu.create!(taxon_name: p)
       )
 
@@ -126,7 +320,7 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
         parent: root
       )
 
-      TaxonDetermination.create!(biological_collection_object: s, otu: Otu.create!(taxon_name: p))
+      TaxonDetermination.create!(taxon_determination_object: s, otu: Otu.create!(taxon_name: p))
 
       s.reload
       expect(s.dwc_taxon_rank).to eq('genus')
@@ -139,7 +333,7 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
         parent: root
       )
 
-      TaxonDetermination.create!(biological_collection_object: s, otu: Otu.create!(taxon_name: p))
+      TaxonDetermination.create!(taxon_determination_object: s, otu: Otu.create!(taxon_name: p))
 
       s.taxonomy(true)
       expect(s.dwc_infraspecific_epithet).to eq('aus')
@@ -161,7 +355,7 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
     end
 
     specify '#dwc_field_number' do
-      i = FactoryBot.create(:valid_identifier_local, type: 'Identifier::Local::TripCode', identifier_object: ce)
+      i = FactoryBot.create(:valid_identifier_local, type: 'Identifier::Local::FieldNumber', identifier_object: ce)
       expect(s.dwc_field_number).to eq(i.cached)
     end
 
@@ -200,7 +394,7 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
       Tag.create!(keyword: g, tag_object: a)
 
       b = BiocurationClassification.create!(
-        biological_collection_object: s,
+        biocuration_classification_object: s,
         biocuration_class: a)
 
       expect(s.dwc_sex).to eq('gynandromorph')
@@ -208,7 +402,7 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
 
     specify '#dwc_life_stage' do
       g = BiocurationGroup.create!(
-        name: 'sex',
+        name: 'life stage',
         definition: 'as defined by gamete count in some ontology',
         uri: 'http://rs.tdwg.org/dwc/terms/lifeStage' # see /config/initializers/constants/_controlled_vocabularies/dwc_attribute_uris.rb
       )
@@ -221,10 +415,49 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
       Tag.create!(keyword: g, tag_object: a)
 
       b = BiocurationClassification.create!(
-        biological_collection_object: s,
+        biocuration_classification_object: s,
         biocuration_class: a)
 
       expect(s.dwc_life_stage).to eq('adult')
+    end
+
+    specify '#caste' do
+      g = BiocurationGroup.create!(
+        name: 'caste',
+        definition: 'Categorisation of individuals for eusocial species',
+        uri: 'http://rs.tdwg.org/dwc/terms/caste' # see /config/initializers/constants/_controlled_vocabularies/dwc_attribute_uris.rb
+      )
+
+      a = BiocurationClass.create!(
+        name: 'ergatoid',
+        definition: 'permanently wingless',
+        )
+
+      Tag.create!(keyword: g, tag_object: a)
+
+      b = BiocurationClassification.create!(
+        biocuration_classification_object: s,
+        biocuration_class: a)
+
+      perform_enqueued_jobs
+
+      expect(s.dwc_caste).to eq('ergatoid')
+    end
+
+    specify '#dwc_associated_taxa' do
+      g = Predicate.create!(
+        name: 'Associated Taxa',
+        definition: 'When one (living) thing hangs out with another',
+        uri: 'http://rs.tdwg.org/dwc/terms/associatedTaxa' # see /config/initializers/constants/_controlled_vocabularies/dwc_attribute_uris.rb
+      )
+
+      s = Specimen.create!
+      InternalAttribute.create!(predicate: g, attribute_subject: s, value: 'Space alien')
+
+      perform_enqueued_jobs
+
+      expect(s.dwc_associated_taxa).to eq('Space alien')
+      expect(s.dwc_occurrence.reload.associatedTaxa).to eq('Space alien')
     end
 
     specify '#dwc_water_body' do
@@ -258,10 +491,10 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
       expect(s.dwc_verbatim_depth).to eq(d)
     end
 
-    specify '#dwc_maximum_dpeth_in_meters' do
+    specify '#dwc_maximum_depth_in_meters' do
       d = 2.1
       a = Predicate.create!(
-        name: "wet toes?",
+        name: 'wet toes?',
         definition: 'number in metric m, not that other standard',
         uri: 'http://rs.tdwg.org/dwc/terms/maximumDepthInMeters' # see /config/initializers/constants/_controlled_vocabularies/dwc_attribute_uris.rb
       )
@@ -274,10 +507,10 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
       expect(s.dwc_maximum_depth_in_meters).to eq(d.to_s)
     end
 
-    specify '#dwc_minimum_dpeth_in_meters' do
+    specify '#dwc_minimum_depth_in_meters' do
       d = 2.1
       a = Predicate.create!(
-        name: "wet toes?",
+        name: 'wet toes?',
         definition: 'number in metric m, not that other standard',
         uri: 'http://rs.tdwg.org/dwc/terms/minimumDepthInMeters' # see /config/initializers/constants/_controlled_vocabularies/dwc_attribute_uris.rb
       )
@@ -303,8 +536,8 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
         parent: root
       )
 
-      TaxonDetermination.create!(biological_collection_object: s, otu: Otu.create!(taxon_name: p1), year_made: 2020)
-      TaxonDetermination.create!(biological_collection_object: s, otu: Otu.create!(taxon_name: p2) )
+      TaxonDetermination.create!(taxon_determination_object: s, otu: Otu.create!(taxon_name: p1), year_made: 2020)
+      TaxonDetermination.create!(taxon_determination_object: s, otu: Otu.create!(taxon_name: p2) )
 
       s.taxonomy(true)
       s.reload
@@ -318,14 +551,59 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
         parent: root
       )
 
-      ce.update!(collectors_attributes: [{last_name: 'Doe', first_name: 'John'}])
-      TaxonDetermination.create!(biological_collection_object: s, otu: Otu.create!(taxon_name: p1), determiner_roles_attributes: [{person: p}] )
+      ce.update!(collectors_attributes: [{last_name: 'Doe', first_name: 'John', prefix: 'von'}])
+      TaxonDetermination.create!(taxon_determination_object: s, otu: Otu.create!(taxon_name: p1), determiner_roles_attributes: [{person: p}] )
 
       s.reload
 
-      expect(s.dwc_recorded_by).to eq('Doe, John')
+      expect(s.dwc_recorded_by).to eq('John von Doe')
     end
 
+    specify '#dwc_recorded_by_id - wikidata' do
+      p1 = Protonym.create!(
+        name: 'aus',
+        rank_class: Ranks.lookup(:iczn, :species),
+        parent: root
+      )
+
+      ce.update!(collectors_attributes: [{last_name: 'Doe', first_name: 'John', prefix: 'von'}])
+      TaxonDetermination.create!(
+        taxon_determination_object: s,
+        otu: Otu.create!(taxon_name: p1), determiner_roles_attributes: [{person: p}]
+      )
+
+      Identifier::Global::Wikidata.create!(identifier_object: ce.collectors.first, identifier: 'Q1234566')
+
+      s.reload
+
+      expect(s.dwc_recorded_by_id).to eq('Q1234566')
+    end
+
+    specify '#dwc_recorded_by_id - orcid' do
+      p1 = Protonym.create!(
+        name: 'aus',
+        rank_class: Ranks.lookup(:iczn, :species),
+        parent: root
+      )
+
+      ce.update!(collectors_attributes: [{last_name: 'Doe', first_name: 'John', prefix: 'von'}])
+      TaxonDetermination.create!(
+        taxon_determination_object: s,
+        otu: Otu.create!(taxon_name: p1),
+        determiner_roles_attributes: [{person: p}] )
+
+      i = 'http://orcid.org/0000-0002-0554-1354' # sorry whomever you are
+
+      Identifier::Global::Orcid.create!(identifier_object: ce.collectors.first, identifier: i)
+
+      s.reload
+      expect(s.dwc_recorded_by_id).to eq(i)
+    end
+
+    specify '#dwc_record_number' do
+      a = Identifier::Local::RecordNumber.create!(identifier: '123', identifier_object: s, namespace: FactoryBot.create(:valid_namespace) )
+      expect(s.dwc_record_number).to eq(a.cached)
+    end
 
     specify '#dwc_other_catalog_numbers' do
       a = Identifier::Local::CatalogNumber.create!(identifier: '123', identifier_object: s, namespace: FactoryBot.create(:valid_namespace) )
@@ -340,13 +618,42 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
       a = i.image
       b = j.image
 
-
       p = 'http://127.0.0.1:3000/api/v1/images'
 
       s.images.reload
       expect(s.dwc_associated_media).to eq("#{p}/#{a.image_file_fingerprint} | #{p}/#{b.image_file_fingerprint}")
     end
 
+    specify '#dwc_superfamily' do
+      p = FactoryBot.create(:relationship_family, name: 'Erythroneuroidea', rank_class: Ranks.lookup(:iczn, :superfamily))
+      c = FactoryBot.create(:valid_taxon_determination, taxon_determination_object: s, otu: Otu.create!(taxon_name: p))
+
+      s.taxonomy(true)
+      expect(s.dwc_superfamily).to eq(p.name)
+    end
+
+    specify '#dwc_subfamily' do
+      p = FactoryBot.create(:relationship_family, name: 'Erythroneurinae', rank_class: Ranks.lookup(:iczn, :subfamily))
+      c = FactoryBot.create(:valid_taxon_determination, taxon_determination_object: s, otu: Otu.create!(taxon_name: p))
+
+      s.taxonomy(true)
+      expect(s.dwc_subfamily).to eq(p.name)
+    end
+
+    specify '#dwc_tribe' do
+      p = FactoryBot.create(:relationship_family, name: 'Erythroneurini', rank_class: Ranks.lookup(:iczn, :tribe))
+      c = FactoryBot.create(:valid_taxon_determination, taxon_determination_object: s, otu: Otu.create!(taxon_name: p))
+
+      s.taxonomy(true)
+      expect(s.dwc_tribe).to eq(p.name)
+    end
+
+    specify '#dwc_subtribe' do
+      p = FactoryBot.create(:relationship_family, name: 'Erythroneurina', rank_class: Ranks.lookup(:iczn, :subtribe))
+      c = FactoryBot.create(:valid_taxon_determination, taxon_determination_object: s, otu: Otu.create!(taxon_name: p))
+
+      s.taxonomy(true)
+      expect(s.dwc_subtribe).to eq(p.name)
+    end
   end
 end
-

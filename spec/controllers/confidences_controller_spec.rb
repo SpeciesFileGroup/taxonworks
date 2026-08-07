@@ -155,23 +155,5 @@ RSpec.describe ConfidencesController, type: :controller do
     end
   end
 
-  describe 'DELETE #destroy' do
-
-    before {
-      @confidence = Confidence.create! valid_attributes
-      request.env['HTTP_REFERER'] = list_collection_objects_path
-    }
-
-    it 'destroys the requested confidence' do
-      expect {
-        delete :destroy, params: {id: @confidence.to_param}, session: valid_session
-      }.to change(Confidence, :count).by(-1)
-    end
-
-    it 'redirects to the confidences list' do
-      delete :destroy, params: {id: @confidence.to_param}, session: valid_session
-      expect(response).to redirect_to(confidences_url)
-    end
-  end
-
+  include_examples 'DELETE #destroy', Confidence
 end

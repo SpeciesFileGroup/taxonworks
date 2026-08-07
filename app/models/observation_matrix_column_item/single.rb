@@ -3,4 +3,3 @@ class ObservationMatrixColumnItem::Single < ObservationMatrixColumnItem
     false 
   end
 end
-

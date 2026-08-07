@@ -4,35 +4,61 @@ namespace :tw do
   namespace :development do
     namespace :linting do
 
+      # Reports relations on unifiable models (UNIFIABLE_MODELS) that are in
+      # inferred_relations but lack inverse_of:, causing them to be silently
+      # dropped from merge_relations during unify.
+      # rake tw:development:linting:inverse_of_preventing_unify
+      desc 'inverse_of preventing unify'
+      task inverse_of_preventing_unify: [:environment] do |t|
+
+        r = {}
+
+        UNIFIABLE_MODELS.each do |name|
+          m = name.safe_constantize
+          raise "UNIFIABLE_MODELS contains '#{name}' but it cannot be constantized" if m.nil?
+          r[m.name] = m.new.inferred_relations.inject({}){|hsh, r| hsh[r.name] = r.options[:inverse_of]; hsh}
+        end
+        any = false
+        r.keys.each do |k|
+          r[k].each do |i,j|
+            if j.nil?
+              puts Rainbow("#{k} - #{i} : |#{j}|").red
+              any = true
+            end
+          end
+        end
+        puts Rainbow('All good').green unless any
+      end
+
       desc 'check some nomenclatural constants for consistency'
-      task ensure_constants_reference_models: [:environment] do |t| 
-        Rails.application.eager_load!
+      task ensure_constants_reference_models: [:environment] do |t|
+        # Rails.application.eager_load!
         i = 0
         TAXON_NAME_RELATIONSHIP_NAMES.each do |r|
           if r.safe_constantize.nil?
             i += 1
             puts Rainbow(r).red
           end
-        end 
-        puts "All good" if i == 0
-      end 
+        end
+        puts 'All good' if i == 0
+      end
 
       desc 'check some nomenclatural data for consistency'
-      task ensure_taxon_name_relationship_type_reference_models: [:environment] do |t| 
-        Rails.application.eager_load!
+      task ensure_taxon_name_relationship_type_reference_models: [:environment] do |t|
+        # Rails.application.eager_load!
         i = 0
         TaxonNameRelationship.select(:type).distinct.pluck(:type).each do |r|
           if r.safe_constantize.nil?
             i += 1
             puts Rainbow(r).red
           end
-        end 
-        puts "All good" if i == 0
-      end 
+        end
+        puts 'All good' if i == 0
+      end
 
       desc 'list annotated models'
       task  list_annotated_models: [:environment] do |t|
-        Rails.application.eager_load!
+        # Rails.application.eager_load!
 
         annotations = ::ANNOTATION_TYPES.inject({}) {|hsh, a| hsh.merge!(a => [] )}
 
@@ -48,7 +74,7 @@ namespace :tw do
           v.each do |c|
             puts "   #{c}"
             if k == :citations
-              puts Rainbow('    missing _attributes').red if !File.exists?(Rails.root.to_s + "/app/views/#{k}/_attributes.json.jbuilder")
+              puts Rainbow('    missing _attributes').red if !File.exist?(Rails.root.to_s + "/app/views/#{k}/_attributes.json.jbuilder")
             end
           end
         end
@@ -58,7 +84,7 @@ namespace :tw do
       # rake tw:development:linting:list_models_with_soft_validations
       desc 'list models with soft validations'
       task  list_models_with_soft_validations: [:environment] do |t|
-        Rails.application.eager_load!
+        # Rails.application.eager_load!
 
         annotations = []
         ApplicationRecord.subclasses.sort{|a,b| a.name <=> b.name}.each do |d|

@@ -1,189 +1,213 @@
 <template>
   <div class="common_name_annotator separate-bottom">
-    <div class="separate-bottom separate-top">
-      <div class="separate-bottom">
-        <label>Name</label>
-        <input
-          type="text"
-          placeholder="Name"
-          v-model="common_name.name">
-      </div>
-      <label>Geographic area</label>
-      <div class="horizontal-left-content separate-bottom">
-        <template v-if="selectedGeographic">
-          <span v-html="geographicLabel"/>
-          <span
-            class="circle-button button-default btn-undo"
-            @click="common_name.geographic_area_id = null; selectedGeographic = undefined"/>
-        </template>
-        <template v-else>
-          <autocomplete
-            url="/geographic_areas/autocomplete"
-            param="term"
-            label="label_html"
-            display="label"
-            ref="geoAutocomplete"
-            placeholder="Select a geopgrahic area"
-            @getItem="selectedGeographic = $event; common_name.geographic_area_id = $event.id"/>
-          <default-pinned
-            section="GeographicAreas"
-            type="GeographicArea"
-            @getLabel="$refs.geoAutocomplete.setLabel($event)"
-            @getId="common_name.geographic_area_id = $event"/>
-        </template>
-      </div>
-      <label>Language</label>
-      <div class="horizontal-left-content separate-bottom">
-        <template v-if="selectedLenguage">
-          <span v-html="languageLabel"/>
-          <span
-            class="circle-button button-default btn-undo"
-            @click="common_name.language_id = null; selectedLenguage = undefined"/>
-        </template>
-        <template v-else>
-          <autocomplete
-            url="/languages/autocomplete"
-            param="term"
-            label="label_html"
-            display="label"
-            ref="langAutocomplete"
-            placeholder="Select a language"
-            @getItem="selectedLanguage = $event.label; common_name.language_id = $event.id"/>
-        </template>
-      </div>
-      <div class="separate-bottom">
-        <label>Start year</label>
-        <input
-          class="date-input"
-          type="number"
-          placeholder="Start year"
-          v-model="common_name.start_year"
-          min="1600"
-          max="3000">
-      </div>
-      <div>
-        <label>End year</label>
-        <input
-          class="date-input"
-          type="number"
-          placeholder="End year"
-          v-model="common_name.end_year"
-          min="1600"
-          max="3000">
-      </div>
-    </div> 
-    <div> 
-      <button
-        type="button"
-        :disabled="!validate"
-        @click="createNew"
-        class="button normal-input button-submit">
-        {{ common_name.id ? 'Update' : 'Create' }}
-      </button>
-      <button
-        class="button normal-input button-default"
-        @click="reset"
-        type="button">
-        Reset
-      </button>
+    <div class="separate-bottom">
+      <label>Name</label>
+      <input
+        type="text"
+        placeholder="Name"
+        v-model="commonName.name"
+      />
     </div>
-    <table-list
+
+    <fieldset>
+      <legend>Geographic area</legend>
+      <SmartSelector
+        model="geographic_areas"
+        klass="CommonName"
+        target="CommonName"
+        pin-section="GeographicAreas"
+        label="name"
+        :add-tabs="['map']"
+        pin-type="GeographicArea"
+        @selected="(item) => (geographicArea = item)"
+      >
+        <template #map>
+          <MapShapePicker
+            @select="(item) => (geographicArea = item)"
+          />
+        </template>
+      </SmartSelector>
+      <div>
+        <SmartSelectorItem
+          :item="geographicArea"
+          label="name"
+          @unset="() => (geographicArea = null)"
+        />
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Language</legend>
+      <SmartSelector
+        model="languages"
+        klass="CommonName"
+        pin-section="Languages"
+        pin-type="Language"
+        label="english_name"
+        @selected="(item) => (language = item)"
+      />
+      <SmartSelectorItem
+        :item="language"
+        label="english_name"
+        @unset="() => (language = null)"
+      />
+    </fieldset>
+
+    <div class="field margin-medium-top">
+      <label>Start year</label>
+      <input
+        class="date-input"
+        type="number"
+        placeholder="Start year"
+        v-model="commonName.start_year"
+        min="1600"
+        max="3000"
+      />
+    </div>
+
+    <div class="field">
+      <label>End year</label>
+      <input
+        class="date-input"
+        type="number"
+        placeholder="End year"
+        v-model="commonName.end_year"
+        min="1600"
+        max="3000"
+      />
+    </div>
+
+    <div class="margin-medium-bottom">
+      <VBtn
+        color="create"
+        medium
+        :disabled="!validate"
+        @click="saveCommonName"
+      >
+        {{ commonName.id ? 'Update' : 'Create' }}
+      </VBtn>
+      <VBtn
+        class="margin-small-left"
+        medium
+        color="primary"
+        @click="reset"
+        type="button"
+      >
+        New
+      </VBtn>
+    </div>
+
+    <TableList
+      class="list"
       label="object_tag"
-      :header="['Name', 'Geographic area', 'Language', 'Start', 'End','']"
-      :attributes="['name', ['geographic_area', 'object_tag'], 'language_tag', 'start_year', 'end_year']"
+      :header="['Name', 'Geographic area', 'Language', 'Start', 'End', '']"
+      :attributes="[
+        'name',
+        ['geographic_area', 'object_tag'],
+        'language_tag',
+        'start_year',
+        'end_year'
+      ]"
       :list="list"
-      :edit="true"
-      @edit="editCommon"
+      edit
+      @edit="setCommonName"
       @delete="removeItem"
-      class="list"/>
+    />
   </div>
 </template>
 
-<script>
+<script setup>
+import TableList from '@/components/table_list.vue'
+import SmartSelector from '@/components/ui/SmartSelector.vue'
+import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
+import makeCommonName from '@/factory/CommonName.js'
+import MapShapePicker from '@/components/ui/SmartSelector/MapShapePicker.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import { CommonName } from '@/routes/endpoints'
+import { computed, ref } from 'vue'
+import { useSlice } from '@/components/radials/composables'
 
-import Autocomplete from 'components/ui/Autocomplete.vue'
-import CRUD from '../../request/crud.js'
-import annotatorExtend from '../../components/annotatorExtend.js'
-import TableList from 'components/table_list.vue'
-import DefaultPinned from 'components/getDefaultPin.vue'
+const props = defineProps({
+  objectId: {
+    type: Number,
+    required: true
+  },
 
-export default {
-  mixins: [CRUD, annotatorExtend],
-  components: {
-    Autocomplete,
-    TableList,
-    DefaultPinned
+  objectType: {
+    type: String,
+    required: true
   },
-  computed: {
-    validate() {
-      return (this.common_name.name.length > 2 && this.common_name.otu_id != undefined)
-    },
-    geographicLabel() {
-      if(!this.selectedGeographic) return
-      return this.selectedGeographic.hasOwnProperty('object_tag') ? this.selectedGeographic.object_tag : this.selectedGeographic.label
-    },
-    languageLabel() {
-      if(!this.selectedLenguage) return
-      return this.selectedLenguage
-    }
-  },
-  data() {
-    return {
-      common_name: this.newCommonName(),
-      selectedGeographic: undefined,
-      selectedLenguage: undefined
-    }
-  },
-  mounted() {
-    this.urlList = `/common_names.json?otu_id=${this.metadata.object_it}`
-  },
-  methods: {
-    reset() {
-      this.common_name = this.newCommonName()
-      this.selectedGeographic = undefined
-      this.selectedLenguage = undefined
-    },
-    newCommonName() {
-      return {
-        id: undefined,
-        name: '', 
-        geographic_area_id: undefined, 
-        otu_id: this.metadata.object_id, 
-        language_id: undefined, 
-        start_year: undefined, 
-        end_year: undefined
-      }
-    },
-    createNew() {
-      if(this.common_name.id) {
-        this.update(`/common_names/${this.common_name.id}.json`, { common_name: this.common_name }).then(response => {
-          this.list[this.list.findIndex(item => { return item.id == this.common_name.id })] = response.body
-          this.reset()
-        })
-      }
-      else {
-        this.create('/common_names', {common_name: this.common_name}).then(response => {
-          this.list.push(response.body)
-          this.reset()
-        })
-      }
-    },
-    editCommon(common) {
-      this.common_name.id = common.id
-      this.common_name.name = common.name
-      if(common.hasOwnProperty('geographic_area')) {
-        this.common_name.geographic_area_id = common.geographic_area_id
-        this.selectedGeographic = common.geographic_area
-      }
-      if(common.language_tag) {
-        this.common_name.language_id = common.language_id
-        this.selectedLenguage = common.language_tag
-      }
-      this.common_name.start_year = common.start_year
-      this.common_name.end_year = common.end_year
+
+  radialEmit: {
+    type: Object,
+    required: true
+  }
+})
+
+const { list, addToList, removeFromList } = useSlice({
+  radialEmit: props.radialEmit
+})
+
+const validate = computed(
+  () => commonName.value.name.length > 2 && commonName.value.otu_id
+)
+
+const commonName = ref(makeCommonName(props.objectId))
+const geographicArea = ref(null)
+const language = ref(null)
+
+function reset() {
+  commonName.value = makeCommonName(props.objectId)
+  geographicArea.value = null
+  language.value = null
+}
+
+function saveCommonName() {
+  const payload = {
+    common_name: {
+      ...commonName.value,
+      geographic_area_id: geographicArea.value?.id || null,
+      language_id: language.value?.id || null
     }
   }
+
+  const saveRequest = commonName.value.id
+    ? CommonName.update(commonName.value.id, payload)
+    : CommonName.create(payload)
+
+  saveRequest.then(({ body }) => {
+    addToList(body)
+    reset()
+  })
 }
+
+function setCommonName(item) {
+  commonName.value = { ...item }
+
+  geographicArea.value = item.geographic_area_id
+    ? {
+        id: item.geographic_area_id,
+        name: item.geographic_area?.object_tag
+      }
+    : null
+
+  language.value = item.language_id
+    ? {
+        id: item.language_id,
+        english_name: item.language_tag
+      }
+    : null
+}
+
+function removeItem(item) {
+  CommonName.destroy(item.id).then(() => {
+    removeFromList(item)
+  })
+}
+
+CommonName.where({ otu_id: props.objectId }).then(({ body }) => {
+  list.value = body
+})
 </script>
 
 <style lang="scss">
@@ -191,9 +215,6 @@ export default {
   .common_name_annotator {
     label {
       display: block;
-    }
-    button {
-      min-width: 100px;
     }
     .date-input {
       min-width: 150px;
@@ -204,4 +225,3 @@ export default {
   }
 }
 </style>
-

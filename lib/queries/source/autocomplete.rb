@@ -1,14 +1,13 @@
 module Queries
   module Source
-    class Autocomplete < Queries::Query
+    class Autocomplete < Query::Autocomplete
+
+      SOURCE_ROLE_TYPES = ['SourceAuthor', 'SourceEditor', 'SourceSource'].freeze
 
       # Either match against all Sources (default) or just those with ProjectSource
       # @return [Boolean]
       # @param limit_to_project [String] `true` or `false`
       attr_accessor :limit_to_project
-
-      # Comes from sessions_current_project_id in UI
-      attr_accessor :project_id
 
       # @param [Hash] args
       def initialize(string, project_id: nil, limit_to_project: false)
@@ -16,16 +15,21 @@ module Queries
         super
       end
 
-      # @return [Scope]
-      def base_query
-        ::Source #.select('sources.*')
-      end
-
       # @return [ActiveRecord::Relation]
       #   if and only iff author string matches
       def autocomplete_exact_author
-        a = table[:cached_author_string].eq(query_string)
+        a = table[:cached_author_string].matches(query_string)
         base_query.where(a.to_sql)
+      end
+
+      # @return [ActiveRecord::Relation]
+      def autocomplete_exact_author_alternate
+        ::Source
+          .joins(roles: {person: :alternate_values})
+          .where(roles: {type: SOURCE_ROLE_TYPES})
+          .where(alternate_values: {alternate_value_object_attribute: 'last_name'})
+          .where(alternate_values: {value: query_string})
+          .limit(20)
       end
 
       # @return [ActiveRecord::Relation]
@@ -44,6 +48,16 @@ module Queries
       end
 
       # @return [ActiveRecord::Relation]
+      def autocomplete_start_of_author_alternate
+        ::Source
+          .joins(roles: {person: :alternate_values})
+          .where(roles: {type: SOURCE_ROLE_TYPES})
+          .where(alternate_values: {alternate_value_object_attribute: 'last_name'})
+          .where('alternate_values.value ILIKE ?', "#{query_string}%")
+          .limit(20)
+      end
+
+      # @return [ActiveRecord::Relation]
       #   author matches partial string
       #      !! Not used currently
       def autocomplete_partial_author
@@ -54,7 +68,7 @@ module Queries
       # @return [ActiveRecord::Relation]
       #   multi-year match? otherwise pointless
       def autocomplete_year
-        a = table[:year].eq_any(years)
+        a = table[:year].in(years)
         base_query.where(a.to_sql).limit(5)
       end
 
@@ -74,9 +88,10 @@ module Queries
 
       # @return [ActiveRecord::Relation]
       #   author matches partial string
+      #      !! Not used currently
       def autocomplete_wildcard_pieces_and_year
         a = match_ordered_wildcard_pieces_in_cached
-        b = match_year
+        b = match_year_or_stated_year
         return nil if a.nil? || b.nil?
         c = a.and(b)
         base_query.where(c.to_sql).limit(5)
@@ -84,7 +99,7 @@ module Queries
 
       # @return [ActiveRecord::Relation, nil]
       def autocomplete_year_letter
-        a = match_year
+        a = match_year_or_stated_year
         b = match_year_suffix
         return nil if a.nil? || b.nil?
         c = a.and(b)
@@ -94,34 +109,92 @@ module Queries
       # @return [ActiveRecord::Relation, nil]
       def autocomplete_exact_author_year_letter
         a = match_exact_author
-        b = match_year_suffix
-        c = match_year
-        return nil if [a,b,c].include?(nil)
-        d = a.and(b).and(c)
-        base_query.where(d.to_sql)
+        d = match_year_suffix
+        c = match_year_or_stated_year
+        return nil if [a,d,c].include?(nil)
+        z = a.and(d).and(c)
+        base_query.where(z.to_sql)
+      end
+
+      # @return [ActiveRecord::Relation, nil]
+      def autocomplete_exact_author_year_letter_alternate
+        author = author_from_author_year
+        d = match_year_suffix
+        c = match_year_or_stated_year
+        return nil if [author,d,c].include?(nil)
+        z = d.and(c)
+
+        ::Source
+          .joins(roles: {person: :alternate_values})
+          .where(roles: {type: SOURCE_ROLE_TYPES})
+          .where(z.to_sql)
+          .where(alternate_values: {alternate_value_object_attribute: 'last_name'})
+          .where('alternate_values.value = ?', author)
+          .limit(20)
       end
 
       # @return [ActiveRecord::Relation, nil]
       def autocomplete_exact_author_year
+        return nil if query_string.split(' ').count > 2
         a = match_exact_author
-        b = match_year
-        return nil if a.nil? || b.nil?
-        c = a.and(b)
-        base_query.where(c.to_sql)
+        d = match_year_or_stated_year
+        return nil if a.nil? || d.nil?
+        z = a.and(d)
+        base_query.where(z.to_sql)
       end
 
       # @return [ActiveRecord::Relation, nil]
-      def autocomplete_wildcard_author_exact_year
-        a = match_year
-        b = match_wildcard_author
-        return nil if a.nil? || b.nil?
-        c = a.and(b)
-        base_query.where(c.to_sql)
+      def autocomplete_exact_author_year_alternate
+        return nil if query_string.split(' ').count > 2
+        author = author_from_author_year
+        d = match_year_or_stated_year
+        return nil if author.nil? || d.nil?
+
+        ::Source
+          .joins(roles: {person: :alternate_values})
+          .where(roles: {type: SOURCE_ROLE_TYPES})
+          .where(d.to_sql)
+          .where(alternate_values: {alternate_value_object_attribute: 'last_name'})
+          .where('alternate_values.value = ?', author)
+          .limit(20)
+      end
+
+    # @return [ActiveRecord::Relation, nil]
+      def autocomplete_start_author_year
+        return nil if query_string.split(' ').count > 2
+        a = match_start_author
+        d = match_year_or_stated_year
+        return nil if a.nil? || d.nil?
+        z = a.and(d)
+        base_query.where(z.to_sql)
+      end
+
+      # @return [ActiveRecord::Relation, nil]
+      def autocomplete_start_author_year_alternate
+        return nil if query_string.split(' ').count > 2
+        author = author_from_author_year
+        d = match_year_or_stated_year
+        return nil if author.nil? || d.nil?
+
+        ::Source
+          .joins(roles: {person: :alternate_values})
+          .where(roles: {type: SOURCE_ROLE_TYPES})
+          .where(d.to_sql)
+          .where(alternate_values: {alternate_value_object_attribute: 'last_name'})
+          .where('alternate_values.value ILIKE ?', "#{author}%")
+          .limit(20)
+      end
+
+      # @return [ActiveRecord::Relation, nil]
+      def autocomplete_exact_in_cached
+        a = with_cached_like
+        return nil if a.nil?
+        base_query.where(a.to_sql)
       end
 
       # @return [ActiveRecord::Relation, nil]
       def autocomplete_wildcard_anywhere_exact_year
-        a = match_year
+        a = match_year_or_stated_year
         b = match_wildcard_in_cached
         return nil if a.nil? || b.nil?
         c = a.and(b)
@@ -138,29 +211,42 @@ module Queries
 
       # @return [Arel::Nodes::Equatity]
       def match_exact_author
-        table[:cached_author_string].eq(author_from_author_year)
+        table[:cached_author_string].matches(author_from_author_year)
+      end
+
+      # @return [Arel::Nodes::Equatity]
+      def match_start_author
+        a = author_from_author_year
+        return nil if a.blank?
+        table[:cached_author_string].matches(a + '%')
       end
 
       # @return [Arel::Nodes::Equatity]
       def match_year_suffix
+        return nil if year_letter.blank?
         table[:year_suffix].eq(year_letter)
       end
 
-      # @return [Arel::Nodes::Equatity]
-      def match_year
+      # @return [Arel::Nodes::Grouping, nil]
+      def match_year_or_stated_year
         a = years.first
         return nil if a.nil?
-        table[:year].eq(a)
+
+        year_match = table[:year].eq(a)
+        stated_year_match = table[:stated_year].eq(a.to_s)
+
+        year_match.or(stated_year_match)
       end
 
       # @return [String]
       def author_from_author_year
-        query_string.match(/^(.+?)\W/).to_a.last
+        query_string.match(/[[[:word:]]]+/).to_a.last
+        #query_string.match(/^(.+?)\W/).to_a.last
       end
 
       # @return [Arel::Nodes::Equatity]
       def member_of_project_id
-        project_sources_table[:project_id].eq(project_id)
+        project_sources_table[:project_id].in(project_id)
       end
 
       # @return [ActiveRecord::Relation, nil]
@@ -168,7 +254,7 @@ module Queries
       def fragment_year_matches
         if fragments.any?
           s = table[:cached].matches_any(fragments)
-          s = s.and(table[:year].eq_any(years)) if !years.empty?
+          s = s.and(table[:year].in(years)) if !years.empty?
           s
         else
           nil
@@ -180,55 +266,58 @@ module Queries
 
         # [ query, order by use if true- don't if nil ]
         queries = [
-          [ autocomplete_exact_id, nil],
-          [ autocomplete_identifier_identifier_exact, nil],
-          [ autocomplete_exact_author_year_letter&.limit(2), nil],
-          [ autocomplete_exact_author_year&.limit(10), nil],
-          [ autocomplete_identifier_cached_exact, nil],
-          [ autocomplete_wildcard_author_exact_year&.limit(10), true],
+          [ autocomplete_exact_id, false],
+          [ autocomplete_identifier_identifier_exact, false],
+          [ autocomplete_exact_author_year_letter&.limit(20), true],
+          [ autocomplete_exact_author_year_letter_alternate&.limit(20), true],
+          [ autocomplete_identifier_cached_exact, false],
+          [ autocomplete_exact_author_year&.limit(20), true],
+          [ autocomplete_exact_author_year_alternate&.limit(20), true],
+          [ autocomplete_start_author_year&.limit(20), true],
+          [ autocomplete_start_author_year_alternate&.limit(20), true],
           [ autocomplete_exact_author&.limit(20), true],
-          [ autocomplete_start_of_author.limit(8), true],
-          [ autocomplete_wildcard_anywhere_exact_year&.limit(10), true],
+          [ autocomplete_exact_author_alternate&.limit(20), true],
+          [ autocomplete_start_of_author&.limit(20), true],
+          [ autocomplete_start_of_author_alternate&.limit(20), true],
+          #[ autocomplete_wildcard_anywhere_exact_year&.limit(10), true],
           [ autocomplete_identifier_cached_like, true],
-          [ autocomplete_ordered_wildcard_pieces_in_cached&.limit(5), true],
+          [ autocomplete_exact_in_cached&.limit(20), true],
+          [ autocomplete_ordered_wildcard_pieces_in_cached&.limit(20), true],
           [ autocomplete_cached_wildcard_anywhere&.limit(20), true],
-          [ autocomplete_start_of_title&.limit(5), true],
-          [ autocomplete_wildcard_of_title_alternate&.limit(5), true]
+          [ autocomplete_start_of_title&.limit(20), true],
+          [ autocomplete_wildcard_of_title_alternate&.limit(20), true]
         ]
 
-        queries.delete_if{|a,b| a.nil?} # compact!
+        queries.delete_if{|a,b| a.nil?} # Note this pattern differs because [[]] so we don't use compact. /lib/queries/repository/autocomplete.rb follows same pattern
 
         result = []
 
+        pr_id = project_id.join(',') if project_id
         queries.each do |q, scope|
           a = q
 
           # Limit autocomplete to ONLY project sources if limit_to_project == true
-          if project_id && limit_to_project
+          if project_id.present? && limit_to_project
             a = a.joins(:project_sources).where(member_of_project_id.to_sql)
           end
 
           # Order results by number of times used *in this project*
-          if project_id && scope
-            a = a.left_outer_joins(:citations)
-              .select('sources.*, COUNT(citations.id) AS use_count, NULLIF(citations.project_id, NULL) as in_project')
-              .where('citations.project_id = ? OR citations.project_id IS NULL', project_id)
-              .group('sources.id, citations.project_id')
-              .order('use_count DESC')
+          if project_id.present? && scope && query_string.length > 3
+            a = a.select(
+                "sources.*, " \
+                "(SELECT COUNT(*) FROM citations WHERE citations.source_id = sources.id) AS use_count, " \
+                "CASE WHEN EXISTS (" \
+                  "SELECT 1 FROM project_sources WHERE project_sources.source_id = sources.id AND project_sources.project_id IN (#{pr_id})" \
+                ") THEN 1 ELSE NULL END AS in_project"
+              )
+              .order('in_project, use_count DESC')
           end
           a ||= q
-
           result += a.to_a
           result.uniq!
           break if result.count > 19
         end
-
         result[0..19]
-      end
-
-      # @return [Arel::Table]
-      def table
-        ::Source.arel_table
       end
 
       # @return [Arel::Table]

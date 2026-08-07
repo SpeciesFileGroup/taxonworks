@@ -1,14 +1,24 @@
 class LoansController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :require_sign_in_and_project_selection
   before_action :set_loan, only: [:show, :edit, :update, :destroy, :recipient_form]
+
+  after_action -> { set_pagination_headers(:loans) }, only: [:index], if: :json_request?
 
   # GET /loans
   # GET /loans.json
   def index
-    @recent_objects = Loan.includes(:loan_items, :identifiers).recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
-    render '/shared/data/all/index'
+    respond_to do |format|
+      format.html do
+        @recent_objects = Loan.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
+        render '/shared/data/all/index'
+      end
+      format.json {
+        @loans = ::Queries::Loan::Filter.new(params).all
+          .page(params[:page])
+          .per(params[:per])
+      }
+    end
   end
 
   # GET /loans/1
@@ -18,11 +28,13 @@ class LoansController < ApplicationController
 
   # GET /loans/new
   def new
-    @loan = Loan.new(params.permit(:clone_from))
+    redirect_to edit_loan_task_path
+    # @loan = Loan.new(params.permit(:clone_from))
   end
 
   # GET /loans/1/edit
   def edit
+    redirect_to edit_loan_task_path(id: params[:id])
   end
 
   # POST /loans
@@ -36,13 +48,20 @@ class LoansController < ApplicationController
         format.json { render :show, status: :created, location: @loan }
       else
         format.html { render :new }
-        format.json { render json: @loan.errors, status: :unprocessable_entity }
+        format.json { render json: @loan.errors, status: :unprocessable_content }
       end
     end
   end
 
   def recipient_form
     render layout: 'us_letter'
+  end
+
+  def attributes
+    render json: ::Loan.columns.select{
+      |a| ::Queries::Loan::Filter::ATTRIBUTES.include?(
+        a.name.to_sym)
+    }.collect{|b| {'name' => b.name, 'type' => b.type } }
   end
 
   # PATCH/PUT /loans/1
@@ -55,7 +74,7 @@ class LoansController < ApplicationController
         format.json { render :show, status: :ok, location: @loan }
       else
         format.html { render :edit }
-        format.json { render json: @loan.errors, status: :unprocessable_entity }
+        format.json { render json: @loan.errors, status: :unprocessable_content }
       end
     end
   end
@@ -72,7 +91,7 @@ class LoansController < ApplicationController
 
   def list
     @loans = Loan.includes(:identifiers).with_project_id(sessions_current_project_id)
-      .order(Arel.sql("LENGTH(identifier), identifier")).references(:identifiers).page(params[:page]) #.per(10) #.per(3)
+      .order(Arel.sql('LENGTH(identifier), identifier')).references(:identifiers).page(params[:page])
   end
 
   def search
@@ -84,12 +103,12 @@ class LoansController < ApplicationController
   end
 
   def autocomplete
-    @loans = Queries::Loan::Autocomplete.new(params[:term], project_id: sessions_current_project_id).autocomplete
+    @loans = ::Queries::Loan::Autocomplete.new(params[:term], project_id: sessions_current_project_id).autocomplete
   end
 
   # GET /loans/download
   def download
-    send_data Export::Download.generate_csv(Loan.where(project_id: sessions_current_project_id)), type: 'text', filename: "loans_#{DateTime.now}.csv"
+    send_data Export::CSV.generate_csv(Loan.where(project_id: sessions_current_project_id)), type: 'text', filename: "loans_#{DateTime.now}.tsv"
   end
 
   # GET /loans/select_options
@@ -111,7 +130,9 @@ class LoansController < ApplicationController
       :recipient_email, :recipient_phone, :recipient_country, :supervisor_person_id,
       :supervisor_email, :supervisor_phone, :date_closed, :recipient_honorific,
       :lender_address,
+      :is_gift,
       :clone_from,
+      :is_gift,
       loan_items_attributes: [
         :_destroy,
         :id,

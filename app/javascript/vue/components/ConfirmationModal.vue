@@ -1,13 +1,14 @@
 <template>
   <modal-component
     v-if="showModal"
-    @close="_cancel">
+    @close="_cancel"
+  >
     <template #header>
       <h3>{{ title }}</h3>
     </template>
     <template #body>
       <div>
-        <div v-html="message"/>
+        <div v-html="message" />
         <div v-show="confirmationWord">
           <p>Type "{{ confirmationWord }}" to proceed.</p>
           <input
@@ -15,8 +16,9 @@
             class="full_width"
             ref="inputtext"
             v-model="inputValue"
+            :placeholder="`Write ${confirmationWord} to continue`"
             @keydown.enter="isConfirmationWordTyped && _confirm()"
-            :placeholder="`Write ${confirmationWord} to continue`">
+          />
         </div>
       </div>
     </template>
@@ -32,8 +34,10 @@
           {{ okButton }}
         </button>
         <button
+          v-if="cancelButton"
           class="button normal-input button-default margin-small-left"
-          @click="_cancel">
+          @click="_cancel"
+        >
           {{ cancelButton }}
         </button>
       </div>
@@ -42,7 +46,7 @@
 </template>
 
 <script>
-import ModalComponent from 'components/ui/Modal'
+import ModalComponent from '@/components/ui/Modal'
 
 export default {
   name: 'ConfirmDialogue',
@@ -53,7 +57,7 @@ export default {
     title: undefined,
     message: undefined,
     okButton: undefined,
-    cancelButton: 'Cancel',
+    cancelButton: undefined,
     typeButton: 'delete',
     showModal: false,
     resolvePromise: undefined,
@@ -63,26 +67,26 @@ export default {
   }),
 
   computed: {
-    isConfirmationWordTyped () {
-      return !this.confirmationWord || this.confirmationWord?.toLowerCase() === this.inputValue?.toLowerCase()
+    isConfirmationWordTyped() {
+      return (
+        !this.confirmationWord ||
+        this.confirmationWord?.toLowerCase() === this.inputValue?.toLowerCase()
+      )
     }
   },
 
   methods: {
-    show (opts = {}) {
+    show(opts = {}) {
       this.title = opts.title
       this.message = opts.message
       this.okButton = opts.okButton || 'Accept'
       this.typeButton = opts.typeButton || 'delete'
-      if (opts.cancelButton) {
-        this.cancelButton = opts.cancelButton
-      }
-
+      this.cancelButton = opts.cancelButton
+      this.confirmationWord = opts.confirmationWord
       this.showModal = true
       this.inputValue = undefined
 
       if (opts.confirmationWord) {
-        this.confirmationWord = opts.confirmationWord
         this.$nextTick(() => {
           this.$refs.inputtext.focus()
         })
@@ -94,12 +98,12 @@ export default {
       })
     },
 
-    _confirm () {
+    _confirm() {
       this.showModal = false
       this.resolvePromise(true)
     },
 
-    _cancel () {
+    _cancel() {
       this.showModal = false
       this.resolvePromise(false)
     }

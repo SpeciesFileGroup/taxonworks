@@ -1,4 +1,5 @@
-# A container localizes the proximity of one ore more physical things, at this point in TW this is restricted to a number of collection objects.
+# A container localizes the proximity of one ore more physical things, at this point in the TW UI this is restricted to a number of collection objects.
+#
 # Objects are placed in containers by reference to a ContainerItem.
 #
 # @!attribute type
@@ -16,45 +17,63 @@
 #   @return [String]
 #     a free text description of the position of this container
 #
-# @!attribute size_x 
+# @!attribute size_x
 #   @return [Int]
-#     the number of slots in the x dimension 
+#     the number of slots in the x dimension
 #
-# @!attribute size_y 
+# @!attribute size_y
 #   @return [Int]
-#     the number of slots in the y dimension 
+#     the number of slots in the y dimension
 #
-# @!attribute size_z 
+# @!attribute size_z
 #   @return [Int]
-#     the number of slots in the z dimension 
+#     the number of slots in the z dimension
 #
-# @!attribute print_label 
+# @!attribute print_label
 #   @return [String]
-#     text of a label to print for this container 
+#     text of a label to print for this container
 #
 class Container < ApplicationRecord
 
-  include Housekeeping
-  include Shared::Identifiers
-  include Shared::Containable
-  include Shared::Tags
-  include SoftValidation
-  include Shared::Loanable
-  include Shared::Labels 
-  include Shared::IsData
+  attr_accessor :empty_container
 
-  has_many :collection_profiles
+  include Housekeeping
+
+  # !! Must come before Shared::Containable
+  before_destroy :empty_contents, if: -> { empty_container }
+  before_destroy :check_for_contents
+
+  include Shared::Containable
+  include Shared::Depictions
+  include Shared::Identifiers
+  include Shared::Labels
+  include Shared::Loanable
+  include Shared::Tags
+  include Shared::IsData
+  include SoftValidation
+
+  has_many :collection_profiles, inverse_of: :container, dependent: :restrict_with_error
 
   validates :type, presence: true
   validate :type_is_valid
 
-  before_destroy :check_for_contents
+  validates :asserted_percent_empty,
+    numericality: { greater_than_or_equal_to: 0.0, less_than_or_equal_to: 100.0 },
+    allow_nil: true
+
+  validates :asserted_percent_earmarked,
+    numericality: { greater_than_or_equal_to: 0.0, less_than_or_equal_to: 100.0 },
+    allow_nil: true
+
+  validate :earmarked_requires_sufficient_empty
+  validate :size_does_not_exclude_placed_items, if: :persisted?
 
   # @return [ContainerItem Scope]
   #    return all ContainerItems contained in this container (non recursive)
   # TODO: fix Please call `reload_container_item` instead. (called from container_items at /Users/jrflood/src/taxonworks/app/models/container.rb:43)
+  #
   def container_items
-    reload_container_item.try(:children) || ContainerItem.none
+    container_item&.children || ContainerItem.none
   end
 
   # @return [ContainerItem Scope]
@@ -115,7 +134,7 @@ class Container < ApplicationRecord
   #   the free space in this container (non-recursive)
   def available_space
     in_container = container_items.count
-    if size 
+    if size
       size - in_container
     else
       nil
@@ -123,7 +142,7 @@ class Container < ApplicationRecord
   end
 
   # @return [Integer, nil]
-  #   the total number of "slots" or "spaces" this container has, it's size 
+  #   the total number of "slots" or "spaces" this container has, it's size
   # TODO: reserved word?
   def size
     return nil if size_x.blank? && size_y.blank? && size_z.blank?
@@ -152,6 +171,10 @@ class Container < ApplicationRecord
     []
   end
 
+  def self.dimensions
+    {}
+  end
+
   # @return [Container]
   #   places all objects in a new, parent-less container, saves it off,
   #   None of the objects are permitted to be new_records.
@@ -178,8 +201,79 @@ class Container < ApplicationRecord
     new_container
   end
 
+  # @param params [ActionController::Parameters, Hash] with keys:
+  #   building_id [Integer] id of the parent Container::Building
+  #   drawer_type [String] full STI type name of the drawer, e.g. 'Container::Drawer::CalAcademy'
+  #   rooms [Integer] number of Room containers to create
+  #   cabinets [Integer] number of Cabinet containers per Room
+  #   drawers [Integer] number of Drawer containers per Cabinet
+  #   cabinet_size_x [Integer, nil] default size_x applied to each created cabinet
+  #   cabinet_size_y [Integer, nil] default size_y applied to each created cabinet
+  #   cabinet_size_z [Integer, nil] default size_z applied to each created cabinet
+  #   asserted_percent_empty [Float, nil] default value applied to each created drawer
+  #   asserted_percent_earmarked [Float, nil] default value applied to each created drawer
+  # @return [Array<Container::Room>] the created Room containers, or false on failure
+  def self.scaffold(params)
+    building_id   = params[:building_id].to_i
+    drawer_type   = params[:drawer_type].to_s.presence || 'Container::Drawer'
+    room_count    = params[:rooms].to_i
+    cabinet_count = params[:cabinets].to_i
+    drawer_count  = params[:drawers].to_i
+
+    cabinet_defaults = {}
+    cabinet_defaults[:size_x] = params[:cabinet_size_x].presence&.to_i unless params[:cabinet_size_x].nil?
+    cabinet_defaults[:size_y] = params[:cabinet_size_y].presence&.to_i unless params[:cabinet_size_y].nil?
+    cabinet_defaults[:size_z] = params[:cabinet_size_z].presence&.to_i unless params[:cabinet_size_z].nil?
+
+    drawer_defaults = {}
+    drawer_defaults[:asserted_percent_empty] = params[:asserted_percent_empty].presence&.to_f     unless params[:asserted_percent_empty].nil?
+    drawer_defaults[:asserted_percent_earmarked] = params[:asserted_percent_earmarked].presence&.to_f unless params[:asserted_percent_earmarked].nil?
+
+    return false if building_id == 0 || room_count < 1 || cabinet_count < 1 || drawer_count < 1
+
+    # The drawer class must exist; if not, fail early.
+    begin
+      drawer_klass = drawer_type.constantize
+    rescue NameError
+      return false
+    end
+
+    # Not customizable yet
+    cabinet_klass = Container::Cabinet
+
+    created_rooms = []
+
+    begin
+      Container.transaction do
+        building = Container.find(building_id)
+
+        room_count.times do
+          room = Container::Room.create!
+          building.add_container_items([room])
+
+          cabinet_count.times do
+            cabinet = cabinet_klass.create!(cabinet_defaults)
+            room.add_container_items([cabinet])
+
+            drawers = drawer_count.times.map { drawer_klass.create!(drawer_defaults) }
+            cabinet.add_container_items(drawers)
+          end
+
+          created_rooms << room
+        end
+      end
+    rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotFound
+
+      return false
+    end
+
+
+
+    created_rooms
+  end
+
   # @return [Boolean]
-  #    add the objects to this container
+  # add the objects to this container
   def add_container_items(objects)
     return false if new_record?
 
@@ -203,22 +297,53 @@ class Container < ApplicationRecord
     rescue ActiveRecord::RecordInvalid
       return false
     end
+
     true
   end
 
   protected
 
+  def empty_contents
+    container_items.delete_all
+  end
+
   def type_is_valid
     raise ActiveRecord::SubclassNotFound, 'Invalid subclass' if type && !CONTAINER_TYPES.include?(type)
   end
 
+  # Prevent shrinking a dimension when placed container items would fall
+  # outside the new boundary on that axis.
+  def size_does_not_exclude_placed_items
+    {
+      size_x: :disposition_x,
+      size_y: :disposition_y,
+      size_z: :disposition_z
+    }.each do |size_attr, disp_attr|
+      next unless send(:"#{size_attr}_changed?")
+      new_val = send(size_attr)
+      old_val = send(:"#{size_attr}_was")
+      next unless new_val.present? && old_val.present? && new_val < old_val
+      if container_items.where("#{disp_attr} > ?", new_val).exists?
+        errors.add(:base, 'Resize would impact placed containers')
+        return
+      end
+    end
+  end
+
+  def earmarked_requires_sufficient_empty
+    return if asserted_percent_earmarked.nil?
+    if asserted_percent_empty.nil?
+      errors.add(:asserted_percent_empty, 'must be present when earmarked is set')
+    elsif asserted_percent_empty < asserted_percent_earmarked
+      errors.add(:asserted_percent_empty, 'must be greater than or equal to asserted percent earmarked')
+    end
+  end
+
   def check_for_contents
-    if container_items.any?
+    if !is_empty?
       errors.add(:base, 'is not empty, empty it before destroying it')
-      # return false
       throw :abort
     end
   end
-end
 
-Dir[Rails.root.to_s + '/app/models/container/**/*.rb'].each { |file| require_dependency file }
+end

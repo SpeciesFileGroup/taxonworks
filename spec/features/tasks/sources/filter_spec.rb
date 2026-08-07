@@ -11,10 +11,10 @@ describe 'Filter sources', type: :feature, group: :sources, js: true do
       let!(:source) { FactoryBot.create(:valid_source_bibtex, title: 'Qurious', year: 1999, by: @user) }
 
       specify 'find a source' do
-        fill_in 'source.query_term', with: 'Qurious'
-        choose 'Both', name: 'params.source.in_project'
+        fill_in name: 'query_term', with: 'Qurious'
+        choose 'in_project', option: false
 
-        click_button 'Search'
+        click_button 'Filter'
         expect(page).to have_text('1999')
       end
     end

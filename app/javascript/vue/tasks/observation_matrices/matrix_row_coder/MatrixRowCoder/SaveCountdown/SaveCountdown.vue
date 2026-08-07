@@ -2,33 +2,36 @@
   <div class="save-countdown">
     <transition
       name="save-countdown__duration-bar-animation"
-      @after-enter="doSave">
-
+      @after-enter="doSave"
+    >
       <div
         v-if="isCountingDown"
-        class="save-countdown__duration-bar"/>
+        class="save-countdown__duration-bar"
+      />
     </transition>
 
     <div
       v-if="!isCountingDown"
       class="save-countdown__status-bar"
-      :class="{ 
-        'save-countdown__status-bar--saving': isSaving, 
-        'save-countdown__status-bar--failed': failed, 
-        'save-countdown__status-bar--saved-at-least-once': savedAtLeastOnce }"/>
+      :class="{
+        'save-countdown__status-bar--saving': isSaving,
+        'save-countdown__status-bar--failed': failed,
+        'save-countdown__status-bar--saved-at-least-once': savedAtLeastOnce
+      }"
+    />
 
     <button
       class="save-countdown__save-button"
       :class="{ 'save-countdown__save-button--showing': isCountingDown }"
       @click="doSave"
-      type="button">
-
+      type="button"
+    >
       Save Changes
     </button>
   </div>
 </template>
 
-<style src="./SaveCountdown.styl" lang="stylus"></style>
+<style src="./SaveCountdown.scss" lang="scss"></style>
 
 <script>
 import { GetterNames } from '../../store/getters/getters'
@@ -37,45 +40,61 @@ import { ActionNames } from '../../store/actions/actions'
 
 export default {
   name: 'SaveCountdown',
-  props: ['descriptor'],
-  data: function () {
+
+  props: {
+    descriptor: {
+      type: Object,
+      required: true
+    }
+  },
+
+  data() {
     return {
       isCountingDown: false,
       failed: false
     }
   },
+
   computed: {
-    needsCountdown: function () {
-      return this.$store.getters[GetterNames.DoesDescriptorNeedCountdown](this.$props.descriptor.id)
+    needsCountdown() {
+      return this.$store.getters[GetterNames.DoesDescriptorNeedCountdown](
+        this.$props.descriptor.id
+      )
     },
-    isSaving: function () {
+    isSaving() {
       return this.$props.descriptor.isSaving
     },
-    savedAtLeastOnce: function () {
+    savedAtLeastOnce() {
       return this.$props.descriptor.hasSavedAtLeastOnce
     }
   },
-  methods: {
-    doSave () {
-      this.isCountingDown = false
-      this.$store.dispatch(ActionNames.SaveObservationsFor, this.$props.descriptor.id).then(response =>
-      {
-        if(response.includes(false)) {
-          this.failed = true
-        }
-      })
-    }
-  },
+
   watch: {
-    needsCountdown: function (needsCountdown) {
+    needsCountdown(needsCountdown) {
       if (needsCountdown) {
         this.isCountingDown = false
-        requestAnimationFrame(_ => {
+        requestAnimationFrame((_) => {
           this.failed = false
           this.isCountingDown = true
-          this.$store.commit(MutationNames.CountdownStartedFor, this.$props.descriptor.id)
+          this.$store.commit(
+            MutationNames.CountdownStartedFor,
+            this.$props.descriptor.id
+          )
         })
       }
+    }
+  },
+
+  methods: {
+    doSave() {
+      this.isCountingDown = false
+      this.$store
+        .dispatch(ActionNames.SaveObservationsFor, this.$props.descriptor.id)
+        .then((response) => {
+          if (response.includes(false)) {
+            this.failed = true
+          }
+        })
     }
   }
 }

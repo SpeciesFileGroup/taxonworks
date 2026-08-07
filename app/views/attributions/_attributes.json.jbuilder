@@ -1,10 +1,11 @@
-json.extract! attribution, :id, :copyright_year, :license, :attribution_object_id, :attribution_object_type, :created_at, :updated_at
+json.extract! attribution, :id, :copyright_year, :license, :attribution_object_id, :attribution_object_type, :created_by_id, :created_at, :updated_at
 json.url attribution_url(attribution, format: :json)
 
 json.partial! '/shared/data/all/metadata', object: attribution
 
+# TODO: doesn't belong here
 json.annotated_object do
-  json.partial! '/shared/data/all/metadata', object: metamorphosize_if(attribution.attribution_object)
+  json.partial! '/shared/data/all/metadata', object: metamorphosize_if(attribution.attribution_object), extensions: false
 end
 
 if attribution.roles.load.any?

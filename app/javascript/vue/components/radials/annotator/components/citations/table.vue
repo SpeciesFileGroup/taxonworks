@@ -9,36 +9,63 @@
       </thead>
       <transition-group
         name="list-complete"
-        tag="tbody">
+        tag="tbody"
+      >
         <tr
           v-for="item in list"
           :key="item.id"
-          class="list-complete-item">
+          class="list-complete-item"
+        >
           <td>
             <span
               :class="{ originalCitation: item.is_original }"
-              v-html="item.object_tag"/>
-            <soft-validation
-              class="margin-small-left"
-              :global-id="item.global_id"/>
+              class="margin-small-right"
+              v-html="item.object_tag"
+            />
+            <SoftValidation :global-id="item.global_id" />
           </td>
           <td>
-            <div class="horizontal-right-content middle">
+            <div class="horizontal-right-content middle gap-small">
               <a
                 class="button-default circle-button btn-citation"
-                :href="`/tasks/nomenclature/by_source?source_id=${item.source_id}`"
-                target="blank"/>
-              <pdf-button
+                title="Open in citations by source task"
+                :href="`${RouteNames.NomenclatureBySource}?source_id=${item.source_id}`"
+                target="blank"
+              />
+              <PdfButton
                 v-if="item.hasOwnProperty('target_document')"
-                :pdf="item.target_document"/>
-              <radial-annotator :global-id="item.global_id"/>
-              <span
-                class="circle-button btn-edit"
-                @click="$emit('edit', Object.assign({}, item))"/>
-              <span
-                class="circle-button btn-delete"
-                @click="deleteItem(item)">Remove
-              </span>
+                :pdf="item.target_document"
+              />
+              <RadialAnnotator :global-id="item.global_id" />
+              <MoveAnnotation
+                :annotation="item"
+                @move="(e) => emit('move', e)"
+              />
+              <VBtn
+                circle
+                color="primary"
+                title="Edit"
+                @click="$emit('edit', Object.assign({}, item))"
+              >
+                <VIcon
+                  name="pencil"
+                  x-small
+                  title="Edit"
+                />
+              </VBtn>
+
+              <VBtn
+                circle
+                color="destroy"
+                title="Delete"
+                @click="deleteItem(item)"
+              >
+                <VIcon
+                  name="trash"
+                  x-small
+                  title="Delete"
+                />
+              </VBtn>
             </div>
           </td>
         </tr>
@@ -46,72 +73,70 @@
     </table>
   </div>
 </template>
-<script>
 
-import RadialAnnotator from 'components/radials/annotator/annotator.vue'
-import PdfButton from 'components/pdfButton.vue'
-import SoftValidation from 'components/soft_validations/objectValidation'
+<script setup>
+import { RouteNames } from '@/routes/routes'
+import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
+import PdfButton from '@/components/ui/Button/ButtonPdf.vue'
+import SoftValidation from '@/components/soft_validations/objectValidation'
+import MoveAnnotation from '../shared/MoveAnnotation/MoveAnnotation.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 
-export default {
-  components: {
-    RadialAnnotator,
-    SoftValidation,
-    PdfButton
-  },
+defineProps({
+  list: {
+    type: Array,
+    default: () => []
+  }
+})
 
-  props: {
-    list: {
-      type: Array,
-      default: () => []
-    }
-  },
+const emit = defineEmits(['delete', 'edit', 'move'])
 
-  emits: [
-    'delete',
-    'edit'
-  ],
-
-  mounted () {
-    this.$options.components['RadialAnnotator'] = RadialAnnotator
-  },
-
-  methods: {
-    deleteItem (item) {
-      if (window.confirm('You\'re trying to delete this record. Are you sure want to proceed?')) {
-        this.$emit('delete', item)
-      }
-    }
+function deleteItem(item) {
+  if (
+    window.confirm(
+      "You're trying to delete this record. Are you sure you want to proceed?"
+    )
+  ) {
+    emit('delete', item)
   }
 }
 </script>
 
 <style lang="scss" scoped>
-  .vue-table-container {
-    padding: 0px;
-    position: relative;
-  }
+:deep(.otu_tag_taxon_name) {
+  white-space: wrap;
+}
 
-  .vue-table {
-    width: 100%;
-    tr {
-      cursor: default;
-    }
-  }
+.vue-table-container {
+  padding: 0px;
+  position: relative;
+}
 
-  .list-complete-item {
-    justify-content: space-between;
-    transition: all 0.5s, opacity 0.2s;
+.vue-table {
+  width: 100%;
+  tr {
+    cursor: default;
   }
+}
 
-  .list-complete-enter-active, .list-complete-leave-active {
-    opacity: 0;
-    font-size: 0px;
-    border: none;
-  }
-  .originalCitation {
-    padding: 5px;
-    border-radius: 3px;
-    background-color: #006ebf;
-    color: #FFF;
-  }
+.list-complete-item {
+  justify-content: space-between;
+  transition:
+    all 0.5s,
+    opacity 0.2s;
+}
+
+.list-complete-enter-active,
+.list-complete-leave-active {
+  opacity: 0;
+  font-size: 0px;
+  border: none;
+}
+.originalCitation {
+  padding: 5px;
+  border-radius: 3px;
+  background-color: #006ebf;
+  color: #fff;
+}
 </style>

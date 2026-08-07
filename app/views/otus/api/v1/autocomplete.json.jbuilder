@@ -1,13 +1,11 @@
-json.array! @otus do |t|
-  json.id t.id
-  json.label otu_autocomplete_selected_tag(t)
-  json.label_html otu_tag(t)
-  json.gid t.to_global_id.to_s
+json.array! @otu_metadata do |r|
+  json.id r[:otu].id
+  json.gid r[:otu].to_global_id.to_s
+  json.otu_valid_id r[:otu_valid_id]
 
-  json.response_values do 
-    if params[:method]
-      json.set! params[:method], t.id
-    end
-  end 
+  json.label otu_autocomplete_selected_tag(r[:otu]) # !! Note this is not used in TaxonPages
+
+  json.label_html otu_extended_autocomplete_tag(
+    r[:label_target], r[:otu], r[:common_names] || [], @term
+  )
 end
-

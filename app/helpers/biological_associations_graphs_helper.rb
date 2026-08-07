@@ -1,13 +1,27 @@
 module BiologicalAssociationsGraphsHelper
+  include RecordNavigationHelper
 
   def biological_associations_graph_tag(biological_associations_graph)
     return nil if biological_associations_graph.nil?
-    biological_associations_graph.name
+    biological_associations_graph.name ||'Nameless graph. id: ' + biological_associations_graph.to_param
+  end
+
+  def biological_associations_graph_autocomplete_tag(biological_association_graph, term = nil)
+    return nil if biological_association_graph.nil?
+
+    mark_tag(biological_associations_graph_tag(biological_association_graph), term)
+  end
+
+  def label_for_biological_associations_graph(biological_associations_graph)
+    return nil if biological_associations_graph.nil?
+    biological_associations_graph.name ||
+      "Nameless graph. id: #{biological_associations_graph.id}"
   end
 
   def biological_associations_graph_link(biological_associations_graph)
     return nil if biological_associations_graph.nil?
-    link_to(biological_associations_graph_tag(biological_associations_graph).html_safe, biological_associations_graph)
+    a = biological_associations_graph_tag(biological_associations_graph)
+    link_to(a.html_safe, biological_associations_graph)
   end
 
 end

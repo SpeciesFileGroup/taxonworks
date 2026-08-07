@@ -60,6 +60,43 @@ describe ::CollectionObjectsController, type: :controller do
     end
   end
 
+  describe 'DwC output' do
+    render_views
+
+    let(:collecting_event) { FactoryBot.create(:valid_collecting_event) }
+    let(:collection_object) { FactoryBot.create(:valid_collection_object, collecting_event:) }
+    let(:long_wkt) do
+      'POLYGON((' + Array.new(30) { |i| "#{i} #{i}" }.join(', ') + '))'
+    end
+
+    before do
+      Georeference::Wkt.create!(collecting_event:, wkt: long_wkt)
+      collection_object.get_dwc_occurrence
+    end
+
+    specify 'show.json with embedded dwc_occurrence truncates footprintWKT for UI' do
+      get :show, params: { id: collection_object.id, format: :json, extend: ['dwc_occurrence'] }, session: valid_session
+
+      expect(JSON.parse(response.body).dig('dwc_occurrence', 'footprintWKT')).to end_with('...')
+    end
+
+    specify 'dwc_verbose truncates footprintWKT by default for UI display' do
+      get :dwc_verbose, params: { id: collection_object.id, format: :json }, session: valid_session
+
+      expect(JSON.parse(response.body)['footprintWKT']).to end_with('...')
+    end
+
+    specify 'api_dwc returns full footprintWKT' do
+      get :api_dwc, params: { id: collection_object.id, format: :json }, session: valid_session
+
+      footprint = JSON.parse(response.body)['footprintWKT']
+
+      expect(footprint).to start_with('POLYGON')
+      expect(footprint).not_to end_with('...')
+      expect(footprint.length).to be > 100
+    end
+  end
+
   describe 'GET by_identifier' do
     render_views
     let(:namespace) { FactoryBot.create(:valid_namespace, short_name: 'ABCD') }
@@ -239,20 +276,5 @@ describe ::CollectionObjectsController, type: :controller do
     end
   end
 
-  describe 'DELETE destroy' do
-    it 'destroys the requested collection_object' do
-      collection_object = CollectionObject.create! valid_attributes
-      expect {
-        delete :destroy, params: {id: collection_object.to_param}, session: valid_session
-      }.to change(CollectionObject, :count).by(-1)
-    end
-
-    it 'redirects to the collection_objects list' do
-      request.env['HTTP_REFERER'] = collection_objects_url
-      collection_object = CollectionObject.create! valid_attributes
-      delete :destroy, params: {id: collection_object.to_param}, session: valid_session
-      expect(response).to redirect_to(collection_objects_url)
-    end
-  end
-
+  include_examples 'DELETE #destroy', CollectionObject
 end

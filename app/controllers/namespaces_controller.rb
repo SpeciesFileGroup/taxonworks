@@ -3,6 +3,8 @@ class NamespacesController < ApplicationController
   include DataControllerConfiguration::SharedDataControllerConfiguration
   before_action :set_namespace, only: [:show, :edit, :update, :destroy]
 
+  after_action -> { set_pagination_headers(:namespaces) }, only: [:index], if: :json_request?
+
   # GET /namespaces
   # GET /namespaces.json
   def index
@@ -12,7 +14,9 @@ class NamespacesController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @namespaces = Queries::Namespace::Filter.new(filter_params).all.page(params[:page]).per(params[:per] || 500)
+        @namespaces = Queries::Namespace::Filter.new(params).all
+          .page(params[:page])
+          .per(params[:per])
       }
     end
   end
@@ -44,7 +48,7 @@ class NamespacesController < ApplicationController
         format.json { render action: 'show', status: :created, location: @namespace }
       else
         format.html { render action: 'new' }
-        format.json { render json: @namespace.errors, status: :unprocessable_entity }
+        format.json { render json: @namespace.errors, status: :unprocessable_content }
       end
     end
   end
@@ -58,7 +62,7 @@ class NamespacesController < ApplicationController
         format.json { render action: 'show', status: :ok, location: @namespace }
       else
         format.html { render action: 'edit' }
-        format.json { render json: @namespace.errors, status: :unprocessable_entity }
+        format.json { render json: @namespace.errors, status: :unprocessable_content }
       end
     end
   end
@@ -77,6 +81,13 @@ class NamespacesController < ApplicationController
     @namespaces = Namespace.order(:id).page(params[:page]) #.per(10) #.per(3)
   end
 
+  def attributes
+    render json: ::Namespace.columns.select{
+      |a| (Queries::Namespace::Filter::ATTRIBUTES).include?(
+        a.name.to_sym)
+    }.collect{|b| {'name' => b.name, 'type' => b.type } }
+  end
+
   def search
     if params[:id].blank?
       redirect_to namespace_path, alert: 'You must select an item from the list with a click or tab press before clicking show.'
@@ -91,7 +102,7 @@ class NamespacesController < ApplicationController
 
   # GET /namespaces/download
   def download
-    send_data Export::Download.generate_csv(Namespace.all), type: 'text', filename: "namespaces_#{DateTime.now}.csv"
+    send_data Export::CSV.generate_csv(Namespace.all), type: 'text', filename: "namespaces_#{DateTime.now}.tsv"
   end
 
   # GET /namespaces/select_options?klass=CollectionObject
@@ -102,14 +113,14 @@ class NamespacesController < ApplicationController
   def batch_load
   end
 
-  def preview_simple_batch_load 
-    if params[:file] 
+  def preview_simple_batch_load
+    if params[:file]
       @result = BatchLoad::Import::Namespaces::SimpleInterpreter.new(**batch_params)
       digest_cookie(params[:file].tempfile, :Simple_namespaces_md5)
       render 'namespaces/batch_load/simple/preview'
     else
       flash[:notice] = 'No file provided!'
-      redirect_to action: :batch_load 
+      redirect_to action: :batch_load
     end
   end
 
@@ -130,17 +141,13 @@ class NamespacesController < ApplicationController
 
   private
 
-  def filter_params
-    params.permit(:name, :short_name, :verbatim_name, :institution)
-  end
-
   def set_namespace
     @namespace = Namespace.find(params[:id])
     @recent_object = @namespace
   end
 
   def namespace_params
-    params.require(:namespace).permit(:institution, :name, :short_name, :verbatim_short_name, :delimiter)
+    params.require(:namespace).permit(:institution, :name, :short_name, :verbatim_short_name, :delimiter, :is_virtual)
   end
 
   def batch_params

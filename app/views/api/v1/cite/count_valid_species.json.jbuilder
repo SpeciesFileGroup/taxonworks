@@ -16,7 +16,7 @@ open_api_projects.each do |p|
           json.taxon_name_id n.id
           json.name n.name
           json.count c.count
-          json.cite_as "#{p.name} curators. #{Time.now.year}. Valid species for #{taxon_name_label(n)} in #{p.name}, a database in TaxonWorks. Accessed #{Time.now} by #{request.url}." 
+          json.cite_as "#{p.name} curators. #{Time.now.year}. Valid species for #{label_for_taxon_name(n)} in #{p.name}, a database in TaxonWorks. Accessed #{Time.now} by #{request.url}." 
         end
       end
     end

@@ -1,3 +1,6 @@
+import ActionNames from './actionNames'
+
+import addSubsequentNameForm from './addSubsequentNameForm'
 import setParentAndRanks from './setParentAndRanks'
 import addTaxonStatus from './addTaxonStatus'
 import addTaxonType from './addTaxonType'
@@ -28,39 +31,8 @@ import updateTaxonStatus from './updateTaxonStatus'
 import updateTaxonType from './updateTaxonType'
 import updateSource from './updateSource'
 
-const ActionNames = {
-  SetParentAndRanks: 'setParentAndRanks',
-  AddTaxonStatus: 'addTaxonStatus',
-  AddTaxonType: 'addTaxonType',
-  AddTaxonRelationship: 'addTaxonRelationship',
-  AddOriginalCombination: 'addOriginalCombination',
-  CloneTaxon: 'cloneTaxon',
-  CreateTaxonName: 'createTaxonName',
-  CreateCombination: 'createCombination',
-  UpdateTaxonName: 'updateTaxonName',
-  RemoveTaxonStatus: 'removeTaxonStatus',
-  RemoveTaxonRelationship: 'removeTaxonRelationship',
-  RemoveOriginalCombination: 'removeOriginalCombination',
-  LoadCombinations: 'loadCombinations',
-  LoadSoftValidation: 'loadSoftValidation',
-  LoadTaxonName: 'loadTaxonName',
-  LoadTaxonRelationships: 'loadTaxonRelationships',
-  LoadTaxonStatus: 'loadTaxonStatus',
-  LoadRanks: 'loadRanks',
-  LoadStatus: 'loadStatus',
-  LoadRelationships: 'loadRelationships',
-  LoadOriginalCombination: 'loadOriginalCombination',
-  ChangeTaxonSource: 'changeTaxonSource',
-  RemoveCombination: 'removeCombination',
-  RemoveSource: 'removeSource',
-  UpdateClassification: 'updateClassification',
-  UpdateTaxonRelationship: 'updateTaxonRelationship',
-  UpdateTaxonStatus: 'updateTaxonStatus',
-  UpdateTaxonType: 'updateTaxonType',
-  UpdateSource: 'updateSource'
-}
-
 const ActionFunctions = {
+  [ActionNames.AddSubsequentNameForm]: addSubsequentNameForm,
   [ActionNames.CreateCombination]: createCombination,
   [ActionNames.LoadCombinations]: loadCombinations,
   [ActionNames.LoadSoftValidation]: loadSoftValidation,
@@ -89,10 +61,7 @@ const ActionFunctions = {
   [ActionNames.UpdateTaxonRelationship]: updateTaxonRelationship,
   [ActionNames.UpdateTaxonStatus]: updateTaxonStatus,
   [ActionNames.UpdateTaxonType]: updateTaxonType,
-  [ActionNames.UpdateSource]: updateSource,
+  [ActionNames.UpdateSource]: updateSource
 }
 
-export {
-  ActionNames,
-  ActionFunctions
-}
+export { ActionNames, ActionFunctions }

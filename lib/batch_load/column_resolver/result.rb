@@ -1,5 +1,4 @@
-# Stores the attributes of a Column Resolver results
-#
+# Stores the attributes of a Column Resolver result
 module BatchLoad::ColumnResolver
 
   class Result

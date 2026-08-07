@@ -1,32 +1,45 @@
 module Queries
   module TaxonNameClassification
-    class Filter < Queries::Query
+    class Filter < Query::Filter
+
+      PARAMS = [
+        :taxon_name_id,
+        :taxon_name_classification_type,
+        :taxon_name_classification_set,
+        taxon_name_id: [],
+        taxon_name_classification_type: [],
+        taxon_name_classification_set: []
+      ]
+
+      # @return [Array]
+      attr_accessor :taxon_name_classification_id
 
       # @param taxon_name_id [String, Array, nil]
       #   Match all TaxonNameClassifications a taxon_name_id(s)
       attr_accessor :taxon_name_id
 
       # @param taxon_name_classification_type [String, Array, nil]
-      #   the full class name like 'TaxonNameClassification::..etc.', or an Array of them 
+      #   the full class name like 'TaxonNameClassification::..etc.', or an Array of them
       attr_accessor :taxon_name_classification_type
 
       # @param taxon_name_classification_set [Array, String, nil]
-      #   one or more of 
+      #   one or more of
       #     'validating',
       #     `invalidating`,
-      #     `exceptions` 
+      #     `exceptions`
       attr_accessor :taxon_name_classification_set
 
       # @param params [Params]
-      def initialize(params)
+      def initialize(query_params)
+        super
         @taxon_name_id = params[:taxon_name_id]
         @taxon_name_classification_type = params[:taxon_name_classification_type]
         @taxon_name_classification_set = params[:taxon_name_classification_set]
+        @taxon_name_classification_id = params[:taxon_name_classification_id]
       end
 
-      # @return [Arel::Table]
-      def table
-        ::TaxonNameClassification.arel_table
+      def taxon_name_classification_id
+        [@taxon_name_classification_id].flatten.compact
       end
 
       def taxon_name_id
@@ -56,52 +69,26 @@ module Queries
 
       def taxon_name_classification_set_facet
         return nil if taxon_name_classification_set.empty?
-        table[:type].eq_any(classification_types)
+        table[:type].in(classification_types)
       end
 
       def taxon_name_classification_type_facet
         return nil if taxon_name_classification_type.empty?
-        table[:type].eq_any(taxon_name_classification_type)
+        table[:type].in(taxon_name_classification_type)
       end
 
       def taxon_name_id_facet
         return nil if taxon_name_id.empty?
-        table[:taxon_name_id].eq_any(taxon_name_id)
+        table[:taxon_name_id].in(taxon_name_id)
       end
 
       def and_clauses
-        clauses = []
-
-        clauses += [
-          taxon_name_id_facet,
+        [ taxon_name_id_facet,
           taxon_name_classification_type_facet,
           taxon_name_classification_set_facet,
-        ].compact
-
-        return nil if clauses.empty?
-
-        a = clauses.shift
-        clauses.each do |b|
-          a = a.and(b)
-        end
-        a
-      end     
-
-      # @return [ActiveRecord::Relation]
-      def all
-        a = and_clauses
-        # b = merge_clauses
-
-        q = nil 
-        if a
-          q = ::TaxonNameClassification.where(a)
-        else
-          q = ::TaxonNameClassification.all
-        end
-
-        q = q.where(project_id: project_id) if project_id
-        q
+        ]
       end
+
     end
 
   end

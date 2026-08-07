@@ -1,13 +1,13 @@
 <template>
-  <div>
-    <label class="display-block">
+  <descriptor-container :descriptor="descriptor">
+    <template #title>
       {{ descriptor.name }} ({{ descriptor.min }}-{{ descriptor.max }} {{ descriptor.default_unit }})
-    </label>
+    </template>
     <input
       v-model="fieldValue"
       @blur="setValue"
       type="text">
-  </div>
+  </descriptor-container>
 </template>
 
 <script>

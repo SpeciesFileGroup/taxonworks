@@ -7,10 +7,12 @@ class Observation::Continuous < Observation
 
   validate :units_compatible
 
+  validates_uniqueness_of :continuous_value, scope: [:descriptor_id, :observation_object_id, :observation_object_type, :continuous_unit], message: 'the observation already exists'
+
   # @return [Unit]
   #  and instance of ruby-unit
   def unit
-    ::RubyUnits::Unit.new(continuous_value.to_s + ' ' + continuous_unit)
+    ::RubyUnits::Unit.new([continuous_value.to_s, continuous_unit].compact.join(' '))
   end
 
   # Use Ruby Units to add

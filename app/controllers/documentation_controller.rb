@@ -44,7 +44,7 @@ class DocumentationController < ApplicationController
         format.json { render action: 'show', status: :created, location: @documentation }
       else
         format.html { render action: 'new' }
-        format.json { render json: @documentation.errors, status: :unprocessable_entity }
+        format.json { render json: @documentation.errors, status: :unprocessable_content }
       end
     end
   end
@@ -59,7 +59,7 @@ class DocumentationController < ApplicationController
         format.json { render :show, status: :ok, location: @documentation }
       else
         format.html { render :edit }
-        format.json { render json: @documentation.errors, status: :unprocessable_entity }
+        format.json { render json: @documentation.errors, status: :unprocessable_content }
       end
     end
   end
@@ -86,12 +86,12 @@ class DocumentationController < ApplicationController
     end
   end
 
-  # inflection errors
   # GET /documentation/download
-  # def download
-  #   send_data Export::Download.generate_csv(
-  #     Documentation.where(project_id: sessions_current_project_id)), type: 'text', filename: "documentation_#{DateTime.now}.csv"
-  # end
+  #   documentation_download_index is the route name, for some inflection bug reason
+  def download
+    send_data Export::CSV.generate_csv(
+      Documentation.where(project_id: sessions_current_project_id)), type: 'text', filename: "documentation_#{DateTime.now}.tsv"
+  end
 
   private
 

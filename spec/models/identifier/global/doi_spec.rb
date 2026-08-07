@@ -3,7 +3,7 @@ require 'rails_helper'
 describe Identifier::Global::Doi, type: :model, group: :identifiers do
 
   context 'DOI.Org' do
-    let(:id) { FactoryBot.build(:identifier_global_doi) }
+    let(:id) { Identifier::Global::Doi.new(identifier_object: FactoryBot.create(:valid_otu)) }
 
     context '#identifier is validly formatted' do
       specify 'empty' do
@@ -36,26 +36,26 @@ describe Identifier::Global::Doi, type: :model, group: :identifiers do
     context 'prefixes' do
       specify 'with doi:' do
         id.identifier = 'doi:10.2105/AJPH.2009.160184'
-        expect(id.valid?).to be_truthy
+        id.valid? # trigger refactor
         expect(id.identifier).to eq('10.2105/AJPH.2009.160184')
       end
 
       specify 'with http:' do
         id.identifier = 'http://dx.doi.org/10.2105/AJPH.2009.160184'
-        expect(id.valid?).to be_truthy
+        id.valid? # trigger refactor
         expect(id.identifier).to eq('10.2105/AJPH.2009.160184')
       end
 
       specify 'with https:' do
         id.identifier = 'https://doi.org/10.2105/AJPH.2009.160184'
-        expect(id.valid?).to be_truthy
+        id.valid? # trigger refactor
         expect(id.identifier).to eq('10.2105/AJPH.2009.160184')
       end
     end
 
     specify 'restoring URL from identifier' do
       id.identifier = 'http://dx.doi.org/10.2105/AJPH.2009.160184'
-      expect(id.valid?).to be_truthy
+      id.valid? # trigger refactor
       expect(Identifier::Global::Doi.preface_doi(id.identifier)).to eq('https://doi.org/10.2105/AJPH.2009.160184')
     end
   end

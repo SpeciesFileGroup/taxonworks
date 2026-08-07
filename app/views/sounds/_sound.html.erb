@@ -1,0 +1,27 @@
+<div id="<%= dom_id sound %>">
+  <p>
+    <strong>Name:</strong>
+    <%= sound.name %>
+  </p>
+
+  <p>
+    <strong>Project:</strong>
+    <%= sound.project_id %>
+  </p>
+
+  <p>
+    <strong>Created by:</strong>
+    <%= sound.created_by_id %>
+  </p>
+
+  <p>
+    <strong>Updated by:</strong>
+    <%= sound.updated_by_id %>
+  </p>
+
+  <p>
+    <strong>Sound file:</strong>
+    <%= link_to sound.sound_file.filename, sound.sound_file if sound.sound_file.attached? %>
+  </p>
+
+</div>

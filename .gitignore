@@ -4,11 +4,16 @@
 # or operating system, you probably want to add a global ignore instead:
 #   git config --global core.excludesfile '~/.gitignore_global'
 
+.gitattributes
+
 *.dump
 
+.rdoc_options
 .ctags
 .idea/
 .vscode/
+.zed/
+
 *.tmp
 *~
 *.bak
@@ -16,6 +21,7 @@
 *.swo
 .DS_store
 .byebug_history
+
 .otto*
 *.orig
 
@@ -26,9 +32,10 @@ secrets.yml
 application_settings.yml
 config/initializers/vendor/better_errors.rb
 
-config/initializers/vendor/better_errors.rb
+.rdoc_options
 
 .yardoc/
+.zed/
 /doc
 /git_stats
 /log
@@ -36,6 +43,9 @@ config/initializers/vendor/better_errors.rb
 /tmp
 /coverage
 /.ruby-gemset
+/.ruby-lsp
+/volumes
+/storage
 
 /.bundle
 /bundle_bin
@@ -50,14 +60,25 @@ config/initializers/vendor/better_errors.rb
 /public/assets/
 /spec/fixtures/vcr_cassettes
 /spec/test_files/
+spec/tmp/
 
 REVISION
-yarn-debug.log*
-.yarn-integrity
 npm-debug.log
+/node_modules
 
-yarn.lock
 /public/packs
 /public/packs-test
-/node_modules
+
+yarn.lock
 /yarn-error.log
+yarn-debug.log*
+.yarn-integrity
+
+taxonworks.code-workspace
+
+development
+_development/
+
+.claude/
+claude/
+.codex

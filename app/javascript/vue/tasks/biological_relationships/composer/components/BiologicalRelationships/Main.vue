@@ -1,8 +1,8 @@
 <template>
   <div>
     <h2>Relationships</h2>
-    <new-relationship @create="addRelationship"/>
-    <table class="full_width">
+    <new-relationship @create="addRelationship" />
+    <table class="table-striped">
       <thead>
         <tr>
           <th>Name</th>
@@ -13,14 +13,17 @@
         <tr
           v-for="item in list"
           :key="item.id"
-          @click="$emit('selected', item)">
-          <td>
+          @click="$emit('selected', item)"
+        >
+          <td class="cursor-pointer">
             <span class="display-block">{{ item.name }}</span>
-            <span
+            <div
               v-if="item.definition"
-              class="margin-small-left subtle">
+              class="subtle ellipsis definition-size"
+              :title="item.definition"
+            >
               {{ item.definition }}
-            </span>
+            </div>
           </td>
           <td>{{ item.inverted_name }}</td>
         </tr>
@@ -30,8 +33,8 @@
 </template>
 
 <script>
-
-import { BiologicalRelationship } from 'routes/endpoints'
+import { BiologicalRelationship } from '@/routes/endpoints'
+import { extend } from '../constants/extend.js'
 import NewRelationship from './NewRelationship'
 
 export default {
@@ -41,21 +44,25 @@ export default {
 
   emits: ['selected'],
 
-  data () {
+  data() {
     return {
       list: []
     }
   },
 
-  created () {
-    BiologicalRelationship.all().then(response => {
+  created() {
+    BiologicalRelationship.where({ extend }).then((response) => {
       const urlParams = new URLSearchParams(window.location.search)
-      const relationshipIdParam = Number(urlParams.get('biological_relationship_id'))
+      const relationshipIdParam = Number(
+        urlParams.get('biological_relationship_id')
+      )
 
       this.list = response.body
 
       if (/^\d+$/.test(relationshipIdParam)) {
-        const relationship = this.list.find(item => item.id === relationshipIdParam)
+        const relationship = this.list.find(
+          (item) => item.id === relationshipIdParam
+        )
         if (relationship) {
           this.$emit('selected', relationship)
         }
@@ -64,8 +71,8 @@ export default {
   },
 
   methods: {
-    addRelationship (relationship) {
-      const index = this.list.findIndex(item => item.id === relationship.id)
+    addRelationship(relationship) {
+      const index = this.list.findIndex((item) => item.id === relationship.id)
 
       if (index > -1) {
         this.list[index] = relationship
@@ -77,3 +84,10 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.definition-size {
+  width: 300px;
+  max-width: 300px;
+}
+</style>

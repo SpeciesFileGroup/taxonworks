@@ -1,32 +1,52 @@
+#header-wrapper {
+  background-color: var(--bg-color);
+  z-index: 2202;
+}
+
+.fixed_header_bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  box-sizing: border-box;
+}
+
 #header_bar {
   margin: 0 auto;
+  display: grid;
   padding-left: $standard_padding;
   padding-right: $standard_padding;
-  align-items: center;
-  background-color: $color-header;
-  height: 60px;
+  grid-template-columns: 1fr 1fr 1fr;
 
-  #taxonworks {
-    .logo {
-      width: 160px;
-      height: 20px;
-      background-image: image-url('taxonworks-white.svg');
-      background-size: contain;
-      background-repeat: no-repeat;
-      background-position: left center;
-      padding: 0px;
-      text-decoration: none;
+  background-color: var(--header-bg-color);
+  height: 60px;
+  color: white;
+
+  #taxonworks_logo {
+    width: 46px;
+    height: 50px;
+    margin-right: 0.25rem;
+    background-image: image-url('taxonworks-white-circle.svg');
+    background-size: 40px;
+    background-position: center;
+    background-repeat: no-repeat;
+    padding: 0px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background-size: 46px;
     }
   }
 
   #taxonworks_left {
-    flex-grow: 1;
     line-height: $font_small;
+  }
 
-    a {
-      color: white;
-      text-decoration: none;
-    }
+  #taxonworks_left > a {
+    color: white;
+    text-decoration: none;
   }
 
   #taxonworks_version {
@@ -36,23 +56,107 @@
     padding: 0;
   }
 
-  #session_nav {
-    flex-grow: 0;
-  }
-
   .horizontal_navbar {
     a {
       padding: 0px;
-      color: #FFF;
+      color: #fff;
     }
+  }
+
+  .dropdown {
+    position: relative;
+    display: inline-block;
+    user-select: none;
+  }
+
+  .dropdown-button {
+    color: white;
+    border: none;
+    cursor: pointer;
+
+    svg {
+      width: 24px;
+      height: 24px;
+    }
+  }
+
+  .hub_project_name {
+    color: white;
+    font-size: $font_title;
+  }
+
+  .dropdown-content {
+    padding: 0.5rem;
+    display: none;
+    top: 38px;
+    position: absolute;
+    background: var(--bg-foreground);
+    right: 0;
+    min-width: 200px;
+    box-shadow: var(--panel-shadow);
+    border-radius: 4px;
+    margin-top: 5px;
+    z-index: 500;
+  }
+
+  .dropdown-content {
+    a,
+    .dropdown-content-item {
+      display: block;
+      color: var(--text-color);
+      padding: 0.5rem 1rem;
+      font-size: 0.875rem;
+      text-decoration: none;
+      box-sizing: border-box;
+      border-radius: var(--border-radius-medium);
+    }
+
+    a:hover,
+    .dropdown-content-item:hover {
+      background-color: var(--bg-hover);
+    }
+
     li {
-      padding-left: $standard_padding;
+      display: block;
+      color: var(--text-color);
+      text-decoration: none;
     }
+
+    .dropdown-content-divisor {
+      height: 1px;
+      margin: 0.25rem 0;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .dropdown-username-section {
+      color: var(--text-color);
+      padding: 0.5rem 1rem;
+      font-size: 0.875rem;
+    }
+
+    .dropdown-content-username {
+      font-weight: 600;
+      white-space: nowrap;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+  }
+
+  .show {
+    display: block;
   }
 }
 
+#header_bar.header_development {
+  background-color: black;
+  background-image:
+    linear-gradient(to right, #3a3a3a 1px, transparent 1px),
+    linear-gradient(to bottom, #3a3a3a 1px, transparent 1px);
+  background-size: 12px 12px;
+}
+
 #header_bar.sandbox {
-  background-color: #4a4564;
+  background-color: var(--header-sandbox-bg-color);
 
   #taxonworks a {
     color: $default_text;
@@ -61,7 +165,7 @@
 
 .current_hub_category a {
   border-bottom: 2px solid $color-secondary-2-4 !important;
-  color: $default_text !important;
+  color: var(--text-color) !important;
 }
 
 #main {
@@ -69,4 +173,3 @@
   padding-left: $standard_padding;
   padding-right: $standard_padding;
 }
-

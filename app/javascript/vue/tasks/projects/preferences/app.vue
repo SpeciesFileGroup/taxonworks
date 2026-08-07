@@ -1,69 +1,85 @@
 <template>
   <div>
+    <VSpinner v-if="isLoading" />
     <h1>Project - Customize attributes.</h1>
     <a
-      v-if="Object.keys(preferences)"
-      :href="`/projects/${preferences.id}`">Back</a>
+      class="cursor-pointer"
+      @click="goBack"
+    >
+      Back
+    </a>
     <div class="horizontal-left-content align-start">
-      <model-component
+      <VModel
         class="separate-right"
-        @onSelect="setModel"
+        v-model="model"
       />
-      <predicates-component
-        :model-list="modelList"
-        @onUpdate="updatePredicatePreferences"
-        class="separate-left"
-      />
+      <div class="flex-direction-column">
+        <VPredicates
+          class="margin-medium-left margin-medium-bottom"
+          :model-list="modelList"
+          :list="predicates"
+          :model="model"
+          @update="updatePredicatePreferences"
+        />
+        <predicate-form @create="addToArray(predicates, $event)" />
+      </div>
     </div>
   </div>
 </template>
 
-<script>
+<script setup>
+import PredicateForm from './components/newPredicate'
+import VModel from './components/model'
+import VPredicates from './components/predicates'
+import VSpinner from '@/components/ui/VSpinner.vue'
+import { ControlledVocabularyTerm, Project } from '@/routes/endpoints'
+import { addToArray } from '@/helpers/arrays'
+import { computed, ref } from 'vue'
 
-import ModelComponent from './components/model'
-import PredicatesComponent from './components/predicates'
-import { Project } from 'routes/endpoints'
+const modelList = computed(
+  () => preferences.value?.model_predicate_sets?.[model.value] || []
+)
+const model = ref(undefined)
+const preferences = ref({})
+const predicates = ref([])
+const isLoading = ref(true)
 
-export default {
-  components: {
-    ModelComponent,
-    PredicatesComponent
-  },
+const updatePredicatePreferences = (newPreferences) => {
+  if (!model.value) return
 
-  computed: {
-    modelList () {
-      return this.preferences?.model_predicate_sets?.[this.model] || []
-    }
-  },
-
-  data () {
-    return {
-      model: undefined,
-      preferences: {}
-    }
-  },
-
-  created () {
-    Project.preferences().then(response => {
-      this.preferences = response.body
-    })
-  },
-
-  methods: {
-    setModel (model) {
-      this.model = model.value
-    },
-
-    updatePredicatePreferences (newPreferences) {
-      if (!this.model) return
-      const data = this.preferences.model_predicate_sets
-
-      data[this.model] = newPreferences
-      Project.update(this.preferences.id, { project: { model_predicate_sets: data } }).then(({ body }) => {
-        this.preferences = body.preferences
-        this.preferences.id = body.id
-      })
+  const project = {
+    model_predicate_sets: {
+      ...preferences.value.model_predicate_sets,
+      ...newPreferences
     }
   }
+
+  Project.update(preferences.value.id, { project }).then(({ body }) => {
+    preferences.value = {
+      ...body.preferences,
+      id: body.id
+    }
+  })
 }
+
+function goBack() {
+  history.back()
+}
+
+Project.preferences().then(({ body }) => {
+  preferences.value = body
+
+  ControlledVocabularyTerm.where({ type: ['Predicate'] })
+    .then(({ body }) => {
+      const sortedIds =
+        preferences.value.model_predicate_sets.predicate_index || []
+
+      predicates.value = sortedIds
+        ? body.sort((a, b) => sortedIds.indexOf(a.id) - sortedIds.indexOf(b.id))
+        : body
+    })
+    .finally(() => {
+      isLoading.value = false
+    })
+})
 </script>

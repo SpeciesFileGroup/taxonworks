@@ -4,6 +4,7 @@ import getCollectionObject from './getCollectionObject'
 import getDataAttributes from './getDataAttributes'
 import getDepiction from './getDepiction'
 import getImagesCreated from './getImagesCreated'
+import getIsOriginal from './getIsOriginal'
 import getLicense from './getLicense'
 import getNewCOForSqed from './getNewCOForSqed'
 import getObjectsForDepictions from './getObjectsForDepictions'
@@ -17,14 +18,19 @@ import getTags from './getTags'
 import getTaxonDetermination from './getTaxonDetermination'
 import getTaxonDeterminations from './getTaxonDeterminations'
 import getYearCopyright from './getYearCopyright'
+import getTagsForImage from './getTagsForImage'
+import getApplied from './getApplied'
+import isAllApplied from './isAllApplied'
 
 const GetterNames = {
+  GetApplied: 'getApplied',
   GetAttributions: 'getAttributions',
   GetCitations: 'getCitations',
   GetCollectionObject: 'getCollectionObject',
   GetDataAttributes: 'getDataAttributes',
   GetDepiction: 'getDepiction',
   GetImagesCreated: 'getImagesCreated',
+  GetIsOriginal: 'getIsOriginal',
   GetLicense: 'getLicense',
   GetNewCOForSqed: 'getNewCOForSqed',
   GetObjectsForDepictions: 'getObjectsForDepictions',
@@ -37,15 +43,19 @@ const GetterNames = {
   GetTags: 'getTags',
   GetTaxonDetermination: 'getTaxonDetermination',
   GetTaxonDeterminations: 'getTaxonDeterminations',
-  GetYearCopyright: 'getYearCopyright'
+  GetYearCopyright: 'getYearCopyright',
+  GetTagsForImage: 'getTagsForImage',
+  IsAllApplied: 'isAllApplied'
 }
 
 const GetterFunctions = {
+  [GetterNames.GetApplied]: getApplied,
   [GetterNames.GetAttributions]: getAttributions,
   [GetterNames.GetCitations]: getCitations,
   [GetterNames.GetCollectionObject]: getCollectionObject,
   [GetterNames.GetDataAttributes]: getDataAttributes,
   [GetterNames.GetDepiction]: getDepiction,
+  [GetterNames.GetIsOriginal]: getIsOriginal,
   [GetterNames.GetImagesCreated]: getImagesCreated,
   [GetterNames.GetLicense]: getLicense,
   [GetterNames.GetNewCOForSqed]: getNewCOForSqed,
@@ -59,10 +69,9 @@ const GetterFunctions = {
   [GetterNames.GetTags]: getTags,
   [GetterNames.GetTaxonDetermination]: getTaxonDetermination,
   [GetterNames.GetTaxonDeterminations]: getTaxonDeterminations,
-  [GetterNames.GetYearCopyright]: getYearCopyright
+  [GetterNames.GetYearCopyright]: getYearCopyright,
+  [GetterNames.GetTagsForImage]: getTagsForImage,
+  [GetterNames.IsAllApplied]: isAllApplied
 }
 
-export {
-  GetterNames,
-  GetterFunctions
-}
+export { GetterNames, GetterFunctions }

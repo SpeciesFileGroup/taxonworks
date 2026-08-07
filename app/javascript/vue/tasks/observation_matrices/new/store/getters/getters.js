@@ -18,8 +18,8 @@ const GetterNames = {
   GetMatrixColumns: 'getMatrixColumns',
   GetMatrixColumnsDynamic: 'getMatrixColumnsDynamic',
   GetRowFixedPagination: 'getRowFixedPagination',
-  getColumnFixedPagination: 'getColumnFixedPagination',
-  getSettings: 'getSettings'
+  GetColumnFixedPagination: 'getColumnFixedPagination',
+  GetSettings: 'getSettings'
 }
 
 const GetterFunctions = {

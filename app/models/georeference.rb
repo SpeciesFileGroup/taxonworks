@@ -54,47 +54,60 @@
 #   @return [Integer]
 #   the project ID
 #
-# @!attribute is_undefined_z
-#   @return [Boolean]
-#   True if this georeference cannot be located vertically, otherwise false.
+# @!attribute year_georeferenced
+#   @return [Integer, nil]
+#     4 digit year the georeference was *first* created/captured
 #
-# @!attribute is_median_z
-#   @return [Boolean]
-#   True if this georeference represents an average vertical distance, otherwise false.
+# @!attribute month_georeferenced
+#   @return [Integer, nil]
+#
+# @!attribute day_georeferenced
+#   @return [Integer, nil]
 #
 class Georeference < ApplicationRecord
   include Housekeeping
   include SoftValidation
   include Shared::Notes
   include Shared::Tags
+  include Shared::ProtocolRelationships
   include Shared::Citations
-  include Shared::HasRoles
   include Shared::DataAttributes
   include Shared::Confidences # qualitative, not spatial
+  include Shared::Maps
+  include Shared::DwcOccurrenceHooks
   include Shared::IsData
 
-  attr_accessor :iframe_response # used to pass the geolocate from Tulane through
+  attr_accessor :iframe_response # used to handle the geolocate from Tulane response
+  attr_accessor :geographic_item_id_for_cleanup, :error_geographic_item_id_for_cleanup
 
-  acts_as_list scope: [:collecting_event_id, :project_id]
+  acts_as_list scope: [:collecting_event_id, :project_id], add_new_at: :top
 
   belongs_to :collecting_event, inverse_of: :georeferences
-  belongs_to :error_geographic_item, class_name: 'GeographicItem', foreign_key: :error_geographic_item_id, inverse_of: :georeferences_through_error_geographic_item
+  belongs_to :error_geographic_item, class_name: 'GeographicItem', inverse_of: :georeferences_through_error_geographic_item
   belongs_to :geographic_item, inverse_of: :georeferences
 
   has_many :collection_objects, through: :collecting_event, inverse_of: :georeferences
+  has_many :field_occurrences, through: :collecting_event, inverse_of: :georeferences
 
-  has_many :georeferencer_roles, -> { order('roles.position ASC') },
-    class_name: 'Georeferencer',
-    as: :role_object, validate: true
+  has_many :collection_object_otus, -> { unscope(:order) }, through: :collection_objects, source: 'otu'
+  has_many :field_occurrence_otus, -> { unscope(:order) }, through: :field_occurrences, source: 'otu'
 
-  has_many :georeferencers, -> { order('roles.position ASC') },
-    through: :georeferencer_roles,
-    source: :person, validate: true
+  # TODO: this needs to go away, it's misleading now with multiple
+  # throughs possible.
+  has_many :otus, through: :collection_objects, source: 'otus'
+
+  has_many :georeferencer_roles, class_name: 'Georeferencer', as: :role_object, dependent: :destroy, inverse_of: :role_object
+  has_many :georeference_authors, -> { order('roles.position ASC') }, through: :georeferencer_roles, source: :person # , inverse_of: :georeferences
+
+  validates :year_georeferenced, date_year: {min_year: 1000, max_year: Time.now.year }
+  validates :month_georeferenced, date_month: true
+  validates :day_georeferenced, date_day: {year_sym: :year_georeferenced, month_sym: :month_georeferenced},
+    unless: -> { year_georeferenced.nil? || month_georeferenced.nil? }
 
   validates :collecting_event, presence: true
-  validates :collecting_event_id, uniqueness: {scope: [:type, :geographic_item_id, :project_id]}
+  validates :collecting_event_id, uniqueness: { scope: [:type, :geographic_item_id, :project_id] }
   validates :geographic_item, presence: true
-  validates :type, presence: true
+  validates :type, presence: true # TODO: technically not needed
 
   validate :add_err_geo_item_inside_err_radius
   validate :add_error_depth
@@ -106,6 +119,50 @@ class Georeference < ApplicationRecord
   validate :add_obj_inside_err_radius
   validate :geographic_item_present_if_error_radius_provided
 
+  # Includes Georeferences whose CollectingEvent has at least one OTU through
+  # either CollectionObject or FieldOccurrence taxon determinations.
+  scope :having_otu, -> {
+    where(<<~SQL.squish)
+      EXISTS (
+        SELECT 1
+        FROM collection_objects co
+        JOIN taxon_determinations td
+          ON td.taxon_determination_object_type = 'CollectionObject'
+          AND td.taxon_determination_object_id = co.id
+        WHERE co.collecting_event_id = georeferences.collecting_event_id
+      )
+      OR EXISTS (
+        SELECT 1
+        FROM field_occurrences fo
+        JOIN taxon_determinations td
+          ON td.taxon_determination_object_type = 'FieldOccurrence'
+          AND td.taxon_determination_object_id = fo.id
+        WHERE fo.collecting_event_id = georeferences.collecting_event_id
+      )
+    SQL
+  }
+
+  scope :without_otu, -> {
+    where(<<~SQL.squish)
+      NOT EXISTS (
+        SELECT 1
+        FROM collection_objects co
+        JOIN taxon_determinations td
+          ON td.taxon_determination_object_type = 'CollectionObject'
+          AND td.taxon_determination_object_id = co.id
+        WHERE co.collecting_event_id = georeferences.collecting_event_id
+      )
+      AND NOT EXISTS (
+        SELECT 1
+        FROM field_occurrences fo
+        JOIN taxon_determinations td
+          ON td.taxon_determination_object_type = 'FieldOccurrence'
+          AND td.taxon_determination_object_id = fo.id
+        WHERE fo.collecting_event_id = georeferences.collecting_event_id
+      )
+    SQL
+  }
+
   # validate :add_error_geo_item_inside_area
 
   accepts_nested_attributes_for :geographic_item, :error_geographic_item
@@ -114,12 +171,25 @@ class Georeference < ApplicationRecord
   #  When true, cascading cached values (e.g. in CollectingEvent) are not built
   attr_accessor :no_cached
 
-  after_save :set_cached, unless: -> { self.no_cached }
+  before_validation :round_error_radius
+  before_validation :set_geographic_item, unless: -> { self.geographic_item_id.blank? }
+  before_destroy :capture_geographic_items_for_cleanup
+  after_save :set_cached, unless: -> { self.no_cached || (self.collecting_event && self.collecting_event.no_cached == true) }
+  # !! Run this first since it may destroy associated data; subsequent hooks
+  # then see the updated state.
+  after_destroy :destroy_geographic_items_if_orphaned
+  after_destroy :set_cached_collecting_event
 
-  def self.point_type
-    joins(:geographic_item).where(geographic_items: {type: 'GeographicItem::Point'})
+  def otus
+    ::Queries.union(Otu, [collection_object_otus, field_occurrence_otus])
   end
 
+  def self.point_type
+    joins(:geographic_item)
+      .where(geographic_items: {geo_object_type: :point})
+  end
+
+  # TODO: remove, used in match georeferences
   # @param [Array] of parameters in the style of 'params'
   # @return [Scope] of selected georeferences
   def self.filter_by(params)
@@ -134,16 +204,11 @@ class Georeference < ApplicationRecord
   # @return [Scope] georeferences
   #   all georeferences within some distance of a geographic_item, by id
   def self.within_radius_of_item(geographic_item_id, distance)
-    return where(id: -1) if geographic_item_id.nil? || distance.nil?
-    # sanitize_sql_array(["name=:name and group_id=:group_id", name: "foo'bar", group_id: 4])
-    # => "name='foo''bar' and group_id=4"
-    q1 = "ST_Distance(#{GeographicItem::GEOGRAPHY_SQL}, " \
-      "(#{GeographicItem.select_geography_sql(geographic_item_id)})) < #{distance}"
-    # q2 = ActiveRecord::Base.send(:sanitize_sql_array, ['ST_Distance(?, (?)) < ?',
-    #                                                    GeographicItem::GEOGRAPHY_SQL,
-    #                                                    GeographicItem.select_geography_sql(geographic_item_id),
-    #                                                    distance])
-    Georeference.joins(:geographic_item).where(q1)
+    return none if geographic_item_id.nil? || distance.nil?
+
+    Georeference.joins(:geographic_item).where(
+      GeographicItem.within_radius_of_item_sql(geographic_item_id, distance)
+    )
   end
 
   # @param [String] locality string
@@ -172,7 +237,7 @@ class Georeference < ApplicationRecord
   # geographic_areas as a GeographicArea
   # TODO: or, (in the future) a string matching a geographic_area.name
   def self.with_geographic_area(geographic_area)
-    partials = CollectingEvent.where(geographic_area: geographic_area)
+    partials = CollectingEvent.where(geographic_area:)
     partial_gr = Georeference.where('collecting_event_id in (?)', partials.pluck(:id))
     partial_gr
   end
@@ -197,9 +262,7 @@ class Georeference < ApplicationRecord
           error_geographic_item_id: gr.error_geographic_item_id,
           type: gr.type,
           is_public: gr.is_public,
-          api_request: gr.api_request,
-          is_undefined_z: gr.is_undefined_z,
-          is_median_z: gr.is_median_z)
+          api_request: gr.api_request)
         if new_gr.valid? # generally, this catches the case of multiple identical georeferences per collecting_event.
           new_gr.save!
           result.push new_gr
@@ -223,21 +286,40 @@ class Georeference < ApplicationRecord
     Georeference.where(collecting_event: CollectingEvent.where(query))
   end
 
+  def dwc_occurrences
+    co = DwcOccurrence
+      .joins("JOIN collection_objects co on dwc_occurrence_object_id = co.id AND dwc_occurrence_object_type = 'CollectionObject'")
+      .joins('JOIN georeferences g on co.collecting_event_id = g.collecting_event_id')
+      .where(g: {id:})
+
+    fo = DwcOccurrence
+      .joins("JOIN field_occurrences fo on dwc_occurrence_object_id = fo.id AND dwc_occurrence_object_type = 'FieldOccurrence'")
+      .joins('JOIN georeferences g on fo.collecting_event_id = g.collecting_event_id')
+      .where(g: {id:})
+
+    ::Queries.union(DwcOccurrence, [co, fo])
+  end
+
   # @return [Hash]
   #   The interface to DwcOccurrence writiing for Georeference based values.
   #   See subclasses for super extensions.
   def dwc_georeference_attributes(h = {})
+    georeferenced_by = if georeference_authors.any?
+                         georeference_authors.collect{|a| a.cached}.join('|')
+                       else
+                         creator.name
+                       end
     h.merge!(
       footprintWKT: geographic_item.to_wkt,
       georeferenceVerificationStatus: confidences&.collect{|c| c.name}.join('; ').presence,
-      georeferencedBy: creator.name,
-      georeferencedDate: created_at
+      georeferencedBy: georeferenced_by,
+      georeferencedDate: created_at,
+      georeferenceProtocol: protocols.collect{|p| p.name}.join('|')
     )
 
-    if geographic_item.type == 'GeographicItem::Point'
-      b = geographic_item.to_a
-      h[:decimalLatitude] = b.first
-      h[:decimalLongitude] = b.last
+    if geographic_item.geo_object_type == :point
+      h[:decimalLongitude] = geographic_item.geo_object.x
+      h[:decimalLatitude] = geographic_item.geo_object.y
       h[:coordinateUncertaintyInMeters] = error_radius
     end
 
@@ -276,15 +358,17 @@ class Georeference < ApplicationRecord
     retval
   end
 
+  # DEPRECATED
   # @return [Rgeo::polygon, nil]
   #   a polygon representing the buffer
   def error_radius_buffer_polygon
     return nil if error_radius.nil? || geographic_item.nil?
+
     sql_str = ActivRecord::Base.send(
       :sanitize_sql_array,
       ['SELECT ST_Buffer(?, ?)',
-                            geographic_item.geo_object.to_s,
-                            (error_radius / 111_319.444444444)])
+       geographic_item.geo_object.to_s,
+       (error_radius / Utilities::Geo::ONE_WEST_MEAN)])
     value = GeographicItem.connection.select_all(sql_str).first['st_buffer']
     Gis::FACTORY.parse_wkb(value)
   end
@@ -297,17 +381,18 @@ class Georeference < ApplicationRecord
         'georeference' => {
           'id' => id,
           'tag' => "Georeference ID = #{id}"
-        }
+        },
+        'radius' => error_radius
       }
     )
   end
 
-  # @return [Float]
+  # @return [String]
   def latitude
     geographic_item.center_coords[0]
   end
 
-  # @return [Float]
+  # @return [String]
   def longitude
     geographic_item.center_coords[1]
   end
@@ -324,11 +409,44 @@ class Georeference < ApplicationRecord
     }
   end
 
+  # Calculate the radius from error shapes
+  # !! Used to retroactively rebuild the radius from the polygon shape
+  def radius_from_error_shape
+    error_geographic_item&.radius
+  end
+
   protected
 
-  # @return [Hash] of names of geographic areas
+  def set_cached_collecting_event
+    collecting_event.send(:set_cached)
+  end
+
   def set_cached
-    collecting_event.send(:set_cached_geographic_names) # protected method
+    collecting_event.send(:set_cached_geographic_names)
+  end
+
+  def capture_geographic_items_for_cleanup
+    # Capture ids before destroy so cleanup does not depend on association state
+    # on the destroyed record.
+    self.geographic_item_id_for_cleanup = geographic_item_id
+    self.error_geographic_item_id_for_cleanup = error_geographic_item_id
+  end
+
+  def destroy_geographic_items_if_orphaned
+    cache_reset_needed = false
+    [geographic_item_id_for_cleanup, error_geographic_item_id_for_cleanup].compact.uniq.each do |id|
+      item = GeographicItem.find_by(id:)
+      if item&.unreferenced_for_cleanup?
+        item.destroy!
+        cache_reset_needed = true
+      end
+    end
+
+    if cache_reset_needed
+      # Reset the in-memory georeferences collection on the collecting_event so
+      # that subsequent handlers see updated state.
+      collecting_event.association(:georeferences).reset
+    end
   end
 
   # validation methods
@@ -365,11 +483,11 @@ class Georeference < ApplicationRecord
     # case 2
     retval = true
     # if !error_radius.blank? && geographic_item && geographic_item.geo_object
-    unless error_radius.blank?
-      unless geographic_item.blank?
-        unless geographic_item.geo_object.blank?
+    if error_radius.present?
+      if geographic_item.present?
+        if geographic_item.geo_object.present?
           val = error_box
-          unless val.blank?
+          if val.present?
             retval = val.contains?(geographic_item.geo_object)
           end
         end
@@ -400,7 +518,7 @@ class Georeference < ApplicationRecord
     if collecting_event
       ga_gi = collecting_event.geographic_area_default_geographic_item
       eb = error_box
-      unless error_radius.blank? # rubocop:disable Style/IfUnlessModifier
+      if error_radius.present? # rubocop:disable Style/IfUnlessModifier
         retval = ga_gi.contains?(eb) if ga_gi && eb
       end
     end
@@ -532,7 +650,7 @@ class Georeference < ApplicationRecord
   end
 
   def geographic_item_present_if_error_radius_provided
-    if !error_radius.blank? &&
+    if error_radius.present? &&
         geographic_item_id.blank? && # provide existing
         geographic_item.blank? # provide new
       errors.add(:error_radius, 'can only be provided when geographic item is provided')
@@ -554,7 +672,19 @@ class Georeference < ApplicationRecord
       ::Math.sin(from_lat_rad_) * ::Math.cos(to_lat_rad_) * ::Math.cos(delta_lon_rad_)
     DEGREES_PER_RADIAN * ::Math.atan2(y_, x_)
   end
+
+  private
+
+  def set_geographic_item
+    self.geographic_item = GeographicItem.find(geographic_item_id)
+  end
+
+  def round_error_radius
+    if error_radius.present?
+      self[:error_radius] = error_radius.round
+    end
+  end
+
 end
 
-Dir[Rails.root.to_s + '/app/models/georeference/**/*.rb'].each { |file| require_dependency file }
-
+#Dir[Rails.root.to_s + '/app/models/georeference/**/*.rb'].each { |file| require_dependency file }

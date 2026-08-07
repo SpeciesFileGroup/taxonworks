@@ -4,263 +4,341 @@
       <h1>New source</h1>
       <ul class="context-menu">
         <li>
-          <autocomplete
-            url="/sources/autocomplete"
-            param="term"
-            placeholder="Search a source..."
-            label="label_html"
-            clear-after
-            @getItem="loadSource($event.id)"/>
+          <label>
+            <input
+              type="checkbox"
+              v-model="autosave"
+            />
+            Autosave
+          </label>
         </li>
         <li>
           <label>
             <input
               type="checkbox"
-              v-model="settings.sortable">
+              v-model="settings.sortable"
+            />
             Reorder fields
           </label>
         </li>
         <li>
-          <a href="/tasks/sources/hub">Back to source hub</a>
+          <a :href="RouteNames.SourceHub">Back to source hub</a>
+        </li>
+        <li>
+          <PanelSearch ref="panelSearch" />
+        </li>
+        <li>
+          <VRecent />
         </li>
       </ul>
     </div>
-    <nav-bar class="source-navbar">
+    <NavBar class="relative">
       <div class="flex-separate full_width">
-        <div class="middle">
-          <span
-            class="word_break"
-            v-if="source.id"
-            v-html="source.cached"/>
-          <span v-else>New record</span>
-          <template v-if="source.id">
-            <pin-component
-              class="margin-medium-left"
-              :object-id="source.id"
-              type="Source"/>
-            <radial-annotator :global-id="source.global_id"/>
-            <radial-object :global-id="source.global_id"/>
-            <add-source
-              :project-source-id="source.project_source_id"
-              :id="source.id"/>
+        <div class="middle gap-small">
+          <template v-if="store.source.id">
+            <span
+              class="word_break"
+              v-html="store.source.cached"
+            />
+
+            <div
+              class="horizontal-right-content gap-small"
+              v-if="store.source.id"
+            >
+              <CitationTotal :source-id="store.source.id" />
+              <VPin
+                class="circle-button"
+                type="Source"
+                :object-id="store.source.id"
+              />
+              <AddSource
+                :project-source-id="store.source.project_source_id"
+                :id="store.source.id"
+              />
+              <RadialAnnotator :global-id="store.source.global_id" />
+              <RadialObject :global-id="store.source.global_id" />
+            </div>
           </template>
+          <span v-else>New record</span>
         </div>
-        <div
-          class="horizontal-right-content"
-          v-hotkey="shortcuts">
-          <span
-            v-if="unsave"
-            class="medium-icon margin-small-right"
+        <div class="nav__buttons gap-small">
+          <VIcon
+            v-if="isUnsaved"
+            name="attention"
+            color="attention"
             title="You have unsaved changes."
-            data-icon="warning"/>
+          />
           <button
+            class="button normal-input button-submit button-size"
+            type="button"
+            :disabled="!store.isSaveAvailable"
             @click="saveSource"
-            :disabled="source.type === 'Source::Bibtex' && !source.bibtex_type"
-            class="button normal-input button-submit button-size separate-right separate-left"
-            type="button">
+          >
             Save
           </button>
+          <CloneSource />
+          |
           <button
-            v-if="source.type === 'Source::Verbatim' && source.id"
+            v-if="store.source.type === SOURCE_VERBATIM && store.source.id"
+            class="button normal-input button-submit button-size"
             type="button"
-            @click="convert">
+            @click="convert"
+          >
             To BibTeX
           </button>
-          <clone-source/>
           <button
-            v-help.section.navBar.crossRef
-            class="button normal-input button-default button-size separate-left"
             type="button"
-            @click="showModal = true">
+            v-help.section.navBar.crossRef
+            class="button normal-input button-default button-size"
+            @click="showCrossRefForm"
+          >
             CrossRef
           </button>
           <button
-            class="button normal-input button-default button-size separate-left"
             type="button"
-            @click="showBibtex = true">
+            class="button normal-input button-default button-size"
+            @click="showBibTexForm"
+          >
             BibTeX
           </button>
+
           <button
-            @click="showRecent = true"
-            class="button normal-input button-default button-size separate-left"
-            type="button">
-            Recent
-          </button>
-          <button
+            class="button normal-input button-default button-size"
+            type="button"
             @click="reset"
-            class="button normal-input button-default button-size separate-left"
-            type="button">
+          >
             New
           </button>
         </div>
       </div>
-    </nav-bar>
-    <source-type class="margin-medium-bottom"/>
-    <recent-component
-      v-if="showRecent"
-      @close="showRecent = false"/>
+      <Autosave
+        :disabled="!settings.autosave"
+        style="bottom: 0px; left: 0px"
+        class="position-absolute full_width"
+      />
+    </NavBar>
     <div class="horizontal-left-content align-start">
-      <div class="full_width">
-        <component :is="section"/>
-      </div>
-      <right-section class="margin-medium-left"/>
+      <BlockLayout class="full_width">
+        <template #header>
+          <div class="flex-separate middle full_width">
+            <h3>Source</h3>
+          </div>
+        </template>
+        <template #body>
+          <div class="full_width">
+            <SourceType
+              v-if="store.source.type !== SOURCE_BIBTEX"
+              class="margin-medium-bottom"
+            />
+            <component :is="componentSection[store.source.type]" />
+          </div>
+        </template>
+      </BlockLayout>
+      <RightSection class="margin-medium-left" />
     </div>
-    <cross-ref
-      v-if="showModal"
-      @close="showModal = false"/>
-    <bibtex-button
-      v-if="showBibtex"
-      @close="showBibtex = false"/>
-    <spinner-component
+    <CrossRef
+      v-if="isCrossRefModalVisible"
+      @close="() => (isCrossRefModalVisible = false)"
+    />
+    <BibtexButton
+      v-if="isBibtexModalVisible"
+      @close="() => (isBibtexModalVisible = false)"
+    />
+    <VSpinner
       v-if="settings.isConverting"
-      :full-screen="true"
-      :logo-size="{ width: '100px', height: '100px'}"
-      legend="Converting verbatim to BiBTeX..."/>
+      full-screen
+      :logo-size="{ width: '100px', height: '100px' }"
+      legend="Converting verbatim to BiBTeX..."
+    />
+    <VSpinner
+      v-if="settings.loading"
+      full-screen
+      :logo-size="{ width: '100px', height: '100px' }"
+      legend="Loading source..."
+    />
   </div>
 </template>
 
-<script>
+<script setup>
+import { computed, ref, onMounted, watch } from 'vue'
+import { SOURCE_BIBTEX, SOURCE_HUMAN, SOURCE_VERBATIM } from '@/constants'
+import { useSettingStore, useSourceStore } from './store'
+import { useHotkey } from '@/composables'
+import { RouteNames } from '@/routes/routes'
 
+import Autosave from './components/Autosave.vue'
+
+import Verbatim from './components/verbatim/main'
+import Bibtex from './components/bibtex/main'
+import Human from './components/person/PersonHuman.vue'
 import SourceType from './components/sourceType'
-import RecentComponent from './components/recent'
-import SpinnerComponent from 'components/spinner'
 
 import CrossRef from './components/crossRef'
 import BibtexButton from './components/bibtex'
-import Verbatim from './components/verbatim/main'
-import Bibtex from './components/bibtex/main'
-import Human from './components/person/main'
-import RadialAnnotator from 'components/radials/annotator/annotator'
-import RadialObject from 'components/radials/navigation/radial'
-import AddSource from 'components/addToProjectSource'
-import Autocomplete from 'components/ui/Autocomplete'
+import VSpinner from '@/components/ui/VSpinner'
+import RadialAnnotator from '@/components/radials/annotator/annotator'
+import RadialObject from '@/components/radials/navigation/radial'
+import AddSource from '@/components/ui/Button/ButtonAddToProjectSource'
 import CloneSource from './components/cloneSource'
+import VIcon from '@/components/ui/VIcon/index.vue'
+import VPin from '@/components/ui/Button/ButtonPin.vue'
+import CitationTotal from './components/CitationTotal.vue'
 
-import PinComponent from 'components/ui/Pinboard/VPin.vue'
-
-import { User } from 'routes/endpoints'
-import { GetterNames } from './store/getters/getters'
-import { ActionNames } from './store/actions/actions'
-import { MutationNames } from './store/mutations/mutations'
-
+import VRecent from './components/recent.vue'
+import PanelSearch from './components/PanelSearch.vue'
 import RightSection from './components/rightSection'
-import NavBar from 'components/layout/NavBar'
-import platformKey from 'helpers/getPlatformKey'
+import NavBar from '@/components/layout/NavBar'
+import platformKey from '@/helpers/getPlatformKey'
+import BlockLayout from '@/components/layout/BlockLayout.vue'
+import { usePopstateListener, useUserPreference } from '@/composables'
 
-export default {
-  name: 'NewSource',
+const componentSection = {
+  [SOURCE_VERBATIM]: Verbatim,
+  [SOURCE_BIBTEX]: Bibtex,
+  [SOURCE_HUMAN]: Human
+}
 
-  components: {
-    Autocomplete,
-    CloneSource,
-    RadialAnnotator,
-    RadialObject,
-    PinComponent,
-    SourceType,
-    Verbatim,
-    Bibtex,
-    Human,
-    CrossRef,
-    RightSection,
-    BibtexButton,
-    AddSource,
-    NavBar,
-    RecentComponent,
-    SpinnerComponent
+defineOptions({
+  name: 'NewSource'
+})
+
+const store = useSourceStore()
+const settings = useSettingStore()
+const panelSearch = ref(null)
+
+const KEY_STORAGE_AUTOSAVE = 'task::NewSource::Autosave'
+
+const autosave = useUserPreference(KEY_STORAGE_AUTOSAVE, settings.autosave)
+
+watch(
+  autosave,
+  (value) => {
+    settings.autosave = value
   },
+  { immediate: true }
+)
 
-  computed: {
-    shortcuts () {
-      const keys = {}
-
-      keys[`${platformKey()}+s`] = this.saveSource
-      keys[`${platformKey()}+n`] = this.reset
-
-      return keys
-    },
-
-    section () {
-      const type = this.$store.getters[GetterNames.GetType]
-      return type ? type.split('::')[1] : undefined
-    },
-
-    source () {
-      return this.$store.getters[GetterNames.GetSource]
-    },
-
-    settings: {
-      get () {
-        return this.$store.getters[GetterNames.GetSettings]
-      },
-      set (value) {
-        this.$store.commit(MutationNames.SetSettings, value)
-      }
-    },
-
-    unsave() {
-      const settings = this.$store.getters[GetterNames.GetSettings]
-      return settings.lastSave < settings.lastEdit
+const shortcuts = ref([
+  {
+    keys: [platformKey(), 's'],
+    handler() {
+      saveSource()
     }
   },
-
-  data () {
-    return {
-      showModal: false,
-      showBibtex: false,
-      showRecent: false
+  {
+    keys: [platformKey(), 'n'],
+    handler() {
+      reset()
     }
   },
-
-  watch: {
-    source: {
-      handler (newVal, oldVal) {
-        if (newVal.id === oldVal.id) {
-          this.settings.lastEdit = Date.now()
-        }
-      },
-      deep: true
+  {
+    keys: [platformKey(), 'f'],
+    preventDefault: true,
+    handler() {
+      panelSearch.value?.focusSearch()
     }
-  },
+  }
+])
 
-  mounted () {
-    TW.workbench.keyboard.createLegend(`${platformKey()}+s`, 'Save', 'New source')
-    TW.workbench.keyboard.createLegend(`${platformKey()}+n`, 'New', 'New source')
-    TW.workbench.keyboard.createLegend(`${platformKey()}+c`, 'Clone source', 'New source')
+useHotkey(shortcuts.value)
 
-    const urlParams = new URLSearchParams(window.location.search)
-    const sourceId = urlParams.get('source_id')
+const isUnsaved = computed(() => store.source.isUnsaved)
 
-    if (/^\d+$/.test(sourceId)) {
-      this.$store.dispatch(ActionNames.LoadSource, sourceId)
-    }
+const isCrossRefModalVisible = ref(false)
+const isBibtexModalVisible = ref(false)
 
-    User.preferences().then(response => {
-      this.$store.commit(MutationNames.SetPreferences, response.body)
-    })
-  },
+function loadSourceFromParams() {
+  const urlParams = new URLSearchParams(window.location.search)
+  const sourceId = urlParams.get('source_id')
 
-  methods: {
-    reset () {
-      this.$store.dispatch(ActionNames.ResetSource)
-    },
-    saveSource () {
-      if (this.source.type === 'Source::Bibtex' && !this.source.bibtex_type) return
-      this.$store.dispatch(ActionNames.SaveSource)
-    },
-    cloneSource () {
-      this.$store.dispatch(ActionNames.CloneSource)
-    },
-    convert () {
-      this.$store.dispatch(ActionNames.ConvertToBibtex)
-    },
-    loadSource (sourceId) {
-      this.$store.dispatch(ActionNames.LoadSource, sourceId)
-    }
+  if (/^\d+$/.test(sourceId)) {
+    store.loadSource(sourceId)
+  } else {
+    store.reset()
   }
 }
-</script>
-<style scoped>
-  .button-size {
-    width: 100px;
+
+onMounted(() => {
+  TW.workbench.keyboard.createLegend(`${platformKey()}+s`, 'Save', 'New source')
+  TW.workbench.keyboard.createLegend(`${platformKey()}+n`, 'New', 'New source')
+  TW.workbench.keyboard.createLegend(
+    `${platformKey()}+c`,
+    'Clone source',
+    'New source'
+  )
+  TW.workbench.keyboard.createLegend('Alt+f', 'Search', 'New source')
+
+  loadSourceFromParams()
+})
+
+usePopstateListener(loadSourceFromParams)
+
+function isSafeToDiscardChanges() {
+  return (
+    !isUnsaved.value ||
+    (isUnsaved.value &&
+      window.confirm(
+        'You have unsaved changes. If you continue, your changes will be lost. Do you want to proceed?'
+      ))
+  )
+}
+
+function reset() {
+  if (isSafeToDiscardChanges()) {
+    store.reset()
   }
+}
+
+function saveSource() {
+  if (!store.isSaveAvailable) return
+  store.save()
+}
+
+function showBibTexForm() {
+  if (isSafeToDiscardChanges()) {
+    store.reset()
+    isBibtexModalVisible.value = true
+  }
+}
+
+function showCrossRefForm() {
+  if (isSafeToDiscardChanges()) {
+    store.reset()
+    isCrossRefModalVisible.value = true
+  }
+}
+
+async function convert() {
+  settings.isConverting = true
+  await store.convertToBibtex()
+  settings.isConverting = false
+}
+</script>
+
+<style scoped>
+.button-size {
+  width: 100px;
+}
+
+.nav__buttons {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+  justify-content: end;
+  align-items: center;
+}
+
+@media (min-width: 1520px) {
+  .nav__buttons {
+    min-width: 800px;
+  }
+
+  .nav__source-buttons {
+    min-width: 150px;
+  }
+}
+
+:deep(.vue-autocomplete-input) {
+  width: 500px;
+}
 </style>

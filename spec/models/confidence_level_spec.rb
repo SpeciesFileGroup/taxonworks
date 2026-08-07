@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe ConfidenceLevel, type: :model, group: :confidences do
 
-  let(:confidence_level) { ConfidenceLevel.new } 
+  let(:confidence_level) { ConfidenceLevel.new }
   let(:otu) { FactoryBot.create(:valid_otu) }
 
   let(:k1) { FactoryBot.create(:valid_confidence_level) }
@@ -24,9 +24,9 @@ describe ConfidenceLevel, type: :model, group: :confidences do
   end
 
   context 'scopes' do
-    let!(:confidence) { Confidence.create!(confidence_level: k1, confidence_object: otu) } 
-    let!(:old_confidence) { Confidence.create!(confidence_level: k2, confidence_object: otu, created_at: 4.years.ago) } 
-    let!(:new_confidence) { Confidence.create!(confidence_level: k1, confidence_object: FactoryBot.create(:valid_specimen)) } 
+    let!(:confidence) { Confidence.create!(confidence_level: k1, confidence_object: otu) }
+    let!(:old_confidence) { Confidence.create!(confidence_level: k2, confidence_object: otu, created_at: 4.years.ago, updated_at: 4.years.ago) }
+    let!(:new_confidence) { Confidence.create!(confidence_level: k1, confidence_object: FactoryBot.create(:valid_specimen)) }
 
     specify '#used_on_klass 1' do
       expect(ConfidenceLevel.used_on_klass('Otu')).to contain_exactly(k1, k2)
@@ -57,7 +57,7 @@ describe ConfidenceLevel, type: :model, group: :confidences do
       end
 
       specify '#confidences' do
-        expect(k1.confidences).to contain_exactly(t1, t2) 
+        expect(k1.confidences).to contain_exactly(t1, t2)
       end
 
       specify '#confidenced_objects' do
@@ -68,7 +68,7 @@ describe ConfidenceLevel, type: :model, group: :confidences do
         expect(k1.confidenced_object_class_names).to eq(%w{Otu CollectionObject})
       end
     end
-    
+
   end
 end
 

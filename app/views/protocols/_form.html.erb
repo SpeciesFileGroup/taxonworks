@@ -17,8 +17,14 @@
       <div class="field">
         <%= f.label :description %>
         <br>
-        <%= f.text_field :description %>
+        <%= f.text_area :description, rows: 5 %>
       </div>
+    </div>
+
+    <div class="field">
+      <%= f.label :is_machine_output %>
+      <br>
+      <%= f.check_box :is_machine_output %>
     </div>
 
     <div class="actions">

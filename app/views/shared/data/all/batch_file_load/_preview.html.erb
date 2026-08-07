@@ -32,7 +32,7 @@
           <tr>
             <td><%= object_count %>
             <td><%= object.class.name.demodulize %></td>
-            <td><%= begin; object.valid?; rescue ArgumentError; 'UTF-8 error?'; end %></td>
+            <td><%= begin; object.valid?; rescue ArgumentError; end; %></td>
             <td><%= object.errors.full_messages.join('; ') %></td>
           </tr>
         <% end %>

@@ -1,6 +1,7 @@
 <template>
   <div class="flex-separate">
     <role-picker
+      ref="rolePicker"
       v-model="roles"
       :role-type="ROLE_TAXON_NAME_AUTHOR"
     />
@@ -15,12 +16,14 @@
   </div>
 </template>
 <script setup>
-
 import { computed, ref } from 'vue'
-import { Source } from 'routes/endpoints'
-import { ROLE_TAXON_NAME_AUTHOR } from 'constants/index.js'
-import RolePicker from 'components/role_picker.vue'
-import VBtn from 'components/ui/VBtn/index.vue'
+import { Source } from '@/routes/endpoints'
+import { ROLE_TAXON_NAME_AUTHOR } from '@/constants/index.js'
+import RolePicker from '@/components/role_picker.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+
+const rolePicker = ref(null)
+const source = ref(null)
 
 const props = defineProps({
   modelValue: {
@@ -29,39 +32,40 @@ const props = defineProps({
   }
 })
 const emit = defineEmits(['update:modelValue'])
-const source = ref(null)
 
 const combination = computed({
   get: () => props.modelValue,
-  set: value => emit('update:modelValue', value)
+  set: (value) => emit('update:modelValue', value)
 })
 
 const roles = computed({
   get: () => {
     const roles = combination.value.roles_attributes
 
-    return roles
-      ? roles.sort((a, b) => a.position - b.position)
-      : []
+    return roles ? roles.sort((a, b) => a.position - b.position) : []
   },
-  set: value => { combination.value.roles_attributes = value }
+  set: (value) => {
+    combination.value.roles_attributes = value
+  }
 })
 
 const isAlreadyClone = computed(() => {
   if (source.value.author_roles.length === 0) return true
 
-  const authorsId = source.value.author_roles.map(author => Number(author.person.id))
-  const personsIds = roles.value.map(role => role.person_id || role.person.id)
+  const authorsId = source.value.author_roles.map((author) =>
+    Number(author.person.id)
+  )
+  const personsIds = roles.value.map((role) => role.person_id || role.person.id)
 
-  return authorsId.every(id => personsIds.includes(id))
+  return authorsId.every((id) => personsIds.includes(id))
 })
 
 const cloneFromSource = () => {
-  const personsIds = roles.value.map(role => role.person.id)
+  const personsIds = roles.value.map((role) => role.person.id)
 
   const authorsPerson = source.value.author_roles
-    .filter(author => !personsIds.includes(Number(author.person.id)))
-    .map(author => ({
+    .filter((author) => !personsIds.includes(Number(author.person.id)))
+    .map((author) => ({
       person_id: author.person.id,
       type: ROLE_TAXON_NAME_AUTHOR,
       first_name: author.person.first_name,
@@ -79,4 +83,7 @@ if (sourceId) {
   })
 }
 
+defineExpose({
+  focus() { rolePicker.value?.focus() }
+})
 </script>

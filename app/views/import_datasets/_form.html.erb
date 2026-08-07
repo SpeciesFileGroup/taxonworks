@@ -1,3 +1,5 @@
+<p class="feedback feedback-info"> A task is available, use <%= link_to('Darwin Core Archive (DwC-A) import', dwca_import_task_path) -%>.</p>
+
 <%= form_for(@import_dataset.becomes(ImportDataset), multipart: true) do |f| %>
     <%= render 'shared/errors', object: @import_dataset.becomes(ImportDataset) %>
 

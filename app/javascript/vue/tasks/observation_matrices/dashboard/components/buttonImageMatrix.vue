@@ -2,27 +2,36 @@
   <button
     class="button normal-input button-default"
     :disabled="!otuIds.length"
-    @click="openImageMatrix">
+    @click="openImageMatrix"
+  >
     View image matrix
   </button>
 </template>
 
-<script>
+<script setup>
+import { RouteNames } from '@/routes/routes'
+import { LinkerStorage } from '@/shared/Filter/utils'
 
-import { RouteNames } from 'routes/routes'
+const MAX_URL_LENGTH = 2000
 
-export default {
-  props: {
-    otuIds: {
-      type: Array,
-      default: () => []
-    }
-  },
+const props = defineProps({
+  otuIds: {
+    type: Array,
+    default: () => []
+  }
+})
 
-  methods: {
-    openImageMatrix () {
-      window.open(`${RouteNames.ImageMatrix}?otu_filter=${this.otuIds.join('|')}&view=true`, '_blank')
-    }
+function openImageMatrix() {
+  const ids = props.otuIds.join('|')
+  const url = `${RouteNames.ImageMatrix}?otu_filter=${ids}`
+
+  if (url.length > MAX_URL_LENGTH) {
+    LinkerStorage.saveParameters({
+      otu_filter: ids
+    })
+    window.open(RouteNames.ImageMatrix, '_blank')
+  } else {
+    window.open(url, '_blank')
   }
 }
 </script>

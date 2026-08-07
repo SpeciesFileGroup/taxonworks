@@ -1,5 +1,5 @@
-json.partial! '/sources/base_attributes', source: source
-json.partial! '/shared/data/all/metadata', object: source, klass: 'Source'
+json.partial! '/sources/api/v1/base_attributes', source: source
+json.partial! '/shared/data/all/metadata', object: source, extensions: false
 
 json.source_in_project source_in_project?(source)
 json.project_source_id project_source_for_source(source)&.id
@@ -9,21 +9,37 @@ if extend_response_with('roles')
     json.author_roles(source.author_roles) do |role|
       json.extract! role, :id, :position, :type
       json.person do
-        json.partial! '/people/api/v1/brief', person: role.person 
+        json.partial! '/people/api/v1/brief', person: role.person
       end
     end
 
     json.editor_roles(source.editor_roles) do |role|
       json.extract! role, :id, :position, :type
       json.person do
-        json.partial! '/people/api/v1/brief', person: role.person 
+        json.partial! '/people/api/v1/brief', person: role.person
       end
     end
   end
 end
 
-if extend_response_with('documents')
-  json.documents do |d|
-    d.array! source.documents, partial: '/documents/attributes', as: :document
+if extend_response_with('bibtex') && source.is_bibtex?
+  json.bibtex source.to_bibtex.to_s
+end
+
+if extend_response_with('identifiers')
+  json.identifiers do
+    json.merge! extend_identifiers(source)
+  end
+end
+
+if extend_response_with('serial') && source.serial
+  json.serial do
+    json.partial! '/serials/api/v1/attributes', serial: source.serial
+  end
+end
+
+if extend_response_with('notes')
+  json.notes source.notes.each do |n|
+    json.text n.text
   end
 end

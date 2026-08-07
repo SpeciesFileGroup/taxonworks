@@ -6,7 +6,7 @@ namespace :tw do
   
       print 'Loading languages...' 
       if Language.all.count > 0 
-        puts 'There are existing languages, doing nothing.'.red.on_white 
+        puts Rainbow('There are existing languages, doing nothing.').red.on_white 
         raise 
       end
 
@@ -29,7 +29,7 @@ namespace :tw do
       print "success\n"
         end
       rescue
-        puts 'Problem laoding languages'.red.on_white
+        puts Rainbow('Problem laoding languages').red.on_white
         raise
       end
 

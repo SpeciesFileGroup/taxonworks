@@ -1,5 +1,7 @@
 export default (state, id) => {
-  const index = state.materialTypes.findIndex((item) => item.id === id)
+  const index = state.typeSpecimens.findIndex(
+    (item) => item.id === id || item.uuid === id
+  )
 
-  state.materialTypes.splice(index, 1)
+  state.typeSpecimens.splice(index, 1)
 }

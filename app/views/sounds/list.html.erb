@@ -1,0 +1,21 @@
+<%= render("/shared/data/all/list/list_header", objects: @sounds) -%>
+
+<table class="tablesorter">
+  <thead>
+  <tr>
+    <%= fancy_th_tag(name: 'Name') -%>
+    <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
+    <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
+  </tr>
+  </thead>
+
+  <tbody>
+  <% @sounds.each do |sound| %>
+      <%= content_tag(:tr, class: :contextMenuCells) do -%>
+          <td><%= sound.name %></td>
+          <%= fancy_metadata_cells_tag(sound) -%>
+      <% end %>
+  <% end %>
+  </tbody>
+</table>
+

@@ -24,6 +24,11 @@
 </p>
 
 <p>
+  <strong>Electronic only:</strong>
+  <%= @serial.is_electronic_only -%>
+</p>
+
+<p>
   <strong>Primary language:</strong>
   <%= language_tag @serial.language %>
 </p>
@@ -32,3 +37,4 @@
   <strong>Translated from serial:</strong>
   <%= object_link(@serial.translated_from_serial) -%>
 </p>
+

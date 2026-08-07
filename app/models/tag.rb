@@ -46,7 +46,7 @@ class Tag < ApplicationRecord
   validate :keyword_is_allowed_on_object
   validate :object_can_be_tagged_with_keyword
 
-  validates_uniqueness_of :keyword_id, scope: [:tag_object_id, :tag_object_type]
+  validate :keyword_unique_on_object
 
   accepts_nested_attributes_for :keyword, reject_if: :reject_keyword # , allow_destroy: true
 
@@ -70,11 +70,16 @@ class Tag < ApplicationRecord
     :tag_object_attribute
   end
 
-  def self.batch_create(keyword_id: nil, object_type: nil, user_id: nil, project_id: nil, object_ids: [])
+  def self.batch_create(keyword_id:, object_type:, object_id: [], project_id:)
     begin
       Tag.transaction do 
-        object_ids.each do |id|
-          Tag.find_or_create_by(keyword_id: keyword_id, tag_object_type: object_type, tag_object_id: id)
+        object_id.each do |id|
+          Tag.find_or_create_by(
+            keyword_id: keyword_id,
+            tag_object_type: object_type,
+            tag_object_id: id,
+            project_id: project_id
+          )
         end
       end
     rescue ActiveRecord::RecordInvalid
@@ -83,6 +88,27 @@ class Tag < ApplicationRecord
   end
 
   protected
+
+  def keyword_unique_on_object
+    return unless tag_object.present?
+    return if persisted? && !keyword_id_changed? && !tag_object_id_changed? && !tag_object_type_changed?
+
+    check_id = keyword&.id || keyword_id
+
+    # Check in-memory siblings first — catches same-request duplicates from nested attributes
+    # even when the association has not been fully loaded from the database (loaded? = false).
+    if tag_object.tags.target.any? { |t| !t.equal?(self) && (t.keyword&.id || t.keyword_id) == check_id }
+      errors.add(:keyword_id, :taken)
+      return
+    end
+
+    # If the association is fully loaded, in-memory check was sufficient.
+    return if tag_object.tags.loaded?
+
+    scope = Tag.where(keyword_id: check_id, tag_object_id:, tag_object_type:)
+    scope = scope.where.not(id:) if persisted?
+    errors.add(:keyword_id, :taken) if scope.exists?
+  end
 
   def keyword_is_allowed_on_object
     return true if keyword.nil? || tag_object.nil? || !keyword.respond_to?(:can_tag)

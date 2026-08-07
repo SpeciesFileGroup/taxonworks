@@ -1,0 +1,60 @@
+<h3> Objects </h3>
+<table>
+  <tr><th></th><th>Count</th><th> % total </th> <th> Links </th> </tr>
+  <tr>
+    <td> Collection objects </td>
+    <td> <%= collection_object_count = @collection_objects.count -%> </td>
+    <td> 100 </td>
+  </tr>
+
+  <tr>
+    <td> Specimens (collection object with total = 1) </td>
+    <td> <%=  specimen_object_count = @collection_objects.where(type: 'Specimen').count -%> </td>
+    <td> <%= (100.0 * (specimen_object_count.to_f / collection_object_count.to_f)).round(2) -%> </td>
+    <td> <%= link_to('Filter', filter_collection_objects_task_url(@collection_objects_query.params.merge(collection_object_type: 'Specimen'))) -%> </td>
+  </tr>
+
+  <tr>
+    <td> Lots (collection object with total > 1) </td>
+    <td> <%= lot_object_count = @collection_objects.where(type: 'Lot').count -%> </td>
+    <td> <%= (100.0 * (lot_object_count.to_f / collection_object_count.to_f)).round(2) -%> </td>
+    <td> <%= link_to('Filter', filter_collection_objects_task_url(@collection_objects_query.params.merge(collection_object_type: 'Lot'))) -%> </td>
+  </tr>
+
+  <tr>
+    <td> Ranged lots (collections enumerated in some range) </td>
+    <td> <%= ranged_lot_object_count = @collection_objects.where(type: 'RangedLot').count -%> </td>
+    <td> <%= (100.0 * (ranged_lot_object_count.to_f / collection_object_count.to_f)).round(2) -%> </td>
+    <td> <%= link_to('Filter', filter_collection_objects_task_url(@collection_objects_query.params.merge(collection_object_type: 'RangedLot'))) -%> </td>
+  </tr>
+
+  <tr>
+    <td> Total enumerated items</td>
+    <td> <%= total_enumerated = @collection_objects.sum(:total) -%> </td>
+  </tr>
+
+  <tr>
+    <td> Total enumerated items from lots</td>
+    <td> <%= lot_enumerated = @collection_objects.where(type: 'Lot').sum(:total) -%> </td>
+    <td> <%= (100.0 * (lot_enumerated.to_f / total_enumerated.to_f)).round(2) -%> </td>
+  </tr>
+
+  <tr>
+    <td> Collection objects with catalog numbers</td>
+    <td> <%= collection_object_with_catalog_number =  @collection_objects.joins(:identifiers).where(identifiers: {type: 'Identifier::Local::CatalogNumber'}).count -%> </td>
+    <td> <%= (100.0 * (collection_object_with_catalog_number.to_f / collection_object_count.to_f)).round(2) -%> </td>
+  </tr>
+</table>
+
+<h3> Preparation </h3>
+<table>
+  <tr><th></th><th>Count</th><th> % total </th> </tr>
+  <% PreparationType.joins(:collection_objects).where(collection_objects: @collection_objects).order(:name).distinct.each do |t| -%>
+    <tr>
+      <td> <%= object_tag(t) -%> collection objects </td>
+      <td> <%= tot = @collection_objects.where(preparation_type: t).count -%> </td>
+      <td> <%= (100.0 * (tot.to_f / collection_object_count.to_f)).round(4) -%> </td>
+    </tr>
+  <% end %>
+</table>
+

@@ -1,167 +1,182 @@
 <template>
   <div class="data_attribute_annotator">
-    <div v-if="preferences">
-      <div class="switch-radio separate-bottom">
-        <template v-for="item, index in tabOptions">
-          <template v-if="item == 'new' || preferences[item].length && preferences[item].find(predicate => !predicateAlreadyCreated(predicate))">
-            <input
-              v-model="view"
-              :value="item"
-              :id="`switch-picker-${index}`"
-              name="switch-picker-options"
-              type="radio"
-              class="normal-input button-active"
-            >
-            <label
-              :for="`switch-picker-${index}`"
-              class="capitalize">{{ item }}</label>
-          </template>
-        </template>
-      </div>
-    </div>
+    <SmartSelector
+      autocomplete-url="/controlled_vocabulary_terms/autocomplete"
+      :autocomplete-params="{ 'type[]': 'Predicate' }"
+      get-url="/controlled_vocabulary_terms/"
+      model="predicates"
+      buttons
+      inline
+      :klass="objectType"
+      :custom-list="{ all }"
+      :lock-view="false"
+      @selected="
+        ($event) => {
+          predicate = $event
+        }
+      "
+      v-model="predicate"
+    />
+    <hr
+      v-if="predicate"
+      class="divisor"
+    />
+    <SmartSelectorItem
+      :item="predicate"
+      @unset="() => (predicate = undefined)"
+    />
 
-    <template v-if="preferences && view != 'new'">
-      <div class="field separate-bottom annotator-buttons-list">
-        <template
-          v-for="predicate in preferences[view]"
-          :key="predicate.id">
-          <button
-            v-if="!predicateAlreadyCreated(predicate)"
-            @click="data_attribute.controlled_vocabulary_term_id = predicate.id"
-            type="button"
-            class="button normal-input margin-small-left margin-small-bottom"
-            :class="{ 'button-default': (data_attribute.controlled_vocabulary_term_id != predicate.id)}">
-            {{ predicate.name }}
-          </button>
-        </template>
-      </div>
-    </template>
-
-    <autocomplete
-      v-if="!data_attribute.hasOwnProperty('id') && view && view == 'new'"
-      url="/predicates/autocomplete"
-      label="label"
-      min="2"
-      placeholder="Select a predicate"
-      @getItem="data_attribute.controlled_vocabulary_term_id = $event.id"
-      class="separate-bottom"
-      param="term"/>
     <textarea
-      v-model="data_attribute.value"
+      v-model="text"
       class="separate-bottom"
       placeholder="Value"
     />
-    <div v-if="!data_attribute.hasOwnProperty('id')">
-      <button 
-        @click="createNew()"
+
+    <div class="horizontal-left-content gap-small margin-small-bottom">
+      <VBtn
+        medium
+        color="create"
         :disabled="!validateFields"
-        class="button button-submit normal-input separate-bottom"
-        type="button">Create</button>
+        @click="saveDataAttribute()"
+      >
+        {{ selectedDataAttribute.id ? 'Update' : 'Create' }}
+      </VBtn>
+      <VBtn
+        medium
+        color="primary"
+        @click="resetForm"
+      >
+        New
+      </VBtn>
     </div>
-    <div v-else>
-      <button
-        @click="updateData()"
-        :disabled="!validateFields"
-        class="button button-submit normal-input separate-bottom"
-        type="button">Update</button>
-      <button
-        @click="data_attribute = newData()"
-        :disabled="!validateFields"
-        class="button button-default normal-input separate-bottom"
-        type="button">New</button>
-    </div>
-    <table-list
-      :list="list"
+    <TableList
+      :list="internalAttributes"
       :header="['Name', 'Value', '']"
       :attributes="['predicate_name', 'value']"
-      :edit="true"
+      edit
       target-citations="data_attributes"
-      @edit="data_attribute = $event"
-      @delete="removeItem"/>
+      @edit="setDataAttribute"
+      @delete="removeItem"
+    />
+
+    <div
+      v-if="importList.length"
+      class="margin-medium-top"
+    >
+      <h3>Import attributes</h3>
+      <TableList
+        :list="importList"
+        :header="['Name', 'Value', '']"
+        :attributes="['import_predicate', 'value']"
+        :destroy="false"
+      />
+    </div>
   </div>
 </template>
-<script>
 
-import CRUD from '../request/crud.js'
-import AnnotatorExtend from '../components/annotatorExtend.js'
-import Autocomplete from 'components/ui/Autocomplete.vue'
+<script setup>
+import { computed, ref } from 'vue'
+import { ControlledVocabularyTerm, DataAttribute } from '@/routes/endpoints'
+import {
+  DATA_ATTRIBUTE_INTERNAL_ATTRIBUTE,
+  IMPORT_ATTRIBUTE,
+  PREDICATE
+} from '@/constants'
+import { useSlice } from '@/components/radials/composables'
+import VBtn from '@/components/ui/VBtn/index.vue'
 import TableList from './shared/tableList'
+import SmartSelector from '@/components/ui/SmartSelector.vue'
+import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 
-export default {
-  mixins: [CRUD, AnnotatorExtend],
-  components: {
-    Autocomplete,
-    TableList
-  },
-  computed: {
-    validateFields () {
-      return (this.data_attribute.controlled_vocabulary_term_id &&
-              this.data_attribute.value.length)
-    }
+const props = defineProps({
+  globalId: {
+    type: String,
+    required: true
   },
 
-  data () {
-    return {
-      view: 'new',
-      tabOptions: ['quick', 'recent', 'pinboard', 'all', 'new'],
-      preferences: undefined,
-      data_attribute: this.newData()
-    }
+  objectId: {
+    type: Number,
+    required: true
   },
 
-  mounted () {
-    this.loadTabList('Predicate')
+  objectType: {
+    type: String,
+    required: true
   },
 
-  methods: {
-    newData () {
-      return {
-        type: 'InternalAttribute',
-        controlled_vocabulary_term_id: undefined,
-        value: '',
-        annotated_global_entity: decodeURIComponent(this.globalId)
-      }
-    },
+  radialEmit: {
+    type: Object,
+    required: true
+  }
+})
 
-    createNew () {
-      this.create('/data_attributes', { data_attribute: this.data_attribute }).then(response => {
-        this.list.push(response.body)
-        this.data_attribute = this.newData()
-      })
-    },
+const { list, addToList, removeFromList } = useSlice({
+  radialEmit: props.radialEmit
+})
 
-    updateData () {
-      this.update(`/data_attributes/${this.data_attribute.id}`, { data_attribute: this.data_attribute }).then(response => {
-        const index = this.list.findIndex(element => element.id === this.data_attribute.id)
+const all = ref([])
+const predicate = ref()
+const selectedDataAttribute = ref({})
+const text = ref('')
 
-        this.list[index] = response.body
-        this.data_attribute = this.newData()
-      })
-    },
+const validateFields = computed(() => predicate.value && text.value.length)
+const importList = computed(() =>
+  list.value.filter((item) => item.base_class === IMPORT_ATTRIBUTE)
+)
+const internalAttributes = computed(() =>
+  list.value.filter((item) => item.base_class !== IMPORT_ATTRIBUTE)
+)
 
-    predicateAlreadyCreated (predicate) {
-      return this.list.find(item => predicate.id === item.controlled_vocabulary_term_id)
-    },
+function resetForm() {
+  predicate.value = undefined
+  text.value = ''
+  selectedDataAttribute.value = {}
+}
 
-    loadTabList (type) {
-      const promises = []
-      let tabList
-      let allList
-
-      promises.push(this.getList(`/predicates/select_options?klass=${this.objectType}`).then(response => {
-        tabList = response.body
-      }))
-      promises.push(this.getList(`/controlled_vocabulary_terms.json?type[]=${type}`).then(response => {
-        allList = response.body
-      }))
-
-      Promise.all(promises).then(() => {
-        tabList['all'] = allList
-        this.preferences = tabList
-      })
+function saveDataAttribute() {
+  const currentId = selectedDataAttribute.value.id
+  const payload = {
+    data_attribute: {
+      id: currentId,
+      type: DATA_ATTRIBUTE_INTERNAL_ATTRIBUTE,
+      value: text.value,
+      controlled_vocabulary_term_id: predicate.value.id,
+      annotated_global_entity: decodeURIComponent(props.globalId)
     }
   }
+
+  const request = currentId
+    ? DataAttribute.update(currentId, payload)
+    : DataAttribute.create(payload)
+
+  request.then(({ body }) => {
+    addToList(body)
+    resetForm()
+  })
 }
+
+function removeItem(item) {
+  DataAttribute.destroy(item.id).then((_) => {
+    removeFromList(item)
+  })
+}
+
+function setDataAttribute(dataAttribute) {
+  selectedDataAttribute.value = dataAttribute
+  predicate.value = dataAttribute.controlled_vocabulary_term
+  text.value = dataAttribute.value
+}
+
+ControlledVocabularyTerm.where({ type: [PREDICATE] }).then((response) => {
+  all.value = response.body
+})
+
+DataAttribute.where({
+  attribute_subject_id: props.objectId,
+  attribute_subject_type: props.objectType
+}).then(({ body }) => {
+  list.value = body
+})
 </script>
 <style lang="scss">
 .radial-annotator {
@@ -170,7 +185,7 @@ export default {
       padding-top: 14px;
       padding-bottom: 14px;
       width: 100%;
-      height: 100px;
+      min-height: 100px;
     }
 
     .vue-autocomplete-input {

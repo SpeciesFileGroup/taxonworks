@@ -4,6 +4,7 @@
     <select v-model="filters.sorting">
       <option
         v-for="(rank, index) in ranks"
+        :value="rank"
         :key="index">
         {{ rank }}
       </option>

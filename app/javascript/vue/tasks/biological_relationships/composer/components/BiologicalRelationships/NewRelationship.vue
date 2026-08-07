@@ -1,39 +1,44 @@
 <template>
   <div>
-    <button
-      class="button normal-input button-submit"
-      type="button"
-      @click="openModal">
+    <VBtn
+      color="primary"
+      medium
+      @click="openModal"
+    >
       New
-    </button>
-    <modal-component
-      v-if="showModal"
-      @close="showModal = false">
+    </VBtn>
+    <VModal
+      v-if="isModalVisible"
+      @close="isModalVisible = false"
+    >
       <template #header>
         <h3>Create biological relationship</h3>
       </template>
       <template #body>
         <div class="field">
           <label>Name</label>
-          <br>
+          <br />
           <input
             v-model="biologicalRelationship.name"
             class="full_width"
-            type="text">
+            type="text"
+          />
         </div>
         <div class="field label-above">
           <label>Inverted name</label>
           <input
             v-model="biologicalRelationship.inverted_name"
             class="full_width"
-            type="text">
+            type="text"
+          />
         </div>
         <ul class="no_bullets">
           <li>
             <label>
               <input
                 v-model="biologicalRelationship.is_transitive"
-                type="checkbox">
+                type="checkbox"
+              />
               Is transitive
             </label>
           </li>
@@ -41,59 +46,69 @@
             <label>
               <input
                 v-model="biologicalRelationship.is_reflexive"
-                type="checkbox">
+                type="checkbox"
+              />
               Is reflexive
             </label>
           </li>
         </ul>
-        <button
-          class="button normal-input button-submit margin-medium-top"
-          @click="create">
+        <VBtn
+          medium
+          color="create"
+          @click="create"
+        >
           Create
-        </button>
+        </VBtn>
       </template>
-    </modal-component>
+    </VModal>
+    <VSpinner
+      v-if="isSaving"
+      legend="Saving biological relationship..."
+    />
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref } from 'vue'
+import { BiologicalRelationship } from '@/routes/endpoints'
+import { extend } from '../constants/extend.js'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VModal from '@/components/ui/Modal'
+import VSpinner from '@/components/ui/VSpinner.vue'
 
-import ModalComponent from 'components/ui/Modal'
-import { BiologicalRelationship } from 'routes/endpoints'
+const emit = defineEmits(['create'])
 
-export default {
-  components: { ModalComponent },
+const biologicalRelationship = ref(newBiologicalRelationship())
+const isModalVisible = ref(false)
+const isSaving = ref(false)
 
-  emits: ['create'],
+function create() {
+  isSaving.value = true
 
-  data () {
-    return {
-      biologicalRelationship: this.newBiologicalRelationship(),
-      showModal: false
-    }
-  },
+  BiologicalRelationship.create({
+    biological_relationship: biologicalRelationship.value,
+    extend
+  })
+    .then(({ body }) => {
+      emit('create', body)
+      isModalVisible.value = false
+    })
+    .finally(() => {
+      isSaving.value = false
+    })
+}
 
-  methods: {
-    create () {
-      BiologicalRelationship.create({ biological_relationship: this.biologicalRelationship }).then(response => {
-        this.$emit('create', response.body)
-        this.showModal = false
-      })
-    },
-
-    newBiologicalRelationship () {
-      return {
-        name: undefined,
-        inverted_name: undefined,
-        is_transitive: undefined,
-        is_reflexive: undefined
-      }
-    },
-
-    openModal () {
-      this.biologicalRelationship = this.newBiologicalRelationship()
-      this.showModal = true
-    }
+function newBiologicalRelationship() {
+  return {
+    name: undefined,
+    inverted_name: undefined,
+    is_transitive: undefined,
+    is_reflexive: undefined
   }
+}
+
+function openModal() {
+  biologicalRelationship.value = newBiologicalRelationship()
+  isModalVisible.value = true
 }
 </script>

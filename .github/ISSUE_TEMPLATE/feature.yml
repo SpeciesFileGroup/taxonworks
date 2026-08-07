@@ -1,115 +1,36 @@
-name: Feature request
-description: Open a new issue to describe and request a new feature. 
-title: "[Feature]: "
+name: Feature request or enhancement
+description: Open a new issue to describe and request a new feature or enhancement. These will be auto-labeled with _enhancement_. Be sure to provide a title.
 labels: ["enhancement"]
-body:
-- type: markdown
+body: 
+- type: textarea 
+  id: summary
   attributes:
-    value: >
-      A feature could be a function or output or user interface capability for example. Please describe what you would like to see or be able to do. This issue outlines and proposes a new function, its role, target audience, scope, and brief design [TODO: link to example]. As a way to provide transparency for what is being shown, a new function description should address the statement "*As an X I need Y to answer question Q for audience A*". _Need help filling this out? Once you have your feature details in hand, contact us and we'll help step you through filling out this issue._
-- type: markdown
+    label: Feature or enhancement
+    description: Please describe what you would like to be able to do or see. Consider telling a story, e.g. first I do x, then y, then I see z.
+    placeholder: E.g. When I am at X, then I need Y, and when I click, then I will see Z.
+  validations:
+    required: true 
+- type: input 
+  id: summary_target
   attributes:
-    value: |
-      # Summary
-      _To understand what you want, as a way to organize and prioritize what we build, please provide a summary in the following form._
+    label: Location
+    description: Stepping back, where should this feature be found? Providing a URL path can help (e.g. /taxon_names/123).
+    placeholder: Task - New taxon name.
+  validations:
+    required: true 
+- type: textarea 
+  id: figures
+  attributes:
+    label: Screenshot, napkin sketch of interface, or conceptual description
+    description: Provide drawings or screenshots mocking-up (illustrating) your feature, or feature progression.  
+    placeholder: Drag/drop your image(s) here
+  validations:
+    required: false
 - type: input 
   id: summary_x
   attributes:
     label: Your role 
-    description: Who are you, i.e. in what role are you presenting this feature request? 
-    placeholder: Undergrad ecologist 
-  validations:
-    required: true 
-- type: input 
-  id: summary_y
-  attributes:
-    label: Your needs
-    description: What feature do you need to answer the questions that this feature addresses, a graph, table, map, text?
-    placeholder: A particular table of data and corresponding bar-graph
-  validations:
-    required: true 
-- type: input 
-  id: summary_q
-  attributes:
-    label: Audience question
-    description: What is the question your _audience_ has that you seek to answer using this feature?
-    placeholder:  What names were used for the species and its close relatives originally named Homo sapiens?
-  validations:
-    required: true 
-- type: input 
-  id: summary_a
-  attributes:
-    label: Audience
-    description: Who is your audience? Consider what expertise the person has prior to their engagement with this feature.  
-    placeholder: e.g. Undergraduate, kindergarden child, farmer, taxonomists, policy writer, journalist
-  validations:
-    required: true 
-- type: markdown
-  attributes:
-    value: |
-      # Details
-- type: markdown
-  attributes:
-    value: |
-      ## Interface
-- type: textarea 
-  id: interface_napkin_sketch
-  attributes:
-    label: Napkin sketch 
-    description: minimal visual description of feature, can add many iterations. 
-    placeholder: Drag/drop your image here
+    description: Who are you, i.e. in what role are you making this feature request? 
+    placeholder: Graduate biologist 
   validations:
     required: false 
-- type: textarea 
-  id: interface_wireframe
-  attributes:
-    label: Wireframe 
-    description: mocked digital description of the feature, can include screenshots
-    placeholder: Drag/drop your image here
-  validations:
-    required: false 
-- type: textarea 
-  id: interface_actions
-  attributes:
-    label: Actions 
-    description: What can the user do with this feature that is "unique" to this part of the TaxonWorks software?  mocked digital description of the feature, can include screenshots.
-    placeholder: Sort table by clicking column headers; filter to show records by year only. 
-  validations:
-    required: false 
-- type: textarea 
-  id: data 
-  attributes:
-    label: Data
-    description: Features might have a corresponding data-object that is accessible to the end user (e.g. by download of CSV, via JSON, GeoJSO, DwC Archive, etc.). What does this look like?
-    placeholder: A CSV file with the DwC headers specificEpithet, family, and year
-  validations:
-    required: true
-- type: textarea 
-  id: citation 
-  attributes:
-    label: Citation 
-    description: What does any citation for the data look like for this section feature? 
-    placeholder: Recommended.  TODO, provide example styles.
-  validations:
-    required: false 
-- type: markdown
-  attributes:
-    value: | 
-      ## Technical details
-      _Largely completed by developers._
-- type: textarea 
-  id: technical_metadata 
-  attributes:
-    label: Metadata 
-    description: What does a citation to the data look like for this section related to this feature? 
-    placeholder: |
-      * General data source (e.g. TaxonWorks, ALA, GBIF, CoL, Globi)
-      * API entry point or offline data-source?
-      * Suitable for offline?
-      * Suitable for print?
-      * GH pages deployable?
-      * Proximity map (What should be rendered close to this panel)
-      * Dependent panels (minimize/eliminate these if possible)? (Reference by issue.)
-      * Panel source code repository
-  validations:
-    required: false

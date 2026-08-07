@@ -1,12 +1,42 @@
 require 'rails_helper'
 
-describe Source, type: :model, group: :source do
-
+describe Source, type: :model, group: :sources do
   let(:source) { Source.new }
+  after(:all) { Source.destroy_all }
 
-  after(:all) {
-    Source.destroy_all
-  }
+  context '#clone' do
+    let (:s) { Source::Bibtex.create!(bibtex_type: :article, title: 'This is verbatim') }
+
+    specify 'labeled' do
+      a = s.clone
+      expect(a.title).to eq("[CLONE of #{s.id}] " + s.title)
+    end
+
+    context '#roles' do
+      let(:p1) { FactoryBot.create(:valid_person) }
+      let(:p2) { FactoryBot.create(:valid_person) }
+      let(:p3) { FactoryBot.create(:valid_person) }
+
+      before do
+        s.roles << SourceAuthor.new(person: p1)
+        s.roles << SourceAuthor.new(person: p2)
+        s.roles << SourceEditor.new(person: p3)
+      end
+
+      specify 'are duplicated' do
+        expect(s.clone.roles.count).to eq(3)
+      end
+
+      specify '#persisted?' do
+        expect(s.clone.persisted?).to be_truthy
+      end
+
+      specify 'author_year' do
+        s.update!(year: '1920', year_suffix: 'a')
+        expect(s.clone.valid?).to be_truthy
+      end
+    end
+  end
 
   specify '#is_in_project? 1' do
     expect(source.is_in_project?(1)).to be_falsey
@@ -60,7 +90,7 @@ describe Source, type: :model, group: :source do
       context 'similar and identical' do
 
         # duplicate record
-        let!(:s1a) do 
+        let!(:s1a) do
           s = s1.dup
           s.save!
           s
@@ -102,18 +132,18 @@ describe Source, type: :model, group: :source do
 
   context 'validate' do
     let!(:person1) { Person.create!(last_name: 'Smith', first_name: 'Jones') }
-    let(:valid_attributes) { 
+    let(:valid_attributes) {
       {year: 1999,
        year_suffix: 'a',
        authors: [person1],
        bibtex_type: 'article'}
     }
 
-    let!(:source1) { Source::Bibtex.create!(valid_attributes) } 
-    let!(:source2) { Source::Bibtex.new( valid_attributes) } 
+    let!(:source1) { Source::Bibtex.create!(valid_attributes) }
+    let!(:source2) { Source::Bibtex.new( valid_attributes) }
 
     specify '#year_suffix different suffix 1' do
-      expect(source2.valid?).to be_falsey 
+      expect(source2.valid?).to be_falsey
     end
 
     specify '#year_suffix different suffix 2' do
@@ -133,7 +163,7 @@ describe Source, type: :model, group: :source do
     end
 
     specify '#year_suffix different years 1' do
-      source2.update(year: 2000) 
+      source2.update(year: 2000)
       expect(source2.valid?).to be_truthy
     end
 
@@ -144,11 +174,12 @@ describe Source, type: :model, group: :source do
   end
 
   specify '#verbatim_contents is not trimmed' do
-    s = " asdf sd  \n  asdfd \r\n" 
+    s = " asdf sd  \n  asdfd \r\n"
     source.verbatim_contents = s
     source.valid?
     expect(source.verbatim_contents).to eq(s)
   end
+
 
   context 'concerns' do
     it_behaves_like 'alternate_values'
@@ -161,4 +192,31 @@ describe Source, type: :model, group: :source do
     it_behaves_like 'documentation'
   end
 
+  context 'source recently sued' do
+    let!(:s1) { FactoryBot.create(:valid_source_bibtex) }
+    let!(:s2) { FactoryBot.create(:valid_source_bibtex) }
+    let!(:s3) { FactoryBot.create(:valid_source_bibtex) }
+    let!(:s4) { FactoryBot.create(:valid_source_bibtex) }
+    let!(:s5) { FactoryBot.create(:valid_source_bibtex) }
+    let!(:s6) { FactoryBot.create(:valid_source_bibtex) }
+    let!(:s7) { FactoryBot.create(:valid_source_bibtex) }
+    let!(:s8) { FactoryBot.create(:valid_source_bibtex) }
+    let!(:s9) { FactoryBot.create(:valid_source_bibtex) }
+    let!(:otu) { FactoryBot.create(:valid_otu) }
+    let!(:c1) { otu.citations.create!(source_id: s1.id)}
+    let!(:c2) { otu.citations.create!(source_id: s2.id)}
+    let!(:c3) { otu.citations.create!(source_id: s3.id)}
+    let!(:c4) { otu.citations.create!(source_id: s4.id)}
+    let!(:c5) { otu.citations.create!(source_id: s5.id)}
+    let!(:c6) { otu.citations.create!(source_id: s6.id)}
+    let!(:c7) { otu.citations.create!(source_id: s7.id)}
+    let!(:c8) { otu.citations.create!(source_id: s8.id)}
+    let!(:c9) { otu.citations.create!(source_id: s9.id)}
+
+    specify 'source recent' do
+      expect(Source.used_recently(otu.created_by_id, otu.project_id, 'Otu').first).to eq(s9.id)
+      expect(Source.used_recently(otu.created_by_id, otu.project_id, used_on = 'Otu').last).to eq(s1.id)
+    end
+
+  end
 end

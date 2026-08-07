@@ -1,30 +1,29 @@
 <template>
-  <div
-    class="observation-cell padding-small">
+  <div class="observation-cell padding-small">
     <div
       v-for="depiction in depictions"
-      :key="depiction.id">
-      <tippy
-        animation="scale"
-        placement="bottom"
-        size="small"
-        arrow-size="small"
-        inertia
-        arrow
-        :trigger="!!depiction.source_cached
-          ? 'mouseenter focus'
-          : 'manual'"
-        :content="depiction.source_cached">
-        <image-viewer
-          :depiction="depiction"
-        >
-          <img :src="depiction.image.alternatives.medium.image_file_url">
+      :key="depiction.id"
+    >
+      <VTooltip
+        :disabled="!depiction.source_cached"
+        :content="depiction.source_cached"
+      >
+        <ImageViewer :depiction="depiction">
+          <div class="matrix-thumb-image">
+            <img
+              class="img-thumb"
+              :src="depiction.image.alternatives.thumb.image_file_url"
+            />
+          </div>
           <template #infoColumn>
             <div class="panel content full_width margin-small-right">
               <h3>Image matrix</h3>
               <ul class="no_bullets">
-                <li>Column: <b>{{ descriptor }}</b></li>
-                <li>Row:
+                <li>
+                  Column: <b>{{ descriptor }}</b>
+                </li>
+                <li>
+                  Row:
                   <cell-link
                     :label="object.object_tag"
                     :row-object="object"
@@ -33,22 +32,21 @@
               </ul>
             </div>
           </template>
-        </image-viewer>
-      </tippy>
+        </ImageViewer>
+      </VTooltip>
     </div>
   </div>
 </template>
 
 <script>
-
-import { Tippy } from 'vue-tippy'
-import ImageViewer from 'components/ui/ImageViewer/ImageViewer.vue'
+import VTooltip from '@/components/ui/VTooltip/VTooltip.vue'
+import ImageViewer from '@/components/ui/ImageViewer/ImageViewer.vue'
 import CellLink from '../CellLink'
 
 export default {
   components: {
     ImageViewer,
-    Tippy,
+    VTooltip,
     CellLink
   },
 
@@ -70,3 +68,12 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.img-thumb {
+  object-fit: cover;
+  width: auto;
+  height: 100%;
+  background-color: white;
+}
+</style>

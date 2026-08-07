@@ -1,14 +1,19 @@
+
+<%= tag.div 'This only functions for CollectionObjects, it needs deprecation.', class: [:feedback, 'feedback-warning'] %>
+
 <%= form_for(@taxon_determination) do |f| %>
     <%= render 'shared/errors', object: @taxon_determination %>
 
     <div class="field" id="bio_object">
-      <%= f.label :biological_collection_object_id %><br>
+      <%= f.hidden_field :taxon_determination_object_type, value: 'CollectionObject' %>
+
+      <%= f.label :taxon_determination_object_id, 'CollectionObject' %><br>
       <%= render partial: 'workbench/elements/forms/ajax_select',
                  locals: {controller: '/collection_objects',
                           object:     'taxon_determination',
-                          method:     'biological_collection_object_id',
-                          tag_id:     'biological_collection_object_id_for_taxon_determination',
-                          display:    collection_object_tag(@taxon_determination.biological_collection_object)} %>
+                          method:     'taxon_determination_object_id',
+                          tag_id:     'taxon_determination_object_id_for_taxon_determination',
+                          display:    collection_object_tag(@taxon_determination.taxon_determination_object)} %>
     </div>
 
     <%= render partial: '/people/role_picker', locals: {role: Determiner.new(), object: @taxon_determination, f: f} %>

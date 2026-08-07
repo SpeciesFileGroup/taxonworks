@@ -20,8 +20,8 @@ class Catalog::CollectionObject::EntryItem
     raise TaxonWorks::Error, ':object is nil' if object.nil?
     raise TaxonWorks::Error, ':type is nil' if type.nil?
     raise TaxonWorks::Error, 'type is not in the list' if !Catalog::CollectionObject::EVENT_TYPES.include?(type)
-    raise TaxonWorks::Error, 'start_date is not a DateTime' if start_date && !start_date.kind_of?(Time)
-    raise TaxonWorks::Error, 'end_date is not a DateTime' if end_date && !end_date.kind_of?(Time)
+    raise TaxonWorks::Error, 'start_date is not a Time' if start_date && !start_date.kind_of?(Time)
+    raise TaxonWorks::Error, 'end_date is not a Time' if end_date && !end_date.kind_of?(Time)
 
     @object = object
     @start_date = start_date

@@ -7,7 +7,7 @@ class CollectionObjectObservationsController < ApplicationController
   # GET /collection_object_observations.json
   def index
     @recent_objects = CollectionObjectObservation.recent_from_project_id(sessions_current_project_id)
-                        .order(updated_at: :desc).limit(10)
+      .order(updated_at: :desc).limit(10)
     render '/shared/data/all/index'
   end
 
@@ -37,7 +37,7 @@ class CollectionObjectObservationsController < ApplicationController
         format.json { render :show, status: :created, location: @collection_object_observation }
       else
         format.html { render :new }
-        format.json { render json: @collection_object_observation.errors, status: :unprocessable_entity }
+        format.json { render json: @collection_object_observation.errors, status: :unprocessable_content }
       end
     end
   end
@@ -52,7 +52,7 @@ class CollectionObjectObservationsController < ApplicationController
         format.json { render :show, status: :ok, location: @collection_object_observation }
       else
         format.html { render :edit }
-        format.json { render json: @collection_object_observation.errors, status: :unprocessable_entity }
+        format.json { render json: @collection_object_observation.errors, status: :unprocessable_content }
       end
     end
   end
@@ -63,7 +63,7 @@ class CollectionObjectObservationsController < ApplicationController
     @collection_object_observation.destroy!
     respond_to do |format|
       format.html { redirect_to collection_object_observations_url,
-                                notice: 'Collection object observation was successfully destroyed.' }
+                    notice: 'Collection object observation was successfully destroyed.' }
       format.json { head :no_content }
     end
   end
@@ -99,19 +99,19 @@ class CollectionObjectObservationsController < ApplicationController
 
   # GET /collection_object_observations/download
   def download
-    send_data(Export::Download.generate_csv(CollectionObjectObservation.where(project_id: sessions_current_project_id)),
+    send_data(Export::CSV.generate_csv(CollectionObjectObservation.where(project_id: sessions_current_project_id)),
               type: 'text',
-              filename: "collection_object_observations_#{DateTime.now}.csv")
+              filename: "collection_object_observations_#{DateTime.now}.tsv")
   end
 
   private
     # Use callbacks to share common setup or constraints between actions.
-    def set_collection_object_observation
-      @collection_object_observation = CollectionObjectObservation.where(project_id: sessions_current_project_id).find(params[:id])
-    end
+  def set_collection_object_observation
+    @collection_object_observation = CollectionObjectObservation.where(project_id: sessions_current_project_id).find(params[:id])
+  end
 
     # Never trust parameters from the scary internet, only allow the white list through.
-    def collection_object_observation_params
-      params.require(:collection_object_observation).permit(:data)
-    end
+  def collection_object_observation_params
+    params.require(:collection_object_observation).permit(:data)
+  end
 end

@@ -6,6 +6,7 @@ import addObjectForDepictions from './addObjectForDepictions'
 import addTag from './addTag'
 import removeObjectForDepictions from './removeObjectForDepictions'
 import resetStore from './resetStore'
+import setApplied from './setApplied'
 import setAttributionsCreated from './setAttributionsCreated'
 import setAuthors from './setAuthors'
 import setCollectionObject from './setCollectionObject'
@@ -14,6 +15,7 @@ import setDataAttributes from './setDataAttributes'
 import setDepictionCaption from './setDepictionCaption'
 import setDepictions from './setDepictions'
 import setEditors from './setEditors'
+import setIsOriginal from './setIsOriginal'
 import setImagesCreated from './setImagesCreated'
 import setLicense from './setLicense'
 import setNewCOForSqed from './setNewCOForSqed'
@@ -27,6 +29,8 @@ import setTags from './setTags'
 import setTaxonDetermination from './setTaxonDetermination'
 import setTaxonDeterminations from './setTaxonDeterminations'
 import setYearCopyright from './setYearCopyright'
+import setTagsForImage from './setTagsForImage'
+import removeDataAttribute from './removeDataAttribute'
 
 const MutationNames = {
   AddAttribution: 'addAttribution',
@@ -37,6 +41,7 @@ const MutationNames = {
   AddTag: 'addTag',
   RemoveObjectForDepictions: 'removeObjectForDepictions',
   ResetStore: 'resetStore',
+  SetApplied: 'setApplied',
   SetAttributionsCreated: 'setAttributionsCreated',
   SetAuthors: 'setAuthors',
   SetCollectionObject: 'setCollectionObject',
@@ -45,6 +50,7 @@ const MutationNames = {
   SetDepictionCaption: 'setDepictionCaption',
   SetDepictions: 'setDepictions',
   SetEditors: 'SetEditors',
+  SetIsOriginal: 'setIsOriginal',
   SetImagesCreated: 'setImagesCreated',
   SetLicense: 'setLicense',
   SetNewCOForSqed: 'setNewCOForSqed',
@@ -57,7 +63,9 @@ const MutationNames = {
   SetTags: 'setTags',
   SetTaxonDetermination: 'setTaxonDetermination',
   SetTaxonDeterminations: 'setTaxonDeterminations',
-  SetYearCopyright: 'setYearCopyright'
+  SetYearCopyright: 'setYearCopyright',
+  SetTagsForImage: 'setTagsForImage',
+  RemoveDataAttribute: 'removeDataAttribute'
 }
 
 const MutationFunctions = {
@@ -69,6 +77,7 @@ const MutationFunctions = {
   [MutationNames.AddTag]: addTag,
   [MutationNames.RemoveObjectForDepictions]: removeObjectForDepictions,
   [MutationNames.ResetStore]: resetStore,
+  [MutationNames.SetApplied]: setApplied,
   [MutationNames.SetAttributionsCreated]: setAttributionsCreated,
   [MutationNames.SetAuthors]: setAuthors,
   [MutationNames.SetCollectionObject]: setCollectionObject,
@@ -77,6 +86,7 @@ const MutationFunctions = {
   [MutationNames.SetDepictionCaption]: setDepictionCaption,
   [MutationNames.SetDepictions]: setDepictions,
   [MutationNames.SetEditors]: setEditors,
+  [MutationNames.SetIsOriginal]: setIsOriginal,
   [MutationNames.SetImagesCreated]: setImagesCreated,
   [MutationNames.SetLicense]: setLicense,
   [MutationNames.SetNewCOForSqed]: setNewCOForSqed,
@@ -89,10 +99,9 @@ const MutationFunctions = {
   [MutationNames.SetTags]: setTags,
   [MutationNames.SetTaxonDetermination]: setTaxonDetermination,
   [MutationNames.SetTaxonDeterminations]: setTaxonDeterminations,
-  [MutationNames.SetYearCopyright]: setYearCopyright
+  [MutationNames.SetYearCopyright]: setYearCopyright,
+  [MutationNames.SetTagsForImage]: setTagsForImage,
+  [MutationNames.RemoveDataAttribute]: removeDataAttribute
 }
 
-export {
-  MutationNames,
-  MutationFunctions
-}
+export { MutationNames, MutationFunctions }

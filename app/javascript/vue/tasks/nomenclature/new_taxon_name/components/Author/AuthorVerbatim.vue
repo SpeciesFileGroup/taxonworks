@@ -3,49 +3,53 @@
     <div class="field label-above">
       <label>Verbatim author</label>
       <input
+        ref="verbatimAuthorInput"
         type="text"
-        v-model="verbatim_author">
+        class="w-96"
+        v-model="verbatimAuthor"
+      />
     </div>
     <div class="fields label-above">
       <label>Verbatim year</label>
       <input
         type="text"
-        v-model="verbatim_year"
+        v-model="verbatimYear"
         v-number-only
-      >
+      />
     </div>
   </div>
 </template>
 
-<script>
-
+<script setup>
+import { useStore } from 'vuex'
+import { computed, ref } from 'vue'
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
-import { numberOnly } from 'directives/index.js'
+import { vNumberOnly } from '@/directives/index.js'
 
-export default {
-  directives: { numberOnly },
+const verbatimAuthorInput = ref(null)
 
-  computed: {
-    verbatim_author: {
-      get () {
-        return this.$store.getters[GetterNames.GetTaxonAuthor]
-      },
-      set (value) {
-        this.$store.commit(MutationNames.SetTaxonAuthor, value)
-        this.$store.commit(MutationNames.UpdateLastChange)
-      }
-    },
+const store = useStore()
 
-    verbatim_year: {
-      get () {
-        return this.$store.getters[GetterNames.GetTaxonYearPublication]
-      },
-      set (value) {
-        this.$store.commit(MutationNames.SetTaxonYearPublication, value)
-        this.$store.commit(MutationNames.UpdateLastChange)
-      }
-    }
+const verbatimAuthor = computed({
+  get: () => store.getters[GetterNames.GetTaxonAuthor],
+  set: (value) => {
+    store.commit(MutationNames.SetTaxonAuthor, value)
+    store.commit(MutationNames.UpdateLastChange)
   }
+})
+
+const verbatimYear = computed({
+  get: () => store.getters[GetterNames.GetTaxonYearPublication],
+  set: (value) => {
+    store.commit(MutationNames.SetTaxonYearPublication, value)
+    store.commit(MutationNames.UpdateLastChange)
+  }
+})
+
+function focus() {
+  verbatimAuthorInput.value?.focus()
 }
+
+defineExpose({ focus })
 </script>

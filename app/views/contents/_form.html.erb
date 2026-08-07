@@ -6,27 +6,33 @@
     <br>
     <%= render(partial: 'workbench/elements/forms/ajax_select',
                locals:  {
-      controller: 'otus',
-      object: 'content',
-      method: 'otu_id',
-      tag_id: 'otu_id_for_content',
-      display: (@content.respond_to?(:otu) ? otu_autocomplete_selected_tag(@content.otu) : nil),
-      size: 60, 
-    }) %>
-</div>
+                 controller: 'otus',
+                 object: 'content',
+                 method: 'otu_id',
+                 tag_id: 'otu_id_for_content',
+                 display: (@content.respond_to?(:otu) ? otu_autocomplete_selected_tag(@content.otu) : nil),
+                 size: 60,
+               }) %>
+  </div>
 
-<div class="field">
-  <%= f.label :topic_id %>
-  <br>
-  <%= f.select :topic_id, options_from_collection_for_select(Topic.with_project_id(sessions_current_project_id).all, :id, :name, empty: true) -%>
-</div>
+  <div class="field">
+    <%= f.label :topic_id %>
+    <br>
+    <%= f.select :topic_id, options_from_collection_for_select(Topic.with_project_id(sessions_current_project_id).order(:name), :id, :name, f.object.topic_id) -%>
+  </div>
 
-<div class="field">
-  <%= f.label :text %>
-  <br>
-  <%= f.text_area :text, rows: 30, cols: 120 %>
-</div>
+  <div class="field">
+    <%= f.label :text %>
+    <br>
+    <%= f.text_area :text, rows: 30, cols: 120 %>
+  </div>
 
-<%= submit_tag -%>
+  <div class="field">
+    <%= f.label :publish %>
+    <br>
+    <%= f.check_box :is_public, checked: @content.is_published? %>
+  </div>
+
+  <%= submit_tag -%>
 
 <% end %>

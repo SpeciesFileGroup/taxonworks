@@ -1,24 +1,18 @@
-
 # !! No authentication included at this level, maybe
 # only logging/throttling etc.
 #
-# ! Endpoint authentication requrements are set in routes vi defaults: referenced in includes
+# ! Endpoint authentication requrements are set in routes via defaults: referenced in includes
 class ApiController < ActionController::API
+  include ActionController::HttpAuthentication::Token::ControllerMethods
 
-    include ActionController::HttpAuthentication::Token::ControllerMethods
+  include Api::AuthenticateUserToken
+  include Api::AuthenticateProjectToken
+  include RequestType
+  include PaginationHeaders
 
-    include Api::AuthenticateUserToken
-    include Api::AuthenticateProjectToken
-    include RequestType
-    include PaginationHeaders
-
-    # attr_accessor :permitted_projects
-    # before_action :set_permitted_projects
-
-    protected
-
-    #def set_permitted_projects
-    #  @permitted_projects = sessions_current_user.projects
-    #end
+  # Unlike ActionController::Base only the matching helper (ApiHelper) is
+  # included, `extend[]`, `embed[]` and `exclude[]` are used in these views.
+  helper RestHelper
+  # include Api::RescueFrom
 
 end

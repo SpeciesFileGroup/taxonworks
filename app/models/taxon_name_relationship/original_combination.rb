@@ -8,8 +8,6 @@ class TaxonNameRelationship::OriginalCombination < TaxonNameRelationship
 
   validates_uniqueness_of :object_taxon_name_id, scope: :type
 
-  after_destroy :set_cached_original_combination # sets both cached/html
-
   def self.nomenclatural_priority
     :reverse
   end
@@ -49,7 +47,7 @@ class TaxonNameRelationship::OriginalCombination < TaxonNameRelationship
     ''
   end
 
-  # @return [String, nil]  
+  # @return [String, nil]
   #   String should be included in Protonym::
   def monominal_prefix
     nil
@@ -62,47 +60,47 @@ class TaxonNameRelationship::OriginalCombination < TaxonNameRelationship
   #   TODO: reconcile this format with that of full_name_hash
   def combination_name(name_gender = nil)
     elements = [monominal_prefix]
-    if !subject_taxon_name.verbatim_name.blank? && name_gender.nil?
+    if subject_taxon_name.verbatim_name.present? && name_gender.nil?
       elements.push subject_taxon_name.verbatim_name
     else
       elements.push subject_taxon_name.genderized_name(name_gender)
     end
 
-    elements.push('[sic]') if subject_taxon_name.cached_misspelling
+    elements.push('[sic]') if subject_taxon_name.cached_misspelling # TODO [sic] as seperated is different than FNH, and also see ()
     elements[1] = "(#{elements[1]})" if applicable_rank == :subgenus
 
     return {applicable_rank => elements}
   end
 
-# def element_gender
-#   object_taxon_name.original_genus.gender_name
-#    subject_taxon_name.gender_name
-# end
-
   protected
 
   def set_cached_names_for_taxon_names
-    begin
-      TaxonName.transaction do
-        t = object_taxon_name
-        t.send(:set_cached)
-        t.update_columns(
-          cached_original_combination: t.get_original_combination,
-          cached_original_combination_html: t.get_original_combination_html,
-          cached_author_year: t.get_author_and_year,
-          )
-      end
-    end
-    true
-  end
+    # The taxon name object_taxon_name points to may have been destroyed
+    # elsewhere in the same unify chain (e.g. as the duplicate being merged
+    # away) by the time this deferred after_commit fires. Depending on
+    # whether the association was already cached before that happened,
+    # that shows up two different ways: the belongs_to reader returns nil
+    # outright (never cached, now legitimately missing), or an
+    # already-cached instance's #reload raises RecordNotFound. Guard both
+    # into a no-op rather than crashing the after_commit. Reload (rather
+    # than a separate TaxonName.find_by) so the already-memoized
+    # object_taxon_name association is refreshed in place, not left stale
+    # for any caller that reads it off this same relationship instance
+    # afterward.
+    return if object_taxon_name.nil?
 
-  def set_cached_original_combination
-    self.object_taxon_name.update_cached_original_combinations
+    begin
+      object_taxon_name.reload
+    rescue ActiveRecord::RecordNotFound
+      return
+    end
+
+    object_taxon_name.update_cached_original_combinations
   end
 
   def sv_validate_priority
-    date1 = self.subject_taxon_name.nomenclature_date
-    date2 = self.object_taxon_name.nomenclature_date
+    date1 = self.subject_taxon_name.cached_nomenclature_date
+    date2 = self.object_taxon_name.cached_nomenclature_date
     if !!date1 && !!date2 && date1 > date2 && subject_invalid_statuses.empty?
       soft_validations.add(:type, "#{self.subject_status.capitalize} #{self.subject_taxon_name.cached_html_name_and_author_year} should not be younger than #{self.object_taxon_name.cached_html_name_and_author_year}")
     end

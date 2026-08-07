@@ -114,7 +114,6 @@ module UserTasks
         prefix: prefix,
         hub: hub
       }
-
     end
   end
 

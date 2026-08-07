@@ -1,0 +1,6 @@
+taxonID	parentNameUsageID	acceptedNameUsageID	scientificName	kingdom	lass	order	family	genus	subgenus	specificEpithet	infraspecificEpithet	taxonRank	scientificNameAuthorship	taxonomicStatus	originalNameUsageID	namePublishedInYear	nomenclaturalCode	TW:TaxonNameClassification:Latinized:Gender	TW:TaxonNameClassification:Latinized:PartOfSpeech	TW:TaxonNameRelationship:incertae_sedis_in_rank
+429011		429011	Formicidae	Animalia	Insecta	Hymenoptera	Formicidae					Family	Latreille, 1809	valid	429011	1809	ICZN
+429609	429011	429609	Attini	Animalia	Insecta	Hymenoptera	Formicidae					Tribe	Smith, 1858	valid	429609	1858	ICZN
+429559	429609	429559	Strumigenys	Animalia	Insecta	Hymenoptera	Formicidae					Genus	Smith, 1860	valid	429559	1860	ICZN	feminine
+429571	429609	429559	Smithistruma	Animalia	Insecta	Hymenoptera	Formicidae					Genus	Brown, 1948	synonym	509064	1948	ICZN	feminine
+509064	429571	429559	Smithistruma (Smithistruma)	Animalia	Insecta	Hymenoptera	Formicidae	Smithistruma				Subgenus	Brown, 1948	obsolete classification	509064	1948	ICZN

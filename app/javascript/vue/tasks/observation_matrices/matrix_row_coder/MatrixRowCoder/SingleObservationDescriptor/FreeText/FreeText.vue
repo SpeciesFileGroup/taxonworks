@@ -2,40 +2,38 @@
   <div class="presence-descriptor">
     <summary-view
       :descriptor="descriptor"
-      :index="index">
+      :index="index"
+    >
       <label>Free text</label>
-      <br>
-      <div class="horizontal-left-content">
+      <br />
+      <div class="horizontal-left-content gap-small">
         <textarea
           class="full_width"
           rows="5"
           :value="freeTextValue"
-          @change="updateFreeTextValue" >
+          @input="updateFreeTextValue"
+        >
         </textarea>
 
         <radial-annotator
           v-if="observationExist"
-          :global-id="observation.global_id"/>
+          :global-id="observation.global_id"
+        />
         <span
           v-if="observationExist"
           type="button"
           class="circle-button btn-delete"
-          @click="removeObservation">
+          @click="removeObservation"
+        >
           Remove
         </span>
       </div>
+      <TimeFields
+        v-if="observation"
+        :descriptor="descriptor"
+        :observation="observation"
+      />
     </summary-view>
-
-    <single-observation-zoomed-view
-      :descriptor="descriptor"
-      :observation="observation">
-
-        <label>
-          Free text
-          <input type="text" @change="updateFreeTextValue" >
-        </label>
-
-    </single-observation-zoomed-view>
   </div>
 </template>
 
@@ -43,23 +41,37 @@
 import SingleObservationDescriptor from '../SingleObservationDescriptor'
 import { GetterNames } from '../../../store/getters/getters'
 import { MutationNames } from '../../../store/mutations/mutations'
+import TimeFields from '../../Time/TimeFields.vue'
 
 export default {
-  mixins: [SingleObservationDescriptor],
   name: 'FreeTextDescriptor',
-  props: ['index'],
-  computed: {
-    isPresent () {
-      return this.$store.getters[GetterNames.GetPresenceFor](this.$props.descriptor.id)
-    },
-    freeTextValue () {
-      return this.$store.getters[GetterNames.GetFreeTextValueFor](this.$props.descriptor.id)
+
+  components: { TimeFields },
+
+  mixins: [SingleObservationDescriptor],
+
+  props: {
+    index: {
+      type: Number,
+      required: true
     }
   },
+
+  computed: {
+    isPresent() {
+      return this.$store.getters[GetterNames.GetPresenceFor](this.descriptor.id)
+    },
+    freeTextValue() {
+      return this.$store.getters[GetterNames.GetFreeTextValueFor](
+        this.descriptor.id
+      )
+    }
+  },
+
   methods: {
-    updateFreeTextValue (event) {
+    updateFreeTextValue(event) {
       this.$store.commit(MutationNames.SetFreeTextValue, {
-        descriptorId: this.$props.descriptor.id,
+        descriptorId: this.descriptor.id,
         description: event.target.value
       })
     }

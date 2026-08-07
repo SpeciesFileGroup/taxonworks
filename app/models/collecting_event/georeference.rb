@@ -1,17 +1,56 @@
 module CollectingEvent::Georeference
-
   extend ActiveSupport::Concern
 
   included do
     has_many :georeferences, dependent: :destroy, class_name: '::Georeference', inverse_of: :collecting_event
 
     has_one :verbatim_data_georeference, class_name: '::Georeference::VerbatimData'
-    has_one :preferred_georeference, -> { order(:position) }, class_name: '::Georeference', foreign_key: :collecting_event_id
 
     has_many :error_geographic_items, through: :georeferences, source: :error_geographic_item
     has_many :geographic_items, through: :georeferences # See also all_geographic_items, the union
     has_many :geo_locate_georeferences, class_name: '::Georeference::GeoLocate', dependent: :destroy
     has_many :gpx_georeferences, class_name: '::Georeference::GPX', dependent: :destroy
+
+    accepts_nested_attributes_for :verbatim_data_georeference
+    accepts_nested_attributes_for :geo_locate_georeferences
+    accepts_nested_attributes_for :gpx_georeferences
+
+    def preferred_georeference
+      if association(:georeferences).loaded?
+        georeferences.min_by(&:position)
+      else
+        georeferences.order(:position).first
+      end
+    end
+
+    def preferred_georeference_geographic_item_id
+      if association(:georeferences).loaded?
+        preferred_georeference&.geographic_item_id
+      else
+        georeferences.order(:position).limit(1).pluck(:geographic_item_id).first
+      end
+    end
+  end
+
+  # Returns [shape_type, shape_id] for the preferred geographic representation
+  # without fetching or computing the geometry. Returns nil if no mappable location exists.
+  # Uses the same precedence logic as geo_json_data.
+  #
+  # Note on georeference deduplication: georeferences are collecting-event-specific objects.
+  # Two collecting events at the same geographic location will have different georeference IDs
+  # and will NOT be deduplicated. Deduplication of georeference shapes only occurs when
+  # multiple records (e.g. collection objects from different OTUs) share the same
+  # collecting event.
+  #
+  # Geographic area deduplication is broader: any two records referencing the same
+  # geographic area share the same shape key regardless of which collecting event they
+  # belong to.
+  def geo_json_shape_key
+    if gr_id = georeferences.order(:position).pluck(:id).first
+      ['Georeference', gr_id]
+    elsif geographic_area_default_geographic_item_id
+      ['GeographicArea', geographic_area_id]
+    end
   end
 
   # @param [Float] delta_z, will be used to fill in the z coordinate of the point
@@ -36,7 +75,6 @@ module CollectingEvent::Georeference
   def longitude
     verbatim_map_center.try(:x)
   end
-
 
   # TODO: Helper method
   # @return [CollectingEvent]
@@ -82,10 +120,9 @@ module CollectingEvent::Georeference
     end
   end
 
-
   # @return [Symbol, nil]
   #   the name of the method that will return an Rgeo object that represent
-  #   the "preferred" centroid for this collecting event
+  #   the "preferred" centroid for this collecing event
   def map_center_method
     return :preferred_georeference if preferred_georeference # => { georeferenceProtocol => ?  }
     return :verbatim_map_center if verbatim_map_center # => { }
@@ -101,7 +138,7 @@ module CollectingEvent::Georeference
     when :verbatim_map_center
       verbatim_map_center
     when :geographic_area
-      geographic_area.default_geographic_item.geo_object.centroid
+      geographic_area.default_geographic_item.centroid
     else
       nil
     end
@@ -116,36 +153,22 @@ module CollectingEvent::Georeference
     nil
   end
 
-  # CollectingEvent.select {|d| !(d.verbatim_latitude.nil? || d.verbatim_longitude.nil?)}
-  # .select {|ce| ce.georeferences.empty?}
-  # @param [Boolean] reference_self
-  # @param [Boolean] no_cached
-  # @return [Georeference::VerbatimData, false]
-  #   generates (creates) a Georeference::VerbatimReference from verbatim_latitude and verbatim_longitude values
-  def generate_verbatim_data_georeference(reference_self = false, no_cached: false)
-    return false if (verbatim_latitude.nil? || verbatim_longitude.nil?)
-    begin
-      CollectingEvent.transaction do
-        vg_attributes = {collecting_event_id: id.to_s, no_cached: no_cached}
-        vg_attributes.merge!(by: self.creator.id, project_id: self.project_id) if reference_self
-        a = Georeference::VerbatimData.new(vg_attributes)
-        if a.valid?
-          a.save
-        end
-        return a
-      end
-    rescue
-      raise
-    end
-    false
+  # The primary :georeferences association carries class_name: '::Georeference' (required
+  # for the full namespace reference), which causes inferred_relations to exclude it from
+  # unify — the same rule that drops convenience subtype aliases like geo_locate_georeferences.
+  # Force it back in explicitly so georeferences are moved to the target CE during unify
+  # rather than being silently dropped when the removed CE is destroyed.
+  def unify_relations
+    ApplicationEnumeration.klass_reflections(self.class, :has_many).select { |r|
+      r.name == :georeferences
+    }
   end
-
 
   # @return [Symbol, nil]
   #   Prioritizes and identifies the source of the latitude/longitude values that
-  #   will be calculated for DWCA  and primary display
+  #   will be calculated for DWCA and primary display
   def dwc_georeference_source
-    if preferred_georeference
+    if !preferred_georeference.nil?
       :georeference
     elsif verbatim_latitude && verbatim_longitude
       :verbatim
@@ -155,6 +178,5 @@ module CollectingEvent::Georeference
       nil
     end
   end
-
 
 end

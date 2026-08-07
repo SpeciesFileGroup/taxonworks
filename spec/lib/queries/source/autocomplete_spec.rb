@@ -10,27 +10,27 @@ describe Queries::Source::Autocomplete, type: :model, group: [:sources] do
   let(:query) { Queries::Source::Autocomplete.new('') }
 
   specify '#autocomplete_start_of_author 1' do
-    query.terms = 'Smith' 
+    query.terms = 'Smith'
     expect(query.autocomplete_start_of_author.map(&:id)).to contain_exactly(s2.id, s3.id)
   end
 
   specify '#autocomplete_exact_author 1' do
-    query.terms = 'Smith' 
+    query.terms = 'Smith'
     expect(query.autocomplete_exact_author.map(&:id)).to contain_exactly(s2.id, s3.id)
   end
 
   specify '#autocomplete_any_author 1' do
-    query.terms = 'Smith' 
+    query.terms = 'Smith'
     expect(query.autocomplete_any_author.map(&:id)).to contain_exactly(s2.id, s3.id, s4.id)
   end
 
   specify '#autocomplete_any_author 2' do
-    query.terms = 'Smit' 
+    query.terms = 'Smit'
     expect(query.autocomplete_any_author.map(&:id)).to contain_exactly()
   end
 
   specify '#autocomplete_partial_author 1' do
-    query.terms = 'Smit' 
+    query.terms = 'Smit'
     expect(query.autocomplete_partial_author.map(&:id)).to contain_exactly(s2.id, s3.id, s4.id)
   end
 
@@ -66,7 +66,7 @@ describe Queries::Source::Autocomplete, type: :model, group: [:sources] do
 
   specify '#autocomplete_year_letter 2' do
     query.terms = '1921'
-    expect(query.autocomplete_year_letter.map(&:id)).to contain_exactly()
+    expect(query.autocomplete_year_letter.nil?).to be_truthy
   end
 
   specify '#autocomplete_exact_author_year_letter 1' do
@@ -83,11 +83,6 @@ describe Queries::Source::Autocomplete, type: :model, group: [:sources] do
     # !! cached currently renders von on the outside, so `von Brandt` won't match
     query.terms = 'Jones, Brandt & Smith, 1924'
     expect(query.autocomplete_wildcard_pieces_and_year.map(&:id).first).to eq(s4.id)
-  end
-
-  specify 'autocomplete_wildcard_author_exact_year' do
-    query.terms = 'ones andt 1924'
-    expect(query.autocomplete_wildcard_author_exact_year.map(&:id).first).to eq(s4.id)
   end
 
   specify 'autocomplete_cached_wildcard_anywhere 1' do
@@ -120,9 +115,163 @@ describe Queries::Source::Autocomplete, type: :model, group: [:sources] do
     expect(query.autocomplete.map(&:id).first).to eq(s3.id)
   end
 
-  specify '#autocomplete 2' do
-    query.terms = 'Smith 1921z'
-    expect(query.autocomplete.map(&:id).first).to eq(s3.id)
+  #specify '#autocomplete 2' do ## query removed from the list (not useful)
+  #  query.terms = 'Smith 1921z'
+  #  expect(query.autocomplete.map(&:id).first).to eq(s3.id)
+  #end
+
+  context 'searching by author and stated_year' do
+    let!(:source_with_stated_year) {
+      FactoryBot.create(:valid_source_bibtex,
+        author: 'Johnson',
+        stated_year: '2020',
+        year: 2021,
+        title: 'A study with stated year'
+      )
+    }
+
+    let!(:source_with_year) {
+      FactoryBot.create(:valid_source_bibtex,
+        author: 'Johnson',
+        year: 2020,
+        stated_year: nil,
+        title: 'A study with year'
+      )
+    }
+
+    specify 'finds source when queried year is in stated_year field' do
+      query.terms = 'Johnson 2020'
+      expect(query.autocomplete).to include(source_with_stated_year)
+    end
+
+    specify 'finds source when queried year is in year field' do
+      query.terms = 'Johnson 2021'
+      expect(query.autocomplete).to include(source_with_stated_year)
+    end
+
+    specify 'finds both sources when searching by author and year' do
+      query.terms = 'Johnson 2020'
+      result_ids = query.autocomplete.map(&:id)
+      expect(result_ids).to include(source_with_stated_year.id, source_with_year.id)
+    end
+  end
+
+  context 'searching by alternate person last name' do
+    let!(:person_mueller) {
+      FactoryBot.create(:valid_person, last_name: 'Müller')
+    }
+
+    let!(:alternate_mueller) {
+      AlternateValue::AlternateSpelling.create!(
+        value: 'Mueller',
+        alternate_value_object: person_mueller,
+        alternate_value_object_attribute: 'last_name'
+      )
+    }
+
+    let!(:source_with_person) {
+      FactoryBot.create(:valid_source_bibtex,
+        authors: [person_mueller],
+        year: 2000,
+        year_suffix: 'b',
+        title: 'One eighth note'
+      )
+    }
+
+    let!(:not_this_one) {
+      FactoryBot.create(:valid_source_bibtex,
+        authors: [FactoryBot.create(:valid_person)],
+        year: 2000,
+        title: 'Oh no'
+      )
+    }
+
+    specify '#autocomplete_exact_author_alternate' do
+      query.terms = 'Mueller'
+      expect(query.autocomplete_exact_author_alternate.map(&:id)).to contain_exactly(source_with_person.id)
+    end
+
+    specify '#autocomplete_exact_author_alternate includes both author and editor roles' do
+      source2 = FactoryBot.create(:valid_source_bibtex,
+        editors: [person_mueller],
+        year: 2000,
+        title: 'Two eighth notes'
+      )
+
+      query.terms = 'Mueller'
+      expect(query.autocomplete_exact_author_alternate.map(&:id)).to contain_exactly(source_with_person.id, source2.id)
+    end
+
+    specify '#autocomplete_exact_author_alternate includes person-source role' do
+      # !! Returns a role, not a source.
+      sourceSourceRole = FactoryBot.create(:valid_source_source, person: person_mueller)
+
+      query.terms = 'Mueller'
+      expect(query.autocomplete_exact_author_alternate.map(&:id)).to contain_exactly(source_with_person.id, sourceSourceRole.role_object.id)
+    end
+
+    specify '#autocomplete_start_of_author_alternate' do
+      query.terms = 'Mue'
+      expect(query.autocomplete_start_of_author_alternate.map(&:id)).to contain_exactly(source_with_person.id)
+    end
+
+     specify '#autocomplete_exact_author_year_letter_alternate' do
+      query.terms = 'Mueller 2000b'
+      expect(query.autocomplete_exact_author_year_letter_alternate.map(&:id)).to contain_exactly(source_with_person.id)
+    end
+
+    specify '#autocomplete_exact_author_year_letter_alternate' do
+      query.terms = 'Mueller 2000'
+      expect(query.autocomplete_exact_author_year_alternate.map(&:id)).to contain_exactly(source_with_person.id)
+    end
+
+    specify '#autocomplete_start_author_year_alternate' do
+      query.terms = 'Mue 2000'
+      expect(query.autocomplete_start_author_year_alternate.map(&:id)).to contain_exactly(source_with_person.id)
+    end
+
+    specify '#autocomplete returns sources with alternate person last name' do
+      query.terms = 'Mueller'
+      expect(query.autocomplete.map(&:id)).to include(source_with_person.id)
+    end
+  end
+
+  context '#autocomplete project-scoped ranking' do
+    let!(:popular) { FactoryBot.create(:valid_source_bibtex, title: 'Zibznork common title', year: 2000) }
+    let!(:unused) { FactoryBot.create(:valid_source_bibtex, title: 'Zibznork rare title', year: 2001) }
+
+    let(:query) { Queries::Source::Autocomplete.new('Zibznork', project_id: [project_id]) }
+
+    specify 'a source cited across many other projects does not crowd out a matching, uncited source' do
+      10.times do
+        p = FactoryBot.create(:valid_project)
+        otu = FactoryBot.create(:valid_otu, project_id: p.id)
+        Citation.create!(source: popular, citation_object: otu, project_id: p.id)
+      end
+
+      expect(query.autocomplete.map(&:id)).to include(unused.id)
+    end
+
+    specify 'a source is only returned once, regardless of how many projects it is cited in' do
+      3.times do
+        p = FactoryBot.create(:valid_project)
+        otu = FactoryBot.create(:valid_otu, project_id: p.id)
+        Citation.create!(source: popular, citation_object: otu, project_id: p.id)
+      end
+
+      expect(query.autocomplete.map(&:id).count { |id| id == popular.id }).to eq(1)
+    end
+
+    specify 'use_count is not inflated by unrelated project_sources rows' do
+      otu = FactoryBot.create(:valid_otu, project_id: project_id)
+      Citation.create!(source: popular, citation_object: otu, project_id: project_id)
+
+      other_project = FactoryBot.create(:valid_project)
+      ProjectSource.find_or_create_by(project: other_project, source: popular)
+
+      result = query.autocomplete.detect { |r| r.id == popular.id }
+      expect(result.use_count).to eq(1)
+    end
   end
 
 end

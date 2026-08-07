@@ -1,7 +1,7 @@
-import baseCRUD from './base'
-import AjaxCall from 'helpers/ajaxCall'
+import baseCRUD from "./base";
+import AjaxCall from "@/helpers/ajaxCall";
 
-const model = 'taxon_names'
+const model = "taxon_names";
 const permitParams = {
   taxon_name: {
     id: Number,
@@ -27,34 +27,63 @@ const permitParams = {
         last_name: String,
         first_name: String,
         suffix: String,
-        prefix: String
-      }
+        prefix: String,
+      },
     },
     origin_citation_attributes: {
       id: Number,
       _destroy: Boolean,
       source_id: Number,
-      pages: Number
-    }
-  }
-}
+      pages: Number,
+    },
+    family_group_name_form_relationship_attributes: {
+      id: Number,
+      object_taxon_name_id: Number,
+      _destroy: Boolean,
+    },
+  },
+};
 
 export const TaxonName = {
   ...baseCRUD(model, permitParams),
 
-  ranks: () => AjaxCall('get', `/${model}/ranks`),
+  filter: (params) => AjaxCall("post", `/${model}/filter.json`, params),
 
-  rankTable: (params) => AjaxCall('get', `/${model}/rank_table`, { params }),
+  ranks: () => AjaxCall("get", `/${model}/ranks`),
 
-  classifications: id => AjaxCall('get', `/${model}/${id}/taxon_name_classifications`),
+  rankTable: (params) => AjaxCall("get", `/${model}/rank_table`, { params }),
 
-  relationships: (id, params) => AjaxCall('get', `/${model}/${id}/taxon_name_relationships.json`, { params }),
+  classifications: (id) =>
+    AjaxCall("get", `/${model}/${id}/taxon_name_classifications`),
 
-  originalCombination: id => AjaxCall('get', `/${model}/${id}/original_combination.json`),
+  relationships: (id, params) =>
+    AjaxCall("get", `/${model}/${id}/taxon_name_relationships.json`, {
+      params,
+    }),
 
-  parse: (params) => AjaxCall('get', '/taxon_names/parse', { params }),
+  originalCombination: (id) =>
+    AjaxCall("get", `/${model}/${id}/original_combination.json`),
 
-  predictedRank: (parentId, name) => AjaxCall('get', `/${model}/predicted_rank`, { params: { parent_id: parentId, name: name }}),
+  parse: (params) => AjaxCall("get", "/taxon_names/parse", { params }),
 
-  otus: id => AjaxCall('get', `/${model}/${id}/otus.json`, { headers: { 'Cache-Control': 'no-cache' } })
-}
+  predictedRank: (parentId, name) =>
+    AjaxCall("get", `/${model}/predicted_rank`, {
+      params: { parent_id: parentId, name },
+    }),
+
+  otus: (id) =>
+    AjaxCall("get", `/${model}/${id}/otus.json`, {
+      headers: { "Cache-Control": "no-cache" },
+    }),
+
+  taxonomy: (id, params) =>
+    AjaxCall("get", `/${model}/${id}/taxonomy`, { params }),
+
+  batchUpdate: (params) =>
+    AjaxCall("patch", `/${model}/batch_update.json`, params),
+
+  removeAuthors: (params) =>
+    AjaxCall("post", `/${model}/remove_authors.json`, params),
+
+  match: (params) => AjaxCall("post", `/${model}/match.json`, params),
+};

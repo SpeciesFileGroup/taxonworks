@@ -1,6 +1,9 @@
 require 'rails_helper'
 
 describe 'Users', type: :feature do
+  def last_email_to(address)
+    ActionMailer::Base.deliveries.reverse.find { |mail| Array(mail.to).include?(address) }
+  end
 
   # All users must sign in -- a user isn't a user until s/he signs in
   # When a worker signs in, what does he see, what can he do?  dashboard, what links?
@@ -26,17 +29,18 @@ describe 'Users', type: :feature do
 
       context 'in order to edit self' do
         before {
+          #find('#navbar_user_avatar').click
           click_link 'Account'
         }
 
         it 'should have information and links' do
-          expect(page).to have_css('h2', text: @user.name)
-          expect(page).to have_button('Edit')
+          expect(page).to have_selector('#user_name', text: @user.name)
+          expect(page).to have_link('Edit')
         end
 
         context 'editing self' do
           before {
-            click_button 'Edit'
+            click_link 'Edit'
           }
 
           it 'should have information and links' do
@@ -172,7 +176,7 @@ describe 'Users', type: :feature do
           # it 'shows *', skip: 'Add specs for missing attributes' # TODO: Finish the spec
 
           describe 'API access token' do
-            let(:token_label) { 'API access token' }
+            let(:token_label) { 'API Access Token' }
 
             context 'when there is no token' do
               it 'doesn\'t show the API access token label' do
@@ -192,13 +196,13 @@ describe 'Users', type: :feature do
               end
 
               it 'shows the API access token string' do
-                expect(page).to have_content(@user.api_access_token)
+                expect(page).to have_field('tokenInput', with: @user.api_access_token, type: 'password')
               end
             end
           end
 
           it 'provides a button to edit the account' do
-            expect(page).to have_button('Edit')
+            expect(page).to have_link('Edit')
           end
           # it 'provides a link to the user statistics page', skip: 'statistics page not implemented' do
           #   expect(page).to have_link('View my statistics', href: user_statistics_path)
@@ -276,7 +280,8 @@ describe 'Users', type: :feature do
         scenario 'request password reset' do
           password = '12345678abcd'
           expect(page).to have_content('Password reset request sent!')
-          mail = ActionMailer::Base.deliveries.last
+          mail = last_email_to('user@example.com')
+          expect(mail).to be_present
           path = mail.body.match(/http(s)?:\/\/[^\/]+(?<path>\S+)/)['path']
           visit path
           # current error is 'Token not present or expired.'
@@ -312,7 +317,8 @@ describe 'Users', type: :feature do
         click_button 'Sign in'
         click_button 'Send e-mail'
         expect(page).to have_content('Password reset request sent!')
-        mail = ActionMailer::Base.deliveries.last
+        mail = last_email_to('flagged@example.com')
+        expect(mail).to be_present
         visit mail.body.match(/http(s)?:\/\/[^\/]+(?<path>\S+)/)['path']
         fill_in 'New password', with: password
         fill_in 'New password confirmation', with: password

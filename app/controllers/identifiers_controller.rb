@@ -1,7 +1,10 @@
 class IdentifiersController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
+  include DataControllerConfiguration::BatchByFilterScope
 
   before_action :set_identifier, only: [:update, :destroy, :show]
+
+  after_action -> { set_pagination_headers(:identifiers) }, only: [:index, :api_index], if: :json_request?
 
   # GET /identifiers
   # GET /identifiers.json
@@ -12,8 +15,11 @@ class IdentifiersController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @identifiers = Queries::Identifier::Filter.new(params).all
-          .where(project_id: sessions_current_project_id).page(params[:page]).per(params[:per] || 500)
+        # project_id handling logic is in filter, it must be handled there. This contrasts pattern used elsewhere, but see alternate_values_controller.rb
+        @identifiers = Queries::Identifier::Filter.new(params.merge(project_id: sessions_current_project_id)).all
+         .order(:identifier_object_type, :identifier_object_id, :position)
+         .page(params[:page])
+         .per(params[:per])
       }
     end
   end
@@ -43,7 +49,7 @@ class IdentifiersController < ApplicationController
         format.json { render action: 'show', status: :created, location: @identifier.becomes(Identifier) }
       else
         format.html { render 'new', notice: 'Identifier was NOT successfully created.' }
-        format.json { render json: @identifier.errors, status: :unprocessable_entity }
+        format.json { render json: @identifier.errors, status: :unprocessable_content }
       end
     end
   end
@@ -58,15 +64,24 @@ class IdentifiersController < ApplicationController
         format.json { render :show, status: :ok, location: @identifier.becomes(Identifier) }
       else
         format.html {redirect_back(fallback_location: (request.referer || root_path), notice: 'Identifier was NOT successfully created.')}
-        format.json { render json: @identifier.errors, status: :unprocessable_entity }
+        format.json { render json: @identifier.errors, status: :unprocessable_content }
       end
     end
+  end
+
+  # PATCH /identifiers/reorder?id[]=1
+  def reorder
+    params[:id].reverse.each do |identifier_id|
+      Identifier.find(identifier_id).move_to_top
+    end
+    render json: true
   end
 
   # DELETE /identifiers/1
   # DELETE /identifiers/1.json
   def destroy
     @identifier.destroy
+
     respond_to do |format|
       format.html { destroy_redirect @identifier, notice: 'Identifier was successfully destroyed.' }
       format.json { head :no_content }
@@ -88,14 +103,28 @@ class IdentifiersController < ApplicationController
 
   def autocomplete
     render json: {} and return if params[:term].blank?
-    @identifiers = Queries::Identifier::Autocomplete.new(params.require(:term), autocomplete_params).autocomplete
+    @identifiers = Queries::Identifier::Autocomplete.new(params.require(:term), **autocomplete_params).autocomplete
   end
 
   # GET /api/v1/identifiers
   def api_index
-    @identifiers = Queries::Identifier::Filter.new(api_params).all
-      .order('identifiers.id').page(params[:page]).per(params[:per])
+    @identifiers = api_identifiers
+      .order('identifiers.id')
+      .page(params[:page])
+      .per(params[:per])
     render '/identifiers/api/v1/index'
+  end
+
+  def api_identifiers
+    q = Queries::Identifier::Filter.new(params)
+    q.api = true
+    a = q.all.where(project_id: sessions_current_project_id)
+
+    q.api = false
+    q.project_id = nil
+    b = q.all.where(identifier_object_type: ApplicationEnumeration.community_models.map(&:to_s))
+
+    ::Queries.union(Identifier, [a,b])
   end
 
   # GET /api/v1/identifiers/:id
@@ -106,14 +135,13 @@ class IdentifiersController < ApplicationController
 
   def api_autocomplete
     render json: {} and return if params[:term].blank?
-    @identifiers = Queries::Identifier::Autocomplete.new(params.require(:term), autocomplete_params).autocomplete
+    @identifiers = Queries::Identifier::Autocomplete.new(params.require(:term), **autocomplete_params).autocomplete
     render '/identifiers/api/v1/autocomplete'
   end
 
-
   # GET /identifiers/download
   def download
-    send_data Export::Download.generate_csv(Identifier.where(project_id: sessions_current_project_id)), type: 'text', filename: "identifiers_#{DateTime.now}.csv"
+    send_data Export::CSV.generate_csv(Identifier.where(project_id: sessions_current_project_id)), type: 'text', filename: "identifiers_#{DateTime.now}.tsv"
   end
 
   # GET /identifiers/identifier_types
@@ -121,26 +149,27 @@ class IdentifiersController < ApplicationController
     render json: IDENTIFIERS_JSON
   end
 
+  # POST /identifiers/namespaces.json
+  def namespaces
+    @namespaces = Identifier.namespaces_for_types_from_query(
+      params[:identifier_types], params[:filter_query]
+    )
+
+    render json: @namespaces
+  end
+
   private
 
   def set_identifier
-    @identifier = Identifier.with_project_id(sessions_current_project_id).find(params[:id])
-  end
+    @identifier = Identifier.find(params[:id])
 
-  def api_params
-    params.permit(
-      :query_string,
-      :identifier,
-      :identifier_object_id,
-      :identifier_object_type,
-      :namespace_id,
-      :namespace_name,
-      :namespace_short_name,
-      :object_global_id,
-      :type,
-      identifier_object_id: [],
-      identifier_object_type: [],
-    )
+    if !@identifier.is_community_annotation?
+      if @identifier.project_id != sessions_current_project_id
+        return nil
+      end
+    end
+
+    @identifier
   end
 
   def identifier_params
@@ -151,6 +180,11 @@ class IdentifiersController < ApplicationController
 
   def autocomplete_params
     params.permit(identifier_object_type: []).to_h.symbolize_keys.merge(project_id: sessions_current_project_id) # :exact
+  end
+
+  def batch_by_filter_scope_params
+    params.require(:params).permit(:namespace_id, :virtual_namespace_prefix,
+      namespaces_to_replace: [], identifier_types: [])
   end
 
 end

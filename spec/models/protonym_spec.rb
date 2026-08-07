@@ -2,12 +2,15 @@ require 'rails_helper'
 
 describe Protonym, type: :model, group: [:nomenclature, :protonym] do
 
-  # TODO: cleanup don't leave dirty .... 
+  # TODO: cleanup don't leave dirty ....
   before(:all) do
     TaxonNameRelationship.delete_all
     TaxonNameClassification.delete_all
     TaxonName.delete_all
     TaxonNameHierarchy.delete_all
+
+    init_housekeeping
+
     @order = FactoryBot.create(:iczn_order)
   end
 
@@ -22,7 +25,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
 
   let(:protonym) { Protonym.new }
   let(:root) { Protonym.where(name: 'Root').first  }
- 
+
   context 'validation' do
 
     specify '#verbatim_author without digits' do
@@ -70,8 +73,9 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
       end
 
       specify 'parent rank is higher' do
-        protonym.update(rank_class: Ranks.lookup(:iczn, 'Genus'), name: 'Aus')
-        protonym.parent = @species
+        protonym.update(rank_class: Ranks.lookup(:iczn, :genus), name: 'Aus')
+        a = Protonym.create!(name: 'zus', rank_class: Ranks.lookup(:iczn, :species), parent: root)
+        protonym.parent = a
         protonym.valid?
         expect(protonym.errors.include?(:parent_id)).to be_truthy
       end
@@ -92,6 +96,16 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
         t.valid?
         expect(t.errors.include?(:project_id)).to be_truthy
       end
+
+      specify 'parent in different code' do
+        genus = FactoryBot.create(:iczn_genus)
+        genus.valid?
+        expect(genus.errors.include?(:rank_class)).to be_falsey
+        genus.rank_class = Ranks.lookup(:icn, 'genus')
+        genus.valid?
+        expect(genus.errors.include?(:rank_class)).to be_truthy
+      end
+
     end
 
     specify 'name' do
@@ -99,7 +113,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
         expect(protonym.errors.include?(:name)).to be_truthy
     end
 
-    context 'latinization requires' do 
+    context 'latinization requires' do
       let(:error_message) {  'Name must be latinized, no digits or spaces allowed' }
       specify 'no digits are present at end' do
         protonym.name = 'aus1'
@@ -118,7 +132,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
         protonym.valid?
         expect(protonym.errors.messages[:name]).to include(error_message)
       end
-        
+
       specify 'no spaces are present' do
         protonym.name = 'ab us'
         protonym.valid?
@@ -126,7 +140,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
       end
     end
   end
-  
+
   context 'usage' do
     before(:each) do
       @f = FactoryBot.create(:relationship_family, name: 'Aidae', parent: @order)
@@ -151,7 +165,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
         subject_taxon_name: @o,
         object_taxon_name: @s,
         type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus')
-      
+
       # Recast as the subclass
       # first_original_genus_relation = temp_relation.becomes(temp_relation.type_class)
       expect(@s.original_combination_relationships.count).to eq(1)
@@ -283,7 +297,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
     let(:p) {Protonym.new(parent: @order , name: 'Aus', rank_class: Ranks.lookup(:iczn, 'genus')) }
 
     specify '#also_create_otu with new creates an otu after_create' do
-      expect(Otu.count).to eq(0) 
+      expect(Otu.count).to eq(0)
       p.also_create_otu = true
       p.save!
       expect(Otu.first.taxon_name_id).to eq(p.id)
@@ -344,52 +358,59 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
     end
 
     context 'verbatim references' do
-      let(:v) { FactoryBot.create(:valid_source_verbatim) } 
+      let(:v) { FactoryBot.create(:valid_source_verbatim) }
       specify 'are not allowed via nested attributes' do
         expect(g1.update(origin_citation_attributes: { source_id: v.id })).to be_falsey
       end
     end
   end
 
+  # TODO: Move to Utilities::Nomenclature specs
   context 'predict three name forms' do
     use_cases = {
-        'albus'     => 'albus|alba|album',
-        'alba'      => 'albus|alba|album',
-        'album'     => 'albus|alba|album',
-        'niger'     => 'niger|nigra|nigrum',
-        'nigra'     => 'niger|nigra|nigrum',
-        'nigrum'    => 'niger|nigra|nigrum',
-        'viridis'   => 'viridis|viridis|viride',
-        'viride'    => 'viridis|viridis|viride',
-        'major'     => 'major|major|majus',
-        'majus'     => 'major|major|majus',
-        'minor'     => 'minor|minor|minus',
-        'minus'     => 'minor|minor|minus',
-        'bicolor'   => 'bicolor|bicolor|bicolor',
-        'bicoloris' => 'bicoloris|bicoloris|bicoloris',
-        'acer'      => 'acer|acris|acre',
-        'acris'     => 'acer|acris|acre',
-        'acre'      => 'acer|acris|acre',
-        'cefera'    => 'cefer|cefera|ceferum',
-        'ceferum'   => 'cefer|cefera|ceferum',
-        'cegera'    => 'ceger|cegera|cegerum',
-        'cegerum'   => 'ceger|cegera|cegerum',
-        'glaber'    => 'glaber|glabra|glabrum',
-        'glabra'    => 'glaber|glabra|glabrum',
-        'glabrum'   => 'glaber|glabra|glabrum',
-        'ater'      => 'ater|atra|atrum',
-        'atra'      => 'ater|atra|atrum',
-        'atrum'     => 'ater|atra|atrum',
-        'pedestris' => 'pedester|pedestris|pedestre',
-        'mirus'     => 'mirus|mira|mirum',
-        'mira'      => 'mirus|mira|mirum',
-        'mirum'     => 'mirus|mira|mirum',
-        'integer'   => 'integer|integra|integrum',
-        'integra'   => 'integer|integra|integrum',
-        'integrum'  => 'integer|integra|integrum',
-        'asper'     => 'asper|aspera|asperum',
-        'aspera'    => 'asper|aspera|asperum',
-        'asperum'   => 'asper|aspera|asperum',
+        'albus'      => 'albus|alba|album',
+        'alba'       => 'albus|alba|album',
+        'album'      => 'albus|alba|album',
+        'niger'      => 'niger|nigra|nigrum',
+        'nigra'      => 'niger|nigra|nigrum',
+        'nigrum'     => 'niger|nigra|nigrum',
+        'viridis'    => 'viridis|viridis|viride',
+        'viride'     => 'viridis|viridis|viride',
+        'major'      => 'major|major|majus',
+        'majus'      => 'major|major|majus',
+        'minor'      => 'minor|minor|minus',
+        'minus'      => 'minor|minor|minus',
+        'bicolor'    => 'bicolor|bicolor|bicolor',
+        'bicoloris'  => 'bicoloris|bicoloris|bicoloris',
+        'acer'       => 'acer|acris|acre',
+        'acris'      => 'acer|acris|acre',
+        'acre'       => 'acer|acris|acre',
+        'cefera'     => 'cefer|cefera|ceferum',
+        'ceferum'    => 'cefer|cefera|ceferum',
+        'cegera'     => 'ceger|cegera|cegerum',
+        'cegerum'    => 'ceger|cegera|cegerum',
+        'glaber'     => 'glaber|glabra|glabrum',
+        'glabra'     => 'glaber|glabra|glabrum',
+        'glabrum'    => 'glaber|glabra|glabrum',
+        'lorifer'    => 'lorifer|lorifera|loriferum',
+        'albiger'    => 'albiger|albigera|albigerum',
+        'ater'       => 'ater|atra|atrum',
+        'atra'       => 'ater|atra|atrum',
+        'atrum'      => 'ater|atra|atrum',
+        'pedestris'  => 'pedester|pedestris|pedestre',
+        'mirus'      => 'mirus|mira|mirum',
+        'mira'       => 'mirus|mira|mirum',
+        'mirum'      => 'mirus|mira|mirum',
+        'integer'    => 'integer|integra|integrum',
+        'integra'    => 'integer|integra|integrum',
+        'integrum'   => 'integer|integra|integrum',
+        'asper'      => 'asper|aspera|asperum',
+        'aspera'     => 'asper|aspera|asperum',
+        'asperum'    => 'asper|aspera|asperum',
+        'vetus'      => 'vetus|vetus|vetus',
+        'nigerrimus' => 'nigerrimus|nigerrima|nigerrimum',
+        'nigerrima' => 'nigerrimus|nigerrima|nigerrimum',
+        'nigerrimum' => 'nigerrimus|nigerrima|nigerrimum',
     }
 
     @entry = 0
@@ -398,13 +419,68 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
       @entry += 1
       specify "case #{@entry}: '#{name}' should yield #{result}" do
         t = FactoryBot.build(:relationship_species, name: name, parent: nil)
-        forms = t.predict_three_forms
+        forms = Utilities::Nomenclature.predict_three_forms(t.name)
         u = forms[:masculine_name].to_s + '|' +
             forms[:feminine_name].to_s + '|' +
             forms[:neuter_name].to_s
         expect(u).to eq(result)
       end
     }
+  end
+
+  context '.batch_update' do
+    specify '(sync)' do
+      root = Protonym.where(parent_id: nil, project_id: Current.project_id).first || FactoryBot.create(:root_taxon_name)
+      order1 = Protonym.create!(name: 'Batchsyncorder', rank_class: Ranks.lookup(:iczn, :order), parent: root)
+      genus1 = Protonym.create!(name: 'Aussyncbatch', rank_class: Ranks.lookup(:iczn, :genus), parent: order1)
+      genus2 = Protonym.create!(name: 'Bussyncbatch', rank_class: Ranks.lookup(:iczn, :genus), parent: order1)
+
+      t1 = Protonym.create!(name: 'aussync', rank_class: Ranks.lookup(:iczn, :species), parent: genus1)
+      t2 = Protonym.create!(name: 'bussync', rank_class: Ranks.lookup(:iczn, :species), parent: genus1)
+
+      q = ::Queries::TaxonName::Filter.new({taxon_name_id: [t1.id, t2.id]})
+
+      params = {
+        async_cutoff: 3,
+        taxon_name: { parent_id: genus2.id }
+      }.merge(taxon_name_query: q.params)
+
+      response = Protonym.batch_update(params).to_json
+
+      expect(response[:updated]).to include(t1.id, t2.id)
+      expect(response[:not_updated]).to eq([])
+      expect(t1.reload.parent).to eq genus2
+      expect(t2.reload.parent).to eq genus2
+    end
+
+    specify '(async)' do
+      root = Protonym.where(parent_id: nil, project_id: Current.project_id).first || FactoryBot.create(:root_taxon_name)
+      order1 = Protonym.create!(name: 'Batchasyncorder', rank_class: Ranks.lookup(:iczn, :order), parent: root)
+      genus1 = Protonym.create!(name: 'Ausasyncbatch', rank_class: Ranks.lookup(:iczn, :genus), parent: order1)
+      genus2 = Protonym.create!(name: 'Busasyncbatch', rank_class: Ranks.lookup(:iczn, :genus), parent: order1)
+
+      t1 = Protonym.create!(name: 'ausasync', rank_class: Ranks.lookup(:iczn, :species), parent: genus1)
+      t2 = Protonym.create!(name: 'busasync', rank_class: Ranks.lookup(:iczn, :species), parent: genus1)
+
+      q = ::Queries::TaxonName::Filter.new({taxon_name_id: [t1.id, t2.id]})
+
+      params = {
+        async_cutoff: 1,
+        taxon_name: { parent_id: genus2.id },
+        user_id: Current.user_id,
+        project_id: Current.project_id
+      }.merge(taxon_name_query: q.params)
+
+      response = Protonym.batch_update(params).to_json
+
+      sleep(2) # jobs trigger in 1 second
+      Delayed::Worker.new.work_off
+
+      expect(response[:total_attempted]).to eq(2)
+      expect(response[:async]).to eq(true)
+      expect(t1.reload.parent).to eq genus2
+      expect(t2.reload.parent).to eq genus2
+    end
   end
 
 end

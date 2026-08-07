@@ -6,10 +6,11 @@
 #
 ---
 
-layout: { }  # element_set_id: { element_id: position } 
+layout: { }  # element_set_id: { element_id: position }
 disable_chime: false
 items_per_list_page: 20
 taxon_name_autocomplete_redirects_to_valid: false
+key_edit_layout: previous_future # or full_key
 default_hub_tab_order: # not ported
   - tasks
   - data

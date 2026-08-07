@@ -1,7 +1,6 @@
 class SerialsController < ApplicationController
   include DataControllerConfiguration::SharedDataControllerConfiguration
 
-  before_action :require_sign_in
   before_action :set_serial, only: [:show, :edit, :update, :destroy]
 
   # GET /serials
@@ -14,8 +13,9 @@ class SerialsController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        #@serials = Serial.order(updated_at: :desc).limit(10)
-        @serials = Queries::Serial::Filter.new(filter_params).all.page(params[:page]).per(params[:per] || 500)
+        @serials = Queries::Serial::Filter.new(params).all
+        .page(params[:page])
+        .per(params[:per])
       }
     end
   end
@@ -50,7 +50,7 @@ class SerialsController < ApplicationController
         format.json { render action: 'show', status: :created, location: @serial }
       else
         format.html { render action: 'new' }
-        format.json { render json: @serial.errors, status: :unprocessable_entity }
+        format.json { render json: @serial.errors, status: :unprocessable_content }
       end
     end
   end
@@ -64,7 +64,7 @@ class SerialsController < ApplicationController
         format.json { head :no_content }
       else
         format.html { render action: 'edit' }
-        format.json { render json: @serial.errors, status: :unprocessable_entity }
+        format.json { render json: @serial.errors, status: :unprocessable_content }
       end
     end
   end
@@ -79,7 +79,7 @@ class SerialsController < ApplicationController
         format.json { head :no_content }
       else
         format.html { destroy_redirect @serial, notice: 'Serial was not destroyed, ' + @serial.errors.full_messages.join('; ') }
-        format.json { render json: @serial.errors, status: :unprocessable_entity }
+        format.json { render json: @serial.errors, status: :unprocessable_content }
       end
     end
   end
@@ -110,25 +110,12 @@ class SerialsController < ApplicationController
   # GET /serials/download
   def download
     send_data(
-      Export::Download.generate_csv(Serial.all),
+      Export::CSV.generate_csv(Serial.all),
       type: 'text',
-      filename: "serials_#{DateTime.now}.csv")
+      filename: "serials_#{DateTime.now}.tsv")
   end
 
   private
-
-  def filter_params
-    params.permit(
-      :name, :id,
-      data_attributes_attributes: [
-        :id,
-        :_destroy,
-        :controlled_vocabulary_term_id,
-        :type,
-        :attribute_subject_id,
-        :attribute_subject_type,
-        :value ])
-  end
 
   def set_serial
     @serial = Serial.find(params[:id])
@@ -148,6 +135,7 @@ class SerialsController < ApplicationController
       :first_year_of_issue,
       :last_year_of_issue,
       :translated_from_serial_id,
+      :is_electronic_only,
       alternate_values_attributes: [
         :id,
         :value,

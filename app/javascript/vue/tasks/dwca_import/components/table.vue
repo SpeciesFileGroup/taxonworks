@@ -1,54 +1,68 @@
 <template>
   <div>
-    <virtual-pagination-component/>
+    <div class="horizontal-right-content margin-medium-bottom">
+      <CheckboxIgnoreColumns />
+    </div>
     <virtual-scroller
       :items="list"
       :item-height="43"
       class="dwca-vscroll"
       ref="table"
-      @update="getPages">
+      @update="getPages"
+    >
       <template #default="{ items }">
         <spinner-component
           legend="Updating records..."
-          v-if="isSaving"/>
-        <spinner-component v-if="isLoading"/>
-        <table
-          class="dwca-table">
+          v-if="isSaving"
+        />
+        <spinner-component v-if="isLoading" />
+        <table class="dwca-table">
           <thead>
             <tr>
-              <th
-                class="position-sticky">
-                Options
-              </th>
+              <th class="position-sticky">Options</th>
               <status-filter
                 class="position-sticky margin-medium-left"
                 :disabled="isProcessing"
-                v-model="params.status"/>
-              <column-filter
+                v-model="params.status"
+              />
+              <template
                 v-for="(item, index) in datasetHeaders"
-                :key="index"
-                :title="item"
-                :disabled="isProcessing"
-                :column-index="index"
-                @replace="replaceField"
-                class="position-sticky margin-medium-left"
-                v-model="params.filter[index]"
-                :field="index"/>
+                :key="item"
+              >
+                <column-filter
+                  v-if="settings.ignoredColumns || !isIgnored(index)"
+                  :title="item"
+                  :disabled="isProcessing"
+                  :column-index="index"
+                  :ignored="isIgnored(index)"
+                  v-model="params.filter[index]"
+                  :field="index"
+                  @replace="replaceField"
+                />
+              </template>
             </tr>
           </thead>
           <tbody>
             <template
               v-for="(item, index) in items"
-              :key="index">
+              :key="index"
+            >
               <row-component
                 v-if="item"
                 class="contextMenuCells"
-                :row="item"/>
+                :class="{ hightlight: currentRowIndex === item.id }"
+                :row="item"
+                @click="() => highlightRow(item.id)"
+              />
               <tr
                 v-else
-                class="row-empty contextMenuCells">
-                <td style="height: 40px" colspan="100">
-                  <div class="dwc-table-cell"/>
+                class="row-empty contextMenuCells"
+              >
+                <td
+                  style="height: 40px"
+                  colspan="100"
+                >
+                  <div class="dwc-table-cell" />
                 </td>
               </tr>
             </template>
@@ -56,24 +70,24 @@
         </table>
       </template>
     </virtual-scroller>
-    <confirmation-modal ref="confirmation"/>
+    <confirmation-modal ref="confirmation" />
   </div>
 </template>
 
 <script>
-
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import { ActionNames } from '../store/actions/actions'
 import { UpdateColumnField } from '../request/resources'
 import VirtualScroller from './VirtualScroller.vue'
-import SpinnerComponent from 'components/spinner'
+import SpinnerComponent from '@/components/ui/VSpinner'
 
 import RowComponent from './row'
 import ColumnFilter from './ColumnFilter'
 import StatusFilter from './StatusFilter'
-import VirtualPaginationComponent from './VirtualPagination'
-import ConfirmationModal from 'components/ConfirmationModal'
+import CheckboxIgnoreColumns from './settings/CheckboxIgnoreColumns.vue'
+import ConfirmationModal from '@/components/ConfirmationModal'
+import VIcon from '@/components/ui/VIcon/index.vue'
 
 export default {
   components: {
@@ -83,46 +97,62 @@ export default {
     ColumnFilter,
     StatusFilter,
     SpinnerComponent,
-    VirtualPaginationComponent
+    VIcon,
+    CheckboxIgnoreColumns
   },
 
   computed: {
     params: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetParamsFilter]
       },
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetParamsFilter, value)
       }
     },
-    datasetHeaders () {
+    datasetHeaders() {
       const metadata = this.$store.getters[GetterNames.GetDataset].metadata
       return metadata ? metadata.core_headers : []
     },
-    datasetRecords () {
+    datasetRecords() {
       return this.$store.getters[GetterNames.GetDatasetRecords]
     },
     dataset() {
       return this.$store.getters[GetterNames.GetDataset]
     },
-    list () {
-      return [].concat(...this.datasetRecords.map(page => page.rows ? page.rows : new Array(page.count)))
+    list() {
+      return [].concat(
+        ...this.datasetRecords.map((page) =>
+          page.rows ? page.rows : new Array(page.count)
+        )
+      )
     },
-    currentVirtualPage () {
+    currentVirtualPage() {
       return this.$store.getters[GetterNames.GetCurrentVirtualPage]
     },
-    importId () {
+    importId() {
       return this.$store.getters[GetterNames.GetDataset].id
     },
-    pagination () {
+    pagination() {
       return this.$store.getters[GetterNames.GetPagination]
     },
-    isProcessing () {
+    isProcessing() {
       return this.$store.getters[GetterNames.GetSettings].isProcessing
+    },
+    settings() {
+      return this.$store.getters[GetterNames.GetSettings]
+    },
+    currentRowIndex: {
+      get() {
+        return this.$store.getters[GetterNames.GetCurrentRowIndex]
+      },
+      set(value) {
+        this.$store.commit(MutationNames.SetCurrentRowIndex, value)
+      }
     }
   },
 
-  data () {
+  data() {
     return {
       isLoading: false,
       isSaving: false
@@ -131,7 +161,7 @@ export default {
 
   watch: {
     params: {
-      handler () {
+      handler() {
         if (!this.dataset.id) return
         this.$refs.table.$el.scrollTop = 0
         this.isLoading = true
@@ -142,40 +172,61 @@ export default {
       deep: true
     },
 
-    currentVirtualPage () {
+    currentVirtualPage() {
       this.$refs.table.$el.scrollTop = 0
     }
   },
 
   methods: {
-    loadPage (pages) {
-      pages.forEach(page => {
+    loadPage(pages) {
+      pages.forEach((page) => {
         this.$store.dispatch(ActionNames.LoadDatasetRecords, page)
       })
     },
 
-    getPages (indexes) {
-      const pages = [Math.floor(indexes.endIndex / this.params.per), Math.ceil(indexes.endIndex / this.params.per)].map(page => page === 0 ? 1 : page)
+    isIgnored(index) {
+      return !this.dataset.metadata?.core_records_mapped_fields?.includes(index)
+    },
+
+    getPages(indexes) {
+      const pages = [
+        Math.floor(indexes.endIndex / this.params.per),
+        Math.ceil(indexes.endIndex / this.params.per)
+      ].map((page) => (page === 0 ? 1 : page))
       this.loadPage(pages)
     },
 
-    async replaceField ({ columnIndex, replaceValue, currentValue }) {
+    async replaceField({ columnIndex, replaceValue, currentValue }) {
       const ok = await this.$refs.confirmation.show({
         title: this.datasetHeaders[columnIndex],
         message: `<i>${currentValue}</i> will be replaced with <i>${replaceValue}</i> in ${this.pagination.total} records.`,
-        typeButton: 'submit'
+        typeButton: 'submit',
+        cancelButton: 'Cancel'
       })
       if (ok) {
         this.isSaving = true
-        UpdateColumnField(this.importId, Object.assign({}, {
-          field: columnIndex,
-          value: replaceValue
-        }, this.params)).then(() => {
-          this.params.filter[columnIndex] = replaceValue
-        }).finally(() => {
-          this.isSaving = false
-        })
+        UpdateColumnField(
+          this.importId,
+          Object.assign(
+            {},
+            {
+              field: columnIndex,
+              value: replaceValue
+            },
+            this.params
+          )
+        )
+          .then(() => {
+            this.params.filter[columnIndex] = replaceValue
+          })
+          .finally(() => {
+            this.isSaving = false
+          })
       }
+    },
+
+    highlightRow(index) {
+      this.currentRowIndex = index
     }
   }
 }
@@ -183,7 +234,7 @@ export default {
 
 <style lang="scss">
 .dwca-vscroll {
-  height: calc(100vh - 260px);
+  height: calc(100vh - 280px);
   overflow: auto;
   overflow-anchor: none;
 }
@@ -191,6 +242,10 @@ export default {
   th {
     top: 0;
     z-index: 2101;
+    border-left: 1px solid var(--border-color);
+    border-right: 1px solid var(--border-color);
+    box-shadow: inset 0 -2px 0 var(--border-color);
+    border-bottom: none;
   }
 
   .show-import-process {
@@ -203,8 +258,16 @@ export default {
     transform: translate(-50%);
   }
   .row-empty {
-    background: linear-gradient(transparent,transparent 20%,hsla(0,0%,50.2%,0.03) 0,hsla(0,0%,50.2%,0.08) 50%,hsla(0,0%,50.2%,0.03) 80%,transparent 0,transparent);
-    background-size:100% 40px
+    background: linear-gradient(
+      transparent,
+      transparent 20%,
+      hsla(0, 0%, 50.2%, 0.03) 0,
+      hsla(0, 0%, 50.2%, 0.08) 50%,
+      hsla(0, 0%, 50.2%, 0.03) 80%,
+      transparent 0,
+      transparent
+    );
+    background-size: 100% 40px;
   }
   .dwc-table-cell {
     display: table-cell;
@@ -213,7 +276,26 @@ export default {
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
-    vertical-align: middle
+    vertical-align: middle;
+  }
+
+  .hightlight {
+    outline: 2px solid var(--color-primary) !important;
+    outline-offset: -2px;
+  }
+
+  .cell-ignore {
+    background-color: var(--soft-validation-bg-color);
+  }
+
+  .cell-disabled {
+    background-color: var(--bg-muted);
+  }
+
+  tr:hover {
+    td.cell-ignore {
+      background-color: inherit;
+    }
   }
 }
 </style>

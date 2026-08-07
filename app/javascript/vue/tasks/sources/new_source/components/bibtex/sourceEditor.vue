@@ -1,89 +1,68 @@
 <template>
   <fieldset v-help.section.BibTeX.editors>
     <legend>Editors</legend>
-    <smart-selector
+    <SmartSelector
       model="people"
-      target="Source"
-      klass="Source"
       label="cached"
+      :target="ROLE_SOURCE_EDITOR"
+      :klass="SOURCE"
       :filter-ids="peopleIds"
-      :params="{ role_type: 'SourceEditor' }"
+      :params="{ role_type: ROLE_SOURCE_EDITOR }"
       :autocomplete-params="{
-        roles: ['SourceEditor']
+        roles: [ROLE_SOURCE_EDITOR]
       }"
       :autocomplete="false"
-      @selected="addRole">
+      @selected="addRole"
+    >
       <template #header>
-        <role-picker
+        <RolePicker
+          v-model="source.roles_attributes"
           ref="rolePicker"
-          hidden-list
-          v-model="roleAttributes"
-          :autofocus="false"
           filter-by-role
-          role-type="SourceEditor"/>
+          hidden-list
+          :autofocus="false"
+          :role-type="ROLE_SOURCE_EDITOR"
+          @update:model-value="() => (source.isUnsaved = true)"
+        />
       </template>
-      <role-picker
-        v-model="roleAttributes"
+      <RolePicker
+        v-model="source.roles_attributes"
         :create-form="false"
         :autofocus="false"
         filter-by-role
-        role-type="SourceEditor"/>
-    </smart-selector>
+        :role-type="ROLE_SOURCE_EDITOR"
+        @update:model-value="() => (source.isUnsaved = true)"
+      />
+    </SmartSelector>
   </fieldset>
 </template>
 
-<script>
+<script setup>
+import { computed, ref } from 'vue'
+import { ROLE_SOURCE_EDITOR, SOURCE } from '@/constants'
+import RolePicker from '@/components/role_picker.vue'
+import SmartSelector from '@/components/ui/SmartSelector'
 
-import { GetterNames } from '../../store/getters/getters'
-import { MutationNames } from '../../store/mutations/mutations'
-import { findRole } from 'helpers/people/people.js'
-import makePerson from 'factory/Person.js'
-import RolePicker from 'components/role_picker.vue'
-import SmartSelector from 'components/ui/SmartSelector'
-import { ROLE_SOURCE_EDITOR } from 'constants/index.js'
+const source = defineModel({
+  type: Object,
+  required: true
+})
 
-export default {
-  components: {
-    RolePicker,
-    SmartSelector
-  },
-  computed: {
-    source: {
-      get () {
-        return this.$store.getters[GetterNames.GetSource]
-      },
-      set (value) {
-        this.$store.commit(MutationNames.SetSource, value)
-      }
-    },
-    lastSave () {
-      return this.$store.getters[GetterNames.GetLastSave]
-    },
-    roleAttributes: {
-      get () {
-        return this.$store.getters[GetterNames.GetRoleAttributes]
-      },
-      set (value) {
-        this.$store.commit(MutationNames.SetRoles, value)
-      }
-    },
-    peopleIds () {
-      return this.roleAttributes.filter(item => item.person_id || item.person).map(item => item.person_id ? item.person_id : item.person.id)
-    }
-  },
+const rolePicker = ref(null)
 
-  methods: {
-    addRole (person) {
-      if (!findRole(this.source.roles_attributes, person.id)) {
-        this.$refs.rolePicker.setPerson(
-          makePerson(
-            person.first_name,
-            person.last_name,
-            person.id,
-            ROLE_SOURCE_EDITOR)
-        )
-      }
-    }
-  }
+const peopleIds = computed(() =>
+  source.value.roles_attributes
+    .filter(
+      (item) =>
+        (item.person_id || item.person) &&
+        !item._destroy &&
+        item.type === ROLE_SOURCE_EDITOR
+    )
+    .map((item) => item?.person_id || item.person.id)
+)
+
+function addRole(person) {
+  source.value.isUnsaved = true
+  rolePicker.value.addPerson(person)
 }
 </script>

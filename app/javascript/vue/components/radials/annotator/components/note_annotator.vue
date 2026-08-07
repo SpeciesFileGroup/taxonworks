@@ -1,75 +1,109 @@
 <template>
   <div class="notes_annotator">
-    <textarea class="separate-bottom" placeholder="Text..." v-model="note.text"/>
-    <div v-if="note.hasOwnProperty('id')">
-      <button type="button" class="button button-submit normal-input separate-bottom" @click="updateNote()" :disabled="!validateFields">Update</button>
-      <button type="button" class="button button-default normal-input" @click="note = newNote()">New</button>
+    <textarea
+      class="separate-bottom"
+      v-model="note.text"
+      rows="10"
+      placeholder="Text..."
+    />
+    <div v-if="note.id">
+      <v-btn
+        class="margin-small-right"
+        color="create"
+        medium
+        :disabled="!validateFields"
+        @click="saveNote()"
+      >
+        Update
+      </v-btn>
+      <v-btn
+        color="primary"
+        medium
+        @click="note = newNote()"
+      >
+        New
+      </v-btn>
     </div>
     <div v-else>
-      <button @click="createNew()" :disabled="!validateFields" class="button button-submit normal-input separate-bottom" type="button">Create</button>
+      <v-btn
+        medium
+        color="create"
+        :disabled="!validateFields"
+        @click="saveNote()"
+      >
+        Create
+      </v-btn>
     </div>
-    <display-list label="text" :list="list" :edit="true" @edit="note = $event" @delete="removeItem" class="list"/>
+    <display-list
+      label="text"
+      :list="list"
+      edit
+      @edit="(item) => (note = item)"
+      @delete="removeItem"
+    />
   </div>
 </template>
-<script>
 
-import CRUD from '../request/crud.js'
-import annotatorExtend from '../components/annotatorExtend.js'
-import autocomplete from 'components/ui/Autocomplete.vue'
-import displayList from './displayList.vue'
+<script setup>
+import { Note } from '@/routes/endpoints'
+import { ref, computed } from 'vue'
+import { useSlice } from '@/components/radials/composables'
+import DisplayList from '@/components/displayList.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
 
-export default {
-  mixins: [CRUD, annotatorExtend],
-  components: {
-    displayList
+const props = defineProps({
+  objectId: {
+    type: Number,
+    required: true
   },
-  computed: {
-    validateFields () {
-      return this.note.text
-    }
-  },
-  data: function () {
-    return {
-      list: [],
-      note: this.newNote()
-    }
-  },
-  methods: {
-    newNote () {
-      return {
-        text: null,
-        annotated_global_entity: decodeURIComponent(this.globalId)
-      }
-    },
-    createNew () {
-      this.create('/notes', { note: this.note }).then(response => {
-        this.list.push(response.body)
-        this.note = this.newNote()
-      })
-    },
-    updateNote () {
-      this.update(`/notes/${this.note.id}`, { note: this.note }).then(response => {
-        const index = this.list.findIndex(element => element.id === this.note.id)
 
-        this.list[index] = response.body
-        this.note = this.newNote()
-      })
-    }
+  objectType: {
+    type: String,
+    required: true
+  },
+
+  radialEmit: {
+    type: Object,
+    required: true
+  }
+})
+
+const { list, addToList, removeFromList } = useSlice({
+  radialEmit: props.radialEmit
+})
+
+const validateFields = computed(() => note.value.text)
+const note = ref(newNote())
+
+function newNote() {
+  return {
+    text: null,
+    note_object_id: props.objectId,
+    note_object_type: props.objectType
   }
 }
+
+function saveNote() {
+  const request = note.value.id
+    ? Note.update(note.value.id, { note: note.value })
+    : Note.create({ note: note.value })
+
+  request.then(({ body }) => {
+    addToList(body)
+  })
+}
+
+function removeItem(item) {
+  Note.destroy(item.id).then((_) => {
+    removeFromList(item)
+  })
+}
+
+Note.where({
+  note_object_id: props.objectId,
+  note_object_type: props.objectType,
+  per: 500
+}).then(({ body }) => {
+  list.value = body
+})
 </script>
-<style lang="scss">
-.radial-annotator {
-  .notes_annotator {
-    button {
-      min-width: 100px;
-    }
-    textarea {
-      padding-top: 14px;
-      padding-bottom: 14px;
-      width: 100%;
-      height: 100px;
-    }
-  }
-}
-</style>

@@ -1,9 +1,9 @@
-require_dependency 'queries/tag/filter'
+# require_dependency 'queries/tag/filter'
 
 class TagsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_tag, only: [:update, :destroy]
+  before_action :set_tag, only: [:update, :destroy, :api_show]
   after_action -> { set_pagination_headers(:tags) }, only: [:index, :api_index ], if: :json_request?
   # GET /tags
   # GET /tags.json
@@ -14,10 +14,25 @@ class TagsController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @tags = ::Queries::Tag::Filter.new(params).all.where(project_id: sessions_current_project_id).
-        page(params[:page]).per(params[:per] || 500)
+        # Possibly broken polymorphics?
+        @tags = ::Queries::Tag::Filter.new(params).all
+          .page(params[:page])
+          .per(params[:per])
       }
     end
+  end
+
+  def api_index
+    @tags = Queries::Tag::Filter.new(params.merge!(api: true)).all
+      .where(project_id: sessions_current_project_id)
+      .order('tags.id')
+      .page(params[:page])
+      .per(params[:per])
+    render '/tags/api/v1/index'
+  end
+
+  def api_show
+    render '/tags/api/v1/show'
   end
 
   def new
@@ -50,7 +65,7 @@ class TagsController < ApplicationController
           redirect_back(fallback_location: (request.referer || root_path),
                         notice: 'Tag was NOT successfully created.')
         }
-        format.json { render json: @tag.errors, status: :unprocessable_entity }
+        format.json { render json: @tag.errors, status: :unprocessable_content }
       end
     end
   end
@@ -66,7 +81,7 @@ class TagsController < ApplicationController
       else
         format.html { redirect_back(fallback_location: (request.referer || root_path),
                                     notice: 'Tag was NOT successfully updated.') }
-        format.json { render json: @tag.errors, status: :unprocessable_entity }
+        format.json { render json: @tag.errors, status: :unprocessable_content }
       end
     end
   end
@@ -74,11 +89,15 @@ class TagsController < ApplicationController
   # DELETE /tags/1
   # DELETE /tags/1.json
   def destroy
-    @tag.destroy!
+    @tag.destroy
     respond_to do |format|
-      # TODO: probably needs to be changed with new annotator
-      format.html { destroy_redirect @tag, notice: 'Tag was successfully destroyed.' }
-      format.json { head :no_content }
+      if @tag.destroyed?
+        format.html { destroy_redirect @tag, notice: 'Tag was successfully destroyed.' }
+        format.json { head :no_content}
+      else
+        format.html { destroy_redirect @tag, notice: 'Tag was not destroyed, ' + @tag.errors.full_messages.join('; ') }
+        format.json { render json: @tag.errors, status: :unprocessable_content }
+      end
     end
   end
 
@@ -98,8 +117,8 @@ class TagsController < ApplicationController
 
   # GET /tags/download
   def download
-    send_data Export::Download.generate_csv(Tag.where(project_id: sessions_current_project_id)),
-      type: 'text', filename: "tags_#{DateTime.now}.csv"
+    send_data Export::CSV.generate_csv(Tag.where(project_id: sessions_current_project_id)),
+      type: 'text', filename: "tags_#{DateTime.now}.tsv"
   end
 
   # POST /tags/batch_remove?keyword_id=123&klass=456
@@ -111,10 +130,15 @@ class TagsController < ApplicationController
     end
   end
 
-  # POST /tags/batch_create.json?keyword_id=123&object_type=CollectionObject&object_ids[]=123
+  # POST /tags/batch_create.json?keyword_id=123&object_type=CollectionObject&object_id[]=123
   def batch_create
     if Tag.batch_create(
-        params.permit(:keyword_id, :object_type, object_ids: []).to_h.merge(user_id: sessions_current_user_id, project_id: sessions_current_project_id).symbolize_keys
+        **params.permit(
+          :keyword_id,
+          :object_type,
+          object_id: []).to_h
+          .merge(project_id: sessions_current_project_id)
+          .symbolize_keys
     )
       render json: {success: true}
     else
@@ -130,17 +154,19 @@ class TagsController < ApplicationController
 
   def tag_params
     params.require(:tag).permit(
-      :keyword_id, :tag_object_id, :tag_object_type, :tag_object_attribute, :annotated_global_entity, :_destroy,
-      :target, keyword_attributes: [:name, :definition, :uri, :uri_relation, :css_color]
+      :keyword_id, :tag_object_id, :tag_object_type,
+      :tag_object_attribute, :annotated_global_entity,
+      :_destroy, :target
+      #   keyword_attributes: [:name, :definition, :uri, :uri_relation, :css_color] # TODO: this almost certainly doesn't belon
     )
   end
 
   def taggable_object_params
     params.require(:taggable_object).permit(
-      tags_attributes: [:_destroy, :id, :keyword_id, :position,
-                        keyword_attributes: [:name, :definition, :uri, :html_color]
-
-    ])
+      tags_attributes: [
+        :_destroy, :id, :keyword_id, :position,
+        keyword_attributes: [:name, :definition, :uri, :html_color]
+      ])
   end
 
   def taggable_object
@@ -148,4 +174,3 @@ class TagsController < ApplicationController
   end
 
 end
-

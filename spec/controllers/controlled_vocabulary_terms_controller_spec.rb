@@ -142,21 +142,5 @@ describe ControlledVocabularyTermsController, type: :controller do
     end
   end
 
-  describe 'DELETE destroy' do
-    it 'destroys the requested controlled_vocabulary_term' do
-      controlled_vocabulary_term = ControlledVocabularyTerm.create! valid_attributes
-      request.env['HTTP_REFERER'] = controlled_vocabulary_term_path(controlled_vocabulary_term)
-      expect {
-        delete :destroy, params: {id: controlled_vocabulary_term.to_param}, session: valid_session
-      }.to change(ControlledVocabularyTerm, :count).by(-1)
-    end
-
-    it 'redirects to the controlled_vocabulary_terms list' do
-      controlled_vocabulary_term = ControlledVocabularyTerm.create! valid_attributes
-      request.env['HTTP_REFERER'] = controlled_vocabulary_term_path(controlled_vocabulary_term)
-      delete :destroy, params: {id: controlled_vocabulary_term.to_param}, session: valid_session
-      expect(response).to redirect_to(controlled_vocabulary_terms_url)
-    end
-  end
-
+  include_examples 'DELETE #destroy', ControlledVocabularyTerm
 end

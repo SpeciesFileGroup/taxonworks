@@ -2,14 +2,16 @@
   <div>
     <h3
       v-if="!!collectingEvent"
-      class="middle">
-      <span v-html="collectingEvent.object_tag"/>
+      class="middle"
+    >
+      <span v-html="collectingEvent.object_tag" />
       <button
         type="button"
         class="button circle-button btn-undo button-default"
-        @click="setCE({})"/>
+        @click="setCE({})"
+      />
     </h3>
-    <smart-selector
+    <SmartSelector
       v-else
       class="full_width"
       ref="smartSelector"
@@ -18,13 +20,13 @@
       klass="CollectionObject"
       pin-section="CollectingEvents"
       pin-type="CollectingEvent"
-      @selected="setCE"/>
+      @selected="setCE"
+    />
   </div>
 </template>
 
 <script>
-
-import SmartSelector from 'components/ui/SmartSelector'
+import SmartSelector from '@/components/ui/SmartSelector'
 
 export default {
   components: { SmartSelector },
@@ -36,11 +38,11 @@ export default {
     }
   },
 
-  emits: ['onSelect'],
+  emits: ['select'],
 
   methods: {
-    setCE (ce) {
-      this.$emit('onSelect', ce)
+    setCE(ce) {
+      this.$emit('select', ce)
     }
   }
 }

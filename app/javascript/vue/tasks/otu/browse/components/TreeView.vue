@@ -7,7 +7,7 @@
         <a :href="`/tasks/otus/browse?taxon_name_id=${taxon.id}`">
           <span v-html="taxon.object_tag"/>
         </a>
-        <span>{{ isValid(taxon) ? '✓' : '❌' }}</span>
+        <span>{{ taxon.cached_is_valid ? '✓' : '❌' }}</span>
         <tree-view
           v-if="list.find(child => taxon.id === child.parent_id)"
           :current-taxon-id="taxon.id"
@@ -47,11 +47,11 @@ export default {
     getChilds (taxon) {
       return this.list.filter(item => taxon.id === item.parent_id)
     },
+
     checkFilter (taxon) {
-      return this.onlyValid ? taxon.id === taxon.cached_valid_taxon_name_id : true
-    },
-    isValid (taxon) {
-      return taxon.id === taxon.cached_valid_taxon_name_id
+      return this.onlyValid
+        ? taxon.cached_is_valid
+        : true
     }
   }
 }

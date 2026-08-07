@@ -5,23 +5,24 @@
 <% object_name ||= controller.humanize.downcase.singularize.html_safe.gsub(/\//, '') -%>
 <% send_select ||= false %>
 <% autofocus ||= nil %>
+<% methodValue = object.present? ? "#{object}[#{method}]" : method %>
 
 <% url = url_for({
   controller: controller,
   action: action,
   tag_id: tag_id,
-  method: "#{object}[#{method}]",
+  method: methodValue,
   escape: false}) -%>
 
 <input autocomplete="off"
-       title="Find and select a <%= object_name -%>. You must click or tab off a row to choose the item."
-       placeholder="Select a <%= object_name -%>"
-       class="mx-autocomplete <%= css_class -%> mousetrap"
+       title="Find and select <%= Utilities::Strings.a_label(object_name) -%>. You must click or tab off a row to choose the item."
+       placeholder="Select <%= Utilities::Strings.a_label(object_name) -%>"
+       class="tw-autocomplete <%= css_class -%> mousetrap"
        id="<%= tag_id %>"
        <%= ('autofocus="autofocus"').html_safe if !autofocus.nil? -%>
        data-send-select="<%= send_select %>"
-       data-mx-autocomplete-url="<%= url %>"
-       data-mx-method="<%= "#{object}[#{method}]" %>"
+       data-tw-autocomplete-url="<%= url %>"
+       data-tw-method="<%= methodValue %>"
        <%= ((size ||= nil).nil? ? 'style="width:98%;"' : "size=\"#{size}\"").html_safe -%>
        type="text"
        value="<%= display -%>"

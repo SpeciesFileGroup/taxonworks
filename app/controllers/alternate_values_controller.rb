@@ -9,12 +9,22 @@ class AlternateValuesController < ApplicationController
   def index
     respond_to do |format|
       format.html {
-        @recent_objects = AlternateValue.where(project_id: sessions_current_project_id).order(updated_at: :desc).limit(10)
-        render '/shared/data/all/index'
+        # !! This is project-only, it will be tricky to find all created at this point. We would have
+        # to reference all project members and link through created/modified on all community opbjects.
+        # These would show up throughout the Users project as well, confusing things across project.
+        @recent_objects = ::Queries::AlternateValue::Filter.new(params.merge(project_id: sessions_current_project_id))
+          .all
+          .order(updated_at: :desc).limit(10)
+          render '/shared/data/all/index'
       }
       format.json {
-        @alternate_values = Queries::AlternateValue::Filter.new(params).all
-          .where(project_id: sessions_current_project_id).page(params[:page]).per(500)
+        # !! You must merge project_id to handle community data exceptions.  This is a contrast to other filter patterns
+        # where the project_id is scoped here.
+        @alternate_values = ::Queries::AlternateValue::Filter.new(
+          params.merge(project_id: sessions_current_project_id)
+        )
+        .all.page(params[:page])
+        .per(params[:per])
       }
     end
   end
@@ -35,7 +45,7 @@ class AlternateValuesController < ApplicationController
         format.json { render action: :show, status: :created, location: @alternate_value.metamorphosize }
       else
         format.html { render 'new', notice: 'Alternate value was NOT successfully created.' }
-        format.json { render json: @alternate_value.errors, status: :unprocessable_entity }
+        format.json { render json: @alternate_value.errors, status: :unprocessable_content }
       end
     end
   end
@@ -50,7 +60,7 @@ class AlternateValuesController < ApplicationController
         format.json { render action: :show, status: :ok, location: @alternate_value.metamorphosize }
       else
         format.html { redirect_back(fallback_location: (request.referer || root_path), notice: 'Alternate value was NOT successfully updated.')}
-        format.json { render json: @alternate_value.errors, status: :unprocessable_entity }
+        format.json { render json: @alternate_value.errors, status: :unprocessable_content }
       end
     end
   end
@@ -85,9 +95,9 @@ class AlternateValuesController < ApplicationController
     data = @alternate_values.collect do |t|
       str = render_to_string(partial: 'tag', locals: {alternate_value: t})
       {id:              t.id,
-       label:           str,
-       response_values: {params[:method] => t.id},
-       label_html:      str
+        label:           str,
+        response_values: {params[:method] => t.id},
+        label_html:      str
       }
     end
 
@@ -96,7 +106,7 @@ class AlternateValuesController < ApplicationController
 
   # GET /alternate_values/download
   def download
-    send_data Export::Download.generate_csv(AlternateValue.where(project_id: sessions_current_project_id)), type: 'text', filename: "alternate_values_#{DateTime.now}.csv"
+    send_data Export::CSV.generate_csv(AlternateValue.where(project_id: sessions_current_project_id)), type: 'text', filename: "alternate_values_#{DateTime.now}.tsv"
   end
 
   # GET /alternate_values/:global_id/metadata
@@ -108,7 +118,7 @@ class AlternateValuesController < ApplicationController
 
   def set_alternate_value
     @alternate_value = AlternateValue.find(params[:id])
-    render status: 404 if !@alternate_value.project_id.blank? && (sessions_current_project_id != @alternate_value.project_id)
+    render status: :not_found if @alternate_value.project_id.present? && (sessions_current_project_id != @alternate_value.project_id)
   end
 
   def alternate_value_params

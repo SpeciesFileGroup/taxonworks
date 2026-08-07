@@ -1,84 +1,85 @@
 <template>
   <div v-if="!deleted">
-    <div class="radial-annotator">
-      <modal
-        v-if="display"
-        :container-style="{ backgroundColor: 'transparent', boxShadow: 'none' }"
-        @close="closeModal()">
-        <template #header>
-          <h3 class="flex-separate">
-            <span v-html="title" />
-            <span
-              v-if="metadata"
-              class="separate-right"> {{ metadata.type }}</span>
-          </h3>
-        </template>
-        <template #body>
-          <div class="flex-separate">
-            <spinner v-if="loading" />
-            <div class="radial-annotator-menu">
-              <div>
-                <radial-menu
-                  v-if="menuCreated"
-                  :options="menuOptions"
-                  @onClick="selectedRadialOption"/>
-              </div>
+    <Teleport
+      v-if="isRadialOpen"
+      :disabled="!teleport"
+      to="body"
+    >
+      <div class="radial-annotator">
+        <VModal
+          transparent
+          @close="closeModal()"
+        >
+          <template #header>
+            <RadialHeader
+              :object-type="metadata?.type"
+              :object-id="metadata?.id"
+              :title="title"
+            />
+          </template>
+          <template #body>
+            <div class="horizontal-center-content">
+              <spinner v-if="isLoading" />
+              <RadialMenu
+                v-if="metadata"
+                ref="radialElement"
+                :options="menuOptions"
+                @click="selectedRadialOption"
+              />
+              <DestroyConfirmation
+                v-if="showDestroyModal"
+                @close="showDestroyModal = false"
+                @confirm="destroyObject"
+              />
             </div>
-            <div
-              class="radial-annotator-template panel"
-              :style="{ 'max-height': windowHeight(), 'min-height': windowHeight() }"
-              v-if="currentView">
-              <h2 class="capitalize view-title">
-                {{ currentView.replace("_"," ") }}
-              </h2>
-              <component
-                class="radial-annotator-container"
-                :is="(currentView ? currentView + 'Component' : undefined)"
-                :type="currentView"
-                :metadata="metadata"
-                :global-id="globalId"
-                @onSelectedGlobalId="loadMetadata"
-                @updateCount="setTotal"/>
-            </div>
-            <destroy-confirmation
-              v-if="showDestroyModal"
-              @close="showDestroyModal = false"
-              @confirm="destroyObject"/>
-          </div>
-        </template>
-      </modal>
-      <span
-        v-if="showBottom"
-        :title="buttonTitle"
-        type="button"
-        class="circle-button"
-        :class="[buttonClass]"
-        @click="displayRadialObject()">Radial annotator
-      </span>
-    </div>
+          </template>
+        </VModal>
+        <AllTasks
+          v-if="isAlltaskSelected"
+          @close="isAlltaskSelected = false"
+          :metadata="metadata"
+        />
+      </div>
+    </Teleport>
+    <VBtn
+      v-if="showBottom"
+      :title="buttonTitle"
+      color="radial"
+      circle
+      :disabled="disabled"
+      @click="openRadialMenu()"
+    >
+      <VIcon
+        name="radialNavigator"
+        x-small
+      />
+    </VBtn>
   </div>
 </template>
-<script>
 
-import RadialMenu from 'components/radials/RadialMenu.vue'
-import Modal from 'components/ui/Modal.vue'
-import Spinner from 'components/spinner.vue'
-
-import CRUD from './request/crud'
+<script setup>
+import DEFINED_TASKS from './constants/definedTasks.js'
+import RadialMenu from '@/components/radials/RadialMenu.vue'
+import Spinner from '@/components/ui/VSpinner.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 import Icons from './images/icons.js'
-
-import RecentComponent from './components/recent.vue'
 import DestroyConfirmation from './components/DestroyConfirmation'
-import all_tasksComponent from './components/allTasks.vue'
-
-import { PinboardItem } from 'routes/endpoints'
+import AllTasks from './components/allTasks.vue'
+import RadialHeader from '../shared/RadialHeader.vue'
+import ajaxCall from '@/helpers/ajaxCall'
+import { PinboardItem } from '@/routes/endpoints'
+import { computed, ref, watch } from 'vue'
+import VModal from '@/components/ui/Modal.vue'
 
 const DEFAULT_OPTIONS = {
   New: 'New',
   Edit: 'Edit',
   Destroy: 'Destroy',
   Recent: 'Recent',
-  Show: 'Show'
+  Show: 'Show',
+  Related: 'Related',
+  Unify: 'Unify'
 }
 
 const CUSTOM_OPTIONS = {
@@ -86,333 +87,373 @@ const CUSTOM_OPTIONS = {
   CircleButton: 'circleButton'
 }
 
-export default {
-  mixins: [CRUD],
-  name: 'RadialNavigation',
+const EXCLUDE_TASKS = ['unify_objects_task']
+
+defineOptions({
+  name: 'RadialNavigation'
+})
+
+const props = defineProps({
+  globalId: {
+    type: String,
+    required: true
+  },
+
+  showBottom: {
+    type: Boolean,
+    default: true
+  },
+
+  buttonTitle: {
+    type: String,
+    default: 'Radial navigator'
+  },
+
+  maxTaskInPie: {
+    type: Number,
+    default: 4
+  },
+
   components: {
-    all_tasksComponent,
-    RecentComponent,
-    RadialMenu,
-    Modal,
-    Spinner,
-    DestroyConfirmation
+    type: Object,
+    default: () => ({})
   },
 
-  props: {
-    reload: {
-      type: Boolean,
-      default: false
-    },
-
-    globalId: {
-      type: String,
-      required: true
-    },
-
-    showBottom: {
-      type: Boolean,
-      default: true
-    },
-
-    buttonClass: {
-      type: String,
-      default: 'btn-radial-object'
-    },
-
-    buttonTitle: {
-      type: String,
-      default: 'Navigate radial'
-    },
-
-    maxTaskInPie: {
-      type: Number,
-      default: 4
-    },
-
-    components: {
-      type: Object,
-      default: () => ({})
-    },
-
-    filterOptions: {
-      type: [String, Array],
-      default: () => []
-    }
+  exclude: {
+    type: [String, Array],
+    default: () => []
   },
 
-  emits: ['close'],
+  disabled: {
+    type: Boolean,
+    default: false
+  },
 
-  computed: {
-    defaultTasks () {
-      return ({
-        graph_object: {
-          name: 'Object graph',
-          path: `/tasks/graph/object?global_id=${encodeURIComponent(this.globalId)}`
-        }
-      })
-    },
+  redirect: {
+    type: Boolean,
+    default: true
+  },
 
-    menuOptions () {
-      const tasks = this.metadata.tasks || {}
-      const taskSlices = Object.entries(tasks).slice(0, this.maxTaskInPie).map(([task, { name, path }]) => ({
-        name: task,
-        label: name,
-        link: path,
-        icon: Icons[task]
-          ? {
-              url: Icons[task],
-              width: '20',
-              height: '20'
-            }
-          : undefined
-      }))
+  teleport: {
+    type: Boolean,
+    default: true
+  }
+})
 
-      if (Object.keys(tasks).length > this.maxTaskInPie) {
-        taskSlices.push({
-          label: 'All tasks',
-          name: CUSTOM_OPTIONS.AllTasks,
-          svgAttributes: {
-            class: 'slice'
-          },
-          icon: {
-            url: Icons.AllTasks,
+const emit = defineEmits(['close', 'delete'])
+
+const defaultTasks = computed(() => ({
+  graph_object: {
+    name: 'Object graph',
+    path: `/tasks/graph/object?global_id=${encodeURIComponent(props.globalId)}`
+  }
+}))
+
+const menuOptions = computed(() => {
+  const definedTasks = DEFINED_TASKS[metadata.value.type]
+  const tasks = { ...metadata.value.tasks, ...definedTasks }
+
+  EXCLUDE_TASKS.forEach((task) => {
+    delete tasks[task]
+  })
+
+  const taskSlices = Object.entries(tasks)
+    .slice(0, props.maxTaskInPie)
+    .map(([task, { name, path, idParam }]) => ({
+      name: task,
+      label: name,
+      link: idParam ? `${path}?${idParam}=${metadata.value.id}` : path,
+      icon: Icons[task]
+        ? {
+            url: Icons[task],
             width: '20',
             height: '20'
           }
-        })
-      }
+        : undefined
+    }))
 
-      if (this.metadata?.recent_url) {
-        taskSlices.push(this.addSlice(DEFAULT_OPTIONS.Recent,
-          this.recentTotal
-            ? {
-                slices: [{
-                  size: 26,
-                  label: this.recentTotal.toString(),
-                  svgAttributes: {
-                    class: 'slice-total'
-                  }
-                }]
-              }
-            : {}
-        ))
+  if (Object.keys(tasks).length > props.maxTaskInPie) {
+    taskSlices.push({
+      label: 'All tasks',
+      name: CUSTOM_OPTIONS.AllTasks,
+      svgAttributes: {
+        class: 'slice'
+      },
+      icon: {
+        url: Icons.AllTasks,
+        width: '20',
+        height: '20'
       }
+    })
+  }
 
-      const slices = [
-        ...taskSlices,
-        ...this.defaultSlices
-      ]
+  const slices = [...taskSlices, ...defaultSlices.value]
 
-      return {
-        width: 400,
-        height: 400,
-        sliceSize: 130,
-        centerSize: 34,
-        innerPosition: 1.7,
-        margin: 2,
-        middleButton: this.middleButton,
-        svgAttributes: {
-          class: 'svg-radial-menu'
-        },
-        svgSliceAttributes: {
-          fontSize: 11,
-          class: 'slice'
-        },
-        slices: slices
-      }
+  return {
+    width: 500,
+    height: 500,
+    sliceSize: 190,
+    innerPosition: 1.4,
+    centerSize: 34,
+    margin: 2,
+    middleButton: middleButton.value,
+    svgAttributes: {
+      class: 'svg-radial-menu svg-radial-menu-navigator'
     },
-
-    defaultSlices () {
-      const filterOptions = this.filterOptions
-
-      if (!this.metadata.destroy) {
-        filterOptions.push(this.addSlice(DEFAULT_OPTIONS.Destroy))
-      }
-
-      return this.defaultSlicesTypes.filter(type => !filterOptions.includes(type)).map(type => this.addSlice(type, { link: this.defaultLinks()[type] }))
+    svgSliceAttributes: {
+      fontSize: 11,
+      class: 'slice'
     },
+    slices
+  }
+})
 
-    menuCreated () {
-      return this.metadata
-    },
+const defaultSlices = computed(() => {
+  const exclude = [props.exclude].flat()
 
-    isPinned () {
-      return this.metadata?.pinboard_item
-    },
+  if (!metadata.value?.tasks?.unify_objects_task) {
+    exclude.push(DEFAULT_OPTIONS.Unify)
+  }
 
-    middleButton () {
-      return {
-        name: CUSTOM_OPTIONS.CircleButton,
-        radius: 30,
-        icon: {
-          url: Icons.Pin,
-          width: '20',
-          height: '20'
-        },
-        svgAttributes: {
-          fill: this.isPinned ? '#F44336' : '#9ccc65'
-        }
-      }
-    }
+  return defaultSlicesTypes
+    .filter((type) => !exclude.includes(type))
+    .map((type) => addSlice(type, { link: defaultLinks()[type] }))
+})
+
+const isPinned = computed(() => metadata.value?.pinboard_item)
+
+const middleButton = computed(() => ({
+  name: CUSTOM_OPTIONS.CircleButton,
+  radius: 30,
+  icon: {
+    url: Icons.Pin,
+    width: '20',
+    height: '20'
   },
+  svgAttributes: {
+    fill: isPinned.value ? 'var(--color-destroy)' : 'var(--color-create)'
+  }
+}))
 
-  data () {
-    return {
-      loading: false,
-      currentView: undefined,
-      display: false,
-      globalIdSaved: undefined,
-      metadata: undefined,
-      title: 'Radial navigation',
-      deleted: false,
-      showDestroyModal: false,
-      recentTotal: 0,
-      defaultSlicesTypes: [
-        DEFAULT_OPTIONS.New,
-        DEFAULT_OPTIONS.Destroy,
-        DEFAULT_OPTIONS.Edit,
-        DEFAULT_OPTIONS.Show
-      ]
+const isLoading = ref(false)
+const isAlltaskSelected = ref(false)
+const isRadialOpen = ref(false)
+const globalIdSaved = ref(undefined)
+const metadata = ref(undefined)
+const title = ref('Radial navigation')
+const deleted = ref(false)
+const showDestroyModal = ref(false)
+const radialElement = ref(null)
+const defaultSlicesTypes = [
+  DEFAULT_OPTIONS.Related,
+  DEFAULT_OPTIONS.Unify,
+  DEFAULT_OPTIONS.New,
+  DEFAULT_OPTIONS.Destroy,
+  DEFAULT_OPTIONS.Edit,
+  DEFAULT_OPTIONS.Show
+]
+
+watch(radialElement, (newVal) => {
+  if (newVal) {
+    newVal.$el.querySelectorAll('a').forEach((element) => {
+      element.addEventListener('click', (event) => {
+        const isShortcutKeyPressed =
+          event.ctrlKey || event.shiftKey || event.metaKey
+
+        if (isShortcutKeyPressed) {
+          isRadialOpen.value = false
+        }
+      })
+    })
+  }
+})
+
+function addSlice(type, attr) {
+  return {
+    label: type,
+    name: type,
+    radius: 30,
+    icon: {
+      url: Icons[type],
+      width: '20',
+      height: '20'
+    },
+    svgAttributes: {
+      class: 'slice'
+    },
+    ...attr
+  }
+}
+
+function selectedRadialOption({ name }) {
+  switch (name) {
+    case CUSTOM_OPTIONS.CircleButton:
+      isPinned.value ? destroyPin() : createPin()
+      break
+    case DEFAULT_OPTIONS.Destroy:
+      showDestroyModal.value = true
+      break
+    case CUSTOM_OPTIONS.AllTasks:
+      isAlltaskSelected.value = true
+      break
+  }
+}
+
+function defaultLinks() {
+  const unifyTask = metadata.value.tasks.unify_objects_task
+
+  const links = {
+    [DEFAULT_OPTIONS.Edit]:
+      metadata.value?.edit || `${metadata.value?.resource_path}/edit`,
+    [DEFAULT_OPTIONS.New]:
+      metadata.value?.new ||
+      `${metadata.value.resource_path.substring(
+        0,
+        metadata.value.resource_path.lastIndexOf('/')
+      )}/new`,
+    [DEFAULT_OPTIONS.Show]: metadata.value.resource_path,
+    [DEFAULT_OPTIONS.Related]: `/tasks/shared/related_data?object_global_id=${encodeURIComponent(
+      props.globalId
+    )}`
+  }
+
+  if (unifyTask) {
+    Object.assign(links, {
+      [DEFAULT_OPTIONS.Unify]: unifyTask.path
+    })
+  }
+
+  return links
+}
+
+function closeModal() {
+  isRadialOpen.value = false
+  eventClose()
+  emit('close')
+}
+
+function openRadialMenu() {
+  isRadialOpen.value = true
+  loadMetadata(props.globalId)
+}
+
+function loadMetadata(globalId) {
+  if (globalId === globalIdSaved.value && metadata.value) return
+  globalIdSaved.value = globalId
+  isLoading.value = true
+
+  ajaxCall(
+    'get',
+    `/metadata/object_radial?global_id=${encodeURIComponent(globalId)}`
+  ).then(({ body }) => {
+    const { tasks, ...rest } = body
+
+    metadata.value = rest
+    metadata.value.tasks = {
+      ...tasks,
+      ...defaultTasks.value
     }
-  },
+    title.value = metadata.value.object_label
+    isLoading.value = false
+  })
+}
 
-  methods: {
-    addSlice (type, attr) {
-      return {
-        label: type,
-        name: type,
-        radius: 30,
-        icon: {
-          url: Icons[type],
-          width: '20',
-          height: '20'
-        },
-        svgAttributes: {
-          class: 'slice'
-        },
-        ...attr
+/* function splitLongWords(taskName) {
+  const totalTasks = Object.keys(metadata.value.tasks).length
+  const maxPerLine = totalTasks > 4 ? 8 : 16
+  const arr = taskName.split(' ')
+  const words = []
+
+  arr.forEach((word) => {
+    const wordLength = word.length
+    const wordArr = []
+
+    for (let i = 0; i < wordLength; i += maxPerLine) {
+      wordArr.push(word.slice(i, maxPerLine + i))
+    }
+
+    words.push(wordArr.join('- '))
+  })
+
+  return words.join(' ')
+} */
+
+function eventClose() {
+  const event = new CustomEvent('radialObject:close', {
+    detail: {
+      metadata: metadata.value
+    }
+  })
+  document.dispatchEvent(event)
+}
+
+function eventDestroy() {
+  const event = new CustomEvent('radialObject:destroy', {
+    detail: {
+      metadata: metadata.value
+    }
+  })
+  document.dispatchEvent(event)
+}
+
+function createPin() {
+  const payload = {
+    pinned_object_id: metadata.value.id,
+    pinned_object_type: metadata.value.type,
+    is_inserted: true
+  }
+
+  PinboardItem.create({ pinboard_item: payload }).then(({ body }) => {
+    metadata.value.pinboard_item = { id: body.id }
+    TW.workbench.pinboard.addToPinboard(body)
+    TW.workbench.alert.create(
+      'Pinboard item was successfully created.',
+      'notice'
+    )
+  })
+}
+
+function destroyPin() {
+  PinboardItem.destroy(metadata.value.pinboard_item.id).then((_) => {
+    TW.workbench.alert.create(
+      'Pinboard item was successfully destroyed.',
+      'notice'
+    )
+    TW.workbench.pinboard.removeItem(metadata.value.pinboard_item.id)
+    delete metadata.value.pinboard_item
+  })
+}
+
+function destroyObject() {
+  showDestroyModal.value = false
+  ajaxCall('delete', `${metadata.value.resource_path}.json`)
+    .then((_) => {
+      TW.workbench.alert.create(
+        `${metadata.value.type} was successfully destroyed.`,
+        'notice'
+      )
+      if (props.globalId === metadata.value.global_id) {
+        eventDestroy()
+        deleted.value = true
       }
-    },
-
-    selectedRadialOption ({ name }) {
-      switch (name) {
-        case CUSTOM_OPTIONS.CircleButton:
-          this.isPinned
-            ? this.destroyPin()
-            : this.createPin()
-          break
-        case DEFAULT_OPTIONS.Recent:
-          this.currentView = 'Recent'
-          break
-        case DEFAULT_OPTIONS.Destroy:
-          this.showDestroyModal = true
-          break
-        case CUSTOM_OPTIONS.AllTasks:
-          this.currentView = 'all_tasks'
-          break
-      }
-    },
-
-    defaultLinks () {
-      return {
-        [DEFAULT_OPTIONS.Edit]: this.metadata?.edit || `${this.metadata.resource_path}/edit`,
-        [DEFAULT_OPTIONS.New]: this.metadata?.new || `${this.metadata.resource_path.substring(0, this.metadata.resource_path.lastIndexOf('/'))}/new`,
-        [DEFAULT_OPTIONS.Show]: this.metadata.resource_path
-      }
-    },
-
-    closeModal () {
-      this.display = false
-      this.eventClose()
-      this.$emit('close')
-    },
-
-    displayRadialObject () {
-      this.display = true
-      this.currentView = undefined
-      this.loadMetadata(this.globalId)
-    },
-
-    loadMetadata (globalId) {
-      if (globalId == this.globalIdSaved && this.menuCreated && !this.reload) return
-      this.globalIdSaved = globalId
-      this.loading = true
-
-      this.getList(`/metadata/object_radial?global_id=${encodeURIComponent(globalId)}`).then(({ body }) => {
-        this.metadata = body
-        this.title = this.metadata.object_label
-        this.loading = false
-
-        Object.assign(this.metadata.tasks, this.defaultTasks)
-      })
-    },
-
-    setTotal (total) {
-      this.recentTotal = total
-    },
-
-    eventClose () {
-      const event = new CustomEvent('radialObject:close', {
-        detail: {
-          metadata: this.metadata
-        }
-      })
-      document.dispatchEvent(event)
-    },
-
-    eventDestroy () {
-      const event = new CustomEvent('radialObject:destroy', {
-        detail: {
-          metadata: this.metadata
-        }
-      })
-      document.dispatchEvent(event)
-    },
-
-    windowHeight () {
-      return ((window.innerHeight - 100) > 650 ? 650 : window.innerHeight - 100) + 'px !important'
-    },
-
-    createPin () {
-      const pinboard_item = {
-        pinned_object_id: this.metadata.id,
-        pinned_object_type: this.metadata.type,
-        is_inserted: true
-      }
-
-      PinboardItem.create({ pinboard_item }).then(({ body }) => {
-        this.metadata.pinboard_item = { id: body.id }
-        TW.workbench.pinboard.addToPinboard(body)
-        TW.workbench.alert.create('Pinboard item was successfully created.', 'notice')
-      })
-    },
-
-    destroyPin () {
-      PinboardItem.destroy(this.metadata.pinboard_item.id).then(_ => {
-        TW.workbench.alert.create('Pinboard item was successfully destroyed.', 'notice')
-        TW.workbench.pinboard.removeItem(this.metadata.pinboard_item.id)
-        delete this.metadata.pinboard_item
-      })
-    },
-
-    destroyObject () {
-      this.showDestroyModal = false
-      this.destroy(`${this.metadata.resource_path}.json`).then(_ => {
-        TW.workbench.alert.create(`${this.metadata.type} was successfully destroyed.`, 'notice')
-        if (this.globalId === this.metadata.globalId) {
-          this.eventDestroy()
-          this.deleted = true
-        }
-
-        if (this.metadata.destroyed_redirect) {
-          window.open(this.metadata.destroyed_redirect, '_self')
-        } else if (window.location.pathname === this.metadata.resource_path) {
+      if (props.redirect) {
+        if (metadata.value.destroyed_redirect) {
+          window.open(metadata.value.destroyed_redirect, '_self')
+        } else if (window.location.pathname === metadata.value.resource_path) {
           window.open(`/${window.location.pathname.split('/')[1]}`, '_self')
         } else {
-          window.open(this.metadata.resource_path.substring(0, this.metadata.resource_path.lastIndexOf('/')), '_self')
+          window.open(
+            metadata.value.resource_path.substring(
+              0,
+              metadata.value.resource_path.lastIndexOf('/')
+            ),
+            '_self'
+          )
         }
-      })
-    }
-  }
+      }
+      emit('delete', metadata.value)
+      closeModal()
+    })
+    .catch(() => {})
 }
 </script>

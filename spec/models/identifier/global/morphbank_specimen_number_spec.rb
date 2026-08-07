@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe Identifier::Global::MorphbankSpecimenNumber, type: :model, group: :identifiers do
   context 'MorphbankSpecimenNumber' do
-    let(:id) { FactoryBot.build(:identifier_global_morphbank_specimen_number) }
+    let(:id) { Identifier::Global::MorphbankSpecimenNumber.new(identifier_object: FactoryBot.build(:valid_specimen)) }
 
     context '#identifier is invalid format' do
       specify 'empty' do

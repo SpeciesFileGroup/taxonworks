@@ -1,5 +1,5 @@
 import baseCRUD, { annotations } from './base'
-import AjaxCall from 'helpers/ajaxCall'
+import AjaxCall from '@/helpers/ajaxCall'
 
 const controller = 'collecting_events'
 const permitParams = {
@@ -14,7 +14,7 @@ const permitParams = {
     verbatim_longitude: String,
     verbatim_latitude: String,
     verbatim_geolocation_uncertainty: String,
-    verbatim_trip_identifier: String,
+    verbatim_field_number: String,
     verbatim_collectors: String,
     verbatim_method: String,
     geographic_area_id: String,
@@ -43,6 +43,7 @@ const permitParams = {
     field_notes: String,
     verbatim_datum: String,
     verbatim_elevation: String,
+    meta_prioritize_geographic_area: Boolean,
     roles_attributes: {
       id: Number,
       _destroy: Boolean,
@@ -72,7 +73,6 @@ const permitParams = {
       attribute_subject_type: String,
       value: String
     }
-
   }
 }
 
@@ -84,7 +84,20 @@ export const CollectingEvent = {
 
   clone: (id, params) => AjaxCall('post', `/${controller}/${id}/clone`, params),
 
+  filter: (params) => AjaxCall('post', `/${controller}/filter.json`, params),
+
   navigation: (id) => AjaxCall('get', `/${controller}/${id}/navigation`),
 
-  parseVerbatimLabel: (params) => AjaxCall('get', '/collecting_events/parse_verbatim_label', { params })
+  parseVerbatimLabel: (params) =>
+    AjaxCall('get', '/collecting_events/parse_verbatim_label', { params }),
+
+  batchUpdate: (params) =>
+    AjaxCall('patch', `/${controller}/batch_update `, params),
+
+  stepwiseCollectors: (params) =>
+    AjaxCall(
+      'get',
+      '/tasks/collecting_events/stepwise/collectors/data.json',
+      { params }
+    ),
 }

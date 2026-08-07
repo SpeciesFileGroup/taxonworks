@@ -1,55 +1,176 @@
-<%= content_for :head do -%>
-  <%= javascript_include_tag "https://www.gstatic.com/charts/loader.js", "chartkick" %>
-<% end %> 
+<%= graph_javascript_tag %>
 
 <h1> Administration - User activity </h1>
 
-<%= link_to 'Back', administration_path() %> 
+<%= link_to 'Back', administration_path() %>
 
-<div class="flexbox">
+<div class="flexbox separate-bottom">
+  <div class="panel content">
+    <h2> Last 20 new users </h2>
+    <ol>
+      <% User.limit(20).order(created_at: :desc).each do |u| -%>
+        <li> <%= user_link(u) %> <%= content_tag :span, time_ago_in_words(u.created_at) + " ago", class: :subtle -%> </li>
+      <% end %>
+    </ol>
+  </div>
 
-  <div class="item item1">
+  <div class="panel content separate-left">
     <h2> Last 20 logins </h2>
     <ol>
       <% User.limit(20).order(current_sign_in_at: :desc).where('current_sign_in_at IS NOT NULL').each do |u| -%>
-        <li> <%=  user_link(u) %> <%= content_tag :span, time_ago_in_words(u.current_sign_in_at) + " ago", class: :subtle -%> </li> 
-      <% end %> 
+        <li> <%= user_link(u) %> <%= content_tag :span, time_ago_in_words(u.current_sign_in_at) + " ago", class: :subtle -%> </li>
+      <% end %>
     </ol>
   </div>
 
-  <div class="item item2">
+  <div class="panel content separate-left">
     <h2> Recently seen </h2>
     <ol>
       <% User.limit(20).order(last_seen_at: :desc).where('last_seen_at IS NOT NULL').each do |u| -%>
-        <li> <%= user_link(u) %> <%= content_tag :span, time_ago_in_words(u.last_seen_at) + " ago", class: :subtle -%> </li> 
-      <% end %> 
+        <li> <%= user_link(u) %> <%= content_tag :span, time_ago_in_words(u.last_seen_at) + " ago", class: :subtle -%> </li>
+      <% end %>
     </ol>
   </div>
 
-  <div class="item item3">
+  <div class="panel content separate-left">
     <h2> Most active </h2>
-    <p> Estimate. If sequential requests are less than 5 minutes appart time between requests is summed to total. <p>
+    <em> Estimate. If sequential requests are less than 5 minutes appart time between requests is summed to total. </em>
     <ol>
-      <% User.limit(20).order(time_active: :desc).where('time_active IS NOT NULL').each do |u| -%>
-        <li> <%= user_link(u) %> <%= distance_of_time_in_words(u.time_active) -%> </li> 
-      <% end %> 
+      <% User.limit(20).order(time_active: :desc).where('users.time_active IS NOT NULL').each do |u| -%>
+        <li class="subtle"> <%= user_link(u) %> <%= distance_of_time_in_words(u.time_active) -%>
+        or <%= (u.time_active.to_f / 3600.to_f || 0).round(0) -%> hours</li>
+      <% end %>
     </ol>
   </div>
 </div>
 
-<div class="flexbox">
-  <div class="item item1">
+<div class="flexbox separate-bottom">
+  <% days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] %>
+
+  <div class="panel content">
+    <h2> New users past </h2>
+    <%= table_from_hash_tag( {
+      '24 hours' => User.where('created_at > ?', 24.hours.ago).count,
+      'Week' => User.where('created_at > ?', 1.week.ago).count,
+      'Month' => User.where('created_at > ?', 1.month.ago).count,
+      'Half year' => User.where('created_at > ?', 6.months.ago).count,
+      'Year' => User.where('created_at > ?', 1.year.ago).count,
+      '3 years' => User.where('created_at > ?', 3.years.ago).count,
+      'All time' => User.where('created_at > ?', 1000.years.ago).count
+    }) %>
+  </div>
+
+  <div class="panel content separate-left">
+    <h2> Active users past </h2>
+    <table>
+      <tr><td>24 hours</td><td><%= tag.strong User.where('last_seen_at > ?', 24.hours.ago).count %></td></tr>
+      <tr><td>Week</td><td><%= tag.strong User.where('last_seen_at > ?', 1.week.ago).count %></td></tr>
+      <tr><td>Month</td><td><%= tag.strong User.where('last_seen_at > ?', 1.month.ago).count %></td></tr>
+      <tr><td>Half year</td><td><%= tag.strong User.where('last_seen_at > ?', 6.months.ago).count %></td></tr>
+      <tr><td>Year</td><td><%= tag.strong User.where('last_seen_at > ?', 1.year.ago).count %></td></tr>
+      <tr><td>3 years</td><td><%= tag.strong User.where('last_seen_at > ?', 3.years.ago).count %></td></tr>
+      <tr><td>All time</td><td><%= tag.strong User.where('last_seen_at > ?', 1000.years.ago).count %></td></tr>
+    </table>
+  </div>
+
+  <%= render partial: 'users_past_day' %>
+
+  <div class="panel content separate-left">
     <h2> Last seen - past week </h2>
-    <%= column_chart  User.where('last_seen_at > ?', 1.week.ago).group_by_day_of_week(:last_seen_at, format: "%a").count, 
-      discrete: true, ytitle: 'Number of signins'
-    %>
-
-  <h2> Sign in count - past week</h2>
-  <%= column_chart User.where('last_sign_in_at > ?', 1.week.ago).group_by_day_of_week(:last_sign_in_at, format: "%a").count %>
-
-  <h2> Sign in count - total</h2>
-  <p> Minimum one signin </p>
-  <%= column_chart User.where('sign_in_count > 0').group(:sign_in_count).count, discrete: true, xtitle: 'Times signed in', ytitle: 'Number signins' %>
+    <% data = User.where('last_seen_at > ?', 1.week.ago).group_by_day_of_week(:last_seen_at, format: "%a").count  %>
+    <p><%= data.values.sum %> users were seen last week.</p>
+    <%= column_chart data.to_a.sort{|a,b| days.index(a[0]) <=> days.index(b[0]) }, discrete: true, ytitle: 'Count', xtitle: 'Last seen day', width: '400px' %>
   </div>
 </div>
 
+
+<div class="flexbox separate-bottom  flex-wrap-row gap-medium" >
+  <div class="panel content item">
+    <h2> New project past </h2>
+    <table>
+      <tr><td>24 hours</td><td><%= tag.strong Project.where('created_at > ?', 24.hours.ago).count %></td></tr>
+      <tr><td>Week</td><td><%= tag.strong Project.where('created_at > ?', 1.week.ago).count %></td></tr>
+      <tr><td>Month</td><td><%= tag.strong Project.where('created_at > ?', 1.month.ago).count %></td></tr>
+      <tr><td>Half year</td><td><%= tag.strong Project.where('created_at > ?', 6.months.ago).count %></td></tr>
+      <tr><td>Year</td><td><%= tag.strong Project.where('created_at > ?', 1.year.ago).count %></td></tr>
+      <tr><td>3 years</td><td><%= tag.strong Project.where('created_at > ?', 3.years.ago).count %></td></tr>
+      <tr><td>All time</td><td><%= tag.strong Project.where('created_at > ?', 1000.years.ago).count %></td></tr>
+    </table>
+  </div>
+
+  <div class="panel content item">
+    <h2> Cumulative projects/year </h2>
+    <div style="width: 420px;">
+      <%= column_chart(cumulative_projects_created_per_year, xtitle: 'Year', ytitle: 'Count', discrete: true, height: '400px', download: true) %>
+    </div>
+  </div>
+
+</div>
+
+<div class="flexbox separate-bottom flex-wrap-row">
+
+  <div class="panel content separate-bottom">
+    <h2> Users per project</h2>
+    <%= column_chart Project.joins(:users).group(:id).count.to_a.collect{|a,b| [Project.find(a).name, b] }.sort_by(&:second).reverse!, xtitle: 'Project', ytitle: 'Number of users', discrete: true, height: '400px' %>
+  </div>
+
+  <div class="panel content">
+    <h2> Estimated activity per project (old) </h2>
+    <em>Important: this plot is an estimate based on user activity.  Active users in multiple projects will skew this estimate as their toal activity throughout is added to both projects. </em>
+    <%= column_chart Project.joins(:users).group(:id).sum('users.time_active').to_a.collect{|a,b| [Project.find(a).name, (b.to_f / 3600.0).round(0) ]}.sort_by(&:second).reverse!.select{|c| !(c[1] == 0)}, xtitle: 'Project', ytitle: 'Time active (hours)', discrete: true, height: '400px' %>
+  </div>
+
+  <div class="panel content">
+    <h2> Estimated activity per project</h2>
+    <em> Tracked since Starting 2024/MM/DD </em>
+    <%= column_chart Project.joins(:users).group(:id).sum('project_members.time_active').to_a.collect{|a,b| [Project.find(a).name, (b.to_f / 3600.0).round(0) ]}.sort_by(&:second).reverse!.select{|c| !(c[1] == 0)}, xtitle: 'Project', ytitle: 'Time active (hours)', discrete: true, height: '400px' %>
+  </div>
+
+</div>
+
+<div class="flexbox flex-wrap-row gap-medium" >
+  <div class="panel content item">
+    <h2> GB/Year Images </h2>
+    <div style="width: 420px;">
+      <%= column_chart(image_gb_per_year, xtitle: 'Year', ytitle: 'GB', discrete: true, height: '400px', download: true) %>
+    </div>
+  </div>
+
+  <div class="panel content item">
+    <h2> Cumulative GB/Year Images </h2>
+    <div style="width: 420px;">
+      <%= column_chart(image_cumulative_gb_per_year, xtitle: 'Year', ytitle: 'GB', discrete: true, height: '400px', download: true) %>
+    </div>
+  </div>
+
+  <div class="panel content item">
+    <h2> GB/Year Documents </h2>
+    <div style="width: 420px;">
+      <%= column_chart(document_gb_per_year, xtitle: 'Year', ytitle: 'GB', discrete: true, height: '400px', download: true) %>
+    </div>
+  </div>
+
+  <div class="panel content item">
+    <h2> Cumulative GB/Year Documents </h2>
+    <div style="width: 420px;">
+      <%= column_chart(document_cumulative_gb_per_year, xtitle: 'Year', ytitle: 'GB', discrete: true, height: '400px', download: true) %>
+    </div>
+  </div>
+
+  <div class="panel content item">
+    <h2> GB/Year Sounds </h2>
+    <div style="width: 420px;">
+      <%= column_chart(sound_gb_per_year, xtitle: 'Year', ytitle: 'GB', discrete: true, height: '400px', download: true) %>
+    </div>
+  </div>
+
+  <div class="panel content item">
+    <h2> Cumulative GB/Year Sounds </h2>
+    <div style="width: 420px;">
+      <%= column_chart(sound_cumulative_gb_per_year, xtitle: 'Year', ytitle: 'GB', discrete: true, height: '400px', download: true) %>
+    </div>
+  </div>
+
+</div>
+
+<br>

@@ -1,5 +1,19 @@
+
+=begin
+query_scope: taxon_name_query:
+
+mode:
+ :add
+ :replace
+ :remove
+
+keyword_id
+confidence_level_id
+=end
+
 class ConfidencesController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
+  include DataControllerConfiguration::BatchByFilterScope
 
   before_action :set_confidence, only: [:edit, :update, :destroy]
   after_action -> { set_pagination_headers(:confidences) }, only: [:index, :api_index ], if: :json_request?
@@ -10,12 +24,12 @@ class ConfidencesController < ApplicationController
   def index
     respond_to do |format|
       format.html {
-        @recent_objects = Confidence.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
+        @recent_objects = ::Confidence.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
         render '/shared/data/all/index'
       }
       format.json {
-        @confidences = Queries::Confidence::Filter.new(params).all
-          .where(project_id: sessions_current_project_id).page(params[:page]).per(params[:per] || 500)
+        @confidences = ::Queries::Confidence::Filter.new(params).all.where(project_id: sessions_current_project_id).
+        page(params[:page]).per(params[:per] || 500)
       }
     end
   end
@@ -45,7 +59,7 @@ class ConfidencesController < ApplicationController
         format.html {
           redirect_back(fallback_location: (request.referer || root_path), notice: 'Confidence was NOT successfully created.')
         }
-        format.json { render json: @confidence.errors, status: :unprocessable_entity }
+        format.json { render json: @confidence.errors, status: :unprocessable_content }
       end
     end
   end
@@ -59,12 +73,12 @@ class ConfidencesController < ApplicationController
         format.json { render :show, status: :ok, location: @confidence }
       else
         format.html { render :edit }
-        format.json { render json: @confidence.errors, status: :unprocessable_entity }
+        format.json { render json: @confidence.errors, status: :unprocessable_content }
       end
     end
   end
 
-  def confidence_object_update 
+  def confidence_object_update
     @confidence_object = confidence_object
     if @confidence_object.update(confidences_params)
       flash[:notice] = 'Successfully updated record.'
@@ -94,7 +108,7 @@ class ConfidencesController < ApplicationController
 
   # GET /confidences/download
   def download
-    send_data Export::Download.generate_csv(Confidence.where(project_id: sessions_current_project_id)), type: 'text', filename: "confidences_#{DateTime.now}.csv"
+    send_data Export::CSV.generate_csv(Confidence.where(project_id: sessions_current_project_id)), type: 'text', filename: "confidences_#{DateTime.now}.tsv"
   end
 
   def exists
@@ -136,6 +150,12 @@ class ConfidencesController < ApplicationController
       :annotated_global_entity,
       :confidence_level_id,
       confidence_level_attributes: [:_destroy, :id, :name, :definition, :uri, :uri_relation]
+    )
+  end
+
+  def batch_by_filter_scope_params
+    params.require(:params).permit(
+      :confidence_level_id, :replace_confidence_level_id
     )
   end
 

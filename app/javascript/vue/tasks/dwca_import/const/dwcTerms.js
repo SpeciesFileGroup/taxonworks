@@ -893,10 +893,34 @@ export default [
     examples: '"Carnivora", "Monocleales"'
   },
   {
+    name: 'superfamily',
+    qualName: 'http://rs.tdwg.org/dwc/terms/superfamily',
+    description: 'The full scientific name of the superfamily in which the taxon is classified.',
+    examples: '"Achatinoidea", "Cerithioidea", "Helicoidea", "Hypsibioidea", "Valvatoidea", "Zonitoidea"'
+  },
+  {
     name: 'family',
     qualName: 'http://rs.tdwg.org/dwc/terms/family',
     description: 'The full scientific name of the family in which the taxon is classified.',
     examples: '"Felidae", "Monocleaceae"'
+  },
+  {
+    name: 'subfamily',
+    qualName: 'http://rs.tdwg.org/dwc/terms/subfamily',
+    description: 'The full scientific name of the subfamily in which the taxon is classified.',
+    examples: '"Periptyctinae", "Orchidoideae", "Sphindociinae"'
+  },
+  {
+    name: 'tribe',
+    qualName: 'http://rs.tdwg.org/dwc/terms/tribe',
+    description: 'The full scientific name of the tribe in which the taxon is classified.',
+    examples: '"Ortaliini", "Arethuseae"'
+  },
+  {
+    name: 'subtribe',
+    qualName: 'http://rs.tdwg.org/dwc/terms/subtribe',
+    description: 'The full scientific name of the subfamily in which the taxon is classified.',
+    examples: '"Plotinini", "Typhaeini"'
   },
   {
     name: 'genus',

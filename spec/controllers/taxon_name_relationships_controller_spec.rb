@@ -148,19 +148,37 @@ describe TaxonNameRelationshipsController, type: :controller do
     end
   end
 
-  describe 'DELETE destroy' do
-    it 'destroys the requested taxon_name_relationship' do
-      taxon_name_relationship = TaxonNameRelationship.create! valid_attributes
-      expect {
-        delete :destroy, params: {id: taxon_name_relationship.to_param}, session: valid_session
-      }.to change(TaxonNameRelationship, :count).by(-1)
+  include_examples 'DELETE #destroy', TaxonNameRelationship
+
+  describe 'PATCH batch_update' do
+    let!(:species) { FactoryBot.create(:relationship_species) }
+    let(:genus) { species.ancestor_at_rank('genus') }
+    let(:species2) { FactoryBot.create(:relationship_species, parent: genus, name: 'other') }
+    let!(:synonym_relationship) do
+      TaxonNameRelationship.create!(
+        subject_taxon_name: species2,
+        object_taxon_name: species,
+        type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym'
+      )
     end
 
-    it 'redirects to the taxon_name_relationships list' do
-      taxon_name_relationship = TaxonNameRelationship.create! valid_attributes
-      delete :destroy, params: {id: taxon_name_relationship.to_param}, session: valid_session
-      expect(response).to redirect_to(taxon_name_relationships_url)
+    it 'updates synonym type and returns ok' do
+      patch :batch_update, params: {
+        taxon_name_relationship: { type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective' },
+        taxon_name_relationship_query: { taxon_name_relationship_id: [synonym_relationship.id] },
+        format: :json
+      }
+      expect(response).to have_http_status(:ok)
+      expect(synonym_relationship.reload.type).to eq('TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective')
+    end
+
+    it 'returns unprocessable_content when target type is not a synonym type' do
+      patch :batch_update, params: {
+        taxon_name_relationship: { type: 'TaxonNameRelationship::Iczn::Validating::ConservedName' },
+        taxon_name_relationship_query: { taxon_name_relationship_id: [synonym_relationship.id] },
+        format: :json
+      }
+      expect(response).to have_http_status(:unprocessable_content)
     end
   end
-
 end

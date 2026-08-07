@@ -19,14 +19,14 @@ class TaxonNameRelationship::Iczn < TaxonNameRelationship
   end
 
   def self.disjoint_object_classes
-    ICN_TAXON_NAME_CLASSIFICATION_NAMES + ICNP_TAXON_NAME_CLASSIFICATION_NAMES +
-        self.collect_descendants_and_itself_to_s(TaxonNameClassification::Iczn::Unavailable)
+    ICN_TAXON_NAME_CLASSIFICATION_NAMES + ICNP_TAXON_NAME_CLASSIFICATION_NAMES + ICVCN_TAXON_NAME_CLASSIFICATION_NAMES +
+      self.collect_descendants_and_itself_to_s(TaxonNameClassification::Iczn::Unavailable)
   end
 
   def sv_validate_priority
     if self.type_class.nomenclatural_priority == :direct
-      date1 = self.subject_taxon_name.nomenclature_date
-      date2 = self.object_taxon_name.nomenclature_date
+      date1 = self.subject_taxon_name.cached_nomenclature_date
+      date2 = self.object_taxon_name.cached_nomenclature_date
       if !!date1 && !!date2 && date2 > date1 && subject_invalid_statuses.empty?
         if self.subject_taxon_name.is_available? && TaxonNameRelationship.where_subject_is_taxon_name(self.subject_taxon_name).with_two_type_bases('TaxonNameRelationship::Iczn::Invalidating::Homonym', 'TaxonNameRelationship::Iczn::Validating').not_self(self).empty?
           soft_validations.add(:type, "#{self.subject_status.capitalize} #{self.subject_taxon_name.cached_html_name_and_author_year} should not be older than #{self.object_status} #{self.object_taxon_name.cached_html_name_and_author_year}, unless it is also a homonym or conserved name")

@@ -120,7 +120,7 @@ module Hub::Data
   # @param [String] section
   # @return [Array]
   def self.visual_items_for(section)
-    INDEX[section].select{|a| !a.hide}
+    INDEX[section].select{|a| !a.hide}.sort_by(&:name)
   end
 
   # @param [String] prefix
@@ -141,5 +141,3 @@ module Hub::Data
   end
 
 end
-
-

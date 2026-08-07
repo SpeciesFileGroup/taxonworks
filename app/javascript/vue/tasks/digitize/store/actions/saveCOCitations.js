@@ -1,10 +1,10 @@
 import { MutationNames } from '../mutations/mutations'
-import { Citation } from 'routes/endpoints'
+import { Citation } from '@/routes/endpoints'
 
 export default ({ commit, state: { coCitations, collection_object } }) => {
   const promises = []
 
-  coCitations.forEach(citation => {
+  coCitations.forEach((citation) => {
     if (citation.id) {
       if (citation.citation_object_id !== collection_object.id) {
         citation.id = undefined
@@ -19,7 +19,10 @@ export default ({ commit, state: { coCitations, collection_object } }) => {
     }
   })
 
-  Promise.all(promises).then(responses => {
-    commit(MutationNames.SetCOCitations, responses.map(({ body }) => body))
+  Promise.all(promises).then((responses) => {
+    commit(
+      MutationNames.SetCOCitations,
+      responses.map(({ body }) => body)
+    )
   })
 }

@@ -13,12 +13,49 @@ module UsersHelper
     end
   end
 
+  def user_initials(user)
+    return '' if user.nil? || user.name.blank?
+
+    user.name
+        .split(/\s+/)
+        .map { |p| p[0].upcase }
+        .first(3)
+        .join
+  end
+
+  def user_avatar(user, size = :default)
+    inactive = user.is_flagged_for_password_reset
+    classes = ['avatar', "avatar--#{size}"]
+    classes << 'inactive' if inactive
+    title = state_title = inactive ? 'Inactive (Flagged for password reset)' : 'Active'
+
+    content_tag(:div, user_initials(user), class: classes, title: title)
+  end
+
+  def user_autocomplete_tag(user, term = nil)
+    s = user.name + ' ' + content_tag(:span, user.email, class: [:feedback, 'feedback-thin', 'feedback-primary'])
+    mark_tag(s, term)
+  end
+
+  def user_email_tag(user)
+    user_autocomplete_tag(user)
+  end
+
   def user_last_seen_tag(user)
-    if !user.last_sign_in_at.blank?
-      time_ago_in_words(user.last_sign_in_at) + '  ago'
+    if user.last_seen_at.present?
+      time_ago_in_words(user.last_seen_at) + '  ago'
     else
       content_tag(:em, 'never')
     end
+  end
+
+  def user_time_active(user)
+    total = user.time_active.to_i
+    hours   = total / 3600
+    minutes = (total % 3600) / 60
+    seconds = total % 60
+
+    '%02d:%02d:%02d' % [hours, minutes, seconds]
   end
 
   # @param [Symbol, String] user_element
@@ -45,4 +82,33 @@ module UsersHelper
       .in_project(sessions_current_project_id)
       .collect { |u| [User.find(u).name, User.find(u).id] }))
   end
+
+  def user_data(user, weeks_ago: nil, target: :created, base: 10)
+    data = []
+
+    r = ApplicationEnumeration.klass_reflections(User, :has_many)
+
+    case target
+    when :created
+      r.delete_if{|a,b| !(a.name.to_s =~ /created/) }
+    when :updated
+      r.delete_if{|a,b| !(a.name.to_s =~ /updated/) }
+    end
+
+    r.each do |r|
+      q = user.send(r.name)
+      q = q.where("#{target == :created ? 'created_at' : 'updated_at'} > ?", weeks_ago.to_i.weeks.ago) if weeks_ago
+
+      t = 1 / Math::log(base, q&.count )
+
+      if t > 0
+        data.push(
+          [ r.name.to_s.humanize.gsub( (target == :created ? 'Created ' : 'Updated ' ).titleize, ''),
+            t
+          ])
+      end
+    end
+    data
+  end
+
 end

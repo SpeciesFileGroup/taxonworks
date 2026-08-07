@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe Note, type: :model, group: :annotator do
 
-  let(:note) {FactoryBot.build(:note)} 
+  let(:note) {FactoryBot.build(:note)}
 
   context 'associations' do
     context 'belongs_to' do
@@ -12,7 +12,7 @@ describe Note, type: :model, group: :annotator do
     end
   end
 
-  # sanity check for Housekeeping, which is also tested elsewhere 
+  # sanity check for Housekeeping, which is also tested elsewhere
     context 'sets housekeeping' do
       let(:specimen1) {FactoryBot.create(:valid_specimen)}
 
@@ -28,7 +28,7 @@ describe Note, type: :model, group: :annotator do
       specify 'with <<' do
         expect(specimen1.notes.count).to eq(0)
         specimen1.notes << Note.new(text: 'Yay!')
-        expect(specimen1.save).to be_truthy 
+        expect(specimen1.save).to be_truthy
         expect(specimen1.notes.first.creator.nil?).to be_falsey
         expect(specimen1.notes.first.updater.nil?).to be_falsey
         expect(specimen1.notes.first.project.nil?).to be_falsey
@@ -37,7 +37,7 @@ describe Note, type: :model, group: :annotator do
       specify 'with .build' do
         expect(specimen1.notes.count).to eq(0)
         specimen1.notes.build(text: 'Nay!')
-        expect(specimen1.save).to be_truthy 
+        expect(specimen1.save).to be_truthy
         expect(specimen1.notes.first.creator.nil?).to be_falsey
         expect(specimen1.notes.first.updater.nil?).to be_falsey
         expect(specimen1.notes.first.project.nil?).to be_falsey
@@ -45,7 +45,7 @@ describe Note, type: :model, group: :annotator do
 
       specify 'with new objects and <<' do
         s = FactoryBot.build(:valid_specimen)
-        s.notes << Note.new(text: 'Whooopee!') 
+        s.notes << Note.new(text: 'Whooopee!')
         expect(s.save).to be_truthy
         expect(s.notes.count).to eq(1)
         expect(s.notes.first.creator.nil?).to be_falsey
@@ -68,18 +68,14 @@ describe Note, type: :model, group: :annotator do
         s.notes_attributes = [{text: 'foo'}, {text: 'bar'}]
         expect(s.save).to be_truthy
       end
-    end 
+    end
 
   context 'validations' do
-    before(:each) {
-      note.valid?
-    }
+    before(:each) { note.valid? }
 
     context 'required' do
-      # !! This test fails not because of a validation, but because of a NOT NULL constraint. 
-      specify 'note_object (the thing that has the note)' do 
-        note.text = 'Foo' # this eliminate all model based validation requirements
-        expect{note.save}.to raise_error ActiveRecord::StatementInvalid
+      specify 'note_object (the thing that has the note)' do
+        expect(note.errors.include?(:note_object)).to be_truthy
       end
 
       specify 'text' do
@@ -90,7 +86,7 @@ describe Note, type: :model, group: :annotator do
   end
 
   specify '#text is not trimmed' do
-    s = " asdf sd  \n  asdfd \r\n" 
+    s = " asdf sd  \n  asdfd \r\n"
     note.text = s
     note.valid?
     expect(note.text).to eq(s)

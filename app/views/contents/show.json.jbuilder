@@ -1,3 +1,2 @@
-json.partial! 'attributes', content: @content 
-
+json.partial! 'attributes', content: @content
 

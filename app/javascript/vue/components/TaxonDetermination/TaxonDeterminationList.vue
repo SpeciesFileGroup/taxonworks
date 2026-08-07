@@ -1,15 +1,15 @@
 <template>
-  <table class="vue-table">
+  <table class="vue-table table-striped">
     <thead>
       <tr>
-        <th>
-          Determination
-        </th>
+        <th>Determination</th>
         <th>
           <div class="horizontal-right-content">
-            <lock-component
+            <VLock
+              v-if="lock !== undefined"
               class="margin-small-left"
-              v-model="locked.taxonDeterminations"/>
+              v-model="lockButton"
+            />
           </div>
         </th>
       </tr>
@@ -17,33 +17,68 @@
     <draggable
       class="table-entrys-list"
       tag="tbody"
-      :item-key="item => item"
-      v-model="list"
-      @end="updatePosition">
+      :item-key="(item) => item"
+      handle=".handle"
+      v-model="determinationList"
+      @end="updatePosition"
+    >
       <template #item="{ element }">
         <tr>
           <td>
-            <a
-              v-if="element.id"
-              v-html="element.object_tag"
-              :href="`${RouteNames.BrowseOtu}?otu_id=${element.otu_id}`"/>
-            <span
-              v-else
-              v-html="element.object_tag"/>
+            <div class="padding-small-top">
+              <a
+                v-if="element.id"
+                v-html="element.object_tag"
+                :href="`${RouteNames.BrowseOtu}?otu_id=${element.otu_id}`"
+              />
+              <span
+                v-else
+                v-html="element.object_tag"
+              />
+            </div>
           </td>
           <td>
-            <div class="horizontal-right-content">
-              <span
-                v-if="element.id"
-                @click="emit('onEdit', element)"
-                class="button circle-button btn-edit"/>
-              <radial-annotator
+            <div class="horizontal-right-content gap-small">
+              <RadialAnnotator
                 v-if="element.global_id"
-                :global-id="element.global_id"/>
-              <span
-                class="circle-button btn-delete"
-                :class="{ 'button-default': !element.id }"
-                @click="emit('onDelete', element)"/>
+                :global-id="element.global_id"
+              />
+
+              <VBtn
+                color="primary"
+                circle
+                class="handle"
+                title="Press and hold to drag taxon determination"
+              >
+                <VIcon
+                  title="Press and hold to drag taxon determination"
+                  color="white"
+                  name="scrollV"
+                  small
+                />
+              </VBtn>
+
+              <VBtn
+                circle
+                color="primary"
+                @click="emit('edit', element)"
+              >
+                <v-icon
+                  x-small
+                  name="pencil"
+                />
+              </VBtn>
+
+              <VBtn
+                circle
+                :color="element.id ? 'destroy' : 'primary'"
+                @click="emit('delete', element)"
+              >
+                <VIcon
+                  x-small
+                  name="trash"
+                />
+              </VBtn>
             </div>
           </td>
         </tr>
@@ -53,31 +88,54 @@
 </template>
 
 <script setup>
-
 import { computed } from 'vue'
-import { RouteNames } from 'routes/routes'
+import { RouteNames } from '@/routes/routes'
+import { TaxonDetermination } from '@/routes/endpoints'
+import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
+import VLock from '@/components/ui/VLock/index.vue'
 import Draggable from 'vuedraggable'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 
 const props = defineProps({
-  list: Array
+  modelValue: {
+    type: Array,
+    default: () => []
+  },
+
+  lock: {
+    type: Boolean,
+    default: undefined
+  }
 })
 
 const emit = defineEmits([
   'update:modelValue',
-  'onEdit',
-  'onDelete'
+  'update:lock',
+  'edit',
+  'delete',
+  'sort'
 ])
 
-const determinationList = computed({
-  get: () => props.list,
-  set: (value) => { emit('update:modelValue', value) }
+const lockButton = computed({
+  get: () => props.lock,
+  set: (value) => emit('update:lock', value)
 })
 
+const determinationList = computed({
+  get: () => props.modelValue,
+  set: (value) => {
+    emit('update:modelValue', value)
+  }
+})
 
-const updatePosition = () => {
-  for (let i = 0; i < determinationList.value.length; i++) {
-    determinationList.value[i].position = (i + 1)
+function updatePosition() {
+  const id = determinationList.value.map((item) => item.id).filter(Boolean)
+
+  if (id.length) {
+    TaxonDetermination.reorder({ id }).then(({ body }) => {
+      emit('sort', body)
+    })
   }
 }
-
 </script>

@@ -2,25 +2,26 @@
   <div
     style="min-width: 0"
     class="panel content"
-    v-help.section.freshnessIndex>
-    <spinner-component v-if="useState.isLoadingMetadata"/>
-    <graph-index :metadata="metadata"/>
+    v-help.section.freshnessIndex
+  >
+    <VSpinner v-if="useState.isLoadingMetadata" />
+    <GraphIndex />
   </div>
   <div
     style="min-width: 0"
     class="panel content"
-    v-help.section.freshnessVersions>
-    <spinner-component v-if="useState.isLoadingMetadata"/>
-    <graph-collection-object />
+    v-help.section.freshnessVersions
+  >
+    <VSpinner v-if="useState.isLoadingMetadata" />
+    <GraphCollectionObject />
   </div>
 </template>
 
 <script setup>
-
 import { onBeforeMount, inject } from 'vue'
 import GraphIndex from './GraphIndex.vue'
 import GraphCollectionObject from './GraphCollectionObjects.vue'
-import SpinnerComponent from 'components/spinner.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
 
 const useActions = inject('actions')
 const useState = inject('state')
@@ -28,5 +29,4 @@ const useState = inject('state')
 onBeforeMount(async () => {
   useActions.getMetadata()
 })
-
 </script>

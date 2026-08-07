@@ -1,187 +1,197 @@
 <template>
   <div>
-    <spinner-component
+    <VSpinner
       v-if="isSaving"
-      :full-screen="true"
-      legend="Saving..."/>
-    <h1>Manage controlled vocabulary</h1>
-    <switch-component
-      v-model="view"
-      :options="types"/>
-    <h3>
-      {{ cvtTypes[view] }}
-      <a
-        v-if="linkFor.includes(view)"
-        href="/tasks/controlled_vocabularies/biocuration/build_collection">Manage biocuration classes and groups
-      </a>
-    </h3>
+      full-screen
+      legend="Saving..."
+    />
+
+    <div class="flex-separate middle margin-medium-top">
+      <VSwitch
+        v-model="type"
+        :options="Object.keys(CVT_TYPES)"
+      />
+      <ul class="context-menu">
+        <li>
+          <a :href="RouteNames.ManageBiocurationTask">
+            Manage biocuration classes and groups
+          </a>
+        </li>
+        <li>
+          <a :href="RouteNames.BiologicalRelationshipComposer">
+            Biological relationship composer
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="flex-separate middle">
+      <h3>
+        {{ CVT_TYPES[type] }}
+        <a
+          v-if="linkFor.includes(type)"
+          href="/tasks/controlled_vocabularies/biocuration/build_collection"
+          >Manage biocuration classes and groups
+        </a>
+      </h3>
+      <CloneControlledVocabularyTerms
+        :type="type"
+        @clone="
+          () => {
+            loadCVTList(type)
+          }
+        "
+      />
+    </div>
     <div class="flex-separate margin-medium-top">
-      <div class="one_quarter_width">
+      <NavBar
+        class="one_quarter_width"
+        navbar-class=""
+      >
         <div class="panel content margin-medium-bottom">
-          <form
+          <FormKeyword
+            v-model="cvt"
             @submit="createCTV"
-            class="label-above">
-            <div class="field">
-              <label>Name</label>
-              <input
-                class="full_width"
-                type="text"
-                v-model="controlled_vocabulary_term.name">
-            </div>
-            <div
-              class="field"
-              v-help.new.definition>
-              <label>Definition</label>
-              <textarea
-                class="full_width"
-                :placeholder="`Definition (minimum length ${definitionLength} characters)`"
-                rows="5"
-                v-model="controlled_vocabulary_term.definition"
-              />
-            </div>
-            <div class="field">
-              <label>Label color</label>
-              <input
-                type="color"
-                v-model="controlled_vocabulary_term.css_color">
-            </div>
-            <div class="field">
-              <label>Uri</label>
-              <input
-                type="text"
-                v-model="controlled_vocabulary_term.uri">
-            </div>
-            <div class="flex-separate">
-              <button
-                type="submit"
-                class="button normal-input button-submit"
-                :disabled="!validateData">
-                {{ controlled_vocabulary_term.id ? 'Update' : 'Create' }}
-              </button>
-              <button
-                type="button"
-                class="button normal-input button-default"
-                @click="newCTV">
-                New
-              </button>
-            </div>
-          </form>
+          />
         </div>
         <div
           v-if="globalId"
-          class="panel content">
+          class="panel content"
+        >
           <h3>Preview use</h3>
           <span
             class="link"
-            @click="copyToClipboard">{{ globalId }}</span>
+            @click="copyToClipboard"
+            >{{ globalId }}</span
+          >
         </div>
-      </div>
-      <list-component
-        ref="list"
+      </NavBar>
+      <ListComponent
+        :list="list"
         @edit="setCTV"
-        :type="controlled_vocabulary_term.type"/>
+        @remove="removeCTV"
+        @sort="
+          (data) => {
+            list = data
+          }
+        "
+      />
     </div>
   </div>
 </template>
 
-<script>
-
+<script setup>
+import { computed, ref, watch, onMounted } from 'vue'
+import { ControlledVocabularyTerm } from '@/routes/endpoints'
+import { addToArray, removeFromArray } from '@/helpers'
+import { RouteNames } from '@/routes/routes'
+import { setParam } from '@/helpers'
+import { KEYWORD, BIOCURATION_CLASS, BIOCURATION_GROUP } from '@/constants'
 import CVT_TYPES from './constants/controlled_vocabulary_term_types'
-import { CONTROLLED_VOCABULARY_TERM } from './constants/controlled_vocabulary_term'
-import { ControlledVocabularyTerm } from 'routes/endpoints'
-
-import SwitchComponent from 'components/switch.vue'
+import makeControlledVocabularyTerm from '@/factory/controlledVocabularyTerm'
+import VSwitch from '@/components/ui/VSwitch.vue'
 import ListComponent from './components/List.vue'
-import SpinnerComponent from 'components/spinner'
+import VSpinner from '@/components/ui/VSpinner'
+import FormKeyword from '@/components/Form/FormKeyword.vue'
+import CloneFromObject from '@/helpers/cloneFromObject'
+import CloneControlledVocabularyTerms from './components/CloneControlledVocabularyTerms.vue'
+import NavBar from '@/components/layout/NavBar.vue'
 
-import CloneFromObject from 'helpers/cloneFromObject'
+const globalId = computed(() => cvt.value?.global_id)
+const cvt = ref(makeControlledVocabularyTerm())
+const isSaving = ref(false)
+const isLoading = ref(false)
+const type = ref(null)
+const linkFor = ref([BIOCURATION_CLASS, BIOCURATION_GROUP])
+const list = ref([])
 
-export default {
-  components: {
-    SwitchComponent,
-    ListComponent,
-    SpinnerComponent
-  },
+watch(type, (newVal) => {
+  loadCVTList(newVal)
+  setParam(RouteNames.ManageControlledVocabularyTask, 'type', type.value)
+})
 
-  computed: {
-    types () {
-      return Object.keys(this.cvtTypes)
-    },
+onMounted(() => {
+  const urlParams = new URLSearchParams(window.location.search)
+  const ctvId = urlParams.get('controlled_vocabulary_term_id')
+  const typeParam = urlParams.get('type')
 
-    validateData () {
-      return (this.controlled_vocabulary_term.name.length > 0 && this.controlled_vocabulary_term.definition.length >= this.definitionLength)
-    },
+  if (/^\d+$/.test(ctvId)) {
+    ControlledVocabularyTerm.find(ctvId).then(({ body }) => {
+      type.value = body.type
+      setCTV(body)
+    })
+  } else {
+    type.value = typeParam || KEYWORD
+  }
+})
 
-    globalId () {
-      return this.controlled_vocabulary_term?.global_id
+function loadCVTList(type) {
+  isLoading.value = true
+  ControlledVocabularyTerm.where({ type: [type] })
+    .then(({ body }) => {
+      list.value = body
+    })
+    .finally(() => {
+      isLoading.value = false
+    })
+}
+
+function createCTV() {
+  const payload = {
+    controlled_vocabulary_term: {
+      ...cvt.value,
+      type: type.value
     }
-  },
+  }
+  const request = cvt.value.id
+    ? ControlledVocabularyTerm.update(cvt.value.id, payload)
+    : ControlledVocabularyTerm.create(payload)
 
-  data () {
-    return {
-      cvtTypes: CVT_TYPES,
-      controlled_vocabulary_term: CONTROLLED_VOCABULARY_TERM(),
-      isSaving: false,
-      view: 'Keyword',
-      linkFor: ['BiocurationClass', 'BiocurationGroup'],
-      definitionLength: 20
-    }
-  },
+  isSaving.value = true
 
-  watch: {
-    view: {
-      handler(newVal) {
-        this.controlled_vocabulary_term.type = newVal
-      },
-      immediate: true
-    }
-  },
+  request
+    .then(({ body }) => {
+      TW.workbench.alert.create(
+        `${body.type} was successfully ${
+          cvt.value.id ? 'updated' : 'created'
+        }.`,
+        'notice'
+      )
 
-  created () {
-    const urlParams = new URLSearchParams(window.location.search)
-    const ctvId = urlParams.get('controlled_vocabulary_term_id')
+      addToArray(list.value, body, { prepend: true })
+      cvt.value = makeControlledVocabularyTerm()
+    })
+    .catch(() => {})
+    .finally(() => {
+      isSaving.value = false
+    })
+}
 
-    if (/^\d+$/.test(ctvId)) {
-      ControlledVocabularyTerm.find(ctvId).then(response => {
-        this.view = response.body.type
-        this.setCTV(response.body)
+function setCTV(ctv) {
+  cvt.value = CloneFromObject(makeControlledVocabularyTerm(), ctv)
+}
+
+function copyToClipboard() {
+  navigator.clipboard.writeText(cvt.value.global_id).then(() => {
+    TW.workbench.alert.create('Copied to clipboard', 'notice')
+  })
+}
+
+function removeCTV(cvt) {
+  if (
+    window.confirm(
+      "You're trying to delete this record. Are you sure you want to proceed?"
+    )
+  ) {
+    isLoading.value = true
+    ControlledVocabularyTerm.destroy(cvt.id)
+      .then(() => {
+        removeFromArray(list.value, cvt)
       })
-    }
-  },
-
-  methods: {
-    createCTV (e) {
-      const controlled_vocabulary_term = this.controlled_vocabulary_term
-      const savePromise = this.controlled_vocabulary_term.id
-        ? ControlledVocabularyTerm.update(controlled_vocabulary_term.id, { controlled_vocabulary_term })
-        : ControlledVocabularyTerm.create({ controlled_vocabulary_term })
-
-      this.isSaving = true
-
-      savePromise.then(({ body }) => {
-        TW.workbench.alert.create(`${body.type} was successfully ${this.controlled_vocabulary_term.id ? 'updated' : 'created'}.`, 'notice')
-        this.$refs.list.addCTV(body)
-        this.newCTV()
-      }).finally(() => {
-        this.isSaving = false
+      .catch(() => {})
+      .finally(() => {
+        isLoading.value = false
       })
-      e.preventDefault()
-    },
-
-    newCTV () {
-      this.controlled_vocabulary_term = CONTROLLED_VOCABULARY_TERM()
-      this.controlled_vocabulary_term.type = this.view
-    },
-
-    setCTV (ctv) {
-      this.controlled_vocabulary_term = CloneFromObject(CONTROLLED_VOCABULARY_TERM(), ctv)
-    },
-
-    copyToClipboard () {
-      navigator.clipboard.writeText(this.controlled_vocabulary_term.global_id).then(() => {
-        TW.workbench.alert.create('Copied to clipboard', 'notice')
-      })
-    }
   }
 }
 </script>

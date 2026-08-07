@@ -17,7 +17,11 @@
 #
 # @!attribute respository_id
 #   @return [Integer]
-#   The id of the Repository.  This is the "home" repository, *not* where the specimen currently is located.  Repositories may indicate ownership BUT NOT ALWAYS (this is custody, not ownership). The assertion is only that "if this collection object was not being used, then it should be in this repository".
+#   The id of the Repository.  This is an assertion of the "home" repository, i.e. where you would most reasonably find the ColletionObject when it is not "in use" by external parties. Repositories may indicate ownership, but this is inference, not an assetion. There is some notion of "custody" tied to this assertion. The assertion is only that "if this collection object was not being used, then it you can infer that it will be found in this Repository. In the absence of the assertion of a current repository it is reasonable to infer that this is also where the specimen can be currently found, however this inference will not always hold.  See current_repository_id for related issues vs. modeling localization in TaxonWorks and the use of Containers.
+#
+# @!attribute current_respository_id
+#   @return [Integer]
+#   The id of the current repository.  The current repository is the Repository that the specimen can be expected to be found at (i.e. "is localized to") at the present time.  See also respository_id.  This is a temporally bound assertion of location of the specimen, not ownership.  In the future this will need to be reconciled with concepts of "custody" (the agent responsible for the specimen) and a stricter modelling of localization (in TaxonWorks this really should be a Container::Collection or Container::Building, i.e. the attribute doesn't really belong here in the long term.
 #
 # @!attribute project_id
 #   @return [Integer]
@@ -63,9 +67,9 @@ class CollectionObject < ApplicationRecord
 
   include Shared::Citations
   include Shared::Containable
+  include Shared::Conveyances
   include Shared::DataAttributes
   include Shared::Loanable
-  include Shared::HasRoles
   include Shared::Identifiers
   include Shared::Notes
   include Shared::Tags
@@ -76,12 +80,16 @@ class CollectionObject < ApplicationRecord
   include Shared::HasPapertrail
   include Shared::Observations
   include Shared::IsData
+  include Shared::QueryBatchUpdate
   include SoftValidation
-  
-  include CollectionObject::BiologicalExtensions
 
-  include CollectionObject::Taxonomy # at present must be before IsDwcOccurence
-  include Shared::IsDwcOccurrence
+  # At present must be before BiologicalExtensions
+  include Shared::TaxonDeterminationRequired # only when anatomical_parts exist
+  include Shared::BiologicalExtensions
+  include Shared::BiologicalAssociationIndexHooks
+
+  include Shared::Taxonomy # at present must be before IsDwcOccurence
+
   include CollectionObject::DwcExtensions
 
   ignore_whitespace_on(:buffered_collecting_event, :buffered_determinations, :buffered_other_labels)
@@ -91,10 +99,18 @@ class CollectionObject < ApplicationRecord
 
   BUFFERED_ATTRIBUTES = %i{buffered_collecting_event buffered_determinations buffered_other_labels}.freeze
 
-  GRAPH_ENTRY_POINTS = [:biological_associations, :data_attributes, :taxon_determinations, :biocuration_classifications, :collecting_event, :origin_relationships, :extracts]
+  GRAPH_ENTRY_POINTS = [:biological_associations, :data_attributes, :taxon_determinations, :biocuration_classifications, :collecting_event, :origin_relationships, :extracts, :observation_matrices]
 
   # Identifier delegations
+  # .catalog_number_cached
   delegate :cached, to: :preferred_catalog_number, prefix: :catalog_number, allow_nil: true
+  # .catalog_number_namespace
+  delegate :namespace, to: :preferred_catalog_number, prefix: :catalog_number, allow_nil: true
+
+  # .record_number_cached
+  delegate :cached, to: :preferred_record_number, prefix: :record_number, allow_nil: true
+  # .record_number_namespace
+  delegate :namespace, to: :preferred_record_number, prefix: :record_number, allow_nil: true
 
   # CollectingEvent delegations
   delegate :map_center, to: :collecting_event, prefix: :collecting_event, allow_nil: true
@@ -103,6 +119,7 @@ class CollectionObject < ApplicationRecord
   # Repository delegations
   delegate :acronym, to: :repository, prefix: :repository, allow_nil: true
   delegate :url, to: :repository, prefix: :repository, allow_nil: true
+  delegate :institutional_LSID, to: :repository, prefix: :repository, allow_nil: true
 
   # Preparation delegations
   delegate :name, to: :preparation_type, prefix: :preparation_type, allow_nil: true
@@ -122,15 +139,17 @@ class CollectionObject < ApplicationRecord
   belongs_to :preparation_type, inverse_of: :collection_objects
   belongs_to :ranged_lot_category, inverse_of: :ranged_lots
   belongs_to :repository, inverse_of: :collection_objects
+  belongs_to :current_repository, class_name: 'Repository', inverse_of: :current_collection_objects
 
   has_many :georeferences, through: :collecting_event
   has_many :geographic_items, through: :georeferences
 
-  has_many :observation_matrix_row_items, inverse_of: :collection_object, class_name: 'ObservationMatrixRowItem::Single::CollectionObject'
-  has_many :observation_matrix_rows, inverse_of: :collection_object
-  has_many :observation_matrices, inverse_of: :collection_objects, through: :observation_matrix_rows
+  has_many :collectors, through: :collecting_event
+
+  has_many :type_materials, inverse_of: :collection_object, dependent: :restrict_with_error
 
   accepts_nested_attributes_for :collecting_event, allow_destroy: true, reject_if: :reject_collecting_event
+  accepts_nested_attributes_for :type_materials, reject_if: :reject_type_materials
 
   before_validation :assign_type_if_total_or_ranged_lot_category_id_provided
 
@@ -138,6 +157,7 @@ class CollectionObject < ApplicationRecord
   validate :check_that_either_total_or_ranged_lot_category_id_is_present
   validate :check_that_both_of_category_and_total_are_not_present
   validate :collecting_event_belongs_to_project
+  validate :total_positive_when_present
 
   soft_validate(
     :sv_missing_accession_fields,
@@ -151,11 +171,17 @@ class CollectionObject < ApplicationRecord
     name: 'Missing deaccesson fields',
     description: 'Date, recipient, or reason are not specified')
 
-  scope :with_sequence_name, ->(name) { joins(sequence_join_hack_sql).where(sequences: {name: name}) }
+  scope :with_sequence_name, ->(name) { joins(sequence_join_hack_sql).where(sequences: {name:}) }
   scope :via_descriptor, ->(descriptor) { joins(sequence_join_hack_sql).where(sequences: {id: descriptor.sequences}) }
 
   has_many :extracts, through: :origin_relationships, source: :new_object, source_type: 'Extract'
   has_many :sequences, through: :extracts
+
+  def requires_taxon_determination?
+    OriginRelationship
+      .where(old_object: self, new_object_type: 'AnatomicalPart')
+      .exists?
+  end
 
   # This is a hack, maybe related to a Rails 5.1 bug.
   # It returns the SQL that works in 5.0/4.2 that
@@ -175,6 +201,68 @@ class CollectionObject < ApplicationRecord
        INNER JOIN  "sequences"
                ON  "sequences"."id" = "origin_relationships_extracts_join"."new_object_id"}
   end
+
+  def self.batch_update(params)
+    request = QueryBatchRequest.new(
+      async_cutoff: params[:async_cutoff] || 50,
+      klass: 'CollectionObject',
+      object_filter_params: params[:collection_object_query],
+      object_params: params[:collection_object],
+      preview: params[:preview],
+      user_id: params[:user_id],
+      project_id: params[:project_id]
+    )
+
+    request.cap = 1000
+
+    if request.capped?
+      r = request.stub_response
+      r.method = 'query_batch_update'
+      r.errors[request.cap_reason] = 1
+      return r
+    end
+
+    query_batch_update(request)
+  end
+
+  def self.batch_update_dwc_occurrence(params)
+    q = Queries::CollectionObject::Filter.new(params).all
+
+    r = BatchResponse.new
+    r.method = 'batch_update_dwc_occurrence'
+    r.klass = 'CollectionObject'
+
+    c = q.all.count
+
+    if c == 0 || c > 10000
+      # TODO: cap_reason is currently unused, setting errors as well for now
+      r.cap_reason = 'Too many (or no) collection objects (max 10k)'
+      r.errors['Too many (or no) collection objects (max 10k)'] = 1
+      return r
+    end
+
+    r.total_attempted = c
+
+    if c < 51
+      q.each do |co|
+        co.set_dwc_occurrence
+        r.updated.push co.id
+      end
+    else
+      r.async = true
+      q.each do |co|
+        co.dwc_occurrence_update_query
+      end
+    end
+
+    return r
+  end
+
+  def dwc_occurrence_update_query
+    self.send(:set_dwc_occurrence)
+  end
+
+  handle_asynchronously :dwc_occurrence_update_query, run_at: Proc.new { 1.second.from_now }, queue: :query_batch_update
 
   # TODO: move to a helper
   def self.breakdown_status(collection_objects)
@@ -222,67 +310,11 @@ class CollectionObject < ApplicationRecord
     breakdown
   end
 
-  # TODO: Deprecate.  Used?!
-  # @param [Scope] scope of selected CollectionObjects
-  # @param [Hash] col_defs selected headers and types
-  # @param [Hash] table_data (optional)
-  # @return [CSV] tab-separated data
-  # Generate the CSV (tab-separated) data for the file to be sent, substitute for new-lines and tabs
-  def self.generate_report_download(scope, col_defs, table_data = nil)
-    CSV.generate do |csv|
-      row = CO_OTU_HEADERS
-      unless col_defs.nil?
-        %w(ce co bc).each { |column_type|
-          items = []
-          unless col_defs[column_type.to_sym].nil?
-            unless col_defs[column_type.to_sym][:in].nil?
-              items.push(col_defs[column_type.to_sym][:in].keys)
-            end
-            unless col_defs[column_type.to_sym][:im].nil?
-              items.push(col_defs[column_type.to_sym][:im].keys)
-            end
-          end
-          row += items.flatten
-        }
-      end
-      csv << row
-      if table_data.nil?
-        scope.order(id: :asc).each do |c_o|
-          row = [c_o.otu_id,
-                 c_o.otu_name,
-                 c_o.name_at_rank_string(:family),
-                 c_o.name_at_rank_string(:genus),
-                 c_o.name_at_rank_string(:species),
-                 c_o.collecting_event.country_name,
-                 c_o.collecting_event.state_name,
-                 c_o.collecting_event.county_name,
-                 c_o.collecting_event.verbatim_locality,
-                 c_o.collecting_event.georeference_latitude.to_s,
-                 c_o.collecting_event.georeference_longitude.to_s
-          ]
-          row += ce_attributes(c_o, col_defs)
-          row += co_attributes(c_o, col_defs)
-          row += bc_attributes(c_o, col_defs)
-          csv << row.collect { |item|
-            item.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
-          }
-
-        end
-      else
-        table_data.each_value { |value|
-          csv << value.collect { |item|
-            item.to_s.gsub(/\n/, '\n').gsub(/\t/, '\t')
-          }
-        }
-      end
-    end
-  end
-
   # TODO: this should be refactored to be collection object centric AFTER
   # it is spec'd
   def self.earliest_date(project_id)
-    a = CollectingEvent.joins(:collection_objects).where(project_id: project_id).minimum(:start_date_year)
-    b = CollectingEvent.joins(:collection_objects).where(project_id: project_id).minimum(:end_date_year)
+    a = CollectingEvent.joins(:collection_objects).where(project_id:).minimum(:start_date_year)
+    b = CollectingEvent.joins(:collection_objects).where(project_id:).minimum(:end_date_year)
 
     return EARLIEST_DATE if a.nil? && b.nil?  # 1700-01-01
 
@@ -301,8 +333,8 @@ class CollectionObject < ApplicationRecord
   # TODO: this should be refactored to be collection object centric AFTER
   # it is spec'd
   def self.latest_date(project_id)
-    a = CollectingEvent.joins(:collection_objects).where(project_id: project_id).maximum(:start_date_year)
-    b = CollectingEvent.joins(:collection_objects).where(project_id: project_id).maximum(:end_date_year)
+    a = CollectingEvent.joins(:collection_objects).where(project_id:).maximum(:start_date_year)
+    b = CollectingEvent.joins(:collection_objects).where(project_id:).maximum(:end_date_year)
 
     c = Time.now.strftime('%Y-%m-%d')
 
@@ -333,7 +365,7 @@ class CollectionObject < ApplicationRecord
     if steps
       gi = GeographicItem.find(geographic_item_id)
       # find the geographic_items inside gi
-      step_1 = GeographicItem.is_contained_by('any', gi) # .pluck(:id)
+      step_1 = GeographicItem.st_covered_by('any', gi) # .pluck(:id)
       # find the georeferences from the geographic_items
       step_2 = step_1.map(&:georeferences).uniq.flatten
       # find the collecting events connected to the georeferences
@@ -343,9 +375,9 @@ class CollectionObject < ApplicationRecord
       retval = CollectionObject.where(id: step_4.sort)
     else
       retval = CollectionObject.joins(:geographic_items)
-                   .where(GeographicItem.contained_by_where_sql(geographic_item.id))
-                   .limit(limit)
-                   .includes(:data_attributes, :collecting_event)
+        .where(GeographicItem.subset_of_union_of_sql(geographic_item.id))
+        .limit(limit)
+        .includes(:data_attributes, :collecting_event)
     end
     retval
   end
@@ -365,17 +397,17 @@ class CollectionObject < ApplicationRecord
   # decode which headers to be displayed for collecting events
   def self.ce_headers(project_id)
     CollectionObject.selected_column_names
-    cvt_list = InternalAttribute.where(project_id: project_id, attribute_subject_type: 'CollectingEvent')
-                 .distinct
-                 .pluck(:controlled_vocabulary_term_id)
+    cvt_list = InternalAttribute.where(project_id:, attribute_subject_type: 'CollectingEvent')
+      .distinct
+      .pluck(:controlled_vocabulary_term_id)
     # add selectable column names (unselected) to the column name list list
     ControlledVocabularyTerm.where(id: cvt_list).map(&:name).sort.each { |column_name|
       @selected_column_names[:ce][:in][column_name] = {checked: '0'}
     }
-    ImportAttribute.where(project_id: project_id, attribute_subject_type: 'CollectingEvent')
+    ImportAttribute.where(project_id:, attribute_subject_type: 'CollectingEvent')
       .pluck(:import_predicate).uniq.sort.each { |column_name|
-      @selected_column_names[:ce][:im][column_name] = {checked: '0'}
-    }
+        @selected_column_names[:ce][:im][column_name] = {checked: '0'}
+      }
     @selected_column_names
   end
 
@@ -395,23 +427,23 @@ class CollectionObject < ApplicationRecord
           group[type_key.to_sym].each_key { |header|
             this_val = nil
             case type_key.to_sym
-              when :in
-                all_internal_das.each { |da|
-                  if da.predicate.name == header
-                    this_val = da.value
-                    break
-                  end
-                }
-                retval.push(this_val) # push one value (nil or not) for each selected header
-              when :im
-                all_import_das.each { |da|
-                  if da.import_predicate == header
-                    this_val = da.value
-                    break
-                  end
-                }
-                retval.push(this_val) # push one value (nil or not) for each selected header
-              else
+            when :in
+              all_internal_das.each { |da|
+                if da.predicate.name == header
+                  this_val = da.value
+                  break
+                end
+              }
+              retval.push(this_val) # push one value (nil or not) for each selected header
+            when :im
+              all_import_das.each { |da|
+                if da.import_predicate == header
+                  this_val = da.value
+                  break
+                end
+              }
+              retval.push(this_val) # push one value (nil or not) for each selected header
+            else
             end
           }
         }
@@ -425,17 +457,17 @@ class CollectionObject < ApplicationRecord
   # decode which headers to be displayed for collection objects
   def self.co_headers(project_id)
     CollectionObject.selected_column_names
-    cvt_list = InternalAttribute.where(project_id: project_id, attribute_subject_type: 'CollectionObject')
-                 .distinct
-                 .pluck(:controlled_vocabulary_term_id)
+    cvt_list = InternalAttribute.where(project_id:, attribute_subject_type: 'CollectionObject')
+      .distinct
+      .pluck(:controlled_vocabulary_term_id)
     # add selectable column names (unselected) to the column name list list
     ControlledVocabularyTerm.where(id: cvt_list).map(&:name).sort.each { |column_name|
       @selected_column_names[:co][:in][column_name] = {checked: '0'}
     }
-    ImportAttribute.where(project_id: project_id, attribute_subject_type: 'CollectionObject')
+    ImportAttribute.where(project_id:, attribute_subject_type: 'CollectionObject')
       .pluck(:import_predicate).uniq.sort.each { |column_name|
-      @selected_column_names[:co][:im][column_name] = {checked: '0'}
-    }
+        @selected_column_names[:co][:im][column_name] = {checked: '0'}
+      }
     @selected_column_names
   end
 
@@ -488,7 +520,7 @@ class CollectionObject < ApplicationRecord
   def self.bc_headers(project_id)
     CollectionObject.selected_column_names
     # add selectable column names (unselected) to the column name list list
-    BiocurationClass.where(project_id: project_id).map(&:name).each { |column_name|
+    BiocurationClass.where(project_id:).map(&:name).each { |column_name|
       @selected_column_names[:bc][:in][column_name] = {checked: '0'}
     }
     @selected_column_names
@@ -550,13 +582,13 @@ class CollectionObject < ApplicationRecord
   def self.in_date_range(search_start_date: nil, search_end_date: nil, partial_overlap: 'on')
     allow_partial = (partial_overlap.downcase == 'off' ? false : true) # TODO: Just get the correct values from the form!
     q = Queries::CollectingEvent::Filter.new(start_date: search_start_date, end_date: search_end_date, partial_overlap_dates: allow_partial)
-    joins(:collecting_event).where(q.between_date_range.to_sql)
+    joins(:collecting_event).where(q.between_date_range_facet.to_sql)
   end
 
-  # @param used_on [String] required, one of `TaxonDetermination`, `BiologicalAssociation`
+  # @param used_on [String]
   # @return [Scope]
   #    the max 10 most recently used collection_objects, as `used_on`
-  def self.used_recently(user_id, project_id, used_on = '')
+  def self.used_recently(user_id, project_id, used_on = '', ba_target = 'object')
     return [] if used_on != 'TaxonDetermination' && used_on != 'BiologicalAssociation'
     t = case used_on
         when 'TaxonDetermination'
@@ -564,25 +596,31 @@ class CollectionObject < ApplicationRecord
         when 'BiologicalAssociation'
           BiologicalAssociation.arel_table
         end
+    if ba_target == 'subject'
+      target_type = 'biological_association_subject_type'
+      target_id = 'biological_association_subject_id'
+    else
+      target_type = 'biological_association_object_type'
+      target_id = 'biological_association_object_id'
+    end
 
     p = CollectionObject.arel_table
 
     # i is a select manager
     i = case used_on
         when 'BiologicalAssociation'
-          t.project(t['biological_association_subject_id'], t['updated_at']).from(t)
-            .where(
-              t['updated_at'].gt(1.weeks.ago).and(
-                t['biological_association_subject_type'].eq('CollectionObject') # !! note it's not biological_collection_object_id
-              )
-            )
-              .where(t['created_by_id'].eq(user_id))
-              .where(t['project_id'].eq(project_id))
+          t.project(t[target_id], t['updated_at']).from(t)
+            .where(t[target_type].eq('CollectionObject'))
+            .where(t['updated_at'].gt(1.week.ago))
+            .where(t['updated_by_id'].eq(user_id))
+            .where(t['project_id'].eq(project_id))
             .order(t['updated_at'].desc)
         else
-          t.project(t['biological_collection_object_id'], t['updated_at']).from(t)
-            .where(t['updated_at'].gt( 1.weeks.ago ))
-            .where(t['created_by_id'].eq(user_id))
+          # TODO: update to reference new TaxonDetermination
+          t.project(t['taxon_determination_object_id'], t['taxon_determination_object_type'], t['updated_at']).from(t)
+            .where(t['taxon_determination_object_type'].eq('CollectionObject'))
+            .where(t['updated_at'].gt( 1.week.ago ))
+            .where(t['updated_by_id'].eq(user_id))
             .where(t['project_id'].eq(project_id))
             .order(t['updated_at'].desc)
         end
@@ -593,10 +631,10 @@ class CollectionObject < ApplicationRecord
     j = case used_on
         when 'BiologicalAssociation'
           Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(
-            z['biological_association_subject_id'].eq(p['id'])
+            z[target_id].eq(p['id'])
           ))
         else
-          Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['biological_collection_object_id'].eq(p['id']))) # !! note it's not biological_collection_object_id
+          Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['taxon_determination_object_id'].eq(p['id'])))
         end
 
     CollectionObject.joins(j).pluck(:id).uniq
@@ -604,38 +642,67 @@ class CollectionObject < ApplicationRecord
 
   # @params target [String] one of `TaxonDetermination`, `BiologicalAssociation` , nil
   # @return [Hash] otus optimized for user selection
-  def self.select_optimized(user_id, project_id, target = nil)
-    r = used_recently(user_id, project_id, target)
+  def self.select_optimized(user_id, project_id, target = nil, ba_target = 'object')
+    r = used_recently(user_id, project_id, target, ba_target)
     h = {
       quick: [],
-      pinboard: CollectionObject.pinned_by(user_id).where(project_id: project_id).to_a,
+      pinboard: CollectionObject.pinned_by(user_id).where(project_id:).to_a,
       recent: []
     }
 
     if target && !r.empty?
       n = target.tableize.to_sym
       h[:recent] = CollectionObject.where('"collection_objects"."id" IN (?)', r.first(10) ).to_a
-      h[:quick] = (CollectionObject.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a  +
-          CollectionObject.where('"collection_objects"."id" IN (?)', r.first(4) ).to_a).uniq
+      h[:quick] = (CollectionObject.pinned_by(user_id).pinboard_inserted.where(project_id:).to_a  +
+                   CollectionObject.where('"collection_objects"."id" IN (?)', r.first(4) ).to_a).uniq
     else
-      h[:recent] = CollectionObject.where(project_id: project_id, updated_by_id: user_id).order('updated_at DESC').limit(10).to_a
-      h[:quick] = CollectionObject.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a
+      h[:recent] = CollectionObject.where(project_id:, updated_by_id: user_id).order('updated_at DESC').limit(10).to_a
+      h[:quick] = CollectionObject.pinned_by(user_id).pinboard_inserted.where(project_id:).to_a
     end
 
     h
   end
 
+  # TODO: Unify with Extract in concern
   # @return [Identifier::Local::CatalogNumber, nil]
   #   the first (position) catalog number for this collection object, either on specimen, or container
   def preferred_catalog_number
-    if i = Identifier::Local::CatalogNumber.where(identifier_object: self).first
+    if i = Identifier::Local::CatalogNumber.where(identifier_object: self).order(:position).first
       i
     else
       if container
-        container.identifiers.where(identifiers: {type: 'Identifier::Local::CatalogNumber'}).first
+        container.identifiers.where(identifiers: {type: 'Identifier::Local::CatalogNumber'}).order(:position).first
       else
         nil
       end
+    end
+  end
+
+  # @return [Identifier::Local::RecordNumber, nil]
+  #   the first (position) record_Number, on a specimen
+  #   !1 Doesn't presently support containers
+  def preferred_record_number
+    Identifier::Local::RecordNumber.where(identifier_object: self).order(:position).first
+  end
+
+  def geographic_name_classification
+    # don't load the whole object, just the fields we need
+    if a = DwcOccurrence.where(dwc_occurrence_object: self).select(:country, :stateProvince, :county).first
+
+      c = a.country
+      s = a.stateProvince
+      y = a.county
+
+      v = ::Utilities::Geo::DICTIONARY[c]
+      c = v if v
+      # s = v if v = ::Utilities::Geo::DICTIONARY[s] # None in there yet
+      # y = v if v = ::Utilities::Geo::DICTIONARY[y] # None in there yet
+
+      return {
+        country: c,
+        state: s,
+        county: y
+      }
     end
   end
 
@@ -657,7 +724,7 @@ class CollectionObject < ApplicationRecord
   end
 
   def sv_missing_deaccession_fields
-    soft_validations.add(:deaccessioned_at, 'Date is not selected') if self.deaccessioned_at.nil? && !self.deaccession_reason.blank?
+    soft_validations.add(:deaccessioned_at, 'Date is not selected') if self.deaccessioned_at.nil? && self.deaccession_reason.present?
     soft_validations.add(:base, 'Recipient is not selected') if self.deaccession_recipient.nil? && self.deaccession_reason && self.deaccessioned_at
     soft_validations.add(:deaccession_reason, 'Reason is is not defined') if self.deaccession_reason.blank? && self.deaccession_recipient && self.deaccessioned_at
   end
@@ -682,20 +749,48 @@ class CollectionObject < ApplicationRecord
     # see biological_collection_object
   end
 
+  # See Depiction#destroy_image_stub_collection_object
+  # Used to determin if the CO can be
+  # destroy after moving an image off
+  # this object.
+  def is_image_stub?
+    r = [
+      collecting_event_id.blank?,
+      !depictions.reload.any?,
+      identifiers.count <= 1,
+      !taxon_determinations.any?,
+      !type_materials.any?,
+      !citations.any?,
+      !data_attributes.any?,
+      !notes.any?,
+      !observations.any?
+    ]
+
+   !r.include?(false)
+
+  end
+
   protected
 
   def collecting_event_belongs_to_project
     if collecting_event&.persisted? && (Current.project_id || project_id)
       errors.add(:base, 'collecting event is not from this project') if collecting_event.project_id != (Current.project_id || project_id)
     end
-  end 
+  end
 
   def check_that_both_of_category_and_total_are_not_present
-    errors.add(:ranged_lot_category_id, 'Both ranged_lot_category and total can not be set') if !ranged_lot_category_id.blank? && !total.blank?
+    errors.add(:ranged_lot_category_id, 'Both ranged_lot_category and total can not be set') if ranged_lot_category_id.present? && total.present?
   end
 
   def check_that_either_total_or_ranged_lot_category_id_is_present
     errors.add(:base, 'Either total or a ranged lot category must be provided') if ranged_lot_category_id.blank? && total.blank?
+  end
+
+  def total_positive_when_present
+    # Allow total: 0 when ranged_lot_category is set
+    return if ranged_lot_category_id.present? && total == 0
+
+    errors.add(:total, 'Must be positive.') if total.present? && total <= 0
   end
 
   def assign_type_if_total_or_ranged_lot_category_id_provided
@@ -703,16 +798,20 @@ class CollectionObject < ApplicationRecord
       self.type = 'Specimen'
     elsif self.total.to_i > 1
       self.type = 'Lot'
-    elsif total.nil? && !ranged_lot_category_id.blank?
+    elsif total.nil? && ranged_lot_category_id.present?
       self.type = 'RangedLot'
     end
     true
   end
 
+  def reject_type_materials(attributed)
+    attributed['protonym_id'].blank? || attributed['type_type'].blank?
+  end
+
   def reject_collecting_event(attributed)
     reject = true
-    CollectingEvent.data_attributes.each do |a|
-      if !attributed[a].blank?
+    CollectingEvent.core_attributes.each do |a|
+      if attributed[a].present?
         reject = false
         break
       end
@@ -720,10 +819,16 @@ class CollectionObject < ApplicationRecord
     # !! does not account for georeferences_attributes!
     reject
   end
-  
+
+  # @return [ActiveRecord::Relation]
+  #   BiologicalAssociationIndex records where this CollectionObject is subject or object
+  def biological_association_indices
+    BiologicalAssociationIndex.where('subject_id = ? AND subject_type = ?', id, self.class.base_class.name)
+      .or(BiologicalAssociationIndex.where('object_id = ? AND object_type = ?', id, self.class.base_class.name))
+  end
+
 end
 
 require_dependency 'specimen'
 require_dependency 'lot'
 require_dependency 'ranged_lot'
-

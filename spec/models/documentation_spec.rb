@@ -27,15 +27,9 @@ RSpec.describe Documentation, type: :model, group: :documentation do
 
       specify 'invalid documentation_object params are caught by #around_save' do
         expect(documentation.save).to be_falsey
-        expect(documentation.errors.include?(:base)).to be_truthy
+        expect(documentation.errors.include?(:documentation_object)).to be_truthy
       end
     end
-  end
-
-  specify 'destroys document when last documentation 1' do
-    documentation.update!(document: document, documentation_object: otu)
-    expect(documentation.destroy).to be_truthy
-    expect(Document.count).to eq(0)
   end
 
   specify 'does not destroy document when additional documentation' do

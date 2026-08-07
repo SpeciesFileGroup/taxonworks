@@ -48,7 +48,7 @@ namespace :tw do
         raise TaxonWorks::Error, "pg_dump failed with exit code #{$?.to_i}".red unless $? == 0
         puts Rainbow('Dump complete').yellow
 
-        raise TaxonWorks::Error, Rainbow('Failed to create dump file').red unless File.exists?(path)
+        raise TaxonWorks::Error, Rainbow('Failed to create dump file').red unless File.exist?(path)
       else
         puts Rainbow("Dump for #{Rails.env} environment skipped, database does not exist.").red
       end

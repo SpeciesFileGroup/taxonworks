@@ -9,24 +9,9 @@ RSpec.describe ObservationMatrixRowItem, type: :model, group: :observation_matri
     expect(observation_matrix_row_item.errors.include?(:observation_matrix)).to be_truthy
   end
 
-  context 'subclass STI' do
-    MATRIX_ROW_ITEM_TYPES.each_key do |k|
-      context k do
-        let(:klass) { k.constantize }
-
-        specify '.subclass_attributes is defined' do
-          expect(klass.respond_to?(:subclass_attributes)).to be_truthy
-        end
-
-        specify '.subclass_attributes is populated' do
-          expect(klass.subclass_attributes.size).to be > 0
-        end
-
-        specify ".subclass_attributes are present in ALL_STI_ATTRIBUTES (#{k})" do
-          expect((klass.subclass_attributes - ObservationMatrixRowItem::ALL_STI_ATTRIBUTES).size).to be 0
-        end
-      end
-    end
+  specify 'observation_object is required' do
+    observation_matrix_row_item.valid?
+    expect(observation_matrix_row_item.errors.include?(:observation_object)).to be_truthy
   end
 
   context '.batch_create' do

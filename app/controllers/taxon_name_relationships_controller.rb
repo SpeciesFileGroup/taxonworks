@@ -14,7 +14,9 @@ class TaxonNameRelationshipsController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @taxon_name_relationships = Queries::TaxonNameRelationship::Filter.new(filter_params).all.page(params[:page]).per(params[:per] || 500)
+        @taxon_name_relationships = Queries::TaxonNameRelationship::Filter.new(params).all
+          .page(params[:page])
+          .per(params[:per])
       }
     end
   end
@@ -31,7 +33,6 @@ class TaxonNameRelationshipsController < ApplicationController
 
   # GET /taxon_name_relationships/1/edit
   def edit
-    @taxon_name_relationship.source = Source.new if !@taxon_name_relationship.source
   end
 
   # POST /taxon_name_relationships
@@ -42,11 +43,11 @@ class TaxonNameRelationshipsController < ApplicationController
     respond_to do |format|
       if @taxon_name_relationship.save
         format.html { redirect_to url_for(@taxon_name_relationship.metamorphosize),
-                                  notice: 'Taxon name relationship was successfully created.' }
+                      notice: 'Taxon name relationship was successfully created.' }
         format.json { render action: 'show', status: :created, location: @taxon_name_relationship.metamorphosize }
       else
         format.html { render action: 'new' }
-        format.json { render json: @taxon_name_relationship.errors, status: :unprocessable_entity }
+        format.json { render json: @taxon_name_relationship.errors, status: :unprocessable_content }
       end
     end
   end
@@ -58,11 +59,11 @@ class TaxonNameRelationshipsController < ApplicationController
       if @taxon_name_relationship.update(taxon_name_relationship_params)
         @taxon_name_relationship = TaxonNameRelationship.find(@taxon_name_relationship.id) # reset class
         format.html { redirect_to url_for(@taxon_name_relationship.metamorphosize),
-                                  notice: 'Taxon name relationship was successfully updated.' }
+                      notice: 'Taxon name relationship was successfully updated.' }
         format.json { render :show, status: :ok, location: @taxon_name_relationship.metamorphosize }
       else
         format.html { render action: 'edit' }
-        format.json { render json: @taxon_name_relationship.errors, status: :unprocessable_entity }
+        format.json { render json: @taxon_name_relationship.errors, status: :unprocessable_content }
       end
     end
   end
@@ -70,24 +71,28 @@ class TaxonNameRelationshipsController < ApplicationController
   # DELETE /taxon_name_relationships/1
   # DELETE /taxon_name_relationships/1.json
   def destroy
-    @taxon_name_relationship.destroy!
+    @taxon_name_relationship.destroy
     respond_to do |format|
-      format.html { redirect_to taxon_name_relationships_url,
-                                notice: 'Taxon name relationship was successfully destroyed.' }
-      format.json { head :no_content }
+      if @taxon_name_relationship.destroyed?
+        format.html { destroy_redirect @taxon_name_relationship, notice: 'Taxon name relationship was successfully destroyed.' }
+        format.json { head :no_content}
+      else
+        format.html { destroy_redirect @taxon_name_relationship, notice: 'Taxon name relationship was not destroyed, ' + @taxon_name_relationship.errors.full_messages.join('; ') }
+        format.json { render json: @taxon_name_relationship.errors, status: :unprocessable_content }
+      end
     end
   end
 
   def list
     @taxon_name_relationships = TaxonNameRelationship.with_project_id(sessions_current_project_id)
-                                  .order(:id).page(params[:page])
+      .order(:id).page(params[:page])
   end
 
   # GET /taxon_name_relationships/search
   def search
     if params[:id].blank?
       redirect_to taxon_name_relationship_path,
-                  alert: 'You must select an item from the list with a click or tab press before clicking show.'
+        alert: 'You must select an item from the list with a click or tab press before clicking show.'
     else
       redirect_to taxon_name_relationship_path(params[:id])
     end
@@ -95,8 +100,8 @@ class TaxonNameRelationshipsController < ApplicationController
 
   # GET /taxon_name_relationships/download
   def download
-    send_data Export::Download.generate_csv(TaxonNameRelationship.where(project_id: sessions_current_project_id)),
-              type: 'text', filename: "taxon_name_relationships_#{DateTime.now}.csv"
+    send_data Export::CSV.generate_csv(TaxonNameRelationship.where(project_id: sessions_current_project_id)),
+      type: 'text', filename: "taxon_name_relationships_#{DateTime.now}.tsv"
   end
 
   # GET /taxon_name_relationships/type_relationships
@@ -110,14 +115,39 @@ class TaxonNameRelationshipsController < ApplicationController
     render json: TAXON_NAME_RELATIONSHIPS_JSON
   end
 
+  # PATCH /taxon_name_relationships/batch_update.json
+  def batch_update
+    if r = TaxonNameRelationship.batch_update(
+        preview: params[:preview],
+        taxon_name_relationship: taxon_name_relationship_params,
+        taxon_name_relationship_query: params[:taxon_name_relationship_query],
+        user_id: sessions_current_user_id,
+        project_id: sessions_current_project_id)
+      render json: r.to_json, status: :ok
+    else
+      render json: {}, status: :unprocessable_content
+    end
+  end
+
   # GET /api/v1/taxon_name_relationships
   def api_index
-    @taxon_name_relationships = Queries::TaxonNameRelationship::Filter.new(api_params).all
+    q = Queries::TaxonNameRelationship::Filter.new(params.merge!(api: true)).all
       .where(project_id: sessions_current_project_id)
       .order('taxon_name_relationships.id')
-      .page(params[:page])
-      .per(params[:per])
-    render '/taxon_name_relationships/api/v1/index'
+
+    respond_to do |format|
+      format.json {
+        @taxon_name_relationships = q.all.page(params[:page]).per(params[:per])
+        render '/taxon_name_relationships/api/v1/index'
+      }
+      format.csv {
+        @taxon_name_relationships = q
+        send_data Export::CSV.generate_csv(
+          @taxon_name_relationships,
+          exclude_columns: %w{updated_by_id created_by_id project_id},
+        ), type: 'text', filename: "taxon_names_relationships_#{DateTime.now}.tsv"
+      }
+    end
   end
 
   # GET /api/v1/taxon_name_relationships/:id
@@ -136,36 +166,6 @@ class TaxonNameRelationshipsController < ApplicationController
       :subject_taxon_name_id, :object_taxon_name_id, :type,
       origin_citation_attributes: [:id, :_destroy, :source_id, :pages]
     )
-  end
-
-  def api_params
-    params.permit(
-      :object_taxon_name_id,
-      :subject_taxon_name_id,
-      :taxon_name_id,
-      :taxon_name_relationship_set,
-      :taxon_name_relationship_type,
-      object_taxon_name_id: [],
-      subject_taxon_name_id: [],
-      taxon_name_id: [],
-      taxon_name_relationship_set: [],
-      taxon_name_relationship_type: []
-    ).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
-  end
-
-  def filter_params
-    params.permit(
-      :object_taxon_name_id,
-      :subject_taxon_name_id,
-      :taxon_name_id,
-      :taxon_name_relationship_set,
-      :taxon_name_relationship_type,
-      object_taxon_name_id: [],
-      subject_taxon_name_id: [],
-      taxon_name_id: [],
-      taxon_name_relationship_set: [],
-      taxon_name_relationship_type: [],
-    ).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
   end
 
 end

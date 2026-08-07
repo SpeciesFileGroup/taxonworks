@@ -22,7 +22,7 @@ module TaxonworksNet
 
   def self.commit_sha
     file = Rails.root + 'REVISION'
-    if File.exists?(file)
+    if File.exist?(file)
       File.read(file).strip
     else
       nil

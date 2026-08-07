@@ -1,0 +1,12 @@
+export const LOAN_STATUS_DESTROYED = 'Destroyed'
+export const LOAN_STATUS_DONATED = 'Donated'
+export const LOAN_STATUS_LOST = 'Lost'
+export const LOAN_STATUS_RETAINED = 'Retained'
+export const LOAN_STATUS_RETURNED = 'Returned'
+export const LOAN_STATUS_LIST = [
+  LOAN_STATUS_DESTROYED,
+  LOAN_STATUS_DONATED,
+  LOAN_STATUS_LOST,
+  LOAN_STATUS_RETAINED,
+  LOAN_STATUS_RETURNED
+]

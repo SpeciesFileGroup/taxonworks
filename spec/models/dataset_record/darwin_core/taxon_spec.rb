@@ -5,7 +5,9 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
 
   before :all do
     DatabaseCleaner.start
-    FactoryBot.create(:root_taxon_name)
+    # TODO: this is janky
+    Project.find(1).send(:create_root_taxon_name)
+    #  FactoryBot.create(:root_taxon_name)
   end
 
   after(:all) do
@@ -13,21 +15,11 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
   end
 
   context 'when importing a parent and child taxon from a text file' do
-    before :all do
-      DatabaseCleaner.start
-      import_dataset = ImportDataset::DarwinCore::Checklist.create!(
-        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/checklists/parent_child.tsv'), 'text/plain'),
-        description: 'parent_child'
-      ).tap { |i| i.stage }
-
-      2.times { |_|
-        import_dataset.import(5000, 100)
-      }
+    before(:all) do
+      import_checklist_tsv('parent_child.tsv', 2, 'parent_child')
     end
 
-    after :all do
-      DatabaseCleaner.clean
-    end
+    after(:all) { DatabaseCleaner.clean }
 
     let(:parent) { TaxonName.find_by(name: 'Formicidae') }
     let(:child) { TaxonName.find_by(name: 'Calyptites') }
@@ -69,27 +61,16 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
       end
 
       it 'should have the correct row metadata' do
-        pending 'need to convert from json string to ruby hash'
-        expect(import_attribute.value['scientificName']).to eq 'Formicidae'
-        expect(import_attribute.value['scientificNameAuthorship']).to eq 'Latreille, 1809'
-        expect(import_attribute.value['taxonRank']).to eq 'genus'
+        expect(import_attribute.value_to_h['scientificName']).to eq 'Formicidae'
+        expect(import_attribute.value_to_h['scientificNameAuthorship']).to eq 'Latreille, 1809'
+        expect(import_attribute.value_to_h['taxonRank']).to eq 'Family'
       end
 
     end
   end
 
   context 'when importing a homonym with a replacement taxon' do
-    before :all do
-      DatabaseCleaner.start
-      import_dataset = ImportDataset::DarwinCore::Checklist.create!(
-        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/checklists/homonym.tsv'), 'text/plain'),
-        description: 'homonym'
-      ).tap { |i| i.stage }
-
-      4.times { |_|
-        import_dataset.import(5000, 100)
-      }
-    end
+    before(:all) { import_checklist_tsv('homonym.tsv', 4, 'homonym') }
 
     after :all do
       DatabaseCleaner.clean
@@ -123,8 +104,8 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
       expect(relationship.type_name).to eq('TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::ReplacedHomonym')
     end
 
-    it 'should have 12 original combination relationships' do
-      expect(TaxonNameRelationship::OriginalCombination.all.length).to eq 12
+    it 'should have 11 original combination relationships' do
+      expect(TaxonNameRelationship::OriginalCombination.all.length).to eq 11
     end
 
     it 'should have Baroni Urbani as the author of the replacement species' do
@@ -134,17 +115,7 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
   end
 
   context 'when importing a subspecies synonym of a species' do
-    before :all do
-      DatabaseCleaner.start
-      import_dataset = ImportDataset::DarwinCore::Checklist.create!(
-        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/checklists/synonym.tsv'), 'text/plain'),
-        description: 'synonym'
-      ).tap { |i| i.stage }
-
-      3.times { |_|
-        import_dataset.import(5000, 100)
-      }
-    end
+    before(:all) { import_checklist_tsv('synonym.tsv', 3, 'synonym') }
 
     after :all do
       DatabaseCleaner.clean
@@ -164,6 +135,10 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
       expect(relationship.type_name).to eq('TaxonNameRelationship::Iczn::Invalidating::Synonym')
     end
 
+    # Apterostigma  genus
+    # Apterostigma auriculatum genus + species
+    # Apterostigma wasmannii genus + species
+    # Apterostigma wasmanii icta genus + species + subspecies
     it 'should have eight original combinations' do
       expect(TaxonNameRelationship::OriginalCombination.all.length).to eq 8
     end
@@ -177,24 +152,14 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
         expect(synonym.cached_valid_taxon_name_id).to eq valid.id
       end
 
-      it "the synonym's parent should be Apterostigma wasmannii" do
-        expect(synonym.parent.id).to eq synonym_parent.id
+      it "the synonym's parent should be the same as the valid name's parent, Apterostigma" do
+        expect(synonym.parent.id).to eq valid.parent.id
       end
     end
   end
 
   context 'when importing homonyms that are moved to another genus' do
-    before :all do
-      DatabaseCleaner.start
-      import_dataset = ImportDataset::DarwinCore::Checklist.create!(
-        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/checklists/moved_homonym.tsv'), 'text/plain'),
-        description: 'moved_homonym'
-      ).tap { |i| i.stage }
-
-      4.times { |_|
-        import_dataset.import(5000, 100)
-      }
-    end
+    before(:all) { import_checklist_tsv('moved_homonym.tsv', 4) }
 
     after :all do
       DatabaseCleaner.clean
@@ -219,11 +184,13 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
       expect(Combination.all.length).to eq 0
     end
 
-    it 'should have 4 original species relationships' do    # Anoplolepis longipes, Anoplolepis gracilipes, Pheidole longipes
+    it 'should have 4 original species relationships' do
+      # Anoplolepis longipes, Anoplolepis gracilipes, Pheidole longipes
       expect(TaxonNameRelationship.where(type: 'TaxonNameRelationship::OriginalCombination::OriginalSpecies').count).to eq 3
     end
 
-    it 'should have 5 valid taxon names' do # "Root", "Formica", "Anoplolepis", "Pheidole", "Anoplolepis gracilipes", "Pheidole longipes"
+    it 'should have 5 valid taxon names' do
+      # "Root", "Formica", "Anoplolepis", "Pheidole", "Anoplolepis gracilipes", "Pheidole longipes"
       expect(TaxonName.that_is_valid.count).to eq 6
     end
 
@@ -252,17 +219,8 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
   end
 
   context 'when importing a combination that moved genera' do
-    before :all do
-      DatabaseCleaner.start
-      import_dataset = ImportDataset::DarwinCore::Checklist.create!(
-        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/checklists/combination.tsv'), 'text/plain'),
-        description: 'combination'
-      ).tap { |i| i.stage }
 
-      4.times { |_|
-        import_dataset.import(5000, 100)
-      }
-    end
+    before(:all) { import_checklist_tsv('combination.tsv', 4) }
 
     after :all do
       DatabaseCleaner.clean
@@ -300,17 +258,7 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
   end
 
   context 'when importing a subspecies' do
-    before :all do
-      DatabaseCleaner.start
-      import_dataset = ImportDataset::DarwinCore::Checklist.create!(
-        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/checklists/subspecies.tsv'), 'text/plain'),
-        description: 'subspecies'
-      ).tap { |i| i.stage }
-
-      3.times { |_|
-        import_dataset.import(5000, 100)
-      }
-    end
+    before(:all) { import_checklist_tsv('subspecies.tsv', 3) }
 
     after :all do
       DatabaseCleaner.clean
@@ -354,18 +302,8 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
     end
   end
 
-  context 'when importing a file with three names for one protonym' do
-    before :all do
-      DatabaseCleaner.start
-      import_dataset = ImportDataset::DarwinCore::Checklist.create!(
-        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/checklists/multiple_combination.tsv'), 'text/plain'),
-        description: 'parent_child'
-      ).tap { |i| i.stage }
-
-      4.times { |_|
-        import_dataset.import(5000, 100)
-      }
-    end
+  context 'when importing a protonym with multiple combinations' do
+    before(:all) { import_checklist_tsv('multiple_combination.tsv', 4) }
 
     after :all do
       DatabaseCleaner.clean
@@ -394,17 +332,7 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
   end
 
   context 'when importing a file with three names for one protonym' do
-    before :all do
-      DatabaseCleaner.start
-      import_dataset = ImportDataset::DarwinCore::Checklist.create!(
-        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/checklists/genus_synonyms.tsv'), 'text/plain'),
-        description: 'parent_child'
-      ).tap { |i| i.stage }
-
-      4.times { |_|
-        import_dataset.import(5000, 100)
-      }
-    end
+    before(:all) { import_checklist_tsv('genus_synonyms.tsv', 4) }
 
     after :all do
       DatabaseCleaner.clean
@@ -427,17 +355,7 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
   end
 
   context 'when importing a file with an original combination subspecies and protonym species' do
-    before :all do
-      DatabaseCleaner.start
-      import_dataset = ImportDataset::DarwinCore::Checklist.create!(
-        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/checklists/oc_as_subspecies.tsv'), 'text/plain'),
-        description: 'subspecies oc and species protonym'
-      ).tap { |i| i.stage }
-
-      4.times { |_|
-        import_dataset.import(5000, 100)
-      }
-    end
+    before(:all) { import_checklist_tsv('oc_as_subspecies.tsv', 4) }
 
     after :all do
       DatabaseCleaner.clean
@@ -464,22 +382,952 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
 
   end
 
-  # TODO test missing parent
-  #
+  context 'when importing subspecies with OC that is a combination' do
+    before(:all) { import_checklist_tsv('oc_is_combination.tsv', 7) }
+
+    after :all do
+      DatabaseCleaner.clean
+    end
+
+    # Root, Leptothorax, Temnothorax, flavispinus, nigritus, amilcaris
+    it 'should have 6 protonyms' do
+      expect(Protonym.all.length).to eq 6
+    end
+
+    it 'imports 9 records' do
+      verify_all_records_imported(9)
+    end
+
+    # Leptothorax flavispinus (André, 1883)
+    it 'should have 1 combination' do
+      expect(Combination.count).to eq 1
+      expect(Combination.find_by_cached("Leptothorax flavispinus")).to_not be_nil
+    end
+
+    it 'cached OC of Temnothorax flavispinus amilcaris should be Leptothorax flavispinus amilcaris' do
+      expect_original_combination(Protonym.find_by(name: "Leptothorax"), Protonym.find_by(name: "amilcaris"), "genus")
+      expect_original_combination(Protonym.find_by(name: "flavispinus"), Protonym.find_by(name: "amilcaris"), "species")
+    end
+
+    # should be Leptothorax nigrita flavispinus, but because of import process we don't properly handle gender properly
+    # As a result, we end up using nigritus from Temnothorax nigritus instead.
+    it 'cached OC of Temnothorax flavispinus should be Leptothorax nigrita flavispinus' do
+      expect_original_combination(Protonym.find_by(name: "Leptothorax"), Protonym.find_by(name: "flavispinus"), "genus")
+      expect_original_combination(Protonym.find_by(name: "nigritus"), Protonym.find_by(name: "flavispinus"), "species")
+
+    end
+
+  end
+
+  context 'when importing a synonym whose rank and parent do not match vaild name' do
+    before(:all) { import_checklist_tsv('synonym_matching_parent_and_rank.tsv', 5) }
+
+    after :all do
+      DatabaseCleaner.clean
+    end
+
+    # Root, Amblyopone, australis, cephalotes, maculata
+    it 'should have 5 protonyms' do
+      expect(Protonym.all.length).to eq 5
+    end
+
+    it 'imports 5 records' do
+      verify_all_records_imported(5)
+    end
+
+    # Amblyopone australis cephalotes is a combination, and a synonym of Amblyopone australis so
+    # it should make the protonym Amblyopone cephalotes and the combination Amblyopone australis cephalotes
+    it 'should have 1 Combination' do
+      expect(Combination.all.length).to eq 1
+      expect(Combination.find_by_cached('Amblyopone australis cephalotes')).to_not be_nil
+    end
+
+    it 'cephalotes original combination should be Amblyopone cephalotes' do
+      expect_original_combination(TaxonName.find_by(name: 'cephalotes'), TaxonName.find_by(name: 'cephalotes'), 'species')
+      expect_original_combination(TaxonName.find_by(name: 'Amblyopone'), TaxonName.find_by(name: 'cephalotes'), 'genus')
+    end
+
+    it 'Amblyopone cephalotes should be a synonym of Amblyopone australis' do
+      relationship = TaxonNameRelationship.find_by({ subject_taxon_name: TaxonName.find_by(cached: 'Amblyopone cephalotes'),
+                                                     object_taxon_name: TaxonName.find_by(cached: 'Amblyopone australis') })
+      expect(relationship.type_name).to eq('TaxonNameRelationship::Iczn::Invalidating::Synonym')
+    end
+
+    it 'maculata should be a synonym of Amblyopone australis' do
+      relationship = TaxonNameRelationship.find_by({ subject_taxon_name: TaxonName.find_by(name: 'maculata'),
+                                                     object_taxon_name: TaxonName.find_by(cached: 'Amblyopone australis') })
+      expect(relationship.type_name).to eq('TaxonNameRelationship::Iczn::Invalidating::Synonym')
+    end
+
+    # TODO do we need to check if the Combination is a synonym?
+    # it 'Amblyopone australis cephalotes should be a synonym of Amblyopone australis' do
+    #   relationship = TaxonNameRelationship.find_by({ subject_taxon_name: TaxonName.find_by(cached: 'Amblyopone australis cephalotes'),
+    #                                                  object_taxon_name: TaxonName.find_by(cached: 'Amblyopone australis') })
+    #   expect(relationship.type_name).to eq('TaxonNameRelationship::Iczn::Invalidating::Synonym')
+    # end
+
+  end
+
+  context "when importing a synonym that doesn't have a name with matching rank and parent" do
+    before(:all) { import_checklist_tsv('synonym_without_matching_parent_and_rank.tsv', 6) }
+
+    after :all do
+      DatabaseCleaner.clean
+    end
+
+    # Root, Aenictus, Typhlatta, Eciton, pachycerus, bengalensis, continuus
+    it 'should have 7 protonyms' do
+      expect(Protonym.all.length).to eq 7
+    end
+
+    it 'imports 9 records' do
+      verify_all_records_imported(9)
+    end
+
+    let(:subspecies) { TaxonName.find_by(name: 'continuus') }
+
+    it 'Aenictus bengalensis should have OC Typhlatta bengalensis' do
+      expect_original_combination(TaxonName.find_by(name: 'bengalensis'), TaxonName.find_by(name: 'bengalensis'), 'species')
+      expect_original_combination(TaxonName.find_by(name: 'Typhlatta'), TaxonName.find_by(name: 'bengalensis'), 'genus')
+    end
+
+    it 'Aenictus pachycerus should have OC Eciton pachycerus' do
+      expect_original_combination(TaxonName.find_by(name: 'pachycerus'), TaxonName.find_by(name: 'pachycerus'), 'species')
+      expect_original_combination(TaxonName.find_by(name: 'Eciton'), TaxonName.find_by(name: 'pachycerus'), 'genus')
+    end
+
+    it 'Aenictus pachycerus continuus should have OC Aenictus bengalensis continuus' do
+      expect_original_combination(subspecies, subspecies, 'subspecies')
+      expect_original_combination(TaxonName.find_by(name: "bengalensis"), subspecies, 'species')
+      expect_original_combination(TaxonName.find_by(name: "Aenictus"), subspecies, 'genus')
+    end
+
+    it 'Aenictus bengalensis should be synonym of Aenictus pachycerus' do
+      relationship = TaxonNameRelationship.find_by({ subject_taxon_name: TaxonName.find_by(name: 'bengalensis'),
+                                                     object_taxon_name: TaxonName.find_by(cached: 'Aenictus pachycerus') })
+      expect(relationship.type_name).to eq('TaxonNameRelationship::Iczn::Invalidating::Synonym')
+    end
+
+    it 'Aenictus pachycerus continuus should be synonym of Aenictus pachycerus' do
+      relationship = TaxonNameRelationship.find_by({ subject_taxon_name: TaxonName.find_by(name: 'continuus'),
+                                                     object_taxon_name: TaxonName.find_by(cached: 'Aenictus pachycerus') })
+      expect(relationship.type_name).to eq('TaxonNameRelationship::Iczn::Invalidating::Synonym')
+    end
+
+  end
+
+  context 'when importing a homonym with same author and year as valid name' do
+    before(:all) { import_checklist_tsv('homonym_with_same_author_year.tsv', 4) }
+
+    after :all do
+      DatabaseCleaner.clean
+    end
+
+    let(:silvestrii_valid) { TaxonName.find_by(name: 'silvestrii', cached_author_year: '(Santschi, 1914)') }
+    let(:silvestrii_homonym) { TaxonName.find_by(name: 'silvestrii', cached_author_year: 'Santschi, 1914') }
+
+    # Root, Carebara, Aneleus, {silvestrii (Santschi, 1914)}, {silvestrii Santschi, 1914}, guineana
+    it 'should have 6 protonyms' do
+      expect(Protonym.all.length).to eq 6
+    end
+
+    it 'imports 6 records' do
+      verify_all_records_imported(6)
+    end
+
+    it 'should have two protonyms named silvestrii' do
+      expect(Protonym.where(name: 'silvestrii').count).to eq 2
+    end
+
+    it 'Carebara silvestrii Santschi, 1914 should be a homonym replaced by Carebara guineana' do
+      expect(TaxonNameClassification.find_by(taxon_name: silvestrii_homonym).type).to eq('TaxonNameClassification::Iczn::Available::Invalid::Homonym')
+      relationship = TaxonNameRelationship.find_by({ subject_taxon_name: silvestrii_homonym, object_taxon_name: TaxonName.find_by(name: 'guineana') })
+      expect(relationship.type_name).to eq('TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::ReplacedHomonym')
+    end
+
+    it 'Carebara silvestrii (Santschi, 1914) should be a valid name' do
+      expect(silvestrii_valid.is_valid?).to be_truthy
+    end
+
+    it 'silvestrii should have original combination Aneleus silvestrii' do
+      expect_original_combination(silvestrii_valid, silvestrii_valid, 'species')
+      expect_original_combination(TaxonName.find_by(name: 'Aneleus'), silvestrii_valid, 'genus')
+    end
+
+  end
+
+  context "when importing a homonym whose parent is a synonym (at a different rank)" do
+    before(:all) { import_checklist_tsv('homonym_child_of_synonym.tsv', 10) }
+
+    after :all do
+      DatabaseCleaner.clean
+    end
+
+    # Root, Myrmicaria, Heptacondylus, Physatta, {brunnea Saunders, 1842}, {brunnea Santschi, 1915}, nitida, opaciventris, congolensis,
+    # fumata, natalensis, eumenoides
+    it 'should have 12 protonyms' do
+      expect(Protonym.all.length).to eq 12
+    end
+
+    it 'imports 16 records' do
+      verify_all_records_imported(16)
+    end
+
+    let(:homonym) { TaxonName.find_by(name: 'brunnea', cached_author_year: 'Santschi, 1915') }
+    let(:genus) { TaxonName.find_by(name: 'Myrmicaria') }
+
+    it 'Heptacondylus should be a synonym of Myrmicaria' do
+      expect_relationship(TaxonName.find_by(name: 'Heptacondylus'), genus, 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
+    end
+
+    it 'nitida should be a synonym of Myrmicaria opaciventris congolensis' do
+      expect_relationship(TaxonName.find_by(name: 'nitida'),
+                          TaxonName.find_by(cached: 'Myrmicaria opaciventris congolensis'),
+                          'TaxonNameRelationship::Iczn::Invalidating::Synonym')
+    end
+
+    it '{brunnea Santschi, 1915} should have parent Myrmicaria' do
+      expect(homonym.parent).to eq(TaxonName.find_by(name: 'Myrmicaria'))
+    end
+
+    it '{brunnea Santschi, 1915} should have replacement name Myrmicaria fumata' do
+      expect(homonym.get_valid_taxon_name).to eq(TaxonName.find_by(cached: 'Myrmicaria fumata'))
+    end
+
+    it 'congolensis should have parent opaciventris' do
+      expect(TaxonName.find_by(name: 'congolensis').parent).to eq(TaxonName.find_by(name: 'opaciventris'))
+    end
+
+    it 'Myrmicaria opaciventris congolensis should have OC Myrmicaria eumenoides congolensis' do
+      expect_original_combination(TaxonName.find_by(name: 'congolensis'), TaxonName.find_by(name: 'congolensis'), 'subspecies')
+      expect_original_combination(TaxonName.find_by(name: 'eumenoides'), TaxonName.find_by(name: 'congolensis'), 'species')
+      expect_original_combination(TaxonName.find_by(name: 'Myrmicaria'), TaxonName.find_by(name: 'congolensis'), 'genus')
+    end
+
+    it 'Myrmicaria natalensis eumenoides should have OC Heptacondylus eumenoides' do
+      expect_original_combination(TaxonName.find_by(name: 'eumenoides'), TaxonName.find_by(name: 'eumenoides'), 'species')
+      expect_original_combination(TaxonName.find_by(name: 'Heptacondylus'), TaxonName.find_by(name: 'eumenoides'), 'genus')
+    end
+
+    it 'Myrmicaria eumenoides should be a subsequent combination of Myrmicaria natalensis eumenoides' do
+      expect(Combination.match_exists?(genus: genus.id, species: TaxonName.find_by(name: 'eumenoides').id)).to be_truthy
+    end
+
+  end
+
+  context 'when importing a name classified as nomen nudum' do
+    before(:all) { import_checklist_tsv('nomen_nudum.tsv', 5) }
+
+    after :all do
+      DatabaseCleaner.clean
+    end
+
+    let(:kraussei_krausse) { TaxonName.find_by(name: 'kraussei', cached_author_year: '(Krausse, 1912)') } # Has an original_genus that now differs!
+    let(:kraussei_emery) { TaxonName.find_by(name: 'kraussei', cached_author_year: '(Emery, 1916)') }
+
+    # Root, Myrmica, Leptothorax, Temnothorax, angustulus, "kraussei Emery, 1916", "kraussei Krausse, 1912", mediterraneus
+    it 'should have 8 protonyms' do
+      expect(Protonym.all.length).to eq 8
+    end
+
+    it 'imports 10 records' do
+      verify_all_records_imported(10)
+    end
+
+    it 'should have two protonyms named kraussei' do
+      expect(Protonym.where(name: 'kraussei').count).to eq 2
+    end
+
+    it 'Leptothorax angustulus kraussei Krausse, 1912 should have nomen nudum classification' do
+      expect(TaxonNameClassification.find_by(taxon_name: kraussei_krausse).type).to eq('TaxonNameClassification::Iczn::Unavailable::NomenNudum')
+    end
+
+    it 'Leptothorax angustulus kraussei Emery, 1916 should be a homonym' do
+      expect(TaxonNameClassification.find_by(taxon_name: kraussei_emery).type).to eq('TaxonNameClassification::Iczn::Available::Invalid::Homonym')
+      relationship = TaxonNameRelationship.find_by({ subject_taxon_name: kraussei_emery, object_taxon_name: TaxonName.find_by(name: 'mediterraneus') })
+      expect(relationship.type_name).to eq('TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::ReplacedHomonym')
+
+    end
+
+    it 'Leptothorax angustulus kraussei Krausse, 1912 should have OC Leptothorax angustulus kraussei Krausse, 1912' do
+      expect_original_combination(kraussei_krausse, kraussei_krausse, 'subspecies')
+      expect_original_combination(TaxonName.find_by(name: 'angustulus'), kraussei_krausse, 'species')
+      expect_original_combination(TaxonName.find_by(name: 'Leptothorax'), kraussei_krausse, 'genus')
+    end
+
+    it 'Leptothorax angustulus kraussei Emery, 1916 should have OC Leptothorax angustulus kraussei Emery, 1916' do
+      expect_original_combination(kraussei_emery, kraussei_emery, 'subspecies')
+      expect_original_combination(TaxonName.find_by(name: 'angustulus'), kraussei_emery, 'species')
+      expect_original_combination(TaxonName.find_by(name: 'Leptothorax'), kraussei_emery, 'genus')
+    end
+
+    it 'Leptothorax angustulus kraussei Emery, 1916 should have valid name Temnothorax kraussei' do
+      expect(kraussei_emery.parent).to eq(TaxonName.find_by(name: 'Temnothorax'))
+    end
+  end
+
+  context 'when importing a genus classified as incertae sedis' do
+    before(:all) { import_checklist_tsv('incertae_sedis/genus_incertae_sedis_in_family.tsv', 2) }
+
+    after :all do
+      DatabaseCleaner.clean
+    end
+
+    # Root, Formicidae, Hypochira
+    it 'should have 3 protonyms' do
+      expect(Protonym.all.length).to eq 3
+    end
+
+    it 'imports 2 records' do
+      verify_all_records_imported(2)
+    end
+
+    let(:family) { TaxonName.find_by(name: 'Formicidae') }
+    let(:genus) { TaxonName.find_by(name: 'Hypochira') }
+
+    it 'genus should have UncertainPlacement relationship with family' do
+      expect(TaxonNameRelationship.find_by(subject_taxon_name: genus, object_taxon_name: family).type_name).to eq('TaxonNameRelationship::Iczn::Validating::UncertainPlacement')
+    end
+  end
+
+  context 'when importing a genus and species that are incertae sedis in family' do
+    before(:all) { import_checklist_tsv('incertae_sedis/incertae_sedis_in_family.tsv', 3) }
+
+    after :all do
+      DatabaseCleaner.clean
+    end
+
+    # Root, Formicidae, Condylodon, audouini
+    it 'should have 4 protonyms' do
+      expect(Protonym.all.length).to eq 4
+    end
+
+    it 'imports 3 records' do
+      verify_all_records_imported(3)
+    end
+
+    let(:genus) { TaxonName.find_by(name: 'Condylodon') }
+    let(:species) { TaxonName.find_by(name: 'audouini') }
+    let(:family) { TaxonName.find_by(name: 'Formicidae') }
+
+    it 'genus should have UncertainPlacement relationship with family' do
+      expect(TaxonNameRelationship.find_by(subject_taxon_name: genus, object_taxon_name: family).type_name).to eq('TaxonNameRelationship::Iczn::Validating::UncertainPlacement')
+    end
+
+    it 'species should have UncertainPlacement relationship with family' do
+      expect(TaxonNameRelationship.find_by(subject_taxon_name: species, object_taxon_name: family).type_name).to eq('TaxonNameRelationship::Iczn::Validating::UncertainPlacement')
+    end
+  end
+
+  context 'when importing a species classified as incertae sedis in genus' do
+    before(:all) { import_checklist_tsv('incertae_sedis/incertae_sedis_in_genus.tsv', 3) }
+
+    after :all do
+      DatabaseCleaner.clean
+    end
+
+    # Root, Formicini Formica, fuscescens
+    it 'should have 4 protonyms' do
+      expect(Protonym.all.length).to eq 4
+    end
+
+    it 'imports 3 records' do
+      verify_all_records_imported(3)
+    end
+
+    let(:tribe) { TaxonName.find_by(name: 'Formicini') }
+    let(:genus) { TaxonName.find_by(name: 'Formica') }
+    let(:species) { TaxonName.find_by(name: 'fuscescens') }
+
+    it 'genus should not have UncertainPlacement' do
+      expect(genus.iczn_uncertain_placement_relationship).to be_falsey
+    end
+
+    it 'fuscescens OC should be Formica fuscescens' do
+      expect_original_combination(species, species, 'species')
+      expect_original_combination(genus, species, 'genus')
+    end
+
+    it 'fuscescens parent should be tribe: Formicini' do
+      expect(species.parent).to eq tribe
+    end
+
+    it 'species should have UncertainPlacement relationship with tribe' do
+      expect(TaxonNameRelationship.find_by(subject_taxon_name: species, object_taxon_name: tribe).type_name).to eq('TaxonNameRelationship::Iczn::Validating::UncertainPlacement')
+    end
+  end
+
+  context 'when importing a moved species classified as incertae sedis in genus' do
+    before(:all) { import_checklist_tsv('incertae_sedis/incertae_sedis_moved_genus.tsv', 6) }
+
+    after :all do
+      DatabaseCleaner.clean
+    end
+
+    # Root, Formicidae, Formica, Myrmicinae, Cephalotes, Attini, haemorrhoidalis
+    it 'should have 7 protonyms' do
+      expect(Protonym.all.length).to eq 7
+    end
+
+    it 'imports 7 records' do
+      verify_all_records_imported(7)
+    end
+
+    let(:current_genus) { TaxonName.find_by(name: 'Cephalotes') }
+    let(:old_genus) { TaxonName.find_by(name: 'Formica') }
+    let(:species) { TaxonName.find_by(name: 'haemorrhoidalis') }
+    let(:tribe) { TaxonName.find_by(name: 'Attini') }
+
+    it 'genus should not have UncertainPlacement' do
+      expect(old_genus.iczn_uncertain_placement_relationship).to be_falsey
+      expect(current_genus.iczn_uncertain_placement_relationship).to be_falsey
+    end
+
+    it 'species should have UncertainPlacement relationship with tribe' do
+      expect(TaxonNameRelationship.find_by(subject_taxon_name: species, object_taxon_name: tribe).type_name).to eq('TaxonNameRelationship::Iczn::Validating::UncertainPlacement')
+    end
+
+    it 'should have an original combination relationship with old genus' do
+      expect_original_combination(old_genus, species, 'genus')
+    end
+  end
+
+  context 'when importing an obsolete classification of a genus' do
+    before(:all) { import_checklist_tsv('obsolete_classification.tsv', 5) }
+    after :all do
+      DatabaseCleaner.clean
+    end
+
+    # Root, Myrmicinae, Solenopsidini, Monomorium
+    it 'should have 5 protonyms' do
+      expect(Protonym.count).to eq 5
+    end
+
+    it 'imports 6 records' do
+      verify_all_records_imported(6)
+    end
+
+    it 'should have two combinations' do
+      expect(Combination.count).to eq 2
+      expect(TaxonName.find_by(cached: 'Monomorium (Monomorium)')).to be_truthy
+    end
+
+    it 'Monomorium (Monomorium) should be a combination of genus and subgenus' do
+      expect(TaxonName.find_by(cached: 'Monomorium (Monomorium)').genus).to eq TaxonName.find_by(cached: 'Monomorium')
+      expect(TaxonName.find_by(cached: 'Monomorium (Monomorium)').subgenus).to eq TaxonName.find_by(cached: 'Monomorium')
+    end
+
+    it 'Monomorium (Monomorium) should be invalid' do
+      expect(TaxonName.find_by(cached: 'Monomorium (Monomorium)').cached_is_valid).to eq false
+    end
+
+    it 'Monomorium OC should only by Monomorium' do
+      expect(TaxonNameRelationship.where(object_taxon_name: TaxonName.find_by(cached: 'Monomorium')).count).to eq 1
+    end
+
+    it 'Monomorium (Syllophopsis) should be a combination of genus and subgenus' do
+      expect(TaxonName.find_by(cached: 'Monomorium (Syllophopsis)').genus).to eq TaxonName.find_by(name: 'Monomorium')
+      expect(TaxonName.find_by(cached: 'Monomorium (Syllophopsis)').subgenus).to eq TaxonName.find_by(name: 'Syllophopsis')
+    end
+
+    it 'Monomorium (Syllophopsis) should point to Syllophopsis' do
+      expect(TaxonName.find_by(cached: 'Monomorium (Syllophopsis)').valid_taxon_name).to eq(TaxonName.find_by(cached: 'Syllophopsis'))
+    end
+  end
+
+  context 'when importing a nominate subgenus synonym' do
+    before(:all) { import_checklist_tsv('genus_subgenus_oc.tsv', 5, 'nominate synonym') }
+
+    after :all do
+      DatabaseCleaner.clean
+    end
+
+    let(:valid) { TaxonName.find_by(cached: 'Strumigenys') }
+    let(:synonym) { TaxonName.find_by({ name: 'Smithistruma' }) }
+
+    it 'should create and import 5 records' do
+      verify_all_records_imported(5)
+    end
+
+    it 'should have a synonym relationship ' do
+      relationship = TaxonNameRelationship.find_by({ subject_taxon_name_id: synonym.id, object_taxon_name_id: valid.id })
+      expect(relationship.type_name).to eq('TaxonNameRelationship::Iczn::Invalidating::Synonym')
+    end
+
+    # Strumigenys genus
+    # Smithistruma (Smithistruma) genus subgenus
+    it 'should have two original combinations' do
+      expect(TaxonNameRelationship::OriginalCombination.all.length).to eq 3
+    end
+
+    it 'should have original combination Smithistruma (Smithistruma)' do
+      original_ranks = TaxonNameRelationship.where({ subject_taxon_name: synonym, object_taxon_name: synonym }).map(&:type_name)
+      expect(original_ranks).to contain_exactly('TaxonNameRelationship::OriginalCombination::OriginalGenus', 'TaxonNameRelationship::OriginalCombination::OriginalSubgenus')
+    end
+
+    it 'should be cached invalid' do
+      expect(synonym.cached_is_valid).to be false
+    end
+
+    it 'the synonym should have cached valid taxon id' do
+      expect(synonym.cached_valid_taxon_name_id).to eq valid.id
+    end
+
+    it "should not create a combination, Smithistruma (Smithistruma) is the original combination" do
+      expect(Combination.count).to eq 0
+    end
+
+    it "should have cached original combination Smithistruma (Smithistruma)" do
+      expect(synonym.cached_original_combination).to eq "Smithistruma (Smithistruma)"
+    end
+  end
+
+  context 'when importing a misspelling of a combination' do
+    before(:all) { import_checklist_tsv('misspelling_combination.tsv', 6, 'misspelling combination') }
+
+    after :all do
+      DatabaseCleaner.clean
+    end
+
+    let(:valid) { TaxonName.find_by(cached: 'Atta sexdens') }
+    let(:misspelling) { TaxonName.find_by({ name: 'sexdentata' }) }
+
+    it 'should create and import 6 records' do
+      verify_all_records_imported(6)
+    end
+
+    it 'should have a misspelling relationship ' do
+      relationship = TaxonNameRelationship.find_by({ subject_taxon_name_id: misspelling.id, object_taxon_name_id: valid.id })
+      expect(relationship.type_name).to eq('TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling')
+    end
+
+    # Atta
+    # Atta sexdens
+    # Atta sexdentata
+    # Formica
+    # Formica sexdens
+    # Formica sexdentata
+    it 'should have six original combinations' do
+      expect(TaxonNameRelationship::OriginalCombination.all.length).to eq 6
+    end
+
+    it 'should be cached invalid' do
+      expect(misspelling.cached_is_valid).to be false
+    end
+
+    it 'the synonym should have cached valid taxon id' do
+      expect(misspelling.cached_valid_taxon_name_id).to eq valid.id
+    end
+  end
+
+  context 'when importing species with different congugation' do
+    before(:all) { import_checklist_tsv('conjugated_species.tsv', 5) }
+
+    after :all do
+      DatabaseCleaner.clean
+    end
+
+    let(:valid) { TaxonName.find_by(cached: 'Atta sexdens') }
+    let(:misspelling) { TaxonName.find_by({ name: 'sexdentata' }) }
+
+    it 'should create and import 5 records' do
+      verify_all_records_imported(5)
+    end
+
+    # Stenammini
+    # Veromessor
+    # Veromessor julianus
+    # Aphaenogaster
+    it 'should have four original combinations' do
+      expect(TaxonNameRelationship::OriginalCombination.all.length).to eq 4
+    end
+
+    it 'should have properly conjugated original combination' do
+      expect(TaxonName.find_by_cached_original_combination("Aphaenogaster juliana")).to_not be_nil
+    end
+
+    it 'should have properly conjugated valid name' do
+      expect(TaxonName.find_by_cached("Veromessor julianus")).to_not be_nil
+    end
+
+  end
+
+  context 'when importing a name classified in a subgenus later' do
+    before(:all) { import_checklist_tsv('younger_oc_subgenus.tsv', 3) }
+
+    after :all do
+      DatabaseCleaner.clean
+    end
+
+    it 'should create and import 3 records' do
+      verify_all_records_imported(3)
+    end
+
+    # Camponotus
+    # Camponotus (Myrmocladoecus) 2x
+    # Camponotus planus 2x
+    it 'should have five original combinations' do
+      expect(TaxonNameRelationship::OriginalCombination.all.length).to eq 5
+    end
+
+    it 'should not include the subgenus in the original combination' do
+      expect(TaxonName.find_by_name('planus').cached_original_combination).to eq "Camponotus planus"
+    end
+  end
+
+  context 'when importing a synonym combination' do
+    # synonym should become combination
+    before(:all) { import_checklist_tsv('create_combination_for_moved_synonym.tsv', 5) }
+
+    after :all do
+      DatabaseCleaner.clean
+    end
+
+    # Odontomachus coquereli minor should be a combination, Champsomyrmex coquereli minor should be the original combination
+    # Champsomyrmex coquereli minor is a junior synonym of Odontomachus coquereli
+
+    it 'should import 6 records' do
+      verify_all_records_imported(6)
+    end
+
+    # Champsomyrmex
+    # Champsomyrmex coquereli (x2)
+    # Champsomyrmex coquereli minor (x3)
+    # Odontomachus
+
+    let(:Odontomachus) { TaxonName.find_by(name: 'Odontomachus') }
+    let(:Champsomyrmex) { TaxonName.find_by(name: 'Champsomyrmex') }
+    let(:minor) { TaxonName.find_by_name('minor') }
+    let(:coquereli) { TaxonName.find_by_name('coquereli') }
+
+    it 'should create 7 original combinations' do
+      expect(TaxonNameRelationship::OriginalCombination.all.length).to eq 7
+    end
+
+    it 'should have the correct original combination' do
+      expect(minor.cached_original_combination).to eq 'Champsomyrmex coquereli minor'
+    end
+
+
+    it 'should create a combination for the synonym' do
+      expect(Combination.find_by_cached('Odontomachus coquereli minor')).to_not be_nil
+    end
+
+    it 'should have the correct valid name' do
+      valid = TaxonName.find_by_cached('Odontomachus coquereli')
+      synonym = TaxonName.find_by(cached_original_combination: 'Champsomyrmex coquereli minor')
+
+      expect(synonym.valid_taxon_name).to eq valid
+    end
+
+    it 'should have a synonym relationship' do
+      valid = TaxonName.find_by_cached('Odontomachus coquereli')
+      synonym = TaxonName.find_by(cached_original_combination: 'Champsomyrmex coquereli minor')
+
+      expect_relationship(synonym, valid, 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
+    end
+  end
+
+  context 'when importing a record with mismatched authorship year data' do
+    before(:all) { import_checklist_tsv('error_tests/mismatched_year.tsv', 1) }
+
+    after :all do
+      DatabaseCleaner.clean
+    end
+
+    let(:record) {DatasetRecord.first}
+    it 'should have an errored status' do
+
+      expect(record.status).to eq("Errored")
+    end
+    it 'should have the right error message' do
+
+      expect(record[:metadata].dig("error_data", "messages", "namePublishedInYear")).to_not be_nil
+    end
+  end
+
+  context 'when importing a synonym that is a fossil' do
+    before(:all) { import_checklist_tsv('fossil_synonym.tsv', 4) }
+
+    after :all do
+      DatabaseCleaner.clean
+    end
+
+    let!(:formicinae){ Protonym.find_by(name: 'Formicinae') }
+    let!(:rabidia) { Protonym.find_by(name: 'Rabidia') }
+    let!(:camponotites) { Protonym.find_by(name: 'Camponotites') }
+
+    it 'should import 3 records' do
+      verify_all_records_imported(3)
+    end
+
+    it 'the synonym have the fossil status' do
+      expect(rabidia.taxon_name_classifications.map { |c| c.type_name }).to include 'TaxonNameClassification::Iczn::Fossil'
+    end
+
+    it 'the valid should also have fossil status' do
+      expect(camponotites.taxon_name_classifications.map { |c| c.type_name }).to include 'TaxonNameClassification::Iczn::Fossil'
+    end
+
+    it 'the valid should be incertae sedis' do
+      expect(TaxonNameRelationship.find_by(subject_taxon_name: camponotites, object_taxon_name: formicinae).type_name).to eq('TaxonNameRelationship::Iczn::Validating::UncertainPlacement')
+    end
+
+    it 'should be a synonym of the valid name' do
+      expect_relationship(rabidia, camponotites, 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
+    end
+
+  end
+
+  context 'when importing an original misspelling' do
+    before(:all) { import_checklist_tsv('original_misspelling.tsv', 6, 'misspelling combination') }
+
+    # Tetramorium rothneyi longi is a synonym of Tetramorium wroughtonii and has a different
+    # original combination (Rhoptromyrmex rothneyi longi). Because the valid rank is different and it is not the
+    # original combination, we need to create a subsequent combination for it.
+    # However, Tetramorium rothneyi is a subsequent combination (not a protonym) of Tetramorium wroughtonii rothneyi.
+    # This revealed a bug that subsequent combination generation for synonyms did not use the
+    # finest protonym for Combination ancestors.
+
+    after :all do
+      DatabaseCleaner.clean
+    end
+
+    let(:valid) { Protonym.find_by(cached: 'Polyrhachis (Myrma) olena') }
+    let(:misspelling) { Protonym.find_by({ name: 'olenus' }) }
+
+    it 'should create and import 5 records' do
+      verify_all_records_imported(6)
+    end
+
+    it 'should have a misspelling relationship ' do
+      relationship = TaxonNameRelationship.find_by({ subject_taxon_name_id: misspelling.id, object_taxon_name_id: valid.id })
+      expect(relationship.type_name).to eq('TaxonNameRelationship::Iczn::Invalidating::Usage::IncorrectOriginalSpelling')
+    end
+
+    # Polyrhachis [1x]
+    # Myrma [1x]
+    # Polyrhachis (Myrma) olena [3x]
+    # Polyrhachis (Myrma) olenus [3x]
+    it 'should have eight original combinations' do
+      expect(TaxonNameRelationship::OriginalCombination.all.length).to eq 8
+    end
+
+    it 'should be cached invalid' do
+      expect(misspelling.cached_is_valid).to be false
+    end
+
+    it 'the synonym should have cached valid taxon id' do
+      expect(misspelling.cached_valid_taxon_name_id).to eq valid.id
+    end
+  end
+
+  context 'when importing a synonym with a combination parent' do
+    before(:all) { import_checklist_tsv('synonym_combination_parent.tsv', 9) }
+
+    # Tetramorium rothneyi longi is a synonym of Tetramorium wroughtonii and has a different
+    # original combination (Rhoptromyrmex rothneyi longi). Because the valid rank is different and it is not the
+    # original combination, we need to create a subsequent combination for it.
+    # However, Tetramorium rothneyi is a subsequent combination (not a protonym) of Tetramorium wroughtonii rothneyi.
+    # This revealed a bug that subsequent combination generation for synonyms did not use the
+    # finest protonym for Combination ancestors.
+
+    after :all do
+      DatabaseCleaner.clean
+    end
+
+    let(:synonym_protonym) { Protonym.find_by(name: 'longi') }
+
+    it 'should create and import 11 records' do
+      verify_all_records_imported(11)
+    end
+
+    it 'the synonym should have species rank' do
+      expect(synonym_protonym.rank).to eq('species')
+    end
+
+    it 'the synonym should have the correct cached original combination' do
+      expect(synonym_protonym.cached_original_combination).to eq('Rhoptromyrmex rothneyi longi')
+    end
+
+    it 'the synonym subsequent combination should exist' do
+      expect(Combination.find_by(cached: 'Tetramorium rothneyi longi')).to be_truthy
+    end
+
+  end
+
+  context 'when importing a dataset without scientificNameAuthorship data' do
+    before(:all) { import_checklist_tsv('no_authorship.tsv', 2) }
+    after(:all) { DatabaseCleaner.clean }
+
+    it 'should import both names' do
+      verify_all_records_imported(2)
+    end
+
+    it 'neither protonym should have authorship data' do
+      expect(Protonym.find_by(name: 'Formicidae').author_string).to be_nil
+      expect(Protonym.find_by(name: 'Calyptites').author_string).to be_nil
+    end
+  end
+
+
+  context 'when importing a second time that builds off the first import' do
+    before(:all) do
+      DatabaseCleaner.start
+
+      # TODO: consider better init hooks
+      Current.project_id = 1
+      Current.user_id = 1
+
+      import_dataset = ImportDataset::DarwinCore::Checklist.create!(
+        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/checklists/' + 'two_part_upload/two_part_upload_1.tsv'), 'text/plain'),
+        description: "part 1",
+        import_settings: {'use_existing_taxon_hierarchy' => false}
+      ).tap { |i| i.stage }
+
+      1.times { |_|
+        import_dataset.import(5000, 100)
+      }
+
+      import_dataset2 = ImportDataset::DarwinCore::Checklist.create!(
+        source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/checklists/' + 'two_part_upload/two_part_upload_2.tsv'), 'text/plain'),
+        description: "part 2",
+        import_settings: {'use_existing_taxon_hierarchy' => true}
+      ).tap { |i| i.stage }
+
+      2.times { |_|
+        import_dataset2.import(5000, 100)
+      }
+    end
+
+    after :all do
+      DatabaseCleaner.clean
+    end
+
+    it 'should import 3 records' do
+      verify_all_records_imported(3)
+    end
+
+    it 'only two protonyms should be created' do
+      expect(TaxonName.where.not(name: 'Root').count).to eq 2
+    end
+
+  end
+
+  context 'when importing a taxon with invalid as a classification' do
+    before(:all) { import_checklist_tsv('invalid_as_classification.tsv', 3) }
+    after(:all) { DatabaseCleaner.clean }
+
+    let(:taxon) { Protonym.find_by(name: 'Cynipidae') }
+
+    it 'should import the 1 row' do
+      verify_all_records_imported(1)
+    end
+
+    it "should set the taxon's status to invalid" do
+      expect(taxon.taxon_name_classifications.map { |c| c.type_name }).to include 'TaxonNameClassification::Iczn::Available::Invalid'
+    end
+  end
+
+  context 'when importing a taxon with invalid as a relationship' do
+    before(:all) { import_checklist_tsv('invalid_as_relationship.tsv', 3) }
+    after(:all) { DatabaseCleaner.clean }
+
+    let(:valid_protonym) { Protonym.find_by(name: 'Biorhiza') }
+    let(:invalid_protonym) { Protonym.find_by(name: 'Biorhyza') }
+
+    it 'should import the 3 rows' do
+      verify_all_records_imported(3)
+    end
+
+    it 'the invalid taxon should have an invalid relationship with the valid taxon' do
+      expect_relationship(invalid_protonym, valid_protonym, 'TaxonNameRelationship::Iczn::Invalidating')
+    end
+
+  end
+
+  context 'when importing a taxon with a missing parent' do
+    before(:all) { import_checklist_tsv('missing_parent.tsv', 4) }
+    after(:all) { DatabaseCleaner.clean }
+
+    let(:valid_protonym) { Protonym.find_by(name: 'glandium') }
+    let(:original_genus) { Protonym.find_by(name: 'Andricus', rank_class: Ranks.lookup(:iczn, 'genus')) }
+
+    it 'should import the 5 rows' do
+      verify_all_records_imported(5)
+    end
+
+    # TODO: this will fail currently because there is no handling to try to make a connection for missing genera
+    xit 'should setup the original genus relationship between the valid protonym and original genus' do
+      expect_relationship(original_genus, valid_protonym, 'TaxonNameRelationship::OriginalCombination::OriginalGenus')
+    end
+  end
+
+  context 'when importing a taxon without originalNameUsageID' do
+    before(:all) do
+      import_checklist_tsv('missing_original_name.tsv', 4)
+
+      TaxonName.find_each {|t| t.send(:set_cached)}
+
+    end
+    after(:all) { DatabaseCleaner.clean }
+
+    it 'should import the 2 rows' do
+      verify_all_records_imported(2)
+    end
+
+    it 'should not create an original combination if missing originalNameUsageID' do
+      expect(Protonym.find_by(name: 'Formicidae').cached_original_combination).to be_nil
+    end
+
+    it 'should create an original combination when originalNameUsageID is present' do
+      expect(Protonym.find_by(name: 'Calyptites').cached_original_combination).to eq 'Calyptites'
+    end
+
+  end
+
   # TODO test protonym is unavailable --- set classification on unsaved TaxonName
   #
   # TODO test importing multiple times
-end
+  end
 
-# Helper method to expect an OriginalCombination relationship with less code duplication
-# @param [Integer, Protonym] subject_taxon_name
-# @param [Integer, Protonym] object_taxon_name
-# @param [String] rank The (short) rank to expect in the relationship
-def expect_original_combination(subject_taxon_name, object_taxon_name, rank)
-  expect(TaxonNameRelationship.find_by({ subject_taxon_name: subject_taxon_name, object_taxon_name: object_taxon_name }).type_name).to eq('TaxonNameRelationship::OriginalCombination::Original' + rank.capitalize)
-end
+  # Stages and imports a DwC-A dataset, in TSV format
+  #
+  # @param [String] file_name The path to the file. Base directory is `spec/files/import_datasets/checklists/`
+  # @param [Integer] import_iterations Number of times to call import on dataset.
+  # @param [String] description The description to add to the dataset. if nil, uses filename.
+  def import_checklist_tsv(file_name, import_iterations, description = nil)
+    DatabaseCleaner.start
 
-def verify_all_records_imported(num_records)
-  expect(DatasetRecord.all.count).to eq(num_records)
-  expect(DatasetRecord.all.map { |row| row.status }).to all(eq('Imported'))
-end
+    #  # TODO: consider better init hooks
+    #  Project.find(1).send(:create_root_taxon_name)
+   Current.project_id = 1
+   Current.user_id = 1
+
+    import_dataset = ImportDataset::DarwinCore::Checklist.create!(
+      source: fixture_file_upload((Rails.root + 'spec/files/import_datasets/checklists/' + file_name), 'text/plain'),
+      description: description || file_name # use file name as description if not given
+    ).tap { |i| i.stage }
+
+    import_iterations.times { |_|
+      import_dataset.import(5000, 100)
+    }
+  end
+
+  # Helper method to expect an OriginalCombination relationship with less code duplication
+  # @param [Integer, Protonym] subject_taxon_name (the higher rank name)
+  # @param [Integer, Protonym] object_taxon_name (the lower rank name)
+  # @param [String] rank The (short) rank to expect in the relationship
+  def expect_original_combination(subject_taxon_name, object_taxon_name, rank)
+    expect(TaxonNameRelationship.find_by({ subject_taxon_name: subject_taxon_name, object_taxon_name: object_taxon_name }).type_name).to eq('TaxonNameRelationship::OriginalCombination::Original' + rank.capitalize)
+  end
+
+  def expect_relationship(subject_taxon_name, object_taxon_name, relationship)
+    r = TaxonNameRelationship.find_by(subject_taxon_name: subject_taxon_name, object_taxon_name: object_taxon_name)
+    expect(r.type).to eq(relationship)
+  end
+
+  def verify_all_records_imported(num_records)
+    expect(DatasetRecord.all.count).to eq(num_records)
+    expect(DatasetRecord.all.map { |row| row.status }).to all(eq('Imported'))
+  end

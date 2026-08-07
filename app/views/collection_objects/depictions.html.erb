@@ -1,6 +1,5 @@
 <h1>Collection object depictions</h1>
 
 <% @collection_object.depictions.each do |d| -%>
-
     <%= image_tag(d.image.image_file.url(:medium)) %>
 <% end %>

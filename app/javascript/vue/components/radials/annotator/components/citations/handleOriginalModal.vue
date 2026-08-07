@@ -1,20 +1,39 @@
 <template>
-  <modal-component
-    @close="$emit('close')">
+  <modal-component @close="emit('close')">
     <template #header>
       <h3>Select original citation</h3>
     </template>
     <template #body>
-      <p>A new citation is marked as original, but another original citation already exists. Select one of the following actions to proceed:</p>
+      <p>
+        A new citation is marked as original, but another original citation
+        already exists. Select one of the following actions to proceed:
+      </p>
       <ul class="no_bullets">
-        <li v-for="option in options">
+        <li>
           <label>
             <input
               name="handle-original"
               type="radio"
-              :value="option.value"
-              v-model="keepOriginal">
-            <span v-html="option.label"/>
+              :value="true"
+              v-model="keepOriginal"
+            />
+            <span
+              >Keep <b v-html="originalSource.cached" /> as original, save
+              <b v-html="currentSource.cached" /> as non original.
+            </span>
+          </label>
+        </li>
+        <li>
+          <label>
+            <input
+              name="handle-original"
+              type="radio"
+              :value="false"
+              v-model="keepOriginal"
+            />
+            <span>
+              Save <b v-html="currentSource.cached" /> as original citation.
+            </span>
           </label>
         </li>
       </ul>
@@ -23,80 +42,102 @@
       <button
         type="button"
         class="button normal-input button-submit"
-        @click="handleCitation">
+        @click="handleCitation"
+      >
         Save
       </button>
     </template>
   </modal-component>
 </template>
 
-<script>
+<script setup>
+import { ref } from 'vue'
+import { Citation, Source } from '@/routes/endpoints'
+import ModalComponent from '@/components/ui/Modal'
 
-import ModalComponent from 'components/ui/Modal'
-import CRUD from '../../request/crud.js'
+const EXTEND_PARAMS = ['source', 'citation_topics']
 
-export default {
-  mixins: [CRUD],
-
-  components: { ModalComponent },
-
-  props: {
-    citation: {
-      type: Object,
-      required: true
-    },
-
-    originalCitation: {
-      type: Object,
-      required: true
-    }
+const props = defineProps({
+  citation: {
+    type: Object,
+    required: true
   },
 
-  emits: [
-    'create',
-    'close'
-  ],
+  originalCitation: {
+    type: Object,
+    default: undefined
+  }
+})
 
-  data () {
-    return {
-      options: [
-        {
-          label: `Keep <b>${this.originalCitation.source.author_year}</b> as original, save <b>${this.citation.author_year}</b> as non original.`,
-          value: true
-        },
-        {
-          label: `Save <b>${this.citation.author_year}</b> as original citation.`,
-          value: false
-        }
-      ],
-      keepOriginal: true
-    }
-  },
+const emit = defineEmits(['create', 'save', 'close'])
 
-  methods: {
-    createNonOriginal () {
-      this.create('/citations.json', { citation: Object.assign({}, this.citation, { is_original: false }) }).then(response => {
-        this.$emit('create', response.body)
-        this.$emit('close')
-      })
-    },
+const currentSource = ref({})
+const originalSource = ref({})
+const keepOriginal = ref(true)
 
-    changeOriginal () {
-      this.update(`/citations/${this.originalCitation.id}.json`, { citation: Object.assign({}, this.originalCitation, { is_original: false }) }).then(response => {
-        this.create('/citations.json', { citation: this.citation }).then(response => {
-          this.$emit('create', response.body)
-          this.$emit('close')
-        })
-      })
-    },
+Source.find(props.citation.source_id).then(({ body }) => {
+  currentSource.value = body
+})
+Source.find(props.originalCitation.source_id).then(({ body }) => {
+  originalSource.value = body
+})
 
-    handleCitation () {
-      if (this.keepOriginal) {
-        this.createNonOriginal()
-      } else {
-        this.changeOriginal()
-      }
-    }
+function saveNonOriginal() {
+  saveCitation({
+    ...props.citation,
+    is_original: false
+  })
+    .then(({ body }) => {
+      TW.workbench.alert.create('Citation was successfully saved.', 'notice')
+      emit('save', body)
+      emit('close')
+    })
+    .catch(() => {})
+}
+
+function saveCitation(citation) {
+  const citationId = citation.id
+  const payload = {
+    citation,
+    extend: EXTEND_PARAMS
+  }
+
+  const request = citationId
+    ? Citation.update(citationId, payload)
+    : Citation.create(payload)
+
+  request
+    .then(({ body }) => {
+      emit('save', body)
+    })
+    .catch(() => {})
+
+  return request
+}
+
+async function changeOriginal() {
+  try {
+    await saveCitation({
+      id: props.originalCitation.id,
+      is_original: false
+    })
+
+    const { body } = await saveCitation({
+      ...props.citation,
+      is_original: true
+    })
+
+    TW.workbench.alert.create('Citation was successfully saved.', 'notice')
+    emit('create', body)
+    emit('close')
+  } catch {}
+}
+
+function handleCitation() {
+  if (keepOriginal.value) {
+    saveNonOriginal()
+  } else {
+    changeOriginal()
   }
 }
 </script>

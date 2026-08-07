@@ -1,0 +1,25 @@
+<%= render("/shared/data/all/list/list_header", objects: @otu_relationships) -%>
+
+<table class="tablesorter">
+  <thead>
+  <tr>
+    <%= fancy_th_tag(name: 'Subject OTU') -%>
+    <%= fancy_th_tag(name: 'Type') -%>
+    <%= fancy_th_tag(name: 'Object OTU') -%>
+    <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
+    <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
+  </tr>
+  </thead>
+
+  <tbody>
+  <% @otu_relationships.each do |otu_relationship| %>
+      <%= content_tag(:tr, class: :contextMenuCells) do -%>
+          <td><%= otu_tag( otu_relationship.subject_otu ) %></td>
+          <td><%= otu_relationship_type_label(otu_relationship) %></td>
+          <td><%= otu_tag( otu_relationship.object_otu ) %></td>
+          <%= fancy_metadata_cells_tag(otu_relationship) -%>
+      <% end %>
+  <% end %>
+  </tbody>
+</table>
+

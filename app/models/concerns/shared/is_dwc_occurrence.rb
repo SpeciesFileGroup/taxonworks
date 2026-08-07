@@ -1,28 +1,29 @@
-# Shared code for data classes that can be serialized as DwcOccurrence records
-#
+# Shared code for data classes that can be indexed/serialized as DwcOccurrence records
 module Shared::IsDwcOccurrence
   extend ActiveSupport::Concern
 
-  # These probably belong in a global helper
-  DWC_DELIMITER = ' | '
+  DWC_DELIMITER = Export::Dwca::DELIMITER
 
   VIEW_EXCLUSIONS = [
     :footprintWKT
-  ]
+  ].freeze
 
   included do
     delegate :persisted?, to: :dwc_occurrence, prefix: :dwc_occurrence, allow_nil: true
+
+    # TODO: do we need a ENV check option for disableing dwc_occurrence setting here as well?
 
     # @return Boolean, nil
     #   when true prevents automatic dwc_index from being created
     attr_accessor :no_dwc_occurrence
 
-    has_one :dwc_occurrence, as: :dwc_occurrence_object, inverse_of: :dwc_occurrence_object
+    has_one :dwc_occurrence, as: :dwc_occurrence_object, dependent: :destroy, inverse_of: :dwc_occurrence_object
 
     after_save :set_dwc_occurrence, unless: -> { no_dwc_occurrence }
 
     scope :dwc_indexed, -> {joins(:dwc_occurrence)}
     scope :dwc_not_indexed, -> { where.missing(:dwc_occurrence) }
+
   end
 
   module ClassMethods
@@ -32,7 +33,7 @@ module Shared::IsDwcOccurrence
       t = ::DwcOccurrence.arel_table
       s = self.arel_table
 
-      k = self::DWC_OCCURRENCE_MAP.keys.sort
+      k = self::DWC_OCCURRENCE_MAP.keys #.sort
 
       if mode.to_sym == :view
         k = k - self::VIEW_EXCLUSIONS
@@ -47,14 +48,17 @@ module Shared::IsDwcOccurrence
   end
 
   # @return [DwcOccurrence]
-  #   always touches the database
+  #   !! always touches the database
   def set_dwc_occurrence
     retried = false
     begin
       if dwc_occurrence_persisted?
-        dwc_occurrence.generate_uuid_if_required
-        dwc_occurrence.update_columns(dwc_occurrence_attributes)
-        dwc_occurrence.touch(:updated_at)
+        dwc_occurrence.generate_uuid_if_required # TODO: at some point when synchronized make this optional
+        dwc_occurrence.update_columns(
+          dwc_occurrence_attributes.merge(
+            rebuild_set: nil,
+            updated_at: Time.zone.now)
+        )
       else
         create_dwc_occurrence!(dwc_occurrence_attributes)
       end
@@ -70,29 +74,75 @@ module Shared::IsDwcOccurrence
     dwc_occurrence
   end
 
+  def dwc_occurrence_id
+    dwc_occurrence&.occurrence_identifier&.cached
+  end
+
+  # @return String
+  #   the Darwin Core basisOfRecord value for this occurrence
+  # Moved here from DwcOccurrence#basis since that method is only called in
+  # before_validate, which never gets called on the dwc_occurrence_attributes
+  # path here that happens when something like adding a new BiocurationClass
+  # triggers a background job set_dwc_occurrence call to update dwc_occurrence.
+  def dwc_occurrence_basis
+    case self.class.base_class.name
+    when 'CollectionObject'
+      is_fossil? ? 'FossilSpecimen' : 'PreservedSpecimen'
+    when 'AssertedDistribution'
+      # Used to fork b/b Source::Human and Source::Bibtex:
+      case source&.type || sources.order(cached_nomenclature_date: :DESC).first&.type
+      when 'Source::Bibtex'
+        'MaterialCitation'
+      when 'Source::Human'
+        'HumanObservation'
+      else # Not recommended at this point
+        'Occurrence'
+      end
+    when 'FieldOccurrence'
+      machine_output? ? 'MachineObservation' : 'HumanObservation'
+    else
+      'Undefined'
+    end
+  end
+
+  # @return [Integer, nil]
+  #   TaxonWorks OTU id included on the denormalized DwcOccurrence row.
+  def dwc_otu_id
+    case self.class.base_class.name
+    when 'CollectionObject', 'FieldOccurrence'
+      current_otu&.id
+    when 'AssertedDistribution'
+      otu&.id
+    else
+      raise NotImplementedError, "Unhandled dwc_otu_id for #{self.class.base_class.name}"
+    end
+  end
+
+  # @return Hash
+  #   of field: value
+  #
+  # !! This is expensive, it recomputes values for every field.
+  # !! See dwc_occurrence
   def dwc_occurrence_attributes(taxonworks_fields = true)
     a = {}
     self.class::DWC_OCCURRENCE_MAP.each do |k,v|
       a[k] = send(v)
     end
+
     a[:occurrenceID] = dwc_occurrence_id
+    a[:basisOfRecord] = dwc_occurrence_basis
 
     if taxonworks_fields
+      a[:otu_id] = dwc_otu_id
       a[:project_id] = project_id
 
       # TODO: semantics of these may need to be revisited, particularly updated_by_id
       a[:created_by_id] = created_by_id
       a[:updated_by_id] = updated_by_id
-
-      a[:updated_at] = Time.now # !! Not applied via this key, but kept for reference, see `touch` in `set_dwc_occurrence`
+      # !! Do not set updated_at here !!
     end
 
     a
-  end
-
-  # TODO: CHECK when hit
-  def dwc_occurrence_id
-    dwc_occurrence&.occurrence_identifier&.cached
   end
 
   # @return [Array]
@@ -102,9 +152,8 @@ module Shared::IsDwcOccurrence
   end
 
   # @return [DwcOccurrence]
-  #   does not rebuild if exists
+  #   does not rebuild if already built
   def get_dwc_occurrence
-    # TODO: why are extra queries fired if this is fired?
     if dwc_occurrence_persisted?
       dwc_occurrence
     else

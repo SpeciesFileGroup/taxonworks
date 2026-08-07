@@ -47,8 +47,8 @@ describe 'Confidences', type: :model, group: :confidence do
   end
 
   context 'methods' do
-    context 'object with notes on destroy' do
-      specify 'attached notes are destroyed' do
+    context 'object with Confidences on destroy' do
+      specify 'attached Confidences are destroyed' do
         expect(Confidence.count).to eq(0)
         class_with_confidences.confidences << Confidence.new(confidence_level: FactoryBot.create(:valid_confidence_level))
         class_with_confidences.save

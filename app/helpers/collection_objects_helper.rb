@@ -5,6 +5,7 @@ module CollectionObjectsHelper
   def collection_object_tag(collection_object)
     return nil if collection_object.nil?
     a = [
+      collection_object_loan_tag(collection_object),
       collection_object_deaccession_tag(collection_object),
       collection_object_identifier_tag(collection_object),
       taxon_determination_tag(collection_object.taxon_determinations.order(:position).first)
@@ -28,21 +29,47 @@ module CollectionObjectsHelper
     link_to(collection_object_tag(collection_object).html_safe, collection_object.metamorphosize)
   end
 
-  def collection_object_radial_tag(collection_object)
-    content_tag(:span, '', data: { 'global-id' => collection_object.to_global_id.to_s, 'collection-object-radial' => 'true'})
+  def radial_quick_forms_tag(object)
+    content_tag(:span, '', data: { "global-id": object.to_global_id.to_s, 'radial-quick-forms': 'true'})
   end
 
   def label_for_collection_object(collection_object)
     return nil if collection_object.nil?
     [ 'CollectionObject ' + collection_object.id.to_s,
-      collection_object.identifiers.first&.cached].compact.join(', ')
+      identifier_list_labels(collection_object)
+    ].compact.join('; ')
   end
 
-  def collection_object_autocomplete_tag(collection_object)
+  def label_for_collection_object_container(collection_object)
     return nil if collection_object.nil?
-    [collection_object_identifier_tag(collection_object),
-     collection_object_taxon_determination_tag(collection_object)
+    collection_object.dwc_catalog_number ||
+      collection_object.dwc_scientific_name ||
+      collection_object.id.to_s
+  end
+
+  def collection_object_autocomplete_tag(collection_object, term = nil)
+    return nil if collection_object.nil?
+    [
+      collection_object_loan_tag(collection_object),
+      collection_object_deaccession_tag(collection_object),
+      collection_object_identifier_tag(collection_object, term),
+      collection_object_taxon_determination_tag(collection_object, term)
     ].join(' ').html_safe
+  end
+
+  # Text only, taxon name cached or OTU name for the
+  # most recent determination
+  def collection_object_scientific_name(collection_object)
+    return nil if collection_object.nil?
+    if a = collection_object.taxon_determinations.order(:position)&.first
+      if a.otu.taxon_name
+        a.otu.taxon_name.cached
+      else
+        a.otu.name
+      end
+    else
+      nil
+    end
   end
 
   def collection_objects_search_form
@@ -54,9 +81,10 @@ module CollectionObjectsHelper
     link_to('Verify', verify_accessions_task_path(by: priority.metamorphosize.class.name.tableize.singularize.to_sym, id: priority.to_param))
   end
 
-  def collection_object_identifier_tag(collection_object)
+  def collection_object_identifier_tag(collection_object, term = nil)
     return nil if collection_object.nil?
     t, i = collection_object_visualized_identifier(collection_object)
+    i = mark_tag(i, term)
 
     return content_tag(:span, i, class: [
       :feedback,
@@ -76,34 +104,54 @@ module CollectionObjectsHelper
     ]).html_safe
   end
 
+  def collection_object_loan_tag(collection_object)
+    return nil if collection_object.nil? || !collection_object.on_loan?
+    msg = collection_object.loan_return_date ? 'On Loan until ' + collection_object.loan_return_date.to_s : 'Gifted'
+    content_tag(:span, msg, class: [
+      :feedback,
+      'feedback-thin',
+      'feedback-warning'
+    ]).html_safe
+  end
+
   # @return [Array [Identifier, String (type)], nil]
-  #    also checks virtual container for identifier by proxy
+  #   also checks virtual container for identifier by proxy
   def collection_object_visualized_identifier(collection_object)
     return nil if collection_object.nil?
-    # Get the Identifier::Local::Catalog number on collection_object, or immediate containing Container
-    i = collection_object.preferred_catalog_number # see delegation in collection_object.rb
 
-    # Get some other identifier on collection_object
-    i ||= collection_object.identifiers.order(:position)&.first
-    return  [:collection_object, identifier_tag(i)] if i
+    # We now return the first Local identifier by default here
+    # This accomodates RecordNumber vs CatalogNumber
+    i = collection_object.identifiers.order(Arel.sql("CASE \
+              WHEN identifiers.type IN ('Identifier::Local::CatalogNumber', 'Identifier::Local::RecordNumber') THEN 0  \
+              ELSE 1                                                                                        \
+            END, \
+           identifiers.position")).select(:type, :identifier, :namespace_id, :cached).first
+
+    return [:collection_object, identifier_tag(i)] if i&.is_local?
 
     # Get some other identifier on container
-    j = collection_object&.container&.identifiers&.first
+    j = collection_object.container&.identifiers&.order(:position)&.first
     return [:container, identifier_tag(j)] if j
+
+    # Use a non local/non container if provided
+    return [:collection_object, identifier_tag(i)] if i
+    return [:container, identifier_tag(j)] if j
+
     nil
   end
 
-  def collection_object_taxon_determination_tag(collection_object)
+  def collection_object_taxon_determination_tag(collection_object, term = nil)
     return nil if collection_object.nil?
     i = taxon_determination_tag(collection_object.taxon_determinations.order(:position).first)
+    i = mark_tag(i, term)
     return content_tag(:span, i, class: [:feedback, 'feedback-thin', 'feedback-secondary']) if i
     nil
   end
 
   # TODO: Isolate into own helper
-  # TODO: syncronize with class methods
+  # TODO: synchronize with class methods
   def dwc_occurrence_table_header_tag
-    content_tag(:tr, CollectionObject::DwcExtensions::DWC_OCCURRENCE_MAP.keys.collect{|k| content_tag(:th, k)}.join.html_safe, class: [:error])
+    content_tag(:tr, CollectionObject::DwcExtensions::DWC_OCCURRENCE_MAP.keys.collect{ |k| content_tag(:th, k)}.join.html_safe, class: [:error])
   end
 
   def dwc_occurrence_table_body_tag(collection_objects)
@@ -131,8 +179,14 @@ module CollectionObjectsHelper
 
   def dwc_occurrence_table_row_tag(dwc_occurrence)
     o = metamorphosize_if(dwc_occurrence.dwc_occurrence_object)
+    formatted_attributes = format_dwc_occurrence_attributes_for_ui(
+      dwc_occurrence.attributes.symbolize_keys.slice(*CollectionObject::DwcExtensions::DWC_OCCURRENCE_MAP.keys)
+    )
+
     content_tag(:tr, class: :contextMenuCells) do
-      [CollectionObject::DwcExtensions::DWC_OCCURRENCE_MAP.keys.collect{|k| content_tag(:td, dwc_occurrence.send(k))}.join,
+      [CollectionObject::DwcExtensions::DWC_OCCURRENCE_MAP.keys.collect{ |k|
+        content_tag(:td, formatted_attributes[k])
+      }.join,
        fancy_show_tag(o),
        fancy_edit_tag(o)
       ].join.html_safe
@@ -189,11 +243,173 @@ module CollectionObjectsHelper
     a = Waxy::Meta.new
     a.size = s
     a.stroke = 'grey'
-    a.link_title = "#{o.id.to_s} created #{time_ago_in_words(o.created_at)} ago by #{user_tag(o.creator)}"
+    a.link_title = "#{o.id} created #{time_ago_in_words(o.created_at)} ago by #{user_tag(o.creator)}"
 
     c = Waxy::Render::Svg::Canvas.new(28, 28)
     c.body << Waxy::Render::Svg.rectangle(layout, [a], 0)
     c.to_svg
   end
+
+  # @return [GeoJSON feature, nil]
+  # @param base [Boolean]
+  #   wehther to annotate the feature properties with TW 'base' attributes
+  def collection_object_to_geo_json_feature(collection_object, base = true, skip_geometry: false)
+    return nil if collection_object.nil?
+    if a = collecting_event_to_geo_json_feature(collection_object.collecting_event, skip_geometry:)
+      l = label_for_collection_object(collection_object)
+      a['properties']['target'] = {
+        'type' => 'CollectionObject',
+        'id' => collection_object.id,
+        'label' => l
+      }
+      if base
+        a['properties']['base'] =  {
+          'type' => 'CollectionObject',
+          'id' => collection_object.id,
+          'label' => l}
+      end
+      a
+    else
+      nil
+    end
+  end
+
+  # Perhaps a /lib/catalog method
+  # @return Hash
+  def collection_object_count_by_classification(scope = nil)
+
+    return [] if scope.nil?
+    specimen_data = {}
+    lot_data = {}
+
+    total_index = {}
+
+    scope.each do |n|
+      a = ::Queries::CollectionObject::Filter.new(project_id: sessions_current_project_id, taxon_name_id: n.id, descendants: true,  collection_object_type: 'Specimen').all
+      b = ::Queries::CollectionObject::Filter.new(project_id: sessions_current_project_id, taxon_name_id: n.id, descendants: true, collection_object_type: 'Lot').all
+
+      ts = CollectionObject.where(id: a).calculate(:sum, :total)
+      tl = CollectionObject.where(id: b).calculate(:sum, :total)
+
+      if (ts > 0) || (tl > 0)
+        lot_data[n.cached] = tl
+        specimen_data[n.cached] = ts
+        total_index[n.cached] = ts + tl
+      end
+
+    end
+
+    # We only need to sort 1 pile!
+    specimen_data = specimen_data.sort{|a,b| total_index[b[0]] <=> total_index[a[0]] }.to_h
+
+    return {
+      total_index:,
+      data: [
+        { name: 'Specimen', data: specimen_data},
+        { name: 'Lot', data: lot_data}
+      ]
+    }
+  end
+
+  # Perhaps a /lib/catalog method
+  # @return Hash
+  def collection_object_preparation_by_classification(scope = nil)
+    return [] if scope.nil?
+    data = {}
+    no_data = {}
+
+    preparations = ::PreparationType.joins(:collection_objects).where(collection_objects: {project_id: sessions_current_project_id}).distinct
+
+    i = 0
+    scope.each do |n|
+
+      j = []
+
+      a = ::Queries::CollectionObject::Filter.new(
+        project_id: sessions_current_project_id,
+        taxon_name_id:  n.id,
+        descendants: true
+      )
+
+      # Yes a custom query could do this much faster
+      preparations.each do |p|
+        a.preparation_type_id = p.id
+        t = CollectionObject.where(id: a.all).calculate(:sum, :total)
+        if t > 0
+          j.push [p.name, t]
+          i += 1
+        end
+      end
+
+      if j.empty?
+        # There are no data at all, don't query for Missing
+        no_data[n.id] = n.cached
+      else
+        a.preparation_type_id = nil
+        a.preparation_type = false
+        w = CollectionObject.where(id: a.all).calculate(:sum, :total)
+        if w > 0
+          j.push ['Missing', w]
+        end
+
+        data[n.cached] = j
+      end
+    end
+
+    return {
+      labels: preparations.collect{|p| p.name} + ['Missing'],
+      data:,
+      no_data:
+    }
+
+  end
+
+  def table_example(collection_objects)
+    cols = %i{
+      class
+      b
+      c
+    }
+
+    tag.table do
+      tag.tr { cols.collect{|h| tag.td(h.to_s) }.join.html_safe } +
+
+      collection_objects.collect{|co|
+        tag.tr +
+          tag.td( co.dwc_class) +
+          tag.td( co.dwc_order) +
+          tag.td( co.dwc_family) +
+          tag.td( co.dwc_sex)
+
+      }.join.html_safe
+    end.html_safe
+  end
+
+  def table_example(collection_objects)
+    cols = %i{
+      class
+      order
+      family
+      genus
+      scientificName
+      sex
+    }
+
+    tag.table do
+      tag.tr { cols.collect{|h| tag.th(h.to_s) }.join.html_safe } +
+
+      collection_objects.collect{|co|
+        tag.tr do
+          (tag.td( co.dwc_class) +
+          tag.td( co.dwc_order) +
+          tag.td( co.dwc_family) +
+          tag.td( co.dwc_genus) +
+          tag.td( co.dwc_scientific_name) +
+          tag.td( co.dwc_sex)).html_safe
+        end
+      }.join.html_safe
+    end.html_safe
+  end
+
 
 end

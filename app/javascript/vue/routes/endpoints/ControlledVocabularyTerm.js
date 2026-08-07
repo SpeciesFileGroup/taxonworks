@@ -1,4 +1,7 @@
+import { ajaxCall } from '@/helpers'
 import baseCRUD from './base'
+
+const controller = 'controlled_vocabulary_terms'
 
 const permitParams = {
   controlled_vocabulary_term: {
@@ -12,5 +15,8 @@ const permitParams = {
 }
 
 export const ControlledVocabularyTerm = {
-  ...baseCRUD('controlled_vocabulary_terms', permitParams)
+  ...baseCRUD('controlled_vocabulary_terms', permitParams),
+
+  cloneFromProject: (params) =>
+    ajaxCall('post', `/${controller}/clone_from_project`, params)
 }

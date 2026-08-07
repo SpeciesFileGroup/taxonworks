@@ -1,0 +1,40 @@
+<div>
+  <% if @from_taxon_name && @to_taxon_name %>
+    <table>
+      <tr>
+        <%= tag.th 'From: '.html_safe + full_taxon_name_tag(@from_taxon_name) + ' ' + link_to('Edit', new_taxon_name_task_path(taxon_name_id:  @from_taxon_name))  %>
+        <%= tag.th 'To (existing shown): '.html_safe +  full_taxon_name_tag(@to_taxon_name)  + ' ' + link_to('Edit', new_taxon_name_task_path(taxon_name_id:  @to_taxon_name)) %>
+      </tr>
+      <tr>
+        <td><%= tag.ul @from_taxon_name.all_taxon_name_relationships.collect{|r| tag.li object_tag(r)}.join.html_safe %></td>
+        <td><%= tag.ul @to_taxon_name.all_taxon_name_relationships.collect{|r| tag.li object_tag(r)}.join.html_safe %></td>
+      </tr>
+    </table>
+
+    <br>
+
+    <%= form_tag taxon_name_merge_path, remote: true, data: {turbolinks: false} do  %>
+      <%= hidden_field_tag :from_taxon_name_id, @from_taxon_name.id -%>
+      <%= hidden_field_tag :to_taxon_name_id, @to_taxon_name.id -%>
+      <%= hidden_field_tag :kind, :taxon_name_relationships -%>
+
+      <% if @from_taxon_name.all_taxon_name_relationships.size > 0 %>
+        <%= tag.input(type: 'Submit', value: 'Merge', class: ['button', 'button-submit'] ) %>
+      <% else %> 
+        <%= tag.div 'Nothing to merge.', class: ['feedback', 'feedback-warning'] %>
+      <% end %>
+    <% end %>
+
+  <% else %>
+    <%= tag.sdiv 'Supply both from and to names.', class: ['feedback', 'feedback-warning'] %>
+  <% end %>
+
+  <br>
+
+  <% if @result %>
+    <%= tag.h2 'Merge result' -%>
+    <table> 
+      <%= @result.collect{|k,v| tag.tr( [tag.td(k), tag.td(v)].join.html_safe ) }.join.html_safe %>
+    </table>
+  <% end %>
+</div>

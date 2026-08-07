@@ -2,6 +2,8 @@
 class Identifier::Global::Orcid < Identifier::Global
   validate :using_orcid_class
 
+  validate :person_use_only
+
   # 'http://orcid.org/0000-0002-1825-0097'
   def using_orcid_class
     unless identifier.nil?
@@ -30,6 +32,12 @@ class Identifier::Global::Orcid < Identifier::Global
     remainder = (total % 11)
     result = (12 - remainder) % 11
     return result == 10 ? 'X' : result.to_s
+  end
+
+  private
+
+  def person_use_only
+    errors.add(:identifier_object_type, 'is not a Person') if identifier_object_type.present? && identifier_object_type != 'Person'
   end
 
 end

@@ -1,28 +1,115 @@
-<div id="header_bar" class="flexbox <%= sandbox_css -%>"> 
-  <div class="horizontal-left-content item item1">
-    <div
-      id="taxonworks_left"
-      class="horizontal-left-content align-end">
-      <div id="taxonworks">
-        <%= link_to(content_tag(:div, '', class: :logo), root_path) -%> 
-      </div>
-      <div>
-        <%= taxonworks_version_tag -%>
-        <%= sandbox_details_tag -%>
-        <a
-          class="margin-small-left"
-          href="https://github.com/SpeciesFileGroup/taxonworks/issues"
-          target="_blank">
-          Issues
-        </a>
-      </ul>
-    </div>
-  </div>
+<div id="header_bar_container">
+  <div id="header_bar" class="flex-separate padding-medium-right middle <%= navbar_css -%> <%= sandbox_css -%>"> 
+    <div class="horizontal-left-content">
+      <div class="horizontal-left-content gap-small ellipsis">
+        <%= content_tag(:div, '', id: :taxonworks_logo, 'data-tooltip-content': 'Click: Go to Hub — Double-click: Go to Dashboard', class: 'cursor-pointer') -%> 
 
-  <div class="item item2" id="session_nav">
-    <ul class='horizontal_navbar'> 
-      <%= session_header_links.collect{|l| content_tag(:li, l)}.join.html_safe -%> 
-      <li><%= content_tag(:span, sessions_current_user.name, class: 'subtle')-%></li>
-    </ul>
+        <% if request.path == root_path -%>
+          <%= content_tag(:h3, "Dashboard for " + user_tag(sessions_current_user), class: :hub_project_name, data: { current_project_id: sessions_current_project_id }) -%>
+        <% else %>
+          <h3><%= link_to(sessions_current_project.name, hub_path, class: :hub_project_name, data: { current_project_id: sessions_current_project_id, current_project_token: sessions_current_project.api_access_token, 'tooltip-content': 'Hub' }) if sessions_current_project -%></h3>
+          <h3><%= header_path_tag -%></h3>
+        <% end %>
+
+      </div>
+    </div>
+
+    <div class="flex-col middle text-center">
+      <% if Settings.sandbox_mode? %>
+      <div>
+        <div>
+          <span data-icon="warning"></span>
+          <span class="icon-right padding-remove-left" data-icon="warning"> SANDBOX - TEMPORARY</span>
+        </div>
+        <%= sandbox_warning_tag -%>   
+      </div>
+      <% end %>
+    </div>
+
+    <div class="horizontal-right-content middle" id="session_nav">
+
+<div class="horizontal-right-content middle gap-medium">
+      <div 
+        class="slide-panel-circle-icon slide-panel-circle-icon-pinboard"
+        data-control-slide-panel="pinboard"
+        data-tooltip-content="Pinboard (F1)"
+        data-tooltip-placement="bottom"></div>
+      <div 
+        class="slide-panel-circle-icon slide-panel-circle-icon-pdf"
+        data-control-slide-panel="pdfviewer"
+        data-tooltip-content="PDF Document viewer (F2)"
+        data-tooltip-placement="bottom">
+      </div>
+      <div
+        class="slide-panel-circle-icon slide-panel-circle-icon-clipboard"
+        data-control-slide-panel="clipboard"
+        data-tooltip-content="Clipboard (F3)"
+        data-tooltip-placement="bottom">
+      </div>
+      <div 
+        class="slide-panel-circle-icon help-button"
+        data-tooltip-content="Help"
+        data-tooltip-placement="bottom">
+      </div>
+</div>
+      <span class="padding-medium-left padding-small-right"> | </span>
+
+      <% if sessions_project_selected? %>
+      <div id="vue-bell-notifications"></div>
+      <% end %>
+
+      
+      <div class="dropdown header-dropdown-menu">
+        <button
+          type="button" 
+          class="dropdown-button header-dropdown-btn button btn-white btn btn-large-circle btn-ghost cursor-pointer dislay-inline-flex"
+          data-tooltip-content="Menu"
+          data-tooltip-placement="bottom"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none"  stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+          </svg>
+        </button>
+        <div class="dropdown-content header-dropdown-menu">
+          <ul class='no_bullets'>
+            <%= session_header_links.collect{|l| content_tag(:li, l)}.join.html_safe -%>
+
+            <% if sessions_current_user.is_administrator? %>
+              <li class="dropdown-content-divisor"></li>
+              <li>
+                  <%= link_to('Administration', administration_path, class: 'padding-medium-top padding-small-bottom') -%>
+              </li>  
+            <% end %>
+
+            <li class="dropdown-content-divisor"></li>
+            <li class="dropdown-content-item padding-medium-top padding-small-bottom">
+              <div id="toggle-theme"></div>
+            </li>
+            <li class="dropdown-content-item padding-medium-top padding-small-bottom">
+              <div id="toggle-lock-header"></div>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="dropdown header-dropdown-menu margin-small-left">
+        <div 
+          id="navbar_user_avatar"
+          class="dropdown-button header-dropdown-btn"
+          data-tooltip-content="Account menu"
+          data-tooltip-placement="bottom"
+        >
+          <%= user_avatar(sessions_current_user, :small) -%>
+        </div>
+        <div class="dropdown-content header-dropdown-menu">
+          <div class="padding-small-bottom dropdown-username-section">
+            <div class="dropdown-content-username"><%= sessions_current_user.name %></div>
+          </div>
+          <ul class='no_bullets'>
+            <%= session_user_header_links.collect{|l| content_tag(:li, l)}.join.html_safe -%>
+          </ul>
+        </div>
+      </div>
+    </div>
   </div>
 </div>

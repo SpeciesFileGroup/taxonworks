@@ -7,15 +7,11 @@ module ::Image::Sled
     klass = related_class.tableize.singularize.safe_constantize
 
     has_one :sled_image
-
-     #  define_singleton_method :with_biological_associations do
-     #  end
   end
 
- 
+
   module ClassMethods
 
   end
 
-  private
 end

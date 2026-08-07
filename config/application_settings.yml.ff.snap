@@ -1,0 +1,5 @@
+test:
+  selenium:
+    browser: firefox
+    firefox_binary_path: /snap/firefox/current/usr/lib/firefox/firefox
+    driver_path: /snap/firefox/current/usr/lib/firefox/geckodriver

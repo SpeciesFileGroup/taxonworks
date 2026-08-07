@@ -35,7 +35,7 @@ class RangedLotCategoriesController < ApplicationController
         format.json { render :show, status: :created, location: @ranged_lot_category }
       else
         format.html { render :new }
-        format.json { render json: @ranged_lot_category.errors, status: :unprocessable_entity }
+        format.json { render json: @ranged_lot_category.errors, status: :unprocessable_content }
       end
     end
   end
@@ -49,7 +49,7 @@ class RangedLotCategoriesController < ApplicationController
         format.json { render :show, status: :ok, location: @ranged_lot_category }
       else
         format.html { render :edit }
-        format.json { render json: @ranged_lot_category.errors, status: :unprocessable_entity }
+        format.json { render json: @ranged_lot_category.errors, status: :unprocessable_content }
       end
     end
   end
@@ -70,9 +70,9 @@ class RangedLotCategoriesController < ApplicationController
 
   # GET /ranged_lot_categories/download
   def download
-    send_data(Export::Download.generate_csv(RangedLotCategory.where(project_id: sessions_current_project_id)),
+    send_data(Export::CSV.generate_csv(RangedLotCategory.where(project_id: sessions_current_project_id)),
               type: 'text',
-              filename: "ranged_lot_categories_#{DateTime.now}.csv")
+              filename: "ranged_lot_categories_#{DateTime.now}.tsv")
   end
 
 

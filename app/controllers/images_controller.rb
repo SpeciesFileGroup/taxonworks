@@ -1,8 +1,8 @@
 class ImagesController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
-  after_action -> { set_pagination_headers(:images) }, only: [:index, :api_index], if: :json_request?
+  after_action -> { set_pagination_headers(:images) }, only: [:index, :api_index, :api_image_inventory], if: :json_request?
 
-  before_action :set_image, only: [:show, :edit, :update, :destroy, :rotate]
+  before_action :set_image, only: [:show, :edit, :update, :destroy, :rotate, :regenerate_derivative, :as_png, :api_as_png]
 
   # GET /images
   # GET /images.json
@@ -13,11 +13,25 @@ class ImagesController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @images = Queries::Image::Filter.new(filter_params).all
+        @images = Queries::Image::Filter.new(params).all
           .where(project_id: sessions_current_project_id)
-          .all.page(params[:page]).per(params[:per] || 50)
+          .page(params[:page]).per(params[:per])
       }
     end
+  end
+
+  # GET /api/v1/otus/:id/inventory/images
+  #  - routed here to take advantage of Pagination
+  #  Fairly limited functionality now.
+  def api_image_inventory
+    @images = ::Queries::Image::Filter.new(
+      params.permit(
+        :otu_id,
+        :otu_scope,
+        otu_id: [],
+        otu_scope: [])
+    ).all.page(params[:page]).per(params[:per])
+    render '/images/api/v1/index'
   end
 
   # GET /images/1
@@ -27,7 +41,7 @@ class ImagesController < ApplicationController
 
   # GET /api/v1/images
   def api_index
-    @images = Queries::Image::Filter.new(api_params).all
+    @images = Queries::Image::Filter.new(params.merge!(api: true)).all
       .where(project_id: sessions_current_project_id)
       .page(params[:page]).per(params[:per])
     render '/images/api/v1/index'
@@ -35,12 +49,46 @@ class ImagesController < ApplicationController
 
   # GET /api/v1/images/:id
   def api_show
-    @image = Image.where(project_id: sessions_current_project_id).find_by(id: params[:id])
-    @image ||= Image.where(project_id: sessions_current_project_id).find_by(image_file_fingerprint: params[:id])
+    id = params[:id]
+    if id =~ (/\A\d+\z/)
+      @image = Image.where(project_id: sessions_current_project_id).find_by(id:)
+    else
+      @image = Image.where(project_id: sessions_current_project_id).find_by(image_file_fingerprint: id)
+    end
 
-    render plain: 'Not found. You may need to add a &project_token= param to the URL currently in your address bar to access these data. See https://api.taxonworks.org/ for more.', status: 404 and return if @image.nil?
+    render plain: 'Not found. You may need to add a &project_token= param to the URL currently in your address bar to access these data. See https://api.taxonworks.org/ for more.', status: :not_found and return if @image.nil?
 
     render '/images/api/v1/show'
+  end
+
+  def api_image_file_sha
+    @image = Image
+      .where(project_id: sessions_current_project_id)
+      .find_by(image_file_fingerprint: params[:sha])
+
+    if @image.present?
+      file_path = @image.image_file.path
+      send_file(
+        file_path,
+        type: @image.image_file_content_type,
+        disposition: 'inline',
+        filename: @image.image_file_file_name
+      )
+    else
+      render plain: 'Image not found.', status: :not_found
+    end
+  end
+
+  def api_image_show_sha
+    @image = Image
+      .where(project_id: sessions_current_project_id)
+      .find_by(image_file_fingerprint: params[:sha])
+
+    if @image.present?
+      render '/images/api/v1/show'
+    else
+      render plain: 'Image not found.', status: :not_found
+    end
   end
 
   # GET /images/new
@@ -55,14 +103,19 @@ class ImagesController < ApplicationController
   # POST /images
   # POST /images.json
   def create
-    @image = Image.new(image_params)
+    @image = Image.deduplicate_create(image_params)
     respond_to do |format|
-      if @image.save
-        format.html { redirect_to @image, notice: 'Image was successfully created.' }
-        format.json { render :show, status: :created, location: @image }
+      if @image.persisted?
+        format.html { redirect_to @image, notice: 'Identical image exists.' }
+        format.json { render :show, status: :ok, location: @image }
       else
-        format.html { render :new }
-        format.json { render json: @image.errors, status: :unprocessable_entity }
+        if @image.save
+          format.html { redirect_to @image, notice: 'Image was successfully created.' }
+          format.json { render :show, status: :created, location: @image }
+        else
+          format.html { render :new }
+          format.json { render json: @image.errors, status: :unprocessable_content }
+        end
       end
     end
   end
@@ -76,7 +129,7 @@ class ImagesController < ApplicationController
         format.json { render :show, status: :ok, location: @image }
       else
         format.html { render :edit }
-        format.json { render json: @image.errors, status: :unprocessable_entity }
+        format.json { render json: @image.errors, status: :unprocessable_content }
       end
     end
   end
@@ -116,9 +169,10 @@ class ImagesController < ApplicationController
 
   # GET /images/download
   def download
-    send_data(Export::Download.generate_csv(Image.where(project_id: sessions_current_project_id)),
-              type: 'text',
-              filename: "images_#{DateTime.now}.csv")
+    send_data(
+      Export::CSV.generate_csv(Image.where(project_id: sessions_current_project_id)),
+      type: 'text',
+      filename: "images_#{DateTime.now}.tsv")
   end
 
   # GET /images/:id/extract/:x/:y/:height/:width
@@ -136,9 +190,39 @@ class ImagesController < ApplicationController
     send_data Image.scaled_to_box_blob(params), type: 'image/jpg', disposition: 'inline'
   end
 
+  # GET 'api/v1/images/:id/scale_to_box/:x/:y/:width/:height/:box_width/:box_height'
+  def api_scale_to_box
+    send_data Image.scaled_to_box_blob(params), type: 'image/jpg', disposition: 'inline'
+  end
+
+  # GET 'api/v1/images/file/sha/:sha/scale_to_box/:x/:y/:width/:height/:box_width/:box_height'
+  def api_scale_to_box_sha
+    @image = Image
+      .where(project_id: sessions_current_project_id)
+      .find_by(image_file_fingerprint: params[:sha])
+
+    if @image.present?
+      # Replace :sha with :id in params so scaled_to_box_blob works
+      modified_params = params.merge(id: @image.id)
+      send_data Image.scaled_to_box_blob(modified_params), type: 'image/jpg', disposition: 'inline'
+    else
+      render plain: 'Image not found.', status: :not_found
+    end
+  end
+
+  # GET 'images/:id/as_png'
+  def as_png
+    send_data @image.original_as_png, type: 'image/png', disposition: 'inline'
+  end
+
+  # GET 'api/v1/images/:id/as_png'
+  def api_as_png
+    send_data @image.original_as_png, type: 'image/png', disposition: 'inline'
+  end
+
   # GET /images/:id/ocr/:x/:y/:height/:width
   def ocr
-    tempfile = Tempfile.new(['ocr', '.jpg'], "#{Rails.root}/public/images/tmp", encoding: 'utf-8')
+    tempfile = Tempfile.new(['ocr', '.jpg'], tmp_image_directory, encoding: 'utf-8')
     tempfile.write(Image.cropped_blob(params).force_encoding('utf-8'))
     tempfile.rewind
 
@@ -158,71 +242,22 @@ class ImagesController < ApplicationController
     render :show
   end
 
+  # !! This is a kludge until we get active storage working
+  # PATCH /images/123/regenerate_derivative
+  def regenerate_derivative
+    begin
+      @image.image_file.reprocess!
+      flash[:notice] = 'Image derivatives regenerated.'
+    end
+    render :show
+  end
+
   # GET /images/select_options?target=TaxonDetermination
   def select_options
     @images = Image.select_optimized(sessions_current_user_id, sessions_current_project_id, params.require(:target))
   end
 
   private
-
-  def filter_params
-    params.permit(
-        :ancestor_id_target,
-        :biocuration_class_id,
-        :collection_object_id,
-        :depiction,
-        :identifier,
-        :identifier_end,
-        :identifier_exact,
-        :identifier_start,
-        :image_id,
-        :otu_id,
-        :sled_image_id,
-        :taxon_name_id,
-        :user_date_end,
-        :user_date_start,
-        :user_id, # user
-        :user_target,
-        biocuration_class_id: [],
-        collection_object_id: [],
-        image_id: [],
-        keyword_id_and: [],
-        keyword_id_or: [],
-        otu_id: [],
-        sled_image_id: [],
-        taxon_name_id: []
-    ).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
-  end
-
-  # TODO: need `is_public` here
-  def api_params
-    params.permit(
-      :ancestor_id_target,
-      :biocuration_class_id,
-      :collection_object_id,
-      :depiction,
-      :identifier,
-      :identifier_end,
-      :identifier_exact,
-      :identifier_start,
-      :image_id,
-      :otu_id,
-      :sled_image_id,
-      :taxon_name_id,
-      :user_date_end,
-      :user_date_start,
-      :user_id, # user
-      :user_target,
-      biocuration_class_id: [],
-      collection_object_id: [],
-      image_id: [],
-      keyword_id_and: [],
-      keyword_id_or: [],
-      otu_id: [],
-      sled_image_id: [],
-      taxon_name_id: []
-    ).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
-  end
 
   def set_image
     @image = Image.with_project_id(sessions_current_project_id).find(params[:id])
@@ -233,8 +268,16 @@ class ImagesController < ApplicationController
     params.require(:image).permit(
       :image_file, :rotate,
       :pixels_to_centimeter,
+      :filename_depicts_object,
       citations_attributes: [:id, :is_original, :_destroy, :source_id, :pages, :citation_object_id, :citation_object_type],
       sled_image_attributes: [:id, :_destroy, :metadata, :object_layout]
     )
+  end
+
+  def tmp_image_directory()
+    tmp_dir = Rails.root.join('tmp', 'images')
+    FileUtils.mkdir_p(tmp_dir)
+
+    tmp_dir
   end
 end

@@ -14,5 +14,21 @@
 
 <p>
   <strong>Text:</strong>
-  <%= @content.text %>
+  <%= MARKDOWN_HTML.render(@content.text).html_safe  %>
 </p>
+
+<p>
+  <strong>Published:</strong>
+  <%= @content.is_published? ? 'true' : 'false' %>
+</p>
+
+<p>
+  <strong>Version:</strong>
+  <%= @content.versions.count %>
+</p>
+
+<p>
+  <strong>Public is current?</strong>
+  <%= @content.public_content&.is_current? %>
+</p>
+

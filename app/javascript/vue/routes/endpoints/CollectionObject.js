@@ -1,5 +1,5 @@
 import baseCRUD, { annotations } from './base'
-import AjaxCall from 'helpers/ajaxCall'
+import AjaxCall from '@/helpers/ajaxCall'
 
 const controller = 'collection_objects'
 const permitParams = {
@@ -7,6 +7,7 @@ const permitParams = {
     total: Number,
     preparation_type_id: Number,
     repository_id: Number,
+    current_repository_id: Number,
     ranged_lot_category_id: Number,
     collecting_event_id: Number,
     buffered_collecting_event: String,
@@ -16,6 +17,7 @@ const permitParams = {
     deaccessioned_at: String,
     deaccession_reason: String,
     contained_in: String,
+    notes_attributes: [],
     collecting_event_attributes: [],
     data_attributes_attributes: {
       id: Number,
@@ -23,6 +25,35 @@ const permitParams = {
       controlled_vocabulary_term_id: Number,
       type: String,
       value: String
+    },
+    biocuration_classifications_attributes: {
+      id: Number,
+      biocuration_class_id: Number,
+      _destroy: Boolean
+    },
+    taxon_determinations_attributes: {
+      otu_id: Number,
+      year_made: Number,
+      month_made: Number,
+      day_made: Number,
+      position: Number,
+      roles_attributes: [],
+      otu_attributes: {
+        id: Number,
+        _destroy: Boolean,
+        name: String,
+        taxon_name_id: Number
+      }
+    },
+    depictions_attributes: {
+      id: Number,
+      _destroy: Boolean,
+      svg_clip: String,
+      svg_view_box: String,
+      position: Number,
+      caption: String,
+      figure_label: String,
+      image_id: Number
     },
     tags_attributes: {
       id: Number,
@@ -49,11 +80,49 @@ export const CollectionObject = {
   ...baseCRUD(controller, permitParams),
   ...annotations(controller),
 
-  dwc: (id) => AjaxCall('get', `/${controller}/${id}/dwc`),
+  dwc: (id, params = { rebuild: true }) =>
+    AjaxCall('get', `/${controller}/${id}/dwc`, { params }),
 
-  reportDwc: (params) => AjaxCall('get', `/tasks/accessions/report/dwc.json`, { params }),
+  dwca: (id) => AjaxCall('get', `/${controller}/${id}/dwca`),
+
+  dwcVerbose: (id, params = { rebuild: true }) =>
+    AjaxCall('get', `/${controller}/${id}/dwc_verbose`, { params }),
+
+  dwcCompact: (id, params = { rebuild: true }) =>
+    AjaxCall('get', `/${controller}/${id}/dwc_compact`, { params }),
+
+  reportDwc: (params) =>
+    AjaxCall('get', '/tasks/accessions/report/dwc.json', { params }),
+
+  report: (params) => AjaxCall('get', `/${controller}/report.json`, { params }),
 
   dwcIndex: (params) => AjaxCall('get', `/${controller}/dwc_index`, { params }),
 
-  metadataBadge: (id) => AjaxCall('get', `/${controller}/${id}/metadata_badge`)
+  filter: (params) => AjaxCall('post', `/${controller}/filter.json`, params),
+
+  metadataBadge: (id) => AjaxCall('get', `/${controller}/${id}/metadata_badge`),
+
+  navigation: (id) => AjaxCall('get', `/${controller}/${id}/navigation`),
+
+  stepwiseDeterminations: (params) =>
+    AjaxCall(
+      'get',
+      '/tasks/collection_objects/stepwise/determinations/data.json',
+      { params }
+    ),
+
+  timeline: (id) => AjaxCall('get', `/${controller}/${id}/timeline`),
+
+  sqedFilter: (params) =>
+    AjaxCall(
+      'get',
+      '/tasks/accessions/breakdown/sqed_depiction/todo_map.json',
+      { params }
+    ),
+
+  batchUpdate: (params) =>
+    AjaxCall('patch', `/${controller}/batch_update.json`, params),
+
+  batchUpdateDwcOccurrence: (params) =>
+    AjaxCall('post', `/${controller}/batch_update_dwc_occurrence`, params)
 }

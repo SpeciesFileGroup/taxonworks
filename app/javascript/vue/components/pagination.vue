@@ -1,66 +1,89 @@
 <template>
-  <div class="horizontal-left-content ">
+  <div class="horizontal-left-content">
     <div class="page-navigator separate-right">
-      <template>
-        <span v-if="pagination['previousPage'] && pagination['previousPage'] != 1">
-          <a
-            class="cursor-pointer"
-            @click="sendPage(pagination.previousPage)">
-            ‹ Back
-          </a>
-        </span>
-        <span
-          v-else
-          class="disabled">
+      <span
+        v-if="
+          pagination?.previousPage &&
+          pagination.paginationPage !== pagination.previousPage
+        "
+      >
+        <a
+          class="cursor-pointer"
+          @click="sendPage(pagination.previousPage)"
+        >
           ‹ Back
-        </span>
-      </template>
-      <template>
-        <span v-if="pagination['nextPage'] && pagination['nextPage'] != pagination.totalPages">
-          <a
-            class="cursor-pointer"
-            @click="sendPage(pagination.nextPage)">Next ›
-          </a>
-        </span>
-        <span
-          v-else
-          class="disabled">
+        </a>
+      </span>
+      <span
+        v-else
+        class="disabled"
+      >
+        ‹ Back
+      </span>
+      <span v-if="pagination?.nextPage !== pagination.totalPages">
+        <a
+          class="cursor-pointer"
+          @click="sendPage(pagination.nextPage)"
+        >
           Next ›
-        </span>
-      </template>
+        </a>
+      </span>
+      <span
+        v-else
+        class="disabled"
+      >
+        Next ›
+      </span>
     </div>
     <nav class="pagination">
       <span
         v-if="pagination.paginationPage > rangePages"
-        class="page gap">...</span>
+        class="page gap"
+      >
+        ...
+      </span>
       <span
-        :class="{ current: n == pagination.paginationPage}"
-        v-for="n in pagesCount">
+        v-for="n in pagesCount"
+        :key="n"
+        :class="{ current: n == pagination.paginationPage }"
+      >
         <template v-if="n < rangeMax && rangeMin < n">
           <span
             v-if="n == pagination.paginationPage"
-            class="page">{{ n }}</span>
+            class="page"
+          >
+            {{ n }}
+          </span>
           <a
             v-else
             class="cursor-pointer page"
-            @click="sendPage(n)">
+            @click="sendPage(n)"
+          >
             {{ n }}
           </a>
         </template>
       </span>
       <span
-        v-if="(pagination.totalPages - pagination.paginationPage) >= rangePages"
-        class="page gap">...</span>
+        v-if="pagination.totalPages - pagination.paginationPage >= rangePages"
+        class="page gap"
+      >
+        ...
+      </span>
       <span
         v-if="pagination.paginationPage != 1 && pagination.paginationPage"
         @click="sendPage(1)"
-        class="first cursor-pointer">
+        class="first cursor-pointer"
+      >
         <a>« First</a>
       </span>
       <span
-        v-if="pagination.paginationPage != pagination.totalPages"
+        v-if="
+          pagination.paginationPage != pagination.totalPages &&
+          pagination.totalPages > 1
+        "
         @click="sendPage(pagination.totalPages)"
-        class="last cursor-pointer">
+        class="last cursor-pointer"
+      >
         <a>Last »</a>
       </span>
     </nav>
@@ -80,20 +103,21 @@ export default {
 
   computed: {
     pagesCount() {
-      if(Object.keys(this.pagination).length)
-        return this.pagination.totalPages
-      return 1
+      return Object.keys(this.pagination).length
+        ? this.pagination.totalPages
+        : 1
     },
 
-    rangeMax () {
+    rangeMax() {
       return this.pagination.paginationPage + this.rangePages
     },
 
-    rangeMin () {
+    rangeMin() {
       return this.pagination.paginationPage - this.rangePages
     }
   },
-  data () {
+
+  data() {
     return {
       rangePages: 5
     }

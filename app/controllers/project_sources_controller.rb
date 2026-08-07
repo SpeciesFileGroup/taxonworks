@@ -26,7 +26,7 @@ class ProjectSourcesController < ApplicationController
           flash[:notice] = "Failed to add source to project. #{@project_source.error_messages}."
           render source_path(@project_source.source)
         }
-        format.json { render json: @project_source.errors, status: :unprocessable_entity }
+        format.json { render json: @project_source.errors, status: :unprocessable_content }
         format.js { }
       end
     end
@@ -46,7 +46,7 @@ class ProjectSourcesController < ApplicationController
           flash[:notice] = @project_source.error_messages.join('; ')
           render source_path(@project_source.source)
         }
-        format.json { render json: @project_source.errors, status: :unprocessable_entity }
+        format.json { render json: @project_source.errors, status: :unprocessable_content }
         format.js { } # TODO: remove
       end
     end
@@ -55,7 +55,8 @@ class ProjectSourcesController < ApplicationController
   def autocomplete
     @sources = Queries::Source::Autocomplete.new(
       params.require(:term),
-      {project_id: sessions_current_project_id, limit_to_project: true}
+      project_id: sessions_current_project_id,
+      limit_to_project: true
     ).autocomplete
 
     render 'sources/autocomplete'
@@ -63,8 +64,18 @@ class ProjectSourcesController < ApplicationController
 
   # GET /project_sources/download
   def download
-    send_data Export::Download.generate_csv(
-      ProjectSource.where(project_id: sessions_current_project_id)), type: 'text', filename: "project_sources_#{DateTime.now}.csv"
+    send_data Export::CSV.generate_csv(
+      ProjectSource.where(project_id: sessions_current_project_id)), type: 'text', filename: "project_sources_#{DateTime.now}.tsv"
+  end
+
+  # POST /project_sources/batch_sync_to_project?source_query=<>
+  def batch_sync_to_project
+    a = ProjectSource.batch_sync_to_project(params, params[:operation], sessions_current_project_id)
+    if a
+      render json: { success: true, total: a }, status: :ok
+    else
+      render json: {}, status: :unprocessable_content
+    end
   end
 
   protected

@@ -5,10 +5,17 @@ describe Namespace, type: :model do
   let(:otu) { FactoryBot.create(:valid_otu) }
   let(:specimen) { FactoryBot.create(:valid_specimen) }
 
+  specify '#short_name can not differ in case only' do
+    FactoryBot.create(:valid_namespace, short_name: 'pws')
+    n = Namespace.new(short_name: 'PwS')
+    n.valid?
+    expect(n.errors.include?(:short_name)).to be_truthy
+  end
+
   context 'validation' do
     context 'requires' do
       before { namespace.valid? }
-      
+
       specify 'name' do
         expect(namespace.errors.include?(:name)).to be_truthy
       end
@@ -36,8 +43,8 @@ describe Namespace, type: :model do
   context 'scopes' do
     let(:n1) { FactoryBot.create(:valid_namespace) }
     let(:n2) { FactoryBot.create(:valid_namespace) }
-    let!(:identifier) { Identifier::Local::CatalogNumber.create!(identifier_object: otu, identifier: 123, namespace: n1 ) }
-    let!(:old_identifier) { Identifier::Local::CatalogNumber.create!(identifier_object: specimen, identifier: 123, namespace: n2, created_at: 2.years.ago ) }
+    let!(:identifier) { Identifier::Local::OtuUtility.create!(identifier_object: otu, identifier: 123, namespace: n1 ) }
+    let!(:old_identifier) { Identifier::Local::OtuUtility.create!(identifier_object: specimen, identifier: 123, namespace: n2, created_at: 2.years.ago, updated_at: 2.years.ago ) }
 
     specify '#used_on_klass 1' do
       expect(Namespace.used_on_klass('Otu')).to contain_exactly(n1)
@@ -58,7 +65,7 @@ describe Namespace, type: :model do
 
   context 'updates' do
     before { namespace.update!(name: 'AA', short_name: 'A') }
-    let(:i) { Identifier::Local::CatalogNumber.create!(namespace: namespace, identifier_object: FactoryBot.create(:valid_otu), identifier: 0) }
+    let(:i) { Identifier::Local::OtuUtility.create!(namespace: namespace, identifier_object: FactoryBot.create(:valid_otu), identifier: 0) }
 
     specify 'cached 1' do
       expect(i.cached).to eq('A 0')

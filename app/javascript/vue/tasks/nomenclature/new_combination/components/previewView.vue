@@ -2,50 +2,50 @@
   <div class="new-combination-preview header">
     <h3
       class="horizontal-center-content"
-      v-if="combination">
+      v-if="combination"
+    >
       <span>
         <i>{{ previewName }}</i>
         <template v-if="incomplete">
-          <span class="feedback feedback-warning feedback-thin margin-small-left margin-small-right">
+          <span
+            class="feedback feedback-warning feedback-thin margin-small-left margin-small-right"
+          >
             <span
               title="Match incomplete"
-              data-icon="warning"/>
+              data-icon="warning"
+            />
             Incomplete match
           </span>
         </template>
-        <span v-html="showAuthorCitation"/>
+        <span v-html="showAuthorCitation" />
       </span>
       <span class="separate-left separate-right"> | </span>
       <edit-in-place
         legend="Click to edit verbatim"
-        v-model="verbatimField"/>
-      <tippy
+        v-model="verbatimField"
+      />
+      <VTooltip
         v-if="verbatimField"
-        animation="scale"
-        placement="bottom"
-        size="small"
-        inertia
-        arrow
-        content="Verbatim representations are for display purposes only, only use them as a last resort. Legitimate reasons may include gender agreement errors. You should likely create a new name and treat it as a misspelling or low level synonym. Creating a new name gives you more power and flexibility in downstream search and display. Do NOT use this to include comon, or temporary names whose use was not intended to be governed by a code of nomenclature">
+        content="Verbatim representations are for display purposes only, only use them as a last resort. Legitimate reasons may include gender agreement errors. You should likely create a new name and treat it as a misspelling or low level synonym. Creating a new name gives you more power and flexibility in downstream search and display. Do NOT use this to include comon, or temporary names whose use was not intended to be governed by a code of nomenclature"
+      >
         <v-icon
           class="margin-small-left"
           name="attention"
           color="attention"
           small
         />
-      </tippy>
+      </VTooltip>
     </h3>
   </div>
 </template>
 <script>
-
-import EditInPlace from 'components/editInPlace.vue'
-import { Tippy } from 'vue-tippy'
-import VIcon from 'components/ui/VIcon/index.vue'
+import EditInPlace from '@/components/editInPlace.vue'
+import VTooltip from '@/components/ui/VTooltip/VTooltip.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 
 export default {
   components: {
-    Tippy,
+    VTooltip,
     EditInPlace,
     VIcon
   },
@@ -64,33 +64,38 @@ export default {
 
   emits: ['onVerbatimChange'],
 
-  data () {
+  data() {
     return {
       verbatimField: ''
     }
   },
 
   computed: {
-    previewName () {
+    previewName() {
       const names = Object.values(this.combination?.protonyms || {})
 
-      return names.filter(rank => rank).map(({ name }) => name).join(' ')
+      return names
+        .filter((rank) => rank)
+        .map(({ name }) => name)
+        .join(' ')
     },
 
-    showAuthorCitation () {
-      const lastTaxonRank = Object.values(this.combination.protonyms).reverse().find(combination => combination)
+    showAuthorCitation() {
+      const lastTaxonRank = Object.values(this.combination.protonyms)
+        .reverse()
+        .find((combination) => combination)
 
       return lastTaxonRank?.origin_citation?.citation_source_body
     }
   },
 
   watch: {
-    verbatimField (newVal) {
+    verbatimField(newVal) {
       this.$emit('onVerbatimChange', newVal)
     }
   },
 
-  mounted () {
+  mounted() {
     this.verbatimField = this.combination.verbatim_name
   }
 }
@@ -99,19 +104,19 @@ export default {
 .new-combination-preview {
   position: relative;
   .new-combination-preview-edit {
-   position: absolute;
-   right: 12px;
- }
+    position: absolute;
+    right: 12px;
+  }
 }
 .header {
   align-items: center;
-  h3 {
-   font-weight: 300;
- }
- padding: 1em;
- padding-left: 1.5em;
- border-left: none;
+  padding: 1em;
+  padding-left: 1.5em;
+  border-left: none;
+  border-bottom: 1px solid var(--border-color);
 
- border-bottom: 1px solid #f5f5f5;
+  h3 {
+    font-weight: 300;
+  }
 }
 </style>

@@ -24,7 +24,7 @@
 # @!attribute svg_view_box
 #   @return [String, nil]
 #     sets the clipping box, identical dimensions to clip for rectangles
-# 
+#
 # @!attribute is_metadata_depiction
 #   @return [Boolean, nil]
 #      If true then this depiction depicts data that describes the entity, rather than the entity itself.
@@ -42,13 +42,25 @@
 #   @return [Integer]
 #      Not null if sled_image_is present.  The row (top left 0,0) derived from
 #
+# @!attribute figure_label
+#   @return [String, nil]
+#     Figure label, as in '<figure_label>. Dorsal habitus.'
+#
+# @!attribute caption
+#   @return [String, nil]
+#     Figure description, as in 'Figure 1. <caption>'
+#
 class Depiction < ApplicationRecord
   include Housekeeping
   include Shared::Tags
   include Shared::DataAttributes
+  include Shared::AssertedDistributions
+  include Shared::DwcOccurrenceHooks
   include Shared::IsData
   include Shared::PolymorphicAnnotator
   polymorphic_annotates(:depiction_object)
+
+  GRAPH_ENTRY_POINTS = [:asserted_distributions].freeze
 
   acts_as_list scope: [:project_id, :depiction_object_type, :depiction_object_id]
 
@@ -61,6 +73,22 @@ class Depiction < ApplicationRecord
 
   validates_presence_of :depiction_object
   validates_uniqueness_of :sled_image_id, scope: [:project_id, :sled_image_x_position, :sled_image_y_position], allow_nil: true, if: Proc.new {|n| !n.sled_image_id.nil?}
+  validates_uniqueness_of :image_id, scope: [:depiction_object_type, :depiction_object_id] #, allow_nil: true, if: Proc.new {|n| !n.sled_image_id.nil?}
+
+  before_validation :normalize_image
+
+  # Deprecated for unify() functionality
+  after_update :remove_media_observation2, if: Proc.new {|d| d.depiction_object_type_previously_was == 'Observation' && d.depiction_object.respond_to?(:type_was) && d.depiction_object.type_was == 'Observation::Media' }
+  after_destroy :remove_media_observation, if: Proc.new {|d| d.depiction_object_type == 'Observation' && d.depiction_object.type == 'Observation::Media' }
+
+  # TODO: almost certainly deprecate
+  after_update :destroy_image_stub_collection_object, if: Proc.new {|d| d.depiction_object_type_previously_was == 'CollectionObject' && d.depiction_object_type == 'CollectionObject' }
+
+  def normalize_image
+    if o = Image.where(project_id: Current.project_id, image_file_fingerprint: image.image_file_fingerprint).first
+      self.image = o
+    end
+  end
 
   def from_sled?
     !sled_image_id.nil?
@@ -76,13 +104,110 @@ class Depiction < ApplicationRecord
         box_width = Image::DEFAULT_SIZES[size][:width]
         box_height = Image::DEFAULT_SIZES[size][:height]
       when :original
-        box_width = w.to_i 
+        box_width = w.to_i
         box_height = h.to_i
       end
 
       "#{image_id}/scale_to_box/#{x.to_i}/#{y.to_i}/#{w.to_i}/#{h.to_i}/#{box_width}/#{box_height}"
     else
       raise 'This is not a sled derived depiction'
+    end
+  end
+
+  def dwc_occurrences
+    co = DwcOccurrence
+      .joins("JOIN depictions d on d.depiction_object_id = dwc_occurrence_object_id AND d.depiction_object_type = 'CollectionObject'")
+      .where(d: {id:}, dwc_occurrences: {dwc_occurrence_object_type: 'CollectionObject'})
+      .distinct
+
+    fo = DwcOccurrence
+      .joins("JOIN depictions d on d.depiction_object_id = dwc_occurrence_object_id AND d.depiction_object_type = 'FieldOccurrence'")
+      .where(d: {id:}, dwc_occurrences: {dwc_occurrence_object_type: 'FieldOccurrence'})
+      .distinct
+
+    ::Queries.union(DwcOccurrence, [co, fo])
+  end
+
+  # @return [Scope]
+  #    the max 10 most recently used
+  def self.used_recently(user_id, project_id, used_on)
+    t = case used_on
+        when 'AssertedDistribution'
+          AssertedDistribution.arel_table
+        else
+          return Depiction.none
+        end
+
+    # i is a select manager
+    i = case used_on
+        when 'AssertedDistribution'
+          t.project(t['asserted_distribution_object_id'], t['updated_at']).from(t)
+            .where(
+              t['updated_at'].gt(1.week.ago).and(
+                t['asserted_distribution_object_type'].eq('Depiction')
+              )
+            )
+            .where(t['updated_by_id'].eq(user_id))
+            .where(t['project_id'].eq(project_id))
+            .order(t['updated_at'].desc)
+        end
+
+    z = i.as('recent_t')
+    p = Depiction.arel_table
+
+    case used_on
+    when 'AssertedDistribution'
+      Depiction.joins(
+        Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['asserted_distribution_object_id'].eq(p['id'])))
+      ).pluck(:id).uniq
+    end
+  end
+
+  def self.select_optimized(user_id, project_id, klass)
+    r = used_recently(user_id, project_id, klass)
+    h = {
+      quick: [],
+      pinboard: Conveyance.pinned_by(user_id).where(project_id: project_id).to_a,
+      recent: []
+    }
+
+    if r.empty?
+      h[:quick] = Conveyance.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a
+    else
+      h[:recent] = Conveyance.where('"conveyances"."id" IN (?)', r.first(10) ).order(updated_at: :desc).to_a
+      h[:quick] = (Conveyance.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a +
+                   Conveyance.where('"conveyances"."id" IN (?)', r.first(4) ).order(updated_at: :desc).to_a).uniq
+    end
+
+    h
+  end
+
+  private
+
+  #  Deprecate for calls to unify() ?!
+  def remove_media_observation2
+    if v = depiction_object_id_previously_was
+      o = Observation::Media.find(v)
+      if o.depictions.size == 0
+        o.destroy!
+      end
+    end
+  end
+
+  def remove_media_observation
+    if depiction_object.depictions.size == 0
+      depiction_object.destroy!
+    end
+  end
+
+  def destroy_image_stub_collection_object
+    if sqed_depiction.present?
+      if v = depiction_object_id_previously_was
+        o = CollectionObject.find(v)
+        if o.is_image_stub?
+          o.destroy!
+        end
+      end
     end
   end
 

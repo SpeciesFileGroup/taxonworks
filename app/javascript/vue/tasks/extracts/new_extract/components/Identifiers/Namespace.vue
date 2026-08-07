@@ -11,10 +11,13 @@
           target="CollectionObject"
           klass="CollectionObject"
           pin-section="Namespaces"
-          pin-type="Namespace"/>
-        <a
-          class="margin-small-top margin-small-left"
-          href="/namespaces/new">New</a>
+          pin-type="Namespace"
+        />
+        <v-lock
+          class="margin-small-left"
+          v-model="lockButton"
+        />
+        <WidgetNamespace @create="() => (namespace = item)" />
       </div>
       <template v-if="namespace">
         <div class="middle">
@@ -33,34 +36,52 @@
 </template>
 
 <script>
-
 import componentExtend from '../mixins/componentExtend'
-import SmartSelector from 'components/ui/SmartSelector.vue'
+import SmartSelector from '@/components/ui/SmartSelector.vue'
+import VLock from '@/components/ui/VLock/index.vue'
+import WidgetNamespace from '@/components/ui/Widget/WidgetNamespace.vue'
 
 export default {
   mixins: [componentExtend],
 
-  components: { SmartSelector },
+  components: {
+    SmartSelector,
+    VLock,
+    WidgetNamespace
+  },
 
   props: {
     modelValue: {
       type: Object,
       default: undefined
+    },
+
+    lock: {
+      type: Boolean,
+      default: false
     }
   },
 
-  emits: ['update:modelValue'],
+  emits: ['update:modelValue', 'update:lock'],
 
   computed: {
     namespace: {
-      get () {
+      get() {
         return this.modelValue
       },
-      set (value) {
+      set(value) {
         this.$emit('update:modelValue', value)
+      }
+    },
+
+    lockButton: {
+      get() {
+        return this.lock
+      },
+      set(value) {
+        this.$emit('update:lock', value)
       }
     }
   }
-
 }
 </script>

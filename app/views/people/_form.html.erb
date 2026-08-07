@@ -9,6 +9,10 @@
 
     <%= render partial: 'form_elements', locals: {f: f} %>
 
+    <% if @person.roles.count > 25 %>
+      <p class="feedback feedback-warning">There are <%= @person.roles.count %> roles associated with this person. Cached value updates will happen in the background after edit.</p>
+    <% end %>
+
     <div class="actions">
       <%= f.submit %>
     </div>

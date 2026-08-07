@@ -24,7 +24,7 @@ module Queries::Concerns::AlternateValues
     k.joins(:alternate_values).where(
       t[:value].matches_any(terms) # terms is from Queries::Query
       .and( t[:alternate_value_object_attribute].eq(attribute)) # terms is from Queries::Query
-      .and(t[:type].eq_any(alternate_value_type))
+      .and(t[:type].in(alternate_value_type))
       .to_sql
     )
   end
@@ -38,7 +38,7 @@ module Queries::Concerns::AlternateValues
     k.joins(:alternate_values).where(
       t[:value].matches_any(values) # terms is from Queries::Query
       .and( t[:alternate_value_object_attribute].eq(attribute)) # terms is from Queries::Query
-      .and(t[:type].eq_any(alternate_value_type))
+      .and(t[:type].in(alternate_value_type))
       .to_sql
     )
   end

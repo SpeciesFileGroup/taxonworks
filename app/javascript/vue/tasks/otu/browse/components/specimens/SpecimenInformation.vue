@@ -5,36 +5,65 @@
         <li
           v-for="citation in determinationCitations"
           :key="citation.id"
-          v-html="citation.object_tag">
-        </li>
+          v-html="citation.object_tag"
+        ></li>
       </ul>
-      <br>
+      <br />
     </template>
     <span class="middle">
       <span class="mark-box button-default separate-right" />
-      <span><a :href="`/tasks/collection_objects/browse?collection_object_id=${specimen.collection_objects_id}`">Specimen</a> | <a :href="`/tasks/accessions/comprehensive?collection_object_id=${specimen.collection_objects_id}`">Edit</a></span>
+      <span
+        ><a
+          :href="`/tasks/collection_objects/browse?collection_object_id=${specimen.collection_objects_id}`"
+          >Specimen</a
+        >
+        |
+        <a
+          :href="`/tasks/accessions/comprehensive?collection_object_id=${specimen.collection_objects_id}`"
+          >Edit</a
+        ></span
+      >
     </span>
     <ul class="no_bullets">
+      <li>
+        <template v-if="identifiers.length">
+          Identifiers:
+          <ul>
+            <li
+              v-for="identifier in identifiers"
+              :key="identifier.id"
+              v-text="identifier.cached"
+            ></li>
+          </ul>
+        </template>
+      </li>
       <li>
         <span>Counts: <b v-html="countAndBiocurations" /></span>
       </li>
       <li>
-        <span>Repository: <b>{{ repositoryLabel }}</b></span>
+        <span
+          >Repository: <b>{{ repositoryLabel }}</b></span
+        >
       </li>
       <li>
-        <span>Citation: <b><span v-html="citationsLabel" /></b></span>
+        <span
+          >Citation: <b><span v-html="citationsLabel" /></b
+        ></span>
       </li>
       <li>
-        <span>Collecting event: <b><span v-html="collectingEventLabel" /></b></span>
+        <span
+          >Collecting event: <b><span v-html="collectingEventLabel" /></b
+        ></span>
       </li>
     </ul>
     <div
       v-if="depictions.length"
-      class="margin-medium-top">
+      class="margin-medium-top"
+    >
       <span class="middle">
         <span class="mark-box button-default separate-right" /> Images
       </span>
-      <div class="horizontal-left-content">
+      <div class="flex-wrap-row">
         <image-viewer
           v-for="depiction in depictions"
           :key="depiction.id"
@@ -47,16 +76,19 @@
 </template>
 
 <script>
-
+import { COLLECTION_OBJECT, TAXON_DETERMINATION } from '@/constants'
 import {
   BiocurationClassification,
   CollectionObject,
   TaxonDetermination,
-  Repository
-} from 'routes/endpoints'
+  Repository,
+  Depiction,
+  Citation,
+  Identifier,
+  CollectingEvent
+} from '@/routes/endpoints'
 
-import { GetterNames } from '../../store/getters/getters'
-import ImageViewer from 'components/ui/ImageViewer/ImageViewer'
+import ImageViewer from '@/components/ui/ImageViewer/ImageViewer'
 
 export default {
   components: {
@@ -71,60 +103,60 @@ export default {
   },
 
   computed: {
-    citationsLabel () {
+    citationsLabel() {
       return this.citations.length
-        ? this.citations.map(item => item.citation_source_body).join('; ')
+        ? this.citations.map((item) => item.citation_source_body).join('; ')
         : 'not specified'
     },
 
-    countAndBiocurations () {
+    countAndBiocurations() {
       return this.biocurations.length
-        ? `${this.specimen.individualCount} ${this.biocurations.map(item => item.object_tag.toLowerCase()).join(', ')}`
+        ? `${this.specimen.individualCount} ${this.biocurations
+            .map((item) => item.object_tag.toLowerCase())
+            .join(', ')}`
         : this.specimen.individualCount
     },
 
-    collectingEvents () {
-      return this.$store.getters[GetterNames.GetCollectingEvents]
+    collectingEventLabel() {
+      return this.collectingEvent?.object_tag || 'not specified'
     },
 
-    collectingEventLabel () {
-      const ce = this.collectingEvents.find(item => this.collectionObject.collecting_event_id === item.id)
-
-      return ce ? ce.object_tag : 'not specified'
-    },
-
-    repositoryLabel () {
+    repositoryLabel() {
       return this.repository ? this.repository.name : 'not specified'
     },
 
-    ceLabel () {
+    ceLabel() {
       const levels = ['country', 'stateProvince', 'county', 'verbatimLocality']
       const tmp = []
 
-      levels.forEach(item => {
-        if (this.specimen[item]) { tmp.push(this.specimen[item]) }
+      levels.forEach((item) => {
+        if (this.specimen[item]) {
+          tmp.push(this.specimen[item])
+        }
       })
 
       return tmp.join(', ')
     }
   },
 
-  data () {
+  data() {
     return {
       alreadyLoaded: false,
       biocurations: [],
       citations: [],
+      collectingEvent: undefined,
       collectionObject: {},
       depictions: [],
       determinationCitations: [],
       determinations: [],
       expand: false,
-      repository: undefined
+      repository: undefined,
+      identifiers: []
     }
   },
 
   watch: {
-    expand (newVal) {
+    expand(newVal) {
       if (!this.alreadyLoaded) {
         this.alreadyLoaded = true
         this.loadData()
@@ -132,38 +164,74 @@ export default {
     }
   },
 
-  created () {
+  created() {
     this.loadData()
   },
 
   methods: {
-    loadData () {
-      CollectionObject.find(this.specimen.collection_objects_id, { extend: ['citations'] }).then(response => {
+    loadData() {
+      const coId = this.specimen.collection_objects_id
+
+      CollectionObject.find(this.specimen.collection_objects_id, {
+        extend: ['citations']
+      }).then((response) => {
         const repositoryId = response.body.repository_id
 
         this.collectionObject = response.body
         if (repositoryId) {
-          Repository.find(repositoryId).then(response => {
+          Repository.find(repositoryId).then((response) => {
             this.repository = response.body
           })
         }
       })
-      BiocurationClassification.where({ biological_collection_object_id: this.specimen.collection_objects_id }).then(response => {
-        this.biocurations = response.body
+
+      BiocurationClassification.where({
+        biocuration_classification_object_id: coId,
+        biocuration_classification_object_type: COLLECTION_OBJECT
+      }).then(({ body }) => {
+        this.biocurations = body
       })
-      CollectionObject.depictions(this.specimen.collection_objects_id).then(response => {
+
+      CollectingEvent.where({
+        collection_object_id: [coId]
+      }).then(({ body }) => {
+        const [ce] = body
+        this.collectingEvent = ce
+      })
+
+      Depiction.where({
+        depiction_object_id: coId,
+        depiction_object_type: COLLECTION_OBJECT
+      }).then((response) => {
         this.depictions = response.body
       })
-      CollectionObject.citations(this.specimen.collection_objects_id).then(response => {
+
+      Citation.where({
+        citation_object_id: coId,
+        citation_object_type: COLLECTION_OBJECT
+      }).then((response) => {
         this.citations = response.body
       })
-      TaxonDetermination.where({ collection_object_id: this.specimen.collection_objects_id }).then(response => {
+
+      Identifier.where({
+        identifier_object_id: coId,
+        identifier_object_type: COLLECTION_OBJECT
+      }).then(({ body }) => {
+        this.identifiers = body
+      })
+
+      TaxonDetermination.where({
+        collection_object_id: [this.specimen.collection_objects_id]
+      }).then((response) => {
         const determinations = response.body
 
         this.determinations = determinations
-        determinations.forEach(item => {
-          TaxonDetermination.citations(item.id).then(citationResponse => {
-            citationResponse.body.forEach(c => {
+        determinations.forEach((item) => {
+          Citation.where({
+            citation_object_id: item.id,
+            citation_object_type: TAXON_DETERMINATION
+          }).then((citationResponse) => {
+            citationResponse.body.forEach((c) => {
               this.determinationCitations.push(c)
             })
           })

@@ -1,58 +1,81 @@
 module Queries
-  module Tag 
+  module Tag
 
-    # !! does not inherit from base query
-    class Filter 
+    class Filter < Query::Filter
 
-      # General annotator options handling 
-      # happens directly on the params as passed
-      # through to the controller, keep them
-      # together here
-      attr_accessor :options
+      include Concerns::Polymorphic
+      polymorphic_klass(::Tag)
 
-      # Params specific to Tag 
+      PARAMS = [
+        *::Tag.related_foreign_keys.map(&:to_sym),
+        :keyword_id,
+        :tag_object_type,
+        :tag_object_id,
+        keyword_id: [],
+        tag_object_type: [],
+        tag_object_id: [],
+      ].freeze
+
+      # @return Array
+      attr_accessor :tag_id
 
       # Array, Integer
       attr_accessor :keyword_id
 
+      # Array, Integer
+      attr_accessor :tag_object_type
+
+      # Array, Integer
+      attr_accessor :tag_object_id
+
       # @params params [ActionController::Parameters]
-      def initialize(params)
-        @keyword_id = [params[:keyword_id]].flatten.compact
-        @options = params
+      def initialize(query_params)
+        super
+
+        @tag_id = params[:tag_id]
+        @keyword_id = [params[:keyword_id]]
+        @tag_object_type = params[:tag_object_type]
+        @tag_object_id = params[:tag_object_id]
+
+        set_polymorphic_params(params)
       end
 
-      # @return [ActiveRecord::Relation]
+      def tag_id
+        [@tag_id].flatten.compact.uniq
+      end
+
+      def keyword_id
+        [@keyword_id].flatten.compact.uniq
+      end
+
+      def tag_object_type
+        [@tag_object_type].flatten.compact
+      end
+
+      def tag_object_id
+        [@tag_object_id].flatten.compact
+      end
+
+      def keyword_id_facet
+        !keyword_id.empty? ? table[:keyword_id].in(keyword_id)  : nil
+      end
+
+      def object_id_facet
+        tag_object_id.empty? ? nil : table[:tag_object_id].in(tag_object_id)
+      end
+
+      def tag_object_type_facet
+        tag_object_type.empty? ? nil : table[:tag_object_type].in(tag_object_type)
+      end
+
       def and_clauses
-        clauses = [
-          ::Queries::Annotator.annotator_params(options, ::Tag),
-          matching_keyword_id,
-        ].compact
-
-        a = clauses.shift
-        clauses.each do |b|
-          a = a.and(b)
-        end
-        a
+        [
+          keyword_id_facet,
+          object_id_facet,
+          tag_object_type_facet,
+        ]
       end
 
-      # @return [Arel::Node, nil]
-      def matching_keyword_id
-        !keyword_id.empty? ? table[:keyword_id].eq_any(keyword_id)  : nil
-      end
-
-      # @return [ActiveRecord::Relation]
-      def all
-        if a = and_clauses
-          ::Tag.where(and_clauses).distinct
-        else
-          ::Tag.all
-        end
-      end
-
-      # @return [Arel::Table]
-      def table
-        ::Tag.arel_table
-      end
     end
   end
 end

@@ -1,8 +1,9 @@
 class TaxonNamesController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_taxon_name, only: [:show, :edit, :update, :destroy, :browse, :original_combination, :catalog, :api_show]
-  after_action -> { set_pagination_headers(:taxon_names) }, only: [:index, :api_index], if: :json_request?
+  before_action :set_taxon_name, only: [:show, :edit, :update, :destroy, :browse, :original_combination, :catalog, :api_show, :api_summary, :api_catalog]
+  after_action -> { set_pagination_headers(:taxon_names) }, only: [:index, :api_index, :origin_citation], if: :json_request?
+  after_action -> { set_pagination_headers(:descendants_scope) }, only: [:api_monograph], if: -> { json_request? && @descendants_scope }
 
   # GET /taxon_names
   # GET /taxon_names.json
@@ -13,7 +14,9 @@ class TaxonNamesController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @taxon_names = Queries::TaxonName::Filter.new(filter_params).all.page(params[:page]).per(params[:per] || 50)
+        @taxon_names = ::Queries::TaxonName::Filter.new(params).all
+        .page(params[:page])
+        .per(params[:per])
       }
     end
   end
@@ -30,7 +33,6 @@ class TaxonNamesController < ApplicationController
 
   # GET /taxon_names/1/edit
   def edit
-    @taxon_name.source = Source.new if !@taxon_name.source
   end
 
   # POST /taxon_names
@@ -44,7 +46,7 @@ class TaxonNamesController < ApplicationController
         format.json { render :show, status: :created, location: @taxon_name.metamorphosize }
       else
         format.html { render action: :new }
-        format.json { render json: @taxon_name.errors, status: :unprocessable_entity }
+        format.json { render json: @taxon_name.errors, status: :unprocessable_content }
       end
     end
   end
@@ -54,12 +56,15 @@ class TaxonNamesController < ApplicationController
   def update
     respond_to do |format|
       if @taxon_name.update(taxon_name_params)
+
+        # TODO: WHY?!
         @taxon_name.reload
+
         format.html { redirect_to url_for(@taxon_name.metamorphosize), notice: 'Taxon name was successfully updated.' }
         format.json { render :show, status: :ok, location: @taxon_name.metamorphosize }
       else
         format.html { render action: :edit }
-        format.json { render json: @taxon_name.errors, status: :unprocessable_entity }
+        format.json { render json: @taxon_name.errors, status: :unprocessable_content }
       end
     end
   end
@@ -67,14 +72,17 @@ class TaxonNamesController < ApplicationController
   # DELETE /taxon_names/1
   # DELETE /taxon_names/1.json
   def destroy
+    parent_id = @taxon_name.parent_id
     @taxon_name.destroy
     respond_to do |format|
       if @taxon_name.destroyed?
         format.html { destroy_redirect @taxon_name, notice: 'TaxonName was successfully destroyed.' }
-        format.json { head :no_content }
+        format.json {
+          render json: { parent_id: }
+        }
       else
         format.html { destroy_redirect @taxon_name, notice: 'TaxonName was not destroyed, ' + @taxon_name.errors.full_messages.join('; ') }
-        format.json { render json: @taxon_name.errors, status: :unprocessable_entity }
+        format.json { render json: @taxon_name.errors, status: :unprocessable_content }
       end
     end
   end
@@ -89,8 +97,9 @@ class TaxonNamesController < ApplicationController
 
   def autocomplete
     render json: {} and return if params[:term].blank?
-    @taxon_names = Queries::TaxonName::Autocomplete.new(
+    @taxon_names = ::Queries::TaxonName::Autocomplete.new(
       params[:term],
+      exact: 'true',
       **autocomplete_params
     ).autocomplete
   end
@@ -101,9 +110,9 @@ class TaxonNamesController < ApplicationController
 
   # GET /taxon_names/download
   def download
-    send_data Export::Download.generate_csv(
+    send_data Export::CSV.generate_csv(
       TaxonName.where(project_id: sessions_current_project_id)
-    ), type: 'text', filename: "taxon_names_#{DateTime.now}.csv"
+    ), type: 'text', filename: "taxon_names_#{DateTime.now}.tsv"
   end
 
   def batch_load
@@ -128,21 +137,29 @@ class TaxonNamesController < ApplicationController
 
   def random
     redirect_to browse_nomenclature_task_path(
-      taxon_name_id: TaxonName.where(project_id: sessions_current_project_id).order('random()').limit(1).pluck(:id).first
+      taxon_name_id: TaxonName.where(project_id: sessions_current_project_id).order('random()').limit(1).pick(:id)
     )
   end
 
   def rank_table
-    @q = Queries::TaxonName::Tabular.new(
-      ancestor_id: params.require(:ancestor_id),
+    @query = ::Queries::TaxonName::Tabular.new(
+      taxon_name_id: params.require(:taxon_name_id), # this is one of the few places
       ranks: params.require(:ranks),
       fieldsets: params[:fieldsets],
       limit: params[:limit],
       validity: params[:validity],
       combinations: params[:combinations],
       project_id: sessions_current_project_id,
-      rank_data: params[:rank_data]
+      rank_data: params[:rank_data],
+      descriptors_scored_for_otu: params[:descriptors_scored_for_otu],
+      otu_observation_count: params[:otu_observation_count],
+      otu_observation_depictions: params[:otu_observation_depictions],
+      otus: params[:otus]
     )
+  end
+
+  def taxonomy
+    @taxon_name = TaxonName.find(params[:id])
   end
 
   # GET /taxon_names/select_options
@@ -166,8 +183,9 @@ class TaxonNamesController < ApplicationController
   end
 
   def create_simple_batch_load
+
     if params[:file] && digested_cookie_exists?(params[:file].tempfile, :simple_taxon_names_md5)
-      @result =  BatchLoad::Import::TaxonifiToTaxonworks.new(**batch_params)
+      @result = BatchLoad::Import::TaxonifiToTaxonworks.new(**batch_params)
       if @result.create
         flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} taxon names were created."
         render 'taxon_names/batch_load/simple/create' and return
@@ -177,26 +195,27 @@ class TaxonNamesController < ApplicationController
     else
       flash[:alert] = 'File to batch upload must be supplied.'
     end
+
     render :batch_load
   end
 
-  def preview_castor_batch_load
+  def preview_nomen_batch_load
     if params[:file]
-      @result = BatchLoad::Import::TaxonNames::CastorInterpreter.new(**batch_params)
-      digest_cookie(params[:file].tempfile, :Castor_taxon_names_md5)
-      render 'taxon_names/batch_load/castor/preview'
+      @result = BatchLoad::Import::TaxonNames::NomenInterpreter.new(**batch_params)
+      digest_cookie(params[:file].tempfile, :nomen_taxon_names_md5)
+      render 'taxon_names/batch_load/nomen/preview'
     else
       flash[:notice] = 'No file provided!'
       redirect_to action: :batch_load
     end
   end
 
-  def create_castor_batch_load
-    if params[:file] && digested_cookie_exists?(params[:file].tempfile, :Castor_taxon_names_md5)
-      @result = BatchLoad::Import::TaxonNames::CastorInterpreter.new(**batch_params)
+  def create_nomen_batch_load
+    if params[:file] && digested_cookie_exists?(params[:file].tempfile, :nomen_taxon_names_md5)
+      @result = BatchLoad::Import::TaxonNames::NomenInterpreter.new(**batch_params)
       if @result.create
         flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} items were created."
-        render 'taxon_names/batch_load/castor/create' and return
+        render 'taxon_names/batch_load/nomen/create' and return
       else
         flash[:alert] = 'Batch import failed.'
       end
@@ -208,24 +227,70 @@ class TaxonNamesController < ApplicationController
 
   def parse
     @combination = Combination.where(project_id: sessions_current_project_id).find(params[:combination_id]) if params[:combination_id]
-    @result = TaxonWorks::Vendor::Biodiversity::Result.new(
+    @result = Vendor::Biodiversity::Result.new(
       query_string: params.require(:query_string),
       project_id: sessions_current_project_id,
       code: :iczn # !! TODO: generalize
     ).result
   end
 
+  def remove_authors
+    names = TaxonName.remove_authors(params['names'].first(5000))
+    render json: { names: }
+  end
+
+  # POST /taxon_names/match.json
+  def match
+
+    @result = Match::Otu::TaxonName.new(
+      names: match_params[:names] || [],
+      project_id: sessions_current_project_id,
+      levenshtein_distance: match_params[:levenshtein_distance] || 0,
+      taxon_name_id: match_params[:taxon_name_id],
+      resolve_synonyms: match_params[:resolve_synonyms] == 'true',
+      try_without_subgenus: match_params[:try_without_subgenus] == 'true'
+    ).call
+
+    render :match
+  end
+
   # GET /taxon_names/1/original_combination
   def original_combination
   end
 
+  # PATCH /taxon_names/batch_update.json?taxon_names_query=<>&taxon_name={taxon_name_id=123}}
+  def batch_update
+    if r = Protonym.batch_update(
+        preview: params[:preview],
+        taxon_name: taxon_name_params.merge(by: sessions_current_user_id),
+        taxon_name_query: params[:taxon_name_query].merge(by: sessions_current_user_id),
+        user_id: sessions_current_user_id,
+        project_id: sessions_current_project_id)
+      render json: r.to_json, status: :ok
+    else
+      render json: {}, status: :unprocessable_content
+    end
+  end
+
   # GET /api/v1/taxon_names
   def api_index
-    @taxon_names = Queries::TaxonName::Filter.new(api_params).all
+    q = ::Queries::TaxonName::Filter.new(params.merge!(api: true)).all
       .where(project_id: sessions_current_project_id)
       .order('taxon_names.id')
-      .page(params[:page]).per(params[:per])
-    render '/taxon_names/api/v1/index'
+
+    respond_to do |format|
+      format.json {
+        @taxon_names = q.page(params[:page]).per(params[:per])
+        render '/taxon_names/api/v1/index'
+      }
+      format.csv {
+        @taxon_names = q
+        send_data Export::CSV.generate_csv(
+          @taxon_names,
+          exclude_columns: %w{updated_by_id created_by_id project_id},
+        ), type: 'text', filename: "taxon_names_#{DateTime.now}.tsv"
+      }
+    end
   end
 
   # GET /api/v1/taxon_names/:id
@@ -233,9 +298,38 @@ class TaxonNamesController < ApplicationController
     render '/taxon_names/api/v1/show'
   end
 
+  # GET /api/v1/taxon_names/:id/inventory/summary
+  def api_summary
+    render '/taxon_names/api/v1/summary'
+  end
+
+  # GET /api/v1/taxon_names/:id/monograph
+  def api_monograph
+    if helpers.extend_response_with('descendants')
+      @descendants_scope = TaxonName.with_project_id(sessions_current_project_id)
+        .find(params[:id])
+        .descendants
+        .order('taxon_names.id')
+        .page(params[:page])
+        .per(params[:per])
+    else
+      @taxon_name_scope = TaxonName.with_project_id(sessions_current_project_id).where(id: params[:id])
+    end
+    render '/taxon_names/api/v1/monograph'
+  end
+
+  # GET /api/v1/taxon_names/:id/inventory/catalog
+  # Contains stats block
+  def api_catalog
+    @data = helpers.recursive_catalog_json(
+      taxon_name: @taxon_name, target_depth: params[:target_depth] || 0, include_distribution: false
+    )
+    render '/taxon_names/api/v1/catalog'
+  end
+
   def api_parse
     @combination = Combination.where(project_id: sessions_current_project_id).find(params[:combination_id]) if params[:combination_id]
-    @result = TaxonWorks::Vendor::Biodiversity::Result.new(
+    @result = Vendor::Biodiversity::Result.new(
       query_string: params.require(:query_string),
       project_id: sessions_current_project_id,
       code: :iczn # !! TODO: generalize
@@ -243,7 +337,94 @@ class TaxonNamesController < ApplicationController
     render '/taxon_names/api/v1/parse'
   end
 
+  # GET /api/v1/taxon_names
+  def origin_citation
+    q = ::Queries::TaxonName::Filter.new(params).all
+      .where(project_id: sessions_current_project_id)
+      .order('taxon_names.id')
+
+    respond_to do |format|
+      format.json {
+        @taxon_names = q.page(params[:page]).per(params[:per])
+        render '/taxon_names/origin_citation'
+      }
+      format.csv {
+        @taxon_names = q
+        send_data Export::CSV::TaxonNameOrigin.csv(
+          @taxon_names,
+        ).read, type: 'text', filename: "taxon_name_origin_citation_#{DateTime.now}.tsv"
+      }
+    end
+  end
+
+  def api_origin_citation
+    q = ::Queries::TaxonName::Filter.new(params).all
+      .where(project_id: sessions_current_project_id)
+      .order('taxon_names.id')
+
+    respond_to do |format|
+      format.json {
+        @taxon_names = q.page(params[:page]).per(params[:per])
+        render '/taxon_names/origin_citation'
+      }
+      format.csv {
+        @taxon_names = q
+        send_data Export::CSV::TaxonNameOrigin.csv(
+          @taxon_names,
+        ).read, type: 'text', filename: "taxon_name_origin_citation_#{DateTime.now}.tsv"
+      }
+    end
+  end
+
+  # GET /taxon_names/autoselect
+  def autoselect
+    render json: ::Autoselect::TaxonName::Autoselect.new(
+      term: params[:term],
+      level: params[:level],
+      project_id: sessions_current_project_id,
+      user_id: sessions_current_user_id,
+      **autoselect_params
+    ).response
+  end
+
+  # GET /taxon_names/col_datasets?q=...
+  def autoselect_col_datasets
+    results = ::Vendor::Colrapi.datasets(q: params[:q].to_s, limit: 20)
+    render json: results
+  end
+
+  # POST
+  def autoselect_col_create
+    result = ::Autoselect::TaxonName::ColCreator.new(
+      rows:       autoselect_col_create_params,
+      col_code:   params[:col_code],
+      project_id: sessions_current_project_id,
+      user_id:    sessions_current_user_id
+    ).call
+    tn = ::TaxonName.find(result[:taxon_name_id])
+    render json: result.merge(global_id: tn.to_global_id.to_s)
+  rescue ::Autoselect::TaxonName::ColCreator::CreationError => e
+    render json: {
+      error:          e.message,
+      failed_col_name: e.col_name,
+      failed_col_id:   e.col_id
+    }, status: :unprocessable_entity
+  end
+
   private
+
+  def autoselect_col_create_params
+    params.permit(rows: [:col_name, :col_rank, :col_id, :dataset_id, :taxonworks_id, :col_authorship, :col_year, :col_status])
+          .fetch(:rows, [])
+          .map(&:to_h)
+  end
+
+  def autoselect_params
+    params.permit(
+      :valid, :exact, :no_leaves, :dataset_id, :show_info,
+      type: [], parent_id: [], nomenclature_group: []
+    ).to_h.symbolize_keys
+  end
 
   def set_taxon_name
     @taxon_name = TaxonName.with_project_id(sessions_current_project_id).includes(:creator, :updater).find(params[:id])
@@ -255,6 +436,16 @@ class TaxonNamesController < ApplicationController
       :valid, :exact, :no_leaves,
       type: [], parent_id: [], nomenclature_group: []
     ).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
+  end
+
+  def match_params
+    params.permit(
+      :levenshtein_distance,
+      :taxon_name_id,
+      :resolve_synonyms,
+      :try_without_subgenus,
+      names: []
+    )
   end
 
   def taxon_name_params
@@ -271,6 +462,7 @@ class TaxonNamesController < ApplicationController
           :last_name, :first_name, :suffix, :prefix
         ]
       ],
+      family_group_name_form_relationship_attributes: [:id, :_destroy, :object_taxon_name_id],
       origin_citation_attributes: [:id, :_destroy, :source_id, :pages],
       taxon_name_classifications_attributes: [:id, :_destroy, :type]
     )
@@ -288,87 +480,9 @@ class TaxonNamesController < ApplicationController
       ).to_h.symbolize_keys
   end
 
-  def filter_params
-    params.permit(
-      :ancestors,
-      :author,
-      :authors,
-      :citations,
-      :descendants,
-      :descendants_max_depth,
-      :etymology,
-      :exact,
-      :leaves,
-      :name,
-      :nomenclature_code,
-      :nomenclature_group, # !! different than autocomplete
-      :not_specified,
-      :otus,
-      :page,
-      :per,
-      :taxon_name_author_ids_or,
-      :taxon_name_type,
-      :type_metadata,
-      :updated_since,
-      :user_date_end,
-      :user_date_start,
-      :user_id,
-      :user_target,
-      :validity,
-      :year,
-      combination_taxon_name_id: [],
-      keyword_id_and: [],
-      keyword_id_or: [],
-      parent_id: [],
-      taxon_name_author_ids: [],
-      taxon_name_classification: [],
-      taxon_name_id: [],
-      taxon_name_relationship: [],
-      taxon_name_relationship_type: [],
-      type: []
-      # user_id: []
-    ).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
-  end
-
-  def api_params
-    params.permit(
-      :ancestors,
-      :author,
-      :authors,
-      :citations,
-      :descendants,
-      :descendants_max_depth,
-      :etymology,
-      :exact,
-      :leaves,
-      :name,
-      :nomenclature_code,
-      :nomenclature_group, # !! different than autocomplete
-      :otus,
-      :not_specified,
-#     :page, # TODO: yes or no?
-#     :per,
-      :taxon_name_type,
-      :type_metadata,
-      :updated_since,
-      :validity,
-      :year,
-      combination_taxon_name_id: [],
-      keyword_id_and: [],
-      keyword_id_or: [],
-      parent_id: [],
-      taxon_name_classification: [],
-      taxon_name_id: [],
-      taxon_name_relationship: [],
-      taxon_name_relationship_type: [],
-      type: []
-    ).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
-
-    # TODO: see config in collection objects controller
-    # a[:user_id] = params[:user_id] if params[:user_id] && is_project_member_by_id(params[:user_id], sessions_current_project_id) # double check vs. setting project_id from API
-    # a
-  end
-
 end
 
-require_dependency Rails.root.to_s + '/lib/batch_load/import/taxon_names/castor_interpreter.rb'
+
+Rails.application.reloader.to_prepare do
+  require_dependency Rails.root.to_s + '/lib/batch_load/import/taxon_names/nomen_interpreter.rb'
+end

@@ -3,7 +3,7 @@
     <table class="vue-table">
       <thead>
         <tr>
-          <th>Geographic area</th>
+          <th>Name</th>
           <th>Type</th>
           <th>Parent</th>
           <th />
@@ -21,101 +21,112 @@
           <td>
             <span
               :class="{ absent: item.is_absent }"
-              v-html="item.geographic_area.name"
+              v-html="item.asserted_distribution_shape.name"
             />
           </td>
           <td>
-            <span> {{ item.geographic_area.geographic_area_type.name }} </span>
-          </td>
-          <td>
-            <span> {{ item.geographic_area.parent.name }} </span>
-          </td>
-          <td class="vue-table-options">
-            <citation-count
-              :object="item"
-              :values="item.citations"
-              target="asserted_distributions"
-            />
-            <radial-annotator :global-id="item.global_id" />
-            <span
-              class="circle-button btn-edit"
-              @click="$emit('edit', Object.assign({}, item))"
-            />
-            <span
-              class="circle-button btn-delete"
-              @click="deleteItem(item)"
-            >Remove
+            <span>
+              {{ item.asserted_distribution_shape.shape_type.name }}
             </span>
+          </td>
+          <td>
+            <span> {{ item.asserted_distribution_shape.parent?.name }} </span>
+          </td>
+          <td>
+            <div class="horizontal-right-content gap-xsmall">
+              <CitationCount
+                :object="item"
+                :values="item.citations"
+                target="asserted_distributions"
+              />
+              <RadialAnnotator :global-id="item.global_id" />
+              <VBtn
+                circle
+                color="primary"
+                @click="emit('edit', Object.assign({}, item))"
+              >
+                <VIcon
+                  name="pencil"
+                  x-small
+                />
+              </VBtn>
+
+              <VBtn
+                circle
+                color="destroy"
+                @click="deleteItem(item, index)"
+              >
+                <VIcon
+                  name="trash"
+                  x-small
+                />
+              </VBtn>
+            </div>
           </td>
         </tr>
       </transition-group>
     </table>
   </div>
 </template>
-<script>
 
-import RadialAnnotator from 'components/radials/annotator/annotator.vue'
+<script setup>
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
+import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import CitationCount from '../shared/citationsCount.vue'
 
-export default {
-  components: {
-    RadialAnnotator,
-    CitationCount
-  },
+defineProps({
+  list: {
+    type: Array,
+    default: () => []
+  }
+})
 
-  props: {
-    list: {
-      type: Array,
-      default: () => []
-    }
-  },
+const emit = defineEmits(['delete', 'edit'])
 
-  emits: [
-    'delete',
-    'edit'
-  ],
-
-  methods: {
-    deleteItem (item) {
-      if (window.confirm('You\'re trying to delete this record. Are you sure want to proceed?')) {
-        this.$emit('delete', item)
-      }
-    }
+function deleteItem(item) {
+  if (
+    window.confirm(
+      "You're trying to delete this record. Are you sure you want to proceed?"
+    )
+  ) {
+    emit('delete', item)
   }
 }
 </script>
 <style lang="scss" scoped>
-  .vue-table-container {
-    padding: 0px;
-    position: relative;
-  }
+.vue-table-container {
+  padding: 0px;
+  position: relative;
+}
 
-  .vue-table {
-    width: 100%;
-    .vue-table-options {
-      display: flex;
-      flex-direction: row;
-      justify-content: flex-end;
-    }
-    tr {
-      cursor: default;
-    }
+.vue-table {
+  width: 100%;
+  .vue-table-options {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
   }
+  tr {
+    cursor: default;
+  }
+}
 
-  .list-complete-item {
-    justify-content: space-between;
-    transition: all 0.5s, opacity 0.2s;
-  }
+.list-complete-item {
+  justify-content: space-between;
+  transition: all 0.5s, opacity 0.2s;
+}
 
-  .list-complete-enter-active, .list-complete-leave-active {
-    opacity: 0;
-    font-size: 0px;
-    border: none;
-  }
-  .absent {
-    padding: 5px;
-    border-radius: 3px;
-    background-color: #000;
-    color: #FFF;
-  }
+.list-complete-enter-active,
+.list-complete-leave-active {
+  opacity: 0;
+  font-size: 0px;
+  border: none;
+}
+.absent {
+  padding: 5px;
+  border-radius: 3px;
+  background-color: #000;
+  color: #fff;
+}
 </style>

@@ -1,14 +1,337 @@
-$tw-colors: (
-  'background': #f7f8fc,
+@use 'sass:map';
+@use './primitives';
+@use '../utils/functions' as fn;
+
+:root {
+  color-scheme: light;
+
+  --header-sandbox-bg-color: #4a4564;
+  --header-sandbox-bg-button-color: #3a3361;
+  --header-bg-color: #455a64;
+
+  --btn-radial-background: var(--white);
+  --btn-radial-color: var(--color-primary);
+
+  --bg-color: #f7f8fc;
+  --bg-foreground: var(--white);
+  --bg-muted: var(--slate-50);
+  --bg-action: var(--slate-200);
+  --bg-hover: var(--slate-100);
+  --border-color: #d5d5d5;
+  --button-disabled-bg-color: #ececec;
+  --button-disabled-text-color: #595959;
+  --button-default-bg-color: #dddcdc;
+  --input-bg-disabled: #fafafa;
+  --input-bg-color: var(--white);
+  --panel-bg-color: var(--white);
+  --panel-shadow: rgba(36, 37, 38, 0.08) 4px 4px 15px 0px;
+  --panel-border-color: var(--slate-200);
+  --text-color: var(--black);
+  --text-muted-color: var(--gray-500);
+
+  --focus-ring: #64748b;
+
+  --color-neutral: var(--gray-500);
+
+  --tooltip-text-color: var(--white);
+  --tooltip-bg-color: #444;
+  --tooltip-arrow-color: var(--tooltip-bg-color);
+
+  --modal-bg-color: rgba(0, 0, 0, 0.7);
+  --modal-mask-bg-color: rgba(0, 0, 0, 0.7);
+
+  --table-row-bg-even: var(--white);
+  --table-row-bg-odd: #f8f8f8;
+
+  --button-shadow: 0px 1px 2px 0px var(--border-color);
+
+  --soft-validation-bg-color: #fff9f9;
+
+  --table-row-bg-hover: var(--slate-100);
+
+  --feedback-primary-text-color: #4c81eb;
+  --feedback-primary-bg-color: #b0caff;
+  --feedback-primary-border-color: #6899fa;
+
+  --feedback-secondary-text-color: var(--slate-700);
+  --feedback-secondary-bg-color: #fcfcfc;
+  --feedback-secondary-border-color: #788990;
+
+  --feedback-info-text-color: var(--feedback-primary-text-color);
+  --feedback-info-bg-color: var(--feedback-primary-bg-color);
+  --feedback-info-border-color: var(--feedback-primary-border-color);
+
+  --feedback-warning-text-color: var(--amber-800);
+  --feedback-warning-bg-color: #fff5ea;
+  --feedback-warning-border-color: #e5d2be;
+
+  --taxon-name-valid-color: #0c2351;
+  --taxon-name-invalid-color: #b0783c;
+
+  --code-tag-color: #116611;
+  --code-attribute-color: #0077aa;
+  --code-string-color: var(--black);
+  --code-error-color: #cc0000;
+  --code-selection-color: #d7e4f7;
+
+  --badge-warning-color: var(--red-500);
+  --badge-warning-bg: color-mix(in srgb, var(--red-500) 15%, transparent);
+
+  --color-soft-success-bg: color-mix(
+    in srgb,
+    var(--emerald-500) 8%,
+    transparent
+  );
+
+  --color-soft-warning-bg: color-mix(
+    in srgb,
+    var(--orange-500) 10%,
+    transparent
+  );
+  --color-soft-warning-border: color-mix(
+    in srgb,
+    var(--orange-500) 20%,
+    transparent
+  );
+
+  --badge-green-bg: color-mix(in srgb, var(--emerald-500) 15%, transparent);
+  --badge-green-color: var(--emerald-500);
+  --color-green-soft-shadow: color-mix(
+    in srgb,
+    var(--emerald-500) 50%,
+    transparent
+  );
+
+  --color-status-included: #60bf5e;
+  --color-status-included-glow: rgba(96, 191, 94, 0.4);
+
+  --badge-blue-bg: color-mix(in srgb, var(--blue-500) 15%, transparent);
+  --badge-blue-color: var(--blue-500);
+
+  --badge-yellow-bg: color-mix(in srgb, var(--amber-500) 15%, transparent);
+  --badge-yellow-color: var(--amber-500);
+
+  --badge-red-bg: color-mix(in srgb, var(--red-500) 15%, transparent);
+  --badge-red-color: var(--red-500);
+
+  --badge-default-bg: color-mix(in srgb, var(--color-neutral) 15%, transparent);
+  --badge-default-color: var(--color-neutral);
+
+  --badge-purple-bg: color-mix(in srgb, var(--violet-500) 15%, transparent);
+  --badge-purple-color: var(--violet-500);
+
+  --color-accent: #1f7e9a;
+
+  --news-blogpost-bg: var(--badge-blue-bg);
+  --news-blogpost-color: var(--badge-blue-color);
+  --news-notice-bg: var(--badge-yellow-bg);
+  --news-notice-color: var(--badge-yellow-color);
+  --news-instruction-bg: var(--badge-purple-bg);
+  --news-instruction-color: var(--badge-purple-color);
+  --news-warning-bg: var(--badge-red-bg);
+  --news-warning-color: var(--badge-red-color);
+
+  .news-bar-close-button {
+    cursor: pointer;
+  }
+}
+
+.dark {
+  color-scheme: dark;
+
+  --header-sandbox-bg-color: #201e2e;
+  --header-bg-color: #1b2326;
+
+  --btn-radial-background: #eeeeee;
+  --btn-radial-color: var(--color-primary);
+
+  --bg-action: var(--black);
+  --bg-hover: var(--black);
+  --bg-color: #242424;
+  --bg-foreground: #333333;
+  --bg-muted: #1b1b1b;
+  --border-color: #5b5b5b;
+  --button-disabled-bg-color: #555555;
+  --button-disabled-text-color: #aaaaaa;
+  --button-default-bg-color: #3a3a3a;
+  --input-bg-color: #2b2b2b;
+  --input-bg-disabled: #242424;
+  --panel-bg-color: #333333;
+  --panel-shadow: rgba(0, 0, 0, 0.25) 4px 4px 15px 0px;
+  --panel-border-color: #28292c;
+  --text-color: var(--white);
+  --text-muted-color: #c6c6c6;
+
+  --focus-ring: #94a3b8;
+
+  --tooltip-text-color: var(--white);
+  --tooltip-bg-color: #1b1b1b;
+  --tooltip-arrow-color: var(--tooltip-bg-color);
+
+  --modal-bg-color: rgba(0, 0, 0, 0.7);
+  --modal-mask-bg-color: rgba(0, 0, 0, 0.7);
+
+  --button-shadow: none;
+
+  --soft-validation-bg-color: #37332f;
+
+  --table-row-bg-even: #333333;
+  --table-row-bg-odd: #444444;
+  --table-row-bg-hover: var(--black);
+
+  --feedback-primary-text-color: #b6cfff;
+  --feedback-primary-bg-color: #234079;
+  --feedback-primary-border-color: #0e2c67;
+
+  --feedback-secondary-text-color: var(--gray-400);
+  --feedback-secondary-bg-color: #0f0f0f;
+  --feedback-secondary-border-color: #788990;
+
+  --feedback-info-text-color: #4c81eb;
+  --feedback-info-bg-color: #2e3646;
+  --feedback-info-border-color: #6899fa;
+
+  --feedback-warning-text-color: #cf873b;
+  --feedback-warning-bg-color: #37332f;
+  --feedback-warning-border-color: #6b461e;
+
+  --code-tag-color: #90ee90;
+  --code-attribute-color: #87ceeb;
+  --code-string-color: var(--white);
+  --code-error-color: #ff6b6b;
+  --code-selection-color: #264f78;
+
+  --taxon-name-valid-color: #b6cfff;
+  --taxon-name-invalid-color: #cf873b;
+  --color-accent: #246d84;
+
+  --color-status-included: #10b981;
+  --color-status-included-glow: rgba(16, 185, 129, 0.5);
+
+  --color-neutral: var(--gray-400);
+
+  --color-soft-success-bg: color-mix(
+    in srgb,
+    var(--emerald-500) 16%,
+    transparent
+  );
+  --color-soft-warning-bg: color-mix(
+    in srgb,
+    var(--orange-500) 18%,
+    transparent
+  );
+  --color-soft-warning-border: color-mix(
+    in srgb,
+    var(--orange-500) 30%,
+    transparent
+  );
+}
+
+$tw-dark-colors: (
+  'focus': #000000,
+  'active': #000000,
+  'link': #479ef5,
+  'attention': #ffda44,
+  'background': #242424,
   'black': #444444,
-  'create': #9ccc65,
-  'update': #9ccc65,
+  'create': #2e7d32,
   'data': #006ebf,
-  'primary': #5D9ECE,
-  'destroy': #F44336,
-  'secondary': #5a1321,
-  'warning': #ff8c00,
-  'attention': #FFDA44,
-  'white': #FFFFFF
+  'destroy': #a2131d,
+  'error': #a2131d,
+  'panel': #ffffff,
+  'primary': #006cbe,
+  'secondary': #0e0a0b,
+  'update': #2e7d32,
+  'warning': #f97316,
+  'white': #ffffff,
+  'border': #f5f5f5,
+  'toggle-active': #beae00,
+  'muted': #c6c6c6
 );
 
+$tw-colors: (
+  'focus': #e3e8e3,
+  'active': #f1f5f9,
+  'link': #3676ab,
+  'attention': #ffda44,
+  'background': #f7f8fc,
+  'black': #444444,
+  'create': #2e7d32,
+  'data': #006ebf,
+  'destroy': #dc2626,
+  'error': #dc2626,
+  'panel': #ffffff,
+  'primary': #3676ab,
+  'secondary': #5a1321,
+  'update': #2e7d32,
+  'warning': #f97316,
+  'white': #ffffff,
+  'border': #f5f5f5,
+  'toggle-active': #cebd5d,
+  'muted': #6b7280
+);
+
+$tw-map-colors: (
+  'aggregate': #037316,
+  'collection-object': #ef4444,
+  'field-occurrence': #40b0a6,
+  'type-material': #3388ff,
+  'asserted-distribution': #f97316,
+  'asserted-distribution-absent': #6a51a3,
+  'georeference': #d41159,
+  'verbatim': #8908b4,
+  'verbatim-preview': #636363
+);
+
+@each $key, $value in $tw-colors {
+  :root {
+    --color-#{$key}: #{$value};
+    --color-on-#{$key}: #{fn.on-color($value)};
+  }
+}
+
+@each $key, $value in $tw-dark-colors {
+  .dark {
+    --color-#{$key}: #{$value};
+    --color-on-#{$key}: #{fn.on-color($value)};
+  }
+}
+
+@each $key, $value in $tw-map-colors {
+  :root {
+    --color-map-#{$key}: #{$value};
+  }
+}
+
+// Excludes 'muted': this loop has no dark-theme counterpart (there's no
+// equivalent pass over $tw-dark-colors), so any key here is permanently
+// locked to its light value even under .dark. --text-muted-color already
+// carries a correct value in both themes, so .text-muted-color reads from
+// that directly below instead of from the (light-only) literal in $tw-colors.
+@each $key, $value in map.remove($tw-colors, 'muted') {
+  .text-#{$key}-color {
+    color: #{$value};
+  }
+}
+
+.text-muted-color {
+  color: var(--text-muted-color);
+}
+
+@each $key, $value in $tw-map-colors {
+  .bg-#{$key} {
+    background-color: #{$value};
+  }
+}
+
+a:focus-visible,
+button:focus-visible,
+[role='button']:focus-visible,
+[tabindex]:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+summary:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 1px var(--focus-ring);
+}

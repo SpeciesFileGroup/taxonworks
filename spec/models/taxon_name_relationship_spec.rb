@@ -1,20 +1,46 @@
 require 'rails_helper'
 
 describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
+  include ActiveJob::TestHelper
 
   let(:taxon_name_relationship) { TaxonNameRelationship.new }
 
-  let!(:species) { FactoryBot.create(:relationship_species) } 
-  let(:genus) { species.ancestor_at_rank('genus') } 
-  let(:family) { species.ancestor_at_rank('family') } 
-  let(:kingdom) { species.ancestor_at_rank('kingdom') } 
-  
+  let!(:species) { FactoryBot.create(:relationship_species) }
+  let(:genus) { species.ancestor_at_rank('genus') }
+  let(:family) { species.ancestor_at_rank('family') }
+  let(:kingdom) { species.ancestor_at_rank('kingdom') }
+
+  # TODO: eliminate
   after(:all) {
     TaxonName.delete_all
     TaxonNameRelationship.delete_all
     Source.destroy_all
     TaxonNameHierarchy.delete_all
   }
+
+  specify 'dwc_occurrences hooks' do
+    t = FactoryBot.create(:relationship_species, parent: genus)
+
+    s = Specimen.create
+    td = FactoryBot.create(:valid_taxon_determination, otu: FactoryBot.create(:valid_otu, taxon_name: t), taxon_determination_object: s)
+
+
+    perform_enqueued_jobs
+
+    expect(s.dwc_occurrence.reload.scientificName).to eq(t.cached_name_and_author_year)
+
+    r1 = FactoryBot.create(:taxon_name_relationship, subject_taxon_name: t, object_taxon_name: species, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
+
+    perform_enqueued_jobs
+
+    expect(s.dwc_occurrence.reload.scientificName).to eq(species.cached_name_and_author_year)
+
+    # Back the other way
+    r1.destroy!
+
+    perform_enqueued_jobs
+    expect(s.dwc_occurrence.reload.scientificName).to eq(t.cached_name_and_author_year)
+  end
 
   context 'required attributes' do
     specify 'subject (TaxonName)' do
@@ -48,7 +74,7 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
           uri = klass.nomen_uri
           expect(uri.empty?).to be_falsey, "NOMEN_URI for #{klass.name} is empty!"
           expect(nomen_uris.include?(uri)).to be(false), "#{uri} from #{klass.name} is duplicated!"
-          expect(uri).to match(/http:\/\/purl.obolibrary.org\/obo\/NOMEN/), "#{uri} from #{klass.name} is invalid!"
+          expect(uri).to match(/^http:\/\/purl\.obolibrary\.org\/obo\/NOMEN\/?/), "#{uri} from #{klass.name} is invalid!"
           nomen_uris.push uri
         end
       end
@@ -195,7 +221,7 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
 
     context 'relationships' do
       specify 'has only one synonym relationship' do
-        s  = FactoryBot.create(:relationship_species, parent: genus)
+        s = FactoryBot.create(:relationship_species, parent: genus)
         r1 = FactoryBot.create(:taxon_name_relationship, subject_taxon_name: s, object_taxon_name: species, type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym')
         expect(r1.valid?).to be_truthy
         expect(r1.errors.include?(:subject_taxon_name_id)).to be_falsey
@@ -247,23 +273,31 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
         expect(s1.cached_misspelling).to be_falsey
       end
 
-      # TODO: this can be moved out to the new original_combination specs
-      specify 'for cached_original_combination' do
-        # Use non FactoryBot to get callbacks
-        s1.update(original_genus: g2)
-        expect(s1.cached_original_combination).to eq('Bus aus')
-      end
-
       specify 'for cached_primary_homony' do
         s1.original_genus = g2
         s1.save!
         expect(s1.cached_primary_homonym).to eq('Bus aus')
       end
 
+      # OriginalCombination#set_cached_names_for_taxon_names refreshes
+      # object_taxon_name via #reload rather than a separately-fetched
+      # TaxonName instance, so the already-memoized association on the
+      # relationship itself reflects the update - checked here through r,
+      # not a freshly-fetched s1, to catch a regression back to a separate
+      # instance the relationship's own association would never see.
+      specify 'object_taxon_name association is refreshed in place, not left stale' do
+        r = TaxonNameRelationship::OriginalCombination::OriginalGenus.create!(subject_taxon_name: g1, object_taxon_name: s1)
+        # Reassigns the original genus itself (Aus -> Bus), which is what
+        # set_cached_names_for_taxon_names's #reload+#update_cached_
+        # original_combinations recompute on s1's cached_primary_homonym.
+        r.update!(subject_taxon_name: g2)
+        expect(r.object_taxon_name.cached_primary_homonym).to eq('Bus aus')
+      end
+
       specify 'for cached_classified_as' do
         r2 = FactoryBot.build(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: family, type: 'TaxonNameRelationship::SourceClassifiedAs')
         r2.save!
-        expect(s1.cached_classified_as).to eq(' (as Erythroneuridae)')
+        expect(s1.cached_classified_as).to eq('(as Erythroneuridae)')
       end
 
       specify 'for cached_author' do
@@ -275,11 +309,11 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
         expect(s1.cached_author_year).to eq('(McAtee, 1900)')
       end
 
-      # TODO: notice that alone they pass, we need a seperate method for setting cached_classified_as, i.e. decouple it from original combination cache setting
+      # TODO: notice that alone they pass, we need a separate method for setting cached_classified_as, i.e. decouple it from original combination cache setting
       specify 'for cached_classified_as with original genus present' do
         s1.update(original_genus: g2)
         r2 = TaxonNameRelationship::SourceClassifiedAs.create!(subject_taxon_name: s1, object_taxon_name: family, type: 'TaxonNameRelationship::SourceClassifiedAs')
-        expect(s1.cached_classified_as).to eq(' (as Erythroneuridae)')
+        expect(s1.cached_classified_as).to eq('(as Erythroneuridae)')
       end
 
       specify 'for cached_valid_taxon_name_id' do
@@ -293,6 +327,82 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
         expect(g2.cached_is_valid).to be_truthy
       end
 
+      # The `|| destroyed?` in set_cached_names_for_taxon_names's guard exists
+      # for a plain destroy performed through an instance that never itself
+      # reassigned subject/object_taxon_name - e.g. destroying a
+      # freshly-loaded copy of the relationship, as an ordinary "delete this
+      # relationship" flow would. flag_taxon_name_reassignment's ivar is only
+      # ever set to true by that instance's *own* before_save, so on a fresh
+      # instance it's still nil/false; without `|| destroyed?`, the
+      # after_commit would skip the cache update entirely. Using
+      # TaxonNameRelationship.find (not r1.reload) is essential here - r1
+      # itself already flagged the ivar true back when it was created, and
+      # #reload never clears that, so destroying r1 directly would pass even
+      # without the `destroyed?` guard.
+      specify 'destroyed via a freshly-loaded instance that never reassigned itself' do
+        r1 = TaxonNameRelationship::Iczn::Invalidating::Synonym.create!(subject_taxon_name: g2, object_taxon_name: g1)
+        g2.reload
+        expect(g2.cached_valid_taxon_name_id).to eq(g1.id)
+
+        TaxonNameRelationship.find(r1.id).destroy!
+
+        g2.reload
+        expect(g2.cached_valid_taxon_name_id).to eq(g2.id)
+        expect(g2.cached_is_valid).to be_truthy
+      end
+
+      # set_cached_names_for_taxon_names's after_commit is deferred, so it
+      # can run after subject_taxon_name was destroyed elsewhere in the same
+      # unify chain. If subject_taxon_name was already memoized on r1 before
+      # that happened, the belongs_to reader returns the stale,
+      # no-longer-persisted instance rather than nil - reproduced here by
+      # memoizing g2 on r1, destroying r1 itself (satisfying the FK on
+      # taxon_name_relationships.subject_taxon_name_id) and then g2, and
+      # invoking the callback again as the deferred after_commit would.
+      # Mirrors the identical fix on
+      # TaxonNameRelationship::OriginalCombination#set_cached_names_for_taxon_names.
+      specify 'does not raise when subject_taxon_name is memoized but its row is gone by the time the callback runs' do
+        r1 = TaxonNameRelationship::Iczn::Invalidating::Synonym.create!(subject_taxon_name: g2, object_taxon_name: g1)
+        # Without this, the belongs_to reader would just re-query and return
+        # nil directly once g2 is gone below, short-circuiting at `return
+        # true unless t` before ever reaching the #reload this test targets.
+        r1.subject_taxon_name # memoize g2 on r1's association cache
+
+        r1.destroy! # satisfies the FK, fires the callback once normally (g2 still exists here)
+        g2.destroy! # g2's row is gone, but r1 still holds the stale memoized instance
+
+        # t.reload (on the stale memoized g2) raises RecordNotFound here -
+        # confirms it's rescued rather than propagating.
+        expect { r1.send(:set_cached_names_for_taxon_names) }.not_to raise_error
+      end
+
+      # set_cached_names_for_taxon_names relies on
+      # TaxonNameRelationship#flag_taxon_name_reassignment's ivar, not
+      # _previously_changed?, to notice a reassignment - because #reload
+      # resets ordinary AR dirty-tracking back to whatever's in the DB, but
+      # leaves plain instance variables untouched. Reassign object_taxon_name,
+      # then reload that very same r1 instance (as unify's own dedup path
+      # does elsewhere in the same transaction) before letting the
+      # transaction close: the deferred after_commit still has to pick up
+      # the reassignment via the ivar, since _previously_changed? alone
+      # would already read false by the time it runs.
+      specify 'cached_valid_taxon_name_id updates after the reassigning instance is reloaded before commit' do
+        g3 = FactoryBot.create(:relationship_genus, name: 'Cus', parent: family)
+        r1 = TaxonNameRelationship::Iczn::Invalidating::Synonym.create!(subject_taxon_name: g2, object_taxon_name: g1)
+        expect(g2.reload.cached_valid_taxon_name_id).to eq(g1.id)
+
+        TaxonNameRelationship.transaction do
+          # object_taxon_name_id_changed? on this save sets the ivar true.
+          r1.update(object_taxon_name: g3)
+          # Wipes AR's own dirty-tracking (_previously_changed?) back to
+          # matching the just-saved row, but leaves the ivar untouched -
+          # that's the gap flag_taxon_name_reassignment exists to cover.
+          r1.reload
+        end
+
+        expect(g2.reload.cached_valid_taxon_name_id).to eq(g3.id)
+      end
+
       specify 'create misspelling relationship' do
         r3 = FactoryBot.create(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: s2,
                                type: 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling')
@@ -301,15 +411,38 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
         expect(s1.cached_html).to eq('<i>Aus aus</i> [sic]')
       end
 
+      specify 'destroy one of multiple misspelling relationships retains cached_misspelling' do
+        s3 = FactoryBot.create(:relationship_species, name: 'cus', parent: g1)
+        r3 = FactoryBot.create(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: s2,
+                               type: 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling')
+        r4 = FactoryBot.create(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: s3,
+                               type: 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling')
+        s1.reload
+        expect(s1.cached_misspelling).to be_truthy
+        r3.destroy!
+        s1.reload
+        expect(s1.cached_misspelling).to be_truthy
+      end
+
+      specify 'destroy misspelling relationship clears cached_misspelling' do
+        r3 = FactoryBot.create(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: s2,
+                               type: 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling')
+        s1.reload
+        expect(s1.cached_misspelling).to be_truthy
+        r3.destroy!
+        s1.reload
+        expect(s1.cached_misspelling).to be_falsey
+      end
+
       specify 'fixing synonym linked to another synonym' do
         r3 = FactoryBot.create(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: s2,
-                              type: 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling')
+                               type: 'TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling')
         r3.soft_validate(only_sets: :synonym_linked_to_valid_name)
         expect(r3.soft_validations.messages_on(:subject_taxon_name_id).size).to eq(1)
         r3.fix_soft_validations
         r3.save!
         expect(s1.cached_misspelling).to be_truthy
-           expect(s1.cached).to eq('Bus aus [sic]')
+        expect(s1.cached).to eq('Bus aus [sic]')
         expect(s1.cached_html).to eq('<i>Bus aus</i> [sic]')
       end
 
@@ -326,22 +459,6 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
         r3.soft_validate(only_sets: :not_specific_relationship)
         expect(r3.soft_validations.messages_on(:type).size).to eq(0)
       end
-    end
-
-    specify 'destroy relationship' do
-      g1 = FactoryBot.create(:relationship_genus, name: 'Aus', parent: family)
-      s1 = FactoryBot.create(:relationship_species, name: 'aus', parent: g1)
-      r1 = FactoryBot.build(:taxon_name_relationship, subject_taxon_name: g1, object_taxon_name: s1, type: 'TaxonNameRelationship::OriginalCombination::OriginalGenus')
-      r2 = FactoryBot.build(:taxon_name_relationship, subject_taxon_name: g1, object_taxon_name: s1, type: 'TaxonNameRelationship::OriginalCombination::OriginalSubgenus')
-      r3 = FactoryBot.build(:taxon_name_relationship, subject_taxon_name: s1, object_taxon_name: s1, type: 'TaxonNameRelationship::OriginalCombination::OriginalSpecies')
-
-      r1.save!
-      r2.save!
-      r3.save!
-      s1.save!
-      expect(s1.cached_original_combination).to eq('Aus (Aus) aus')
-      r2.destroy
-      expect(s1.cached_original_combination).to eq('Aus aus')
     end
   end
 
@@ -373,6 +490,99 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
   context 'concerns' do
     it_behaves_like 'citations'
     it_behaves_like 'is_data'
+  end
+
+  context '.batch_update' do
+    let(:species2) { FactoryBot.create(:relationship_species, parent: genus, name: 'other') }
+    let!(:synonym_relationship) do
+      TaxonNameRelationship.create!(
+        subject_taxon_name: species2,
+        object_taxon_name: species,
+        type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym'
+      )
+    end
+
+    specify 'updates synonym type to a more specific subtype' do
+      result = TaxonNameRelationship.batch_update(
+        taxon_name_relationship_query: { taxon_name_relationship_id: [synonym_relationship.id] },
+        taxon_name_relationship: { type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective' }
+      )
+      expect(result).to be_a(BatchResponse)
+      expect(result.updated).to include(synonym_relationship.id)
+      expect(synonym_relationship.reload.type).to eq('TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective')
+    end
+
+    specify 'returns false when target type is not a synonym type' do
+      result = TaxonNameRelationship.batch_update(
+        taxon_name_relationship_query: { taxon_name_relationship_id: [synonym_relationship.id] },
+        taxon_name_relationship: { type: 'TaxonNameRelationship::Iczn::Validating::ConservedName' }
+      )
+      expect(result).to eq(false)
+    end
+
+    specify 'returns false when no type is provided' do
+      result = TaxonNameRelationship.batch_update(
+        taxon_name_relationship_query: { taxon_name_relationship_id: [synonym_relationship.id] },
+        taxon_name_relationship: {}
+      )
+      expect(result).to eq(false)
+    end
+
+    specify 'skips records whose existing type is not a synonym type' do
+      non_synonym = TaxonNameRelationship.create!(
+        subject_taxon_name: FactoryBot.create(:relationship_genus, parent: family),
+        object_taxon_name: family,
+        type: 'TaxonNameRelationship::Typification::Family'
+      )
+
+      result = TaxonNameRelationship.batch_update(
+        taxon_name_relationship_query: { taxon_name_relationship_id: [non_synonym.id] },
+        taxon_name_relationship: { type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective' }
+      )
+
+      expect(result.not_updated).to include(non_synonym.id)
+      expect(result.validation_errors).to have_key('Existing relationship is not a synonym type')
+      expect(non_synonym.reload.type).to eq('TaxonNameRelationship::Typification::Family')
+    end
+
+    specify 'skips records whose existing type is a different nomenclatural code' do
+      root        = kingdom.ancestor_at_rank('root') || kingdom.parent
+      icn_family  = Protonym.create!(name: 'Xanthaceae',    rank_class: Ranks.lookup(:icn, 'family'),  parent: root)
+      icn_genus   = Protonym.create!(name: 'Xanthus',       rank_class: Ranks.lookup(:icn, 'genus'),   parent: icn_family)
+      icn_species  = Protonym.create!(name: 'xanthophylla', rank_class: Ranks.lookup(:icn, 'species'), parent: icn_genus)
+      icn_species2 = Protonym.create!(name: 'xanthoides',   rank_class: Ranks.lookup(:icn, 'species'), parent: icn_genus)
+
+      icn_synonym = TaxonNameRelationship.create!(
+        subject_taxon_name: icn_species2,
+        object_taxon_name: icn_species,
+        type: 'TaxonNameRelationship::Icn::Unaccepting::Synonym'
+      )
+
+      result = TaxonNameRelationship.batch_update(
+        taxon_name_relationship_query: { taxon_name_relationship_id: [icn_synonym.id] },
+        taxon_name_relationship: { type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective' }
+      )
+
+      expect(result.not_updated).to include(icn_synonym.id)
+      expect(result.validation_errors).to have_key('Relationship type must be within the same nomenclatural code')
+      expect(icn_synonym.reload.type).to eq('TaxonNameRelationship::Icn::Unaccepting::Synonym')
+    end
+
+    specify 'async' do
+      result = TaxonNameRelationship.batch_update(
+        async_cutoff: 0,
+        taxon_name_relationship_query: { taxon_name_relationship_id: [synonym_relationship.id] },
+        taxon_name_relationship: { type: 'TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective' },
+        user_id: Current.user_id,
+        project_id: Current.project_id
+      )
+
+      sleep(2)
+      Delayed::Worker.new.work_off
+
+      expect(result.to_json[:async]).to eq(true)
+      expect(synonym_relationship.reload.type).to eq('TaxonNameRelationship::Iczn::Invalidating::Synonym::Subjective')
+    end
   end
 
 end

@@ -5,8 +5,8 @@ class TaxonNameRelationship::Iczn::PotentiallyValidating::FirstRevisorAction < T
   # Override priority test
   def sv_validate_priority
     unless self.type_class.nomenclatural_priority.nil?
-      date1 = self.subject_taxon_name.nomenclature_date
-      date2 = self.object_taxon_name.nomenclature_date
+      date1 = self.subject_taxon_name.cached_nomenclature_date
+      date2 = self.object_taxon_name.cached_nomenclature_date
       unless date1 == date2
         soft_validations.add(:type, 'Both taxa should be described on the same date')
         soft_validations.add(:object_taxon_name_id, 'Taxon has different publication date')
@@ -48,4 +48,7 @@ class TaxonNameRelationship::Iczn::PotentiallyValidating::FirstRevisorAction < T
     :iczn_first_revisor_action
   end
 
+  def sv_coordinated_taxa
+    true
+  end
 end

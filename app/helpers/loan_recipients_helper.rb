@@ -1,9 +1,8 @@
 module LoanRecipientsHelper
 
-  def loan_recipient_tag(loan)
-    return nil if loan.nil?
-    recipients = loan.loan_recipients.collect{|lr| person_tag(lr)}.join.html_safe
-    recipients.blank? ? 'No recipients defined!' : recipients
+  def loan_recipient_tag(loan_recipient)
+    return nil if loan_recipient.nil?
+    person_tag(loan_recipient.person)
   end
 
   def loan_recipient_link(loan)

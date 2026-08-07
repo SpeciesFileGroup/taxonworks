@@ -2,7 +2,9 @@
   <div class="depiction-thumb-container">
     <modal-component
       v-if="showModal"
-      @close="setModalView(false)">
+      class="depiction-modal-container"
+      @close="setModalView(false)"
+    >
       <template #header>
         <h3>Image</h3>
       </template>
@@ -10,14 +12,16 @@
         <div class="flex-wrap-column middle">
           <img
             class="img-maxsize margin-medium-bottom"
-            :src="urlSrc()">
+            :src="urlSrc()"
+          />
           <div class="square-brackets">
             <ul class="context-menu no_bullets">
               <li>
                 <v-btn
                   circle
                   color="primary"
-                  @click="openFullsize">
+                  @click="openFullsize"
+                >
                   <v-icon
                     x-small
                     name="expand"
@@ -30,7 +34,8 @@
                   circle
                   :href="image.image_file_url"
                   :download="image.image_original_filename"
-                  color="primary">
+                  color="primary"
+                >
                   <v-icon
                     x-small
                     name="download"
@@ -39,15 +44,20 @@
                 </v-btn>
               </li>
               <li>
-                <radial-annotator
+                <RadialAnnotator
                   type="annotations"
                   :global-id="image.global_id"
-                  @close="loadData"/>
+                  @close="loadData"
+                />
               </li>
               <li>
-                <radial-navigation
-                  :global-id="image.global_id"
-                />
+                <RadialObject :global-id="image.global_id" />
+              </li>
+              <li>
+                <RadialNavigation :global-id="image.global_id" />
+              </li>
+              <li>
+                <DepictionList :image-id="[image.id]" />
               </li>
             </ul>
           </div>
@@ -55,47 +65,74 @@
       </template>
     </modal-component>
     <div
-      class="depiction-thumb-container depiction-thumb-image horizontal-center-content middle position-relative">
+      class="depiction-thumb-container depiction-thumb-image horizontal-center-content middle position-relative"
+    >
       <img
         class="img-thumb"
         :src="image.alternatives.thumb.image_file_url"
-        @click="setModalView(true)">
+        @click="setModalView(true)"
+      />
       <div
         class="position-absolute"
         :style="{
           right: '4px',
           bottom: '4px'
-        }">
+        }"
+      >
         <pin-component
           :object-id="image.id"
-          type="Image"/>
+          type="Image"
+        />
       </div>
+      <input
+        v-if="imageIds"
+        class="position-absolute"
+        type="checkbox"
+        v-model="imageIds"
+        :value="image.id"
+        :style="{
+          left: '4px',
+          bottom: '4px'
+        }"
+      />
     </div>
   </div>
 </template>
 
 <script setup>
-
-import { ref } from 'vue'
-import { imageScale } from 'helpers/images'
-import ModalComponent from 'components/ui/Modal'
-import PinComponent from 'components/ui/Pinboard/VPin.vue'
-import RadialAnnotator from 'components/radials/annotator/annotator.vue'
-import RadialNavigation from 'components/radials/navigation/radial.vue'
-import VBtn from 'components/ui/VBtn/index.vue'
-import VIcon from 'components/ui/VIcon/index.vue'
+import { ref, computed } from 'vue'
+import { imageScale } from '@/helpers/images'
+import ModalComponent from '@/components/ui/Modal'
+import PinComponent from '@/components/ui/Button/ButtonPin.vue'
+import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
+import RadialNavigation from '@/components/radials/navigation/radial.vue'
+import RadialObject from '@/components/radials/object/radial.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
+import DepictionList from './DepictionList.vue'
 
 const CONVERT_IMAGE_TYPES = ['image/tiff']
 const props = defineProps({
   image: {
     type: Object,
     required: true
+  },
+
+  modelValue: {
+    type: Array,
+    required: true
   }
 })
 
+const emit = defineEmits(['update:modelValue'])
 const showModal = ref(false)
 
-const setModalView = value => {
+const imageIds = computed({
+  get: () => props.modelValue,
+  set: (value) => emit('update:modelValue', value)
+})
+
+const setModalView = (value) => {
   showModal.value = value
 }
 
@@ -107,5 +144,7 @@ const urlSrc = () => {
     : props.image.image_file_url
 }
 
-const openFullsize = () => { window.open(urlSrc(), '_blank') }
+const openFullsize = () => {
+  window.open(urlSrc(), '_blank')
+}
 </script>

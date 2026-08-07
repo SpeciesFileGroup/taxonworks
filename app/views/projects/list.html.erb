@@ -2,22 +2,24 @@
 
 <table class="tablesorter">
   <thead>
-  <tr>
-    <%= fancy_th_tag(name: 'Name') -%>
-    <%= fancy_th_tag(name: 'Total Users') -%>
-    <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
-    <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
-  </tr>
+    <tr>
+      <%= fancy_th_tag(name: 'Name') -%>
+      <%= fancy_th_tag(name: 'Total Users') -%>
+      <%= fancy_th_tag(name: 'Created by', group: 'housekeeping') -%>
+      <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
+      <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
+    </tr>
   </thead>
 
   <tbody>
-  <% @projects.each do |project| %>
+    <% @projects.each do |project| %>
       <%= content_tag(:tr, class: :contextMenuCells) do -%>
-          <td><%= project.name %></td>
-          <td><%= project.project_members.count %></td>
-          <%= fancy_metadata_cells_tag(project) -%>
+        <td><%= project.name %></td>
+        <td><%= project.project_members.count %></td>
+        <td><%= user_tag(project.creator) %></td>
+        <%= fancy_metadata_cells_tag(project) -%>
       <% end %>
-  <% end %>
+    <% end %>
   </tbody>
 </table>
 

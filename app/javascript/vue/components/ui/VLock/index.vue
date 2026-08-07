@@ -1,10 +1,14 @@
 <template>
-  <div
-    title="Lock / Unlock">
-    <label class="switch-lock">
+  <div>
+    <label
+      class="switch-lock"
+      v-tooltip="{ content: 'Lock / Unlock', placement: 'bottom' }"
+    >
       <input
+        v-bind="props"
         v-model="checked"
-        type="checkbox">
+        type="checkbox"
+      />
       <span>
         <em></em>
         <strong></strong>
@@ -13,37 +17,33 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'VLock',
+<script setup>
+import { vTooltip } from '@/directives'
 
-  props: {
-    modelValue: {
-      type: Boolean,
-      default: false
-    }
-  },
+defineOptions({
+  name: 'VLock'
+})
 
-  emits: ['update:modelValue'],
-
-  computed: {
-    checked: {
-      get () {
-        return this.modelValue
-      },
-      set (value) {
-        this.$emit('update:modelValue', value)
-      }
-    }
+const props = defineProps({
+  value: {
+    type: [String, Boolean],
+    required: false
   }
-}
+})
+
+const checked = defineModel({
+  type: [Array, Boolean],
+  default: false
+})
 </script>
+
 <style lang="scss">
-$primary: #FFDA44;
-$lightGrey: #99A3BA;
+$primary: #ffda44;
+$lightGrey: #99a3ba;
 
 .switch-lock {
-  height: 26px;
+  user-select: none;
+  height: 28px;
   display: block;
   position: relative;
   cursor: pointer;
@@ -51,14 +51,14 @@ $lightGrey: #99A3BA;
     display: none;
     & + span {
       padding-left: 50px;
-      min-height: 26px;
-      line-height: 26px;
+      min-height: 28px;
+      line-height: 28px;
       display: block;
-      color: $lightGrey;
+      color: var(--text-color);
       position: relative;
       vertical-align: middle;
       white-space: nowrap;
-      transition: color .3s ease;
+      transition: color 0.3s ease;
       &:before,
       &:after {
         content: '';
@@ -71,35 +71,36 @@ $lightGrey: #99A3BA;
         left: 0;
         width: 48px;
         height: 28px;
-        background: #E4ECFA;
-        transition: all .3s ease;
+        background: var(--bg-color);
+        transition: all 0.3s ease;
       }
       &:after {
         width: 24px;
         height: 24px;
-        background: #fff;
+        background: var(--panel-bg-color);
         top: 2px;
         left: 3px;
-        box-shadow: 0 1px 3px rgba(#121621, .1);
-        transition: all .45s ease;
+        box-shadow: 0 1px 3px rgba(#121621, 0.1);
+        transition: all 0.45s ease;
       }
       em {
         width: 8px;
         height: 7px;
-        background: $lightGrey;
+        background: var(--text-color);
+        opacity: 0.7;
         position: absolute;
         left: 11px;
-        bottom: 7px;
-        border-radius: 2px;
+        bottom: 8px;
+        border-radius: var(--border-radius-xsmall);
         display: block;
         z-index: 1;
-        transition: all .45s ease;
+        transition: all 0.45s ease;
         &:before {
           content: '';
           width: 2px;
           height: 2px;
           border-radius: 1px;
-          background: #fff;
+          background: var(--panel-bg-color);
           position: absolute;
           display: block;
           left: 50%;
@@ -111,16 +112,16 @@ $lightGrey: #99A3BA;
           display: block;
           border-top-left-radius: 4px;
           border-top-right-radius: 4px;
-          border: 1px solid $lightGrey;
+          border: 1px solid var(--text-color);
           border-bottom: 0;
-          width: 6px;
+          width: 5px;
           height: 4px;
           left: 1px;
           bottom: 6px;
           position: absolute;
           z-index: 1;
           transform-origin: 0 100%;
-          transition: all .45s ease;
+          transition: all 0.45s ease;
           transform: rotate(-35deg) translate(0, 1px);
         }
       }
@@ -139,7 +140,7 @@ $lightGrey: #99A3BA;
         }
         &:before {
           content: '';
-          transition: all .3s ease .2s;
+          transition: all 0.3s ease 0.2s;
         }
         &:after {
           content: '';
@@ -148,8 +149,8 @@ $lightGrey: #99A3BA;
           position: absolute;
           left: 0;
           top: 0;
-          color: $primary;
-          transition: all .3s ease;
+          color: var(--color-toggle-active);
+          transition: all 0.3s ease;
           transform: translate(2px, 0);
         }
       }
@@ -157,30 +158,30 @@ $lightGrey: #99A3BA;
     &:checked {
       & + span {
         &:before {
-          background: rgba($primary, 1);
+          background: var(--color-toggle-active);
         }
         &:after {
-          background: #fff;
+          background: var(--panel-bg-color);
           transform: translate(18px, 0);
         }
         em {
           transform: translate(18px, 0);
           &:after {
-            transform: rotate(0deg) translate(-1px, 0);
+            transform: rotate(0deg) translate(0px, 0);
           }
         }
         strong {
           &:before {
             opacity: 0;
             visibility: hidden;
-            transition: all .3s ease;
+            transition: all 0.3s ease;
             transform: translate(-2px, 0);
           }
           &:after {
             opacity: 1;
             visibility: visible;
             transform: translate(0, 0);
-            transition: all .3s ease .2s;
+            transition: all 0.3s ease 0.2s;
           }
         }
       }

@@ -18,7 +18,8 @@ describe Queries::Identifier::Filter, type: :model, group: :identifiers do
 
   specify '#new_object_global_id' do
     o = OriginRelationship.create!(old_object: s1, new_object: s2)
-    OriginRelationship.create!(old_object: s1, new_object: s1)
+
+    OriginRelationship.create!(old_object: s1, new_object: FactoryBot.create(:valid_specimen))
 
     query.new_object_global_id = s2.to_global_id.to_s
     expect(query.all.map(&:id)).to contain_exactly(o.id)

@@ -3,22 +3,17 @@
     <spinner-component
       v-if="settings.loadingRows || settings.loadingColumns"
       legend="Loading..."
-      :full-screen="true"/>
+      :full-screen="true"
+    />
     <div class="flex-separate middle">
-      <h1>{{ (matrix.id ? 'Edit' : 'New') }} observation matrix</h1>
+      <h1>{{ matrix.id ? 'Edit' : 'New' }} observation matrix</h1>
       <div class="horizontal-left-content">
         <ul class="context-menu">
           <li>
-            <a
-              :href="routeNames.ObservationMatricesHub">
-              Hub
-            </a>
+            <a :href="routeNames.ObservationMatricesHub"> Hub </a>
           </li>
           <li>
-            <a
-              :href="routeNames.ObservationMatricesDashboard">
-              Dashboard
-            </a>
+            <a :href="routeNames.ObservationMatricesDashboard"> Dashboard </a>
           </li>
           <li>
             <a :href="`/tasks/observation_matrices/view/${matrix.id}`">
@@ -27,26 +22,28 @@
           </li>
 
           <li>
-            <a href="/otus/new">New OTU</a>
-          </li>
-          <li>
             <a
               v-if="matrix.id"
-              :href="`/tasks/descriptors/new_descriptor?observation_matrix_id=${matrix.id}`">New descriptor
+              :href="`/tasks/descriptors/new_descriptor?observation_matrix_id=${matrix.id}`"
+              >New descriptor
             </a>
             <a
               v-else
-              :href="`/tasks/descriptors/new_descriptor`">New descriptor
+              :href="`/tasks/descriptors/new_descriptor`"
+              >New descriptor
             </a>
           </li>
           <li>
-            <a href="/tasks/accessions/comprehensive/index">New collection object</a>
+            <a href="/tasks/accessions/comprehensive/"
+              >New collection object
+            </a>
           </li>
           <li v-if="matrix.id && settings.sortable">
             <button
               type="button"
               class="button normal-input button-submit"
-              @click="sortRows(matrix.id)">
+              @click="sortRows(matrix.id)"
+            >
               Sort by nomenclature
             </button>
           </li>
@@ -54,7 +51,8 @@
             <label class="middle">
               <input
                 v-model="settings.softValidations"
-                type="checkbox">
+                type="checkbox"
+              />
               Validation
             </label>
           </li>
@@ -62,7 +60,8 @@
             <label class="middle">
               <input
                 v-model="settings.sortable"
-                type="checkbox">
+                type="checkbox"
+              />
               Sortable columns/rows
             </label>
           </li>
@@ -75,62 +74,78 @@
               />
             </li>
             <li>
+              <radial-matrix
+                :ids="otuIds"
+                :parameters="radialParameters"
+                :disabled="!otuIds.length"
+                :object-type="OTU"
+                use-new-key-slice
+              />
+            </li>
+            <li>
               <radial-navigation
                 type="annotations"
-                :global-id="matrix.global_id"/>
+                :global-id="matrix.global_id"
+              />
             </li>
             <li>
               <radial-annotator
                 type="annotations"
-                :global-id="matrix.global_id"/>
+                :global-id="matrix.global_id"
+              />
             </li>
           </template>
         </ul>
       </div>
     </div>
-    <div class="horizontal-left-content align-start">
+    <div class="horizontal-left-content align-start full_width">
       <div class="cleft margin-medium-right">
-        <new-matrix/>
+        <MatrixForm />
         <div
           v-if="matrix.id"
-          class="margin-medium-top">
+          class="margin-medium-top"
+        >
           <component
             v-if="isRowView"
-            :is="`rows-${matrixMode}`"/>
+            :is="`rows-${matrixMode}`"
+          />
           <component
             v-else
-            :is="`columns-${matrixMode}`"/>
+            :is="`columns-${matrixMode}`"
+          />
         </div>
       </div>
-      <tables-component v-if="matrix.id"/>
+      <tables-component v-if="matrix.id" />
     </div>
   </div>
 </template>
 
 <script>
-
-import NewMatrix from './components/newMatrix/newMatrix'
-import TablesComponent from './components/tables/view'
+import MatrixForm from './components/Matrix/MatrixForm.vue'
+import TablesComponent from './components/tables/view.vue'
 import RowsFixed from './components/rows/fixed'
 import columnsFixed from './components/columns/fixed'
-import RadialAnnotator from 'components/radials/annotator/annotator'
-import PinComponent from 'components/ui/Pinboard/VPin.vue'
-import SpinnerComponent from 'components/spinner'
-import RadialNavigation from 'components/radials/navigation/radial'
+import RadialAnnotator from '@/components/radials/annotator/annotator'
+import PinComponent from '@/components/ui/Button/ButtonPin.vue'
+import SpinnerComponent from '@/components/ui/VSpinner'
+import RadialNavigation from '@/components/radials/navigation/radial'
+import RadialMatrix from '@/components/radials/matrix/radial.vue'
 
 import RowsDynamic from './components/rows/dynamic'
 import ColumnsDynamic from './components/columns/dynamic'
 
+import { URLParamsToJSON } from '@/helpers'
 import { SortMatrixByNomenclature } from './request/resources'
 import { GetterNames } from './store/getters/getters'
 import { ActionNames } from './store/actions/actions'
-import { RouteNames } from 'routes/routes'
+import { RouteNames } from '@/routes/routes'
+import { OTU } from '@/constants/index.js'
 
 export default {
   name: 'NewObservationMatrix',
 
   components: {
-    NewMatrix,
+    MatrixForm,
     RowsFixed,
     RowsDynamic,
     TablesComponent,
@@ -139,35 +154,43 @@ export default {
     RadialAnnotator,
     PinComponent,
     SpinnerComponent,
+    RadialMatrix,
     RadialNavigation
   },
 
   computed: {
-    matrix () {
+    matrix() {
       return this.$store.getters[GetterNames.GetMatrix]
     },
-    isRowView () {
+    isRowView() {
       return this.$store.getters[GetterNames.GetMatrixView] === 'row'
     },
-    matrixMode () {
+    matrixMode() {
       return this.$store.getters[GetterNames.GetMatrixMode]
     },
-    settings () {
+    settings() {
       return this.$store.getters[GetterNames.GetSettings]
     },
-    routeNames () {
+    matrixRowItems() {
+      return this.$store.getters[GetterNames.GetMatrixRows]
+    },
+    routeNames() {
       return RouteNames
     }
   },
 
-  data () {
+  data() {
     return {
-      loading: false
+      loading: false,
+      otuIds: [],
+      OTU
     }
   },
 
-  created () {
-    const matrixId = location.pathname.split('/')[4]
+  created() {
+    const params = URLParamsToJSON(window.location.href)
+    const matrixId =
+      location.pathname.split('/')[4] || params.observation_matrix_id
 
     if (/^\d+$/.test(matrixId)) {
       this.loading = true
@@ -177,46 +200,64 @@ export default {
     }
   },
 
+  watch: {
+    matrixRowItems: {
+      immediate: true,
+      handler(rows) {
+        // TODO: This only includes OTUs from the current fixed-row page (max
+        // 500), and excludes dynamic rows.
+        const ids = new Set()
+        rows.forEach((row) => {
+          const baseClass = row?.observation_object?.base_class
+          if (baseClass === 'Otu' || row?.observation_object_type === 'Otu') {
+            const id =
+              row?.observation_object?.id || row?.observation_object_id
+            if (id) {
+              ids.add(id)
+            }
+          }
+        })
+        this.otuIds = Array.from(ids)
+      }
+    }
+  },
+
   methods: {
-    sortRows (matrixId) {
-      SortMatrixByNomenclature(matrixId).then(_ => {
+    sortRows(matrixId) {
+      SortMatrixByNomenclature(matrixId).then((_) => {
         this.$store.dispatch(ActionNames.GetMatrixObservationRows, { per: 500 })
       })
+    },
+
+    radialParameters() {
+      return this.matrix.id ? { observation_matrix_id: this.matrix.id } : {}
     }
   }
 }
-
 </script>
 <style lang="scss">
-  #vue_new_matrix_task {
-    flex-direction: column-reverse;
-    margin: 0 auto;
-    margin-top: 1em;
+#vue_new_matrix_task {
+  flex-direction: column-reverse;
+  margin: 0 auto;
+  margin-top: 1em;
 
-    .cleft, .cright {
-      min-width: 500px;
-      max-width: 500px;
-      width: 450px;
-    }
-
-    .anchor {
-       display:block;
-       height:65px;
-       margin-top:-65px;
-       visibility:hidden;
-    }
-    hr {
-        height: 1px;
-        color: #f5f5f5;
-        background: #f5f5f5;
-        font-size: 0;
-        margin: 15px;
-        border: 0;
-    }
-
-    table {
-      min-width: 500px;
-      width: 100%;
-    }
+  .cleft,
+  .cright {
+    min-width: 500px;
+    max-width: 500px;
+    width: 450px;
   }
+
+  .anchor {
+    display: block;
+    height: 65px;
+    margin-top: -65px;
+    visibility: hidden;
+  }
+
+  .matrix-tables {
+    overflow-y: auto;
+    max-height: calc(100vh - 200px);
+  }
+}
 </style>

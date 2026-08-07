@@ -3,20 +3,23 @@ import { GetterFunctions } from './getters/getters'
 import { MutationFunctions } from './mutations/mutations'
 import { ActionFunctions } from './actions/actions'
 
-function makeInitialState () {
+function makeInitialState() {
   return {
+    isLoading: false,
     isSaving: false,
+    isClone: false,
     languages: [],
     observationRows: [],
     observationColumns: [],
     observationMatrix: undefined,
     observations: [],
     observationMoved: undefined,
-    depictionMoved: undefined
+    depictionMoved: undefined,
+    pagination: {}
   }
 }
 
-function newStore () {
+function newStore() {
   return createStore({
     state: makeInitialState(),
     getters: GetterFunctions,
@@ -25,6 +28,4 @@ function newStore () {
   })
 }
 
-export {
-  newStore
-}
+export { newStore }

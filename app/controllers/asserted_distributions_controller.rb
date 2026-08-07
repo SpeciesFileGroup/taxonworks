@@ -2,6 +2,7 @@ class AssertedDistributionsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_asserted_distribution, only: [:show, :edit, :update, :destroy, :api_show]
+  after_action -> { set_pagination_headers(:asserted_distributions) }, only: [:index, :api_index], if: :json_request?
 
   # GET /asserted_distributions
   # GET /asserted_distributions.json
@@ -14,11 +15,11 @@ class AssertedDistributionsController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @asserted_distributions = Queries::AssertedDistribution::Filter.new(filter_params)
+        @asserted_distributions = ::Queries::AssertedDistribution::Filter.new(params)
           .all
           .where(project_id: sessions_current_project_id)
           .page(params[:page])
-          .per(params[:per] || 500)
+          .per(params[:per])
       }
     end
   end
@@ -26,7 +27,6 @@ class AssertedDistributionsController < ApplicationController
   # GET /asserted_distributions/1
   # GET /asserted_distributions/1.json
   def show
-    # @asserted_distribution = AssertedDistribution.find(params[:id])
   end
 
   # GET /asserted_distributions/new
@@ -36,20 +36,20 @@ class AssertedDistributionsController < ApplicationController
 
   # GET /asserted_distributions/1/edit
   def edit
-    @asserted_distribution.source = Source.new if !@asserted_distribution.source
   end
 
   # POST /asserted_distributions
   # POST /asserted_distributions.json
   def create
-    @asserted_distribution = AssertedDistribution.new(asserted_distribution_params)
+    @asserted_distribution =
+      AssertedDistribution.new(asserted_distribution_params)
     respond_to do |format|
       if @asserted_distribution.save
         format.html { redirect_to @asserted_distribution, notice: 'Asserted distribution was successfully created.' }
         format.json { render :show, status: :created, location: @asserted_distribution }
       else
         format.html { render :new }
-        format.json { render json: @asserted_distribution.errors, status: :unprocessable_entity }
+        format.json { render json: @asserted_distribution.errors, status: :unprocessable_content }
       end
     end
   end
@@ -63,7 +63,7 @@ class AssertedDistributionsController < ApplicationController
         format.json { render :show, status: :ok, location: @asserted_distribution }
       else
         format.html { render :edit }
-        format.json { render json: @asserted_distribution.errors, status: :unprocessable_entity }
+        format.json { render json: @asserted_distribution.errors, status: :unprocessable_content }
       end
     end
   end
@@ -72,20 +72,28 @@ class AssertedDistributionsController < ApplicationController
   # DELETE /asserted_distributions/1.json
   def destroy
     @asserted_distribution.mark_citations_for_destruction
-    @asserted_distribution.destroy!
 
+    @asserted_distribution.destroy
     respond_to do |format|
-      format.html { redirect_to asserted_distributions_url, notice: 'Asserted distribution was successfully destroyed.' }
-      format.json { head :no_content }
+      if @asserted_distribution.destroyed?
+        format.html { destroy_redirect @asserted_distribution, notice: 'Asserted distribution was successfully destroyed.' }
+        format.json { head :no_content}
+      else
+        format.html { destroy_redirect @asserted_distribution, notice: 'Asserted distribution was not destroyed, ' + @asserted_distribution.errors.full_messages.join('; ') }
+        format.json { render json: @asserted_distribution.errors, status: :unprocessable_content }
+      end
     end
   end
 
   def list
-    @asserted_distributions = AssertedDistribution.with_project_id(sessions_current_project_id).order(:id).page(params[:page]) #.per(10) #.per(3)
+    @asserted_distributions = AssertedDistribution
+      .with_project_id(sessions_current_project_id)
+      .order(:id)
+      .page(params[:page]) #.per(10) #.per(3)
   end
 
   def autocomplete
-    @asserted_distributions = Queries::AssertedDistribution::Autocomplete.new(params.require(:term), project_id: sessions_current_project_id).autocomplete
+    @asserted_distributions = ::Queries::AssertedDistribution::Autocomplete.new(params.require(:term), project_id: sessions_current_project_id).autocomplete
   end
 
   # TODO: deprecate
@@ -100,13 +108,49 @@ class AssertedDistributionsController < ApplicationController
   # GET /asserted_distributions/download
   def download
     send_data(
-      Export::Download.generate_csv(AssertedDistribution.where(project_id: sessions_current_project_id)),
+      Export::CSV.generate_csv(AssertedDistribution.where(project_id: sessions_current_project_id)),
       type: 'text',
-      filename: "asserted_distributions_#{DateTime.now}.csv")
+      filename: "asserted_distributions_#{DateTime.now}.tsv")
   end
 
   # GET /asserted_distributions/batch_load
   def batch_load
+  end
+
+  # PATCH /asserted_distributions/batch_update.json?asserted_distributions_query=<>&asserted_distribution={taxon_name_id=123}}
+  def batch_update
+    if r = AssertedDistribution.batch_update(
+        preview: params[:preview],
+        asserted_distribution: asserted_distribution_params.merge(by: sessions_current_user_id),
+        asserted_distribution_query: params[:asserted_distribution_query],
+        user_id: sessions_current_user_id,
+        project_id: sessions_current_project_id)
+      render json: r.to_json, status: :ok
+    else
+      render json: {}, status: :unprocessable_content
+    end
+  end
+
+  def sources
+    render json: AssertedDistribution.sources_from_query(
+      params[:filter_query],
+      project_id: sessions_current_project_id
+    )
+  end
+
+  def batch_template_create
+    if r = AssertedDistribution.batch_template_create(
+        preview: params[:preview],
+        template_asserted_distribution: asserted_distribution_params,
+        object_query: params[:object_query],
+        object_type: params[:object_type],
+        user_id: sessions_current_user_id,
+        project_id: sessions_current_project_id
+    )
+      render json: r.to_json, status: :ok
+    else
+      render json: {}, status: :unprocessable_content
+    end
   end
 
   def preview_simple_batch_load
@@ -122,10 +166,10 @@ class AssertedDistributionsController < ApplicationController
 
   def create_simple_batch_load
     if params[:file] && digested_cookie_exists?(params[:file].tempfile, :batch_asserted_distributions_md5)
-      @result =  BatchLoad::Import::AssertedDistributions.new(**batch_params)
+      @result = BatchLoad::Import::AssertedDistributions.new(**batch_params)
       if @result.create
         flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} asserted distributions were created."
-        render 'asserted_distributions/batch_load/simple/create' and return
+        render 'asserted_distributions/batch_load/simple/create', formats: [:html] and return
       else
         flash[:alert] = 'Batch import failed.'
       end
@@ -136,12 +180,11 @@ class AssertedDistributionsController < ApplicationController
   end
 
   def api_index
-    @asserted_distributions = Queries::AssertedDistribution::Filter.new(api_params)
-      .all
-      .where(project_id: sessions_current_project_id)
-      .order('asserted_distributions.id')
-      .page(params[:page])
-      .per(params[:per] || 100)
+    @asserted_distributions =
+      AssertedDistribution.asserted_distributions_for_api_index(
+        params.merge!(api: true), sessions_current_project_id
+      )
+
     render '/asserted_distributions/api/v1/index'
   end
 
@@ -158,9 +201,13 @@ class AssertedDistributionsController < ApplicationController
 
   def asserted_distribution_params
     params.require(:asserted_distribution).permit(
-      :otu_id,
-      :geographic_area_id,
+      :asserted_distribution_object_type,
+      :asserted_distribution_object_id,
+      :asserted_distribution_shape_type,
+      :asserted_distribution_shape_id,
       :is_absent,
+      :source_id,
+      remove_source_ids: [],
       otu_attributes: [:id, :_destroy, :name, :taxon_name_id],
       origin_citation_attributes: [:id, :_destroy, :source_id, :pages],
       citations_attributes: [:id, :is_original, :_destroy, :source_id, :pages, :citation_object_id, :citation_object_type],
@@ -171,14 +218,5 @@ class AssertedDistributionsController < ApplicationController
   def batch_params
     params.permit(:data_origin, :file, :import_level).merge(user_id: sessions_current_user_id, project_id: sessions_current_project_id).to_h.symbolize_keys
   end
-
-  def filter_params
-    params.permit(:otu_id, :geographic_area_id, :recent, otu_id: [], geographic_area_id: [])
-  end
-
-  def api_params
-    params.permit(:otu_id, :geographic_area_id, :recent, :geo_json)
-  end
-
 
 end

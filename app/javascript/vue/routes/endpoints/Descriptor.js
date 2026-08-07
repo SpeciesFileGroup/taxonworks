@@ -1,6 +1,7 @@
-import baseCRUD from './base'
-import AjaxCall from 'helpers/ajaxCall'
+import baseCRUD, { annotations } from './base'
+import AjaxCall from '@/helpers/ajaxCall'
 
+const controller = 'descriptors'
 const permitParams = {
   descriptor: {
     name: String,
@@ -35,7 +36,10 @@ const permitParams = {
 }
 
 export const Descriptor = {
-  ...baseCRUD('descriptors', permitParams),
+  ...baseCRUD(controller, permitParams),
+  ...annotations(controller),
 
-  units: () => AjaxCall('get', '/descriptors/units')
+  units: () => AjaxCall('get', `/${controller}/units`),
+
+  filter: (params) => AjaxCall('post', `/${controller}/filter.json`, params)
 }

@@ -1,4 +1,4 @@
-json.partial! '/taxon_names/api/v1/base_attributes', taxon_name: taxon_name
+json.partial!('/taxon_names/api/v1/base_attributes', taxon_name:)
 json.original_combination full_original_taxon_name_tag(taxon_name) # contains HTML
 
 if extend_response_with('parent')
@@ -14,7 +14,7 @@ if extend_response_with('otus')
   if taxon_name.otus
     json.otus do
       json.array!(taxon_name.otus) do |otu|
-        json.partial! '/otus/api/v1/attributes', otu: otu
+        json.partial! '/otus/api/v1/attributes', otu:
       end
     end
   end
@@ -49,11 +49,14 @@ if extend_response_with('type_taxon_name_relationship')
   unless taxon_name.is_a?(Combination)
     json.type_taxon_name_relationship do
       if taxon_name.type_taxon_name_relationship
-        json.partial! '/taxon_name_relationships/attributes', taxon_name_relationship: taxon_name.type_taxon_name_relationship
+        json.partial! '/taxon_name_relationships/api/v1/attributes', taxon_name_relationship: taxon_name.type_taxon_name_relationship
       end
     end
   end
 end
 
-
-
+if extend_response_with('notes')
+  json.notes taxon_name.notes.each do |n|
+    json.text n.text
+  end
+end

@@ -1,0 +1,142 @@
+class LeadItemsController < ApplicationController
+  include DataControllerConfiguration::ProjectDataControllerConfiguration
+
+  before_action :set_lead_item, only: %i[ show edit update destroy ]
+
+  # GET /lead_items or /lead_items.json
+  def index
+  end
+
+  # GET /lead_items/1 or /lead_items/1.json
+  def show
+  end
+
+  # GET /lead_items/new
+  def new
+    @lead_item = LeadItem.new
+  end
+
+  # GET /lead_items/1/edit
+  def edit
+  end
+
+  # POST /lead_items or /lead_items.json
+  def create
+    @lead_item = LeadItem.new(lead_item_params)
+
+    @lead_item.lead.sync_otu_to_lead_items_list
+
+    respond_to do |format|
+      if @lead_item.save
+        format.html { redirect_to @lead_item, notice: 'Lead item was successfully created.' }
+        format.json { render :show, status: :created, location: @lead_item }
+      else
+        format.html { render :new, status: :unprocessable_content }
+        format.json { render json: @lead_item.errors, status: :unprocessable_content }
+      end
+    end
+  end
+
+  # PATCH/PUT /lead_items/1 or /lead_items/1.json
+  def update
+    respond_to do |format|
+      if @lead_item.update(lead_item_params)
+        format.html { redirect_to @lead_item, notice: 'Lead item was successfully updated.' }
+        format.json { render :show, status: :ok, location: @lead_item }
+      else
+        format.html { render :edit, status: :unprocessable_content }
+        format.json { render json: @lead_item.errors, status: :unprocessable_content }
+      end
+    end
+  end
+
+  # DELETE /lead_items/1 or /lead_items/1.json
+  def destroy
+    @lead_item.destroy!
+    @lead_item.lead.sync_otu_to_lead_items_list
+
+    respond_to do |format|
+      format.html { redirect_to lead_items_path, status: :see_other, notice: 'Lead item was successfully destroyed.' }
+      format.json { head :no_content }
+    end
+  end
+
+  def destroy_item_in_children
+    children = Lead.find(params[:parent_id]).children
+    lead_ids = children.map(&:id)
+    # There may only be one lead with the item we're deleting; this is just the
+    # most economical way of finding and destroying it in general.
+    begin
+      LeadItem
+        .where(lead_id: lead_ids, otu_id: params[:otu_id])
+        .destroy_all
+
+    rescue ActiveRecord::RecordNotDestroyed => e
+      errors.add(:base, "Destroy lead item failed! '#{e}'")
+      return false
+    end
+
+    children.each do |c|
+      c.sync_otu_to_lead_items_list
+    end
+  end
+
+  def add_lead_items_to_lead
+    parent = Lead.find(params[:parent_id])
+    otu_ids = params[:otu_ids]
+    exclusive = params[:exclusive_otu_ids] || []
+    add_new_to_first_child = params[:add_new_to_first_child] || false
+    added = LeadItem.add_items_to_lead(
+      parent, otu_ids, exclusive, add_new_to_first_child
+    )
+
+    if added
+      parent.children.each(&:sync_otu_to_lead_items_list)
+      render json: added
+    else
+      render json: parent.errors, status: :unprocessable_content
+    end
+  end
+
+  def add_otu_index
+    @lead = Lead.find(params[:lead_id])
+    added = LeadItem.add_otu_index_for_lead(
+      @lead, params[:otu_id], params[:exclusive]
+    )
+    if !added
+      render json: @lead.errors, status: :unprocessable_content
+      return
+    end
+
+    @lead.parent.children.each(&:sync_otu_to_lead_items_list)
+
+    @lead_item_otus = @lead.parent.apportioned_lead_item_otus
+    render partial: 'leads/lead_item_otus',
+      locals: { lead_item_otus: @lead_item_otus, lead: @lead }
+  end
+
+  def remove_otu_index
+    @lead = Lead.find(params[:lead_id])
+    removed = LeadItem.remove_otu_index_for_lead(@lead, params[:otu_id])
+    if !removed
+      render json: @lead.errors, status: :unprocessable_content
+      return
+    end
+
+    @lead.reload.sync_otu_to_lead_items_list
+
+    @lead_item_otus = @lead.parent.apportioned_lead_item_otus
+    render partial: 'leads/lead_item_otus',
+      locals: { lead_item_otus: @lead_item_otus, lead: @lead }
+  end
+
+  private
+
+  def set_lead_item
+    @lead_item = LeadItem.find(params[:id])
+  end
+
+  def lead_item_params
+    params.require(:lead_item).permit(:lead_id, :otu_id, :project_id, :created_by_id, :updated_by_id, :position)
+  end
+end

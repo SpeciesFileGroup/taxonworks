@@ -8,13 +8,11 @@
 # @param error_radius
 #   is taken from collecting_event#verbatim_geolocation_uncertainty
 class Georeference::VerbatimData < Georeference
+  GEO_AREA_TOLERANCE = 10000.0 # Meters. Maximum allowed distance to consider geographic area valid.Exif
 
   # @param [ActionController::Parameters] params
   def initialize(params = {})
     super
-
-    self.is_median_z    = false
-    self.is_undefined_z = false # and delta_z is zero, or ignored
 
     unless collecting_event.nil? || geographic_item
       # value from collecting_event is normalised to meters
@@ -23,7 +21,6 @@ class Georeference::VerbatimData < Georeference
 
       if z1.blank?
         # no valid elevation provided
-        self.is_undefined_z = true
         delta_z             = 0.0
       else
         # we have at least half of the range data
@@ -34,20 +31,23 @@ class Georeference::VerbatimData < Georeference
         else
           # we have full range data, so elevation is (top - bottom) / 2
           delta_z = z1 + ((z2 - z1) * 0.5)
-          # and show calculated median
-          self.is_median_z = true
         end
       end
 
       point = collecting_event.verbatim_map_center(delta_z) # hmm
 
-      attributes = {point: point}
+      attributes = {geography: point}
       attributes[:by] = self.by if self.by
 
       if point.nil?
         test_grs = []
       else
-        test_grs = GeographicItem::Point.where("point = ST_GeographyFromText('POINT(? ? ?)')", point.x, point.y, point.z)
+        test_grs = GeographicItem
+          # && is a fast indexed-bounding-box comparison
+          .where('geography && ST_GeographyFromText(:wkt) AND ' \
+                 'geography = ST_GeographyFromText(:wkt)',
+            wkt: "POINT(#{point.x} #{point.y} #{point.z})"
+          )
       end
 
       if test_grs.empty?
@@ -65,17 +65,41 @@ class Georeference::VerbatimData < Georeference
     h.merge!(
       verbatimLatitude: collecting_event.verbatim_latitude,
       verbatimLongitude: collecting_event.verbatim_longitude,
-
       coordinateUncertaintyInMeters: error_radius,
-
-      georeferenceSources: "Physical collection object.",
+      georeferenceSources: 'Transcribed from verbatim label, field note, or published data.',
       georeferenceRemarks: "Derived from a instance of TaxonWorks' Georeference::VerbatimData.",
-      georeferenceProtocol: 'A geospatial point translated from verbatim values recorded on human-readable media (e.g. paper specimen label, field notebook).',
       geodeticDatum: nil  # TODO: check
     )
+    h[:georeferenceProtocol] = 'A geospatial point translated from verbatim values recorded on human-readable media (e.g. paper specimen label, field notebook).' if h[:georeferenceProtocol].blank?
     h
   end
 
+  # @return [Boolean]
+  #    true if geographic_item.geo_object is within `distance` of
+  #    collecting_event.geographic_area
+  def check_obj_within_distance_from_area(distance)
+    # case 6
+    retval = true
+    if collecting_event.present?
+      if geographic_item.present? && collecting_event.geographic_area.present?
+        if geographic_item.geo_object && collecting_event.geographic_area.default_geographic_item.present?
+          retval = geographic_item.st_distance_to_geographic_item(collecting_event.geographic_area.default_geographic_item) <= distance
+        end
+      end
+    end
+    retval
+  end
 
+  # @return [Boolean] true iff collecting_event contains georeference geographic_item.
+  def add_obj_inside_area
+    unless check_obj_within_distance_from_area(GEO_AREA_TOLERANCE)
+      errors.add(
+        :geographic_item,
+        'for georeference is not contained in the geographic area bound to the collecting event')
+      errors.add(
+        :collecting_event,
+        'is assigned a geographic area which does not contain the supplied georeference/geographic item')
+    end
+  end
 
 end

@@ -8,6 +8,6 @@ export default function (observationData) {
   })
 
   function attemptGetContinuousValueFromData () {
-    return observationData.hasOwnProperty('continuous_value') ? observationData.continuous_value : null
+    return observationData?.continuous_value || null
   }
 };

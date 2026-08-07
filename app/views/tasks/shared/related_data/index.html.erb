@@ -1,0 +1,76 @@
+<h1> Task - Related data </h1>
+
+<div class="panel separate-left">
+  <div class="title action-line">
+    <div class="inline">
+      <%= content_tag(:span, @object.class.name, class: [:feedback, 'feedback-secondary', 'feedback-thin']) -%>
+      &nbsp;
+      <span><%= object_tag(@object) -%></span>
+    </div>
+    <div class="flex-separate">
+      <ul class="context-menu">
+        <%= yield :icon_navigation -%> 
+        <li><%= radial_annotator(@object, annotations_exist(@object)) %></li>
+        <li><%= tag_default_icon(@object) %></li>
+        <li><%= pin_item_to_pinboard_link(@object, sessions_current_user) %></li>
+        <li><%= radial_navigation_tag(@object) %></li>
+      </ul>
+    </div>
+  </div> 
+</div>
+
+<h2> Has many </h2>
+<% ApplicationEnumeration.klass_reflections(@object.class, :has_many).each do |r| -%>
+  <% next if r.name =~ /_hierarchies|project/ %>
+  <% if @object.respond_to?(r.name) -%>
+    <% q = @object.send(r.name.to_s) %>
+    <% q = q.where(r.table_name => {project_id: sessions_current_project_id}) if r.klass.column_names.include?('project_id')  %>
+
+    <% t = q.load.count %>
+    <% if t > 0 %>
+      <%= content_tag(:h4, r.name.to_s.humanize + ' (' + t.to_s + ')' ) -%>  <%= content_tag(:em, "Limited to 1000 records") if t >= 1000 -%> 
+
+      <table> 
+        <tr> <th> object </th> <th> id </th> <th> global id </th> </tr>
+        <% q.limit(500).all.each do |o| -%>
+          <tr> 
+            <td> <%= object_link(o) %> </td> 
+            <td> <%= o.id %> </td> 
+            <td> <%= o.to_global_id.to_s %> </td> 
+          </tr>
+        <% end %>
+      </table>
+
+    <% end %>
+  <% else %>
+    <mark class="notice"> Requires method rename! </mark>
+  <% end %>
+<% end %>
+
+<h2> Has one </h2>
+<table>
+  <% ApplicationEnumeration.klass_reflections(@object.class, :has_one).each do |r| -%>
+    <% if t = @object.send(r.name.to_s) -%>
+      <tr>
+        <td> <%= r.name.to_s.humanize -%> </td>
+        <td> <%= object_link(t) -%> </td>
+        <td> <%= t.id %> </td> 
+        <td> <%= t.to_global_id.to_s %> </td> 
+      </tr>
+    <% end %>
+  <% end %>
+</table>
+
+<h2> Belongs to </h2>
+<table>
+  <% ApplicationEnumeration.klass_reflections(@object.class, :belongs_to).each do |r| -%>
+    <% if t = @object.send(r.name.to_s) -%>
+      <tr>
+        <td> <%= r.name.to_s.humanize -%> </td>
+        <td> <%= object_link(t) -%> </td>
+        <td> <%= t.id %> </td> 
+        <td> <%= t.to_global_id.to_s %> </td> 
+      </tr>
+    <% end %>
+  <% end %>
+</table> 

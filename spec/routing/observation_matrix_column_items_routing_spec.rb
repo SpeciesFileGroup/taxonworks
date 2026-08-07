@@ -7,7 +7,7 @@ RSpec.describe ObservationMatrixColumnItemsController, type: :routing do
       expect(get: '/observation_matrix_column_items').to route_to('observation_matrix_column_items#index')
     end
 
-    it 'routes to #new' do
+    xit 'routes to #new' do
       expect(get: '/observation_matrix_column_items/new').to route_to('observation_matrix_column_items#new')
     end
 

@@ -25,7 +25,7 @@ module Utilities::Files
   # @param file_to_replace a file path, this file will be destroyed
   # @param file_to_keep a file path, this file will named the name of file_to_replace
   def self.replace(original_file, new_file)
-    return false unless File.exists?(original_file) && File.exists?(new_file)
+    return false unless File.exist?(original_file) && File.exist?(new_file)
     fo = original_file
     ft = fo + '.tmp'
 
@@ -33,11 +33,11 @@ module Utilities::Files
       File.rename(fo, ft)
       File.rename(new_file, fo)
 
-      File.delete(ft) if File.exists?(ft)
+      File.delete(ft) if File.exist?(ft)
     rescue
       return false
     ensure
-      unless File.exists?(original_file) # as we exit we must have a file there
+      unless File.exist?(original_file) # as we exit we must have a file there
         File.rename(ft, original_file)
       end
     end

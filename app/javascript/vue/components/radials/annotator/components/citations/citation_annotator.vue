@@ -1,31 +1,66 @@
 <template>
   <div class="citation_annotator">
-    <div v-if="!citation.hasOwnProperty('id')">
-      <citation-new
-        :global-id="globalId"
-        :object-type="objectType"
-        @create="createNew"
+    <div
+      v-if="citation?.id"
+      class="flex-separate gap-small"
+    >
+      <h3>
+        Edit:
+        <span v-html="citation.object_tag" />
+      </h3>
+      <VBtn
+        circle
+        color="primary"
+        @click="() => (citation = newCitation())"
+      >
+        <VIcon
+          name="undo"
+          small
+        />
+      </VBtn>
+    </div>
+    <h3 v-else>New citation</h3>
+    <FormCitation
+      v-model="citation"
+      :klass="objectType"
+      :submit-button="{
+        label: 'Save',
+        color: 'create'
+      }"
+      @submit="saveCitation(citation)"
+    >
+      <template #footer>
+        <VBtn
+          v-if="!citation.id"
+          color="primary"
+          medium
+          @click="() => (citation = newCitation())"
+        >
+          New
+        </VBtn>
+      </template>
+    </FormCitation>
+    <div v-if="!citation.id">
+      <VPagination
+        class="margin-medium-top margin-medium-bottom"
+        :pagination="pagination"
+        @next-page="({ page }) => loadPage(page)"
       />
-      <table-list
+      <TableList
         :list="list"
-        @edit="citation = $event"
+        @move="removeFromList"
+        @edit="(c) => (citation = { ...c })"
         @delete="removeItem"
       />
     </div>
     <div v-else>
-      <citation-edit
-        :global-id="globalId"
-        :citation="citation"
-        @update="updateCitation"
-        @new="citation = newCitation()"
-      />
-      <citation-topic
-        v-if="!disabledFor.includes(objectType)"
+      <CitationTopicForm
+        v-if="!DISABLED_FOR.includes(objectType)"
         :object-type="objectType"
-        :global-id="globalId"
         :citation="citation"
-        @create="updateCitation"
+        @create="saveCitation"
       />
+
       <table class="full_width">
         <thead>
           <tr>
@@ -35,165 +70,205 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(item, index) in citation.citation_topics">
+          <tr
+            v-for="(item, index) in citation.citation_topics"
+            :key="item.id"
+          >
             <td v-html="item.topic.object_tag" />
             <td>
-              <topic-pages
+              <TopicPages
                 v-model="citation.citation_topics[index]"
                 :citation-id="citation.id"
-                @update="updateCitation"
+                @update="saveCitation"
               />
             </td>
-            <td class="horizontal-right-content">
-              <span
-                class="button circle-button btn-delete"
-                @click="deleteTopic(item)"
-              />
+            <td>
+              <div class="horizontal-right-content">
+                <VBtn
+                  circle
+                  color="destroy"
+                  @click="() => deleteTopic(item)"
+                >
+                  <VIcon
+                    x-small
+                    name="trash"
+                  />
+                </VBtn>
+              </div>
             </td>
           </tr>
         </tbody>
       </table>
     </div>
-    <handle-citations
-      v-if="showModal"
-      :citation="currentCitation"
-      :original-citation="existingOriginal[0]"
+    <HandleCitations
+      v-if="isModalVisible"
+      :citation="citation"
+      :original-citation="originalCitation"
+      @save="(item) => addToList(item)"
       @create="setCitation"
-      @close="resetCitations"
+      @close="isModalVisible = false"
     />
   </div>
 </template>
-<script>
-
-import CRUD from '../../request/crud.js'
-import annotatorExtend from '../annotatorExtend.js'
+<script setup>
 import TableList from './table.vue'
-import CitationNew from './new.vue'
-import CitationEdit from './edit.vue'
-import CitationTopic from './topic.vue'
-import TopicPages from './pagesUpdate'
+import FormCitation from '@/components/Form/FormCitation.vue'
+import CitationTopicForm from './CitationTopicForm.vue'
+import TopicPages from './TopicPages.vue'
 import HandleCitations from './handleOriginalModal'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
+import makeCitation from '@/factory/Citation'
+import VPagination from '@/components/pagination.vue'
+import { useSlice } from '@/components/radials/composables'
+import { Citation } from '@/routes/endpoints'
+import { getPagination } from '@/helpers'
+import { computed, ref, onBeforeMount } from 'vue'
 
-export default {
-  mixins: [CRUD, annotatorExtend],
-  components: {
-    CitationNew,
-    CitationEdit,
-    CitationTopic,
-    TableList,
-    TopicPages,
-    HandleCitations
+const EXTEND_PARAMS = ['source', 'citation_topics']
+const DISABLED_FOR = ['Content']
+const PER = 50
+
+const props = defineProps({
+  objectId: {
+    type: Number,
+    required: true
   },
-  computed: {
-    validateFields () {
-      return this.citation.source_id
-    }
+
+  objectType: {
+    type: String,
+    required: true
   },
-  data () {
-    return {
-      list: [],
-      citation: this.newCitation(),
-      topic: this.newTopic(),
-      autocompleteLabel: undefined,
-      disabledFor: ['Content'],
-      showModal: false,
-      existingOriginal: [],
-      currentCitation: undefined
-    }
-  },
-  methods: {
-    setCitation(citation) {
-      this.resetCitations()
-      this.citation = citation
-      this.loadObjectsList()
-    },
-    resetCitations () {
-      this.showModal = false
-      this.currentCitation = undefined
-      this.existingOriginal = []
-    },
-    newCitation () {
-      return {
-        annotated_global_entity: decodeURIComponent(this.globalId),
-        source_id: undefined,
-        is_original: false,
-        pages: undefined,
-        citation_topics_attributes: []
-      }
-    },
-    newTopic () {
-      return {
-        topic_id: undefined,
-        pages: undefined
-      }
-    },
-    deleteTopic (topic) {
-      const object = {
-        id: this.citation.id,
-        citation_topics_attributes: [{
+
+  radialEmit: {
+    type: Object,
+    required: true
+  }
+})
+
+const { list, addToList, removeFromList } = useSlice({
+  radialEmit: props.radialEmit
+})
+const citation = ref(newCitation())
+const isModalVisible = ref(false)
+const pagination = ref({})
+
+const originalCitation = computed(() => list.value.find((c) => c.is_original))
+
+function setCitation(item) {
+  citation.value = { ...item }
+}
+
+function newCitation() {
+  return {
+    ...makeCitation(),
+    citation_object_id: props.objectId,
+    citation_object_type: props.objectType,
+    citation_topics_attributes: []
+  }
+}
+
+function deleteTopic(topic) {
+  const payload = {
+    citation: {
+      id: citation.value.id,
+      citation_topics_attributes: [
+        {
           id: topic.id,
           _destroy: true
-        }]
-      }
-      this.update(`/citations/${object.id}`, { citation: object }).then(response => {
-        this.citation.citation_topics.splice(
-          this.citation.citation_topics.findIndex(element => element.id == topic.id), 1)
-      })
+        }
+      ]
     },
-    updateCitation (editCitation) {
-      this.update(`/citations/${editCitation.id}`, { citation: editCitation }).then(response => {
-        this.citation = response.body
-        this.list[this.list.findIndex(element => element.id == editCitation.id)] = response.body
-        TW.workbench.alert.create('Citation was successfully updated.', 'notice')
-      })
+    extend: EXTEND_PARAMS
+  }
+
+  Citation.update(citation.value.id, payload)
+    .then((_) => {
+      const index = citation.value.citation_topics.findIndex(
+        (element) => element.id === topic.id
+      )
+
+      citation.value.citation_topics.splice(index, 1)
+    })
+    .catch(() => {})
+}
+
+function saveCitation(item) {
+  const payload = {
+    citation: {
+      ...item,
+      citation_object_id: props.objectId,
+      citation_object_type: props.objectType
     },
-    async createNew (newCitation) {
-      if (newCitation.is_original) {
-        const loadCitations = await this.getList('/citations.json', {
-          params: {
-            citation_object_type: this.objectType,
-            citation_object_id: this.metadata.object_id,
-            is_original: true
-          }
-        })
-        this.existingOriginal = loadCitations.body
-        this.currentCitation = newCitation
-      }
-      if (this.existingOriginal.length) {
-        this.showModal = true
-      } else {
-        this.create('/citations', { citation: newCitation }).then(response => {
-          this.list.push(response.body)
-          this.citation = response.body
-          TW.workbench.alert.create('Citation was successfully created.', 'notice')
-        })
-      }
-    },
-    updateTopic (topic) {
-      this.update(`/citation_topics/${topic.id}.json`, { citation_topic: topic }).then(response => {
-        TW.workbench.alert.create('Topic was successfully updated.', 'notice')
-      })
+    extend: EXTEND_PARAMS
+  }
+
+  if (
+    item.is_original &&
+    originalCitation.value &&
+    originalCitation.value?.id !== item.id
+  ) {
+    isModalVisible.value = true
+
+    return
+  }
+
+  const request = item.id
+    ? Citation.update(item.id, payload)
+    : Citation.create(payload)
+
+  request
+    .then(({ body }) => {
+      addToList(body)
+      setCitation(body)
+      TW.workbench.alert.create('Citation was successfully saved.', 'notice')
+    })
+    .catch(() => {})
+}
+
+function removeItem(item) {
+  Citation.destroy(item.id)
+    .then((_) => {
+      removeFromList(item)
+    })
+    .catch(() => {})
+}
+
+function loadPage(page = 1) {
+  Citation.where({
+    citation_object_id: props.objectId,
+    citation_object_type: props.objectType,
+    extend: EXTEND_PARAMS,
+    page: page,
+    per: PER
+  }).then((response) => {
+    pagination.value = getPagination(response)
+    list.value = response.body
+  })
+}
+
+onBeforeMount(() => {
+  loadPage()
+})
+</script>
+<style lang="scss">
+.radial-annotator {
+  .citation_annotator {
+    overflow-y: scroll;
+
+    textarea {
+      padding-top: 14px;
+      padding-bottom: 14px;
+      width: 100%;
+      height: 100px;
+    }
+    .pages {
+      width: 86px;
+    }
+    .vue-autocomplete-input,
+    .vue-autocomplete {
+      width: 400px;
     }
   }
 }
-</script>
-<style lang="scss">
-  .radial-annotator {
-    .citation_annotator {
-      overflow-y: scroll;
-
-      textarea {
-        padding-top: 14px;
-        padding-bottom: 14px;
-        width: 100%;
-        height: 100px;
-      }
-      .pages {
-        width: 86px;
-      }
-      .vue-autocomplete-input, .vue-autocomplete {
-        width: 400px;
-      }
-    }
-  }
 </style>

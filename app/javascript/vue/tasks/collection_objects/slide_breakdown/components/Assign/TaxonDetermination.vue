@@ -1,6 +1,6 @@
 <template>
   <div>
-    <TaxonDeterminationForm @onAdd="addDetermination"/>
+    <TaxonDeterminationForm @onAdd="addDetermination" />
     <list-component
       :list="collectionObject.taxon_determinations_attributes"
       @delete="removeTaxonDetermination"
@@ -11,11 +11,10 @@
 </template>
 
 <script>
-
-import TaxonDeterminationForm from 'components/TaxonDetermination/TaxonDeterminationForm.vue'
+import TaxonDeterminationForm from '@/components/TaxonDetermination/TaxonDeterminationForm.vue'
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
-import ListComponent from 'components/displayList'
+import ListComponent from '@/components/displayList'
 import SharedComponent from '../shared/lock.js'
 
 export default {
@@ -28,26 +27,35 @@ export default {
 
   computed: {
     collectionObject: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetCollectionObject]
       },
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetCollectionObject, value)
       }
     }
   },
 
   methods: {
-    addDetermination (taxonDetermination) {
+    addDetermination(taxonDetermination) {
       if (
-        this.collectionObject.taxon_determinations_attributes.find(determination => determination.otu_id === taxonDetermination.otu_id)
-      ) { return }
+        this.collectionObject.taxon_determinations_attributes.find(
+          (determination) => determination.otu_id === taxonDetermination.otu_id
+        )
+      ) {
+        return
+      }
 
-      this.collectionObject.taxon_determinations_attributes.push(taxonDetermination)
+      this.collectionObject.taxon_determinations_attributes.push(
+        taxonDetermination
+      )
     },
 
-    removeTaxonDetermination (determination) {
-      const index = this.collectionObject.taxon_determinations_attributes.findIndex(item => JSON.stringify(item) === JSON.stringify(determination))
+    removeTaxonDetermination(determination) {
+      const index =
+        this.collectionObject.taxon_determinations_attributes.findIndex(
+          (item) => JSON.stringify(item) === JSON.stringify(determination)
+        )
 
       this.collectionObject.taxon_determinations_attributes.splice(index, 1)
     }

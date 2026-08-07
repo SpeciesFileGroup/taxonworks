@@ -1,0 +1,3 @@
+taxonID	parentNameUsageID	acceptedNameUsageID	scientificName	kingdom	lass	order	family	genus	subgenus	specificEpithet	infraspecificEpithet	taxonRank	scientificNameAuthorship	taxonomicStatus	originalNameUsageID	namePublishedInYear	nomenclaturalCode	TW:TaxonNameClassification:Latinized:Gender	TW:TaxonNameClassification:Latinized:PartOfSpeech	TW:TaxonNameRelationship:incertae_sedis_in_rank	TW:TaxonNameClassification:Iczn:Fossil
+429011		429011	Formicidae	Animalia	Insecta	Hymenoptera	Formicidae					Family	Latreille, 1802	valid	429011	1802	ICZN
+429149	429011	429149	Formicinae	Animalia	Insecta	Hymenoptera	Formicidae					Subfamily	Latreille, 1802	valid	429149	1802	ICZN

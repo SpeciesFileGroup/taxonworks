@@ -1,4 +1,4 @@
-# The role that is related to a source (e.g. Editor, Author) 
+# The role that is related to a source (e.g. Editor, Author)
 #
 class Role::SourceRole < Role
   self.abstract_class = true

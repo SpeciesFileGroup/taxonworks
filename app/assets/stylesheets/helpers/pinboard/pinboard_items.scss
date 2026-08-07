@@ -2,10 +2,11 @@
   .slide-panel-category-item {
     position: relative;
     min-height: 28px;
+    word-break: break-all;
   }
 
   .pinboard-default-item {
-    border-left: 5px solid $color-action-button;
+    border-left: 5px solid var(--color-create);
   }
 
   .slide-panel-category-content {
@@ -22,15 +23,10 @@
     border-radius: 50%;
     width: 60px;
     height: 60px;
-    transition: border-radius 0.3s ease,
-    height 0.3s ease,
-    width 0.3s ease;
+    transition: border-radius 0.3s ease, height 0.3s ease, width 0.3s ease;
   }
   img:hover {
-
-    transition: border-radius 0.3s ease,
-    height 0.3s ease,
-    width 0.3s ease;
+    transition: border-radius 0.3s ease, height 0.3s ease, width 0.3s ease;
   }
 
   ul {
@@ -69,7 +65,7 @@
   }
 
   .pinboard-dropdown:hover {
-    background-color: white;
+    background-color: var(--bg-body);
   }
 
   .pinboard-dropdown:hover .pinboard-dropdown-content {
@@ -78,17 +74,17 @@
     z-index: 9999;
     right: 0px;
     top: 0px;
-    border-left: 1px solid $navigation_background;
+    border-left: 1px solid var(--border-color);
     height: 100%;
     align-items: center;
     padding-left: $standard_padding * 0.5;
     padding-right: $standard_padding * 0.5;
-    background-color: #FFF;
+    background-color: var(--bg-action);
   }
   .pinboard-menu-bar {
     width: 14px;
     height: 3px;
-    background-color: $color-secondary-2-4;
+    background-color: var(--color-primary);
     margin: 2px 0;
     transition: 0.4s;
   }
@@ -108,17 +104,17 @@
 
   li {
     position: relative;
-    border-bottom: 1px solid #FAFAFA;
+    border-bottom: 1px solid var(--border-color);
     border-left: 5px solid transparent;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: $standard_padding*0.5;
-    padding-left: $standard_padding*2;
+    padding: $standard_padding * 0.5;
+    padding-left: $standard_padding * 2;
   }
   li:hover {
     opacity: 1;
-    background-color: $navigation_background;
+    background-color: var(--bg-color);
     .remove {
       display: inline-block;
     }

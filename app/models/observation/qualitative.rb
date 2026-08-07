@@ -1,16 +1,22 @@
-class Observation::Qualitative < Observation 
- 
+#
+#  See Descriptor::Qualitative
+#
+class Observation::Qualitative < Observation
   belongs_to :character_state
-  
+
   validates_presence_of :character_state_id
-  validate :character_state_is_unique
+  validate :unique_observation_object
 
-  protected
+  private
 
-  def character_state_is_unique
-    if Observation::Qualitative.object_scope(observation_object).where(character_state_id: character_state_id, descriptor_id: descriptor_id).any?
-      errors.add(:character_state_id, ' is already observed')
+  def unique_observation_object
+    if Observation::Qualitative.where(
+        character_state_id: character_state_id,
+        observation_object_id: observation_object_id,
+        observation_object_type: observation_object_type,
+        descriptor_id: descriptor_id
+      ).where.not(id: id).exists?
+      errors.add(:observation_object, 'the observation already exists')
     end
   end
-
 end

@@ -1,9 +1,9 @@
 import { createApp } from 'vue'
 import DwcDashboard from './DwcDashboard.vue'
-import HelpSystem from 'plugins/help/help.js'
+import HelpSystem from '@/plugins/help/help.js'
 import en from './lang/en.js'
 
-function init () {
+function init() {
   const app = createApp(DwcDashboard)
 
   app.use(HelpSystem, {

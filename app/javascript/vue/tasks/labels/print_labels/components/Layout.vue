@@ -20,7 +20,7 @@
         type="text">
       <button
         type="button"
-        class="button normal-input button-default"
+        class="button normal-input button-default margin-small-left"
         @click="onClear">
         Clear
       </button>

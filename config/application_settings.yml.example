@@ -17,6 +17,5 @@ production:
 # test:
 # selenium:
 #   browser: 'firefox'            # a string, one of 'firefox' or 'chrome'
-#   marionette: false             # optionally provided when browser: 'firefox' (not tested)
 #   firefox_binary_path: ''       # optionally provided when browser: 'firefox'
-#   chromedriver_path: '/usr/local/bin/chromedriver'  # optionally provided when browser: 'chrome'
+#   driver_path: '/usr/local/bin/chromedriver'  # optionally provided

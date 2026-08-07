@@ -1,5 +1,7 @@
 import baseCRUD from './base'
+import AjaxCall from '@/helpers/ajaxCall.js'
 
+const controller = 'loans'
 const permitParams = {
   loan: {
     date_requested: String,
@@ -19,6 +21,7 @@ const permitParams = {
     recipient_honorific: String,
     lender_address: String,
     clone_from: String,
+    is_gift: Boolean,
     loan_items_attributes: {
       _destroy: Boolean,
       id: Number,
@@ -43,10 +46,14 @@ const permitParams = {
         suffix: String,
         prefix: String
       }
-    },
+    }
   }
 }
 
 export const Loan = {
-  ...baseCRUD('loans', permitParams)
+  ...baseCRUD(controller, permitParams),
+
+  filter: (params) => AjaxCall('post', `/${controller}/filter.json`, params),
+
+  attributes: () => AjaxCall('get', `/${controller}/attributes`)
 }

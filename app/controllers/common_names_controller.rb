@@ -1,21 +1,24 @@
 class CommonNamesController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
-  before_action :set_common_name, only: [:show, :edit, :update, :destroy]
+  before_action :set_common_name, only: [:show, :edit, :update, :destroy, :api_show ]
+
+  after_action -> { set_pagination_headers(:common_names) }, only: [:api_index], if: :json_request?
 
   # GET /common_names
   # GET /common_names.json
   def index
- end
+  end
 
   def index
     respond_to do |format|
       format.html do
         @recent_objects = CommonName.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
-        render '/shared/data/all/index' 
+        render '/shared/data/all/index'
       end
       format.json {
-        @common_names = Queries::CommonName::Filter.new(filter_params).all
-          .where(project_id: sessions_current_project_id).page(params[:page]).per(500)
+        @common_names = Queries::CommonName::Filter.new(params).all
+          .page(params[:page])
+          .per(params[:per])
       }
     end
   end
@@ -35,7 +38,7 @@ class CommonNamesController < ApplicationController
   end
 
   def list
-    @common_names = CommonName.with_project_id(sessions_current_project_id).page(params[:page]) #.per(10) 
+    @common_names = CommonName.with_project_id(sessions_current_project_id).page(params[:page]) #.per(10)
   end
 
   # POST /common_names
@@ -49,7 +52,7 @@ class CommonNamesController < ApplicationController
         format.json { render :show, status: :created, location: @common_name }
       else
         format.html { render :new }
-        format.json { render json: @common_name.errors, status: :unprocessable_entity }
+        format.json { render json: @common_name.errors, status: :unprocessable_content }
       end
     end
   end
@@ -63,7 +66,7 @@ class CommonNamesController < ApplicationController
         format.json { render :show, status: :ok, location: @common_name }
       else
         format.html { render :edit }
-        format.json { render json: @common_name.errors, status: :unprocessable_entity }
+        format.json { render json: @common_name.errors, status: :unprocessable_content }
       end
     end
   end
@@ -78,13 +81,36 @@ class CommonNamesController < ApplicationController
     end
   end
 
-  private
+  # GET /api/v1/common_names.csv
+  # GET /api/v1/common_names
+  def api_index
+    q = ::Queries::CommonName::Filter.new(params.merge!(api: true)).all
+      .where(project_id: sessions_current_project_id)
+      .order('common_names.id')
+      .page(params[:page])
+      .per(params[:per])
 
-  def filter_params
-    params.permit(
-      :name, :geographic_area_id, :otu_id, :language_id
-    )
+    respond_to do |format|
+      format.json {
+        @common_names = q.page(params[:page]).per(params[:per])
+        render '/common_names/api/v1/index'
+      }
+      format.csv {
+        @common_names = q
+        send_data Export::CSV.generate_csv(
+          @common_names,
+          exclude_columns: %w{updated_by_id created_by_id project_id},
+        ), type: 'text', filename: "common_names_#{DateTime.now}.tsv"
+      }
+    end
   end
+
+  # GET /api/v1/common_names/:id
+  def api_show
+    render '/common_names/api/v1/show'
+  end
+
+  private
 
   def set_common_name
     @common_name = CommonName.with_project_id(sessions_current_project_id).find(params[:id])

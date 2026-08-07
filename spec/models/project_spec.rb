@@ -1,10 +1,11 @@
 require 'rails_helper'
 
 describe Project, type: :model do
+  include ActiveJob::TestHelper
 
-  before(:all) {
-    Rails.application.eager_load!
-  }
+  # before(:all) {
+  #   Rails.application.eager_load!
+  # }
 
   let(:project) { Project.new }
 
@@ -12,7 +13,7 @@ describe Project, type: :model do
     password:  'password',
     password_confirmation: 'password',
     email: 'user_model@example.com',
-    name: 'Bob', 
+    name: 'Bob',
     self_created: true
   ) }
 
@@ -21,7 +22,7 @@ describe Project, type: :model do
   end
 
   context 'nil globals' do
-    before do 
+    before do
       Current.user_id = nil
       Current.project_id = nil
     end
@@ -173,12 +174,7 @@ describe Project, type: :model do
     before(:each) {
       project.update!(name: 'Destroy sanity')
 
-      project.asserted_distributions << AssertedDistribution.new(
-        otu:             FactoryBot.create(:valid_otu),
-        geographic_area: FactoryBot.create(:valid_geographic_area),
-        source:          FactoryBot.create(:valid_source)
-      )
-      project.save!
+      FactoryBot.create(:valid_asserted_distribution, project:)
     }
 
     specify { expect(project.asserted_distributions.size).to eq(1) }
@@ -225,20 +221,20 @@ describe Project, type: :model do
             end
           rescue => detail
             @failed_factories[f_name] = detail
-            @project_build_err_msg    += "\n\"#{f_name}\" build => #{detail}"
+            @project_build_err_msg += "\n\"#{f_name}\" build => #{detail}"
           else
             if test_factory.valid?
               begin
                 test_factory.save
               rescue => detail
                 @failed_factories[f_name] = detail
-                @project_build_err_msg    += "\n\"#{f_name}\" save => #{detail}"
+                @project_build_err_msg += "\n\"#{f_name}\" save => #{detail}"
               else
                 @factories_under_test[f_name] = test_factory
               end
             else
               @failed_factories[f_name] = test_factory.errors
-              @project_build_err_msg    += "\n\"#{f_name}\" is not valid: #{test_factory.errors.to_a}"
+              @project_build_err_msg += "\n\"#{f_name}\" is not valid: #{test_factory.errors.to_a}"
             end
           end
 
@@ -255,6 +251,17 @@ describe Project, type: :model do
       expect(@project_build_err_msg.length).to eq(0), @project_build_err_msg
     end
 
+    specify 'MANIFEST is synchronized' do
+      actual_project_models = ActiveRecord::Base.connection.tables.map { |x| x.classify.safe_constantize }
+        .compact.select { |x| x.has_attribute?(:project_id) }.map(&:to_s)
+
+      diff = (actual_project_models - Project::MANIFEST) + (Project::MANIFEST - actual_project_models)
+
+      next if diff == ['TestClass']
+
+      expect(diff).to be_empty
+    end
+
     context '#nuke' do
       before(:each) {
         p.nuke
@@ -263,7 +270,7 @@ describe Project, type: :model do
       specify '#nuke nukes "everything"' do
         # loop through all the valid_ factories, for each find the class that they build
         #    expect(class_that_was_built.all.reload.count).to eq(0)
-        orphans                 = {}
+        orphans = {}
         project_destroy_err_msg = "Project id should be #{p.id}"
         FactoryBot.factories.each { |factory|
           f_name = factory.name
@@ -273,7 +280,7 @@ describe Project, type: :model do
               count = this_class.where(project_id: p.id).all.reload.count
               if count > 0
                 project_destroy_err_msg += "\nFactory '#{f_name}': #{this_class}: #{count} orphan #{'record'.pluralize(count)}, remaining project_ids: #{this_class.all.pluck(:project_id).uniq.join(',')}."
-                orphans[this_class]          = count
+                orphans[this_class] = count
               end
             end
           end
@@ -292,7 +299,7 @@ describe Project, type: :model do
           f_name = factory.to_s
           if f_name =~ /^valid_/
             this_class = factory.build_class
-            model      = this_class.to_s.constantize
+            model = this_class.to_s.constantize
             unless model.column_names.include?('project_id')
               expect(model.all.reload.count).to be >= 1
             end
@@ -300,6 +307,48 @@ describe Project, type: :model do
         }
       end
     end
+  end
+
+  context 'api access key destroyed' do
+    let(:project) { Project.first }
+    let!(:co) { Specimen.create! }
+    let!(:d) { Depiction.create!(depiction_object: co, image: FactoryBot.create(:valid_image)) }
+
+    before(:each) {
+      project.update!(set_new_api_access_token: true)
+      project.set_complete_dwc_download_extensions(['media'])
+      project.set_complete_dwc_eml_preferences(
+        '<alternateIdentifier>ABC123</alternateIdentifier>\n<title xmlns:lang="en">Polka funk</title>',
+        '<metadata>\n  <gbif>\n    <dateStamp></dateStamp>\n    <emojiForTheSoul>:D</emojiForTheSoul>  </gbif>\n</metadata>'
+      )
+    }
+
+    specify 'deletes complete downloads' do
+      perform_enqueued_jobs # create dwc_occurrences
+      Download::DwcArchive::Complete.create!
+      perform_enqueued_jobs
+      expect(Download::DwcArchive::Complete.count).to eq(1)
+
+      project.update!(clear_api_access_token: true)
+
+      expect(Download::DwcArchive::Complete.count).to eq(0)
+    end
+
+    specify 'deletes pupal downloads' do
+      project.set_complete_dwc_download_max_age(0)
+      perform_enqueued_jobs # create dwc_occurrences
+      Download::DwcArchive::Complete.create!
+      perform_enqueued_jobs
+      Download::DwcArchive::PupalComplete.create!
+      expect(Download::DwcArchive::Complete.count).to eq(2)
+      expect(Download::DwcArchive::PupalComplete.count).to eq(1)
+
+      project.update!(clear_api_access_token: true)
+
+      expect(Download::DwcArchive::Complete.count).to eq(0)
+      expect(Download::DwcArchive::PupalComplete.count).to eq(0)
+    end
+
   end
 
 end

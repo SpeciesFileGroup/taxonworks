@@ -1,439 +1,836 @@
 module Queries
+  module Otu
+    class Filter < Query::Filter
+      include Queries::Concerns::Citations
+      include Queries::Concerns::Conveyances
+      include Queries::Concerns::DataAttributes
+      include Queries::Concerns::Depictions
+      include Queries::Concerns::Geo
+      include Queries::Concerns::Tags
+      include Queries::Concerns::Notes
+      include Queries::Concerns::Confidences
+      include Queries::Concerns::Sounds
+      include Queries::Helpers
 
-  # TODO: Unify all and filter
-  class Otu::Filter < Queries::Query
+      PARAMS = [
+        :ancestrify,
+        :asserted_distributions,
+        :biological_association_id,
+        :biological_associations,
+        :biological_relationship_id,
+        :exclude_taxon_name_relationship,
+        :collecting_event_id,
+        :collection_objects,
+        :common_names,
+        :contents,
+        :coordinatify,
+        :descendants,
+        :descriptor_id,
+        :geo_shape_id,
+        :geo_mode,
+        :geo_shape_type,
+        :geo_json,
+        :name,
+        :name_exact,
+        :observations,
+        :otu_id,
+        :radius,
+        :taxon_name,
+        :taxon_name_id,
+        :dwc_occurrences,
+        :with_name,
+        :wkt,
 
-    # Query variables
-    attr_accessor :geographic_area_ids, :shape
-    attr_accessor :selection_objects
-    attr_accessor :descendants, :rank_class
-    attr_accessor :author_ids, :and_or_select
+        biological_relationship_id: [],
+        collecting_event_id: [],
+        descriptor_id: [],
+        geo_shape_id: [],
+        geo_shape_type: [],
+        name: [],
+        otu_id: [],
+        taxon_name_id: [],
+      ].freeze
 
-    attr_accessor :verbatim_author # was verbatim_author_string
-    attr_accessor :taxon_name_id, :taxon_name_ids, :otu_id, :otu_ids,
-      :biological_association_ids, :taxon_name_classification_ids, :taxon_name_relationship_ids, :asserted_distribution_ids
+      # @params ancestrify ['true', True, nil]
+      # @return Boolean
+      #    if true then, additionally, all coordinate otus for all inferred ancestors are included
+      #    the param adds to the result by going "up" (to root) _then_ "out"
+      #
+      # !! This param is not like the others. !!  See parallel in TaxonName filter 'ancestrify'.
+      attr_accessor :ancestrify
 
-    attr_accessor :name
+      # @params coordinatify ['true', True, nil]
+      # @return Boolean
+      #    if true then, additionally, all coordinate otus for the result are included
+      # See `coordinatify_result` for more.
+      #
+      # !! This param is not like the others. !!  See parallel in TaxonName filter 'validify'.
+      attr_accessor :coordinatify
 
-    # @param [Hash] params
-    def initialize(params)
-      params.reject! { |_k, v| v.blank? }
-      @and_or_select = params[:and_or_select]
+      # @param name [String, Array]
+      # @return Array
+      #   literal match against one or more Otu#name
+      attr_accessor :name
 
-      @geographic_area_ids = params[:geographic_area_ids]
-      @shape = params[:drawn_area_shape]
-      @selection_objects = params[:selection_objects] || ['CollectionObject', 'AssertedDistribution']
-      @author_ids = params[:author_ids]
-      @verbatim_author = params[:verbatim_author]
+      # @return Boolean
+      #   if true then match on `name` exactly
+      attr_accessor :name_exact
 
-      @rank_class = params[:rank_class]
-      @descendants = params[:descendants]
+      # @return Boolean
+      #   true - has name
+      #   false - has no name
+      #   nil - both
+      attr_accessor :with_name
 
-      @name = params[:name]
+      # @param otu_id [Integer, Array]
+      # @return Array
+      #   one or more Otu ids
+      attr_accessor :otu_id
 
-      @taxon_name_id = params[:taxon_name_id]
-      @taxon_name_ids = params[:taxon_name_ids] || []
-      @otu_id = params[:otu_id]
-      @otu_ids = params[:otu_ids] || []
+      # @param taxon_name_id [Integer, Array]
+      # @return Array
+      #   one or more Otu taxon_name_id
+      attr_accessor :taxon_name_id
 
-      @biological_association_ids = params[:biological_association_ids] || []
+      # @return Boolean
+      attr_accessor :descendants
 
-      @taxon_name_classification_ids = params[:taxon_name_classification_ids] || []
-      @taxon_name_relationship_ids = params[:taxon_name_relationship_ids] || []
-      @asserted_distribution_ids = params[:asserted_distribution_ids] || []
-      @project_id = params[:project_id]
-    end
+      # @param collecting_event_id [Integer, Array]
+      # @return Array
+      #   one or more collecting_event_id
+      # Finds all OTUs that are the current determination of
+      # a CollectionObject that was collecting in these
+      # Collecting events.
+      # Altered by historical_determinations.
+      attr_accessor :collecting_event_id
 
-    def table
-      ::Otu.arel_table
-    end
+      # @param historical_determinations [Boolean]
+      # @return [Boolean, nil]
+      # Where applicable:
+      #   true - include only historical determinations (ignores only determinations)
+      #   false - include both current and historical
+      #   nil - include only current determinations
+      # Impacts all TaxonDetermination referencing queries
+      attr_accessor :historical_determinations
 
-    def biological_associations_table
-      ::BiologicalAssociation.arel_table
-    end
+      # @param biological_association_id [Integer, Array]
+      # @return Array
+      #   one or more biological_association_id
+      # Finds all OTUs that are the current determination of
+      # a CollectionObject that is in the BiologicalAssociation
+      # or are part of the Biological association itself.
+      # Altered by historical_determinations.
+      attr_accessor :biological_association_id
 
-    def matching_otu_ids
-      a = ids_for_otu
-      a.empty? ? nil : table[:id].eq_any(a)
-    end
+      # @param biological_relationship_id [Integer, Array]
+      # @return Array
+      #   one or more biological_relationship_id
+      # Finds all OTUs that are related to a BiologicalAssociation
+      # with the given BiologicalRelationship.
+      # See also exclude_taxon_name_relationship.
+      attr_accessor :biological_relationship_id
 
-    def matching_name
-      a = name
-      a.blank? ? nil : table[:name].eq(a)
-    end
+      # @param exclude_taxon_name_relationship [Boolean]
+      # When true, finds OTUs that are NOT related to a BiologicalAssociation
+      # with any of the given biological_relationship_id values.
+      attr_accessor :exclude_taxon_name_relationship
 
-    # @return [Array]
-    #   of otu_id
-    def ids_for_otu
-      ([otu_id] + otu_ids).compact.uniq
-    end
+      # @param wkt [String]
+      #  A Spatial area in WKT format
+      attr_accessor :wkt
 
-    def matching_taxon_name_ids
-      a = ids_for_taxon_name
-      a.empty? ? nil : table[:taxon_name_id].eq_any(a)
-    end
+      # @return [Hash, nil]
+      #  in geo_json format (no Feature ...) ?!
+      attr_accessor :geo_json
 
-    # @return [Array]
-    #  of taxon_name.id
-    def ids_for_taxon_name
-      ([taxon_name_id] + taxon_name_ids).compact.uniq
-    end
+      # @return [True, False, nil]
+      #   true - Otu has taxon name
+      #   false - Otu without taxon name
+      #   nil - not applied
+      attr_accessor :taxon_name
 
-    # @return [Boolean]
-    def area_set?
-      !geographic_area_ids.nil?
-    end
+      # @param descriptor_id [String, Array]
+      # @return [Array]
+      attr_accessor :descriptor_id
 
-    # @return [Boolean]
-    def author_set?
-      case author_ids
-      when nil
-        false
-      else
-        author_ids.count > 0
+      # @return [True, False, nil]
+      #   true - Otu has AssertedDistribution
+      #   false - Otu without AssertedDistribution
+      #   nil - not applied
+      attr_accessor :asserted_distributions
+
+      # @return [True, False, nil]
+      #   true - Otu has common names
+      #   false - Otu without common names
+      #   nil - not applied
+      attr_accessor :common_names
+
+      # @return [True, False, nil]
+      #   true - Otu has Content
+      #   false - Otu without Content
+      #   nil - not applied
+      attr_accessor :contents
+
+      # @return [True, False, nil]
+      #   true - Otu has CollectionObjects
+      #   false - Otu without CollectionObjects
+      #   nil - not applied
+      attr_accessor :collection_objects
+
+      # @return [True, False, nil]
+      #   true - Otu has BiologicalAssocation (subject or object)
+      #   false - Otu without BiologicalAssociation
+      #   nil - not applied
+      attr_accessor :biological_associations
+
+      # @return [True, False, nil]
+      #   true - Otu is linked to one or more DwcOccurrences (via CollectionObject, FieldOccurrence, or AssertedDistribution)
+      #   false - Otu has no DwcOccurrences
+      #   nil - not applied
+      attr_accessor :dwc_occurrences
+
+      # @return [True, False, nil]
+      #   true - Otu has observations
+      #   false - Otu without observations
+      #   nil - not applied
+      attr_accessor :observations
+
+      # Integer in Meters
+      #   !! defaults to 100m
+      attr_accessor :radius
+
+      def initialize(query_params)
+        super
+
+        @ancestrify = boolean_param(params, :ancestrify)
+        @asserted_distributions = boolean_param(params, :asserted_distributions)
+        @biological_association_id = params[:biological_association_id]
+        @biological_associations = boolean_param(params, :biological_associations)
+        @biological_relationship_id = params[:biological_relationship_id]
+        @exclude_taxon_name_relationship = boolean_param(params, :exclude_taxon_name_relationship)
+        @collecting_event_id = params[:collecting_event_id]
+        @collection_objects = boolean_param(params, :collection_objects)
+        @common_names = boolean_param(params, :common_names)
+        @contents = boolean_param(params, :contents)
+        @coordinatify = boolean_param(params, :coordinatify)
+        @descendants = boolean_param(params, :descendants)
+        @dwc_occurrences = boolean_param(params, :dwc_occurrences)
+        @descriptor_id = params[:descriptor_id]
+        @geo_json = params[:geo_json]
+        @historical_determinations = boolean_param(params, :historical_determinations)
+        @name = params[:name]
+        @name_exact = boolean_param(params, :name_exact)
+        @observations = boolean_param(params, :observations)
+        @otu_id = params[:otu_id]
+        @radius = params[:radius].presence || 100.0
+        @taxon_name = boolean_param(params, :taxon_name)
+        @taxon_name_id = params[:taxon_name_id]
+        @with_name = boolean_param(params, :with_name)
+        @wkt = params[:wkt]
+
+        set_confidences_params(params)
+        set_conveyance_params(params)
+        set_notes_params(params)
+        set_citations_params(params)
+        set_depiction_params(params)
+        set_data_attributes_params(params)
+        set_tags_params(params)
+        set_geo_params(params)
       end
-    end
 
-    # @return [Boolean]
-    def nomen_set?
-      !taxon_name_id.nil?
-    end
-
-    # @return [Boolean]
-    def verbatim_set?
-      !verbatim_author.blank?
-    end
-
-    # @return [Boolean]
-    def shape_set?
-      !shape.nil?
-    end
-
-    # @return [Boolean]
-    def with_descendants?
-      !descendants.nil?
-    end
-
-    # @return [Scope]
-    # TODO: deprecate
-    def result
-      return ::Otu.none if applied_scopes.empty?
-      a = ::Otu.all
-      applied_scopes.each do |scope|
-        a = a.merge(self.send(scope))
+      def biological_associations_table
+        ::BiologicalAssociation.arel_table
       end
-      a
-    end
 
-    # @return [Scope]
-    # This could be simplified if the AJAX selector returned a geographic_item_id rather than a geographic_area_id
-    #
-    # 1. find all geographic_items in area(s)/shape.
-    # 2. find all georeferences which are associated with result #1
-    # 3. find all collecting_events which are associated with result #2
-    # 4. find all collection_objects which are associated with result #3
-    # 5. find all asserted_distrubutions which are associated with result #1
-    # 6. find all otus which are associated with result #4 plus result #5
-    #
-    def geographic_area_scope
-      target_geographic_item_ids = []
+      def descriptor_id
+        [@descriptor_id].flatten.compact
+      end
 
-      geographic_area_ids.each do |ga_id|
-        target_geographic_item_ids.push(
-          ::GeographicArea.joins(:geographic_items).find(ga_id).default_geographic_item.id
+      def name
+        [@name].flatten.compact.collect { |n| n.strip }
+      end
+
+      def otu_id
+        [@otu_id].flatten.compact
+      end
+
+      def taxon_name_id
+        [@taxon_name_id].flatten.compact
+      end
+
+      def collecting_event_id
+        [@collecting_event_id].flatten.compact
+      end
+
+      def biological_association_id
+        [@biological_association_id].flatten.compact
+      end
+
+      def biological_relationship_id
+        [@biological_relationship_id].flatten.compact
+      end
+
+      def name_facet
+        return nil if name.empty?
+        if name_exact
+          table[:name].in(name)
+        else
+          table[:name].matches_any(name.collect { |n| '%' + n.gsub(/\s+/, '%') + '%' })
+        end
+      end
+
+      def taxon_name_id_facet
+        return nil if taxon_name_id.empty?
+        if descendants
+          h = Arel::Table.new(:taxon_name_hierarchies)
+          j = table.join(h, Arel::Nodes::InnerJoin).on(table[:taxon_name_id].eq(h[:descendant_id]))
+          z = h[:ancestor_id].in(taxon_name_id)
+
+          ::Otu.joins(j.join_sources).where(z).distinct # Maybe not needed
+        else
+          ::Otu.where(taxon_name_id:)
+        end
+      end
+
+      def wkt_facet
+        return nil if wkt.nil?
+        from_wkt(wkt)
+      end
+
+      def from_wkt(wkt_shape, wkt_geometry_type = nil)
+        c = ::Queries::CollectingEvent::Filter.new(
+          wkt: wkt_shape, wkt_geometry_type:, project_id:
         )
-      end
-
-      gi_sql = ::GeographicItem.contained_by_where_sql(target_geographic_item_ids)
-
-      ::Otu.where(id: (::Otu.joins(:asserted_distributions)
-        .where(asserted_distributions: {id: ::AssertedDistribution.joins(:geographic_items)
-        .where(gi_sql).distinct})) +
-      (::Otu.joins(:collection_objects)
-        .where(collection_objects: {id: ::CollectionObject.joins(:geographic_items)
-        .where(gi_sql).distinct})).distinct)
-    end
-
-    # @return [Scope]
-    #
-    # 1. find all collection_objects which are associated with the shape provided.
-    # 2. find all asserted_distrubutions which are associated the shape provided.
-    # 3. find all otus which are associated with result #1 plus result #2
-    #
-    def shape_scope
-      ::Otu.where(id: (::Otu.joins(:asserted_distributions)
-        .where(asserted_distributions: {id: ::GeographicItem.gather_map_data(
-          shape,
-          'AssertedDistribution',
-          project_id)
-        .distinct}) +
-      ::Otu.joins(:collection_objects)
-        .where(collection_objects: {id: ::GeographicItem.gather_map_data(
-          shape,
-          'CollectionObject',
-          project_id)
-        .distinct}))
-        .uniq)
-    end
-
-    # @return [Scope]
-    def nomen_scope
-      scope1 = ::Otu.joins(:taxon_name).where(taxon_name_id: taxon_name_id)
-      scope = scope1
-      if scope1.any?
-        scope = ::Otu.self_and_descendants_of(scope1.first.id, rank_class) if with_descendants?
-      end
-      scope
-    end
-
-    # @return [Scope]
-    def verbatim_scope
-      ::Otu.joins(:taxon_name).where('taxon_names.cached_author_year ILIKE ?', "%#{verbatim_author}%")
-    end
-
-    # @return [Scope]
-    #   1. find all selected taxon name authors
-    #   2. find all taxon_names which are associated with result #1
-    #   3. find all otus which are associated with result #2
-    def author_scope
-
-      r = ::Role.arel_table
-
-      case and_or_select
-      when '_or_', nil
-
-        c = r[:person_id].eq_any(author_ids).and(r[:type].eq('TaxonNameAuthor'))
-        ::Otu.joins(taxon_name: [:roles]).where(c.to_sql).distinct
-
-      when '_and_'
-        table_alias = 'tna' # alias for 'TaxonNameAuthor'
-
-        o = ::Otu.arel_table
-        t = ::TaxonName.arel_table
-
-        b = o.project(o[Arel.star]).from(o)
-          .join(t)
-          .on(t['id'].eq(o['taxon_name_id']))
-          .join(r).on(
-            r['role_object_id'].eq(t['id']).and(
-              r['type'].eq('TaxonNameAuthor')
-            )
+        a = ::Queries::AssertedDistribution::Filter.new(
+          wkt: wkt_shape, project_id:
         )
 
-        author_ids.each_with_index do |person_id, i|
-          x = r.alias("#{table_alias}_#{i}")
-          b = b.join(x).on(
-            x['role_object_id'].eq(t['id']),
-            x['type'].eq('TaxonNameAuthor'),
-            x['person_id'].eq(person_id)
-          )
+        q1 = ::Otu
+          .joins(collection_objects: [:collecting_event])
+          .where(collecting_events: c.all, project_id:)
+        q2 = ::Otu
+          .joins(:asserted_distributions)
+          .where(asserted_distributions: a.all, project_id:)
+
+        referenced_klass_union([q1, q2]).distinct # Not needed, union should be distinct
+      end
+
+      def from_geographic_items(geographic_items_where_sql)
+        ces = collecting_events_for_geographic_item_condition(
+          geographic_items_where_sql
+        )
+
+        q1 = ::Otu
+          .joins(collection_objects: [:collecting_event])
+          .where(collecting_events: ces.all, project_id:)
+
+        ads = ::Queries::AssertedDistribution::Filter
+          .from_geographic_items(geographic_items_where_sql)
+
+        q2 = ::Otu
+          .joins(:asserted_distributions)
+          .where(asserted_distributions: ads.all, project_id:)
+
+        referenced_klass_union([q1,q2])
+      end
+
+      def geo_json_facet
+        return nil if geo_json.blank?
+        return ::Otu.none if roll_call
+
+        c = ::Queries::CollectingEvent::Filter.new(geo_json:, project_id:, radius:)
+        a = ::Queries::AssertedDistribution::Filter.new(geo_json:, project_id:, radius:)
+
+        q1 = ::Otu.joins(collection_objects: [:collecting_event]).where(collecting_events: c.all, project_id:)
+        q2 = ::Otu.joins(:asserted_distributions).where(asserted_distributions: a.all, project_id:)
+
+        referenced_klass_union([q1, q2]).distinct
+      end
+
+      def asserted_distributions_facet
+        return nil if asserted_distributions.nil?
+        if asserted_distributions
+          ::Otu.joins(:asserted_distributions).distinct
+        else
+          ::Otu.where.missing(:asserted_distributions)
+        end
+      end
+
+      def with_name_facet
+        return nil if with_name.nil?
+        if with_name
+          ::Otu.where.not(name: nil)
+        else
+          ::Otu.where(name: nil)
+        end
+      end
+
+      def contents_facet
+        return nil if contents.nil?
+        if contents
+          ::Otu.joins(:contents).distinct
+        else
+          ::Otu.where.missing(:contents)
+        end
+      end
+
+      def common_names_facet
+        return nil if @common_names.nil?
+
+        if @common_names
+          ::Otu.joins(:common_names).distinct
+        else
+          ::Otu.where.missing(:common_names)
+        end
+      end
+
+      # UNION, NOT EXISTS example
+      def biological_associations_facet
+        return nil if biological_associations.nil?
+
+        a = ::Otu.joins(:biological_associations)
+        b = ::Otu.joins(:related_biological_associations)
+
+        c = ::Otu.from("((#{a.to_sql}) UNION (#{b.to_sql})) as otus")
+
+        if biological_associations
+          ::Otu.from("((#{a.to_sql}) UNION (#{b.to_sql})) as otus")
+        else
+          ::Otu.where('NOT EXISTS (' + ::Otu.select('1').from( # not exists ( a select(1) from <opposite query>  )
+                                                              ::Otu.from(
+                                                                "((#{a.to_sql}) UNION (#{b.to_sql})) as ba_otus_join"
+                                                              ).where('otus.id = ba_otus_join.id')
+                                                             ).to_sql + ')')  # where includes in/out link
+        end
+      end
+
+      def collection_objects_facet
+        return nil if collection_objects.nil?
+        if collection_objects
+          ::Otu.joins(:collection_objects).distinct
+        else
+          ::Otu.where.missing(:collection_objects)
+        end
+      end
+
+      def taxon_name_facet
+        return nil if taxon_name.nil?
+
+        if taxon_name
+          table[:taxon_name_id].not_eq(nil)
+        else
+          table[:taxon_name_id].eq(nil)
+        end
+      end
+
+      def observations_facet
+        return nil if observations.nil?
+
+        if observations
+          ::Otu.joins(:observations).distinct
+        else
+          ::Otu.where.missing(:observations)
+        end
+      end
+
+      def collecting_event_id_facet
+        return nil if collecting_event_id.empty?
+        if historical_determinations.nil?
+          ::Otu.joins(:collection_objects).where(collection_objects: { collecting_event_id: }, taxon_determinations: { position: 1 }).distinct
+        elsif historical_determinations
+          ::Otu.joins(:collection_objects).where(collection_objects: { collecting_event_id: }).where.not(taxon_determinations: { position: 1 }).distinct
+        else
+          ::Otu.joins(:collection_objects).where(collection_objects: { collecting_event_id: })
+        end
+      end
+
+      def biological_association_id_facet
+        return nil if biological_association_id.empty?
+
+        q1 = ::Otu.joins(:biological_associations).where(biological_associations: { id: biological_association_id, biological_association_subject_type: 'Otu' })
+        q2 = ::Otu.joins(:related_biological_associations).where(related_biological_associations: { id: biological_association_id, biological_association_object_type: 'Otu' })
+        q3 = ::Otu.joins(collection_objects: [:biological_associations]).where(biological_associations: { id: biological_association_id, biological_association_subject_type: 'CollectionObject' })
+        q4 = ::Otu.joins(collection_objects: [:related_biological_associations]).where(related_biological_associations: { id: biological_association_id, biological_association_object_type: 'CollectionObject' })
+
+        if historical_determinations.nil?
+          q3 = q3.where(taxon_determinations: { position: 1 })
+          q4 = q4.where(taxon_determinations: { position: 1 })
+        elsif historical_determinations
+          q3 = q3.where.not(taxon_determinations: { position: 1 })
+          q4 = q4.where.not(taxon_determinations: { position: 1 })
         end
 
-        b = b.group(o['id']).having(r['person_id'].count.gteq(author_ids.count))
-        b = b.as("z_#{table_alias}")
+        query = referenced_klass_union([q1, q2, q3, q4])
 
-        # noinspection RubyResolve
-        ::Otu.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))
+        ::Otu.from("(#{query.to_sql}) as otus").distinct
+      end
+
+      def biological_relationship_id_facet
+        return nil if biological_relationship_id.empty?
+
+        q1 = ::Otu.joins(:biological_associations)
+          .where(biological_associations: { biological_relationship_id:, biological_association_subject_type: 'Otu' })
+
+        q2 = ::Otu.joins(:related_biological_associations)
+          .where(related_biological_associations: { biological_relationship_id: })
+
+        q3 = ::Otu.joins(collection_objects: [:biological_associations])
+          .where(biological_associations: { biological_relationship_id:, biological_association_subject_type: 'CollectionObject' })
+          .where(taxon_determinations: { position: 1 })
+
+        q4 = ::Otu.joins(collection_objects: [:related_biological_associations])
+          .where(related_biological_associations: { biological_relationship_id: })
+          .where(taxon_determinations: { position: 1 })
+
+        q5 = ::Otu.joins(field_occurrences: [:biological_associations])
+          .where(biological_associations: { biological_relationship_id:, biological_association_subject_type: 'FieldOccurrence' })
+          .where(taxon_determinations: { position: 1 })
+
+        q6 = ::Otu.joins(field_occurrences: [:related_biological_associations])
+          .where(related_biological_associations: { biological_relationship_id: })
+          .where(taxon_determinations: { position: 1 })
+
+        q7 = ::Otu.joins(anatomical_parts: [:biological_associations])
+          .where(biological_associations: { biological_relationship_id:, biological_association_subject_type: 'AnatomicalPart' })
+
+        q8 = ::Otu.joins(anatomical_parts: [:related_biological_associations])
+          .where(related_biological_associations: { biological_relationship_id: })
+
+        matched = ::Otu.from("(#{referenced_klass_union([q1, q2, q3, q4, q5, q6, q7, q8]).to_sql}) as otus").distinct
+
+        if exclude_taxon_name_relationship
+          ::Otu.where.not(id: matched)
+        else
+          matched
+        end
+      end
+
+      def otu_geo_facet
+        return nil if geo_shape_id.empty? || geo_shape_type.empty? ||
+          # TODO: this should raise an error(?)
+          geo_shape_id.length != geo_shape_type.length
+          return ::Otu.none if roll_call
+
+        geographic_area_shapes, gazetteer_shapes = shapes_for_geo_mode
+
+        a, b = otu_geo_facet_by_type('GeographicArea', geographic_area_shapes)
+
+        c, _d = otu_geo_facet_by_type('Gazetteer', gazetteer_shapes)
+
+        if geo_mode != true # exact or descendants
+          return referenced_klass_union([a,b,c])
+        end
+
+        # Spatial.
+        i = ::Queries.union(::GeographicItem, [a,c])
+
+        from_geographic_items(
+          ::GeographicItem.covered_by_geographic_items_sql(i)
+        )
+      end
+
+      def otu_geo_facet_by_type(shape_string, shape_ids)
+        b = nil # from AssertedDistributions
+        c = nil # from CollectionObjects
+
+        case geo_mode
+        when nil, false # exact, descendants
+          b = ::Otu.joins(:asserted_distributions)
+           .where(asserted_distributions: {
+              asserted_distribution_shape: shape_ids
+           })
+          if shape_string == 'GeographicArea'
+            c = ::Otu.joins(collection_objects: [:collecting_event])
+              .where(collecting_events: { geographic_area: shape_ids })
+          end
+        when true # spatial
+          m = shape_string.tableize
+          b = ::GeographicItem.joins(m.to_sym).where(m => shape_ids)
+        end
+
+        [b,c]
+      end
+
+      def descriptor_id_facet
+        return nil if descriptor_id.empty?
+
+        q1 = ::Otu.joins(:descriptors).where(descriptors: { id: descriptor_id })
+        q2 = ::Otu.joins(collection_objects: [:descriptors]).where(descriptors: { id: descriptor_id })
+
+        referenced_klass_union([q1, q2]).distinct
+      end
+
+      def asserted_distribution_query_facet
+        return nil if asserted_distribution_query.nil?
+        ::Otu
+          .with(ad: asserted_distribution_query.all)
+          .joins("JOIN ad ON ad.asserted_distribution_object_id = otus.id AND ad.asserted_distribution_object_type = 'Otu'").distinct
+      end
+
+      def content_query_facet
+        return nil if content_query.nil?
+        s = 'WITH query_con_otus AS (' + content_query.all.to_sql + ') ' +
+          ::Otu
+          .joins('JOIN query_con_otus as query_con_otus1 on otus.id = query_con_otus1.otu_id')
+          .to_sql
+
+        ::Otu.from('(' + s + ') as otus').distinct
+      end
+
+      def biological_association_query_facet
+        return nil if biological_association_query.nil?
+        s = 'WITH query_ba_otu AS (' + biological_association_query.all.to_sql + ') '
+
+        a = ::Otu
+          .joins("JOIN query_ba_otu as query_ba_otu1 on otus.id = query_ba_otu1.biological_association_subject_id AND query_ba_otu1.biological_association_subject_type = 'Otu'")
+
+        b = ::Otu
+          .joins("JOIN query_ba_otu as query_ba_otu2 on otus.id = query_ba_otu2.biological_association_object_id AND query_ba_otu2.biological_association_object_type = 'Otu'")
+
+        s << referenced_klass_union([a, b]).to_sql
+
+        ::Otu.from('(' + s + ') as otus').distinct
+      end
+
+      def collection_object_query_facet
+        return nil if collection_object_query.nil?
+        s = 'WITH query_co_otus AS (' + collection_object_query.all.to_sql + ') ' +
+          ::Otu
+          .joins(:collection_objects)
+          .joins('JOIN query_co_otus as query_co_otus1 on collection_objects.id = query_co_otus1.id')
+          .to_sql
+
+        ::Otu.from('(' + s + ') as otus').distinct
+      end
+
+      def field_occurrence_query_facet
+        return nil if field_occurrence_query.nil?
+        s = 'WITH query_fo_otus AS (' + field_occurrence_query.all.to_sql + ') ' +
+          ::Otu
+          .joins(:field_occurrences)
+          .joins('JOIN query_fo_otus as query_fo_otus1 on field_occurrences.id = query_fo_otus1.id')
+          .to_sql
+
+        ::Otu.from('(' + s + ') as otus').distinct
+      end
+
+      def collecting_event_query_facet
+        return nil if collecting_event_query.nil?
+        s = 'WITH query_ce_otus AS (' + collecting_event_query.all.to_sql + ') ' +
+          ::Otu
+          .joins(:collecting_events)
+          .joins('JOIN query_ce_otus as query_ce_otus1 on collecting_events.id = query_ce_otus1.id')
+          .to_sql
+
+        ::Otu.from('(' + s + ') as otus').distinct
+      end
+
+      def extract_query_facet
+        return nil if extract_query.nil?
+        s = 'WITH query_ex_otus AS (' + extract_query.all.to_sql + ') ' +
+          ::Otu
+          .joins(:origin_relationships)
+          .joins("JOIN query_ex_otus as query_ex_otus1 on origin_relationships.new_object_id = query_ex_otus1.id and origin_relationships.new_object_type = 'Extract'")
+          .to_sql
+
+        ::Otu.from('(' + s + ') as otus').distinct
+      end
+
+      def taxon_name_query_facet
+        return nil if taxon_name_query.nil?
+        s = 'WITH query_taxon_names AS (' + taxon_name_query.all.to_sql + ') ' +
+          ::Otu
+          .joins('JOIN query_taxon_names as query_taxon_names1 on otus.taxon_name_id = query_taxon_names1.id')
+          .where.not(taxon_name_id: nil) # .joins(:taxon_name)
+          .to_sql
+
+        ::Otu.from('(' + s + ') as otus').distinct
+      end
+
+      def descriptor_query_facet
+        return nil if descriptor_query.nil?
+        s = 'WITH query_de_otus AS (' + descriptor_query.all.to_sql + ') ' +
+          ::Otu
+          .joins(:observations)
+          .joins('JOIN query_de_otus as query_de_otus1 on observations.descriptor_id = query_de_otus1.id')
+          .to_sql
+
+        ::Otu.from('(' + s + ') as otus').distinct
+      end
+
+      def loan_query_facet
+        return nil if loan_query.nil?
+        s = 'WITH query_loan_otus AS (' + loan_query.all.to_sql + ') '
+
+        a = ::Otu.joins(:loan_items)
+          .joins('JOIN query_loan_otus as query_loan_otus1 on loan_items.loan_id = query_loan_otus1.id')
+
+        b = ::Otu.joins(collection_objects: [:loan_items])
+          .joins('JOIN query_loan_otus as query_loan_otus1 on loan_items.loan_id = query_loan_otus1.id')
+
+        s << referenced_klass_union([a, b]).to_sql
+
+        ::Otu.from('(' + s + ') as otus').distinct
+      end
+
+      def observation_query_facet
+        return nil if observation_query.nil?
+        s = 'WITH query_obs_otus AS (' + observation_query.all.to_sql + ') ' +
+          ::Otu
+          .joins(:observations)
+          .joins('JOIN query_obs_otus as query_obs_otus1 on observations.id = query_obs_otus1.id')
+          .to_sql
+
+        ::Otu.from('(' + s + ') as otus').distinct
+      end
+
+      def sound_query_facet
+        otus_from_sound_query
+      end
+
+      def anatomical_part_query_facet
+        return nil if anatomical_part_query.nil?
+
+        ::Otu
+          .joins(:origin_relationships)
+          .where("origin_relationships.new_object_id IN (#{ anatomical_part_query.all.select(:id).to_sql })")
+      end
+      def dwc_occurrences_facet
+        return nil if @dwc_occurrences.nil?
+
+        q = ::Otu.where(id: ::DwcOccurrence.select(:otu_id).where.not(otu_id: nil))
+
+        if @dwc_occurrences
+          q
+        else
+          ::Otu.where.not(id: q.select(:id))
+        end
+      end
+
+      # !! This is a soft-link (i.e. no otu_id FK directly), so latency between indexing has a very small proability
+      # !! of impacting the results.
+      def dwc_occurrence_query_facet
+        return nil if dwc_occurrence_query.nil?
+
+        a = dwc_occurrence_query.all.object_join('CollectionObject').select(dwc_occurrences: [:dwc_occurrence_object_id])
+        b = dwc_occurrence_query.all.object_join('AssertedDistribution').select(dwc_occurrences: [:dwc_occurrence_object_id])
+        c = dwc_occurrence_query.all.object_join('FieldOccurrence').select(dwc_occurrences: [:dwc_occurrence_object_id])
+
+        d = ::Otu.with(co: a)
+              .joins(:taxon_determinations).where(taxon_determinations: {position: 1})
+              .joins('JOIN co on co.dwc_occurrence_object_id = taxon_determinations.taxon_determination_object_id')
+
+        e = ::Otu.with(ad: b)
+              .joins(:asserted_distributions)
+              .joins('JOIN ad on ad.dwc_occurrence_object_id = asserted_distributions.id')
+
+        f = ::Otu.with(fo: c)
+              .joins(:taxon_determinations).where(taxon_determinations: {position: 1})
+              .joins('JOIN fo on fo.dwc_occurrence_object_id = taxon_determinations.taxon_determination_object_id')
+
+        ::Queries.union(::Otu, [d,e,f])
+      end
+
+      # Expands result of OTU filter query in 2 ways:
+      #  1 - to include all valid OTUs by (proxy of TaxonName) if OTU is by proxy invalid
+      #  2 - to include all invalid OTUS (by proxy of TaxonName) if OTU is by proxy valid
+      #
+      # In essence this creates full sets of TaxonConcepts from partial results.
+      # The result can be used to, for example, get a comprehensive list of Sources for the concept,
+      # or a comprehensive historical list of Specimens, etc.
+      def coordinatify_result(q)
+
+        i = q.joins(:taxon_name).where('taxon_names.id != taxon_names.cached_valid_taxon_name_id').where(project_id:)
+        v = q.joins(:taxon_name).where('taxon_names.id = taxon_names.cached_valid_taxon_name_id').where(project_id:)
+
+        # Find all valids related to a q-invalid
+        s = 'WITH invalid_otu_result AS (' + i.to_sql + ') ' +
+          ::Otu
+          .joins('JOIN taxon_names tn1 on otus.taxon_name_id = tn1.cached_valid_taxon_name_id')
+          .joins('JOIN invalid_otu_result AS invalid_otu_result1 ON invalid_otu_result1.taxon_name_id = tn1.id') # invalid otus matching valid names
+          .to_sql
+
+        a = ::Otu.from('(' + s + ') as otus')
+
+        # Find all invalids related to a q-valid
+        t = 'WITH valid_otu_result AS (' + v.to_sql + ') ' +
+          ::Otu
+          .joins('JOIN taxon_names tn2 on otus.taxon_name_id = tn2.id')
+          .joins('JOIN valid_otu_result AS valid_otu_result1 ON valid_otu_result1.taxon_name_id = tn2.cached_valid_taxon_name_id') # valid otus matching invalid names
+          .to_sql
+
+        b = ::Otu.from('(' + t + ') as otus')
+
+        referenced_klass_union([a, b, q])
+      end
+
+      def ancestrify_result(q)
+        a = q
+
+        s = 'WITH otu_base AS (' + a.all.to_sql + ') ' +
+          ::Otu
+          .joins('JOIN taxon_name_hierarchies tnh on tnh.ancestor_id = otus.taxon_name_id')
+          .joins('JOIN otu_base as otu_base1 on otu_base1.taxon_name_id = tnh.descendant_id')
+          .to_sql
+
+        b = ::Otu.from('(' + s + ') as otus')
+
+        referenced_klass_union([a, b])
+      end
+
+      def and_clauses
+        [
+          name_facet,
+          taxon_name_facet,
+        ]
+      end
+
+      def merge_clauses
+        [
+          anatomical_part_query_facet,
+          asserted_distribution_query_facet,
+          asserted_distributions_facet,
+          biological_association_query_facet,
+          collecting_event_query_facet,
+          collection_object_query_facet,
+          dwc_occurrences_facet,
+          dwc_occurrence_query_facet,
+          field_occurrence_query_facet,
+          content_query_facet,
+          descriptor_query_facet,
+          extract_query_facet,
+          loan_query_facet,
+          observation_query_facet,
+          sound_query_facet,
+          taxon_name_query_facet,
+
+          biological_association_id_facet,
+          biological_associations_facet,
+          biological_relationship_id_facet,
+          collecting_event_id_facet,
+          collection_objects_facet,
+          common_names_facet,
+          contents_facet,
+          descriptor_id_facet,
+          geo_json_facet,
+          observations_facet,
+          otu_geo_facet,
+          taxon_name_id_facet,
+          with_name_facet,
+          wkt_facet,
+        ].compact
+      end
+
+      # @return [ActiveRecord::Relation]
+      def all(nil_empty = false)
+        q = super
+
+        # Order matters, coordinatify should be last as its "out"
+        q = ancestrify_result(q) if ancestrify
+        q = coordinatify_result(q) if coordinatify
+
+        q
       end
     end
-
-    # rubocop:enable Metrics/MethodLength
-
-    # @return [Array]
-    #   determine which scopes to apply based on parameters provided
-    def applied_scopes
-      scopes = []
-      scopes.push :geographic_area_scope if area_set?
-      scopes.push :shape_scope if shape_set?
-      scopes.push :nomen_scope if nomen_set?
-      scopes.push :author_scope if author_set?
-      scopes.push :verbatim_scope if verbatim_set?
-      scopes
-    end
-
-    # @return [Scope]
-    def result
-      return ::Otu.none if applied_scopes.empty?
-      a = ::Otu.all
-      applied_scopes.each do |scope|
-        a = a.merge(self.send(scope))
-      end
-      a
-    end
-
-    def matching_taxon_name_relationship_ids
-      return nil if taxon_name_relationship_ids.empty?
-      o = table
-      ba = ::TaxonNameRelationship.arel_table
-
-      a = o.alias("a_")
-      b = o.project(a[Arel.star]).from(a)
-
-      c = ba.alias('b1')
-      d = ba.alias('b2')
-
-      b = b.join(c, Arel::Nodes::OuterJoin)
-        .on(
-          a[:taxon_name_id].eq(c[:subject_taxon_name_id])
-      )
-
-      b = b.join(d, Arel::Nodes::OuterJoin)
-        .on(
-          a[:id].eq(d[:object_taxon_name_id])
-      )
-
-      e = c[:subject_taxon_name_id].not_eq(nil)
-      f = d[:object_taxon_name_id].not_eq(nil)
-
-      g = c[:id].eq_any(taxon_name_relationship_ids)
-      h = d[:id].eq_any(taxon_name_relationship_ids)
-
-      b = b.where(e.or(f).and(g.or(h)))
-      b = b.group(a['id'])
-      b = b.as('z1_')
-
-      ::Otu.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))
-    end
-
-    def matching_biological_association_ids
-      return nil if biological_association_ids.empty?
-      o = table
-      ba = biological_associations_table
-
-      a = o.alias("a_")
-      b = o.project(a[Arel.star]).from(a)
-
-      c = ba.alias('b1')
-      d = ba.alias('b2')
-
-      b = b.join(c, Arel::Nodes::OuterJoin)
-        .on(
-          a[:id].eq(c[:biological_association_subject_id])
-        .and(c[:biological_association_subject_type].eq('Otu'))
-      )
-
-      b = b.join(d, Arel::Nodes::OuterJoin)
-        .on(
-          a[:id].eq(d[:biological_association_object_id])
-        .and(d[:biological_association_object_type].eq('Otu'))
-      )
-
-      e = c[:biological_association_subject_id].not_eq(nil)
-      f = d[:biological_association_object_id].not_eq(nil)
-
-      g = c[:id].eq_any(biological_association_ids)
-      h = d[:id].eq_any(biological_association_ids)
-
-      b = b.where(e.or(f).and(g.or(h)))
-      b = b.group(a['id'])
-      b = b.as('z2_')
-
-      ::Otu.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))
-    end
-
-    def matching_taxon_name_classification_ids
-      return nil if taxon_name_classification_ids.empty?
-      o = table
-      tnc = ::TaxonNameClassification.arel_table
-
-      a = o.alias("a_")
-      b = o.project(a[Arel.star]).from(a)
-
-      c = tnc.alias('tnc1')
-
-      b = b.join(c, Arel::Nodes::OuterJoin)
-        .on(
-          a[:taxon_name_id].eq(c[:taxon_name_id])
-      )
-
-      e = c[:id].not_eq(nil)
-      f = c[:id].eq_any(taxon_name_classification_ids)
-
-      b = b.where(e.and(f))
-      b = b.group(a['id'])
-      b = b.as('z3_')
-
-      ::Otu.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))
-    end
-
-    def matching_asserted_distribution_ids
-      return nil if asserted_distribution_ids.empty?
-      o = table
-      ad = ::AssertedDistribution.arel_table
-
-      a = o.alias("a_")
-      b = o.project(a[Arel.star]).from(a)
-
-      c = ad.alias('ad1')
-
-      b = b.join(c, Arel::Nodes::OuterJoin)
-        .on(
-          a[:id].eq(c[:otu_id])
-      )
-
-      e = c[:otu_id].not_eq(nil)
-      f = c[:id].eq_any(asserted_distribution_ids)
-
-      b = b.where(e.and(f))
-      b = b.group(a['id'])
-      b = b.as('z4_')
-
-      ::Otu.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))
-    end
-
-    # @return [ActiveRecord::Relation, nil]
-    def and_clauses
-      clauses = [
-        matching_taxon_name_ids,
-        matching_otu_ids,
-        matching_name,
-
-        # matching_verbatim_author
-        # Queries::Annotator.annotator_params(options, ::Citation),
-      ].compact
-
-      return nil if clauses.empty?
-
-      a = clauses.shift
-      clauses.each do |b|
-        a = a.and(b)
-      end
-      a
-    end
-
-    def merge_clauses
-      clauses = [
-        matching_biological_association_ids,
-        matching_asserted_distribution_ids,
-        matching_taxon_name_classification_ids,
-        matching_taxon_name_relationship_ids
-
-        # matching_verbatim_author
-      ].compact
-
-      return nil if clauses.empty?
-
-      a = clauses.shift
-      clauses.each do |b|
-        a = a.merge(b)
-      end
-      a
-    end
-
-    # @return [ActiveRecord::Relation]
-    def all
-      a = and_clauses
-      b = merge_clauses
-      if a && b
-        b.where(a).distinct
-      elsif a
-        ::Otu.where(a).distinct
-      elsif b
-        b.distinct
-      else
-        ::Otu.all
-      end
-    end
-
   end
 end

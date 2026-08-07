@@ -5,16 +5,19 @@
       <template v-if="title">
         <a
           :href="`/sources/${origin_citation.source.id}/edit`"
-          v-html="origin_citation.source.cached"/>
+          v-html="origin_citation.source.cached"
+        />
         <div class="horizontal-left-content">
           <input
             type="text"
             @input="sendCitation"
             v-model="pages"
-            placeholder="Pages">
+            placeholder="Pages"
+          />
           <span
             class="circle-button btn-delete"
-            @click="remove()"/>
+            @click="remove()"
+          />
         </div>
       </template>
 
@@ -27,17 +30,20 @@
           pin-type="Source"
           label="cached"
           @selected="setSource"
-          v-model="source">
+          v-model="source"
+        >
           <template #footer>
             <div>
               <span
                 v-if="source"
-                v-html="source.cached"/>
+                v-html="source.cached"
+              />
               <input
                 type="text"
                 @input="sendCitation"
                 v-model="pages"
-                placeholder="Pages">
+                placeholder="Pages"
+              />
             </div>
           </template>
         </smart-selector>
@@ -46,8 +52,7 @@
   </div>
 </template>
 <script>
-
-import SmartSelector from 'components/ui/SmartSelector'
+import SmartSelector from '@/components/ui/SmartSelector'
 
 export default {
   components: { SmartSelector },
@@ -60,7 +65,7 @@ export default {
 
   emits: ['select'],
 
-  data () {
+  data() {
     return {
       origin_citation: {},
       source: undefined,
@@ -73,7 +78,7 @@ export default {
 
   watch: {
     citation: {
-      handler (newVal) {
+      handler(newVal) {
         this.reset()
         this.origin_citation = newVal
         if (newVal) {
@@ -88,13 +93,13 @@ export default {
   },
 
   methods: {
-    reset () {
+    reset() {
       this.title = undefined
       this.pages = undefined
       this.sourceId = undefined
     },
 
-    sendCitation () {
+    sendCitation() {
       this.$emit('select', {
         origin_citation_attributes: {
           id: this.origin_citation?.id,
@@ -104,7 +109,7 @@ export default {
       })
     },
 
-    remove () {
+    remove() {
       this.$emit('select', {
         origin_citation_attributes: {
           id: this.origin_citation?.id,
@@ -114,11 +119,10 @@ export default {
       this.title = undefined
     },
 
-    setSource (source) {
+    setSource(source) {
       this.source = source
       this.sendCitation()
     }
   }
 }
-
 </script>

@@ -1,29 +1,32 @@
 <template>
-  <block-layout
-    anchor="original-combination"
+  <BlockLayout
+    :anchor="isICN ? 'basionym' : 'original-combination'"
     :warning="softValidation.length > 0"
     :spinner="!taxon.id"
-    v-help.section.originalCombination.container>
+    v-help.section.originalCombination.container
+  >
     <template #header>
-      <h3>Original combination and rank</h3>
+      <h3>{{ isICN ? 'Basionym' : 'Original combination and rank' }}</h3>
     </template>
     <template #body>
       <div
-        class="original-combination-picker">
-        <form class="horizontal-left-content">
+        class="original-combination-picker"
+        v-if="taxon.id"
+      >
+        <div class="horizontal-left-content">
           <div class="button-current separate-right">
             <v-btn
               v-if="!existOriginalCombination"
               medium
               color="create"
-              @click="addOriginalCombination()">
+              @click="addOriginalCombination()"
+            >
               Set as current
             </v-btn>
           </div>
-          <div>
+          <div v-if="!existOriginalCombination">
             <draggable
-              class="flex-wrap-column"
-              v-if="!existOriginalCombination"
+              class="flex-wrap-column margin-medium-bottom"
               v-model="taxonOriginal"
               item-key="id"
               :group="{
@@ -36,22 +39,33 @@
             >
               <template #item="{ element }">
                 <div
-                  class="horizontal-left-content middle item-draggable">
+                  class="horizontal-left-content middle item-draggable gap-small"
+                >
                   <input
                     type="text"
                     class="normal-input current-taxon"
                     :value="element.value.subject_object_tag"
-                    disabled>
-                  <span
-                    class="handle button circle-button button-submit"
+                    disabled
+                  />
+                  <VBtn
+                    color="create"
+                    circle
+                    class="handle"
                     title="Press and hold to drag input"
-                    data-icon="w_scroll-v"/>
+                  >
+                    <VIcon
+                      title="Press and hold to drag input"
+                      color="white"
+                      name="scrollV"
+                      small
+                    />
+                  </VBtn>
                 </div>
               </template>
             </draggable>
+            <hr class="divisor" />
           </div>
-        </form>
-        <hr>
+        </div>
         <original-combination
           class="separate-top separate-bottom"
           nomenclature-group="Genus"
@@ -68,7 +82,8 @@
             },
             filter: '.item-filter'
           }"
-          :relationships="combinationRanks.genusGroup"/>
+          :relationships="combinationRanks.genusGroup"
+        />
         <original-combination
           class="separate-top separate-bottom"
           v-if="!isGenus"
@@ -86,124 +101,154 @@
             },
             filter: '.item-filter'
           }"
-          :relationships="combinationRanks.speciesGroup"/>
+          :relationships="speciesRanks"
+        />
         <div class="original-combination separate-top separate-bottom">
           <div class="flex-wrap-column rank-name-label">
-            <label class="row capitalize"/>
+            <label class="row capitalize" />
           </div>
           <div
             v-if="existOriginalCombination"
-            class="flex-separate middle">
+            class="flex-separate middle"
+          >
             <span
               class="original-combination-name"
-              v-html="taxon.original_combination"/>
+              v-html="taxon.original_combination"
+            />
             <span
               class="circle-button btn-delete"
-              @click="removeAllCombinations()"/>
+              @click="removeAllCombinations()"
+            />
           </div>
         </div>
       </div>
     </template>
-  </block-layout>
+  </BlockLayout>
 </template>
 <script>
-
 import { GetterNames } from '../store/getters/getters'
 import { ActionNames } from '../store/actions/actions'
 import Draggable from 'vuedraggable'
 import OriginalCombination from './originalCombination.vue'
-import BlockLayout from 'components/layout/BlockLayout'
-import VBtn from 'components/ui/VBtn/index.vue'
+import BlockLayout from '@/components/layout/BlockLayout'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 import {
-  combinationType,
+  originalCombinationType,
   combinationIcnType
-} from '../const/originalCombinationTypes'
+} from '../const/combinationTypes'
 
 export default {
   components: {
     Draggable,
     OriginalCombination,
     BlockLayout,
+    VIcon,
     VBtn
   },
 
-  data () {
+  data() {
     return {
       taxonOriginal: []
     }
   },
 
   computed: {
-    taxon () {
+    taxon() {
       return this.$store.getters[GetterNames.GetTaxon]
     },
 
-    isGenus () {
-      return (this.$store.getters[GetterNames.GetTaxon].rank_string.split('::')[2] === 'GenusGroup')
+    isICN() {
+      return this.$store.getters[GetterNames.GetNomenclaturalCode] === 'icn'
     },
 
-    softValidation () {
-      return this.$store.getters[GetterNames.GetSoftValidation].original_combination.list
+    isGenus() {
+      return (
+        this.$store.getters[GetterNames.GetTaxon].rank_string.split('::')[2] ===
+        'GenusGroup'
+      )
     },
 
-    originalCombinations () {
+    softValidation() {
+      return this.$store.getters[GetterNames.GetSoftValidation]
+        .original_combination.list
+    },
+
+    originalCombinations() {
       return this.$store.getters[GetterNames.GetOriginalCombination]
     },
 
-    existOriginalCombination () {
-      const combinations = Object.values(this.originalCombinations)
-
-      return !!combinations.find(combination => combination?.subject_taxon_name_id === this.taxon?.id)
+    existOriginalCombination() {
+      return !!Object.values(this.originalCombinations).length
     },
 
-    types () {
-      return Object.assign({}, this.combinationRanks.genusGroup, this.combinationRanks.speciesGroup)
+    speciesRanks() {
+      return this.isICN
+        ? this.combinationRanks.SpeciesAndInfraspeciesGroup
+        : this.combinationRanks.speciesGroup
     },
 
-    combinationRanks () {
+    types() {
+      return Object.assign(
+        {},
+        this.combinationRanks.genusGroup,
+        this.speciesRanks
+      )
+    },
+
+    combinationRanks() {
       return this.taxon.nomenclatural_code === 'icn'
         ? combinationIcnType
-        : combinationType
+        : originalCombinationType
     }
   },
 
   watch: {
     existOriginalCombination: {
-      handler (newVal, oldVal) {
+      handler(newVal, oldVal) {
         if (newVal == oldVal) return true
         this.createTaxonOriginal()
       },
       immediate: true
     },
     taxon: {
-      handler (newVal, oldVal) {
-        if(newVal.id && !oldVal.id) {
+      handler(newVal, oldVal) {
+        if (newVal.id && !oldVal.id) {
           this.createTaxonOriginal()
         }
       }
     }
   },
   methods: {
-    saveTaxonName () {
+    saveTaxonName() {
       this.$store.dispatch(ActionNames.UpdateTaxonName, this.taxon).then(() => {
         this.$store.dispatch(ActionNames.LoadOriginalCombination, this.taxon.id)
       })
     },
 
-    createTaxonOriginal () {
-      this.taxonOriginal = [{
-        value: {
-          subject_taxon_name_id: this.taxon.id,
-          subject_object_tag: this.taxon.name
-        },
-        id: this.taxon.id
-      }]
+    createTaxonOriginal() {
+      this.taxonOriginal = [
+        {
+          value: {
+            subject_taxon_name_id: this.taxon.id,
+            subject_object_tag: this.taxon.name
+          },
+          id: this.taxon.id
+        }
+      ]
     },
 
-    removeAllCombinations () {
+    removeAllCombinations() {
       if (window.confirm('Are you sure you want to remove all combinations?')) {
-        const combinations = this.$store.getters[GetterNames.GetOriginalCombination]
-        const deleteCombinations = Object.values(combinations).map(combination => this.$store.dispatch(ActionNames.RemoveOriginalCombination, combination))
+        const combinations =
+          this.$store.getters[GetterNames.GetOriginalCombination]
+        const deleteCombinations = Object.values(combinations).map(
+          (combination) =>
+            this.$store.dispatch(
+              ActionNames.RemoveOriginalCombination,
+              combination
+            )
+        )
 
         Promise.all(deleteCombinations).then(() => {
           this.saveTaxonName()
@@ -211,7 +256,7 @@ export default {
       }
     },
 
-    addOriginalCombination () {
+    addOriginalCombination() {
       const promises = []
 
       this.$store.dispatch(ActionNames.AddOriginalCombination, {
@@ -219,15 +264,15 @@ export default {
         id: this.taxon.id
       })
 
-      this.taxon.ancestor_ids.forEach(item => {
-        const rank = item[1].split('::')[3]
+      this.taxon.ancestor_ids.forEach(([id, rankString]) => {
+        const rank = rankString.split('::')[3]
         const rankInType = this.types[rank?.toLowerCase()]
 
         if (rankInType) {
           promises.push(
             this.$store.dispatch(ActionNames.AddOriginalCombination, {
               type: rankInType,
-              id: item[0]
+              id
             })
           )
         }
@@ -238,10 +283,10 @@ export default {
       })
     },
 
-    createCombination (id, rank) {
+    createCombination(id, rank) {
       const data = {
         type: this.types[rank],
-        id: id
+        id
       }
       this.$store.dispatch(ActionNames.AddOriginalCombination, data)
     }
@@ -257,7 +302,7 @@ export default {
     width: 400px;
   }
   .original-combination-name {
-    margin-right:35px;
+    margin-right: 35px;
     width: 400px;
   }
   .handle {

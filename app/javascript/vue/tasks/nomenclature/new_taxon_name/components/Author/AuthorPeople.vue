@@ -1,6 +1,7 @@
 <template>
   <div class="flex-separate">
     <role-picker
+      ref="rolePicker"
       v-model="roles"
       @create="updateLastChange"
       @delete="updateLastChange"
@@ -21,75 +22,86 @@
   </div>
 </template>
 <script>
-
-import { ROLE_TAXON_NAME_AUTHOR } from 'constants/index.js'
+import { ROLE_TAXON_NAME_AUTHOR } from '@/constants/index.js'
 import { ActionNames } from '../../store/actions/actions'
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
-import RolePicker from 'components/role_picker.vue'
+import { sortArray } from '@/helpers'
+import RolePicker from '@/components/role_picker.vue'
 
 export default {
   components: { RolePicker },
 
   computed: {
-    citation () {
+    citation() {
       return this.$store.getters[GetterNames.GetCitation]
     },
 
     taxon: {
-      get () {
+      get() {
         return this.$store.getters[GetterNames.GetTaxon]
       },
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetTaxon, value)
       }
     },
 
     roles: {
-      get () {
+      get() {
         const roles = this.$store.getters[GetterNames.GetRoles]
 
-        return roles
-          ? roles.sort((a, b) => a.position - b.position)
-          : []
+        return roles ? roles.sort((a, b) => a.position - b.position) : []
       },
-      set (value) {
+      set(value) {
         this.$store.commit(MutationNames.SetRoles, value)
       }
     },
 
-    isAlreadyClone () {
+    isAlreadyClone() {
       if (this.citation.source.author_roles.length === 0) return true
 
-      const authorsId = this.citation.source.author_roles.map(author => Number(author.person.id))
-      const personsIds = this.roles.map(role => role.person.id)
+      const authorsId = this.citation.source.author_roles.map((author) =>
+        Number(author.person.id)
+      )
+      const personsIds = this.roles.map((role) => role.person.id)
 
-      return authorsId.every(id => personsIds.includes(id))
+      return authorsId.every((id) => personsIds.includes(id))
     }
   },
 
   methods: {
-    cloneFromSource () {
-      const personsIds = this.roles.map(role => role.person.id)
+    focus() {
+      this.$refs.rolePicker?.focus()
+    },
 
-      const authorsPerson = this.citation.source.author_roles.map(author => {
-        if (!personsIds.includes(Number(author.person.id))) {
-          return {
+    cloneFromSource() {
+      const authors = []
+      const peopleIds = this.roles.map((role) => role.person.id)
+      const sourceAuthors = sortArray(
+        this.citation.source.author_roles,
+        'position'
+      )
+
+      sourceAuthors.forEach((author) => {
+        if (!peopleIds.includes(Number(author.person.id))) {
+          authors.push({
             person_id: author.person.id,
             type: ROLE_TAXON_NAME_AUTHOR
-          }
+          })
         }
       })
 
-      this.roles = authorsPerson
-      this.$store.dispatch(ActionNames.UpdateTaxonName, this.taxon)
+      this.roles = authors
+      this.$store
+        .dispatch(ActionNames.UpdateTaxonName, this.taxon)
+        .catch(() => {})
     },
 
-    updateLastChange () {
+    updateLastChange() {
       this.$store.commit(MutationNames.UpdateLastChange)
     },
 
-    updatePeople (list) {
+    updatePeople(list) {
       this.$store.commit(MutationNames.SetRoles, list)
     }
   }

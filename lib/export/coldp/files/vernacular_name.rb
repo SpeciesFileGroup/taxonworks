@@ -4,18 +4,19 @@
 # language
 # country
 # area
-# lifestage
 # sex
 # reference_id
+# modified
+# modifiedBy
 #
 module Export::Coldp::Files::VernacularName
 
-  # @return [String, nil] 
+  # @return [String, nil]
   #   the 'English' translation(s) if available
   def self.transliteration(common_name)
     n = common_name.alternate_values.where(type: 'AlternateValue::Translation', alternate_value_object_attribute: :name).load
     if n.any?
-      n.collect{|a| a.language.name == 'English' ? a.language.name : nil}.compact.join('; ')
+      n.collect{|a| a.language.name == 'English' ? a.value : nil}.compact.join('; ')
     else
       nil
     end
@@ -25,33 +26,18 @@ module Export::Coldp::Files::VernacularName
     common_name.geographic_area&.self_and_ancestors&.collect{|a| a.name}&.join('; ')
   end
 
-  # TODO: Map to biocuration attribute via URI
-  def self.life_stage(common_name)
-    nil
+  def self.common_names(otus)
+    a = CommonName.with(otu_scope: otus.select(:id))
+      .joins('JOIN otu_scope on otu_scope.id = common_names.otu_id')
+      .left_joins(:geographic_area, :language, :sources)
+      .select("common_names.*, geographic_areas.iso_3166_a2, languages.alpha_3_bibliographic, STRING_AGG(sources.id::text, ',') AS aggregate_source_ids")
+      .group('common_names.id, geographic_areas.iso_3166_a2, languages.alpha_3_bibliographic')
   end
 
-  # TODO: Map to biocuration attribute via URI
-  def self.sex(common_name)
-    nil
-  end
+  def self.generate(otus, project_members, reference_csv = nil )
+    cn = nil
 
-  # @return [String, nil]
-  # "supporting the taxonomic concept"
-  # Potentially- all other Citations tied to OTU, what exactly supports a concept?
-  #   Not used internally within CoLDP, for reference only. TODO: confirm.
-  def self.reference_id(common_name)
-    i = common_name.sources.pluck(:id)
-    return i.join(',') if i.any?
-    nil
-  end
-
-  def self.generate(otus, reference_csv = nil )
-    CSV.generate(col_sep: "\t") do |csv|
-
-      # TODO: Biocuration attributes on these two 
-      # lifestage
-      # sex
-
+    text = ::CSV.generate(col_sep: "\t") do |csv|
       csv << %w{
         taxonID
         name
@@ -60,25 +46,41 @@ module Export::Coldp::Files::VernacularName
         country
         area
         referenceID
+        modified
+        modifiedBy
       }
 
-      otus.joins(:common_names).each do |o|
-        o.common_names.each do |n|
-          sources = n.sources.load
+      cn = common_names(otus)
 
-          csv << [
-            o.id,
-            n.name,
-            transliteration(n),
-            n.language&.alpha_3_bibliographic,
-            n.geographic_area&.level0&.iso_3166_a2,
-            area(n),
-            sources.collect{|a| a.id}.join(',')  # reference_id
-          ]
+      transliterations = AlternateValue::Translation.with(name_scope: cn)
+        .joins("JOIN name_scope on alternate_values.alternate_value_object_id = name_scope.id AND alternate_values.alternate_value_object_type = 'CommonName'")
+        .left_joins(:language)
+        .where(languages: {english_name: 'English'}, alternate_value_object_attribute: 'name')
+        .group('name_scope.id')
+        .select("name_scope.id, STRING_AGG(alternate_values.value::text, ',') AS transliterations")
+        .map{|a| [a.id, a.transliterations]}.to_h
 
-          Export::Coldp::Files::Reference.add_reference_rows(sources, reference_csv) if reference_csv && sources.any?
-        end
+      cn.each do |n|
+        csv << [
+          n.otu_id,                                                      # taxon_id
+          n.name,                                                        # name
+          transliterations[n.id],                                        # transliteration  # TODO: query expensive
+          n.alpha_3_bibliographic,                                       # language
+          n.iso_3166_a2,                                                 # country
+          area(n),                                                       # area # TODO: query expensive
+          n.aggregate_source_ids,                                        # reference_id
+          Export::Coldp.modified(n[:updated_at]),                        # modified
+          Export::Coldp.modified_by(n[:updated_by_id], project_members)  # modified_by
+        ]
       end
     end
+
+    sources = Source.with(name_scope: cn)
+      .joins(:citations)
+      .joins("JOIN name_scope ns on ns.id = citations.citation_object_id AND citations.citation_object_type = 'CommonName'")
+      .distinct
+
+    Export::Coldp::Files::Reference.add_reference_rows(sources, reference_csv, project_members) if reference_csv && sources.any?
+    text
   end
 end

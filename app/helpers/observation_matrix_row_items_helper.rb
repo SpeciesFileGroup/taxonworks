@@ -6,9 +6,9 @@ module ObservationMatrixRowItemsHelper
     if observation_matrix_row_item.is_dynamic?
       case observation_matrix_row_item.type
       when 'ObservationMatrixRowItem::Dynamic::Tag'
-        (controlled_vocabulary_term_tag(observation_matrix_row_item.controlled_vocabulary_term) + ' (tag keyword)').html_safe
+        (controlled_vocabulary_term_tag(observation_matrix_row_item.observation_object) + ' (tag keyword)').html_safe
       when 'ObservationMatrixRowItem::Dynamic::TaxonName'
-        (taxon_name_tag(observation_matrix_row_item.taxon_name) + ' (taxon name)').html_safe
+        (taxon_name_tag(observation_matrix_row_item.observation_object) + ' (taxon name)').html_safe
       else
         'bad type (Admin: see row items helper)'
       end

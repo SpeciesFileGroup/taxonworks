@@ -1,8 +1,16 @@
 class OtusController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_otu, only: [:show, :edit, :update, :destroy, :collection_objects, :navigation, :breadcrumbs, :timeline, :coordinate, :api_show]
-  after_action -> { set_pagination_headers(:otus) }, only: [:index, :api_index], if: :json_request? 
+  before_action :set_otu, only: [
+    :show, :edit, :update, :destroy, :collection_objects, :navigation,
+    :breadcrumbs, :timeline, :coordinate, :distribution, :citations_inventory,
+    :distribution_is_absent,
+    :api_show, :api_taxonomy_inventory, :api_type_material_inventory,
+    :api_nomenclature_citations, :api_citations_inventory, :api_distribution,
+    :api_distribution_is_absent,
+    :api_content, :api_dwc_inventory, :api_dwc_gallery, :api_key_inventory, :api_determined_to_rank]
+
+  after_action -> { set_pagination_headers(:otus) }, only: [:index, :api_index, :api_alphabetical_index], if: :json_request?
 
   # GET /otus
   # GET /otus.json
@@ -13,7 +21,11 @@ class OtusController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @otus = Queries::Otu::Filter.new(filter_params).all.where(project_id: sessions_current_project_id).page(params[:page]).per(params[:per] || 500)
+        @otus = ::Queries::Otu::Filter.new(params).all
+          .page(params[:page])
+          .per(params[:per])
+          .eager_load(:taxon_name)
+          .order(:cached, 'otus.name')
       }
     end
   end
@@ -52,7 +64,7 @@ class OtusController < ApplicationController
   end
 
   # GET /otus/1/navigation.json
-  def breadcrumbs 
+  def breadcrumbs
     render json: :not_found and return if @otu.nil?
   end
 
@@ -68,7 +80,7 @@ class OtusController < ApplicationController
         format.json { render action: :show, status: :created, location: @otu }
       else
         format.html { render action: 'new' }
-        format.json { render json: @otu.errors, status: :unprocessable_entity }
+        format.json { render json: @otu.errors, status: :unprocessable_content }
       end
     end
   end
@@ -82,7 +94,7 @@ class OtusController < ApplicationController
         format.json { render :show, location: @otu }
       else
         format.html { render action: 'edit' }
-        format.json { render json: @otu.errors, status: :unprocessable_entity }
+        format.json { render json: @otu.errors, status: :unprocessable_content }
       end
     end
   end
@@ -93,18 +105,18 @@ class OtusController < ApplicationController
     @otu.destroy
     respond_to do |format|
       if @otu.destroyed?
-        format.html { destroy_redirect @otu, notice: 'Otu was successfully destroyed.' }
+        format.html { destroy_redirect @otu, notice: 'OTU was successfully destroyed.' }
         format.json { head :no_content}
       else
-        format.html { destroy_redirect @otu, notice: 'Otu was not destroyed, ' + @otu.errors.full_messages.join('; ') }
-        format.json { render json: @otu.errors, status: :unprocessable_entity }
+        format.html { destroy_redirect @otu, notice: 'OTU was not destroyed, ' + @otu.errors.full_messages.join('; ') }
+        format.json { render json: @otu.errors, status: :unprocessable_content }
       end
     end
   end
 
-  # GET /api/v1/otus/1/collection_objects
+  # GET /otus/1/collection_objects
   def collection_objects
-    @collection_objects = Otu.find(params[:id]).collection_objects.pluck(:id)
+    @collection_objects = Otu.where(project_id: sessions_current_project_id).find(params[:id]).collection_objects.pluck(:id)
   end
 
   def search
@@ -116,17 +128,13 @@ class OtusController < ApplicationController
     end
   end
 
-  def autocomplete
-    @otus = Queries::Otu::Autocomplete.new(params.require(:term), project_id: sessions_current_project_id).autocomplete
-  end
-
   def batch_load
     # see app/views/otus/batch_load.html.erb
   end
 
   def preview_simple_batch_load
     if params[:file]
-      @result = BatchLoad::Import::Otus.new(batch_params.merge(user_map))
+      @result = BatchLoad::Import::Otus.new(**batch_params.merge(user_map))
       digest_cookie(params[:file].tempfile, :batch_otus_md5)
       render('otus/batch_load/simple/preview')
     else
@@ -137,7 +145,7 @@ class OtusController < ApplicationController
 
   def create_simple_batch_load
     if params[:file] && digested_cookie_exists?(params[:file].tempfile, :batch_otus_md5)
-      @result = BatchLoad::Import::Otus.new(batch_params.merge(user_map))
+      @result = BatchLoad::Import::Otus.new(**batch_params.merge(user_map))
       if @result.create
         flash[:notice] = "Successfully processed file, #{@result.total_records_created} otus were created."
         render('otus/batch_load/simple/create') and return
@@ -206,7 +214,7 @@ class OtusController < ApplicationController
       digest_cookie(params[:file].tempfile, :data_attributes_batch_load_otus_md5)
       render 'otus/batch_load/data_attributes/preview'
     else
-      flash[:notice] = "No file provided!"
+      flash[:notice] = 'No file provided!'
       redirect_to action: :batch_load
     end
   end
@@ -229,29 +237,71 @@ class OtusController < ApplicationController
 
   # GET /otus/download
   def download
-    send_data Export::Download.generate_csv(Otu.where(project_id: sessions_current_project_id)),
+    send_data Export::CSV.generate_csv(Otu.where(project_id: sessions_current_project_id)),
       type: 'text',
-      filename: "otus_#{DateTime.now}.csv"
+      filename: "otus_#{DateTime.now}.tsv"
   end
 
   # GET api/v1/otus/by_name/:name?token=:token&project_id=:id
   def by_name
     @otu_name = params.require(:name)
-    @otu_ids = Queries::Otu::Autocomplete.new(@otu_name, project_id: params.require(:project_id)).all.pluck(:id)
+    @otu_ids = ::Queries::Otu::Autocomplete.new(@otu_name, project_id: params.require(:project_id)).all.pluck(:id)
   end
 
   # GET /otus/select_options?target=TaxonDetermination
   def select_options
-    @otus = Otu.select_optimized(sessions_current_user_id, sessions_current_project_id, params.require(:target))
+    @otus = Otu.select_optimized(sessions_current_user_id, sessions_current_project_id, params.require(:target), params['ba_target'])
   end
 
+  # PATCH /otus/batch_update.json?otus_query=<>&otu={taxon_name_id=123}}
+  def batch_update
+    if r = Otu.batch_update(
+        preview: params[:preview],
+        otu: otu_params.merge(by: sessions_current_user_id),
+        otu_query: params[:otu_query],
+        user_id: sessions_current_user_id,
+        project_id: sessions_current_project_id)
+      render json: r.to_json, status: :ok
+    else
+      render json: {}, status: :unprocessable_content
+    end
+  end
+
+  # GET /api/v1/otus.csv
   # GET /api/v1/otus
   def api_index
-    @otus = Queries::Otu::Filter.new(api_params).all
+    q = ::Queries::Otu::Filter.new(params.merge!(api: true)).all
       .where(project_id: sessions_current_project_id)
       .order('otus.id')
-      .page(params[:page]).per(params[:per])
+
+    respond_to do |format|
+      format.json {
+        @otus = q.page(params[:page]).per(params[:per])
+        render '/otus/api/v1/index'
+      }
+      format.csv {
+        @otus = q
+        send_data Export::CSV.generate_csv(
+          @otus,
+          exclude_columns: %w{updated_by_id created_by_id project_id},
+        ), type: 'text', filename: "otus_#{DateTime.now}.tsv"
+      }
+    end
+  end
+
+  def api_alphabetical_index
+    @otus = ::Queries::Otu::Filter.new(params.merge!(api: true)).all
+      .where(project_id: sessions_current_project_id)
+      .page(params[:page])
+      .per(params[:per])
+      .eager_load(:taxon_name)
+      .order(:cached, 'otus.name')
+
     render '/otus/api/v1/index'
+  end
+
+  def api_determined_to_rank
+    render json: helpers.dwc_determined_to_rank(@otu, sessions_current_project_id)
   end
 
   # GET /api/v1/otus/:id
@@ -259,20 +309,269 @@ class OtusController < ApplicationController
     render '/otus/api/v1/show'
   end
 
+  def autocomplete
+    @otus = ::Queries::Otu::Autocomplete.new(
+      params.require(:term),
+      exact: params[:exact],  # 'true',
+      project_id: sessions_current_project_id,
+      with_taxon_name: params[:with_taxon_name],
+      having_taxon_name_only: params[:having_taxon_name_only],
+    ).autocomplete
+  end
+
+  # GET /api/v1/otus/autocomplete
   def api_autocomplete
-    @otus = Queries::Otu::Autocomplete.new(params.require(:term), project_id: sessions_current_project_id).autocomplete
+    @term = params.require(:term)
+
+    include_common_names =
+      params[:include_common_names].present? ? true : false
+
+    @otu_metadata = ::Queries::Otu::Autocomplete.new(
+      @term,
+      project_id: sessions_current_project_id,
+      with_taxon_name: params[:with_taxon_name],
+      having_taxon_name_only: params[:having_taxon_name_only],
+      include_common_names:,
+      include_taxon_name: true
+    ).api_autocomplete_extended
+
+    if include_common_names
+      @otu_metadata.each do |m|
+        m[:common_names] = m[:otu].common_names
+      end
+    end
+
     render '/otus/api/v1/autocomplete'
+  end
+
+  # GET /api/v1/otus/:id/inventory/images
+  #  - routed here to take advantage of Pagination
+  def api_image_inventory
+    @depictions = ::Queries::Depiction::Filter.new(
+      project_id: sessions_current_project_id,
+      otu_id: [params.require(:otu_id)],
+      otu_scope: (params[:otu_scope] || :all)
+    ).all
+      .joins("LEFT OUTER JOIN observations ON (observations.id = depictions.depiction_object_id and depictions.depiction_object_type = 'Observation')")
+      .joins('LEFT OUTER JOIN descriptors ON descriptors.id = observations.descriptor_id')
+      .joins('LEFT OUTER JOIN observation_matrix_column_items ON descriptors.id = observation_matrix_column_items.descriptor_id')
+      .eager_load(image: [:attribution])
+    if params[:sort_order]
+      @depictions = @depictions.order( Arel.sql( conditional_sort('depictions.depiction_object_type', params[:sort_order]) + ', observation_matrix_column_items.position, depictions.depiction_object_id, depictions.position' ))
+    else
+      @depictions = @depictions.order('depictions.depiction_object_type, observation_matrix_column_items.position, depictions.depiction_object_id, depictions.position')
+    end
+    @depictions = @depictions.page(params[:page]).per(params[:per])
+
+    render '/otus/api/v1/inventory/images'
+  end
+
+  # GET /api/v1/otus/:id/inventory/keys
+  def api_key_inventory
+    render json: helpers.otu_key_inventory(@otu)
+  end
+
+  # GET /api/v1/otus/:id/inventory/taxonomy
+  def api_taxonomy_inventory
+    render '/otus/api/v1/inventory/taxonomy'
+  end
+
+  # GET /api/v1/otus/:id/inventory/dwc
+  def api_dwc_inventory
+    respond_to do |format|
+      format.csv do
+        send_data Export::CSV.generate_csv(
+          DwcOccurrence.scoped_by_otu(@otu),
+          exclude_columns: ['id', 'created_by_id', 'updated_by_id', 'project_id', 'updated_at', 'rebuild_set'],
+          header_converters: [:dwc_headers]),
+        type: 'text',
+        filename: "dwc_#{helpers.label_for_otu(@otu).gsub(/\W/,'_')}_#{DateTime.now}.tsv"
+      end
+
+      format.json do
+        if params[:page].blank? && params[:per].blank?
+          render json: DwcOccurrence.scoped_by_otu(@otu).to_json
+        else # only apply if provided, do not fall back to default scope
+          r = DwcOccurrence.scoped_by_otu(@otu).page(params[:page]).per(params[:per])
+          assign_pagination(r)
+          render json: r.to_json
+        end
+      end
+    end
+  end
+
+  # GET /api/v1/otus/:id/inventory/dwc_gallery.json?per=1&page=2
+  def api_dwc_gallery
+    # see otus_helper
+
+    @data = helpers.dwc_gallery_data(@otu, dwc_occurrence_id: params[:dwc_occurrence_id])
+    render '/otus/api/v1/inventory/dwc_gallery'
+  end
+
+  # GET /api/v1/otus/:id/inventory/content
+  def api_content
+    topic_ids = [params[:topic_id]].flatten.compact.uniq
+
+    @public_content =  PublicContent.where(otu: @otu, project_id: sessions_current_project_id)
+    @public_content = @public_content.joins(:topic).where(topic_id: topic_ids) unless topic_ids.empty?
+
+    render '/otus/api/v1/inventory/content'
+  end
+
+  # GET /api/v1/otus/:id/inventory/type_material
+  def api_type_material_inventory
+    render '/otus/api/v1/inventory/type_material'
+  end
+
+  # GET /otus/:id/inventory/citations
+  def citations_inventory
+    @catalog = Catalog::Inventory.new(targets: [@otu])
+    render '/otus/citations'
+  end
+
+  # GET /api/v1/otus/:id/inventory/citations
+  def api_citations_inventory
+    @catalog = Catalog::Inventory.new(targets: [@otu])
+    render '/otus/api/v1/inventory/citations'
+  end
+
+  # GET /api/v1/otus/:id/inventory/nomenclature_citations
+  def api_nomenclature_citations
+    if @otu.taxon_name
+      @data = ::Catalog::Nomenclature::Entry.new(@otu.taxon_name)
+      render '/otus/api/v1/inventory/nomenclature_citations'
+    else
+      render json: {}, status: :unprocessable_content
+    end
+  end
+
+  # TODO: Redirect to json if too big?
+  # GET /otus/:id/inventory/distribution.json
+  # GET /otus/:id/inventory/distribution.geojson
+  def distribution
+    respond_to do |format|
+      format.json do
+        @cached_map_type = params[:cached_map_type] || 'CachedMapItem::WebLevel1'
+        @quicker_cached_map = @otu.quicker_cached_map(@cached_map_type)
+
+        render json: { error: 'no map available'}, status: :not_found unless @quicker_cached_map.present? and return
+      end
+
+      format.geojson do
+      end
+    end
+  end
+
+  # TODO: Considerations
+  # .json
+  #   * Scope Genus, Family by default
+  #   *
+  #   * 404 when no CachedMap computable
+  #
+  # .geo_json
+  #   * Always returns result, could be empty
+  #
+  #
+  # GET /api/v1/otus/:id/inventory/distribution.json
+  # GET /api/v1/otus/:id/inventory/distribution.geojson
+  def api_distribution
+    respond_to do |format|
+      format.json do
+        @cached_map_type = params[:cached_map_type] || 'CachedMapItem::WebLevel1'
+        @quicker_cached_map = @otu.quicker_cached_map(@cached_map_type)
+        if @quicker_cached_map.blank?
+          render json: { error: 'no map available'}, status: :not_found and return
+        end
+        render '/otus/api/v1/inventory/distribution'
+      end
+      format.geojson do
+        render '/otus/api/v1/inventory/distribution'
+      end
+    end
+
+  end
+
+  # GET /otus/autoselect
+  def autoselect
+    render json: ::Autoselect::Otu::Autoselect.new(
+      term: params[:term],
+      level: params[:level],
+      project_id: sessions_current_project_id,
+      user_id: sessions_current_user_id,
+      **autoselect_params
+    ).response
+  end
+
+  # POST /otus/autoselect_col_create
+  # Creates TaxonNames from a CoL alignment then wraps the result in a new OTU.
+  def autoselect_col_create
+    tn_result = ::Autoselect::TaxonName::ColCreator.new(
+      rows:     autoselect_col_create_params,
+      col_code: params[:col_code],
+      project_id: sessions_current_project_id,
+      user_id:    sessions_current_user_id
+    ).call
+
+    otu = ::Otu.create!(
+      taxon_name_id: tn_result[:taxon_name_id],
+      project_id:    sessions_current_project_id,
+      created_by_id: sessions_current_user_id,
+      updated_by_id: sessions_current_user_id
+    )
+    render json: { otu_id: otu.id, taxon_name_id: tn_result[:taxon_name_id], global_id: otu.to_global_id.to_s }
+  rescue ::Autoselect::TaxonName::ColCreator::CreationError => e
+    render json: {
+      error:           e.message,
+      failed_col_name: e.col_name,
+      failed_col_id:   e.col_id
+    }, status: :unprocessable_entity
+  end
+
+  # GET /otus/:id/inventory/distribution_is_absent.geojson
+  def distribution_is_absent
+    @descendants = params[:descendants] == 'true'
+    respond_to do |format|
+      format.geojson do
+      end
+    end
+  end
+
+  # GET /api/v1/otus/:id/inventory/distribution_is_absent.geojson
+  def api_distribution_is_absent
+    @descendants = params[:descendants] == 'true'
+    respond_to do |format|
+      format.geojson do
+        render '/otus/api/v1/inventory/distribution_is_absent'
+      end
+    end
   end
 
   private
 
+  def autoselect_params
+    params.permit(:show_info, :dataset_id).to_h.symbolize_keys
+  end
+
+  def autoselect_col_create_params
+    params.permit(rows: [:col_name, :col_rank, :col_id, :dataset_id, :taxonworks_id, :col_authorship, :col_year, :col_status])
+          .fetch(:rows, [])
+          .map(&:to_h)
+  end
+
   def set_otu
-    @otu = Otu.where(project_id: sessions_current_project_id).find(params[:id])
+    @otu = Otu.where(project_id: sessions_current_project_id).eager_load(:taxon_name).find(params[:id])
     @recent_object = @otu
   end
 
+  # def set_cached_map
+  #   @cached_map = @otu.cached_maps.where(cached_map_type: params[:cached_map_type] || 'CachedMapItem::WebLevel1').first
+  #   if @cached_map.blank?
+
+  #   end
+  # end
+
   def otu_params
-    params.require(:otu).permit(:name, :taxon_name_id)
+    params.require(:otu).permit(:name, :taxon_name_id) # , :exact
   end
 
   def batch_params
@@ -287,29 +586,17 @@ class OtusController < ApplicationController
       .symbolize_keys
   end
 
-  def filter_params
-    params.permit(
-      :taxon_name_id, :otu_id,
-      biological_association_ids: [], taxon_name_ids: [], otu_ids: [],
-      taxon_name_relationship_ids: [],taxon_name_classification_ids: [],
-      asserted_distribution_ids: [],
-      data_attributes_attributes: [ :id, :_destroy, :controlled_vocabulary_term_id, :type, :attribute_subject_id, :attribute_subject_type, :value ]
-    )
-  end
-
-  def api_params
-    params.permit(
-      :name,
-      :taxon_name_id, :otu_id,
-      biological_association_ids: [], taxon_name_ids: [], otu_ids: [],
-      taxon_name_relationship_ids: [],taxon_name_classification_ids: [],
-      asserted_distribution_ids: [],
-      data_attributes_attributes: [ :id, :_destroy, :controlled_vocabulary_term_id, :type, :attribute_subject_id, :attribute_subject_type, :value ]
-    )
-  end
-
   def user_map
     {user_header_map: {'otu' => 'otu_name'}}
+  end
+
+  # TODO: Move to generic toolkit  in lib/queries
+  def conditional_sort(name, array)
+    safe_name = ApplicationRecord.sanitize_sql_for_order(name)
+    s = "CASE #{safe_name} " + array.each_with_index.collect{|v,i|
+      ApplicationRecord.sanitize_sql_for_conditions(["WHEN ? THEN #{i}", v])}.join(' ')
+    s << ' ELSE 999999 END'
+    s
   end
 
 end

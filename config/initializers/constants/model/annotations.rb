@@ -1,6 +1,7 @@
 ANNOTATION_TYPES = [
   :tags,
-  :citations,  
+  :citations,
+  :conveyances,
   :alternate_values,
   :depictions,
   :confidences,
@@ -9,5 +10,6 @@ ANNOTATION_TYPES = [
   :identifiers,
   :data_attributes,
   :notes,
-  :attribution
+  :attribution,
+  :verifiers
 ].freeze

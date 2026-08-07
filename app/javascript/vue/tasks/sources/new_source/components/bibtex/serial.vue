@@ -3,10 +3,11 @@
     <div class="horizontal-left-content full_width">
       <fieldset
         v-help.section.BibTeX.serial
-        class="full_width">
+        class="full_width"
+      >
         <legend>Serial</legend>
         <div class="horizontal-left-content align-start">
-          <smart-selector
+          <SmartSelector
             class="full_width"
             input-id="serials-autocomplete"
             model="serials"
@@ -15,27 +16,37 @@
             label="name"
             pin-section="Serials"
             pin-type="Serial"
-            :filter-ids="serialId"
-            @selected="setSelected"/>
-          <lock-component
+            :filter-ids="selected ? [selected.id] : []"
+            @selected="setSelected"
+          />
+          <VLock
             class="margin-small-left"
-            v-model="settings.lock.serial_id"/>
+            v-model="settings.lock.serial_id"
+          />
           <a
             class="margin-small-top margin-small-left"
             target="_blank"
-            href="/serials/new">New</a>
+            href="/serials/new"
+            >New</a
+          >
         </div>
         <div
           class="middle separate-top"
-          v-if="selected">
-          <div class="horizontal-left-content">
-            <span
-              class="separate-right"
-              v-html="selected.name"/>
-            <radial-object :global-id="selected.global_id"/>
-            <span
-              class="button-circle btn-undo button-default separate-left"
-              @click="unset"/>
+          v-if="selected"
+        >
+          <div class="horizontal-left-content gap-small">
+            <span v-html="selected.name" />
+            <RadialObject :global-id="selected.global_id" />
+            <VBtn
+              color="primary"
+              circle
+              @click="unset"
+            >
+              <VIcon
+                small
+                name="undo"
+              />
+            </VBtn>
           </div>
         </div>
       </fieldset>
@@ -43,96 +54,52 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref, watch } from 'vue'
+import { useSettingStore } from '../../store'
+import { Serial } from '@/routes/endpoints'
+import VLock from '@/components/ui/VLock/index.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
+import SmartSelector from '@/components/ui/SmartSelector'
+import RadialObject from '@/components/radials/navigation/radial'
 
-import { GetterNames } from '../../store/getters/getters'
-import { MutationNames } from '../../store/mutations/mutations'
-import { Serial } from 'routes/endpoints'
+const source = defineModel({
+  type: Object,
+  required: true
+})
 
-import LockComponent from 'components/ui/VLock/index.vue'
-import SmartSelector from 'components/ui/SmartSelector'
-import RadialObject from 'components/radials/navigation/radial'
+const settings = useSettingStore()
+const selected = ref()
 
-export default {
-  components: {
-    SmartSelector,
-    LockComponent,
-    RadialObject
-  },
-
-  computed: {
-    source: {
-      get () {
-        return this.$store.getters[GetterNames.GetSource]
-      },
-      set (value) {
-        this.$store.commit(MutationNames.SetSource, value)
+watch(
+  () => source.value.serial_id,
+  (newVal, oldVal) => {
+    if (newVal) {
+      if (oldVal !== newVal) {
+        Serial.find(newVal).then(({ body }) => {
+          selected.value = body
+        })
       }
-    },
-
-    serialId: {
-      get () {
-        return this.$store.getters[GetterNames.GetSerialId]
-      },
-      set (value) {
-        this.$store.commit(MutationNames.SetSerialId, value)
-      }
-    },
-
-    settings: {
-      get () {
-        return this.$store.getters[GetterNames.GetSettings]
-      },
-      set (value) {
-        this.$store.commit(MutationNames.SetSettings, value)
-      }
-    },
-    lastSave () {
-      return this.$store.getters[GetterNames.GetLastSave]
+    } else {
+      selected.value = undefined
     }
   },
-
-  data () {
-    return {
-      selected: undefined
-    }
-  },
-
-  watch: {
-    serialId: {
-      handler (newVal, oldVal) {
-        if (newVal) {
-          if (oldVal !== newVal) {
-            Serial.find(newVal).then(response => {
-              this.selected = response.body
-            })
-          }
-        }
-        else {
-          this.selected = undefined
-        }
-      },
-      immediate: true,
-      deep: true
-    }
-  },
-
-  methods: {
-    setSelected (serial) {
-      this.source.serial_id = serial.id
-      this.selected = serial
-    },
-
-    unset () {
-      this.selected = undefined
-      this.source.serial_id = null
-    },
-
-    getDefault (id) {
-      Serial.find(id).then(response => {
-        this.selected = response.body
-      })
-    }
+  {
+    immediate: true,
+    deep: true
   }
+)
+
+function setSelected(serial) {
+  selected.value = serial
+  source.value.serial_id = serial.id
+  source.value.isUnsaved = true
+}
+
+function unset() {
+  selected.value = undefined
+  source.value.serial_id = null
+  source.value.isUnsaved = true
 }
 </script>

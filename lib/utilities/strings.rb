@@ -1,5 +1,36 @@
-# Methods that recieve or generate a String. This methods in this library should be completely independant (i.e. ultimately gemifiable) from TaxonWorks.
+# Methods that receive or generate a String. This methods in this library should be completely independant (i.e. ultimately gemifiable) from TaxonWorks.
 module Utilities::Strings
+
+  CLEANABLE = [
+    "\u0000", # nill string
+    "\u0010", # DLE - data link escape
+    "\u009A", # SCI - single character introducer
+    "\u007F", # DEL - delete
+    # "\u00A0", # no-break space !! Rails .blank? is true
+  ].freeze
+
+  # @return String, nil
+  #   replace <br>, <i>, <b> tags with their asciidoc equivalents
+  def self.asciify(string)
+    return nil if string.to_s.length == 0
+
+    string.gsub!(/<br>/, "\n")
+    string.gsub!(/<i>|<\/i>/, '_')
+    string.gsub!(/<b>|<\/b>/, '**')
+    string
+  end
+
+  def self.linearize(string, separator = ' | ')
+    return nil if string.to_s.length == 0
+    string.gsub(/\n|(\r\n)/, separator)
+  end
+
+  # @return String,nil
+  #   the string preceeded with "a" or "an"
+  def self.a_label(string)
+    return nil if string.to_s.length == 0
+    (string =~ /\A[aeiou]/i ? 'an ' : 'a ') + string
+  end
 
   # @param [Integer] string_length
   # @return [String, nil]
@@ -18,20 +49,24 @@ module Utilities::Strings
       a.strip!
       a = nil if a == ''
     end
-    a 
+    a
+  end
+
+  # @param [String] string
+  # @return Boolean
+  def self.cleanable?(string)
+    string =~ /#{CLEANABLE.join('|')}|\s/
   end
 
   # @param [String] string
   # @return [String, nil]
-  #  strips pre/post fixed space and condenses internal spaces, and also  but returns nil (not empty string) if nothing is left
-  def self.nil_squish_strip(string)
+  def self.clean(string)
     a = string.dup
     if !a.nil?
-      a.delete("\u0000")
-      a.squish!
+      a.gsub!(/#{CLEANABLE.join('|')}/, '')
       a = nil if a == ''
     end
-    a 
+    a
   end
 
   # @param [String] text
@@ -67,7 +102,7 @@ module Utilities::Strings
   #   whether the string is an integer (positive or negative)
   # see http://stackoverflow.com/questions/1235863/test-if-a-string-is-basically-an-integer-in-quotes-using-ruby
   # Note:  Might checkout CSV::Converters constants to see how they handle this
-  # Allows '02' ... hmm
+  # Allows '02', but treated as OK as 02.to_i returns 2
   def self.is_i?(string)
     /\A[-+]?\d+\z/ === string
   end
@@ -109,9 +144,16 @@ module Utilities::Strings
   # @param string [String]
   # @return [Array]
   #   whitespace and special character split, then any string containing a digit eliminated
+  # #alphanumeric allows searches by page number, year, etc.
   def self.alphabetic_strings(string)
     return [] if string.nil? || string.length == 0
-    string.split(/\W/).select { |b| !(b =~ /\d/) }.reject { |b| b.empty? }
+    string.split(/[^[[:word:]]]+/).select { |b| !(b =~ /\d/) }.reject { |b| b.empty? }
+  end
+
+  # alphanumeric allows searches by page number, year, etc.
+  def self.alphanumeric_strings(string)
+    return [] if string.nil? || string.length == 0
+    string.split(/[^[[:word:]]]+/).reject { |b| b.empty? }
   end
 
   # @param string [String]
@@ -146,6 +188,18 @@ module Utilities::Strings
   def self.integers(string)
     return [] if string.nil? || string.length == 0
     string.split(/\s+/).select { |t| is_i?(t) }
+  end
+
+  # @param [String] string
+  # @return [Integer, nil]
+  #   return an integer if and only if the string is a single integer,
+  #   otherwise nil
+  def self.only_integer(string)
+    if is_i?(string)
+      string.to_i
+    else
+      nil
+    end
   end
 
   # @return [Boolean]
@@ -189,4 +243,3 @@ module Utilities::Strings
   end
 
 end
-

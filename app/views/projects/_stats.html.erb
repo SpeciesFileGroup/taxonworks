@@ -1,17 +1,5 @@
 <%= content_tag(:h2, relationship.humanize, id: relationship) -%> 
 <% a = project.send(relationship).count %>
-<%=  "#{a} total records - created on by"  -%>
+<%= "#{a} total records - created on by month"  -%>
 
-<% if (a < 1000) %>
-   day
-  <%= line_chart(project.send(relationship).limit(100).group_by_day("#{relationship}.created_at").count)  %> 
-<% elsif (a < 10000) %>
-  week
-  <%= line_chart(project.send(relationship).limit(100).group_by_week("#{relationship}.created_at").count)  %> 
-<% elsif (a < 100000) %>
-  month 
-  <%= line_chart(project.send(relationship).limit(100).group_by_month("#{relationship}.created_at").count) %> 
-<% else %>
-  year 
-  <%= line_chart(project.send(relationship).limit(100).group_by_year("#{relationship}.created_at").count)  %> 
-<% end %>
+<%= column_chart(project.send(relationship).group_by_month("#{relationship}.created_at").count) %> 

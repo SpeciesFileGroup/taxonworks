@@ -1,72 +1,115 @@
 <template>
   <div
-    class="summary-view" 
-    :class="{ 'summary-view--unsaved': isUnsaved, 'summary-view--saved-at-least-once': savedAtLeastOnce }">
-    <spinner
+    class="summary-view"
+    :class="{
+      'summary-view--unsaved': isUnsaved,
+      'summary-view--saved-at-least-once': savedAtLeastOnce
+    }"
+  >
+    <DescriptorModal
+      v-if="isModalVisible"
+      :descriptor="descriptor"
+      @close="isModalVisible = false"
+    />
+    <SpinnerComponent
       legend="Saving changes..."
-      :logo-size="{ width: '50px', height: '50px'}"
-      v-if="isSaving"/>
-    <h2 class="summary-view__title flex-separate">
-      <div class="horizontal-left-content">
-        {{ index }} {{ descriptor.title }}
-        <radial-annotator :global-id="descriptor.globalId"/>
-        <radial-object :global-id="descriptor.globalId"/>
+      :logo-size="{ width: '50px', height: '50px' }"
+      v-if="isSaving"
+    />
+    <div class="flex-separate middle">
+      <div class="horizontal-right-content gap-small">
+        <h2 class="summary-view__title">
+          <span
+            class="link cursor-pointer"
+            @click="isModalVisible = true"
+          >
+            {{ index }} {{ descriptor.title }}
+          </span>
+        </h2>
+        <a
+          type="button"
+          class="circle-button btn-row-coder"
+          title="Matrix column coder"
+          :href="`/tasks/observation_matrices/matrix_column_coder/index?observation_matrix_column_id=${descriptor.columnId}`"
+        />
+        <RadialAnnotator :global-id="descriptor.globalId" />
+        <RadialObject :global-id="descriptor.globalId" />
       </div>
       <p>
         <button
           type="button"
-          @click="returnTop">Top
+          @click="returnTop"
+        >
+          Top
         </button>
       </p>
-    </h2>
-    <div>
-      <slot/>
     </div>
-    <save-countdown :descriptor="descriptor"/>
+    <div>
+      <slot />
+    </div>
+    <SaveCountdown :descriptor="descriptor" />
   </div>
 </template>
 
-<style src="./SummaryView.styl" lang="stylus"></style>
+<style src="./SummaryView.scss" lang="scss"></style>
 
 <script>
-import { MutationNames } from '../../store/mutations/mutations'
 import { GetterNames } from '../../store/getters/getters'
-
-import Spinner from 'components/spinner.vue'
-import saveCountdown from '../SaveCountdown/SaveCountdown.vue'
-import RadialAnnotator from 'components/radials/annotator/annotator'
-import RadialObject from 'components/radials/navigation/radial'
+import SpinnerComponent from '@/components/ui/VSpinner.vue'
+import SaveCountdown from '../SaveCountdown/SaveCountdown.vue'
+import RadialAnnotator from '@/components/radials/annotator/annotator'
+import RadialObject from '@/components/radials/navigation/radial'
+import DescriptorModal from '../DepictionModal/DepictionsContainer.vue'
 
 export default {
   name: 'SummaryView',
-  props: ['descriptor', 'index'],
-  computed: {
-    isUnsaved: function () {
-      return this.$store.getters[GetterNames.IsDescriptorUnsaved](this.$props.descriptor.id)
-    },
-    savedAtLeastOnce: function () {
-      return this.$props.descriptor.hasSavedAtLeastOnce
-    },
-    isSaving: function () {
-      return this.$store.getters[GetterNames.IsDescriptorSaving](this.$props.descriptor.id)
-    }
-  },
-  methods: {
-    zoomIn: function (event) {
-      this.$store.commit(MutationNames.SetDescriptorZoom, {
-        descriptorId: this.descriptor.id,
-        isZoomed: true
-      })
-    },
-    returnTop: function() {
-      window.scrollTo(0, 0)
-    }
-  },
+
   components: {
-    saveCountdown,
+    DescriptorModal,
+    SaveCountdown,
     RadialAnnotator,
     RadialObject,
-    Spinner
+    SpinnerComponent
+  },
+
+  props: {
+    descriptor: {
+      type: Object,
+      required: true
+    },
+
+    index: {
+      type: Number,
+      required: true
+    }
+  },
+
+  data: () => ({
+    isModalVisible: false
+  }),
+
+  computed: {
+    isUnsaved() {
+      return this.$store.getters[GetterNames.IsDescriptorUnsaved](
+        this.$props.descriptor.id
+      )
+    },
+
+    savedAtLeastOnce() {
+      return this.$props.descriptor.hasSavedAtLeastOnce
+    },
+
+    isSaving() {
+      return this.$store.getters[GetterNames.IsDescriptorSaving](
+        this.$props.descriptor.id
+      )
+    }
+  },
+
+  methods: {
+    returnTop() {
+      window.scrollTo(0, 0)
+    }
   }
 }
 </script>

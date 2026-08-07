@@ -16,7 +16,7 @@ json.sorting @key.sorting
 json.error_tolerance @key.error_tolerance
 json.eliminate_unknown @key.eliminate_unknown
 json.identified_to_rank @key.identified_to_rank
-json.selected_descriptors@key.selected_descriptors
+json.selected_descriptors @key.selected_descriptors
 json.selected_descriptors_hash @key.selected_descriptors_hash
 json.list_of_descriptors @key.list_of_descriptors
 
@@ -34,6 +34,14 @@ json.remaining (@key.remaining) do |r|
 end
 
 json.eliminated (@key.eliminated) do |e|
+  json.extract! e, :errors, :error_descriptors
+  json.object do
+    json.partial! '/shared/data/all/metadata', object: e[:object]
+    json.merge! e[:object].attributes
+  end
+end
+
+json.eliminated_for_key (@key.eliminated_for_key) do |e|
   json.extract! e, :errors, :error_descriptors
   json.object do
     json.partial! '/shared/data/all/metadata', object: e[:object]

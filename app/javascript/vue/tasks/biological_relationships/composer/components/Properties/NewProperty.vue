@@ -1,14 +1,16 @@
 <template>
   <div>
-    <button
-      class="button normal-input button-submit"
-      type="button"
-      @click="openModal">
+    <VBtn
+      color="primary"
+      medium
+      @click="openModal"
+    >
       New
-    </button>
-    <modal-component
-      v-if="showModal"
-      @close="showModal = false">
+    </VBtn>
+    <VModal
+      v-if="isModalVisible"
+      @close="isModalVisible = false"
+    >
       <template #header>
         <h3>Create property</h3>
       </template>
@@ -17,94 +19,108 @@
           <label>Name</label>
           <input
             class="full_width"
-            v-model="controlVocabularyTerm.name"
-            type="text">
+            v-model="cvt.name"
+            type="text"
+          />
         </div>
         <div class="field label-above">
           <label>Definition</label>
           <textarea
             class="full_width"
-            v-model="controlVocabularyTerm.definition"
-            rows="5"/>
+            v-model="cvt.definition"
+            rows="5"
+          />
         </div>
         <div class="field label-above">
           <label>URI</label>
           <input
             class="full_width"
-            v-model="controlVocabularyTerm.uri"
-            type="text">
+            v-model="cvt.uri"
+            type="text"
+          />
         </div>
         <div class="field label-above">
           <label>Label color</label>
           <input
-            v-model="controlVocabularyTerm.css_color"
-            type="color">
+            v-model="cvt.css_color"
+            type="color"
+          />
         </div>
-        <button
-          class="button normal-input button-submit"
-          @click="save">
+        <VBtn
+          medium
+          color="create"
+          @click="save"
+        >
           Save
-        </button>
+        </VBtn>
       </template>
-    </modal-component>
+    </VModal>
+    <VSpinner
+      v-if="isSaving"
+      full-screen
+      lengend="Saving property..."
+    />
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref } from 'vue'
+import { ControlledVocabularyTerm } from '@/routes/endpoints'
+import VModal from '@/components/ui/Modal'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
 
-import { ControlledVocabularyTerm } from 'routes/endpoints'
-import ModalComponent from 'components/ui/Modal'
+const emit = defineEmits(['save'])
 
-export default {
-  components: {
-    ModalComponent
-  },
+const cvt = ref(resetCVT())
+const isModalVisible = ref(false)
+const isSaving = ref(false)
 
-  emits: [
-    'update:modelValue',
-    'save'
-  ],
+function openModal() {
+  isModalVisible.value = true
+  cvt.value = resetCVT()
+}
 
-  data () {
-    return {
-      controlVocabularyTerm: this.resetCVT(),
-      showModal: false
-    }
-  },
-
-  methods: {
-    openModal () {
-      this.showModal = true
-      this.controlVocabularyTerm = this.resetCVT()
-    },
-
-    save () {
-      const saveRecord = this.controlVocabularyTerm.id
-        ? ControlledVocabularyTerm.update(this.controlVocabularyTerm.id, { controlled_vocabulary_term: this.controlVocabularyTerm })
-        : ControlledVocabularyTerm.create({ controlled_vocabulary_term: this.controlVocabularyTerm })
-
-      saveRecord.then(response => {
-        this.$emit('save', response.body)
-        this.showModal = false
-        this.controlVocabularyTerm = this.resetCVT()
+function save() {
+  const saveRecord = cvt.value.id
+    ? ControlledVocabularyTerm.update(cvt.value.id, {
+        controlled_vocabulary_term: cvt.value
       })
-    },
+    : ControlledVocabularyTerm.create({
+        controlled_vocabulary_term: cvt.value
+      })
 
-    resetCVT () {
-      return {
-        id: undefined,
-        type: 'BiologicalProperty',
-        name: undefined,
-        definition: undefined,
-        uri: undefined,
-        css_color: undefined
-      }
-    },
+  isSaving.value = true
 
-    setProperty (property) {
-      this.controlVocabularyTerm = property
-      this.showModal = true
-    }
+  saveRecord
+    .then((response) => {
+      emit('save', response.body)
+      isModalVisible.value = false
+      cvt.value = resetCVT()
+    })
+    .catch(() => {})
+    .finally(() => {
+      isSaving.value = false
+    })
+}
+
+function resetCVT() {
+  return {
+    id: undefined,
+    type: 'BiologicalProperty',
+    name: undefined,
+    definition: undefined,
+    uri: undefined,
+    css_color: undefined
   }
 }
+
+function setProperty(property) {
+  cvt.value = property
+  isModalVisible.value = true
+}
+
+defineExpose({
+  setProperty
+})
 </script>

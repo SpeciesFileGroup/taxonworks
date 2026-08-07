@@ -1,42 +1,7 @@
-<h1>Download</h1>
-<p>
-  <strong>Name:</strong>
-  <%= @download.name.html_safe %>
-</p>
-
-<p>
-  <strong>Description:</strong>
-  <%= @download.description %>
-</p>
-
-<% if @download.ready? %>
-  <p>
-    <strong>Status:</strong>
-    Ready to download
-  </p>
-
-  <p>
-    <strong>Expires:</strong>
-    <%= distance_of_time_in_words Time.now - @download.expires %>
-  </p>
-
-  <p>
-    <strong>Times downloaded:</strong>
-    <%= @download.times_downloaded %>
-  </p>
-  <%= content_tag(:div, nil, id: 'vue-data-download-form', data: { 'download-id': @download.id, 'is-public': @download.is_public }) -%>
-
-  <p>
-    <strong>Total records (estimate):</strong>
-    <%= @download.total_records -%>
-  </p>
-<% else %>
-  <p>
-    <strong>Status:</strong>
-    Download <%= @download.expired? ? "has expired and cannot be downloaded." : "creation is in progress..." %>
-  </p>
+<% content_for :additional_navigation do %>
+  <div class="content">
+    <%= button_to 'Download', { action: :file }, method: :get,  disabled: ( @download.ready? ? false : true ), class: ['button', 'normal-input', 'button-default'] %>
+  </div>
 <% end %>
 
-<% unless @download.expired? or @download.ready? %>
-  <script>setTimeout(location.reload.bind(location), 5000);</script>
-<% end %>
+<%= render(partial: 'shared/data/project/show', locals: {object: @download}) -%>

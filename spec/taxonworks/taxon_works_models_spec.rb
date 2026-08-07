@@ -6,7 +6,7 @@ require 'rails_helper'
 #
 describe TaxonWorks, group: :lint do
   # Since Rails doesn't load classes unless it needs them, so you must eager load them to get all the models.
-  Rails.application.eager_load!
+ # Rails.application.eager_load!
 
   context 'model includes/attributes', lint: true do
     ApplicationRecord.descendants.each {|model|
@@ -74,4 +74,3 @@ module TaxonWorksModels
     include FakeTable
   end
 end
-

@@ -1,4 +1,4 @@
-import { Project } from 'routes/endpoints'
+import { Project } from '@/routes/endpoints'
 import { MutationNames } from '../mutations/mutations'
 
 export default ({ commit }) => {

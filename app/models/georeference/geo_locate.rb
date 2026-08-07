@@ -2,19 +2,29 @@
 #
 class Georeference::GeoLocate < Georeference
   attr_accessor :api_response, :iframe_response
+  # Errors set during attribute assignment of the above don't contribute during
+  # save validation, so save any errors to be re-set then.
+  attr_accessor :error_polygon_error
+  validate :error_polygon_is_valid
 
   API_HOST       = 'www.geo-locate.org'.freeze
   API_PATH       = '/webservices/geolocatesvcv2/glcwrap.aspx?'.freeze
   EMBED_PATH     = '/web/webgeoreflight.aspx?'.freeze
   EMBED_HOST     = 'www.geo-locate.org'.freeze
 
+  def error_polygon_is_valid
+    # Errors set during attribute assignment don't count toward validations, so
+    # re-set any errors encountered then.
+    errors.add(:base, error_polygon_error) if error_polygon_error
+  end
+
   def dwc_georeference_attributes
     h = {}
     super(h)
     h.merge!(
-      georeferenceSources: "GEOLocate ",
-      georeferenceRemarks: "Typically created by copy-pasting one or more values from a collecting event into a GEOLocate form.",
-      georeferenceProtocol: 'Generated via a query through the GEOLocate web interface')
+      georeferenceSources: 'GEOLocate ',
+      georeferenceRemarks: 'Typically created by copy-pasting one or more values from a collecting event into a GEOLocate form.')
+    h[:georeferenceProtocol] = 'Generated via a query through the GEOLocate web interface' if h[:georeferenceProtocol].blank?
     h
   end
 
@@ -28,25 +38,32 @@ class Georeference::GeoLocate < Georeference
   # @param [String] response_string
   # @return [RGeo object]
   def iframe_response=(response_string)
-    lat, long, error_radius, uncertainty_points = Georeference::GeoLocate.parse_iframe_result(response_string)
+    lat, long, response_radius, uncertainty_points = Georeference::GeoLocate.parse_iframe_result(response_string)
+
+    if response_radius.present?
+      response_radius = response_radius.to_f
+    else
+      response_radius = nil
+    end
+
     self.geographic_item = make_geographic_point(long, lat, '0.0') unless (lat.blank? && long.blank?)
+
     if uncertainty_points.nil?
       # make a circle from the geographic_item
-      unless error_radius.blank?
-        # q1 = "SELECT ST_BUFFER('#{self.geographic_item.geo_object}', #{error_radius.to_f / 111319.444444444});"
+      if response_radius.present?
+        self.error_radius = response_radius
+        # Why are we turning error radius into a polygon!?
+
         q2 = ActiveRecord::Base.send(:sanitize_sql_array, ['SELECT ST_Buffer(?, ?);',
-                                                           self.geographic_item.geo_object.to_s,
-                                                           (error_radius.to_f / 111_319.444444444)])
+          self.geographic_item.geo_object.to_s,
+          ((response_radius) / Utilities::Geo::ONE_WEST_MEAN)])
+
         value = GeographicItem.connection.select_all(q2).first['st_buffer']
-        # circle                     = Gis::FACTORY.parse_wkb(value)
-        # make_error_geographic_item([[long, lat], [long, lat], [long, lat]], error_radius)
-        # a = GeographicItem.new(polygon: circle)
-        # b = make_err_polygon(value)
-        # self.error_geographic_item = a
+
         self.error_geographic_item = make_err_polygon(value)
       end
     else
-      make_error_geographic_item(uncertainty_points, error_radius)
+      make_error_geographic_item(uncertainty_points, response_radius)
     end
     self.geographic_item
   end
@@ -59,11 +76,16 @@ class Georeference::GeoLocate < Georeference
   # @param [String] wkb
   # @return [GeographicItem::Polygon] GeographicItem::Polygon, either found, or created
   def make_err_polygon(wkb)
-    polygon  = Gis::FACTORY.parse_wkb(wkb)
+    polygon = Gis::FACTORY.parse_wkb(wkb)
     # ActiveRecord::Base.send(:sanitize_sql_array, ['polygon = ST_GeographyFromText(?)', polygon.to_s])
-    test_grs = GeographicItem::Polygon.where(['polygon = ST_GeographyFromText(?)', polygon.to_s])
+    test_grs = GeographicItem
+      # && is a fast indexed-bounding-box comparison
+      .where('geography && ST_GeographyFromText(:wkt) AND ' \
+             'geography = ST_GeographyFromText(:wkt)',
+        wkt: polygon.to_s
+      )
     if test_grs.empty?
-      test_grs = [GeographicItem.new(polygon: polygon)]
+      test_grs = [GeographicItem.new(geography: polygon)]
     end
     if test_grs.first.new_record?
       test_grs.first.save
@@ -76,17 +98,21 @@ class Georeference::GeoLocate < Georeference
   # @param [String] x = longitude
   # @param [String] y = latitude
   # @param [String] z = elevation, defaults to 0.0
-  # @return [Object] GeographicItem::Point, either found or created.
+  # @return [Object] Point GeographicItem, either found or created.
   def make_geographic_point(x, y, z = '0.0')
     if x.blank? || y.blank?
       test_grs = []
     else
-      test_grs = GeographicItem::Point
-                   .where("point = ST_GeographyFromText('POINT(? ? ?)')", x.to_f, y.to_f, z.to_f)
-                   # .where(['ST_Z(point::geometry) = ?', z.to_f])
+      test_grs = GeographicItem
+        # && is a fast indexed-bounding-box comparison
+        .where('geography && ST_GeographyFromText(:wkt) AND ' \
+               'geography = ST_GeographyFromText(:wkt)',
+          wkt: "POINT(#{x.to_f} #{y.to_f} #{z.to_f})"
+        )
+        # .where(['ST_Z(point::geometry) = ?', z.to_f])
     end
     if test_grs.empty? # put a new one in the array
-      test_grs = [GeographicItem.new(point: Gis::FACTORY.point(x, y, z))]
+      test_grs = [GeographicItem.new(geography: Gis::FACTORY.point(x, y, z))]
     end
     test_grs.first
   end
@@ -121,17 +147,23 @@ class Georeference::GeoLocate < Georeference
   # @param [Integer] uncertainty_radius in meters
   def make_error_geographic_item(uncertainty_polygon, uncertainty_radius)
     self.error_radius = uncertainty_radius if !uncertainty_radius.nil?
-    unless uncertainty_polygon.nil?
-      err_array = []
-      uncertainty_polygon.each { |point| err_array.push(Gis::FACTORY.point(point[0], point[1])) }
-      self.error_geographic_item =
-        GeographicItem.new(polygon: Gis::FACTORY.polygon(Gis::FACTORY.line_string(err_array)))
+    return if uncertainty_polygon.nil?
+
+    err_array = []
+
+    uncertainty_polygon.each { |point| err_array.push(Gis::FACTORY.point(point[0], point[1])) }
+
+    begin
+      self.error_geographic_item = GeographicItem.new(geography: Gis::FACTORY.polygon(Gis::FACTORY.line_string(err_array)))
+    rescue RGeo::Error::InvalidGeometry => e
+      self.error_polygon_error = "Error polygon error: '#{e}'"
+      return
     end
   end
 
   # @param [String] response_string from Tulane
   # @return [Array]
-  # parsing the four possible bits of a response into an array
+  #   parsing the four possible bits of a response into an array
   def self.parse_iframe_result(response_string)
     s = unify_response_string(response_string)
     lat, long, error_radius, uncertainty_polygon = s.split('|')

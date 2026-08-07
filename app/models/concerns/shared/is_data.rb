@@ -13,6 +13,10 @@ module Shared::IsData
     include Scopes
     include Navigation
     include Metamorphosize
+    include HasRoles
+    include Shared::Verifiers
+    include Shared::Unify
+    include Shared::Permissions
   end
 
   module ClassMethods
@@ -22,12 +26,33 @@ module Shared::IsData
       self < Shared::SharedAcrossProjects ? true : false
     end
 
+    def is_containable?
+      self < Shared::Containable
+    end
+
     def dwc_occurrence_eligible?
       self < Shared::IsDwcOccurrence
     end
 
-    # @return [Array] of strings of only the non-cached and non-housekeeping column names
-    def data_attributes
+    def is_observable?
+      self < Shared::Observations
+    end
+
+    def is_distribution_assertable?
+      self < Shared::AssertedDistributions
+    end
+
+    def is_biologically_relatable?
+      self < Shared::BiologicalAssociations
+    end
+
+    def auto_uuids?
+      self < Shared::AutoUuid
+    end
+
+    # @return [Array of String]
+    #   only the non-cached and non-housekeeping column names
+    def core_attributes # was data_attributes
       column_names.reject { |c| %w{id project_id created_by_id updated_by_id created_at updated_at}
         .include?(c) || c =~ /^cached/ }
     end
@@ -79,56 +104,68 @@ module Shared::IsData
       klass = self
       attr  = Stripper.strip_identical_attributes(klass, attr)
 
-      scope = klass.where(attr)
+      scope = klass.where(attr) #.where.not(id:)
       scope
     end
 
-  end  # END CLASS METHODS
+    # @return Hash
+    #  { restrict: {}, destroy: {} }
+    #
+    #  Summarizes the count of records that will be destroyed if these ids are destroyed, or records that
+    #  will prevent destruction.
+    def related_summary(ids)
+      h = { restrict: {}, destroy: {} }
+      objects = self.where(id: ids)
 
-  # Returns whether it is permissible to try to destroy
-  # the record based on its relationships to projects
-  # the user is in.  I.e. false if it is related to data in
-  # a project in which they user is not a member.
-  # !! Does not look at :dependendant assertions
-  # @return [Boolean]
-  #   true - there is at least some related data in another projects
-  # @param user [user_id or User]
-  #   an id or User object
-  def is_destroyable?(user)
-    user = User.find(user) if !user.kind_of?(User)
-    return true if user.is_administrator?
+      base = self.table_name.to_sym
 
-    p = user.projects.pluck(:id)
+      [ self.reflect_on_all_associations(:has_many),
+        self.reflect_on_all_associations(:has_one)
+      ].each do |rt|
 
-    self.class.reflect_on_all_associations(:has_many).each do |r|
-      if r.klass.column_names.include?('project_id')
-        # If this has any related data in another project, we can't destroy it
-        #    if !send(r.name).nil?
-        return false if send(r.name).where.not(project_id: p).count(:all) > 0
-        #     end
-      end
-    end
+        rt.each do |r|
+          d = r.options.dig(:dependent)
+          next if d.nil?
 
-    self.class.reflect_on_all_associations(:has_one).each do |r|
-      if is_community? # *this* object is community, others we don't care about
-        if o = send(r.name)
-          return false if o.respond_to?(:project_id) && !p.include?(o.project)
+          c = nil
+          if r.type
+            c =  r.klass.where(r.type.to_sym =>  self.name, r.type.gsub('_type', '_id').to_sym => objects.map(&:id)).count
+          else
+            c = r.klass.where(r.foreign_key.to_sym => objects.map(&:id)).count
+          end
+
+          if c > 0
+            case d
+            when :destroy
+              h[:destroy][r.name] = c
+            when :restrict_with_error
+              h[:restrict][r.name] = c
+            end
+          end
         end
       end
+      h
     end
-    true
-  end
 
-  def is_editable?(user)
-    user = User.find(user) if !user.kind_of?(User)
-    return true if user.is_administrator? || is_community?
-    return false if !is_in_users_projects?(user)
-    true
-  end
+    private
 
-  def is_in_users_projects?(user)
-    user.projects.pluck(:id).include?(project_id)
-  end
+    # @return Array of IDs for this class
+    #
+    #  Make cutoff smaller to reach higher ids.
+    #  Useful for pseudo-benchmarking.
+    #  TODO: doesn't return total. There are some
+    #  nice discussions on stack overflow.
+    #  TODO: probably doesn't belong here
+    def random_ids(total = 100)
+      return self.none if total.blank?
+      if column_names.include?('type')
+        self.find_by_sql( "select id, type from #{self.table_name} where type = '#{self.name}' AND  random() < 0.0001 limit #{total};").pluck(:id)
+      else
+        self.find_by_sql( "select id from #{self.table_name} where random() < 0.0001 limit #{total};").pluck(:id)
+      end
+    end
+
+  end  # END CLASS METHODS
 
   # @return [Boolean]
   # @params exclude [Array]
@@ -159,14 +196,6 @@ module Shared::IsData
   # @return [Boolean]
   def is_community?
     self.class < Shared::SharedAcrossProjects ? true : false
-  end
-
-  # @return [Object]
-  #   the same object, but namespaced to the base class
-  #   used many places, might be good target for optimization
-  def metamorphosize
-    return self if self.class.descends_from_active_record?
-    self.becomes(self.class.base_class)
   end
 
   # @param [Symbol] keys
@@ -205,6 +234,7 @@ module Shared::IsData
     scope
   end
 
+  # TODO: Doesn't belong here
   # @param [Symbol] keys
   # @return [Array]
   def full_error_messages_excepting(*keys)

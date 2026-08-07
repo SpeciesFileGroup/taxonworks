@@ -1,127 +1,84 @@
 <template>
   <div>
-    <v-btn
-      color="primary"
-      medium
-      @click="setModalView(true)"
-    >
-      Download DwC
-    </v-btn>
+    <slot :action="action">
+      <v-btn
+        color="primary"
+        medium
+        @click="setModalView(true)"
+      >
+        Download DwC
+      </v-btn>
+    </slot>
     <v-modal
       @close="setModalView(false)"
-      :container-style="{ width: '700px' }"
+      :container-style="{ width: '700px', minHeight: '200px' }"
       v-if="showModal"
     >
       <template #header>
         <h3>Download DwC</h3>
       </template>
       <template #body>
-        <h3>Filter by predicates</h3>
-        <div>
-          <v-btn
-            class="margin-small-right"
-            color="primary"
-            medium
-            @click="
-              predicateParams.collection_object_predicate_id = collectionObjects.map(co => co.id);
-              predicateParams.collecting_event_predicate_id = collectingEvents.map(ce => ce.id)
-            "
+        <v-spinner
+          v-if="isLoading"
+          legend="Loading predicates..."
+        />
+        <ul class="no_bullets">
+          <li
+            v-for="item in checkboxParameters"
+            :key="item.parameter"
           >
-            Select all
-          </v-btn>
-          <v-btn
-            color="primary"
+            <label>
+              <input
+                type="checkbox"
+                v-model="includeParameters[item.parameter]"
+              />
+              {{ item.label }}
+            </label>
+          </li>
+        </ul>
+        <div class="margin-small-top">
+          <h3>Filter by predicates</h3>
+        </div>
+        <PredicateFilter
+          v-model:collecting-event-predicate-id="predicateParams.collecting_event_predicate_id"
+          v-model:collection-object-predicate-id="predicateParams.collection_object_predicate_id"
+          v-model:taxonworks-extension-methods="selectedExtensionMethods.taxonworks_extension_methods"
+        />
+
+        <div class="margin-medium-top">
+          <VBtn
+            color="create"
             medium
-            @click="
-              predicateParams.collection_object_predicate_id = [];
-              predicateParams.collecting_event_predicate_id = []
-            "
+            @click="download"
           >
-            Unselect all
-          </v-btn>
+            Download
+          </VBtn>
         </div>
-        <div class="margin-small-bottom dwc-download-predicates">
-          <div>
-            <table v-if="collectingEvents.length">
-              <thead>
-                <tr>
-                  <th>
-                    <input
-                      v-model="checkAllCe"
-                      type="checkbox">
-                  </th>
-                  <th class="full_width">Collecting events</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr
-                  v-for="item in collectingEvents"
-                  :key="item.id">
-                  <td>
-                    <input
-                      type="checkbox"
-                      :value="item.id"
-                      v-model="predicateParams.collecting_event_predicate_id">
-                  </td>
-                  <td>
-                    <span v-html="item.object_tag" />
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <div>
-            <table
-              v-if="collectionObjects.length">
-              <thead>
-                <tr>
-                  <th>
-                    <input
-                      v-model="checkAllCo"
-                      type="checkbox">
-                  </th>
-                  <th class="full_width">Collection objects</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr
-                  v-for="item in collectionObjects"
-                  :key="item.id">
-                  <td>
-                    <input
-                      type="checkbox"
-                      :value="item.id"
-                      v-model="predicateParams.collection_object_predicate_id">
-                  </td>
-                  <td>
-                    <span v-html="item.object_tag" />
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </template>
-      <template #footer>
-        <v-btn
-          color="create"
-          medium
-          @click="download"
-        >
-          Download
-        </v-btn>
       </template>
     </v-modal>
+    <ConfirmationModal ref="confirmationModalRef" />
   </div>
 </template>
 <script setup>
+import { reactive, ref, watch } from 'vue'
+import { RouteNames } from '@/routes/routes.js'
+import { DwcOcurrence } from '@/routes/endpoints'
+import ConfirmationModal from '@/components/ConfirmationModal.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VModal from '@/components/ui/Modal.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
+import PredicateFilter from '@/components/Export/PredicateFilter.vue'
 
-import { computed, reactive, ref, onBeforeMount, watch } from 'vue'
-import { RouteNames } from 'routes/routes.js'
-import { DwcOcurrence } from 'routes/endpoints'
-import { transformObjectToParams } from 'helpers/setParam.js'
-import VBtn from 'components/ui/VBtn/index.vue'
-import VModal from 'components/ui/Modal.vue'
+const checkboxParameters = [
+  {
+    label: 'Include biological associations as resource relationship',
+    parameter: 'biological_associations_extension'
+  },
+  {
+    label: 'Include media extension',
+    parameter: 'media_extension',
+  }
+]
 
 const props = defineProps({
   params: {
@@ -132,19 +89,37 @@ const props = defineProps({
   total: {
     type: Number,
     required: true
+  },
+
+  selectedIds: {
+    type: Array,
+    default: () => []
+  },
+
+  nestParameter: {
+    type: String,
+    default: null
   }
 })
 
+const emit = defineEmits(['create'])
+
+const confirmationModalRef = ref()
 const showModal = ref(false)
-const collectingEvents = ref([])
-const collectionObjects = ref([])
+const isLoading = ref(false)
+const includeParameters = ref({})
 const predicateParams = reactive({
   collecting_event_predicate_id: [],
   collection_object_predicate_id: []
 })
+const selectedExtensionMethods = reactive({
+  taxonworks_extension_methods: []
+})
 
-const getFilterParams = params => {
-  const entries = Object.entries({ ...params, ...predicateParams }).filter(([key, value]) => !Array.isArray(value) || value.length)
+const getFilterParams = (params) => {
+  const entries = Object.entries({ ...params, ...predicateParams }).filter(
+    ([key, value]) => !Array.isArray(value) || value.length
+  )
   const data = Object.fromEntries(entries)
 
   data.per = props.total
@@ -153,54 +128,55 @@ const getFilterParams = params => {
   return data
 }
 
-const checkAllCe = computed({
-  get: () => predicateParams.collecting_event_predicate_id.length === collectingEvents.value.length,
-  set: isChecked => {
-    predicateParams.collecting_event_predicate_id = isChecked
-      ? collectingEvents.value.map(co => co.id)
-      : []
+function download() {
+  const downloadParams = props.selectedIds.length
+    ? { collection_object_id: props.selectedIds }
+    : getFilterParams(props.params)
+
+  const payload = {
+    ...includeParameters.value,
+    ...predicateParams,
+    ...selectedExtensionMethods
   }
-})
 
-const checkAllCo = computed({
-  get: () => predicateParams.collection_object_predicate_id.length === collectionObjects.value.length,
-  set: isChecked => {
-    predicateParams.collection_object_predicate_id = isChecked
-      ? collectionObjects.value.map(co => co.id)
-      : []
+  if (props.nestParameter) {
+    Object.assign(payload, { [props.nestParameter]: downloadParams })
+  } else {
+    Object.assign(payload, downloadParams)
   }
-})
 
-const download = () => {
-  const downloadParams = getFilterParams(props.params)
-
-  DwcOcurrence.generateDownload({ ...downloadParams }).then(_ => {
-    window.open(`${RouteNames.DwcDashboard}?${transformObjectToParams(downloadParams)}`)
-    setModalView(false)
-  })
+  DwcOcurrence.generateDownload(payload)
+    .then(({ body }) => {
+      emit('create', body)
+      openGenerateDownloadModal()
+    })
+    .catch(() => {})
 }
 
-const setModalView = value => { showModal.value = value }
+function setModalView(value) {
+  showModal.value = value
+}
 
-onBeforeMount(() => {
-  DwcOcurrence.predicates().then(({ body }) => {
-    collectingEvents.value = body.collecting_event
-    collectionObjects.value = body.collection_object
+function action() {
+  setModalView(true)
+}
+
+async function openGenerateDownloadModal() {
+  await confirmationModalRef.value.show({
+    title: 'Generating Download',
+    message: `It will be available shortly on the <a href="${RouteNames.DwcDashboard}">DwC Dashboard</a>`,
+    okButton: 'Close',
+    typeButton: 'default'
   })
-})
 
-watch(showModal, newVal => {
-  if (newVal) {
-    predicateParams.collection_object_predicate_id = []
-    predicateParams.collecting_event_predicate_id = []
-  }
-})
+  setModalView(false)
+}
 
 </script>
 <style>
-  .dwc-download-predicates {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1em;
-  }
+.dwc-download-predicates {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1em;
+}
 </style>

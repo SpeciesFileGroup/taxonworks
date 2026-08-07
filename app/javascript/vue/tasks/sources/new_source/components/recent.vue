@@ -1,13 +1,22 @@
 <template>
-  <modal-component
-    @close="$emit('close', true)"
-    class="full_width">
+  <VBtn
+    color="primary"
+    type="button"
+    medium
+    @click="() => (isModalVisible = true)"
+  >
+    Recent
+  </VBtn>
+  <VModal
+    v-if="isModalVisible"
+    @close="() => (isModalVisible = false)"
+  >
     <template #header>
       <h3>Recent</h3>
     </template>
     <template #body>
-      <spinner-component v-if="searching"/>
-      <table-list
+      <VSpinner v-if="isSearching" />
+      <TableList
         :list="sources"
         :attributes="['cached']"
         :header="['cached', '']"
@@ -17,62 +26,54 @@
         @edit="setSource"
       />
     </template>
-  </modal-component>
+  </VModal>
 </template>
 
-<script>
+<script setup>
+import { ref, watch } from 'vue'
+import { Source } from '@/routes/endpoints'
+import { useSourceStore } from '../store'
+import TableList from '@/components/table_list'
+import VSpinner from '@/components/ui/VSpinner'
+import VModal from '@/components/ui/Modal'
+import VBtn from '@/components/ui/VBtn/index.vue'
 
-import TableList from 'components/table_list'
-import SpinnerComponent from 'components/spinner'
-import ModalComponent from 'components/ui/Modal'
-import { ActionNames } from '../store/actions/actions'
-import { Source } from 'routes/endpoints'
+const store = useSourceStore()
+const sources = ref([])
+const isSearching = ref(false)
+const isModalVisible = ref(false)
 
-export default {
-  components: {
-    ModalComponent,
-    SpinnerComponent,
-    TableList
-  },
-
-  emits: ['close'],
-
-  data () {
-    return {
-      sources: [],
-      searching: false
-    }
-  },
-
-  mounted () {
-    this.getSources()
-  },
-
-  methods: {
-    getSources () {
-      this.searching = true
-      Source.where({ per: 10, recent: true }).then(response => {
-        this.sources = response.body
-        this.searching = false
-      })
-    },
-
-    setSource (source) {
-      this.$store.dispatch(ActionNames.LoadSource, source.id)
-      this.$emit('close', true)
-    }
-  }
+function getSources() {
+  isSearching.value = true
+  Source.where({ per: 10, recent: true })
+    .then(({ body }) => {
+      sources.value = body
+    })
+    .finally(() => {
+      isSearching.value = false
+    })
 }
+
+function setSource(source) {
+  store.loadSource(source.id)
+  isModalVisible.value = false
+}
+
+watch(isModalVisible, (isVisible) => {
+  if (isVisible) {
+    getSources()
+  }
+})
 </script>
 
 <style scoped>
-  :deep(.modal-container) {
-    width: 500px;
-  }
-  textarea {
-    height: 100px;
-  }
-  :deep(.modal-container) {
-    width: 800px !important;
-  }
+:deep(.modal-container) {
+  width: 500px;
+}
+textarea {
+  height: 100px;
+}
+:deep(.modal-container) {
+  width: 800px !important;
+}
 </style>

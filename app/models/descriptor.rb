@@ -1,3 +1,4 @@
+# require_dependency Rails.root.to_s +  '/app/models/observation.rb'
 # Descriptors are the general mechanism for describing CollectionObjects (individual specimens) or Otus (taxa).
 #
 # They come in various types, reflecting the approaches commonly used to describe specimens and OTUs:
@@ -31,9 +32,9 @@ class Descriptor < ApplicationRecord
   validate :type_is_subclassed
   validate :short_name_is_shorter
 
+  # See also /app/models/concerns/shared/observations.rb for additional has_many definitions
   has_many :observations, inverse_of: :descriptor, dependent: :restrict_with_error
-  has_many :otus, through: :observations, inverse_of: :descriptors
-  has_many :observation_matrix_column_items, dependent: :destroy, class_name: 'ObservationMatrixColumnItem::Single::Descriptor'
+  has_many :observation_matrix_column_items, dependent: :destroy, class_name: 'ObservationMatrixColumnItem::Single::Descriptor', inverse_of: :descriptor
   has_many :observation_matrix_columns, inverse_of: :descriptor
 
   has_many :observation_matrices, through: :observation_matrix_columns
@@ -42,8 +43,24 @@ class Descriptor < ApplicationRecord
 
   scope :not_weight_zero, -> {where('NOT "descriptors"."weight" = 0 OR "descriptors"."weight" IS NULL') }
 
+  # observation_matrix_column_items carries class_name: so inferred_relations drops it.
+  # Force it back so column items are moved to the surviving descriptor during unify
+  # rather than being destroyed with the removed one.
+  def unify_relations
+    ApplicationEnumeration.klass_reflections(self.class, :has_many).select { |r|
+      r.name == :observation_matrix_column_items
+    }
+  end
+
   def self.human_name
     self.name.demodulize.humanize
+  end
+
+  # @return String, nil
+  #   the corresponding Observation STI class name
+  def observation_type
+    return nil if type.blank?
+    'Observation::' + type.split('::').last
   end
 
   # @return [String] name of the descriptor in a particular language
@@ -74,6 +91,8 @@ class Descriptor < ApplicationRecord
     return a.nil? ? n : a
   end
 
+  # TODO: these should be `is_` to follow design pattern
+  
   def qualitative?
     type == 'Descriptor::Qualitative'
   end

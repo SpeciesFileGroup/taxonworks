@@ -1,51 +1,67 @@
 module Queries
   module Documentation
+    class Filter < Query::Filter
 
-    # !! does not inherit from base query
-    class Filter 
+      include Concerns::Polymorphic
+      polymorphic_klass(::Documentation)
 
-      # General annotator options handling 
-      # happens directly on the params as passed
-      # through to the controller, keep them
-      # together here
-      attr_accessor :options
+      PARAMS = [
+        *::Documentation.related_foreign_keys.map(&:to_sym), 
+        :documentation_id,
+        :documentation_object_id,
+        :documentation_object_type,
+        documentation_id: [],
+      ].freeze
 
-      # Params specific to Documentation 
+      attr_accessor :documentation_id
 
-      # Array, Integer
-      attr_accessor :source_id
+      attr_accessor :documentation_object_id
+
+      attr_accessor :documentation_object_type
 
       # @params params [ActionController::Parameters]
-      def initialize(params)
-        @options = params
+      def initialize(query_params)
+        super
+        @documentation_id = params[:documentation_id]
+        @documentation_object_id = params[:documentation_object_id]
+        @documentation_object_type = params[:documentation_object_type]
+
+        set_polymorphic_params(params)
       end
 
-      # @return [ActiveRecord::Relation]
+      def documentation_id
+        [@documentation_id].flatten.compact
+      end
+
+      def documentation_object_type
+        [@documentation_object_type].flatten.compact
+      end
+
+      def documentation_object_id
+        [@documentation_object_id].flatten.compact
+      end
+
+      def documentation_object_type_facet
+        return nil if documentation_object_type.empty?
+        table[:documentation_object_type].in(documentation_object_type)
+      end
+
+      def documentation_object_id_facet
+        return nil if documentation_object_id.empty?
+        table[:documentation_object_id].in(documentation_object_id)
+      end
+
+      # If we add merge_clauses then we likely have
+      # to deal with excluding the `xml` field from distinct+intersection calls
+      # via a custom base_query field.
+
       def and_clauses
-        clauses = [
-          ::Queries::Annotator.annotator_params(options, ::Documentation),
-        ].compact
-
-        a = clauses.shift
-        clauses.each do |b|
-          a = a.and(b)
-        end
-        a
+        [
+          documentation_object_id_facet,
+          documentation_object_type_facet
+        ]
       end
 
-      # @return [ActiveRecord::Relation]
-      def all
-        if a = and_clauses
-          ::Documentation.where(and_clauses)
-        else
-          ::Documentation.all
-        end
-      end
-
-      # @return [Arel::Table]
-      def table
-        ::Documentation.arel_table
-      end
     end
   end
 end

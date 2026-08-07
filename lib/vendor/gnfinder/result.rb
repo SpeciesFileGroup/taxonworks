@@ -58,7 +58,16 @@ module Vendor
 
       # @return [Hash]
       def new_names
-        unique_names.select{|k,v| v.first.is_new_name?  }
+        n = {}
+        unique_names.each do |k,v|
+          v.each do |i|
+            if i.is_new_name?
+              n[k] = [i]
+              break
+            end
+          end
+        end
+        @new_names = n
       end
 
       def found_names
@@ -70,11 +79,46 @@ module Vendor
       end
 
       def missing_new_names
-        missing_names.select{|k, v| v.first.is_new_name? && !v.first.is_low_probability? }
+        n = {}
+        missing_names.each do |k,v|
+          v.each do |i|
+            if i.is_new_name? && !i.is_low_probability?
+              n[k] = [i]
+              break
+            end
+          end
+        end
+        n
+      end
+
+      def low_probability_missing_new_names
+        n = {}
+        missing_names.each do |k,v|
+          v.each do |i|
+            if i.is_new_name? && i.is_low_probability?
+              n[k] = [i]
+              break
+            end
+          end
+        end
+        n
       end
 
       def missing_other_names
-        missing_names.select{|k, v| !v.first.is_new_name? && !v.first.is_low_probability? }
+        a = missing_new_names.keys + low_probability_missing_new_names.keys
+
+        n = {}
+        missing_names.each do |k,v|
+          v.each do |i|
+            if !i.is_low_probability?
+              if !a.include?(i.found.name)
+                n[k] = [i]
+                break
+              end
+            end
+          end
+        end
+        n
       end
 
       def missing_low_probability_names

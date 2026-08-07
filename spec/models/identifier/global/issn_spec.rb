@@ -2,7 +2,7 @@ require 'rails_helper'
 
 describe Identifier::Global::Issn, type:  :model, group: :identifier do
   context 'ISSN' do
-    let(:id) { FactoryBot.build(:identifier_global_issn) }
+    let(:id) { Identifier::Global::Issn.new(identifier_object: FactoryBot.build(:valid_source)) }
 
     context '#identifier is validly formatted' do
 

@@ -14,10 +14,10 @@
             <%= content_tag(:li, 'data-role-index' => inc_index) do -%>
               <%= role_fields.hidden_field :type -%> 
               <%= role_fields.fields_for :person do |person_fields| %>
-                <%= person_fields.hidden_field :last_name -%> 
-                <%= person_fields.hidden_field :first_name-%> 
-                <%= person_fields.hidden_field :prefix -%> 
-                <%= person_fields.hidden_field :suffix -%> 
+                <%= person_fields.hidden_field :first_name-%>
+                <%= person_fields.hidden_field :prefix -%>
+                <%= person_fields.hidden_field :last_name -%>
+                <%= person_fields.hidden_field :suffix -%>
                 <%= object_tag(role_fields.object.person) -%> <%= link_to('', "#", class: :remove_role, data: {icon: :trash, turbolinks: :false}) -%>
               <% end %>
             <% end %>

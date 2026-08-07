@@ -1,5 +1,5 @@
-@import '../variables/_sizes.scss';
-@import '../variables/_palette.scss';
+@use '../variables/_sizes.scss' as *;
+@use '../variables/_palette.scss' as *;
 
 .btn {
   text-align: center;
@@ -9,9 +9,14 @@
   padding-right: 0.9em;
 }
 
+a.btn:hover {
+  color: white;
+}
+
 .btn-link {
   @extend .btn;
-  display: table-cell;  
+  display: flex;
+  align-items: center;
 }
 
 @each $key, $value in $tw-input-sizes {
@@ -36,9 +41,81 @@
   }
 }
 
+.btn-radial {
+  background-color: var(--btn-radial-background);
+  color: var(--btn-radial-color);
+  border: 2px solid var(--color-primary);
+
+  &:disabled {
+    border: none;
+  }
+}
+
+.btn-pill-left {
+  min-width: 60px;
+  border: 0;
+  border-top-left-radius: 14px;
+  border-bottom-left-radius: 14px;
+}
+
 @each $key, $value in $tw-colors {
   .btn-#{$key} {
-    background-color: #{$value};
-    color: white;
+    background-color: var(--color-#{$key});
+    color: var(--color-on-#{$key});
   }
+}
+
+.btn-ghost {
+  background-color: transparent;
+  color: var(--text-color);
+
+  &:hover {
+    background-color: var(--bg-hover);
+    opacity: 1;
+  }
+}
+
+@each $key, $value in $tw-colors {
+  .btn-ghost.btn-#{$key} {
+    background-color: transparent;
+    color: var(--color-#{$key});
+
+    &:hover {
+      background-color: color-mix(
+        in srgb,
+        var(--color-#{$key}) 12%,
+        transparent
+      );
+      opacity: 1;
+    }
+  }
+}
+
+.btn-outline {
+  background-color: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-color);
+
+  &:hover {
+    background-color: var(--bg-hover);
+    opacity: 1;
+  }
+}
+
+@each $key, $value in $tw-colors {
+  .btn-outline.btn-#{$key} {
+    background-color: transparent;
+    border: 1px solid var(--color-#{$key});
+    color: var(--color-#{$key});
+
+    &:hover {
+      background-color: var(--color-#{$key});
+      color: var(--color-on-#{$key});
+      opacity: 1;
+    }
+  }
+}
+
+.btn-transparent {
+  background-color: transparent;
 }

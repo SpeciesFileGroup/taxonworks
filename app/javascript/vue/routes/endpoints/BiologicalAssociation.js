@@ -1,5 +1,7 @@
 import baseCRUD from './base'
+import AjaxCall from '@/helpers/ajaxCall'
 
+const controller = 'biological_associations'
 const permitParams = {
   biological_association: {
     biological_relationship_id: Number,
@@ -9,6 +11,26 @@ const permitParams = {
     biological_association_object_type: String,
     subject_global_id: Number,
     object_global_id: Number,
+    subject_anatomical_part_attributes: {
+      name: String,
+      uri: String,
+      uri_label: String,
+      is_material: Boolean,
+      preparation_type_id: Number
+    },
+    object_anatomical_part_attributes: {
+      name: String,
+      uri: String,
+      uri_label: String,
+      is_material: Boolean,
+      preparation_type_id: Number
+    },
+    subject_taxon_determination_attributes: {
+      otu_id: Number
+    },
+    object_taxon_determination_attributes: {
+      otu_id: Number
+    },
     origin_citation_attributes: {
       id: Number,
       _destroy: Boolean,
@@ -28,5 +50,23 @@ const permitParams = {
 }
 
 export const BiologicalAssociation = {
-  ...baseCRUD('biological_associations', permitParams)
+  ...baseCRUD(controller, permitParams),
+
+  filter: (params) => AjaxCall('post', `/${controller}/filter.json`, params),
+
+  graph: (params) =>
+    AjaxCall('post', `/tasks/${controller}/graph/data`, params),
+
+  batchRotate: (params) =>
+    AjaxCall('post', `/${controller}/batch_rotate`, params),
+
+  batchUpdate: (params) =>
+    AjaxCall('patch', `/${controller}/batch_update`, params),
+
+  navigation: (id) => AjaxCall('get', `/${controller}/${id}/navigation`),
+
+  originSubjectIndex: (params) =>
+    AjaxCall('get', `/${controller}/origin_subject_index.json`, { params }),
+
+  subject_object_types: () => AjaxCall('get', `/${controller}/subject_object_types.json`)
 }

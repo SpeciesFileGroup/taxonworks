@@ -1,73 +1,195 @@
-require 'queries/collecting_event/filter'
 module Queries
   module CollectionObject
+    class Filter < Query::Filter
 
-    # TODO
-    # - use date processing? / DateConcern
-    # - syncronize with GIS/GEO
-
-    class Filter < Queries::Query
-
+      # !! May not include Concerns::Attributes (used by CE)
       include Queries::Helpers
-
+      include Queries::Concerns::Citations
+      include Queries::Concerns::Confidences
+      include Queries::Concerns::Containable
+      include Queries::Concerns::Conveyances
+      include Queries::Concerns::DataAttributes
+      include Queries::Concerns::Depictions
+      include Queries::Concerns::Notes
+      include Queries::Concerns::Protocols
       include Queries::Concerns::Tags
-      include Queries::Concerns::Users
-      include Queries::Concerns::Identifiers
 
-      # TODO: look for name collisions with CE filter
+      PARAMS = [
+        *::Queries::CollectingEvent::Filter::BASE_PARAMS,
+        *Queries::Concerns::DateRanges.params, # Fead to CE query. Revisit possibly.
+
+        :biological_association_id,
+        :biological_associations,
+        :biological_relationship_id,
+        :buffered_collecting_event,
+        :buffered_determinations,
+        :buffered_other_labels,
+        :collecting_event,
+        :collection_object_id,
+        :collection_object_type,
+        :collectors,
+        :containerized,
+        :current_determinations,
+        :current_repository,
+        :current_repository_id,
+        :dates,
+        :deaccessioned,
+        :descendants,
+        :determiner_id_all,
+        :determiner_id,
+        :determiner_name_regex,
+        :determiners,
+        :dwc_indexed,
+        :exact_buffered_collecting_event,
+        :exact_buffered_determinations,
+        :exact_buffered_other_labels,
+        :extract_id,
+        :georeferences,
+        :import_dataset_id,
+        :loaned,
+        :never_loaned,
+        :on_loan,
+        :preparation_type,
+        :preparation_type_id,
+        :repository,
+        :repository_id,
+        :sled_image_id,
+        :spatial_geographic_areas,
+        :taxon_determination_id, # not used?!
+        :taxon_determinations,
+        :taxon_name_id,
+        :taxon_name_current_determination,
+        :type_material,
+        :type_specimen_taxon_name_id,
+        :validity,
+        :with_buffered_collecting_event,
+        :with_buffered_determinations,
+        :with_buffered_other_labels,
+        biocuration_class_id: [],
+        biological_association_id: [],
+        biological_relationship_id: [],
+        collecting_event_id: [],
+        collection_object_id: [],
+        determiner_id: [],
+        extract_id: [],
+        geographic_area_id: [],
+        import_dataset_id: [],
+        is_type: [],
+        loan_id: [],
+        otu_id: [],
+        preparation_type_id: [],
+        taxon_name_id: [],
+      ].inject([{}]) { |ary, k| k.is_a?(Hash) ? ary.last.merge!(k) : ary.unshift(k); ary }.freeze
+
+
+      # @return [Array]
+      #   of ImportDataset ids
+      attr_accessor :import_dataset_id
+
+      # @return [True, False, nil]
+      #   true - has collecting event that has  geographic_area
+      #   false - does not have  collecting event that has geographic area
+      #   nil - not applied
+      attr_accessor :biological_associations
+
+      # @return Array
+      #   Matching records in this BiologicalAssociation
+      attr_accessor :biological_association_id
+
+      # @param [String, nil]
+      #    Array or Integer of CollectionObject ids
+      attr_accessor :collection_object_id
 
       # @param [String, nil]
       #    one of 'Specimen', 'Lot', or 'RangedLot'
       attr_accessor :collection_object_type
 
       # [Array]
-      #   only return objects with this collecting event ID
-      attr_accessor :collecting_event_ids
+      #   only return objects with these collecting event ID
+      attr_accessor :collecting_event_id
+
+      # @param [True, False, nil]
+      #   true - the collection object is in a container
+      #   false - the collection object is not in a container
+      #   nil - not applied
+
+      attr_accessor :containerized
 
       # All params managed by CollectingEvent filter are available here as well
-      attr_accessor :collecting_event_query
+      attr_accessor :base_collecting_event_query
 
+      # @param [Array]
       # @return [Array, nil]
-      #    a list of Otu ids, matches one ot one only
-      attr_accessor :otu_ids
+      #  Otu ids, matches on the TaxonDetermination, see also current_determinations
+      attr_accessor :otu_id
 
-      # @return [Protonym.id, nil]
+      # @return [Array of Protonym.id, nil]
       #   return all collection objects determined as an Otu that is self or descendant linked
       #   to this TaxonName
-      attr_accessor :ancestor_id
+      attr_accessor :taxon_name_id
+
+      attr_accessor :descendants
 
       # @return [Boolean, nil]
-      #   nil =  Match against all ancestors, valid or invalid
-      #   true = Match against only valid ancestors
+      #  nil = Ignored
+      #  true = CollectionObject with deaccessioned_at OR deaccessioned_reason populated or deaccession_recipient.present?
+      #  false = without true
+      attr_accessor :deaccessioned
+
+      # @return [Boolean, nil]
+      #   nil = Match against only valid ancestors (default)
+      #   true = Match against all ancestors, valid or invalid
       #   false = Match against only invalid ancestors
       attr_accessor :validity
 
       # @return [Boolean, nil]
-      #   nil = TaxonDeterminations match regardless of current or historical
-      #   true = TaxonDetermination must be .current
+      #   nil = TaxonDetermination must be .current (default)
+      #   true = TaxonDeterminations match regardless of current or historical
       #   false = TaxonDetermination must be .historical
       attr_accessor :current_determinations
 
-      # @return [True, nil]
+      # @return [Boolean, nil]
+      #   nil = TaxonDetermination must be .current (default)
+      #   true = TaxonDeterminations match regardless of current or historical
+      #   false = TaxonDetermination must be .historical
+      #   Used for taxon_name_id facets
+      attr_accessor :taxon_name_current_determination
+
+      # @return [Boolean, nil]
+      #  true - A determiner role exists
+      #  false - No determiner role exists
+      #  nil - not applied
+      attr_accessor :determiners
+
+      # @return [Boolean, nil]
+      #  true - A collector role exists
+      #  false - A collector role exists
+      #  nil - not applied
+      attr_accessor :collectors
+
+      # @param on_loan [True]
+      #   true - the CollectionObject *currently* on loan
       attr_accessor :on_loan
 
-      # @return [True, nil]
+      # @param loaned [True]
+      #   true - the CollectionObject has been loaned at least once
       attr_accessor :loaned
 
-      # @return [True, nil]
+      # @param never_loaned [True]
+      #   true - the CollectionObject has never been loaned
       attr_accessor :never_loaned
 
       # @return [Array]
-      #   an array of loan_ids, all collection objects inside them will be included
+      #   a list of loan#id, all collection objects inside them will be included
       attr_accessor :loan_id
 
       # @return [Array]
       #   of biocuration_class ids
-      attr_accessor :biocuration_class_ids
+      attr_accessor :biocuration_class_id
 
       # @return [Array]
-      #   of biological_relationship_ids
-      attr_accessor :biological_relationship_ids
+      #   of biological_relationship#id
+      attr_accessor :biological_relationship_id
 
       # @return [True, False, nil]
       #   true - index is built
@@ -81,6 +203,9 @@ module Queries
       # @return [Repository#id, nil]
       attr_accessor :repository_id
 
+      # @return [CurrentRepository#id, nil]
+      attr_accessor :current_repository_id
+
       # @return [Array, nil]
       #  one of `holotype`, `lectotype` etc.
       #   nil - not applied
@@ -90,16 +215,16 @@ module Queries
       attr_accessor :sled_image_id
 
       # @return [True, False, nil]
-      #   true - index is built
-      #   false - index is not built
-      #   nil - not applied
-      attr_accessor :depictions
-
-      # @return [True, False, nil]
       #   true - has one ore more taxon_determinations
       #   false - does not have any taxon_determinations
       #   nil - not applied
       attr_accessor :taxon_determinations
+
+      # @return [True, False, nil]
+      #   true - Otu has taxon name
+      #   false - Otu without taxon name
+      #   nil - not applied
+      attr_accessor :taxon_name
 
       # @return [True, False, nil]
       #   true - has one ore more georeferences
@@ -107,19 +232,26 @@ module Queries
       #   nil - not applied
       attr_accessor :georeferences
 
-      # @param [String, nil]
-      #  'true' - order by updated_at
-      #  'false', nil - do not apply ordering
-      # @return [Boolen, nil]
-      attr_accessor :recent
-
-      attr_accessor :object_global_id
-
       # @return [True, False, nil]
       #   true - has repository_id
       #   false - does not have repository_id
       #   nil - not applied
       attr_accessor :repository
+
+      # @return [True, False, nil]
+      #   true - has current_repository_id
+      #   false - does not have current_repository_id
+      #   nil - not applied
+      attr_accessor :current_repository
+
+      # @return [True, False, nil]
+      #   true - has preparation_type
+      #   false - does not have preparation_type
+      #   nil - not applied
+      attr_accessor :preparation_type
+
+      # @return [Array]
+      attr_accessor :preparation_type_id
 
       # @return [True, False, nil]
       # @param collecting_event ['true', 'false']
@@ -140,13 +272,15 @@ module Queries
       attr_accessor :determiner_id
 
       # @return [Boolean]
-      # @param determiner_id_or [String, nil]
-      #   `false`, nil - treat ids as "or"
-      #   'true' - treat ids as "and" (only collection objects with all and only all will match)
-      attr_accessor :determiner_id_or
+      # @param determiner_id_all [String, nil]
+      #   `false`, nil - treat the ids in determiner_id as "or"
+      #   'true' - treat the ids in determiner_id as "and" (only collection objects with all and only all will match)
+      attr_accessor :determiner_id_all
 
       # @return [String, nil]
       attr_accessor :buffered_determinations
+
+      # TODO: See `exact[]` pattern in people
 
       # @return [Boolean, nil]
       attr_accessor :exact_buffered_determinations
@@ -162,10 +296,6 @@ module Queries
 
       # @return [String, nil]
       attr_accessor :buffered_other_labels
-
-      # See Queries::CollectingEvent::Filter
-      attr_accessor :collector_id
-      attr_accessor :collector_ids_or
 
       # @return [True, False, nil]
       #   true - has collecting event that has  geographic_area
@@ -185,70 +315,96 @@ module Queries
       # See with_buffered_determinations
       attr_accessor :with_buffered_other_labels
 
-      # @param [Hash] args are permitted params
-      def initialize(params)
-        params.reject!{ |_k, v| v.blank? } # dump all entries with empty values
+      # @return String
+      # A PostgreSQL valid regular expression. Note that
+      # simple strings evaluate as wildcard matches.
+      # !! Probably shouldn't expose to external API.
+      attr_accessor :determiner_name_regex
 
-        # Only CollectingEvent fields are permitted now.
-        # (Perhaps) TODO: allow concern attributes nested inside as well, e.g. show me all COs with this Tag on CE.
-        collecting_event_params = ::Queries::CollectingEvent::Filter::ATTRIBUTES + ::Queries::CollectingEvent::Filter::PARAMS
+      # @return Array
+      #  match all CollectionObjects that are the origin of these Extracts
+      attr_accessor :extract_id
 
-        @collecting_event_query = ::Queries::CollectingEvent::Filter.new(
-          params.select{|a,b| collecting_event_params.include?(a.to_s) }
+      # @return Boolean
+      #    true - any of start/end date or verbatim date are populated
+      #    false - none of start/end date or verbatim date are populated
+      #    nil - ignored
+      attr_accessor :dates
+
+      # rubocop:disable Metric/MethodLength
+      def initialize(query_params)
+        super
+
+        # Only CollectingEvent fields are permitted, for advanced nesting (e.g. tags on CEs), use collecting_event_query
+        collecting_event_params = ::Queries::CollectingEvent::Filter.base_params + Queries::Concerns::DateRanges.params
+
+        # project_id is handled during use
+        @base_collecting_event_query = ::Queries::CollectingEvent::Filter.new(
+          params.select{ |a, b| collecting_event_params.include?(a) } # maintain this to avoid sub query initialization for now
         )
 
-        @ancestor_id = params[:ancestor_id].blank? ? nil : params[:ancestor_id]
-        @biocuration_class_ids = params[:biocuration_class_ids] || []
-        @biological_relationship_ids = params[:biological_relationship_ids] || []
+        @biological_association_id = params[:biological_association_id]
+        @biocuration_class_id = params[:biocuration_class_id]
+        @biological_relationship_id = params[:biological_relationship_id] # TODO: no reference?
         @buffered_collecting_event = params[:buffered_collecting_event]
         @buffered_determinations = params[:buffered_determinations]
         @buffered_other_labels = params[:buffered_other_labels]
+        @biological_associations = boolean_param(params, :biological_associations)
         @collecting_event = boolean_param(params, :collecting_event)
-        @collecting_event_ids = params[:collecting_event_ids] || []
-        @collection_object_type = params[:collection_object_type].blank? ? nil : params[:collection_object_type]
+        @collectors = boolean_param(params, :collectors)
+        @collecting_event_id = params[:collecting_event_id]
+        @collection_object_id = params[:collection_object_id]
+        @collection_object_type = params[:collection_object_type].presence
+        @containerized = boolean_param(params, :containerized)
         @current_determinations = boolean_param(params, :current_determinations)
-        @depictions = boolean_param(params, :depictions)
+        @taxon_name_current_determination = boolean_param(params, :taxon_name_current_determination)
+        @current_repository = boolean_param(params, :current_repository)
+        @current_repository_id = params[:current_repository_id].presence
+        @dates = boolean_param(params, :dates)
+        @descendants = boolean_param(params, :descendants)
+        @deaccessioned = boolean_param(params, :deaccessioned)
+        @determiners = boolean_param(params, :determiners)
         @determiner_id = params[:determiner_id]
-        @determiner_id_or = boolean_param(params, :determiner_id_or)
+        @determiner_id_all = boolean_param(params, :determiner_id_all)
+        @determiner_name_regex = params[:determiner_name_regex]
         @dwc_indexed = boolean_param(params, :dwc_indexed)
         @exact_buffered_collecting_event = boolean_param(params, :exact_buffered_collecting_event)
         @exact_buffered_determinations = boolean_param(params, :exact_buffered_determinations)
         @exact_buffered_other_labels = boolean_param(params, :exact_buffered_other_labels)
+        @extract_id = params[:extract_id]
         @geographic_area = boolean_param(params, :geographic_area)
         @georeferences = boolean_param(params, :georeferences)
+        @import_dataset_id = params[:import_dataset_id]
         @is_type = params[:is_type] || []
+        @loan_id = params[:loan_id]
         @loaned = boolean_param(params, :loaned)
         @never_loaned = boolean_param(params, :never_loaned)
-        @object_global_id = params[:object_global_id]
-        @on_loan =  boolean_param(params, :on_loan)
-        @loan_id = params[:loan_id]
+        @on_loan = boolean_param(params, :on_loan)
         @otu_descendants = boolean_param(params, :otu_descendants)
-        @otu_ids = params[:otu_ids] || []
+        @otu_id = params[:otu_id]
+        @preparation_type = boolean_param(params, :preparation_type)
         @preparation_type_id = params[:preparation_type_id]
-        @recent = boolean_param(params, :recent)
         @repository = boolean_param(params, :repository)
-        @repository_id = params[:repository_id].blank? ? nil : params[:repository_id]
-        @sled_image_id = params[:sled_image_id].blank? ? nil : params[:sled_image_id]
+        @repository_id = params[:repository_id]
+        @sled_image_id = (params[:sled_image_id].presence)
         @taxon_determinations = boolean_param(params, :taxon_determinations)
+        @taxon_name_id = params[:taxon_name_id]
         @type_material = boolean_param(params, :type_material)
-        @type_specimen_taxon_name_id = params[:type_specimen_taxon_name_id].blank? ? nil : params[:type_specimen_taxon_name_id]
+        @type_specimen_taxon_name_id = (params[:type_specimen_taxon_name_id].presence)
         @validity = boolean_param(params, :validity)
         @with_buffered_collecting_event = boolean_param(params, :with_buffered_collecting_event)
-        @with_buffered_determinations =  boolean_param(params, :with_buffered_determinations)
+        @with_buffered_determinations = boolean_param(params, :with_buffered_determinations)
         @with_buffered_other_labels = boolean_param(params, :with_buffered_other_labels)
 
-        set_identifier(params)
+        set_confidences_params(params)
+        set_citations_params(params)
+        set_containable_params(params)
+        set_conveyance_params(params)
+        set_data_attributes_params(params)
+        set_depiction_params(params)
+        set_notes_params(params)
+        set_protocols_params(params)
         set_tags_params(params)
-        set_user_dates(params)
-      end
-
-      # @return [Arel::Table]
-      def table
-        ::CollectionObject.arel_table
-      end
-
-      def base_query
-        ::CollectionObject.select('collection_objects.*')
       end
 
       # @return [Arel::Table]
@@ -267,25 +423,78 @@ module Queries
       end
 
       # @return [Arel::Table]
-      def depiction_table
-        ::Depiction.arel_table
-      end
-
-      # @return [Arel::Table]
       def taxon_determination_table
         ::TaxonDetermination.arel_table
       end
 
-      def determiner_id
-        [@determiner_id].flatten.compact
+      def biological_association_id
+        [@biological_association_id].flatten.compact.uniq
       end
 
-      def preparation_type_id
-        [@preparation_type_id].flatten.compact
+      def biocuration_class_id
+        [@biocuration_class_id].flatten.compact.uniq
+      end
+
+      def biological_relationship_id
+        [@biological_relationship_id].flatten.compact.uniq
+      end
+
+      def collecting_event_id
+        [@collecting_event_id].flatten.compact.uniq
+      end
+
+      def collection_object_id
+        [@collection_object_id].flatten.compact.uniq
+      end
+
+      def determiner_id
+        [@determiner_id].flatten.compact.uniq
+      end
+
+      def extract_id
+        [@extract_id].flatten.compact.uniq
+      end
+
+      def import_dataset_id
+        [@import_dataset_id].flatten.compact
       end
 
       def loan_id
         [@loan_id].flatten.compact
+      end
+
+      def otu_id
+        [@otu_id].flatten.compact.uniq
+      end
+
+      def preparation_type_id
+        [@preparation_type_id].flatten.compact.uniq
+      end
+
+      def taxon_name_id
+        [@taxon_name_id].flatten.compact.uniq
+      end
+
+      def repository_id
+        [@repository_id].flatten.compact.uniq
+      end
+
+   #  def collection_object_id_facet
+   #    return nil if collection_object_id.empty?
+   #    table[:id].in(collection_object_id)
+   #  end
+
+      def import_dataset_id_facet
+        return nil if import_dataset_id.blank?
+        ::CollectionObject.joins(:related_origin_relationships)
+          .where(origin_relationships: {old_object_id: import_dataset_id, old_object_type: 'ImportDataset'})
+      end
+
+      def extract_id_facet
+        return nil if extract_id.empty?
+        ::CollectionObject
+          .joins(:origin_relationships)
+          .where(origin_relationships: { new_object_id: extract_id, new_object_type: 'Extract' })
       end
 
       def taxon_determinations_facet
@@ -294,9 +503,7 @@ module Queries
         if taxon_determinations
           ::CollectionObject.joins(:taxon_determinations).distinct
         else
-          ::CollectionObject.left_outer_joins(:taxon_determinations)
-            .where(taxon_determinations: {id: nil})
-            .distinct
+          ::CollectionObject.where.missing(:taxon_determinations)
         end
       end
 
@@ -309,7 +516,7 @@ module Queries
         o = ::TaxonDetermination.arel_table
         r = ::Role.arel_table
 
-        a = o.alias("a_det__")
+        a = o.alias('a_det__')
         b = o.project(a[Arel.star]).from(a)
 
         c = r.alias('det_r1')
@@ -322,15 +529,42 @@ module Queries
           )
 
         e = c[:id].not_eq(nil)
-        f = c[:person_id].eq_any(determiner_id)
+        f = c[:person_id].in(determiner_id)
 
         b = b.where(e.and(f))
         b = b.group(a['id'])
-        b = b.having(a['id'].count.eq(determiner_id.length)) unless determiner_id_or
+        b = b.having(a['id'].count.eq(determiner_id.length)) if determiner_id_all
 
         b = b.as('det_z1_')
 
-        ::CollectionObject.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['biological_collection_object_id'].eq(tt['id']))))
+        ::CollectionObject.joins(Arel::Nodes::InnerJoin.new(
+          b,
+          Arel::Nodes::On.new(
+            b['taxon_determination_object_id'].eq(tt['id']).and( b['taxon_determination_object_type'].eq('CollectionObject'))
+          )))
+      end
+
+      def determiners_facet
+        return nil if determiners.nil?
+        if determiners
+          ::CollectionObject.joins(:determiners)
+        else
+          ::CollectionObject.where.missing(:determiners)
+        end
+      end
+
+      def collectors_facet
+        return nil if collectors.nil?
+        if collectors
+          ::CollectionObject.joins(:collectors)
+        else
+          ::CollectionObject.where.missing(:collectors)
+        end
+      end
+
+      def determiner_name_regex_facet
+        return nil if determiner_name_regex.nil?
+        ::CollectionObject.joins(:determiners).where('people.cached ~* ?', determiner_name_regex)
       end
 
       def georeferences_facet
@@ -339,21 +573,8 @@ module Queries
           ::CollectionObject.joins(:georeferences).distinct
         else
           ::CollectionObject.left_outer_joins(:georeferences)
-            .where(georeferences: {id: nil})
+            .where(georeferences: { id: nil })
             .distinct
-        end
-      end
-
-      def object_global_id_facet
-        return nil if object_global_id.nil?
-
-        if o = GlobalID::Locator.locate(object_global_id)
-          k = o.class.name
-          id = o.id
-
-          table[:id].eq(id).and(table[:type].eq(k))
-        else
-          nil
         end
       end
 
@@ -366,6 +587,24 @@ module Queries
         end
       end
 
+      def current_repository_facet
+        return nil if current_repository.nil?
+        if current_repository
+          ::CollectionObject.where.not(current_repository_id: nil)
+        else
+          ::CollectionObject.where(current_repository_id: nil)
+        end
+      end
+
+      def preparation_type_facet
+        return nil if preparation_type.nil?
+        if preparation_type
+          ::CollectionObject.where.not(preparation_type_id: nil)
+        else
+          ::CollectionObject.where(preparation_type_id: nil)
+        end
+      end
+
       def collecting_event_facet
         return nil if collecting_event.nil?
         if collecting_event
@@ -374,7 +613,6 @@ module Queries
           ::CollectionObject.where(collecting_event_id: nil)
         end
       end
-
 
       def with_buffered_collecting_event_facet
         return nil if with_buffered_collecting_event.nil?
@@ -403,26 +641,28 @@ module Queries
         end
       end
 
+      # This is not spatial
       def geographic_area_facet
         return nil if geographic_area.nil?
 
         if geographic_area
-          ::CollectionObject.joins(:collecting_event).where.not(collecting_events: {geographic_area_id: nil}).distinct
+          ::CollectionObject.joins(:collecting_event).where.not(collecting_events: { geographic_area_id: nil }).distinct
         else
           ::CollectionObject.left_outer_joins(:collecting_event)
-            .where(collecting_events: {geographic_area_id: nil})
+            .where(collecting_events: { geographic_area_id: nil })
             .distinct
         end
       end
 
       def biocuration_facet
-        return nil if biocuration_class_ids.empty?
-        ::CollectionObject::BiologicalCollectionObject.joins(:biocuration_classifications).where(biocuration_classifications: {biocuration_class_id: biocuration_class_ids})
+        return nil if biocuration_class_id.empty?
+        ::CollectionObject::BiologicalCollectionObject.joins(:biocuration_classifications)
+          .where(biocuration_classifications: { biocuration_class_id: })
       end
 
       def loan_facet
         return nil if loan_id.empty?
-        ::CollectionObject::BiologicalCollectionObject.joins(:loans).where(loans: {id: loan_id})
+        ::CollectionObject::BiologicalCollectionObject.joins(:loans).where(loans: { id: loan_id })
       end
 
       def type_facet
@@ -430,26 +670,14 @@ module Queries
         table[:type].eq(collection_object_type)
       end
 
-      def depictions_facet
-        return nil if depictions.nil?
-
-        if depictions
-          ::CollectionObject.joins(:depictions).distinct
-        else
-          ::CollectionObject.left_outer_joins(:depictions)
-            .where(depictions: {id: nil})
-            .distinct
-        end
-      end
-
       def sled_image_facet
         return nil if sled_image_id.nil?
-        ::CollectionObject::BiologicalCollectionObject.joins(:depictions).where("depictions.sled_image_id = ?", sled_image_id)
+        ::CollectionObject::BiologicalCollectionObject.joins(:depictions).where('depictions.sled_image_id = ?', sled_image_id)
       end
 
-      def biological_relationship_ids_facet
-        return nil if biological_relationship_ids.empty?
-        ::CollectionObject.with_biological_relationship_ids(biological_relationship_ids)
+      def biological_relationship_id_facet
+        return nil if biological_relationship_id.empty?
+        ::CollectionObject.with_biological_relationship_id(biological_relationship_id)
       end
 
       def loaned_facet
@@ -462,9 +690,20 @@ module Queries
         ::CollectionObject.never_loaned
       end
 
+      # TODO: change to not/on
       def on_loan_facet
         return nil unless on_loan
         ::CollectionObject.on_loan
+      end
+
+      def containerized_facet
+        return nil if containerized.nil?
+
+        if containerized
+          ::CollectionObject.joins(:container_item).distinct
+        else
+          ::CollectionObject.left_outer_joins(:container_item).where(container_item: { id: nil }).distinct
+        end
       end
 
       def dwc_indexed_facet
@@ -474,162 +713,42 @@ module Queries
           ::CollectionObject.dwc_not_indexed
       end
 
-      # @return Scope
-      def collecting_event_ids_facet
-        return nil if collecting_event_ids.empty?
-        table[:collecting_event_id].eq_any(collecting_event_ids)
+      def collecting_event_id_facet
+        return nil if collecting_event_id.empty?
+        table[:collecting_event_id].in(collecting_event_id)
       end
 
       def preparation_type_id_facet
         return nil if preparation_type_id.empty?
-        table[:preparation_type_id].eq_any(preparation_type_id)
+        table[:preparation_type_id].in(preparation_type_id)
       end
 
       def repository_id_facet
         return nil if repository_id.blank?
-        table[:repository_id].eq(repository_id)
+        table[:repository_id].in(repository_id)
       end
 
-      def collecting_event_merge_clauses
-        c = []
-
-        # Convert base and clauses to merge clauses
-        collecting_event_query.base_merge_clauses.each do |i|
-          c.push ::CollectionObject.joins(:collecting_event).merge( i )
-        end
-        c
+      def current_repository_id_facet
+        return nil if current_repository_id.blank?
+        table[:current_repository_id].eq(current_repository_id)
       end
 
-      def collecting_event_and_clauses
-        c = []
-
-        # Convert base and clauses to merge clauses
-        collecting_event_query.base_and_clauses.each do |i|
-          c.push ::CollectionObject.joins(:collecting_event).where( i )
-        end
-        c
-      end
-
-      # @return [ActiveRecord::Relation]
-      def and_clauses
-        clauses = base_and_clauses
-
-        return nil if clauses.empty?
-
-        a = clauses.shift
-        clauses.each do |b|
-          a = a.and(b)
-        end
-        a
-      end
-
-      # @return [Array]
-      def base_and_clauses
-        clauses = []
-
-        clauses += [
-          attribute_exact_facet(:buffered_determinations),
-          attribute_exact_facet(:buffered_collecting_event),
-          attribute_exact_facet(:buffered_other_labels),
-          collecting_event_ids_facet,
-          preparation_type_id_facet,
-          type_facet,
-          repository_id_facet,
-          object_global_id_facet
-        ]
-        clauses.compact!
-        clauses
-      end
-
-      def base_merge_clauses
-        clauses = []
-        clauses += collecting_event_merge_clauses + collecting_event_and_clauses
-
-        clauses += [
-          with_buffered_collecting_event_facet,
-          with_buffered_other_labels_facet,
-          with_buffered_determinations_facet,
-          determiner_facet,
-          geographic_area_facet,
-          collecting_event_facet,
-          repository_facet,
-          type_material_facet,
-          georeferences_facet,
-          taxon_determinations_facet,
-          otus_facet,
-          type_by_taxon_name_facet,
-          type_material_type_facet,
-          ancestors_facet,
-          keyword_id_facet,       # See Queries::Concerns::Tags
-          created_updated_facet,  # See Queries::Concerns::Users
-          identifiers_facet,      # See Queries::Concerns::Identifiers
-          identifier_between_facet,
-          identifier_facet, # See Queries::Concerns::Identifiers
-          identifier_namespace_facet,
-          loaned_facet,
-          on_loan_facet,
-          dwc_indexed_facet,
-          never_loaned_facet,
-          biocuration_facet,
-          biological_relationship_ids_facet,
-          sled_image_facet,
-          loan_facet,
-          depictions_facet,
-        ]
-
-        clauses.compact!
-        clauses
-      end
-
-      # @return [ActiveRecord::Relation]
-      def merge_clauses
-        clauses = base_merge_clauses
-        return nil if clauses.empty?
-        a = clauses.shift
-        clauses.each do |b|
-          a = a.merge(b)
-        end
-        a
-      end
-
-      # @return [ActiveRecord::Relation]
-      def all
-        a = and_clauses
-        b = merge_clauses
-        # q = nil
-        if a && b
-          q = b.where(a).distinct
-        elsif a
-          q = ::CollectionObject.where(a).distinct
-        elsif b
-          q = b.distinct
-        else
-          q = ::CollectionObject.all
-        end
-
-        # TODO: needs to go, orders mess with chaining.
-        q = q.order(updated_at: :desc) if recent
-        q
-      end
-
-      # @return [Scope]
       def type_by_taxon_name_facet
         return nil if type_specimen_taxon_name_id.nil?
 
         w = type_materials_table[:collection_object_id].eq(table[:id])
-          .and( type_materials_table[:protonym_id].eq(type_specimen_taxon_name_id) )
+          .and(type_materials_table[:protonym_id].eq(type_specimen_taxon_name_id))
 
         ::CollectionObject.where(
           ::TypeMaterial.where(w).arel.exists
         )
       end
 
-      # @return [Scope]
       def type_material_type_facet
         return nil if is_type.empty?
 
         w = type_materials_table[:collection_object_id].eq(table[:id])
-          .and( type_materials_table[:type_type].eq_any(is_type) )
+          .and(type_materials_table[:type_type].in(is_type))
 
         ::CollectionObject.where(
           ::TypeMaterial.where(w).arel.exists
@@ -642,22 +761,24 @@ module Queries
           ::CollectionObject.joins(:type_materials).distinct
         else
           ::CollectionObject.left_outer_joins(:type_materials)
-            .where(type_materials: {id: nil})
+            .where(type_materials: { id: nil })
             .distinct
         end
       end
 
-      # @return [Scope]
-      def otus_facet
-        return nil if otu_ids.empty?
+      def otu_id_facet
+        return nil if otu_id.empty?
 
-        w = taxon_determination_table[:biological_collection_object_id].eq(table[:id])
-          .and( taxon_determination_table[:otu_id].eq_any(otu_ids) )
+        w = taxon_determination_table[:taxon_determination_object_id].eq(table[:id])
+          .and(taxon_determination_table[:otu_id].in(otu_id))
+          .and(taxon_determination_table[:taxon_determination_object_type].eq('CollectionObject'))
 
-        if current_determinations
-          w = w.and(taxon_determination_table[:position].eq(1))
+        if current_determinations == true
+          # current and historical - no position filter
         elsif current_determinations == false
           w = w.and(taxon_determination_table[:position].gt(1))
+        else # nil = current only (default)
+          w = w.and(taxon_determination_table[:position].eq(1))
         end
 
         ::CollectionObject.where(
@@ -665,52 +786,330 @@ module Queries
         )
       end
 
-      def ancestors_facet
-        return nil if ancestor_id.nil?
-        h = Arel::Table.new(:taxon_name_hierarchies)
-        t = ::TaxonName.arel_table
+      def taxon_name_id_facet
+        return nil if taxon_name_id.empty?
 
-        q = table.join(taxon_determination_table, Arel::Nodes::InnerJoin).on(
-          table[:id].eq(taxon_determination_table[:biological_collection_object_id])
-        ).join(otu_table, Arel::Nodes::InnerJoin).on(
-          taxon_determination_table[:otu_id].eq(otu_table[:id])
-        ).join(t, Arel::Nodes::InnerJoin).on(
-          otu_table[:taxon_name_id].eq(t[:id])
-        ).join(h, Arel::Nodes::InnerJoin).on(
-          t[:id].eq(h[:descendant_id])
-        )
+        q = nil
+        z = nil
 
-        z = h[:ancestor_id].eq(ancestor_id)
+        if descendants
+          h = Arel::Table.new(:taxon_name_hierarchies)
+          t = ::TaxonName.arel_table
 
-        if validity == true
-          z = z.and(t[:cached_valid_taxon_name_id].eq(t[:id]))
-        elsif validity == false
-          z = z.and(t[:cached_valid_taxon_name_id].not_eq(t[:id]))
+          q = table.join(taxon_determination_table, Arel::Nodes::InnerJoin).on(
+            table[:id].eq(taxon_determination_table[:taxon_determination_object_id])
+            .and(taxon_determination_table[:taxon_determination_object_type]).eq('CollectionObject')
+          ).join(otu_table, Arel::Nodes::InnerJoin).on(
+            taxon_determination_table[:otu_id].eq(otu_table[:id])
+          ).join(t, Arel::Nodes::InnerJoin).on(
+            otu_table[:taxon_name_id].eq(t[:id])
+          ).join(h, Arel::Nodes::InnerJoin).on(
+            t[:id].eq(h[:descendant_id])
+          )
+          z = h[:ancestor_id].in(taxon_name_id)
+
+          if validity == true
+            # both valid and invalid - no filter
+          elsif validity == false
+            z = z.and(t[:cached_valid_taxon_name_id].not_eq(t[:id]))
+          else # nil = valid only (default)
+            z = z.and(t[:cached_valid_taxon_name_id].eq(t[:id]))
+          end
+
+          if taxon_name_current_determination == true
+            # current and historical - no position filter
+          elsif taxon_name_current_determination == false
+            z = z.and(taxon_determination_table[:position].gt(1))
+          else # nil = current only (default)
+            z = z.and(taxon_determination_table[:position].eq(1))
+          end
+        else # exact
+          q = ::CollectionObject.joins(taxon_determinations: { otu: :taxon_name })
+            .where(otus: { taxon_name_id: })
+
+          if validity == true
+            # both valid and invalid - no filter
+          elsif validity == false
+            q = q.where('taxon_names.cached_valid_taxon_name_id != taxon_names.id')
+          else # nil = valid only (default)
+            q = q.where('taxon_names.cached_valid_taxon_name_id = taxon_names.id')
+          end
+
+          if taxon_name_current_determination == true
+            # current and historical - no position filter
+          elsif taxon_name_current_determination == false
+            q = q.where.not(taxon_determinations: {position: 1})
+          else # nil = current only (default)
+            q = q.where(taxon_determinations: { position: 1 })
+          end
+
+          return q
         end
 
-        if current_determinations == true
-          z = z.and(taxon_determination_table[:position].eq(1))
-        elsif current_determinations == false
-          z = z.and(taxon_determination_table[:position].gt(1))
-        end
-
-        ::CollectionObject.joins(q.join_sources).where(z)
+        ::CollectionObject.joins(q.join_sources).where(z).distinct
       end
 
-      # TODO: is this used?
-      # @return [Scope]
-      #  def geographic_area_scope
-      #    # This could be simplified if the AJAX selector returned a geographic_item_id rather than a GeographicAreaId
-      #    target_geographic_item_ids = []
-      #    geographic_area_ids.each do |ga_id|
-      #      target_geographic_item_ids.push(::GeographicArea.joins(:geographic_items)
-      #        .find(ga_id)
-      #        .default_geographic_item.id)
-      #    end
-      #    ::CollectionObject.joins(:geographic_items)
-      #      .where(::GeographicItem.contained_by_where_sql(target_geographic_item_ids))
-      #  end
-    end
+      def dates_facet
+        return nil if dates.nil?
+        if dates
+          ::CollectionObject.left_joins(:collecting_event).where(
+            'start_date_year IS NOT NULL OR ' \
+            'start_date_month IS NOT NULL OR ' \
+            'start_date_day IS NOT NULL OR ' \
+            'end_date_year IS NOT NULL OR ' \
+            'end_date_month IS NOT NULL OR ' \
+            'end_date_day IS NOT NULL OR ' \
+            'verbatim_date IS NOT NULL'
+          )
+        else
+          ::CollectionObject.left_joins(:collecting_event).where(
+            collecting_event: {
+              start_date_year: nil,
+              start_date_month: nil,
+              start_date_day: nil,
+              end_date_year: nil,
+              end_date_month: nil,
+              end_date_day: nil,
+              verbatim_date: nil,
+            },
+          )
+        end
+      end
 
+      def deaccessioned_facet
+        return nil if deaccessioned.nil?
+        a = ::CollectionObject.where('(deaccession_reason IS NOT NULL) OR (deaccessioned_at IS NOT NULL)')
+        b = ::CollectionObject.joins(:deaccession_recipient)
+
+        c = referenced_klass_union([a, b])
+        if deaccessioned
+          c
+        else
+          s = 'WITH query_deac AS (' + c.all.unscope(:select).select(:id).to_sql + ') ' +
+            ::CollectionObject
+            .joins('LEFT JOIN query_deac as query_deac1 on query_deac1.id = collection_objects.id')
+            .where('query_deac1.id IS NULL').to_sql
+          ::CollectionObject.from('(' + s + ') as collection_objects').distinct
+        end
+      end
+
+      def taxon_name_query_facet
+        return nil if taxon_name_query.nil?
+        s = 'WITH query_tn_co AS (' + taxon_name_query.all.unscope(:select).select(:id).to_sql + ') ' +
+          ::CollectionObject
+          .joins(:taxon_names)
+          .joins('JOIN query_tn_co as query_tn_co1 on query_tn_co1.id = taxon_names.id')
+          .to_sql
+
+        ::CollectionObject.from('(' + s + ') as collection_objects').distinct
+      end
+
+      def collecting_event_query_facet
+        return nil if collecting_event_query.nil?
+        s = 'WITH query_ce_co AS (' + collecting_event_query.all.select(:id).to_sql + ') ' +
+          ::CollectionObject
+          .joins('JOIN query_ce_co as query_ce_co1 on query_ce_co1.id = collection_objects.collecting_event_id')
+          .to_sql
+
+        ::CollectionObject.from('(' + s + ') as collection_objects').distinct
+      end
+
+      def loan_query_facet
+        return nil if loan_query.nil?
+        s = 'WITH query_loan_co AS (' + loan_query.all.to_sql + ') ' +
+          ::CollectionObject.joins(:loan_items)
+          .joins('JOIN query_loan_co as query_loan_co1 on query_loan_co1.id = loan_items.loan_id')
+          .to_sql
+
+        ::CollectionObject.from('(' + s + ') as collection_objects').distinct
+      end
+
+      def base_collecting_event_query_facet
+        return nil if
+          base_collecting_event_query.only_project?
+
+        s = 'WITH query_ce_base_co AS (' + base_collecting_event_query.all.select(:id).to_sql + ') ' +
+          ::CollectionObject
+          .joins('JOIN query_ce_base_co as query_ce_base_co1 on query_ce_base_co1.id = collection_objects.collecting_event_id')
+          .to_sql
+
+        ::CollectionObject.from('(' + s + ') as collection_objects').distinct
+      end
+
+      def otu_query_facet
+        return nil if otu_query.nil?
+        s = 'WITH query_otu_co AS (' + otu_query.all.select(:id).to_sql + ') ' +
+          ::CollectionObject
+          .joins(:taxon_determinations)
+          .joins('JOIN query_otu_co as query_otu_co1 on query_otu_co1.id = taxon_determinations.otu_id')
+          .where(taxon_determinations: { position: 1 })
+          .to_sql
+
+        ::CollectionObject.from('(' + s + ') as collection_objects').distinct
+      end
+
+      def anatomical_part_query_facet
+        return nil if anatomical_part_query.nil?
+
+        ::CollectionObject
+          .joins(:origin_relationships)
+          .where("origin_relationships.new_object_id IN (#{ anatomical_part_query.all.select(:id).to_sql })")
+      end
+
+      def dwc_occurrence_query_facet
+        return nil if dwc_occurrence_query.nil?
+
+        s = ::CollectionObject
+          .with(query_dwc_co: dwc_occurrence_query.all.select(:dwc_occurrence_object_id, :dwc_occurrence_object_type, :id))
+          .joins(:dwc_occurrence)
+          .joins('JOIN query_dwc_co as query_dwc_co1 on query_dwc_co1.id = dwc_occurrences.id')
+          .to_sql
+
+        ::CollectionObject.from('(' + s + ') as collection_objects').distinct
+      end
+
+      def biological_associations_facet
+        return nil if biological_associations.nil?
+
+        if biological_associations
+          a = ::CollectionObject.joins(:biological_associations)
+          b = ::CollectionObject.joins(:related_biological_associations)
+
+          referenced_klass_union([a, b])
+        else
+          ::CollectionObject.where.missing(:biological_associations, :related_biological_associations)
+        end
+      end
+
+      # TODO: turn into UNION!
+      def biological_association_id_facet
+        return nil if biological_association_id.empty?
+        b = ::BiologicalAssociation.where(id: biological_association_id)
+        s = 'WITH query_ba_id_co AS (' + b.all.to_sql + ') ' +
+          ::CollectionObject
+          .joins("LEFT JOIN query_ba_id_co as query_ba_id_co1 on collection_objects.id = query_ba_id_co1.biological_association_subject_id AND query_ba_id_co1.biological_association_subject_type = 'CollectionObject'")
+          .joins("LEFT JOIN query_ba_id_co as query_ba_id_co2 on collection_objects.id = query_ba_id_co2.biological_association_object_id AND query_ba_id_co2.biological_association_object_type = 'CollectionObject'")
+          .where('(query_ba_id_co1.id) IS NOT NULL OR (query_ba_id_co2.id IS NOT NULL)')
+          .to_sql
+
+        ::CollectionObject.from('(' + s + ') as collection_objects').distinct
+      end
+
+      # TODO: turn into UNION!
+      def biological_association_query_facet
+        return nil if biological_association_query.nil?
+        s = 'WITH query_ba_co AS (' + biological_association_query.all.to_sql + ') ' +
+          ::CollectionObject
+          .joins("LEFT JOIN query_ba_co as query_ba_co1 on collection_objects.id = query_ba_co1.biological_association_subject_id AND query_ba_co1.biological_association_subject_type = 'CollectionObject'")
+          .joins("LEFT JOIN query_ba_co as query_ba_co2 on collection_objects.id = query_ba_co2.biological_association_object_id AND query_ba_co2.biological_association_object_type = 'CollectionObject'")
+          .where('(query_ba_co1.id) IS NOT NULL OR (query_ba_co2.id IS NOT NULL)')
+          .to_sql
+
+        ::CollectionObject.from('(' + s + ') as collection_objects').distinct
+      end
+
+      def extract_query_facet
+        return nil if extract_query.nil?
+
+        s = 'WITH query_extract_co AS (' + extract_query.all.to_sql + ') ' +
+          ::CollectionObject
+          .joins(:origin_relationships)
+          .joins("JOIN query_extract_co as query_extract_co1 on origin_relationships.new_object_id = query_extract_co1.id and origin_relationships.new_object_type = 'Extract'")
+          .to_sql
+
+        ::CollectionObject.from('(' + s + ') as collection_objects').distinct
+      end
+
+      def observation_query_facet
+        return nil if observation_query.nil?
+
+        s = 'WITH query_obs_co AS (' + observation_query.all.to_sql + ') ' +
+          ::CollectionObject
+          .joins(:observations)
+          .joins('JOIN query_obs_co as query_obs_co1 on observations.id = query_obs_co1.id')
+          .to_sql
+
+        ::CollectionObject.from('(' + s + ') as collection_objects').distinct
+      end
+
+      def housekeeping_extensions
+        [
+          housekeeping_extension_query(target: ::CollectingEvent, joins: [:collecting_event]),
+          housekeeping_extension_query(target: ::TaxonDetermination, joins: [:taxon_determinations]),
+          housekeeping_extension_query(target: ::DataAttribute, joins: [:data_attributes]),
+          housekeeping_extension_query(target: ::Georeference, joins: [:georeferences]),
+          housekeeping_extension_query(target: ::DataAttribute, joins: {collecting_event: [:data_attributes]}),
+          housekeeping_extension_query(target: ::DataAttribute, joins: {collecting_event: [:data_attributes]}),
+          housekeeping_extension_query(target: ::Note, joins: {collecting_event: [:notes]}),
+          housekeeping_extension_query(target: ::Note, joins: [:notes]),
+          housekeeping_extension_query(target: ::Role, joins: [:roles]),
+          housekeeping_extension_query(target: ::Role, joins: {collecting_event: [:roles]}),
+          housekeeping_extension_query(target: ::Role, joins: { taxon_determinations: [:determiner_roles]}),
+        ]
+      end
+
+      def and_clauses
+        [
+          attribute_exact_facet(:buffered_collecting_event),
+          attribute_exact_facet(:buffered_determinations),
+          attribute_exact_facet(:buffered_other_labels),
+          collecting_event_id_facet,
+          current_repository_id_facet,
+          preparation_type_id_facet,
+          repository_id_facet,
+          type_facet,
+        ]
+      end
+
+      def merge_clauses
+        [
+          import_dataset_id_facet,
+          biological_association_id_facet,
+          anatomical_part_query_facet,
+          base_collecting_event_query_facet,
+          biological_association_query_facet,
+          dwc_occurrence_query_facet,
+          collecting_event_query_facet,
+          extract_query_facet,
+          loan_query_facet,
+          observation_query_facet,
+          otu_query_facet,
+          taxon_name_query_facet,
+
+          biocuration_facet,
+          biological_associations_facet,
+          biological_relationship_id_facet,
+          collecting_event_facet,
+          collectors_facet,
+          containerized_facet,
+          current_repository_facet,
+          dates_facet,
+          deaccessioned_facet,
+          determiner_facet,
+          determiner_name_regex_facet,
+          determiners_facet,
+          dwc_indexed_facet,
+          extract_id_facet,
+          geographic_area_facet,
+          georeferences_facet,
+          loan_facet,
+          loaned_facet,
+          never_loaned_facet,
+          on_loan_facet,
+          otu_id_facet,
+          preparation_type_facet,
+          repository_facet,
+          sled_image_facet,
+          taxon_determinations_facet,
+          taxon_name_id_facet,
+          type_by_taxon_name_facet,
+          type_material_facet,
+          type_material_type_facet,
+          with_buffered_collecting_event_facet,
+          with_buffered_determinations_facet,
+          with_buffered_other_labels_facet,
+        ]
+      end
+    end
   end
 end

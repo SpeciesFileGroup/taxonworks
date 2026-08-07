@@ -1,3 +1,4 @@
+require 'rails_helper'
 require_relative 'soft_validation_helpers'
 
 describe 'SoftValidation', group: [:soft_validation] do
@@ -16,7 +17,7 @@ describe 'SoftValidation', group: [:soft_validation] do
       OtherSofty.soft_validate(:my_sv, name: 'Check for cheeze with microscope')
     end
 
-    after :all do  
+    after :all do
       Softy.send(:reset_soft_validation!)
       OtherSofty.send(:reset_soft_validation!)
       OtherOtherSofty.send(:reset_soft_validation!)
@@ -164,6 +165,51 @@ describe 'SoftValidation', group: [:soft_validation] do
     Softy.send(:reset_soft_validation!)
     expect(Softy.soft_validation_sets).to eq( 'Softy' => {default: []})
     expect(Softy.soft_validation_methods).to eq( {} )
+  end
+
+  context 'dedup + override behavior when subclass redefines same SV name' do
+    before do
+      Softy.send(:reset_soft_validation!)
+      OtherSofty.send(:reset_soft_validation!)
+
+      Softy.define_method(:sv_same) { :base_same }
+      Softy.define_method(:sv_base_only) { :base_only }
+      OtherSofty.define_method(:sv_same) { :sub_same }
+      OtherSofty.define_method(:sv_sub_only) { :sub_only }
+
+      # Base-class metadata
+      Softy.soft_validate :sv_same, set: :s, fix: :base_fix, name: 'same from base'
+      Softy.soft_validate :sv_base_only, set: :s, fix: :base_only_fix, name: 'base only'
+
+      # Subclass override + extra SV
+      OtherSofty.soft_validate :sv_same, set: :s, fix: :sub_fix, name: 'same from sub'
+      OtherSofty.soft_validate :sv_sub_only, set: :s, fix: :sub_only_fix, name: 'sub only'
+    end
+
+    after do
+      Softy.send(:reset_soft_validation!)
+      OtherSofty.send(:reset_soft_validation!)
+    end
+
+    specify 'baseclass metadata is retained on base class' do
+      expect(Softy.soft_validation_methods[:sv_same].fix).to eq(:base_fix)
+    end
+
+    specify 'all baseclass methods are returned, with no duplicates' do
+      methods = Softy.soft_validators
+
+      expect(methods.map(&:name)).to contain_exactly('sv_same', 'sv_base_only')
+    end
+
+    specify 'subclass metadata overrides baseclass for duplicate method name' do
+      expect(OtherSofty.soft_validation_methods[:sv_same].fix).to eq(:sub_fix)
+    end
+
+    specify 'all subclass methods are returned, with no duplicates' do
+      methods = OtherSofty.soft_validators
+
+      expect(methods.map(&:name)).to contain_exactly('sv_same', 'sv_sub_only', 'sv_base_only')
+    end
   end
 
   context 'example usage' do

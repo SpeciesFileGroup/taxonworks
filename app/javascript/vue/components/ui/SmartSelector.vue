@@ -1,83 +1,133 @@
 <template>
-  <div>
-    <div class="separate-bottom horizontal-left-content">
-      <switch-components
-        class="full_width capitalize"
-        v-model="view"
-        :options="options"/>
-      <default-pin
-        v-if="pinSection"
-        class="margin-small-left"
-        :section="pinSection"
-        :type="pinType"
-        @getId="getObject"/>
+  <div ref="rootRef">
+    <div class="separate-bottom horizontal-left-content gap-small">
+      <div class="horizontal-left-content">
+        <VSpinner
+          v-if="isLoading"
+          :show-legend="false"
+          spinner-position="middle"
+          :logo-size="{
+            width: '24px',
+            height: '24px'
+          }"
+        />
+        <slot name="tabs-left" />
+        <VSwitch
+          class="capitalize"
+          v-model="view"
+          ref="tabselectorRef"
+          :wrap="wrap"
+          :options="options"
+        />
+      </div>
+      <div class="horizontal-left-content gap-small">
+        <DefaultPin
+          v-if="pinSection"
+          :section="pinSection"
+          :type="pinType"
+          @get-id="getObject"
+        />
+        <slot name="tabs-right" />
+      </div>
     </div>
-    <slot name="header"/>
+    <slot name="header" />
     <template v-if="!addTabs.includes(view)">
-      <div
-        class="margin-medium-bottom">
-        <autocomplete
-          ref="autocomplete"
-          v-if="autocomplete"
+      <div class="margin-medium-bottom">
+        <VAutocomplete
+          ref="autocompleteRef"
+          v-if="autocomplete && !otuPicker"
           :id="`smart-selector-${model}-autocomplete`"
           :input-id="inputId"
-          placeholder="Search..."
+          :excluded-ids="filterIds"
+          :placeholder="placeholder || 'Search...'"
           :url="autocompleteUrl ? autocompleteUrl : `/${model}/autocomplete`"
           param="term"
           :add-params="autocompleteParams"
           label="label_html"
           :clear-after="clear"
           display="label"
-          @getItem="getObject($event.id)"/>
-        <otu-picker
-          v-if="otuPicker"
-          :input-id="inputId"
-          :clear-after="true"
-          @getItem="getObject($event.id)"/>
+          :autofocus="autofocus"
+          @key-event="changeTab"
+          @get-item="getObject($event.id)"
+        />
+        <template v-if="otuPicker">
+          <OtuAutoselectPicker
+            v-if="otuAutoselect"
+            ref="otuAutoselectPickerRef"
+            :id="otuAutoselectId"
+            :autofocus="autofocus"
+            @get-item="sendObject"
+          />
+          <OtuPicker
+            v-else
+            ref="otuPickerRef"
+            :input-id="inputId"
+            clear-after
+            :autofocus="autofocus"
+            @get-item="sendObject"
+          />
+        </template>
       </div>
-      <slot name="body"/>
+      <slot name="body" />
+      <slot :name="`${view}-top`" />
       <template v-if="isImageModel">
         <div class="flex-wrap-row">
           <div
             v-for="image in lists[view]"
             :key="image.id"
             class="thumbnail-container margin-small cursor-pointer"
-            @click="sendObject(image)">
+            @click="sendObject(image)"
+          >
             <img
               :width="image.alternatives.thumb.width"
               :height="image.alternatives.thumb.height"
-              :src="image.alternatives.thumb.image_file_url">
+              :src="image.alternatives.thumb.image_file_url"
+            />
           </div>
         </div>
       </template>
       <template v-else>
         <ul
-          v-if="view && view != 'search'"
+          v-if="view"
           class="no_bullets"
-          :class="{ 'flex-wrap-row': inline }">
+          :style="listStyle"
+          :class="{ 'flex-wrap-row': inline }"
+        >
           <template
             v-for="item in lists[view]"
-            :key="item.id">
-            <li v-if="filterItem(item)">
-              <template
-                v-if="buttons">
+            :key="item.id"
+          >
+            <li
+              v-if="filterItem(item)"
+              class="list__item"
+            >
+              <template v-if="buttons">
                 <button
                   type="button"
                   class="button normal-input tag_button"
                   :class="buttonClass"
                   v-html="item[label]"
-                  @click.prevent="sendObject(item)"/>
+                  @click.prevent="sendObject(item)"
+                />
               </template>
-              <template
-                v-else>
-                <label class="cursor-pointer">
+              <template v-else>
+                <label
+                  class="cursor-pointer"
+                  @click.prevent="sendObject(item)"
+                >
                   <input
                     :name="name"
-                    @click="sendObject(item)"
-                    :value="item"
-                    :checked="selectedItem && item.id == selectedItem.id"
-                    type="radio">
-                  <span v-html="item[label]"/>
+                    :value="item.id"
+                    :checked="selectedItem && item.id === selectedItem.id"
+                    type="radio"
+                    @keyup="changeTab"
+                    @keyup.enter="sendObject(item)"
+                    @keyup.space="sendObject(item)"
+                  />
+                  <span
+                    :title="item[label]"
+                    v-html="item[label]"
+                  />
                 </label>
               </template>
             </li>
@@ -87,280 +137,417 @@
     </template>
     <slot :name="view" />
     <slot />
-    <slot name="footer"/>
+    <slot name="footer" />
   </div>
 </template>
 
-<script>
+<script setup>
+import { ref, computed, watch, onUnmounted, useTemplateRef } from 'vue'
+import { useOnResize } from '@/composables/index'
+import { isMac } from '@/helpers/os'
+import { useBroadcastChannel } from '@/composables'
+import VSwitch from '@/components/ui/VSwitch.vue'
+import AjaxCall from '@/helpers/ajaxCall'
+import VAutocomplete from '@/components/ui/Autocomplete.vue'
+import OrderSmart from '@/helpers/smartSelector/orderSmartSelector'
+import SelectFirst from '@/helpers/smartSelector/selectFirstSmartOption'
+import DefaultPin from '@/components/ui/Button/ButtonPinned.vue'
+import OtuPicker from '@/components/otu/otu_picker/otu_picker.vue'
+import OtuAutoselectPicker from '@/components/otu/otu_picker/otu_autoselect_picker.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
 
-import SwitchComponents from 'components/switch'
-import AjaxCall from 'helpers/ajaxCall'
-import Autocomplete from 'components/ui/Autocomplete'
-import OrderSmart from 'helpers/smartSelector/orderSmartSelector'
-import SelectFirst from 'helpers/smartSelector/selectFirstSmartOption'
-import DefaultPin from 'components/getDefaultPin'
-import OtuPicker from 'components/otu/otu_picker/otu_picker'
-
-export default {
-  components: {
-    SwitchComponents,
-    Autocomplete,
-    DefaultPin,
-    OtuPicker
+const props = defineProps({
+  modelValue: {
+    type: Object,
+    default: undefined
   },
 
-  props: {
-    modelValue: {
-      type: Object,
-      default: undefined
-    },
-
-    label: {
-      type: String,
-      default: 'object_tag'
-    },
-
-    inline: {
-      type: Boolean,
-      default: false
-    },
-
-    buttons: {
-      type: Boolean,
-      default: false
-    },
-
-    buttonClass: {
-      type: String,
-      default: 'button-data'
-    },
-
-    otuPicker: {
-      type: Boolean,
-      default: false
-    },
-
-    autocompleteParams: {
-      type: Object,
-      default: undefined
-    },
-
-    autocomplete: {
-      type: Boolean,
-      default: true
-    },
-
-    autocompleteUrl: {
-      type: String,
-      default: undefined
-    },
-
-    inputId: {
-      type: String,
-      default: undefined
-    },
-
-    getUrl: {
-      type: String,
-      default: undefined
-    },
-
-    model: {
-      type: String,
-      default: undefined
-    },
-
-    klass: {
-      type: String,
-      default: undefined
-    },
-
-    target: {
-      type: String,
-      default: undefined
-    },
-
-    search: {
-      type: Boolean,
-      default: true
-    },
-
-    selected: {
-      type: [Array, String],
-      default: undefined
-    },
-
-    clear: {
-      type: Boolean,
-      default: true
-    },
-
-    pinSection: {
-      type: String,
-      default: undefined
-    },
-
-    pinType: {
-      type: String,
-      default: undefined
-    },
-
-    addTabs: {
-      type: Array,
-      default: () => []
-    },
-
-    params: {
-      type: Object,
-      default: () => ({})
-    },
-
-    customList: {
-      type: Object,
-      default: () => ({})
-    },
-
-    name: {
-      type: String,
-      required: false,
-      default: () => (Math.random().toString(36).substr(2, 5))
-    },
-
-    filterIds: {
-      type: [Number, Array],
-      default: () => []
-    },
-
-    filterBy: {
-      type: String,
-      default: 'id'
-    },
-
-    lockView: {
-      type: Boolean,
-      default: true
-    }
+  label: {
+    type: String,
+    default: 'object_tag'
   },
 
-  emits: [
-    'update:modelValue',
-    'onTabSelected',
-    'selected'
-  ],
-
-  computed: {
-    selectedItem: {
-      get () {
-        return this.modelValue
-      },
-      set (value) {
-        this.$emit('update:modelValue', value)
-      }
-    },
-
-    isImageModel () {
-      return this.model === 'images'
-    }
+  inline: {
+    type: Boolean,
+    default: false
   },
 
-  data () {
-    return {
-      lists: {},
-      view: undefined,
-      options: []
-    }
+  broadcast: {
+    type: Boolean,
+    default: false
   },
 
-  watch: {
-    view (newVal) {
-      this.$emit('onTabSelected', newVal)
-    },
-    customList: {
-      handler () {
-        this.addCustomElements()
-      },
-      deep: true
-    },
-    model (newVal) {
-      this.refresh()
-    }
+  buttons: {
+    type: Boolean,
+    default: false
   },
 
-  created () {
-    this.refresh()
-    document.addEventListener('smartselector:update', this.refresh)
+  buttonClass: {
+    type: String,
+    default: 'button-data'
   },
 
-  unmounted () {
-    document.removeEventListener('smartselector:update', this.refresh)
+  default: {
+    type: String,
+    default: undefined
   },
 
-  methods: {
-    getObject (id) {
-      AjaxCall('get', this.getUrl ? `${this.getUrl}${id}.json` : `/${this.model}/${id}.json`).then(response => {
-        this.sendObject(response.body)
-      })
-    },
-    sendObject (item) {
-      this.lastSelected = item
-      this.selectedItem = item
-      this.$emit('selected', item)
-    },
-    filterItem (item) {
-      return Array.isArray(this.filterIds) ? !this.filterIds.includes(item[this.filterBy]) : this.filterIds !== item[this.filterBy]
-    },
-    refresh (forceUpdate = false) {
-      if (this.alreadyOnLists() && !forceUpdate) return
-      AjaxCall('get', `/${this.model}/select_options`, { params: Object.assign({}, { klass: this.klass, target: this.target }, this.params) }).then(response => {
-        this.lists = response.body
-        this.addCustomElements()
-        this.options = Object.keys(this.lists).concat(this.addTabs)
-        this.options = OrderSmart(this.options)
+  otuPicker: {
+    type: Boolean,
+    default: false
+  },
 
-        this.view = SelectFirst(this.lists, this.options)
+  otuAutoselect: {
+    type: Boolean,
+    default: false
+  },
 
-        if (this.search) {
-          this.options.push('search')
-          if (!this.view) {
-            this.view = 'search'
-          }
-        }
-      }).catch(() => {
-        this.options = []
-        this.lists = []
-        this.view = undefined
-      })
-    },
-    addToList (listName, item) {
-      const index = this.lists[listName].findIndex(({ id }) => id === item.id)
+  otuAutoselectId: {
+    type: String,
+    default: undefined
+  },
 
-      if (index > -1) {
-        this.lists[listName][index] = item
-      } else {
-        this.lists[listName].push(item)
-      }
-    },
-    addCustomElements () {
-      const keys = Object.keys(this.customList)
-      if (keys.length) {
-        keys.forEach(key => {
-          this.lists[key] = this.customList[key]
-          if (!this.lists[key]) {
-            this.options.push(key)
-            this.options = OrderSmart(this.options)
-          }
-        })
-      }
-      if (!this.lockView) {
-        this.view = SelectFirst(this.lists, this.options)
-      }
-    },
-    alreadyOnLists () {
-      return this.lastSelected ? [].concat(...Object.values(this.lists)).find(item => item.id === this.lastSelected.id) : false
-    },
-    setFocus () {
-      this.$refs.autocomplete.setFocus()
+  autocompleteParams: {
+    type: Object,
+    default: undefined
+  },
+
+  autocomplete: {
+    type: Boolean,
+    default: true
+  },
+
+  autocompleteUrl: {
+    type: String,
+    default: undefined
+  },
+
+  inputId: {
+    type: String,
+    default: undefined
+  },
+
+  getUrl: {
+    type: String,
+    default: undefined
+  },
+
+  model: {
+    type: String,
+    default: undefined
+  },
+
+  klass: {
+    type: String,
+    default: undefined
+  },
+
+  target: {
+    type: String,
+    default: undefined
+  },
+
+  selected: {
+    type: [Array, String],
+    default: undefined
+  },
+
+  clear: {
+    type: Boolean,
+    default: true
+  },
+
+  pinSection: {
+    type: String,
+    default: undefined
+  },
+
+  pinType: {
+    type: String,
+    default: undefined
+  },
+
+  ellipsis: {
+    type: Boolean,
+    default: true
+  },
+
+  addTabs: {
+    type: Array,
+    default: () => []
+  },
+
+  params: {
+    type: Object,
+    default: () => ({})
+  },
+
+  customList: {
+    type: Object,
+    default: () => ({})
+  },
+
+  name: {
+    type: String,
+    required: false,
+    default: () => Math.random().toString(36).substr(2, 5)
+  },
+
+  filterIds: {
+    type: [Number, Array],
+    default: () => []
+  },
+
+  filterBy: {
+    type: String,
+    default: 'id'
+  },
+
+  filter: {
+    type: Function,
+    default: undefined
+  },
+
+  lockView: {
+    type: Boolean,
+    default: true
+  },
+
+  autofocus: {
+    type: Boolean,
+    default: false
+  },
+
+  extend: {
+    type: Array,
+    default: () => []
+  },
+
+  placeholder: {
+    type: String,
+    required: false
+  },
+
+  wrap: {
+    type: Number,
+    default: undefined
+  }
+})
+
+const emit = defineEmits(['update:modelValue', 'onTabSelected', 'selected'])
+
+const { post } = useBroadcastChannel({
+  name: props.model,
+  onMessage({ data }) {
+    if (props.broadcast) {
+      emit('selected', data)
     }
   }
+})
+
+const actionKey = isMac() ? 'Control' : 'Alt'
+
+const autocompleteRef = useTemplateRef('autocompleteRef')
+const otuPickerRef = useTemplateRef('otuPickerRef')
+const otuAutoselectPickerRef = useTemplateRef('otuAutoselectPickerRef')
+const tabselectorRef = useTemplateRef('tabselectorRef')
+const rootRef = useTemplateRef('rootRef')
+
+const lists = ref([])
+const view = ref()
+const options = ref([])
+const lastSelected = ref()
+const elementSize = useOnResize(rootRef)
+const isLoading = ref(false)
+const controller = ref(null)
+
+const listStyle = computed(() => {
+  return {
+    'max-width': props.ellipsis ? `${elementSize.width}px` : 'auto'
+  }
+})
+
+const selectedItem = computed({
+  get() {
+    return props.modelValue
+  },
+  set(value) {
+    emit('update:modelValue', value)
+  }
+})
+
+const isImageModel = computed(() => props.model === 'images')
+
+const getObject = (id) => {
+  const params = {
+    extend: props.extend
+  }
+
+  AjaxCall(
+    'get',
+    props.getUrl ? `${props.getUrl}${id}.json` : `/${props.model}/${id}.json`,
+    { params }
+  ).then((response) => {
+    sendObject(response.body)
+  })
 }
+
+const sendObject = (item) => {
+  lastSelected.value = item
+  selectedItem.value = item
+
+  emit('selected', item)
+
+  if (props.broadcast) {
+    post(item)
+  }
+}
+
+const filterItem = (item) => {
+  if (props.filter) {
+    return props.filter(item)
+  }
+
+  return Array.isArray(props.filterIds)
+    ? !props.filterIds.includes(item[props.filterBy])
+    : props.filterIds !== item[props.filterBy]
+}
+
+const refresh = (forceUpdate = false) => {
+  if (alreadyOnLists() && !forceUpdate) return
+  const params = {
+    klass: props.klass,
+    target: props.target,
+    extend: props.extend,
+    ...props.params
+  }
+
+  autocompleteRef.value?.setText('')
+  lists.value = []
+  isLoading.value = true
+  controller.value?.abort()
+  controller.value = new AbortController()
+
+  AjaxCall('get', `/${props.model}/select_options`, {
+    params,
+    signal: controller.value.signal
+  })
+    .then((response) => {
+      lists.value = response.body
+      addCustomElements()
+      options.value = Object.keys(lists.value).concat(props.addTabs)
+      options.value = OrderSmart(options.value)
+
+      if (props.default) {
+        view.value = props.default
+      } else if (!lists.value[view.value]?.length) {
+        view.value = SelectFirst(lists.value, options.value)
+      }
+    })
+    .catch(() => {
+      options.value = []
+      view.value = undefined
+    })
+    .finally(() => {
+      isLoading.value = false
+    })
+}
+
+const addToList = (listName, item) => {
+  const index = lists.value[listName].findIndex(({ id }) => id === item.id)
+
+  if (index > -1) {
+    lists.value[listName][index] = item
+  } else {
+    lists.value[listName].push(item)
+  }
+}
+
+const addCustomElements = () => {
+  const keys = Object.keys(props.customList)
+
+  if (keys.length) {
+    keys.forEach((key) => {
+      lists.value[key] = props.customList[key]
+
+      if (!lists.value[key]) {
+        options.value.push(key)
+        options.value = OrderSmart(options.value)
+      }
+    })
+  }
+
+  if (!props.lockView) {
+    view.value = SelectFirst(lists.value, options.value)
+  }
+}
+
+const alreadyOnLists = () => {
+  return (
+    lastSelected.value &&
+    []
+      .concat(...Object.values(lists.value))
+      .find((item) => item.id === lastSelected.value.id)
+  )
+}
+const setFocus = () => {
+  autocompleteRef.value?.setFocus()
+  otuPickerRef.value?.setFocus()
+  otuAutoselectPickerRef.value?.setFocus()
+}
+
+const changeTab = (e) => {
+  if (e.key !== actionKey) return
+  const element = tabselectorRef.value.$el
+
+  element.querySelector('input:checked')?.focus()
+}
+
+function setTab(tab) {
+  if (options.value.includes(tab)) {
+    view.value = tab
+  }
+}
+
+watch(view, (newVal) => {
+  emit('onTabSelected', newVal)
+})
+
+watch(
+  () => props.customList,
+  () => {
+    addCustomElements()
+  },
+  { deep: true }
+)
+
+watch([() => props.model, () => props.target, () => props.klass], () => {
+  refresh(true)
+})
+
+onUnmounted(() => {
+  controller.value.abort()
+  document.removeEventListener('smartselector:update', refresh)
+})
+
+refresh()
+document.addEventListener('smartselector:update', refresh)
+
+defineExpose({
+  setFocus,
+  setTab,
+  addToList,
+  refresh
+})
 </script>
+<style scoped>
+input:focus + span {
+  font-weight: bold;
+}
+.list__item {
+  padding: 2px 0;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+</style>

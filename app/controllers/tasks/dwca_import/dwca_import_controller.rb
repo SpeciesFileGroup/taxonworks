@@ -1,6 +1,8 @@
 class Tasks::DwcaImport::DwcaImportController < ApplicationController
   include TaskControllerConfiguration
 
+  after_action -> { set_pagination_headers(:datasets) }, only: [:index], if: :json_request?
+
   # GET
   def index
     respond_to do |format|
@@ -8,7 +10,7 @@ class Tasks::DwcaImport::DwcaImportController < ApplicationController
       format.json {
         @datasets = ImportDataset::DarwinCore
           .where(project_id: sessions_current_project_id)
-          .order(:updated_at, :description)
+          .order(updated_at: :desc, description: :asc)
           .page(params[:page]).per(params[:per] || 25)
       }
     end
@@ -20,7 +22,7 @@ class Tasks::DwcaImport::DwcaImportController < ApplicationController
 
   # POST
   def set_import_settings
-    import_dataset = ImportDataset::DarwinCore::Occurrences.find(params[:import_dataset_id])
+    import_dataset = ImportDataset::DarwinCore.find(params[:import_dataset_id])
     settings = import_dataset.set_import_settings(params[:import_settings])
     import_dataset.save!
 
@@ -32,6 +34,15 @@ class Tasks::DwcaImport::DwcaImportController < ApplicationController
     ImportDataset::DarwinCore::Occurrences
       .find(params[:import_dataset_id])
       .update_catalog_number_namespace(params[:institutionCode], params[:collectionCode], params[:namespace_id])
+
+    render json: {success: true}
+  end
+
+  # POST
+  def update_catalog_number_collection_code_namespace
+    ImportDataset::DarwinCore::Occurrences
+      .find(params[:import_dataset_id])
+      .update_catalog_number_collection_code_namespace(params[:collectionCode], params[:namespace_id])
 
     render json: {success: true}
   end

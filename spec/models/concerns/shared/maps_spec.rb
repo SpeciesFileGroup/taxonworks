@@ -1,0 +1,384 @@
+require 'rails_helper'
+
+describe Shared::Maps, type: :model, group: [:geo, :cached_map] do
+
+  include_context 'cached map scenario'
+
+  let(:ad_offset) { FactoryBot.build(:valid_otu_asserted_distribution,
+    asserted_distribution_object: Otu.new(taxon_name: FactoryBot.create(:relationship_genus, parent: FactoryBot.create(:root_taxon_name))),
+    asserted_distribution_shape: ga_offset)
+  }
+
+
+  # Must turn back on the after_destroy in the maps.concern to revisit these.
+
+  xspecify '#destroy_cached_map' do
+    ad_offset.save!
+    Delayed::Worker.new.work_off # triggers cached map item build
+    expect(ad_offset.otu.cached_map).to be_truthy
+
+    a = FactoryBot.create(:valid_otu_asserted_distribution, asserted_distribution_object: ad_offset.otu)
+    Delayed::Worker.new.work_off # triggers cached map destroy
+
+    expect(ad_offset.otu.cached_maps).to be_empty
+  end
+
+  xspecify 'Delayed::Job is cued' do
+    ad_offset.save!
+    expect(Delayed::Job.count).to eq(2) # Create items, clear CachedMap
+  end
+
+  xspecify 'Delayed::Job is cued and ran' do
+    ad_offset.save!
+    expect(Delayed::Worker.new.work_off).to eq [2, 0] # Returns [successes, failures]
+  end
+
+  specify '.cached_map creates a CachedMap' do
+    ad_offset.save!
+    Delayed::Worker.new.work_off
+    expect(ad_offset.otu.cached_map.persisted?).to be_truthy
+  end
+
+  specify '#touched_cached_maps' do
+    ad_offset.save!
+    expect(ad_offset.send(:touched_cached_maps).pluck(:id)).to eq([ad_offset.asserted_distribution_object_id])
+  end
+
+  context '#touched_cached_maps for non-Otu AD object types' do
+    let(:root) { FactoryBot.create(:root_taxon_name) }
+    let(:otu) { Otu.create!(taxon_name: FactoryBot.create(:relationship_species, parent: root)) }
+    let(:source) { FactoryBot.create(:valid_source) }
+
+    def build_ad(object)
+      AssertedDistribution.create!(
+        asserted_distribution_object: object,
+        asserted_distribution_shape: ga_offset,
+        citations_attributes: [{ source: }]
+      )
+    end
+
+    specify 'BiologicalAssociation where OTU is subject' do
+      ba = FactoryBot.create(:valid_biological_association, biological_association_subject: otu)
+      ad = build_ad(ba)
+      expect(ad.send(:touched_cached_maps).pluck(:id)).to include(otu.id)
+    end
+
+    specify 'BiologicalAssociation where OTU is object' do
+      ba = FactoryBot.create(:valid_biological_association, biological_association_object: otu)
+      ad = build_ad(ba)
+      expect(ad.send(:touched_cached_maps).pluck(:id)).to include(otu.id)
+    end
+
+    specify 'BiologicalAssociation where same OTU is both subject and object returns that OTU once' do
+      ba = FactoryBot.create(:valid_biological_association, biological_association_subject: otu, biological_association_object: otu)
+      ad = build_ad(ba)
+      ids = ad.send(:touched_cached_maps).pluck(:id)
+      expect(ids).to include(otu.id)
+      expect(ids.count(otu.id)).to eq(1)
+    end
+  end
+
+  specify '#touched_cached_maps ignores OTUs from another project' do
+    ad_offset.save!
+    p = FactoryBot.create(:valid_project)
+    proot = Protonym.where(name: 'Root', project: p).first
+    pspecies = FactoryBot.create(:relationship_species, parent: proot, project: p)
+    potu = FactoryBot.create(:valid_otu, project: p, taxon_name: pspecies)
+    a = FactoryBot.create(:valid_otu_asserted_distribution,
+      project: p,
+      asserted_distribution_object: potu,
+      asserted_distribution_shape: ga_offset)
+
+    Delayed::Worker.new.work_off
+
+    expect(ad_offset.send(:touched_cached_maps).map(&:id)).to contain_exactly(ad_offset.asserted_distribution_object_id)
+  end
+
+  specify '#cached_maps_to_clear excludes cached maps from another project' do
+    ad_offset.save!
+    p = FactoryBot.create(:valid_project)
+    potu = FactoryBot.create(:valid_otu, project: p)
+    a = FactoryBot.create(:valid_otu_asserted_distribution,
+      project: p,
+      asserted_distribution_object: potu,
+      asserted_distribution_shape: ga_offset)
+    Delayed::Worker.new.work_off
+
+    expect(ad_offset.send(:cached_maps_to_clear).all).to eq([])
+  end
+
+  specify '#cached_maps_to_clear only returns cached maps for touched OTUs in the same project' do
+    ad_offset.save!
+    p = FactoryBot.create(:valid_project)
+    potu = FactoryBot.create(:valid_otu, project: p)
+    a = FactoryBot.create(:valid_otu_asserted_distribution,
+      project: p,
+      asserted_distribution_object: potu,
+      asserted_distribution_shape: ga_offset)
+    Delayed::Worker.new.work_off
+
+    a.asserted_distribution_object.cached_map
+    ad_offset.asserted_distribution_object.cached_map
+    Delayed::Worker.new.work_off
+
+    expect(ad_offset.send(:cached_maps_to_clear).all).to eq([ad_offset.otu.cached_map])
+  end
+
+  context 'Delayed::Job(s) on create' do
+    before do
+      ad_offset.save!
+      Delayed::Worker.new.work_off
+    end
+
+    specify 'CachedMapItem(s)' do
+      expect(CachedMapItem.count).to eq(1)
+    end
+
+    specify 'CachedMapTranslation' do
+      expect(CachedMapItemTranslation.count).to eq(1)
+    end
+
+    specify 'CachedMapRegister' do
+      expect(CachedMapRegister.count).to eq(1)
+    end
+
+    specify 'CachedMapRegister can be ' do
+      expect(ad_offset.cached_map_register.present?).to be_truthy
+    end
+  end
+
+  context 'Delayed::Job(s) on destroy' do
+    before do
+      ad_offset.save!
+      Delayed::Worker.new.work_off
+    end
+
+    specify 'removes from CachedMapRegister' do
+      ad_offset.destroy!
+      Delayed::Worker.new.work_off
+      expect(CachedMapRegister.count).to eq(0)
+    end
+
+    specify 'removes CachedMapItem when no more references' do
+      ad_offset.run_callbacks(:destroy)
+      Delayed::Worker.new.work_off
+      expect(CachedMapItem.count).to eq(0)
+    end
+
+    specify 'decrements CachedMapItem reference_count' do
+      b = FactoryBot.create( :valid_otu_asserted_distribution, asserted_distribution_object: ad_offset.otu, asserted_distribution_shape: ga_offset2)
+      Delayed::Worker.new.work_off
+
+      expect(b.otu.cached_map_items.count).to eq(1)
+      expect(b.otu.cached_map_items.first.reference_count).to eq(2)
+
+      ad_offset.run_callbacks(:destroy)
+      Delayed::Worker.new.work_off
+
+      expect(b.otu.cached_map_items.first.reference_count).to eq(1)
+    end
+
+    specify 'decrements CachedMapItem reference count 2' do
+      # Hack the total
+      ad_offset.otu.cached_map_items.first.update_column(:reference_count, 99)
+
+      ad_offset.run_callbacks(:destroy)
+      Delayed::Worker.new.work_off
+
+      expect(CachedMapItem.first.reload.reference_count).to eq(98)
+    end
+  end
+
+  specify '.cached_map_items_to_clean' do
+    ad_offset.save!
+    Delayed::Worker.new.work_off
+    a = ad_offset.cached_map_items_to_clean
+    expect(a.first).to eq(CachedMapItem.first)
+  end
+
+  specify 'Delayed::Job increments map when > 1 reference' do
+    ad_offset.save!
+    Delayed::Worker.new.work_off
+    FactoryBot.create( :valid_otu_asserted_distribution, asserted_distribution_object: ad_offset.otu, asserted_distribution_shape: ga_offset2)
+    Delayed::Worker.new.work_off
+    expect(ad_offset.otu.cached_map.reload.reference_count).to eq(2)
+  end
+
+  context '.create_cached_map_items' do
+    before :each do
+      ad_offset.save!
+      ad_offset.send(:create_cached_map_items)
+    end
+
+    specify 'registers' do
+      expect(ad_offset.cached_map_register.present?).to be_truthy
+    end
+
+    specify 'creates items' do
+      expect(ad_offset.otu.cached_map_items.count).to eq(1)
+    end
+
+    specify 'creates translations ' do
+      expect(CachedMapItemTranslation.count).to eq(1)
+    end
+  end
+
+  context '.create_cached_map_items with skip_register and register_queue' do
+    before :each do
+      ad_offset.save!
+      Delayed::Worker.new.work_off
+      # Clear the register created by the callback so we can test the batch path
+      CachedMapRegister.delete_all
+      CachedMapItem.delete_all
+      CachedMapItemTranslation.delete_all
+    end
+
+    specify 'skip_register: true does not create a CachedMapRegister' do
+      ad_offset.send(:create_cached_map_items, true, skip_register: true)
+      expect(CachedMapRegister.count).to eq(0)
+    end
+
+    specify 'skip_register: true with register_queue appends registration hash' do
+      queue = []
+      ad_offset.send(:create_cached_map_items, true, skip_register: true, register_queue: queue)
+      expect(queue.size).to eq(1)
+      expect(queue.first[:cached_map_register_object_type]).to eq('AssertedDistribution')
+      expect(queue.first[:cached_map_register_object_id]).to eq(ad_offset.id)
+    end
+
+    specify 'skip_register: true with register_queue only appends one registration per call' do
+      queue = []
+      ad_offset.send(:create_cached_map_items, true, skip_register: true, register_queue: queue)
+      expect(queue.size).to eq(1)
+    end
+
+    specify 'queued registrations can be bulk inserted' do
+      queue = []
+      ad_offset.send(:create_cached_map_items, true, skip_register: true, register_queue: queue)
+      expect { CachedMapRegister.insert_all(queue) }.to change(CachedMapRegister, :count).by(1)
+    end
+
+  end
+
+  context 'Georeference-based cached map items' do
+    let(:root) { FactoryBot.create(:root_taxon_name) }
+    let(:genus) { FactoryBot.create(:relationship_genus, parent: root) }
+    let(:otu) { Otu.create!(taxon_name: genus) }
+
+    let(:collecting_event) { FactoryBot.create(:valid_collecting_event) }
+
+    let(:georeference) {
+      Georeference::VerbatimData.create!(
+        collecting_event:,
+        geographic_item: gi2
+      )
+    }
+
+    let(:specimen) {
+      Specimen.create!(
+        collecting_event:,
+        total: 1,
+      )
+    }
+
+    let!(:taxon_determination) {
+      TaxonDetermination.create!(
+        taxon_determination_object: specimen,
+        otu:
+      )
+    }
+
+    specify 'Georeference creates CachedMapItem via callback' do
+      georeference
+      Delayed::Worker.new.work_off
+      expect(CachedMapItem.count).to eq(1)
+      expect(CachedMapItem.first.otu_id).to eq(otu.id)
+      expect(CachedMapItem.first.geographic_item_id).to eq(gi1.id)
+    end
+
+    specify 'Georeference creates CachedMapRegister via callback' do
+      georeference
+      Delayed::Worker.new.work_off
+      expect(georeference.reload.cached_map_register).to be_present
+    end
+
+    context 'batch mode' do
+      before do
+        georeference
+        Delayed::Worker.new.work_off
+        CachedMapRegister.delete_all
+        CachedMapItem.delete_all
+      end
+
+      specify 'creates CachedMapItem' do
+        georeference.send(:create_cached_map_items, true,
+          skip_register: true, register_queue: [])
+        expect(CachedMapItem.count).to eq(1)
+        expect(CachedMapItem.first.geographic_item_id).to eq(gi1.id)
+      end
+
+      specify 'without qualifying OTUs skips creation' do
+        taxon_determination.destroy!
+        georeference.send(:create_cached_map_items, true,
+          skip_register: true, register_queue: [])
+        expect(CachedMapItem.count).to eq(0)
+      end
+    end
+  end
+
+  context 'CachedMapItem.stubs for Georeference' do
+    let(:root) { FactoryBot.create(:root_taxon_name) }
+    let(:genus) { FactoryBot.create(:relationship_genus, parent: root) }
+    let(:otu) { Otu.create!(taxon_name: genus) }
+
+    let(:collecting_event) { FactoryBot.create(:valid_collecting_event) }
+
+    let(:georeference) {
+      Georeference::VerbatimData.create!(
+        collecting_event:,
+        geographic_item: gi2
+      )
+    }
+
+    let(:specimen) {
+      Specimen.create!(
+        collecting_event:,
+        total: 1,
+      )
+    }
+
+    let!(:taxon_determination) {
+      TaxonDetermination.create!(
+        taxon_determination_object: specimen,
+        otu:
+      )
+    }
+
+    specify 'without context queries for OTUs' do
+      georeference
+      Delayed::Worker.new.work_off
+      stubs = CachedMapItem.stubs(georeference, 'CachedMapItem::WebLevel1')
+      expect(stubs[:otu_id]).to contain_exactly(otu.id)
+      expect(stubs[:geographic_item_id]).to contain_exactly(gi1.id)
+    end
+
+    specify 'only uses OTUs from position=1 determinations' do
+      otu2 = Otu.create!(taxon_name: genus)
+      taxon_determination.update!(position: 1)
+      TaxonDetermination.create!(
+        taxon_determination_object: specimen,
+        otu: otu2,
+        position: 2
+      )
+      georeference
+      Delayed::Worker.new.work_off
+      stubs = CachedMapItem.stubs(georeference, 'CachedMapItem::WebLevel1')
+      expect(stubs[:otu_id]).to contain_exactly(otu.id)
+    end
+  end
+end
+
+# class TestMaps < ApplicationRecord
+#   include FakeTable
+#   include Shared::Maps
+# end

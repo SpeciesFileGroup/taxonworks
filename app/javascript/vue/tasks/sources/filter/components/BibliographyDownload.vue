@@ -1,0 +1,211 @@
+<template>
+  <div>
+    <VSpinner
+      full-screen
+      v-if="isLoading"
+    />
+    <slot :action="loadBibtexStyle">
+      <button
+        type="button"
+        class="button normal-input button-default"
+        :disabled="
+          params.source_type !== SOURCE_BIBTEX &&
+          params.source_type !== undefined
+        "
+        @click="loadBibtexStyle"
+      >
+        Download formatted
+      </button>
+    </slot>
+    <VModal
+      v-if="isModalVisible"
+      @close="isModalVisible = false"
+    >
+      <template #header>
+        <h3>Bibliography</h3>
+      </template>
+      <template #body>
+        <label class="display-block">Style</label>
+        <select
+          class="margin-small-bottom"
+          v-model="styleId"
+        >
+          <option
+            v-for="(label, key) in bibtexStyle"
+            :value="key"
+            :key="key"
+          >
+            {{ label }}
+          </option>
+        </select>
+        <div
+          class="bibliography-preview"
+          v-html="bibtex"
+        />
+      </template>
+      <template #footer>
+        <div class="horizontal-left-content middle gap-small">
+          <VBtn
+            :disabled="!bibtex"
+            color="primary"
+            medium
+            @click="() => downloadFormatted()"
+          >
+            Download formatted
+          </VBtn>
+
+          <VBtn
+            :disabled="!bibtex"
+            color="primary"
+            medium
+            @click="() => downloadFormatted('.pdf')"
+          >
+            Download PDF
+          </VBtn>
+          <label>
+            <input
+              type="checkbox"
+              v-model="stripHtml"
+            />
+            Remove formatting (bold, italics, etc.)
+          </label>
+        </div>
+      </template>
+    </VModal>
+  </div>
+</template>
+
+<script setup>
+import VModal from '@/components/ui/Modal'
+import VSpinner from '@/components/ui/VSpinner'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import { sortArray } from '@/helpers/arrays.js'
+import { SOURCE_BIBTEX } from '@/constants'
+import { ref, watch, computed } from 'vue'
+import Qs from 'qs'
+
+import { GetBibtexStyle, GetBibtex } from '../request/resources'
+
+const props = defineProps({
+  params: {
+    type: Object,
+    default: undefined
+  },
+
+  pagination: {
+    type: Object,
+    default: undefined
+  },
+
+  selectedList: {
+    type: Array,
+    default: () => []
+  }
+})
+
+const DEFAULT_CSL_STYLE = 'taxonworks'
+const TAXONWORKS_CSL_STYLE = { taxonworks: 'TaxonWorks' }
+
+const isLoading = ref(false)
+const bibtex = ref()
+const links = ref()
+const isModalVisible = ref(false)
+const bibtexStyle = ref()
+const styleId = ref(DEFAULT_CSL_STYLE)
+const stripHtml = ref(true)
+
+const payload = computed(() =>
+  Object.assign(
+    {},
+    props.selectedList.length
+      ? { source_id: props.selectedList }
+      : props.params,
+    {
+      is_public: true,
+      style_id: styleId.value,
+      strip_html: stripHtml.value,
+      per: props.pagination.total
+    }
+  )
+)
+
+watch(
+  [() => props.params, () => props.selectedList],
+  () => {
+    links.value = undefined
+    bibtex.value = undefined
+    styleId.value = DEFAULT_CSL_STYLE
+  },
+  { deep: true }
+)
+
+watch([styleId, stripHtml, isModalVisible], () => {
+  if (isModalVisible.value) {
+    loadBibliography()
+  }
+})
+
+function loadBibtexStyle() {
+  if (props.params.source_type === SOURCE_BIBTEX || !props.params.source_type) {
+    isModalVisible.value = true
+    isLoading.value = true
+    GetBibtexStyle()
+      .then(({ body }) => {
+        const styles = {
+          ...body,
+          ...TAXONWORKS_CSL_STYLE
+        }
+
+        bibtexStyle.value = {
+          ...Object.fromEntries(sortArray(Object.entries(styles), '1'))
+        }
+      })
+      .finally(() => {
+        isLoading.value = false
+      })
+  }
+}
+
+function loadBibliography() {
+  isLoading.value = true
+
+  GetBibtex(payload.value).then((response) => {
+    links.value = undefined
+    bibtex.value = response.body
+    isLoading.value = false
+  })
+}
+
+function downloadFormatted(extension = '') {
+  window.open(
+    `/sources/download_formatted${extension}?${Qs.stringify(payload.value, {
+      arrayFormat: 'brackets'
+    })}`,
+    '_self'
+  )
+}
+</script>
+
+<style scoped>
+:deep(.modal-container) {
+  min-width: 80vw;
+  min-height: 60vh;
+}
+
+.bibliography-preview {
+  width: 100%;
+  min-height: 120px;
+  padding: 8px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-xsmall);
+  background-color: var(--input-bg-color);
+  line-height: 1.4;
+  color: var(--text-color);
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-y: auto;
+  cursor: default;
+  height: 60vh;
+  width: 100%;
+}
+</style>

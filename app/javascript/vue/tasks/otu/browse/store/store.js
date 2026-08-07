@@ -4,19 +4,21 @@ import { MutationFunctions } from './mutations/mutations'
 import { ActionFunctions } from './actions/actions'
 import componentNames from '../const/componentNames'
 
-function makeInitialState () {
+function makeInitialState() {
   return {
     loadState: {
-      assertedDistribution: true,
+      assertedDistribution: false,
       biologicalAssociations: true,
       collectionObjects: true,
-      descendants: true,
-      descendantsDistribution: true,
-      distribution: true
+      descendants: false,
+      descendantsDistribution: false,
+      distribution: true,
+      conveyances: false,
+      fieldOccurrences: true
     },
     preferences: {
-      preferenceSchema: 20210715,
-      sections: Object.keys(componentNames()),
+      preferenceSchema: 20250519,
+      sections: Object.keys(componentNames),
       filterSections: {
         and: {
           current: [
@@ -41,13 +43,15 @@ function makeInitialState () {
               equal: true
             }
           ],
-          year: [{
-            label: 'Year',
-            key: 'history-year',
-            value: undefined,
-            attribute: true,
-            equal: true
-          }]
+          year: [
+            {
+              label: 'Year',
+              key: 'history-year',
+              value: undefined,
+              attribute: true,
+              equal: true
+            }
+          ]
         },
         or: {
           valid: [
@@ -105,24 +109,28 @@ function makeInitialState () {
     currentOtu: undefined,
     assertedDistributions: [],
     biologicalAssociations: [],
-    collectingEvents: [],
+    relatedBAs: [],
     collectionObjects: [],
+    fieldOccurrences: [],
     otus: [],
-    georeferences: [],
+    shapeTypes: [],
+    georeferences: { features: [] },
     typeMaterials: [],
     depictions: [],
     commonNames: [],
+    conveyances: [],
     descendants: {
       taxon_names: [],
       collecting_events: [],
       georeferences: []
     },
     observationsDepictions: [],
-    userId: undefined
+    userId: undefined,
+    cachedMap: undefined
   }
 }
 
-function newStore () {
+function newStore() {
   return createStore({
     state: makeInitialState(),
     getters: GetterFunctions,
@@ -131,7 +139,4 @@ function newStore () {
   })
 }
 
-export {
-  newStore,
-  makeInitialState
-}
+export { newStore, makeInitialState }

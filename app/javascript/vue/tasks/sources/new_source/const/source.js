@@ -1,11 +1,16 @@
-export default () => {
+import { SOURCE_BIBTEX } from '@/constants'
+
+export default function (source = {}) {
+  const authors = source.author_roles || []
+  const editors = source.editor_roles || []
+  const roles = [].concat(authors, editors).filter((item) => item)
+
   return {
     id: undefined,
-    type: 'Source::Bibtex',
+    type: SOURCE_BIBTEX,
     bibtex_type: undefined,
-    verbatim: undefined,
-    title: undefined,
-    serial_id: undefined, 
+    title: '',
+    serial_id: undefined,
     address: undefined,
     annote: undefined,
     author: undefined,
@@ -43,6 +48,8 @@ export default () => {
     translator: undefined,
     year_suffix: undefined,
     url: undefined,
-    roles_attributes: []
+    ...source,
+    roles_attributes: roles,
+    isUnsaved: false
   }
 }

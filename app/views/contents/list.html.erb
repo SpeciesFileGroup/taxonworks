@@ -2,23 +2,23 @@
 
 <table class="tablesorter">
   <thead>
-  <tr>
-    <%= fancy_th_tag(name: 'Otu') -%>
-    <%= fancy_th_tag(name: 'Topic') -%>
-    <%= fancy_th_tag(name: 'Text') -%>
-    <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
-    <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
-  </tr>
+    <tr>
+      <%= fancy_th_tag(name: 'Otu') -%>
+      <%= fancy_th_tag(name: 'Topic') -%>
+      <%= fancy_th_tag(name: 'Text') -%>
+      <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
+      <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
+    </tr>
   </thead>
 
   <tbody>
-  <% @contents.each do |content| %>
+    <% @contents.each do |content| %>
       <%= content_tag(:tr, class: :contextMenuCells) do -%>
-          <td><%= otu_link(content.otu) if content.respond_to?(:otu) %></td>
-          <td><%= object_link(content.topic) %></td>
-          <td><%= content.text %></td>
-          <%= fancy_metadata_cells_tag(content) -%>
+        <td><%= otu_link(content.otu) if content.respond_to?(:otu) %></td>
+        <td><%= object_link(content.topic) %></td>
+        <td><%= content.text.html_safe %></td>
+        <%= fancy_metadata_cells_tag(content) -%>
       <% end %>
-  <% end %>
+    <% end %>
   </tbody>
 </table>

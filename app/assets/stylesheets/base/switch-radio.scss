@@ -6,12 +6,12 @@
   }
 
   input {
-      position: absolute !important;
-      clip: rect(0, 0, 0, 0);
-      height: 1px;
-      width: 1px;
-      border: 0;
-      overflow: hidden;
+    position: absolute !important;
+    clip: rect(0, 0, 0, 0);
+    height: 1px;
+    width: 1px;
+    border: 0;
+    overflow: hidden;
   }
 
   label {
@@ -20,10 +20,10 @@
 
   label {
     display: inline-block;
-    width: 60px;
+    min-width: 60px;
     font-size: 12px;
-    background-color: $color-secondary-2-4;
-    color: #FFFFFF;
+    background-color: var(--color-primary);
+    color: #ffffff;
     border-right: 1px solid rgba(0, 0, 0, 0.2);
     font-weight: normal;
     text-align: center;
@@ -32,19 +32,19 @@
   }
 
   label:hover {
-      cursor: pointer;
+    cursor: pointer;
   }
 
   input:checked + label {
     box-shadow: 0 1px 1px 0px rgba(0, 0, 0, 0.2) inset;
-    background-color: $navigation_background;
-    color: rgba(0, 0, 0, 0.8);
-    border: 1px solid $navigation_border;
+    background-color: var(--button-disabled-bg-color);
+    color: var(--button-disabled-text-color);
+    border: 1px solid var(--border-color);
   }
 
   input:focus + label {
-    border: 1px solid $color-complement-3;
-    box-shadow: 0 0px 5px 1px $color-complement-3 inset;
+    border: 1px solid var(--color-primary);
+    box-shadow: 0 0px 5px 1px var(--color-primary) inset;
   }
 
   label:first-of-type {
@@ -55,6 +55,4 @@
   label:last-of-type {
     border-radius: 0 3px 3px 0;
   }
-
-
 }

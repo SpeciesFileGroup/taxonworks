@@ -5,7 +5,6 @@ FactoryBot.define do
       identifier { Faker::Lorem.unique.word }
       association :namespace, factory: :valid_namespace
     end
-
   end
 
 end

@@ -1,0 +1,5 @@
+var content;
+content = $('<%= escape_javascript(render(partial: 'report', locals: {project: @project, relationship: @relationship}) ) %>');
+$('#report').html(content);
+
+

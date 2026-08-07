@@ -33,31 +33,55 @@ class BiologicalAssociation < ApplicationRecord
   include Shared::Tags
   include Shared::Identifiers
   include Shared::DataAttributes
-  include Shared::Confidences
   include Shared::Notes
   include Shared::Confidences
+  include Shared::Depictions
+  include Shared::AutoUuid
+  include Shared::AssertedDistributions
+  include Shared::IsIndexedBiologicalAssociation
   include Shared::IsData
 
+  include BiologicalAssociation::GlobiExtensions
+  include BiologicalAssociation::DwcExtensions
+
+  include Shared::QueryBatchUpdate
+
+  GRAPH_ENTRY_POINTS = [:asserted_distributions].freeze
+
   belongs_to :biological_relationship, inverse_of: :biological_associations
-  belongs_to :biological_association_subject, polymorphic: true
-  belongs_to :biological_association_object, polymorphic: true
-  has_many :biological_associations_biological_associations_graphs, inverse_of: :biological_association
 
-  validates :biological_relationship, presence: true
-  validates :biological_association_subject, presence: true
-  validates :biological_association_object, presence: true
+  has_many :subject_biological_relationship_types, through: :biological_relationship
+  has_many :object_biological_relationship_types, through: :biological_relationship
 
-  validates_uniqueness_of :biological_association_subject_id, scope: [:biological_association_subject_type, :biological_association_object_id, :biological_association_object_type, :biological_relationship_id]
+  has_many :subject_biological_properties, through: :subject_biological_relationship_types, source: :biological_property
+  has_many :object_biological_properties, through: :object_biological_relationship_types, source: :biological_property
+
+  belongs_to :biological_association_subject, polymorphic: true, inverse_of: :biological_associations
+  belongs_to :biological_association_object, polymorphic: true, inverse_of: :related_biological_associations
+
+  has_many :biological_associations_biological_associations_graphs, inverse_of: :biological_association, dependent: :destroy
+  has_many :biological_associations_graphs, through: :biological_associations_biological_associations_graphs, inverse_of: :biological_associations
+
+  validates_presence_of :biological_relationship
+  validates_presence_of :biological_association_subject
+  validates_presence_of :biological_association_object
+
+  validate :association_is_unique
+
+  validate :biological_association_subject_type_is_allowed
+  validate :biological_association_object_type_is_allowed
 
   attr_accessor :subject_global_id
-  attr_accessor :object_global_id
+  attr_accessor :object_global_id # TODO: this is badly named
 
-  def subject_class_name
-    biological_association_subject.try(:class).base_class.name
-  end
+  attr_accessor :rotate
 
-  def object_class_name
-    biological_association_object.try(:class).base_class.name
+  def rotate=(value)
+    s = self.biological_association_subject
+    o = self.biological_association_object
+
+    self.biological_association_subject = o
+    self.biological_association_object = s
   end
 
   def subject_global_id=(value)
@@ -72,4 +96,239 @@ class BiologicalAssociation < ApplicationRecord
     write_attribute(:biological_association_object_type, o.metamorphosize.class.name)
   end
 
+  # TODO: Why?! this is just biological_association.biological_association_subject_type
+  def subject_class_name
+    biological_association_subject.try(:class).base_class.name
+  end
+
+  # TODO: Why?! this is just biological_association.biological_association_object_type
+  def object_class_name
+    biological_association_object.try(:class).base_class.name
+  end
+
+  # !! You can not set with this method
+  def subject
+    biological_association_subject
+  end
+
+  # !! You can not set with this method
+  def object
+    biological_association_object
+  end
+
+  # @return [Array of Integer]
+  #   OTU ids reachable through this BiologicalAssociation's subject and object.
+  #   Handles direct Otu subject/object, CollectionObject and FieldOccurrence
+  #   (via position=1 taxon determination), and AnatomicalPart (via cached_otu_id).
+  def otu_ids
+    ids = []
+    [:subject, :object].each do |role|
+      type = send("biological_association_#{role}_type")
+      id   = send("biological_association_#{role}_id")
+      case type
+      when 'Otu'
+        ids << id
+      when 'CollectionObject', 'FieldOccurrence'
+        otu_id = ::TaxonDetermination
+          .where(taxon_determination_object_type: type, taxon_determination_object_id: id, position: 1)
+          .pick(:otu_id)
+        ids << otu_id if otu_id
+      when 'AnatomicalPart'
+        otu_id = ::AnatomicalPart.where(id:).pick(:cached_otu_id)
+        ids << otu_id if otu_id
+      end
+    end
+    ids.uniq
+  end
+
+  # @return [Array of Integer]
+  #   OTU ids reachable across a collection of BiologicalAssociations,
+  #   batching queries by type to avoid N+1.
+  def self.collect_otu_ids(biological_associations)
+    bas = biological_associations.to_a
+    ids = []
+
+    [:subject, :object].each do |role|
+      type_attr = "biological_association_#{role}_type"
+      id_attr   = "biological_association_#{role}_id"
+      by_type   = bas.group_by { |ba| ba.send(type_attr) }
+
+      (by_type['Otu'] || []).each { |ba| ids << ba.send(id_attr) }
+
+      %w[CollectionObject FieldOccurrence].each do |type|
+        next unless (typed_bas = by_type[type])
+        typed_ids = typed_bas.map { |ba| ba.send(id_attr) }
+        ids.concat(
+          ::TaxonDetermination
+            .where(taxon_determination_object_type: type, taxon_determination_object_id: typed_ids, position: 1)
+            .pluck(:otu_id)
+        )
+      end
+
+      if (ap_bas = by_type['AnatomicalPart'])
+        ap_ids = ap_bas.map { |ba| ba.send(id_attr) }
+        ids.concat(::AnatomicalPart.where(id: ap_ids).pluck(:cached_otu_id).compact)
+      end
+    end
+
+    ids.uniq
+  end
+
+  class << self
+
+    def set_batch_cap(request)
+      a = request.filter
+      total = a.all.pluck(:biological_relationship_id).uniq
+
+      cap = 0
+
+      case total.size
+      when 1
+        cap = 5000
+        request.cap_reason = 'Maximum allowed.'
+      when 2
+        cap = 2000
+        request.cap_reason = 'Maximum allowed when 2 biological relationships present.'
+      else
+        cap = 25
+        request.cap_reason = 'Maximum allowed when 3 or more biological relationships present.'
+      end
+
+      request.cap = cap
+      request
+    end
+
+    def batch_update(params)
+      request = QueryBatchRequest.new(
+        klass: 'BiologicalAssociation',
+        object_filter_params: params[:biological_association_query],
+        object_params: params[:biological_association],
+        async_cutoff: (params[:async_cutoff] || 26),
+        preview: params[:preview],
+        user_id: params[:user_id],
+        project_id: params[:project_id]
+      )
+
+      set_batch_cap(request)
+      query_batch_update(request)
+    end
+
+  end
+
+  def dwc_extension_select
+    BiologicalAssociation
+      .joins("LEFT JOIN identifiers id_s ON id_s.identifier_object_type = biological_associations.biological_associations_subject_type AND ids_s.type = 'Identifier::Global::Uuid'" )
+      .joins("LEFT JOIN identifiers id_o ON id_o.identifier_object_type = biological_associations.biological_associations_object_type AND ids_o.type = 'Identifier::Global::Uuid'" )
+      .joins("LEFT JOIN identifiers id_r ON id_o.identifier_object_type = 'BiologicalRelationship' AND idr_.identifier_object_id = biological_associations.biological_relationship_id AND ids_r.type = 'Identifier::Global::Uri'" )
+  end
+
+  # @return [ActiveRecord::Relation]
+  def targeted_join(target: 'subject', target_class: ::Otu)
+    a = arel_table
+    b = target_class.arel_table
+
+    j = a.join(b).on(a["biological_association_#{target}_type".to_sym].eq(target_class.name).and(a["biological_assoication_#{target}_id".to_sym].eq(b[:id])))
+    joins(j.join_sources)
+  end
+
+  # @return [ActiveRecord::Relation]
+  def targeted_join2(target: 'subject', target_class: ::Otu)
+    a = arel_table
+    b = target_class.arel_table
+
+    j = a.join(b).on(a["biological_association_#{target}_type".to_sym].eq(target_class.name).and(a["biological_assoication_#{target}_id".to_sym].eq(b[:id])))
+  end
+
+  # Not used
+  # @return [ActiveRecord::Relation]
+  def targeted_left_join(target: 'subject', target_class: ::Otu )
+    a = arel_table
+    b = target_class.arel_table
+
+    j = a.join(b, Arel::Nodes::OuterJoin).on(a["biological_association_#{target}_type".to_sym].eq(target_class.name).and(a["biological_assoication_#{target}_id".to_sym].eq(b[:id])))
+    joins(j.join_sources)
+  end
+
+  # @return [Scope]
+  #    the max 10 most recently used
+  def self.used_recently(user_id, project_id, used_on)
+    t = case used_on
+        when 'AssertedDistribution'
+          AssertedDistribution.arel_table
+        else
+          return BiologicalAssociation.none
+        end
+
+    # i is a select manager
+    i = case used_on
+        when 'AssertedDistribution'
+          t.project(t['asserted_distribution_object_id'], t['updated_at']).from(t)
+            .where(
+              t['updated_at'].gt(1.week.ago).and(
+                t['asserted_distribution_object_type'].eq('BiologicalAssociation')
+              )
+            )
+            .where(t['updated_by_id'].eq(user_id))
+            .where(t['project_id'].eq(project_id))
+            .order(t['updated_at'].desc)
+        end
+
+    z = i.as('recent_t')
+    p = BiologicalAssociation.arel_table
+
+    case used_on
+    when 'AssertedDistribution'
+      BiologicalAssociation.joins(
+        Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['asserted_distribution_object_id'].eq(p['id'])))
+      ).pluck(:id).uniq
+    end
+  end
+
+  def self.select_optimized(user_id, project_id, klass)
+    r = used_recently(user_id, project_id, klass)
+    h = {
+      quick: [],
+      pinboard: BiologicalAssociation.pinned_by(user_id).where(project_id: project_id).to_a,
+      recent: []
+    }
+
+    if r.empty?
+      h[:quick] = BiologicalAssociation.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a
+    else
+      h[:recent] = BiologicalAssociation.where('"biological_associations"."id" IN (?)', r.first(10) ).order(updated_at: :desc).to_a
+      h[:quick] = (BiologicalAssociation.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a +
+                   BiologicalAssociation.where('"biological_associations"."id" IN (?)', r.first(4) ).order(updated_at: :desc).to_a).uniq
+    end
+
+    h
+  end
+
+  private
+
+  def association_is_unique
+    if a = BiologicalAssociation.where.not(id:).where(
+        biological_association_subject:,
+        biological_association_object:,
+        biological_relationship:
+    ).first
+      # For unify purposes, self has changed either subject or object, a is the
+      # identical BA we will perhaps unify with.
+      if will_save_change_to_biological_association_subject_id?
+        errors.add(:biological_association_subject, 'has already been taken')
+      elsif will_save_change_to_biological_association_object_id?
+        errors.add(:biological_association_object, 'has already been taken')
+      else
+        errors.add(:biological_association, 'already exists')
+      end
+    end
+  end
+
+
+  def biological_association_subject_type_is_allowed
+    errors.add(:biological_association_subject_type, 'is not permitted') unless biological_association_subject && biological_association_subject.class.is_biologically_relatable?
+  end
+
+  def biological_association_object_type_is_allowed
+    errors.add(:biological_association_object_type, 'is not permitted') unless biological_association_object && biological_association_object.class.is_biologically_relatable?
+  end
 end

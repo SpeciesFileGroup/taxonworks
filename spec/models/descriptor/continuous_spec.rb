@@ -7,19 +7,19 @@ RSpec.describe Descriptor::Continuous, type: :model, group: [:descriptor, :obser
 
   context 'validation' do
     specify '#default_unit 1' do
-      descriptor.valid? 
+      descriptor.valid?
       expect(descriptor.errors.include?(:default_unit)).to be_falsey
     end
 
     specify '#default_unit 2' do
       descriptor.default_unit = 'kahugeflugers'
-      descriptor.valid? 
+      descriptor.valid?
       expect(descriptor.errors.include?(:default_unit)).to be_truthy
     end
 
     specify '#default_unit 3' do
       descriptor.default_unit = 'mm'
-      descriptor.valid? 
+      descriptor.valid?
       expect(descriptor.errors.include?(:default_unit)).to be_falsey
     end
   end
@@ -33,8 +33,8 @@ RSpec.describe Descriptor::Continuous, type: :model, group: [:descriptor, :obser
 
     context '#observations' do
       let(:continuous_descriptor) { Descriptor::Continuous.create!(name: 'Head length') }
-      let!(:observation1) { Observation::Continuous.create!(otu: otu, descriptor: descriptor, continuous_value: 42, continuous_unit: 'cm' ) }
-      let!(:observation2) { Observation::PresenceAbsence.create!(otu: otu, descriptor: FactoryBot.create(:valid_descriptor, type: 'Descriptor::PresenceAbsence'), presence: false, continuous_unit: 'm') }
+      let!(:observation1) { Observation::Continuous.create!(observation_object: otu, descriptor: descriptor, continuous_value: 42, continuous_unit: 'cm' ) }
+      let!(:observation2) { Observation::PresenceAbsence.create!(observation_object: otu, descriptor: FactoryBot.create(:valid_descriptor, type: 'Descriptor::PresenceAbsence'), presence: false, continuous_unit: 'm') }
 
       specify 'only co-typed observations are returned' do
         expect(descriptor.observations).to contain_exactly(observation1)

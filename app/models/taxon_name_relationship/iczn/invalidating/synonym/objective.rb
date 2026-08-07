@@ -5,8 +5,7 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective < TaxonNameR
   def self.disjoint_taxon_name_relationships
     self.parent.disjoint_taxon_name_relationships +
         self.collect_descendants_and_itself_to_s(TaxonNameRelationship::Iczn::Invalidating::Synonym::Suppression) +
-        self.collect_to_s(TaxonNameRelationship::Iczn::Invalidating::Synonym,
-            TaxonNameRelationship::Iczn::Invalidating::Synonym::ForgottenName)
+        self.collect_to_s(TaxonNameRelationship::Iczn::Invalidating::Synonym)
   end
 
   def object_status
@@ -49,16 +48,23 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective < TaxonNameR
     else
       return false
     end
-
-      types2 = t1.get_primary_type
-      if !types2.empty?
-        new_type_material = []
-        types2.each do |t|
-          new_type_material.push({type_type: t.type_type, protonym_id: t2.id, collection_object_id: t.collection_object_id, source: t.source})
-        end
-        t2.type_materials.build(new_type_material)
-        fixed = true
+    types2 = t1.get_primary_type
+    tnr2 = t1.type_taxon_name_relationship
+    unless types2.empty?
+      new_type_material = []
+      types2.each do |t|
+        new_type_material.push({type_type: t.type_type, protonym_id: t2.id, collection_object_id: t.collection_object_id, source: t.source})
       end
+      t2.type_materials.build(new_type_material)
+      fixed = true
+    end
+
+    unless tnr2.nil?
+      tnr = t2.related_taxon_name_relationships.build(type: tnr2.type, subject_taxon_name_id: tnr2.subject_taxon_name_id)
+      c2 = tnr2.citations.where(is_original: true).first
+      tnr.citations.build(source_id: c2.source_id, pages: c2.pages) unless c2.nil?
+      fixed = true
+    end
 
     if fixed
       begin

@@ -3,9 +3,13 @@
     <div class="item item1">
 
       <h3> Identifiers </h3>
-      <%= f.fields_for(:identifiers, @result.depiction.depiction_object.identifiers) do |i| -%>
+      <% identifiers = @result.depiction.depiction_object.identifiers.where("identifiers.type ilike '%Local%'") + [
+        Identifier::Local::CatalogNumber.new(
+          identifier_object: @result.depiction.depiction_object,
+          namespace_id: (@result.namespace_locked? ? @result.namespace_id : nil)
+          ) ] %>
+      <%= f.fields_for(:identifiers, identifiers)  do |i| -%>
         <%= i.hidden_field :type -%>
-
         <div class="side_by_side_fields">
 
           <div class="field">
@@ -22,7 +26,7 @@
                 fields_for_object: i})
               %>
 
-            <% if @result.depiction.depiction_object.identifiers.size == 1 %>
+            <% if identifiers.first == i.object  %>
               <%= check_box_tag(:lock_namespace, '1', @result.namespace_locked?) -%>lock
             <% end %>
           </div>
@@ -105,9 +109,9 @@
     </div>
   </div>
 
-  <div class="flex-seperate">
+  <div class="flex-saperate">
     <ul class="context-menu actions">
-      <li> <%= collection_object_radial_tag(@result.sqed_depiction.depiction_object.metamorphosize) %> </li>
+      <li> <%= radial_quick_forms_tag(@result.sqed_depiction.depiction_object.metamorphosize) %> </li>
       <li> <%= tag_default_icon(@result.sqed_depiction.depiction_object.metamorphosize) -%> </li>
       <li> <%= radial_annotator(@result.sqed_depiction.depiction_object.metamorphosize) -%> </li>
       <li> <%= radial_navigation_tag(@result.sqed_depiction.depiction_object.metamorphosize) -%> </li>

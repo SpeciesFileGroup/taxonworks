@@ -1,59 +1,113 @@
 <template>
-  <transition name="modal">
+  <Transition name="modal">
     <div
+      v-if="isVisible"
       class="modal-mask"
-      @click="$emit('close')"
-      @key.esc="$emit('close')">
+      @mousedown="emit('close')"
+      @key.esc.stop="emit('close')"
+    >
       <div class="modal-wrapper">
         <div
           class="modal-container"
-          :class="containerClass"
+          :class="[
+            {
+              'bg-transparent shadow-none': transparent
+            },
+            ...[containerClass].flat()
+          ]"
           :style="containerStyle"
-          @click.stop>
-          <div class="modal-header">
-            <div
-              class="modal-close"
-              @click="$emit('close')"/>
-            <slot name="header">
-              default header
-            </slot>
+          @mousedown.stop
+        >
+          <div
+            class="modal-header"
+            :class="{ 'panel content': transparent }"
+          >
+            <div class="flex-separate middle gap-small">
+              <div class="full_width">
+                <slot name="header"> default header </slot>
+              </div>
+              <VBtn
+                circle
+                color="primary"
+                title="Close (escape key)"
+                v-bind="buttonClose"
+                @click="() => emit('close')"
+              >
+                <VIcon
+                  name="close"
+                  xx-small
+                  title="Close (escape key)"
+                />
+              </VBtn>
+            </div>
           </div>
           <div class="modal-body">
-            <slot name="body">
-              default body
-            </slot>
+            <slot name="body"> default body </slot>
           </div>
           <div class="modal-footer">
-            <slot name="footer"/>
+            <slot name="footer" />
           </div>
         </div>
       </div>
     </div>
-  </transition>
+  </Transition>
 </template>
 
-<script>
-export default {
-  props: {
-    containerClass: {
-      type: Object,
-      default: () => ({})
-    },
+<script setup>
+import { onMounted, onUnmounted, ref } from 'vue'
+import { ModalEventStack } from '@/utils'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 
-    containerStyle: {
-      type: Object,
-      default: () => ({})
-    }
+defineProps({
+  buttonClose: {
+    type: Object,
+    default: () => ({})
   },
 
-  emits: ['close'],
+  containerClass: {
+    type: [Object, Array],
+    default: () => []
+  },
 
-  mounted () {
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') {
-        this.$emit('close')
-      }
-    })
+  containerStyle: {
+    type: Object,
+    default: () => ({})
+  },
+
+  transparent: {
+    type: Boolean,
+    default: false
+  }
+})
+
+let listenerId
+
+const emit = defineEmits(['close'])
+
+const isVisible = ref(false)
+
+const handleKeys = (e) => {
+  if (e.key === 'Escape') {
+    e.stopPropagation()
+    emit('close')
   }
 }
+
+onMounted(() => {
+  isVisible.value = true
+  listenerId = ModalEventStack.addListener(handleKeys, {
+    atStart: true,
+    stopPropagation: true
+  })
+
+  document.body.style.setProperty('overflow', 'hidden')
+})
+onUnmounted(() => {
+  ModalEventStack.removeListener(listenerId)
+
+  if (ModalEventStack.isEmpty()) {
+    document.body.style.removeProperty('overflow')
+  }
+})
 </script>

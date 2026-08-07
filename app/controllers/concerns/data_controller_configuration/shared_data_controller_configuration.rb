@@ -3,8 +3,10 @@ module DataControllerConfiguration::SharedDataControllerConfiguration
 
   included do
     include DataControllerConfiguration
-    before_action :require_sign_in
+
+    before_action :require_sign_in, unless: -> { @api_request }
     before_action :set_is_shared_data_model
+
   end
 
   protected

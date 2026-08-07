@@ -1,17 +1,21 @@
 <template>
   <div class="content">
-    <span><span v-html="`${type.type_type} of ${type.original_combination}`"/> | <a :href="urlType">Edit</a></span>
+    <span
+      ><span v-html="`${type.type_type} of ${type.original_combination}`" /> |
+      <a :href="urlType">Edit</a></span
+    >
     <ul>
       <li>
-        <span>Citation: <b><span v-html="citationsLabel"/></b></span>
+        <span
+          >Citation: <b><span v-html="citationsLabel" /></b
+        ></span>
       </li>
     </ul>
   </div>
 </template>
 
 <script>
-
-import { RouteNames } from 'routes/routes'
+import { RouteNames } from '@/routes/routes'
 import { GetterNames } from '../../store/getters/getters'
 
 export default {
@@ -22,13 +26,21 @@ export default {
     }
   },
   computed: {
-    citationsLabel () {
-      return this.type.origin_citation ? this.type.origin_citation.source.cached : 'not specified'
+    citationsLabel() {
+      return this.type.citations.length
+        ? this.type.citations
+            .sort((a, b) => (b.is_original === true) - (a.is_original === true))
+            .map((item) => item.citation_source_body)
+            .join('; ')
+        : 'not specified'
+      return this.type.origin_citation
+        ? this.type.origin_citation.source.cached
+        : 'not specified'
     },
-    otu () {
+    otu() {
       return this.$store.getters[GetterNames.GetCurrentOtu]
     },
-    urlType () {
+    urlType() {
       return `${RouteNames.TypeMaterial}?taxon_name_id=${this.otu.taxon_name_id}&type_material_id=${this.type.id}`
     }
   }

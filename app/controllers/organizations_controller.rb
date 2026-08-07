@@ -42,7 +42,7 @@ class OrganizationsController < ApplicationController
         format.json { render :show, status: :created, location: @organization }
       else
         format.html { render :new }
-        format.json { render json: @organization.errors, status: :unprocessable_entity }
+        format.json { render json: @organization.errors, status: :unprocessable_content }
       end
     end
   end
@@ -56,7 +56,7 @@ class OrganizationsController < ApplicationController
         format.json { render :show, status: :ok, location: @organization }
       else
         format.html { render :edit }
-        format.json { render json: @organization.errors, status: :unprocessable_entity }
+        format.json { render json: @organization.errors, status: :unprocessable_content }
       end
     end
   end
@@ -80,6 +80,11 @@ class OrganizationsController < ApplicationController
     @organizations = Organization.page(params[:page])
   end
 
+  # GET /organizations/select_options
+  def select_options
+    @organizations = Organization.select_optimized(sessions_current_user_id, sessions_current_project_id, params[:target])
+  end
+
   private
 
   def set_organization
@@ -90,7 +95,8 @@ class OrganizationsController < ApplicationController
     params.require(:organization).permit(
       :name, :alternate_name, :description, :disambiguating_description,
       :same_as_id, :address, :email, :telephone, :duns, :global_location_number,
-      :legal_name, :area_served_id, :department_id, :parent_organization_id
+      :legal_name, :area_served_id, :department_id, :parent_organization_id,
+      :geographic_area_id
     )
   end
 end

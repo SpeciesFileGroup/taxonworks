@@ -17,16 +17,14 @@ describe Queries::ControlledVocabularyTerm::Autocomplete, type: :model, group: [
   let!(:q) { Queries::ControlledVocabularyTerm::Autocomplete.new('') }
 
   specify '#of_type' do
-    q.type = ['Keyword']
+    q.controlled_vocabulary_term_type = ['Keyword']
     expect( q.all.to_a ).to contain_exactly(cvt1, cvt2) 
   end
 
   specify '#project_id' do
-    q.type = ['Keyword']
+    q.controlled_vocabulary_term_type = ['Keyword']
     q.project_id = 99
     expect( q.all.to_a ).to contain_exactly() 
   end
-
-
 
 end

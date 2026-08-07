@@ -13,17 +13,17 @@ module Utilities
           parsed = false
         end
         if parsed
-          http = ::Net::HTTP.start(uri.host)
-          resp = http.head(uri.path)
-          case resp.code
-            # when '200', '302', '303', '308'
-            when /^[23]\d\d$/
-              responded = true
-            when /^[145]\d\d$/
-              responded = false
+          ::Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == 'https') do |http|
+            resp = http.head(uri.path)
+            case resp.code
+              # when '200', '302', '303', '308'
+              when /^[23]\d\d$/
+                responded = true
+              when /^[145]\d\d$/
+                responded = false
+            end
+            # resp.each { |k, v| puts "#{k}: #{v}" }
           end
-          # resp.each { |k, v| puts "#{k}: #{v}" }
-          http.finish
         end
       end
       responded
@@ -33,10 +33,9 @@ module Utilities
     # @return [Object] URI site responce to the request
     def self.ask_about(text)
       uri  = URI.parse(text)
-      http = ::Net::HTTP.start(uri.host)
-      resp = http.head(uri.path)
-      http.finish
-      resp
+      ::Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == 'https') do |http|
+        http.head(uri.path)
+      end
     end
   end
 end

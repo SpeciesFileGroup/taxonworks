@@ -1,5 +1,5 @@
 json.extract! citation, :id, :citation_object_id, :citation_object_type, :source_id, :pages, :is_original,
-:created_by_id, :updated_by_id, :project_id
+:project_id
 
 json.citation_source_body citation_source_body(citation)
 
@@ -18,11 +18,11 @@ if extend_response_with('citation_topics')
 end
 
 if extend_response_with('source')
-  json.source do
-    json.name citation.source.cached
-    json.global_id citation.source.to_global_id.to_s
-    if citation.source.is_bibtex?
-      json.author_year citation.source.author_year
-    end
+  json.partial! '/sources/api/v1/brief', source: citation.source
+end
+
+if extend_response_with('notes')
+  json.notes citation.notes.each do |n|
+    json.text n.text
   end
 end

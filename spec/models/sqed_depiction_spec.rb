@@ -5,6 +5,18 @@ RSpec.describe SqedDepiction, type: :model do
   let(:sqed_depiction) { SqedDepiction.new }
   let(:valid_sqed_depiction) { FactoryBot.create(:valid_sqed_depiction) }
 
+  specify 'depiction is of CollectionObject 1' do
+    valid_sqed_depiction.depiction.depiction_object = FactoryBot.create(:valid_otu)
+    valid_sqed_depiction.valid?
+    expect(valid_sqed_depiction.errors[:depiction]).to_not be_empty
+  end
+
+  specify 'depiction is of CollectionObject 2' do
+    valid_sqed_depiction.depiction.depiction_object = FactoryBot.create(:valid_specimen)
+    valid_sqed_depiction.valid?
+    expect(valid_sqed_depiction.errors[:depiction]).to be_empty
+  end
+
   context 'validation' do
     before { sqed_depiction.valid? }
 

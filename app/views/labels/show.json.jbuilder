@@ -1,1 +1,1 @@
-json.partial! "labels/label", label: @label
+json.partial! 'attributes', label: @label

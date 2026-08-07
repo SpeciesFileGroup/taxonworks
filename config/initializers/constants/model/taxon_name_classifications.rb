@@ -1,48 +1,67 @@
-# Be sure to restart your server (or console) when you modify this file.
+# Be sure to exit and restart your console or server when you modify this file.
+# `reload!` will not work!
 
-require_dependency Rails.root.to_s + '/app/models/taxon_name_classification.rb'
+Rails.application.reloader.to_prepare do
 
 # Array of all ICZN and ICN TaxonNameClassification classes
-TAXON_NAME_CLASSIFICATION_CLASSES = TaxonNameClassification.descendants.freeze
+  TAXON_NAME_CLASSIFICATION_CLASSES ||= TaxonNameClassification.descendants.freeze
 
 # Array of all Latinized TaxonNameClassification classes, as Strings
-LATINIZED_TAXON_NAME_CLASSIFICATION_NAMES = TaxonNameClassification::Latinized.descendants.collect { |d| d.to_s }.freeze
+LATINIZED_TAXON_NAME_CLASSIFICATION_NAMES ||= TaxonNameClassification::Latinized.descendants.collect { |d| d.to_s }.freeze
 
 # Array of all ICZN TaxonNameClassification classes, as Strings
-ICZN_TAXON_NAME_CLASSIFICATION_NAMES = TaxonNameClassification::Iczn.descendants.collect { |d| d.to_s }.freeze
+ICZN_TAXON_NAME_CLASSIFICATION_NAMES ||= TaxonNameClassification::Iczn.descendants.collect { |d| d.to_s }.freeze
 
 # Array of all ICN TaxonNameClassifications classes, as Strings
-ICN_TAXON_NAME_CLASSIFICATION_NAMES = TaxonNameClassification::Icn.descendants.collect { |d| d.to_s }.freeze
+ICN_TAXON_NAME_CLASSIFICATION_NAMES ||= TaxonNameClassification::Icn.descendants.collect { |d| d.to_s }.freeze
 
 # Array of all ICNP TaxonNameClassifications classes, as Strings
-ICNP_TAXON_NAME_CLASSIFICATION_NAMES = TaxonNameClassification::Icnp.descendants.collect { |d| d.to_s }.freeze
+ICNP_TAXON_NAME_CLASSIFICATION_NAMES ||= TaxonNameClassification::Icnp.descendants.collect { |d| d.to_s }.freeze
 
-TAXON_NAME_CLASSIFICATION_GENDER_CLASSES = TaxonNameClassification::Latinized::Gender.descendants.freeze
+TAXON_NAME_CLASSIFICATION_GENDER_CLASSES ||= TaxonNameClassification::Latinized::Gender.descendants.freeze
+
+TAXON_NAME_CLASSIFICATIONS_FOR_GENDER ||= TAXON_NAME_CLASSIFICATION_GENDER_CLASSES.map(&:to_s).freeze
 
 # Array of all ICVCN TaxonNameClassifications classes, as Strings
-ICVCN_TAXON_NAME_CLASSIFICATION_NAMES = TaxonNameClassification::Icvcn.descendants.collect { |d| d.to_s }.freeze
+ICVCN_TAXON_NAME_CLASSIFICATION_NAMES ||= TaxonNameClassification::Icvcn.descendants.collect { |d| d.to_s }.freeze
 
-ICZN_TAXON_NAME_CLASSIFICATION_HASH = (ICZN_TAXON_NAME_CLASSIFICATION_NAMES + LATINIZED_TAXON_NAME_CLASSIFICATION_NAMES).inject({}) {
+ICZN_TAXON_NAME_CLASSIFICATION_HASH ||= (ICZN_TAXON_NAME_CLASSIFICATION_NAMES + LATINIZED_TAXON_NAME_CLASSIFICATION_NAMES).inject({}) {
   |hsh, klass| hsh.merge(klass.constantize.name => klass)
 }.freeze
 
-ICN_TAXON_NAME_CLASSIFICATION_HASH = (ICN_TAXON_NAME_CLASSIFICATION_NAMES + LATINIZED_TAXON_NAME_CLASSIFICATION_NAMES).inject({}) {
+ICN_TAXON_NAME_CLASSIFICATION_HASH ||= (ICN_TAXON_NAME_CLASSIFICATION_NAMES + LATINIZED_TAXON_NAME_CLASSIFICATION_NAMES).inject({}) {
   |hsh, klass| hsh.merge(klass.constantize.name => klass)
 }.freeze
 
-ICNP_TAXON_NAME_CLASSIFICATION_HASH = (ICNP_TAXON_NAME_CLASSIFICATION_NAMES + LATINIZED_TAXON_NAME_CLASSIFICATION_NAMES).inject({}) {
+ICNP_TAXON_NAME_CLASSIFICATION_HASH ||= (ICNP_TAXON_NAME_CLASSIFICATION_NAMES + LATINIZED_TAXON_NAME_CLASSIFICATION_NAMES).inject({}) {
   |hsh, klass| hsh.merge(klass.constantize.name => klass)
 }.freeze
 
-ICVCN_TAXON_NAME_CLASSIFICATION_HASH = (ICVCN_TAXON_NAME_CLASSIFICATION_NAMES + LATINIZED_TAXON_NAME_CLASSIFICATION_NAMES).inject({}) {
+ICVCN_TAXON_NAME_CLASSIFICATION_HASH ||= (ICVCN_TAXON_NAME_CLASSIFICATION_NAMES + LATINIZED_TAXON_NAME_CLASSIFICATION_NAMES).inject({}) {
   |hsh, klass| hsh.merge(klass.constantize.name => klass)
 }.freeze
 
 # Array of all TaxonNameClassifications classes, as Strings
-TAXON_NAME_CLASSIFICATION_NAMES = (ICN_TAXON_NAME_CLASSIFICATION_NAMES + ICVCN_TAXON_NAME_CLASSIFICATION_NAMES + ICNP_TAXON_NAME_CLASSIFICATION_NAMES + ICZN_TAXON_NAME_CLASSIFICATION_NAMES + LATINIZED_TAXON_NAME_CLASSIFICATION_NAMES).freeze
+TAXON_NAME_CLASSIFICATION_NAMES ||= (ICN_TAXON_NAME_CLASSIFICATION_NAMES + ICVCN_TAXON_NAME_CLASSIFICATION_NAMES + ICNP_TAXON_NAME_CLASSIFICATION_NAMES + ICZN_TAXON_NAME_CLASSIFICATION_NAMES + LATINIZED_TAXON_NAME_CLASSIFICATION_NAMES).freeze
+
+# Maps a nomenclatural code to the TaxonNameClassification used to tag a name that is NOT the
+# accepted/valid name (e.g. a synonym ingested from an external source such as Catalogue of Life).
+#
+# There is no single classification that spans all codes, and classifications are code-locked
+# (see `nomenclature_code_matches`).  ICN/ICNP have no "validly published synonym" status — under
+# those codes a junior synonym is a validly published, legitimate name and synonymy is expressed
+# as a TaxonNameRelationship — so the nearest "invalidly published" status is used here, which is
+# semantically loose (it implies the name was not validly published).  Prefer a Synonym
+# relationship to the accepted name when that name is available.
+NOMENCLATURE_CODE_TO_SYNONYM_CLASSIFICATION ||= {
+  iczn:  'TaxonNameClassification::Iczn::Available::Invalid',
+  icn:   'TaxonNameClassification::Icn::EffectivelyPublished::InvalidlyPublished::AsSynonym',
+  icnp:  'TaxonNameClassification::Icnp::EffectivelyPublished::InvalidlyPublished',
+  icvcn: 'TaxonNameClassification::Icvcn::Valid::Unaccepted'
+}.freeze
 
 # Array of all Unavailable and Invalid TaxonNameClassifications classes, as Strings
-TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID = [
+TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID ||= [
   TaxonNameClassification::Iczn::Unavailable,
   TaxonNameClassification::Iczn::Unavailable.descendants,
   TaxonNameClassification::Iczn::Available::Invalid,
@@ -66,7 +85,23 @@ TAXON_NAME_CLASS_NAMES_UNAVAILABLE_AND_INVALID = [
   TaxonNameClassification::Icvcn::Valid::Unaccepted
 ].flatten.map(&:to_s).freeze
 
-TAXON_NAME_CLASS_NAMES_VALID = [
+# Array of all Unavailable and Invalid TaxonNameClassifications classes, as Strings
+TAXON_NAME_CLASS_NAMES_UNAVAILABLE ||= [
+  TaxonNameClassification::Iczn::Unavailable,
+  TaxonNameClassification::Iczn::Unavailable.descendants,
+  TaxonNameClassification::Iczn::CollectiveGroup,
+  TaxonNameClassification::Iczn::Fossil::Ichnotaxon,
+  TaxonNameClassification::Icn::NotEffectivelyPublished,
+  TaxonNameClassification::Icn::NotEffectivelyPublished.descendants,
+  TaxonNameClassification::Icn::EffectivelyPublished::InvalidlyPublished,
+  TaxonNameClassification::Icn::EffectivelyPublished::InvalidlyPublished.descendants,
+  TaxonNameClassification::Icnp::NotEffectivelyPublished,
+  TaxonNameClassification::Icnp::NotEffectivelyPublished.descendants,
+  TaxonNameClassification::Icnp::EffectivelyPublished::InvalidlyPublished,
+  TaxonNameClassification::Icnp::EffectivelyPublished::InvalidlyPublished.descendants
+].flatten.map(&:to_s).freeze
+
+TAXON_NAME_CLASS_NAMES_VALID ||= [
   TaxonNameClassification::Iczn::Available::Valid,
   TaxonNameClassification::Iczn::Available::Valid.descendants,
   TaxonNameClassification::Icn::EffectivelyPublished::ValidlyPublished::Legitimate::Correct,
@@ -77,7 +112,7 @@ TAXON_NAME_CLASS_NAMES_VALID = [
   TaxonNameClassification::Icnp::EffectivelyPublished::ValidlyPublished::Legitimate::Correct.descendants
 ].flatten.map(&:to_s).freeze
 
-EXCEPTED_FORM_TAXON_NAME_CLASSIFICATIONS = [
+EXCEPTED_FORM_TAXON_NAME_CLASSIFICATIONS ||= [
     TaxonNameClassification::Iczn::Unavailable::NotLatin,
     TaxonNameClassification::Iczn::Unavailable::LessThanTwoLetters,
     TaxonNameClassification::Iczn::Unavailable::NotLatinizedAfter1899,
@@ -91,6 +126,32 @@ EXCEPTED_FORM_TAXON_NAME_CLASSIFICATIONS = [
     TaxonNameClassification::Icn::EffectivelyPublished::InvalidlyPublished::NotLatin
 ].flatten.map(&:to_s).freeze
 
+TAXON_NAME_CLASSIFICATIONS_FOR_DECORATION ||= [
+  TaxonNameClassification::Iczn::Available::Valid.descendants,
+  TaxonNameClassification::Iczn::Available::Invalid,
+  TaxonNameClassification::Iczn::Available::Invalid.descendants,
+  TaxonNameClassification::Iczn::Unavailable::NotLatin,
+  TaxonNameClassification::Iczn::Unavailable::LessThanTwoLetters,
+  TaxonNameClassification::Iczn::Unavailable::NotLatinizedAfter1899,
+  TaxonNameClassification::Iczn::Unavailable::NotLatinizedBefore1900AndNotAccepted,
+  TaxonNameClassification::Iczn::Unavailable::NonBinominal,
+  TaxonNameClassification::Iczn::Unavailable::NonBinominal.descendants,
+  TaxonNameClassification::Iczn::Unavailable::NomenNudum,
+  TaxonNameClassification::Iczn::Unavailable::NomenNudum.descendants,
+  TaxonNameClassification::Iczn::Unavailable::Excluded,
+  TaxonNameClassification::Iczn::Unavailable::Excluded.descendants,
+  TaxonNameClassification::Icn::EffectivelyPublished::InvalidlyPublished,
+  TaxonNameClassification::Icn::EffectivelyPublished::InvalidlyPublished.descendants,
+  TaxonNameClassification::Icnp::EffectivelyPublished::InvalidlyPublished,
+  TaxonNameClassification::Icnp::EffectivelyPublished::InvalidlyPublished.descendants,
+  TaxonNameClassification::Icvcn::Valid::Unaccepted
+].flatten.map(&:to_s).freeze
+
+TAXON_NAME_CLASSIFICATIONS_FOR_FOSSILS ||= [
+  TaxonNameClassification::Icn::Fossil,
+  TaxonNameClassification::Iczn::Fossil,
+  TaxonNameClassification::Iczn::Fossil::Ichnotaxon,
+].flatten.map(&:to_s).freeze
 
 # JSON supporting
 module TaxonNameClassificationsHelper
@@ -118,7 +179,7 @@ module TaxonNameClassificationsHelper
 end
 
 
-TAXON_NAME_CLASSIFICATION_JSON = {
+TAXON_NAME_CLASSIFICATION_JSON ||= {
     iczn: {
     tree: ApplicationEnumeration.nested_subclasses(TaxonNameClassification::Iczn),
     all: TaxonNameClassificationsHelper::descendants_collection(TaxonNameClassification::Iczn),
@@ -159,4 +220,4 @@ TAXON_NAME_CLASSIFICATION_JSON = {
     ])
   }
 }.freeze
-
+end

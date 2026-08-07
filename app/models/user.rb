@@ -114,13 +114,13 @@ class User < ApplicationRecord
 
   include Housekeeping::Users
   include Housekeeping::Timestamps
-  include Housekeeping::AssociationHelpers
 
   include Shared::RandomTokenFields[:password_reset]
 
-  has_secure_password
+  has_secure_password(reset_token: false) # We use our own reset token
 
   VALID_EMAIL_REGEX = /\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i
+  HUB_FAVORITES = {'data' => [], 'tasks' => []}.freeze
 
   store :preferences, accessors: [:disable_chime], coder: JSON
 
@@ -190,36 +190,33 @@ class User < ApplicationRecord
     klass.column_names.include?('created_by_id') && (klass.where(created_by_id: id).or(klass.where(updated_by_id: id))).any?
   end
 
-  # TODO: Deprecate for a `lib/query/user/filter`
-  # @param [String, User, Integer] user
-  # @return [Integer] selected user id
-# def self.get_user_id(user)
-#   # no way to know who the current user is, so can't pre-set user_id
-#   case user.class.name
-#     when 'String'
-#       # search by name or email
-#       ut = User.arel_table
-#       c1 = ut[:name].eq(user).or(ut[:email].eq(user.downcase)).to_sql
-#       t_user = User.where(c1).first
-#       if t_user.present?
-#         user_id = t_user.id
-#       else  # try to convert to a number, to see if it came directly from a web page
-#         t_user = user.to_i
-#         if t_user > 0
-#           t_user = User.find(t_user).try(:id)
-#         else
-#           t_user = nil
-#         end
-#         user_id = t_user
-#       end
-#     when 'User'
-#       user_id = user.id
-#     when 'Integer'
-#       user_id = user
-#   end
-#   user_id
-# end
+  # @return
+  def self.batch_create(users: '', create_api_token: false, is_administrator: false, project_id: nil, created_by: nil)
+    return [] if users.blank? || created_by.nil?
+    v = []
+    users.split("\n").each do |r|
+      next if r.blank?
+      email, name = r.split(',')
+      p = SecureRandom.hex
+      u = User.create(
+        email:,
+        name:,
+        set_new_api_access_token: create_api_token,
+        is_administrator:,
+        by: created_by,
+        password: p,
+        password_confirmation: p,
+        is_flagged_for_password_reset: true
+      )
 
+      v.push u
+
+      if project_id.present? && u.valid?
+        ProjectMember.create(user: u, project_id:)
+      end
+    end
+    v
+  end
 
   # TODO: deprecate for a User filter query
   # @param [String, User, Integer, Array] users
@@ -228,20 +225,20 @@ class User < ApplicationRecord
     user_ids = []
     users.flatten.each { |user|
       case user.class.name
-        when 'String'
-          # search by name or email
-          ut = User.arel_table
-          c1 = ut[:name].eq(user)
-                 .or(ut[:name].matches("%#{user}"))
-                 .or(ut[:name].matches("%#{user}%"))
-                 .or(ut[:email].eq(user))
-                 .or(ut[:email].matches("%#{user}"))
-                 .or(ut[:email].matches("%#{user}%")).to_sql
-          user_ids.push(User.where(c1).pluck(:id))
-        when 'User'
-          user_ids.push(user.id)
-        when 'Integer'
-          user_ids.push(user)
+      when 'String'
+        # search by name or email
+        ut = User.arel_table
+        c1 = ut[:name].eq(user)
+          .or(ut[:name].matches("%#{user}"))
+          .or(ut[:name].matches("%#{user}%"))
+          .or(ut[:email].eq(user))
+          .or(ut[:email].matches("%#{user}"))
+          .or(ut[:email].matches("%#{user}%")).to_sql
+        user_ids.push(User.where(c1).pluck(:id))
+      when 'User'
+        user_ids.push(user.id)
+      when 'Integer'
+        user_ids.push(user)
       end
     }
     user_ids.flatten.uniq
@@ -250,7 +247,7 @@ class User < ApplicationRecord
   # @param [Integer] project_id
   # @return [Scope] of users
   def self.not_in_project(project_id)
-    ids = ProjectMember.where(project_id: project_id).pluck(:user_id)
+    ids = ProjectMember.where(project_id:).pluck(:user_id)
     return where(false) if ids.empty?
 
     User.where(User.arel_table[:id].not_eq_all(ids))
@@ -259,7 +256,7 @@ class User < ApplicationRecord
   # @param [Integer] project_id
   # @return [Scope] of ids for users in the project
   def self.in_project(project_id = Current.project_id )
-    ProjectMember.where(project_id: project_id).distinct.pluck(:user_id)
+    ProjectMember.where(project_id:).distinct.pluck(:user_id)
   end
 
   # @return [String] of token
@@ -288,7 +285,9 @@ class User < ApplicationRecord
   # @return [Boolean] true if user is_project_administrator for the project passed
   def is_project_administrator?(project = nil)
     return false if project.nil?
-    project.project_members.where(user_id: id).first.is_project_administrator
+    project_member = project.project_members.where(user_id: id).first
+    return false if project_member.nil?
+    project_member.is_project_administrator
   end
 
   # @param [Project, Integer]
@@ -310,10 +309,10 @@ class User < ApplicationRecord
     n = options[:name]
     p = options[:project_id].to_s
     k = options[:kind]
-    u = hub_favorites.clone
+    u = hub_favorites.dup
 
-    u[p] = {'data' => [], 'tasks' => []} if !u[p]
-    u[p][k] = u[p][k].push(n).uniq[0..19].sort
+    u[p] = HUB_FAVORITES.dup if !u[p]
+    u[p][k] = u[p][k].push(n).uniq[0..39].sort
 
     update_column(:hub_favorites, u)
     true
@@ -324,7 +323,7 @@ class User < ApplicationRecord
   # @param [Hash] options
   def remove_page_from_favorites(options = {}) # name: nil, kind: nil, project_id: nil
     validate_favorite_options(options)
-    new_routes = hub_favorites.clone
+    new_routes = hub_favorites.dup
     new_routes[options['project_id'].to_s][options['kind']].delete(options['name'])
     update_column(:hub_favorites, new_routes)
   end
@@ -343,15 +342,38 @@ class User < ApplicationRecord
   #   If user has been active within the last 5 minutes, and at least 5
   #   seconds past their last activity, update their time_active.
   #   The latter prevents multiple writes on many async calls.
+  #
   def update_last_seen_at
     if !last_seen_at.nil?
       t = Time.now - last_seen_at
       if t > 5
-        a = t < 301 ? time_active + t : (time_active || 0)
-        update_columns(last_seen_at: Time.now, time_active: a) if t > 5
+        a = (t < 301.0) ? (time_active + t) : (time_active || 0)
+        update_columns(last_seen_at: Time.now, time_active: a)
       end
     else
       update_columns(last_seen_at: Time.now)
+    end
+
+    update_project_member_last_seen_at
+
+    true
+  end
+
+  # TODO: we still global track at User, this is hit only when that
+  # ticker ticks
+  #  perhaps seperate for performace
+  def update_project_member_last_seen_at
+    if Current.project_id && (pm = project_members.find_by(project_id: Current.project_id))
+
+      if !pm.last_seen_at.nil?
+        t = Time.now - pm.last_seen_at
+        if t > 5
+          a = (t < 301.0) ? (pm.time_active || 0) + t : (pm.time_active || 0)
+          pm.update_columns(last_seen_at: Time.now, time_active: a)
+        end
+      else
+        pm.update_columns(last_seen_at: Time.now)
+      end
     end
   end
 
@@ -361,24 +383,24 @@ class User < ApplicationRecord
   # @return [Boolean] always true
   def add_recently_visited_to_footprint(recent_route, recent_object = nil)
     case recent_route
-      when /\A\/\Z/ # the root path '/'
-      when /\A\/hub/ # any path which starts with '/hub'
-      when /\/autocomplete\?/ # any path used for AJAX autocomplete
-      else
+    when /\A\/\Z/ # the root path '/'
+    when /\A\/hub/ # any path which starts with '/hub'
+    when /\/autocomplete\?/ # any path used for AJAX autocomplete
+    else
 
-        fp = footprints.dup
-        fp['recently_visited'] ||= []
+      fp = footprints.dup
+      fp['recently_visited'] ||= []
 
-        attrs = {recent_route => {}}
-        if !recent_object.nil?
-          attrs[recent_route].merge!(object_type: recent_object.class.to_s, object_id: recent_object.id)
-        end
+      attrs = {recent_route => {}}
+      if !recent_object.nil?
+        attrs[recent_route].merge!(object_type: recent_object.class.to_s, object_id: recent_object.id)
+      end
 
-        fp['recently_visited'].unshift(attrs)
-        fp['recently_visited'] = fp['recently_visited'].uniq { |a| a.keys }[0..19]
+      fp['recently_visited'].unshift(attrs)
+      fp['recently_visited'] = fp['recently_visited'].uniq { |a| a.keys }[0..19]
 
-        self.footprints_will_change! # if this isn't thrown weird caching happens !
-        self.update_column(:footprints, fp)
+      self.footprints_will_change! # if this isn't thrown weird caching happens !
+      self.update_column(:footprints, fp)
     end
 
     true
@@ -389,7 +411,7 @@ class User < ApplicationRecord
   # @return [Scope] of pinboard items
   def pinboard_hash(project_id)
     h = {}
-    pinboard_items.where(project_id: project_id).order('pinned_object_type DESC, position').each do |i|
+    pinboard_items.where(project_id:).order('pinned_object_type DESC, position').each do |i|
       l = i.pinned_object_type == 'ControlledVocabularyTerm' ? i.pinned_object.class.name : i.pinned_object_type
       h[l] ||= []
       h[l].push i
@@ -413,12 +435,12 @@ class User < ApplicationRecord
   # @return [Hash]
   # @user.get_class_created_updated # => { "projects" => {created: 10, first_created: datetime, updated: 10, last_updated: datetime} }
   def get_class_created_updated
-    Rails.application.eager_load! if Rails.env.development?
+    #  Rails.application.eager_load! if Rails.env.development?
     data = {}
 
     User.reflect_on_all_associations(:has_many).each do |r|
       key = nil
-      puts r.name.to_s
+      # puts r.name.to_s
       if r.name.to_s =~ /created_/
         # puts "after created"
         key = :created
@@ -484,6 +506,26 @@ class User < ApplicationRecord
       end
     end
     found
+  end
+
+  def transfer_housekeeping(target_user)
+    models = ApplicationEnumeration.superclass_models.select { |m| m < Housekeeping::Users }
+
+    User.transaction do
+      models.each do |model|
+        model.where(created_by_id: self.id).update_all(created_by_id: target_user.id)
+        model.where(updated_by_id: self.id).update_all(updated_by_id: target_user.id)
+      end
+    end
+  end
+
+  def transfer_projects_membership(target_user)
+    User.transaction do
+      ProjectMember.where(user_id: self.id)
+        .where.not(project_id: target_user.projects)
+        .update_all(user_id: target_user.id)
+      ProjectMember.where(user_id: self.id).delete_all
+    end
   end
 
   private

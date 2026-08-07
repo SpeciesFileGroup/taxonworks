@@ -1,4 +1,49 @@
 module OtusHelper
+  include RecordNavigationHelper
+
+  # OTU labels
+
+  # HTML label for the autoselect dropdown (left-justified).
+  def otu_autoselect_tag(otu)
+    return nil if otu.nil?
+    if otu.taxon_name&.is_combination?
+      if otu.name.present?
+        return [
+          otu.name,
+          '=',
+          tag.span( otu.taxon_name.cached_html_name_and_author_year.html_safe, class: :klass),
+          TaxonNamesHelper::COMBINATION_MARK
+        ].compact.join('&nbsp;')
+      else
+        return tag.span( otu.taxon_name.cached_html_name_and_author_year.html_safe, class: :klass)
+      end
+    else
+      return  [
+        otu.taxon_name&.cached_html_name_and_author_year,
+        otu.name
+      ].compact.join('&nbsp;')
+    end
+  end
+
+  def otu_autoselect_info(otu)
+    return [] if otu.taxon_name_id.blank?
+    r = [ ]
+
+    t = otu.taxon_name
+
+    if t && t.is_protonym?
+      if t.is_genus_or_species_rank?
+        r.push taxon_name_original_combination_tag(t)
+      end
+
+      if !t.is_valid?
+        r.push taxon_name_now_tag(t.valid_taxon_name)
+      end
+    else
+      r.push t.type
+    end
+    r
+  end
 
   def otu_tag(otu)
     return nil if otu.nil?
@@ -22,12 +67,71 @@ module OtusHelper
     content_tag(:span, a.flatten.compact.join(' ').html_safe, class: :otu_tag)
   end
 
+  def otu_autocomplete_tag(otu, term = nil)
+    return nil if otu.nil?
+    mark_tag(otu_tag(otu), term)
+  end
+
+  def label_for_otu(otu)
+    return nil if otu.nil?
+    [ label_for_taxon_name(otu.taxon_name),
+      otu.name
+    ].compact.join(': ')
+  end
+
   def otu_tag_elements(otu)
     return nil if otu.nil?
     [
-      ( otu.name ? content_tag(:span, otu.name, class: :otu_tag_otu_name) : nil ),
-      ( otu.taxon_name ? content_tag(:span, full_taxon_name_tag(otu.taxon_name).html_safe, class: :otu_tag_taxon_name, title: otu.taxon_name.id) : nil)
+      ( otu.taxon_name ? tag.span(full_taxon_name_tag(otu.taxon_name).html_safe, class: :otu_tag_taxon_name, title: otu.taxon_name.id) : nil),
+      ( otu.name ? content_tag(:span, otu.name, class: :otu_tag_otu_name, title: otu.id) : nil )
     ].compact
+  end
+
+  # Used exclusively in /api/v1/otus/autocomplete
+  def otu_extended_autocomplete_tag(target, otu, common_names, term)
+    if target.kind_of?(Otu)
+      t = otu_tag(target)
+    else # TaxonName
+      a = [ tag.span( full_taxon_name_tag(target).html_safe, class: :otu_tag_taxon_name, title: target.id) ]
+      a.push taxon_name_type_short_tag(target)
+      t = tag.span( a.compact.join(' ').html_safe, class: :otu_tag )
+    end
+
+    if common_names.present? && otu.present? &&
+       (common_names_label = otu_common_names_label(common_names, term)).present?
+      tag.span( "#{common_names_label} (#{t})".html_safe )
+    else
+      t
+    end
+  end
+
+  def otu_common_names_label(common_names, term = nil)
+    return nil if common_names.nil? || common_names.empty?
+
+    if term.empty?
+      return common_names.map(&:name).sort.join(', ')
+    end
+
+    prefix_matches = []
+    wildcard_matches = []
+    non_matches = []
+
+    term = term.downcase
+    # Regexp.escape turns each space into '\\ '.
+    wildcard_term = Regexp.escape(term).gsub(/(\\ )+/, '.*')
+
+    common_names.each do |o|
+      name = o.name.downcase
+      if name.start_with?(term)
+        prefix_matches << name
+      elsif name =~ /#{wildcard_term}/
+        wildcard_matches << name
+      else
+        non_matches << name
+      end
+    end
+
+    (prefix_matches.sort + wildcard_matches.sort + non_matches.sort).join(', ')
   end
 
   # @return [String]
@@ -44,13 +148,6 @@ module OtusHelper
     link_to(otu_tag_elements(otu).join(' ').html_safe, otu)
   end
 
-  def label_for_otu(otu)
-    return nil if otu.nil?
-    [otu.name,
-     label_for_taxon_name(otu.taxon_name)
-    ].compact.join(': ')
-  end
-
   def otus_search_form
     render('/otus/quick_search_form')
   end
@@ -58,7 +155,7 @@ module OtusHelper
   def otus_link_list_tag(otus)
     otus.collect { |o| link_to(o.name, o) }.join(',')
   end
- 
+
   # Stub a smart link to browse OTUs
   # @param object [an instance of TaxonName or Otu]
   #   if TaxonName is provided JS UI will disambiguate if more options are possible
@@ -79,23 +176,45 @@ module OtusHelper
 
   # @return [Array]
   #   of OTUs
-  def next_otus(otu)
+  def next_records(otu)
     if otu.taxon_name_id
-      otu.taxon_name.next_sibling&.otus || []
+      o = []
+      t = otu.taxon_name.next_sibling
+      unless t.nil?
+        while o.empty?
+          break if t.nil?
+          o = t.otus.to_a
+          t = t.next_sibling
+        end
+      end
+      o
     else
-      Otu.where(project_id: otu.id).where('id > ?', otu.id).all
+      super
     end
   end
 
-  def previous_otus(otu)
+  # @return [Array]
+  #   of OTUs
+  # Some OTUs don't have TaxonName, skip along
+  # until we hit one.
+  def previous_records(otu)
     if otu.taxon_name_id
-      otu.taxon_name.previous_sibling&.otus || []
+      o = []
+      t = otu.taxon_name.previous_sibling
+      unless t.nil?
+        while o.empty?
+          break if t.nil?
+          o = t.otus.to_a
+          t = t.previous_sibling
+        end
+      end
+      o
     else
-      Otu.where(project_id: otu.id).where('id < ?', otu.id).all
+      super
     end
   end
 
-  def parent_otus(otu)
+  def parent_records(otu)
     otu.taxon_name&.parent&.otus&.all || []
   end
 
@@ -109,9 +228,457 @@ module OtusHelper
         .distinct
         .reorder('taxon_name_hierarchies.generations DESC, taxon_names.cached_valid_taxon_name_id').each do |t|
           above.push [t.cached, t.otus.to_a] # TODO: to_a vs. pluck
-      end
+        end
     end
     above
+  end
+
+  # @return Hash
+  #   A GeoJSON collection of distribution data in x parts
+  #     need a `to_geo_json` for each object
+  #
+  #      :asserted_distributions
+  #         with shape
+  #         without shapes
+  #      :collection_objects
+  #           with georeferences
+  #           with GeographicAreas
+  #      :type material
+  #           with georeferences
+  #           with GeographicAreas
+  # TODO:
+  #
+  #  * make properties universal
+  #    type: 'Model',
+  #    id: id,
+  #    label: <label>
+  # * merge origin_otu_id: id to reference coordinate OTUs
+  #
+  #  target:
+  #    type: Otu
+  #    label:
+  #    id
+  #
+  #  base:   # one level above target (or one level below shape?!)
+  #    type:
+  #    id:
+  #
+  #  shape: # Either GeographicArea or Georeference
+  #     type
+  #     id
+  #
+  def otu_distribution(otu, children = true, cutoff = 200)
+    return {} if otu.nil?
+    otus = if children
+      otu.coordinate_otus_with_children
+    else
+      Otu.coordinate_otus(otu.id)
+    end
+
+    h = geojson_for_otu(otu)
+
+    if otu.taxon_name && otu.taxon_name.is_protonym? && !otu.taxon_name.is_species_rank?
+      add_aggregate_geo_json(otu, h)
+    else
+      otus = if children
+              otu.coordinate_otus_with_children
+            else
+              Otu.coordinate_otus(otu.id)
+            end
+
+      # Batch-load everything the downstream helpers touch.
+      otus = otus.includes(
+        :taxon_name,
+        current_field_occurrences: [
+          :identifiers,
+          { collecting_event: [ :georeferences, :geographic_area, :geographic_items ] }
+        ],
+        current_collection_objects: [
+          :identifiers,
+          { collecting_event: [ :georeferences, :geographic_area, :geographic_items ] }
+        ],
+        asserted_distributions: { asserted_distribution_shape: :geographic_items },
+        type_materials: [
+          { collection_object: [
+              :identifiers,
+              { collecting_event: [ :georeferences, :geographic_area, :geographic_items ] }
+            ] }
+        ]
+      )
+
+      seen_shapes = {
+        field_occurrences: {},
+        collection_objects: {},
+        asserted_distributions: {},
+        type_materials: {}
+      }
+
+      otus.each do |o|
+        add_distribution_geo_json(o, h, seen_shapes)
+      end
+    end
+
+    h
+  end
+
+  # @return [Hash]
+  #   GeoJSON FeatureCollection of absent FieldOccurrences and AssertedDistributions
+  #   for the OTU, its coordinate OTUs, and ancestor taxon names (traversed via
+  #   TaxonNameHierarchies).
+  # @param descendants [Boolean] when true, also include direct absents from
+  #   descendant OTUs. Off by default: a descendant's absence does not propagate
+  #   up to the OTU, and a sibling descendant's presence in the same region may
+  #   contradict it. Use only when the caller wants a clade-wide visualization.
+  def otu_distribution_is_absent(otu, descendants: false)
+    return {} if otu.nil?
+
+    h = geojson_for_otu(otu)
+    seen_shapes = {
+      field_occurrences: {},
+      asserted_distributions: {}
+    }
+
+    otus = descendants ? otu.coordinate_otus_with_children : Otu.coordinate_otus(otu.id)
+
+    otus.each do |o|
+      t = geojson_target_for_otu(o)
+
+      o.absent_and_ancestor_absent_field_occurrences.each do |f|
+        shape_key = f.collecting_event&.geo_json_shape_key
+        g = build_geo_json_feature_deduped(seen_shapes[:field_occurrences], shape_key) do |skip_geometry|
+          field_occurrence_to_geo_json_feature(f, skip_geometry:)
+        end
+        next unless g
+        g['properties']['target'] = t
+        h['features'].push g
+      end
+
+      o.absent_and_ancestor_absent_asserted_distributions.each do |a|
+        shape_key = [a.asserted_distribution_shape_type, a.asserted_distribution_shape_id]
+        g = build_geo_json_feature_deduped(seen_shapes[:asserted_distributions], shape_key) do |skip_geometry|
+          asserted_distribution_to_geo_json_feature(a, skip_geometry:)
+        end
+        next unless g
+        g['properties']['target'] = t
+        h['features'].push g
+      end
+    end
+
+    h
+  end
+
+  def geojson_for_otu(otu)
+    {
+      'type' => 'FeatureCollection',
+      'features' => [],
+      'properties' => {
+        'target' => geojson_target_for_otu(otu)
+      }
+    }
+  end
+
+  def geojson_target_for_otu(otu)
+    {
+      'id' => otu.id,
+      'label' => label_for_otu(otu),
+      'type' => 'Otu'
+    }
+  end
+
+  def add_aggregate_geo_json(otu, target)
+    h = target
+
+    if g = aggregate_geo_json(otu, h)
+      g['properties'] = {'aggregate': true}
+      g['properties']['target'] = geojson_target_for_otu(otu)
+
+      h['features'].push g
+    end
+
+    h
+  end
+
+  # NOT USED
+  # Caching the cached map
+  def otu_cached_map(otu, target, cached_map_type = 'CachedMapItem::WebLevel1', cache = true, force = false)
+    r = nil
+    if force
+      r = aggregate_geo_json(otu, target, cached_map_type)
+    else
+      # Check for map
+
+      # TODO: extend with synced check
+      if a = CachedMap.where(project_id: sessions_current_project_id).where(otu_id: otu.id, cached_map_type:  )
+      end
+    end
+  end
+
+  # TODO: cleanup
+  def aggregate_geo_json(otu, target, cached_map_type = 'CachedMapItem::WebLevel1')
+    h = target
+
+    if gj = otu.cached_map_geo_json(cached_map_type)
+
+      i =
+        {
+          **gj,
+          # 'type' => gj['type'],  # 'Feature',
+
+          'properties' => {
+            'base' => geojson_target_for_otu(otu),
+            #     'shape' => {
+            #       'type' => cached_map_type,
+            #       'id' => 99999 }, # was nil
+            'updated_at' => 'foo' # last updated at on CachedMapItem scope, possibly
+          }
+        }
+
+      if gj.keys.include?('coordinates')
+        i['coordinates'] = gj['coordinates'] # was 'coordinates' TODO: might not work
+      elsif gj.keys.include?('geometries')
+        i['geometries'] = gj['geometries'] # was 'coordinates' TODO: might not work
+      end
+
+      i
+
+    else
+      nil
+    end
+
+  end
+
+  def add_distribution_geo_json(otu, target, seen_shapes = nil)
+    h = target
+    o = otu
+
+    # internal target
+    t = geojson_target_for_otu(otu)
+
+    o.current_field_occurrences.where(is_absent: [nil, false]).each do |f|
+      shape_key = seen_shapes && f.collecting_event&.geo_json_shape_key
+      g = build_geo_json_feature_deduped(seen_shapes&.fetch(:field_occurrences), shape_key) do |skip_geometry|
+        field_occurrence_to_geo_json_feature(f, skip_geometry:)
+      end
+      next unless g
+      g['properties']['target'] = t
+      h['features'].push g
+    end
+
+    o.current_collection_objects.each do |c|
+      shape_key = seen_shapes && c.collecting_event&.geo_json_shape_key
+      g = build_geo_json_feature_deduped(seen_shapes&.fetch(:collection_objects), shape_key) do |skip_geometry|
+        collection_object_to_geo_json_feature(c, skip_geometry:)
+      end
+      next unless g
+      g['properties']['target'] = t
+      h['features'].push g
+    end
+
+    o.asserted_distributions.without_is_absent.each do |a|
+      shape_key = seen_shapes && [a.asserted_distribution_shape_type, a.asserted_distribution_shape_id]
+      g = build_geo_json_feature_deduped(seen_shapes&.fetch(:asserted_distributions), shape_key) do |skip_geometry|
+        asserted_distribution_to_geo_json_feature(a, skip_geometry:)
+      end
+      next unless g
+      g['properties']['target'] = t
+      h['features'].push g
+    end
+
+    ba_ids = ::Queries::BiologicalAssociation::Filter.new(otu_query: { otu_id: [o.id] }).all.pluck(:id)
+    unless ba_ids.empty?
+      ::AssertedDistribution
+        .where(
+          asserted_distribution_object_type: 'BiologicalAssociation',
+          asserted_distribution_object_id: ba_ids
+        )
+        .without_is_absent
+        .each do |a|
+          shape_key = seen_shapes && [a.asserted_distribution_shape_type, a.asserted_distribution_shape_id]
+          g = build_geo_json_feature_deduped(seen_shapes&.fetch(:asserted_distributions), shape_key) do |skip_geometry|
+            asserted_distribution_to_geo_json_feature(a, skip_geometry:)
+          end
+          next unless g
+          g['properties']['target'] = t
+          h['features'].push g
+        end
+
+      bag_ids = ::BiologicalAssociationsGraph
+        .joins(:biological_associations_biological_associations_graphs)
+        .where(biological_associations_biological_associations_graphs: { biological_association_id: ba_ids })
+        .select(:id)
+
+      unless bag_ids.empty?
+        ::AssertedDistribution
+          .where(
+            asserted_distribution_object_type: 'BiologicalAssociationsGraph',
+            asserted_distribution_object_id: bag_ids
+          )
+          .without_is_absent
+          .each do |a|
+            shape_key = seen_shapes && [a.asserted_distribution_shape_type, a.asserted_distribution_shape_id]
+            g = build_geo_json_feature_deduped(seen_shapes&.fetch(:asserted_distributions), shape_key) do |skip_geometry|
+              asserted_distribution_to_geo_json_feature(a, skip_geometry:)
+            end
+            next unless g
+            g['properties']['target'] = t
+            h['features'].push g
+          end
+      end
+    end
+
+    [
+      [o.depictions, 'Depiction', :depiction_object_id],
+      [o.conveyances, 'Conveyance', :conveyance_object_id],
+      [o.observations, 'Observation', :observation_object_id],
+    ].each do |related_records, object_type, _id_method|
+      related_ids = related_records.map(&:id)
+      next if related_ids.empty?
+
+      ::AssertedDistribution
+        .where(
+          asserted_distribution_object_type: object_type,
+          asserted_distribution_object_id: related_ids
+        )
+        .without_is_absent
+        .each do |a|
+          shape_key = seen_shapes && [a.asserted_distribution_shape_type, a.asserted_distribution_shape_id]
+          g = build_geo_json_feature_deduped(seen_shapes&.fetch(:asserted_distributions), shape_key) do |skip_geometry|
+            asserted_distribution_to_geo_json_feature(a, skip_geometry:)
+          end
+          next unless g
+          g['properties']['target'] = t
+          h['features'].push g
+        end
+    end
+
+    o.type_materials.includes(:protonym).each do |e|
+      next unless type_material_is_primary_type(e) && o.taxon_name.cached_is_valid
+
+      shape_key = seen_shapes && e.collection_object&.collecting_event&.geo_json_shape_key
+      g = build_geo_json_feature_deduped(seen_shapes&.fetch(:type_materials), shape_key) do |skip_geometry|
+        type_material_to_geo_json_feature(e, skip_geometry:)
+      end
+      next unless g
+      g['properties']['target'] = t
+      h['features'].push g
+    end
+
+    h
+  end
+
+  def ranked_otu_table(otus)
+    d = TaxonName.ranked_otus(otu_scope: otus, project_id: sessions_current_project_id)
+
+    tbl = %w{otu_id order family genus species otu_name taxon_name taxon_name_author_year}
+    output = StringIO.new
+    output.puts ::CSV.generate_line(tbl, col_sep: "\t", encoding: Encoding::UTF_8)
+
+    d.each do |o|
+      output.puts ::CSV.generate_line(
+        [
+          o.id,
+          o['order'],
+          o['family'],
+          o['genus'],
+          o['species'],
+          o.name,
+          o.cached,
+          o.cached_author_year
+        ],
+        col_sep: "\t", encoding: Encoding::UTF_8)
+    end
+
+    output.string
+  end
+
+  # @return Hash
+  #   { dwc_occurrence_id: [ image1, image2 ... ], ... }
+  def dwc_gallery_data(otu, dwc_occurrence_id: [], pagination_headers: true)
+    a = DwcOccurrence.scoped_by_otu(otu)
+      .select(:id, :dwc_occurrence_object_id, :dwc_occurrence_object_type)
+
+    dwc_ids = [dwc_occurrence_id].flatten.compact.uniq
+
+    if dwc_ids.any?
+      a = a.where(id: dwc_ids)
+    end
+
+    a = a.page(params[:page]).per(params[:per])
+
+    # Somehwhat of a janky pattern, probably needs to be
+    # moved into Controller.
+    assign_pagination(a) if pagination_headers
+
+    b = Image.with(dwc_scope: a)
+      .joins('JOIN depictions d on d.image_id = images.id' )
+      .joins("JOIN dwc_scope on d.depiction_object_id = dwc_scope.dwc_occurrence_object_id AND d.depiction_object_type = 'CollectionObject' AND dwc_scope.dwc_occurrence_object_type = 'CollectionObject'")
+      .select('images.*, dwc_scope.id dwc_id')
+      .distinct
+
+    r = {}
+    b.find_each do |o|
+      r[o.dwc_id] ||= []
+      r[o.dwc_id].push o
+    end
+    r
+  end
+
+  def serialize_matrices(scope)
+    scope
+      .where(is_public: true)
+      .map do |m|
+        {
+          id: m.id,
+          name: m.name,
+          is_media: m.is_media_matrix?
+        }
+      end
+  end
+
+  def otu_key_inventory(otu)
+    return {
+      observation_matrices: {
+        scoped: serialize_matrices(otu.in_scope_observation_matrices),
+        in: serialize_matrices(otu.observation_matrices)
+      },
+      leads: {
+        scoped: otu.leads
+          .where(parent_id: nil, is_public: true)
+          .select(:id, :text)
+          .map { |l| { id: l.id, text: l.text } },
+
+        in: Lead.public_root_leads_for_leaf_otus(otu)
+          .select(:id, :text)
+          .map { |l| { id: l.id, text: l.text } }
+      }
+    }
+  end
+
+  private
+
+  # Yields once with skip_geometry true or false depending on whether +shape_key+
+  # [shape_type, shape_id] has already been recorded in +seen+.
+  #
+  # First occurrence of a shape: yields skip_geometry=false (full geometry fetched).
+  #   The shape is recorded in +seen+ only if the block returns a non-nil feature,
+  #   so shapes that produce no feature (e.g. no geographic item) are never marked seen.
+  # Subsequent occurrences: yields skip_geometry=true (geometry skipped, nil in feature).
+  #
+  # When +seen+ or +shape_key+ is nil (deduplication disabled or no shape available),
+  # yields skip_geometry=false unconditionally.
+  def build_geo_json_feature_deduped(seen, shape_key)
+    if seen.nil? || shape_key.nil? || shape_key.first.nil?
+      return yield(false)
+    end
+
+    key = "#{shape_key[0]}_#{shape_key[1]}"
+    if seen.key?(key)
+      yield(true)
+    else
+      g = yield(false)
+      seen[key] = true if g
+      g
+    end
   end
 
 end

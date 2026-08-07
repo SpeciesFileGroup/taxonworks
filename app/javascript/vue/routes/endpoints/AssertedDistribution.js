@@ -1,11 +1,17 @@
 import baseCRUD from './base'
+import AjaxCall from '@/helpers/ajaxCall'
 
+const controller = 'asserted_distributions'
 const permitParams = {
   asserted_distribution: {
     id: Number,
-    otu_id: String,
-    geographic_area_id: Number,
+    asserted_distribution_object_type: String,
+    asserted_distribution_object_id: Number,
+    asserted_distribution_shape_type: String,
+    asserted_distribution_shape_id: Number,
     is_absent: Boolean,
+    source_id: Number,
+    remove_source_ids: Array,
     otu_attributes: {
       id: Number,
       _destroy: Boolean,
@@ -40,5 +46,18 @@ const permitParams = {
 }
 
 export const AssertedDistribution = {
-  ...baseCRUD('asserted_distributions', permitParams)
+  ...baseCRUD(controller, permitParams),
+
+  filter: (params) => AjaxCall('post', `/${controller}/filter.json`, params),
+
+  batchUpdate: (params) =>
+    AjaxCall('patch', `/${controller}/batch_update.json`, params),
+
+  batchTemplateCreate: (params) =>
+    AjaxCall('post', `/${controller}/batch_template_create.json`, params),
+
+  batchUpdateDwcOccurrence: (params) =>
+    AjaxCall('post', `/${controller}/batch_update_dwc_occurrence`, params),
+
+  sources: (params) => AjaxCall('post', `/${controller}/sources.json`, params)
 }

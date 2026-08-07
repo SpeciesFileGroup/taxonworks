@@ -1,81 +1,98 @@
 module Queries
 
-  class Repository::Autocomplete < Queries::Query
+  class Repository::Autocomplete < Query::Autocomplete
 
     include Queries::Concerns::AlternateValues
+    include Queries::Concerns::Identifiers
 
     # @param [Hash] args
-    def initialize(string, params = {})
-      set_identifier(params)
+    def initialize(string, **params)
+      set_identifier_params(params)
       set_alternate_value(params)
       super
-    end
-
-    def base_query
-        ::Repository.select('repositories.*')
     end
 
     # @return [Scope]
     def autocomplete_acronym_match
       base_query.where(
         table[:acronym].matches_any(terms).to_sql
-      ).limit(5)
+      )
+    end
+
+    # @return [Scope]
+    def autocomplete_exact_acronym
+      base_query.where(
+        table[:acronym].eq(query_string).to_sql
+      )
     end
 
     def autocomplete_alternate_values_acronym
-      matching_alternate_value_on(:acronym).limit(20)
+      matching_alternate_value_on(:acronym)
     end
 
     def autocomplete_alternate_values_name
-      matching_alternate_value_on(:name).limit(20)
+      matching_alternate_value_on(:name)
+    end
+
+    # @return [ActiveRecord::Relation]
+    #   name matches all query terms in order, e.g. "nat hist" matches
+    #   "Natural History Museum"
+    def autocomplete_ordered_wildcard_pieces_in_name
+      base_query.where(table[:name].matches(wildcard_pieces).to_sql)
+    end
+
+    # @return [ActiveRecord::Relation, nil]
+    #   name matches all query fragments (unordered AND), e.g. "hist nat"
+    #   matches "Natural History Museum"
+    def autocomplete_wildcard_in_name
+      b = fragments
+      return referenced_klass.none if b.empty?
+      base_query.where(table[:name].matches_all(b).to_sql)
     end
 
     # @return [Array]
     def autocomplete
+      t = Time.now
       return [] if query_string.blank?
       queries = [
-        autocomplete_acronym_match,
-        autocomplete_exact_id,
-        autocomplete_exactly_named,
-        autocomplete_identifier_identifier_exact,
-        autocomplete_named,
-        autocomplete_alternate_values_acronym,
-        autocomplete_alternate_values_name
+        [autocomplete_exact_id, nil ],
+        [autocomplete_exactly_named, true],
+        [autocomplete_exact_acronym, true],
+        [autocomplete_identifier_identifier_exact, nil],
+        [autocomplete_acronym_match.limit(10), true],
+        [autocomplete_named, true ],
+        [autocomplete_ordered_wildcard_pieces_in_name.limit(20), true],
+        [autocomplete_wildcard_in_name.limit(20), true],
+        [autocomplete_alternate_values_acronym.limit(20), true ],
+        [autocomplete_alternate_values_name.limit(20), true ]
       ]
 
-      queries.compact!
-      updated_queries = []
-      queries.each_with_index do |q, i|
-        a = q
-        if project_id && i != 1 && i != 3
-          a = a.select('repositories.*, COUNT(collection_objects.id) AS use_count, NULLIF(collection_objects.project_id, NULL) as in_project')
-               .left_outer_joins(:collection_objects)
-               .where('collection_objects.project_id = ? OR collection_objects.project_id IS NULL', project_id)
-               .group('repositories.id, collection_objects.project_id')
-               .order('use_count DESC')
-        end
-        a ||= q
-        updated_queries[i] = a
-      end
+      queries.delete_if{|a,b| a.nil?} # Note this pattern differs because [[]] so we don't use compact. /lib/queries/source/autocomplete.rb follows same pattern
 
       result = []
-      updated_queries.each do |q|
-        result += q.to_a
+
+      pr_id = project_id.join(',') if project_id
+      queries.each do |q, scope|
+        a = q
+        if project_id && scope && query_string.length > 2
+          a = a.select(
+                "repositories.*, " \
+                "COUNT(collection_objects.id) AS use_count, " \
+                "COUNT(collection_objects.id) FILTER (WHERE collection_objects.project_id IN (#{pr_id})) AS in_project_use_count"
+              )
+              .joins('LEFT OUTER JOIN collection_objects ON (repositories.id = collection_objects.repository_id OR repositories.id = collection_objects.current_repository_id)')
+              .group('repositories.id')
+              .order('in_project_use_count DESC, use_count DESC')
+        end
+        a ||= q
+
+        result += a.to_a
         result.uniq!
-        break if result.count > 19
+        break if result.count > 40
       end
-
-      if result.first.try(:use_count).nil?
-        return result[0..19]
-      else
-        return result.sort_by{|i| -i.use_count}[0..19]
-      end
+      t2 = Time.now.to_f - t.to_f
+      puts t2
+      result[0..40]
     end
-
-    # @return [Arel::Table]
-    def table
-      ::Repository.arel_table
-    end
-
   end
 end

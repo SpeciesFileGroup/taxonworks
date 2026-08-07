@@ -6,8 +6,21 @@ class DocumentsController < ApplicationController
   # GET /documents
   # GET /documents.json
   def index
-    @recent_objects = Document.recent_from_project_id(sessions_current_project_id).order(updated_at: :desc).limit(10)
-    render '/shared/data/all/index'
+    respond_to do |format|
+      format.html {
+        @recent_objects = Document
+          .recent_from_project_id(sessions_current_project_id)
+          .order(updated_at: :desc)
+          .limit(10)
+        render '/shared/data/all/index'
+      }
+      format.json {
+        @documents = ::Queries::Document::Filter.new(params).all
+          .order(updated_at: :desc)
+          .page(params[:page])
+          .per(params[:per])
+      }
+    end
   end
 
   # GET /documents/1
@@ -35,7 +48,7 @@ class DocumentsController < ApplicationController
         format.json { render action: 'show', status: :created, location: @document }
       else
         format.html { render action: 'new' }
-        format.json { render json: @document.errors, status: :unprocessable_entity }
+        format.json { render json: @document.errors, status: :unprocessable_content }
       end
     end
   end
@@ -49,7 +62,7 @@ class DocumentsController < ApplicationController
         format.json { render :show, status: :ok, location: @document }
       else
         format.html { render :edit }
-        format.json { render json: @document.errors, status: :unprocessable_entity }
+        format.json { render json: @document.errors, status: :unprocessable_content }
       end
     end
   end
@@ -62,6 +75,12 @@ class DocumentsController < ApplicationController
       format.html { redirect_to documents_url, notice: 'Document was successfully destroyed.' }
       format.json { head :no_content }
     end
+  end
+
+  # GET /documents/download
+  def download
+    send_data Export::CSV.generate_csv(
+      Document.where(project_id: sessions_current_project_id)), type: 'text', filename: "documents_#{DateTime.now}.tsv"
   end
 
   def list
@@ -77,7 +96,20 @@ class DocumentsController < ApplicationController
   end
 
   def autocomplete
-    @documents = Queries::Document::Autocomplete.new(params[:term], project_id: params[:project_id]).all
+    @documents = Queries::Document::Autocomplete.new(
+      params[:term],
+      project_id: sessions_current_project_id
+    ).all
+  end
+
+  # GET /documents/select_options?target=Source
+  def select_options
+    @documents = Document.select_optimized(sessions_current_user_id, sessions_current_project_id, params[:target])
+  end
+
+  # GET /documents/file_extensions.json
+  def file_extensions
+    @extension_groups = FILE_EXTENSIONS_DATA
   end
 
   private
@@ -87,6 +119,6 @@ class DocumentsController < ApplicationController
   end
 
   def document_params
-    params.require(:document).permit(:document_file, :initialize_start_page, :is_public)  
+    params.require(:document).permit(:document_file, :initialize_start_page, :is_public)
   end
 end

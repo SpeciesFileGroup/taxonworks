@@ -24,6 +24,10 @@ module Queries
       if filters.blank?
         filter_keys = Utilities::Dates::REGEXP_DATES.keys.compact
       else
+        # Validate all filters are known
+        invalid_filters = filters.reject { |f| Utilities::Dates::REGEXP_DATES.key?(f) }
+        raise ArgumentError, "Invalid date filters: #{invalid_filters.join(', ')}" if invalid_filters.any?
+
         filter_keys = filters
       end
 
@@ -37,10 +41,8 @@ module Queries
 
     # @return [String] of sql
     def where_sql
-      # with_project_id.and
-      # TODO: make sure you select the one of the following which suits your purpose: with or without Verbatim_lat/long preset
       (verbatim_label_not_empty).and(verbatim_date_empty).and(starting_after_id).and(filter_scopes).to_sql
-        # (verbatim_label_not_empty).and(starting_after_id).and(filter_scopes).to_sql
+      # (verbatim_label_not_empty).and(starting_after_id).and(filter_scopes).to_sql
     end
 
     # @return [Arel::Table]

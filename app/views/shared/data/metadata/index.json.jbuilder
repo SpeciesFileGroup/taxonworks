@@ -1,5 +1,3 @@
-
-
 json.klass @klass
 
 if Project::MANIFEST.include?(@klass) || %w{Source}.include?(@klass)

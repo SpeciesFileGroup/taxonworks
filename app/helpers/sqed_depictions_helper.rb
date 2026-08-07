@@ -18,28 +18,54 @@ module SqedDepictionsHelper
     return content_tag(:div, 'no collecting event label data imaged', class: :warning) if section.nil?
 
     begin
-      result = SqedToTaxonworks::Result.new(
+      result = Vendor::SqedToTaxonworks::Result.new(
         depiction_id: sqed_depiction.depiction.id,
       )
 
-     return image_tag(result.image_path_for_large_image(section), id: 'little1', class: 'little_image clickable') 
+      return image_tag(result.image_path_for_large_image(section), id: 'little1', class: 'little_image clickable')
     rescue
-      return content_tag(:div, link_to('Error parsing.', depiction_path(sqed_depiction.depiction)), class: :warning) 
+      return content_tag(:div, link_to('Error parsing.', depiction_path(sqed_depiction.depiction)), class: :warning)
     end
+  end
+
+  def sqed_depiction_buffered_determination_images(collection_object)
+    return nil if collection_object.sqed_depictions.empty?
+    d = []
+    collection_object.sqed_depictions.each do |s|
+      begin
+        result = Vendor::SqedToTaxonworks::Result.new(
+          depiction_id: s.depiction.id,
+        )
+
+        return nil unless result.sqed.metadata_map.values.include?(:determination_labels)
+
+        if t = result.image_path_for_small_image(:determination_labels)
+          d.push({
+            depiction_id: s.depiction.id,
+            image_id: s.depiction.image_id,
+            thumbnail: t,
+            large: result.image_path_for_large_image(:determination_labels)
+          })
+        end
+      end
+    rescue
+      return []
+    end
+    d
   end
 
   def sqed_depiction_thumb_navigator(sqed_depiction, before = 3, after = 3)
     around = sqed_depiction.nearby_sqed_depictions(before, after)
-    
-    around[:before].reverse.collect{|s| 
-      link_to(sqed_depiction_collecting_event_label_thumb_preview(s), collection_object_buffered_data_breakdown_task_path(s.depiction.depiction_object))  
+
+    around[:before].reverse.collect{|s|
+      link_to(sqed_depiction_collecting_event_label_thumb_preview(s), collection_object_buffered_data_breakdown_task_path(s.depiction.depiction_object))
     }.join().html_safe +
-    
+
     content_tag(:div, ' this record ', class: 'sqed_thumb_nav_current') +
-   
-    around[:after].collect{|s| 
-      link_to(sqed_depiction_collecting_event_label_thumb_preview(s), collection_object_buffered_data_breakdown_task_path(s.depiction.depiction_object), 'data-turbolinks' => 'false')  
-    }.join().html_safe 
+
+    around[:after].collect{|s|
+      link_to(sqed_depiction_collecting_event_label_thumb_preview(s), collection_object_buffered_data_breakdown_task_path(s.depiction.depiction_object), 'data-turbolinks' => 'false')
+    }.join().html_safe
   end
 
   def sqed_done_tag(project_id)
@@ -49,7 +75,7 @@ module SqedDepictionsHelper
   def sqed_not_done_tag(project_id)
     SqedDepiction.without_collection_object_data.where(project_id: project_id).count
   end
-  
+
   def sqed_previous_next_links(sqed_depiction)
     around = sqed_depiction.nearby_sqed_depictions(1, 1)
     a = content_tag(:li, link_to('Previous', sqed_depiction_breakdown_task_path(around[:before].first), 'data-turbolinks' => 'false') ) if around[:before].any?
@@ -80,7 +106,7 @@ module SqedDepictionsHelper
       nil
     end
   end
-  
+
   def sqed_first_with_data_tag
     if o = SqedDepiction.where(project_id: sessions_current_project_id).with_collection_object_data.first
       content_tag(:span, ('First with data: ' + sqed_card_link(o)).html_safe, class: [:feedback, 'feedback-success', 'feedback-thin'])
@@ -97,14 +123,14 @@ module SqedDepictionsHelper
       .with_collection_object_data
       .order('collection_objects.updated_at')
       .first
-      content_tag(:span, ('Last update by you: ' + sqed_card_link(o)).html_safe, class: [:feedback, 'feedback-success', 'feedback-thin'])
+    content_tag(:span, ('Last update by you: ' + sqed_card_link(o)).html_safe, class: [:feedback, 'feedback-success', 'feedback-thin'])
     else
       nil
     end
   end
 
   def sqed_card_link(sqed_depiction)
-    link_to(sqed_depiction.id, sqed_depiction_breakdown_task_path(sqed_depiction), 'data-turbolinks' => 'false') 
+    link_to(sqed_depiction.id, sqed_depiction_breakdown_task_path(sqed_depiction), 'data-turbolinks' => 'false')
   end
 
   def sqed_waxy_layout(sqed_depictions)
@@ -113,7 +139,7 @@ module SqedDepictionsHelper
       Waxy::Geometry::Point.new(20,20), # size
       Waxy::Geometry::Point.new(20,20), # start
       9 # padding
-    ) 
+    )
 
     meta = []
 
@@ -126,29 +152,22 @@ module SqedDepictionsHelper
       meta.unshift a
     end
 
-    c = Waxy::Render::Svg::Canvas.new(600, 400)
-    c.body << Waxy::Render::Svg.rectangle(layout, meta, 9)
+    t = sqed_depictions.size.to_f
+    rows = t.divmod(10).first + 1
+    h = ((t.divmod(10).first + 1) * 40.0) 
+
+    c = Waxy::Render::Svg::Canvas.new(520, h.to_i)
+    c.body << Waxy::Render::Svg.rectangle(layout, meta, 9, rows )
     c.to_svg.html_safe
   end
 
-  # @return Array lenght 6
-  def sqed_waxy_metadata(sqed_depiction)
-    o = sqed_depiction.depiction_object
-    [
-      (o.identifiers.any? ? 1 : 0),
-      (o.buffered_collecting_event.blank? ? 0 : 1),
-      (o.buffered_determinations.blank? ? 0 : 1),
-      (o.buffered_other_labels.blank? ? 0 : 1),
-      (o.collecting_event_id ? 1 : 0),
-      (o.taxon_determinations.any? ? 1 : 0)
-    ]
-  end
+
 
   def sqed_waxy_legend_section_tag(position, label)
     layout = Waxy::Geometry::Layout.new(
       Waxy::Geometry::Orientation::LAYOUT_POINTY,
-      Waxy::Geometry::Point.new(15,15), # size
-      Waxy::Geometry::Point.new(15,15), # start
+      Waxy::Geometry::Point.new(10,10), # size
+      Waxy::Geometry::Point.new(10,10), # start
     )
 
     a = Waxy::Meta.new
@@ -159,28 +178,40 @@ module SqedDepictionsHelper
     c = Waxy::Render::Svg::Canvas.new(35, 35)
     c.body << Waxy::Render::Svg.rectangle(layout, meta)
 
-    content_tag(:figure) do
+    tag.figure do
       c.to_svg.html_safe +
-        content_tag(:figcaption, label)
+        tag.figcaption(label)
     end
+  end
+
+  # @return Array
+  def sqed_waxy_metadata(sqed_depiction)
+    o = sqed_depiction.depiction_object
+    [
+      (o.identifiers.local.any? ? 1 : 0),
+      (o.buffered_collecting_event.blank? ? 0 : 1),
+      (o.buffered_determinations.blank? ? 0 : 1),
+      (o.buffered_other_labels.blank? ? 0 : 1),
+      (o.collecting_event_id ? 1 : 0),
+      (o.taxon_determinations.any? ? 1 : 0)
+    ]
   end
 
   def sqed_waxy_legend_tag
     l = ''
-    {
-      0 => 'Identifier(s)',
-      1 => 'Buffered collecting event',
-      2 => 'Buffered determination',
-      3 => 'Buffered other labels',
-      4 => 'Collecting event',
-      5 => 'Taxon determination(s)'
-    }.each do |i,label|
-      l << sqed_waxy_legend_section_tag(i, label)
+    [
+      [ 0, 'Local identifier(s)' ],
+      [ 1, 'Buffered collecting event' ],
+      [ 2, 'Buffered determination' ],
+      [ 3, 'Buffered other labels' ],
+      [ 4, 'Collecting event' ],
+      [ 5, 'Taxon determination(s)']
+    ].each do |a|
+      l << sqed_waxy_legend_section_tag(a[0], a[1])
     end
-    content_tag(:div) do
-      content_tag(:h3, 'Legend') +
-        content_tag(:p, content_tag(:em, 'Triangle indicates data presence')) +
-        content_tag(:div, l.html_safe)
+    tag.div do
+      tag.h3('Legend') +
+        l.html_safe
     end
   end
 

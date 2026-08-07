@@ -11,14 +11,10 @@
     <%= fancy_th_tag(name: 'Position') -%>
     <%= fancy_th_tag(name: 'Is public') -%>
     <%= fancy_th_tag(name: 'Api request') -%>
-    <%= fancy_th_tag(name: 'Is undefined z') -%>
-    <%= fancy_th_tag(name: 'Is median z') -%>
     <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
     <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
   </tr>
   </thead>
-
-  <!-- todo @mjy Three boolean values here; how do you want them displayed? Do you want all these fields displayed in the list? -->
 
   <tbody>
   <% georeferences.each do |georeference| %>
@@ -33,8 +29,6 @@
           <td><%= "CE:#{georeference.collecting_event.id}, pos:#{georeference.position}" %></td>
           <td><%= georeference.is_public %></td>
           <td><%= georeference.api_request %></td>
-          <td><%= georeference.is_undefined_z %></td>
-          <td><%= georeference.is_median_z %></td>
           <%= fancy_metadata_cells_tag(georeference) -%>
       <% end %>
   <% end %>

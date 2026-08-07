@@ -8,7 +8,9 @@ class Role::ProjectRole < Role
 
   before_validation :set_project_if_possible # facilitates << additions
 
-  validates :project_id, presence: true
+  validates :project, presence: true
+
+  # validates :project_id, presence: true
 
   protected
 

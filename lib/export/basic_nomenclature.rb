@@ -10,7 +10,7 @@ module Export
 
       zip_file_path = "/tmp/_#{SecureRandom.hex(8)}_basic_nomenclature.zip"
 
-      Zip::File.open(zip_file_path, Zip::File::CREATE) do |zipfile|
+      Zip::File.open(zip_file_path, create: true) do |zipfile|
         zipfile.get_output_stream('names.csv') { |f| f.write generate(t) }
       end
 
@@ -18,7 +18,7 @@ module Export
     end
 
     def self.generate(taxon_name)
-      CSV.generate(col_sep: "\t") do |csv|
+      ::CSV.generate(col_sep: "\t") do |csv|
 
         csv << %w{
           global_id
@@ -49,8 +49,8 @@ module Export
             a['species'],
             a['subspecies'],
             t.cached_author,
-            t.cached_year,
-            syn.blank? ? nil : syn,
+            t.cached_nomenclature_date&.year,
+            (syn.presence),
           ]
         end
       end

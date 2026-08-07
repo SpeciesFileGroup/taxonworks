@@ -1,5 +1,5 @@
 import baseCRUD, { annotations } from './base'
-import AjaxCall from 'helpers/ajaxCall'
+import AjaxCall from '@/helpers/ajaxCall'
 
 const controller = 'attributions'
 const permitParams = {
@@ -31,5 +31,12 @@ export const Attribution = {
   ...baseCRUD(controller, permitParams),
   ...annotations(controller),
 
-  licenses: () => AjaxCall('get', `/${controller}/licenses`)
+  licenses: () => AjaxCall('get', `/${controller}/licenses`),
+
+  roleTypes: () => AjaxCall('get', `/${controller}/role_types.json`),
+
+  batchByFilter: (params) =>
+    AjaxCall('post', `/${controller}/batch_by_filter_scope.json`, params),
+
+  filter: (params) => AjaxCall('post', `/${controller}/filter.json`, params)
 }

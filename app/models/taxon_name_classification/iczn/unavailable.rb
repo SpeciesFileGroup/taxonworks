@@ -57,8 +57,17 @@ class TaxonNameClassification::Iczn::Unavailable < TaxonNameClassification::Iczn
     def code_applicability_start_year
       1931
     end
+
     def code_applicability_end_year
       1960
+    end
+  end
+
+  module InnerClassStart2012
+    include InnerClass
+
+    def code_applicability_start_year
+      2012
     end
   end
 
@@ -233,6 +242,54 @@ class TaxonNameClassification::Iczn::Unavailable < TaxonNameClassification::Iczn
     def self.code_applicability_start_year
       1961
     end
+
+    def sv_not_specific_classes
+      true
+    end
+  end
+
+  class ElectronicOnlyPublicationBefore2012 < TaxonNameClassification::Iczn::Unavailable
+
+    NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000038'.freeze
+
+    extend InnerClass
+
+    def self.code_applicability_end_year
+      2011
+    end
+
+    def sv_not_specific_classes
+      true
+    end
+  end
+
+  class ElectronicPublicationNotInPdfFormat < TaxonNameClassification::Iczn::Unavailable
+
+    NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000040'.freeze
+
+    extend InnerClassStart2012
+
+    def sv_not_specific_classes
+      true
+    end
+  end
+
+  class ElectronicPublicationWithoutIssnOrIsbn < TaxonNameClassification::Iczn::Unavailable
+
+    NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000039'.freeze
+
+    extend InnerClassStart2012
+
+    def sv_not_specific_classes
+      true
+    end
+  end
+
+  class ElectronicPublicationNotRegisteredInZoobank < TaxonNameClassification::Iczn::Unavailable
+
+    NOMEN_URI='http://purl.obolibrary.org/obo/NOMEN_0000041'.freeze
+
+    extend InnerClassStart2012
 
     def sv_not_specific_classes
       true

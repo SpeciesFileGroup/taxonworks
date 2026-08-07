@@ -7,13 +7,16 @@ class Catalog::EntryItem
   # The source of this entry item, e.g. a TaxonNameRelationship
   attr_accessor :object
 
-  # Optional, should be provided explicitly 
+  # Optional, should be provided explicitly
   attr_accessor :citation
 
   # @return [Time, nil]
   #   can be explicitly assigned, or derived from object.nomenclature_date if not provided
   # Date from the name perspective (e.g. sorted by original publication date)
   # See also citation_date
+  #
+  # !!TODO: change to _must be_ explicitly assigned
+  # Assignment must happen _outside_ this module.
   attr_accessor :nomenclature_date
 
   # @return [String]
@@ -25,12 +28,13 @@ class Catalog::EntryItem
   attr_accessor :pages
 
   # @return [Symbol]
-  #   a pointer to a method in /app/helpers 
+  #   a pointer to a method in /app/helpers
   attr_accessor :to_html_method
 
-  #
+  ##
   # Computed/cached attributes, built on `build` of Entry
   #
+
   # @return [Boolean]
   #   See Catalog::Entry#first_item?
   attr_accessor :is_first
@@ -47,10 +51,10 @@ class Catalog::EntryItem
   def initialize(object: nil, base_object: nil, citation: nil, nomenclature_date: nil, year_suffix: nil, pages: nil, citation_date: nil, current_target: nil)
     raise if object.nil?
     @object = object
-    @base_object = base_object 
+    @base_object = base_object
     @nomenclature_date = nomenclature_date
-    @year_suffix = citation.try(:source).try(:year_suffix)
-    @pages =  citation.try(:source).try(:pages)
+    @year_suffix = citation&.source&.year_suffix
+    @pages = citation&.source&.pages
     @citation = citation
     @matches_current_target = current_target
   end
@@ -65,14 +69,14 @@ class Catalog::EntryItem
       'history-object-id' => object.to_global_id.to_s,
       'history-year' => nomenclature_date&.year || 'unknown',
       'history-is-first' => is_first,
-      'history-is-last' => is_last, 
+      'history-is-last' => is_last,
       'history-is-cited' => (citation ? true : false),
       'history-is-current-target' => matches_current_target
     }
   end
 
   def references_self?
-    object == base_object 
+    object == base_object
   end
 
   # See Subclasses for extensions
@@ -87,13 +91,17 @@ class Catalog::EntryItem
 
   # @return [Source, nil]
   def source
-    citation.try(:source)
+    citation&.source
   end
 
+  # !!TODO: we should not be checking at this point.
+  # Assignment must happen _outside_ this module.
   # @return [Date]
   def nomenclature_date
     return @nomenclature_date if @nomenclature_date
-    if object.respond_to?(:nomenclature_date)
+    if object.respond_to?(:cached_nomenclature_date)
+      object.cached_nomenclature_date
+    elsif object.respond_to?(:nomenclature_date)
       object.nomenclature_date
     else
       nil
@@ -116,12 +124,12 @@ class Catalog::EntryItem
     end
   end
 
-  # @return [Array of Topic] 
+  # @return [Array of Topic]
   #   the topics on this object for this Citation/Source combination *only*
   def topics
     t = []
     if source
-      t += citation.topics 
+      t += citation.topics
     end
     t.uniq
   end

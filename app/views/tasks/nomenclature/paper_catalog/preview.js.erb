@@ -1,0 +1,19 @@
+var content;
+content = '<%= escape_javascript(render(partial: 'preview', locals: {project: @project, data: @data, taxon_name: @taxon_name} ) ) %>';
+document.querySelector('#catalog_preview').innerHTML = content;
+
+function downloadTextFile (text, fileType, fileName) {
+  const blob = new Blob([text], { type: fileType })
+  const a = document.createElement('a')
+
+  a.download = fileName
+  a.href = URL.createObjectURL(blob)
+  a.dataset.downloadurl = [fileType, a.download, a.href].join(':')
+  a.style.display = 'none'
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+  setTimeout(() => { URL.revokeObjectURL(a.href) }, 1500)
+}
+
+downloadTextFile(content, 'text', '<%= "#{@taxon_name.name}_catalog_#{DateTime.now}" %>.txt')

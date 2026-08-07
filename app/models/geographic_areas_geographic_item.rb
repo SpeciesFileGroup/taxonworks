@@ -35,6 +35,8 @@ class GeographicAreasGeographicItem < ApplicationRecord
   belongs_to :geographic_area, inverse_of: :geographic_areas_geographic_items
   belongs_to :geographic_item, inverse_of: :geographic_areas_geographic_items
 
+  has_many :cached_map_item_translations, primary_key: :geographic_item_id, foreign_key: :translated_geographic_item_id
+
   validates :geographic_area, presence: true
   validates :geographic_item, presence: true unless ENV['NO_GEO_VALID']
 
@@ -57,30 +59,36 @@ class GeographicAreasGeographicItem < ApplicationRecord
 
   def self.origin_order_clause(table_alias = nil)
     t = arel_table
-    t = t.alias(table_alias) if !table_alias.blank?
+    t = t.alias(table_alias) if table_alias.present?
 
     c = Arel::Nodes::Case.new(t[:data_origin])
-    c.when('ne_country').then(1)
-    c.when('ne_state').then(2)
-    c.when('gadm').then(3)
+    c.when('gadm').then(1)
+    c.when('ne_country').then(2)
+    c.when('ne_state').then(3)
+
     c.else(4)
     c
   end
 
   def self.default_geographic_item_data
-    q =  "WITH summary AS (
-             SELECT p.id,
-                    p.geographic_area_id,
-                    p.geographic_item_id,
-                    ROW_NUMBER() OVER(
-                      PARTITION BY p.geographic_area_id
-                      ORDER BY #{origin_order_clause('p').to_sql}) AS rk
-             FROM geographic_areas_geographic_items p)
-          SELECT s.*
-            FROM summary s
-            WHERE s.rk = 1"
+    q = default_geographic_item_data_sql
 
-    GeographicAreasGeographicItem.joins("JOIN (#{q}) as z ON geographic_areas_geographic_items.id = z.id")
+    GeographicAreasGeographicItem.joins(
+      "JOIN (#{q}) as z ON geographic_areas_geographic_items.id = z.id"
+    )
   end
 
+  def self.default_geographic_item_data_sql(table_alias: 'p')
+    "WITH summary AS (
+           SELECT #{table_alias}.id,
+                  #{table_alias}.geographic_area_id,
+                  #{table_alias}.geographic_item_id,
+                  ROW_NUMBER() OVER(
+                    PARTITION BY #{table_alias}.geographic_area_id
+                    ORDER BY #{origin_order_clause(table_alias).to_sql}) AS rk
+           FROM geographic_areas_geographic_items #{table_alias})
+        SELECT s.*
+          FROM summary s
+          WHERE s.rk = 1"
+  end
 end

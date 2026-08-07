@@ -5,6 +5,10 @@ module BiologicalRelationshipsHelper
     [biological_relationship.name, biological_relationship.inverted_name].compact.join(' / ')
   end
 
+  def biological_relationship_autocomplete_tag(biological_relationship, term = nil)
+    mark_tag(biological_relationship_tag(biological_relationship), term)
+  end
+
   def label_for_biological_relationship(biological_relationship)
     return nil if biological_relationship.nil?
     biological_relationship.name
@@ -17,6 +21,19 @@ module BiologicalRelationshipsHelper
 
   def biological_relationships_search_form
     render('/biological_relationships/quick_search_form')
+  end
+
+  def biological_relationship_types(biological_relationship)
+    r = {
+      subject: [],
+      object: []
+    }
+
+    biological_relationship.biological_relationship_types.each do |p|
+      r[p.target.to_sym].push p.biological_property.name
+    end
+
+    r
   end
 
 end

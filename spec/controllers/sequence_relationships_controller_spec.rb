@@ -148,19 +148,5 @@ RSpec.describe SequenceRelationshipsController, type: :controller do
     end
   end
 
-  describe 'DELETE #destroy' do
-    it 'destroys the requested sequence_relationship' do
-      sequence_relationship = SequenceRelationship.create! valid_attributes
-      expect {
-        delete :destroy, params: {id: sequence_relationship.to_param}, session: valid_session
-      }.to change(SequenceRelationship, :count).by(-1)
-    end
-
-    it 'redirects to the sequence_relationships list' do
-      sequence_relationship = SequenceRelationship.create! valid_attributes
-      delete :destroy, params: {id: sequence_relationship.to_param}, session: valid_session
-      expect(response).to redirect_to(sequence_relationships_url)
-    end
-  end
-
+  include_examples 'DELETE #destroy', SequenceRelationship
 end

@@ -1,6 +1,6 @@
 json.extract! collecting_event, :id,
   :verbatim_label, :print_label, :document_label,
-  :verbatim_locality, :verbatim_longitude, :verbatim_latitude, :verbatim_geolocation_uncertainty, :verbatim_trip_identifier, :verbatim_collectors, :verbatim_method,
+  :verbatim_locality, :verbatim_longitude, :verbatim_latitude, :verbatim_geolocation_uncertainty, :verbatim_field_number, :verbatim_collectors, :verbatim_method,
   :verbatim_elevation, :verbatim_habitat, :verbatim_datum, :verbatim_date,
   :geographic_area_id, :minimum_elevation, :maximum_elevation, :elevation_precision,
   :start_date_day, :start_date_month, :start_date_year, :end_date_day, :end_date_month, :end_date_year,
@@ -22,10 +22,11 @@ json.extract! collecting_event, :id,
   :lithology,
   :max_ma,
   :min_ma,
-  :identifiers,
+  :identifiers, # TODO, this isn't good here, N + 1 queries
+  :meta_prioritize_geographic_area,
   :created_by_id, :updated_by_id, :project_id, :created_at, :updated_at
 
-json.partial! '/shared/data/all/metadata', object: collecting_event
+json.partial!('/shared/data/all/metadata', object: collecting_event)
 
 if extend_response_with('roles')
   if collecting_event.collector_roles.any?
@@ -36,6 +37,14 @@ if extend_response_with('roles')
           json.partial! '/people/base_attributes', person: role.person
         end
       end
+    end
+  end
+end
+
+if extend_response_with('geographic_area')
+  if collecting_event.geographic_area
+    json.geographic_area do
+      json.partial! '/geographic_areas/attributes', geographic_area: collecting_event.geographic_area, extensions: false
     end
   end
 end

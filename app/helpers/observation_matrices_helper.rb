@@ -1,4 +1,31 @@
 module ObservationMatricesHelper
+  LABEL_REPLACEMENT = {
+    '10' => 'A',
+    '11' => 'B',
+    '12' => 'C',
+    '13' => 'D',
+    '14' => 'E',
+    '15' => 'F',
+    '16' => 'G',
+    '17' => 'H',
+    '18' => 'I',
+    '19' => 'J',
+    '20' => 'K',
+    '21' => 'L',
+    '22' => 'M',
+    '23' => 'N',
+    '24' => 'O',
+    '25' => 'P',
+    '26' => 'R',
+    '27' => 'S',
+    '28' => 'T',
+    '29' => 'U',
+    '30' => 'V',
+    '31' => 'W',
+    '32' => 'X',
+    '33' => 'Y',
+    '34' => 'Z',
+  }.freeze
 
   def observation_matrix_tag(observation_matrix)
     return nil if observation_matrix.nil?
@@ -20,7 +47,7 @@ module ObservationMatricesHelper
   end
 
   def keywords_on_addable_row_items
-    Keyword.joins(:tags).where(project_id: sessions_current_project_id).where(tags: {tag_object_type: ['Otu', 'CollectionObject']}).distinct.all
+    Keyword.joins(:tags).where(project_id: sessions_current_project_id).where(tags: {tag_object_type: OBSERVABLE_TYPES}).distinct.all
   end
 
   def keywords_on_addable_column_items
@@ -29,11 +56,13 @@ module ObservationMatricesHelper
 
   # Matrix export helpers
 
+  # TODO: This is only used in TNT exports, expand
+  # to allow for other export formats
   def max_row_name_width(observation_matrix)
     max = 0
 
     observation_matrix.observation_matrix_rows.load.each do |r|
-      s = observation_matrix_row_label_nexus(r).length
+      s = observation_matrix_row_label_tnt(r).length
       max = s if max < s
     end
     max + 1
@@ -41,28 +70,33 @@ module ObservationMatricesHelper
 
   # @return [String]
   #   the fully formatted cell, handles polymorphisms
-  #   show states in tnt or nexus format for a 'cell' (e.g. [ab]) 
+  #   show states in tnt or nexus format for a 'cell' (e.g. [ab])
   #   Mx.print_codings in mx
-  def observations_cell_label(observations_hash, descriptor, row_object_global_id, style = :tnt)
-    case observations_hash[descriptor.id][row_object_global_id].size
-    when 0
-      "?"
-    when 1
-      o = observations_hash[descriptor.id][row_object_global_id][0] 
-      s = observation_export_value(o)
+  def observations_cell_label(observations_hash, descriptor, hash_index, style = :tnt)
 
-      if s.length > 1 && style == :nexus && o.type == 'Observation::Qualitative'
+    case observations_hash[descriptor.id][hash_index].size
+    when 0
+      '?'
+    when 1
+      o = observations_hash[descriptor.id][hash_index][0]
+      s = observation_export_value(o)
+      s = LABEL_REPLACEMENT[s].nil? ? s : LABEL_REPLACEMENT[s]
+
+      if s.length > 1 && (style == :nexus || style == :tnt) && o.type == 'Observation::Qualitative'
         "#{s} [WARNING STATE '#{s}' is TOO LARGE FOR PAUP (0-9, A-Z only).]"
       else
         s
       end
     else
-      str = observations_hash[descriptor.id][row_object_global_id].collect{|o| observation_export_value(o) }.sort.join("")
+      str = observations_hash[descriptor.id][hash_index].collect{|o| observation_export_value(o) }.sort
+
       case style
+      when :csv
+        str.join('|')
       when :nexus
-        "{#{str}}"
+        "{#{str.join("")}}"
       else
-        "[#{str}]"
+        "[#{str.join("")}]"
       end
     end
   end
@@ -72,8 +106,8 @@ module ObservationMatricesHelper
   def observation_export_value(observation)
     case observation.type
     when 'Observation::Qualitative'
-      observation.character_state.label
-    when 'Observation::PresenceAbsence' 
+      LABEL_REPLACEMENT[observation.character_state.label].nil? ? observation.character_state.label : LABEL_REPLACEMENT[observation.character_state.label]
+    when 'Observation::PresenceAbsence'
       case observation.presence
       when true
         '1'
@@ -86,9 +120,51 @@ module ObservationMatricesHelper
       end
     when 'Observation::Continuous'
       observation.converted_value.to_s
+    when 'Observation::Sample'
+      if observation.sample_max && observation.sample_max && observation.sample_max.to_f != observation.sample_min.to_f
+        ('%g' % observation.sample_min).to_s + '-' + ('%g' % observation.sample_max).to_s
+      elsif observation.sample_min
+        ('%g' % observation.sample_min).to_s
+      else
+        '?'
+      end
     else
-      '-' # ? not sure 
+      '-' # ? not sure
     end
   end
 
+  def descriptor_list(observation_matrix)
+    rows = []
+    observation_matrix.descriptors.each do |d|
+      l = d.name + ': '
+      if d.qualitative?
+        l << d.character_states.order(:position).collect{|cs| "#{cs.label}: " + cs.name }.join('; ')
+      elsif d.presence_absence?
+        l << '0: absent; 1: present'
+      end
+      rows.push l
+    end
+    rows.join("\n")
+  end
+
+  # @return [String]
+  #   the list of symbols actually used as character state labels, like
+  #   0 1 2 3 4 5 6 7 8 9 A
+  def nexus_symbol_list(descriptors)
+    max = 1
+    descriptors.each do |d|
+      case d.type
+      when 'Descriptor::Qualitative'
+        # Assumes non-gap character state labels are sequential starting at 0.
+        size = d.has_gap_state? ?
+          d.character_states.size - 1 : d.character_states.size
+        max = size if size > max
+      when 'Descriptor::PresenceAbsence'
+        max = 2 if max < 2
+      end
+    end
+
+    (0..max - 1).to_a
+      .map{|i| i > 9 ? LABEL_REPLACEMENT[i.to_s] : i.to_s}.compact.join(' ')
+  end
 end

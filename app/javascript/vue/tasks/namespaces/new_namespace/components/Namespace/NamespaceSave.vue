@@ -2,15 +2,15 @@
   <v-btn
     color="create"
     medium
-    @click="saveNamespace">
+    @click="saveNamespace"
+  >
     {{ namespace.id ? 'Update' : 'Create' }}
   </v-btn>
 </template>
 
 <script setup>
-
-import { Namespace } from 'routes/endpoints'
-import VBtn from 'components/ui/VBtn/index.vue'
+import { Namespace } from '@/routes/endpoints'
+import VBtn from '@/components/ui/VBtn/index.vue'
 
 const props = defineProps({
   namespace: {
@@ -27,10 +27,11 @@ const saveNamespace = () => {
     ? Namespace.update(namespace.id, { namespace })
     : Namespace.create({ namespace })
 
-  request.then(({ body }) => {
-    emit('onSave', body)
-    TW.workbench.alert.create('Namespace was successfully saved.', 'notice')
-  })
+  request
+    .then(({ body }) => {
+      emit('onSave', body)
+      TW.workbench.alert.create('Namespace was successfully saved.', 'notice')
+    })
+    .catch(() => {})
 }
-
 </script>

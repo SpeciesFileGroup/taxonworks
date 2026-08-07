@@ -1,17 +1,22 @@
 <template>
   <div>
-    <button
-      type="button"
-      class="button normal-input button-default"
-      @click="showModal = true">Recent</button>
-    <modal-component
-      v-if="showModal"
-      @close="showModal = false">
+    <VBtn
+      medium
+      color="primary"
+      @click="isModalVisible = true"
+    >
+      Recent
+    </VBtn>
+    <VModal
+      v-if="isModalVisible"
+      :container-style="{ width: '90vw' }"
+      @close="isModalVisible = false"
+    >
       <template #header>
         <h3>Recent collection objects</h3>
       </template>
       <template #body>
-        <spinner-component v-if="isLoading"/>
+        <VSpinner v-if="isLoading" />
         <table class="full_width">
           <thead>
             <tr>
@@ -28,6 +33,7 @@
               <th>Date start</th>
               <th>Container</th>
               <th>Update at</th>
+              <th />
             </tr>
           </thead>
           <tbody>
@@ -35,15 +41,17 @@
               v-for="(item, index) in list"
               :key="item.id"
               class="contextMenuCells"
-              :class="{ 'even': (index % 2 == 0) }"
-              @click="sendCO(item)">
+              :class="{ even: index % 2 == 0 }"
+              @dblclick="() => sendCO(item)"
+            >
               <td>{{ item.dwc_attributes.individualCount }}</td>
               <td>{{ item.dwc_attributes.family }}</td>
               <td>{{ item.dwc_attributes.genus }}</td>
               <td>{{ item.dwc_attributes.scientificName }}</td>
               <td
                 v-if="item.identifier_from_container"
-                v-html="item.object_tag"/>
+                v-html="item.object_tag"
+              />
               <td v-else>
                 {{ item.dwc_attributes.catalogNumber }}
               </td>
@@ -53,55 +61,53 @@
               <td>{{ item.dwc_attributes.county }}</td>
               <td>{{ item.dwc_attributes.verbatimLocality }}</td>
               <td>{{ item.dwc_attributes.eventDate }}</td>
-              <td v-html="item.container"/>
+              <td v-html="item.container" />
               <td>{{ item.updated_at }}</td>
+              <td>
+                <VBtn
+                  circle
+                  color="primary"
+                  @click="() => sendCO(item)"
+                >
+                  <VIcon
+                    name="pencil"
+                    x-small
+                  />
+                </VBtn>
+              </td>
             </tr>
           </tbody>
         </table>
       </template>
-    </modal-component>
+    </VModal>
   </div>
 </template>
 
-<script>
+<script setup>
+import VModal from '@/components/ui/Modal'
+import VSpinner from '@/components/ui/VSpinner'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
+import { CollectionObject } from '@/routes/endpoints'
+import { ref, watch } from 'vue'
 
-import ModalComponent from 'components/ui/Modal'
-import SpinnerComponent from 'components/spinner'
-import { CollectionObject } from 'routes/endpoints'
+const emit = defineEmits(['selected'])
+const isModalVisible = ref(false)
+const list = ref([])
+const isLoading = ref(false)
 
-export default {
-  components: {
-    ModalComponent,
-    SpinnerComponent
-  },
-
-  emits: ['selected'],
-
-  data () {
-    return {
-      showModal: false,
-      list: [],
-      isLoading: false
-    }
-  },
-
-  watch: {
-    showModal (newVal) {
-      if (newVal) {
-        this.isLoading = true
-        CollectionObject.reportDwc({ per: 10 }).then(response => {
-          this.list = response.body
-          this.isLoading = false
-        })
-      }
-    }
-  },
-
-  methods: {
-    sendCO (item) {
-      this.showModal = false
-      this.$emit('selected', item)
-    }
+watch(isModalVisible, (newVal) => {
+  if (newVal) {
+    isLoading.value = true
+    CollectionObject.reportDwc({ per: 10 }).then(({ body }) => {
+      list.value = body
+      isLoading.value = false
+    })
   }
+})
+
+function sendCO(item) {
+  isModalVisible.value = false
+  emit('selected', item)
 }
 </script>

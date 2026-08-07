@@ -1,12 +1,25 @@
 require 'rails_helper'
 
-describe Protonym, type: :model, group: [:nomenclature, :protonym, :soft_validation] do
+# TODO: @proceps, please cleanup
+#
+# * [ ] Eliminate all "@", these introduce all sorts of confusion, see  e.g. `if` statements -> not good
+# * [ ] Eliminate all multi-expectation specifies, a specify should have a single expecitation, or expectations should follow from the setup, no mulit-part setups
+# * [ ] Do not use complex chains of data as the basis for simple tests (e.g. most missing field tests require a simple species->root name, not 31 names in place
+# * [ ] Start with a completely empty slate, not Factories, for basic tests like missing data, the full scenario should be obvious from reading what is set *in the specify*
+# * [ ] Only use complex factory chains when complexity is being tests, for example methods that return ancestors (but likely not descendants)
+# * [ ] Fix descriptions of all specifications, many are not doing what they say they are, or doing more, or less
 
+describe Protonym, type: :model, group: [:nomenclature, :protonym, :soft_validation] do
+  include ActiveJob::TestHelper
+
+  # These can be eliminated when @ are removed, until then they impact multiple downstream specs
   before(:all) do
     TaxonNameRelationship.delete_all
     TaxonNameClassification.delete_all
     TaxonName.delete_all
     TaxonNameHierarchy.delete_all
+    Citation.delete_all
+    Source.destroy_all
   end
 
   after(:all) do
@@ -19,20 +32,19 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym, :soft_validat
   end
 
   let(:protonym) { Protonym.new }
-
-  #TODO citeproc gem doesn't currently support lastname without firstname
+  let(:root) {FactoryBot.create(:root_taxon_name) }
   let(:source) { FactoryBot.create(:valid_source_bibtex, year: 1940, author: 'Dmitriev, D.')   }
 
   context 'misspelling' do
-    let(:genus) { Protonym.new(name: 'Mus', rank_class: Ranks.lookup(:iczn, :genus), parent: root) }
+    let(:genus) { Protonym.create!(name: 'Mus', rank_class: Ranks.lookup(:iczn, :genus), parent: root) }
 
     context 'ICZN names' do
-      let(:s) { Protonym.new(parent: genus, rank_class: Ranks.lookup(:iczn, :species) ) }
+      let(:s) { Protonym.create!(parent: genus, rank_class: Ranks.lookup(:iczn, :species), name: 'aus' ) }
       context 'legal forms' do
         legal = ['vitis', 'a-nigrum']
         legal.each do |l|
           specify l do
-            s.name = l 
+            s.name = l
             s.soft_validate(only_sets: :validate_name)
             expect(s.soft_validations.messages_on(:name).empty?).to be_truthy
           end
@@ -40,10 +52,10 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym, :soft_validat
       end
 
       context 'illegal forms' do
-        illegal = ['aus-aus'] 
+        illegal = ['aus-aus']
         illegal.each do |l|
           specify l do
-            s.name = l 
+            s.name = l
             s.soft_validate(only_sets: :validate_name)
             expect(s.soft_validations.messages_on(:name).empty?).to be_falsey
           end
@@ -54,6 +66,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym, :soft_validat
 
   context 'soft_validation' do
     # TODO: all these need to not be @
+
     before(:each) do
       @subspecies = FactoryBot.create(:iczn_subspecies)
       @kingdom = @subspecies.ancestor_at_rank('kingdom')
@@ -136,13 +149,13 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym, :soft_validat
       end
 
       specify 'etymology is missing' do
-        @species.soft_validate(only_sets: :missing_fields)
+        @species.soft_validate(only_sets: :missing_fields, include_flagged: true)
         expect(@species.soft_validations.messages_on(:etymology).empty?).to be_falsey
         @species.etymology = 'Test'
         @species.soft_validate(only_sets: :missing_fields)
         expect(@species.soft_validations.messages_on(:etymology).empty?).to be_truthy
       end
-      
+
       specify 'author and year are missing' do
         @kingdom.soft_validate(only_sets: :missing_fields)
         #        expect(@kingdom.soft_validations.messages_on(:verbatim_author).empty?).to be_falsey
@@ -159,6 +172,30 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym, :soft_validat
         expect(@species.soft_validations.messages_on(:base).empty?).to be_truthy
       end
 
+      specify 'role_vs_year_of_publication 1' do
+        person= FactoryBot.create(:person, first_name: 'J.', last_name: 'McDonald', year_born: 1800, year_died: 1900)
+        @species.taxon_name_authors << person
+        @species.save
+        @species.soft_validate(only_sets: :person_vs_year_of_publication)
+        expect(@species.soft_validations.messages_on(:base).empty?).to be_truthy
+      end
+
+      specify 'role_vs_year_of_publication 2' do
+        person= FactoryBot.create(:person, first_name: 'J.', last_name: 'McDonald', year_born: 1825, year_died: 1900)
+        @species.taxon_name_authors << person
+        @species.save
+        @species.soft_validate(only_sets: :person_vs_year_of_publication)
+        expect(@species.soft_validations.messages_on(:base).empty?).to be_falsey
+      end
+
+      specify 'role_vs_year_of_publication 3' do
+        person= FactoryBot.create(:person, first_name: 'J.', last_name: 'McDonald', year_born: 1700, year_died: 1800)
+        @species.taxon_name_authors << person
+        @species.save
+        @species.soft_validate(only_sets: :person_vs_year_of_publication)
+        expect(@species.soft_validations.messages_on(:base).empty?).to be_falsey
+      end
+
       specify 'year is not required' do
         @genus.verbatim_author = @genus.source.authority_name
         @genus.year_of_publication = @genus.source.year
@@ -169,7 +206,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym, :soft_validat
         @genus.soft_validate(only_sets: :year_is_not_required)
         expect(@genus.soft_validations.messages_on(:year_of_publication).empty?).to be_truthy
       end
-      
+
       specify 'author is not required' do
         @genus.verbatim_author = 'Green'
         person= FactoryBot.create(:person, first_name: 'J.', last_name: 'McDonald')
@@ -336,7 +373,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym, :soft_validat
     context 'missing relationships' do
       specify 'type genus and nominotypical subfamily' do
         #missing nominotypical subfamily
-        @subfamily.soft_validate(only_sets: :single_sub_taxon)
+        @subfamily.soft_validate(only_sets: :single_sub_taxon, include_flagged: true)
         expect(@subfamily.soft_validations.messages_on(:base).size).to eq(1)
         #missign type genus
         @subfamily.soft_validate(only_sets: :missing_relationships)
@@ -345,19 +382,19 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym, :soft_validat
         r = FactoryBot.create(:taxon_name_relationship, subject_taxon_name: g, object_taxon_name: @subfamily, type: 'TaxonNameRelationship::Typification::Family' )
         person = FactoryBot.create(:person, first_name: 'J.', last_name: 'McDonald')
         @subfamily.taxon_name_authors << person
-        @subfamily.soft_validate
+        @subfamily.soft_validate(include_flagged: true)
         expect(@subfamily.soft_validations.messages_on(:base).count).to eq(3)
         @subfamily.fix_soft_validations
         @subfamily.reload
         expect(@subfamily.valid?).to be_truthy
         @subfamily.origin_citation.pages = 1 if !@subfamily.source.nil?
         @subfamily.save
-        @subfamily.soft_validate
+        @subfamily.soft_validate(include_flagged: true)
         expect(@subfamily.soft_validations.messages_on(:base).count).to eq(0)
       end
 
       specify 'only one subtribe in a tribe' do
-        @subtribe.soft_validate(only_sets: :single_sub_taxon)
+        @subtribe.soft_validate(only_sets: :single_sub_taxon, include_flagged: true)
         expect(@subtribe.soft_validations.messages_on(:base).empty?).to be_falsey
         other_subtribe = FactoryBot.create(:iczn_subtribe, name: 'Aina', parent: @tribe)
         expect(other_subtribe.valid?).to be_truthy
@@ -391,6 +428,24 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym, :soft_validat
     end
 
     context 'missing classifications' do
+      specify 'infrasubspecific name' do
+        g = FactoryBot.create(:relationship_genus, name: 'Aus')
+        og = FactoryBot.create(:relationship_genus, name: 'Bus', parent_id: g.parent_id)
+        s = FactoryBot.create(:relationship_species, name: 'aus', parent: g)
+        s.original_genus = og
+        s.original_species = s
+        s.original_variety = s
+        s.year_of_publication = 1961
+        s.save
+        s.soft_validate(only_sets: :missing_infrasubspecific_status)
+        expect(s.soft_validations.messages_on(:base).size).to eq(1)
+        c1 = TaxonNameClassification::Iczn::Unavailable::Excluded::Infrasubspecific.create!(taxon_name: s)
+        perform_enqueued_jobs # updated unavailabe
+        s.soft_validate(only_sets: :missing_infrasubspecific_status)
+
+        expect(s.soft_validations.messages_on(:base).empty?).to be_truthy
+      end
+
       specify 'gender of genus is not selected' do
         @genus.soft_validate(only_sets: :missing_classifications)
         expect(@genus.soft_validations.messages_on(:base).size).to eq(1)
@@ -571,6 +626,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym, :soft_validat
         subgenus.soft_validate(only_sets: :parent_priority)
         expect(subgenus.soft_validations.messages_on(:base).size).to eq(1)
         subgenus.year_of_publication = 2000
+        subgenus.save
         subgenus.soft_validate(only_sets: :parent_priority)
         expect(subgenus.soft_validations.messages_on(:base).empty?).to be_truthy
       end
@@ -578,14 +634,14 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym, :soft_validat
 
     context 'single sub taxon in the nominal' do
       specify 'single nominotypical taxon' do
-        @subgenus.soft_validate(only_sets: :single_sub_taxon)
+        @subgenus.soft_validate(only_sets: :single_sub_taxon, include_flagged: true)
         #single subgenus in the nominal genus
         expect(@subgenus.soft_validations.messages_on(:base).size).to eq(1)
       end
       specify 'single non nominotypical taxon' do
         @subgenus.name = 'Cus'
         @subgenus.save
-        @subgenus.soft_validate(only_sets: :single_sub_taxon)
+        @subgenus.soft_validate(only_sets: :single_sub_taxon, include_flagged: true)
         expect(@subgenus.soft_validations.messages_on(:base).size).to eq(1)
         @subgenus.fix_soft_validations
         @subgenus.reload
@@ -602,7 +658,6 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym, :soft_validat
       end
     end
 
-
     context 'missing synonym relationship' do
 
       specify 'same type species' do
@@ -616,10 +671,10 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym, :soft_validat
         expect(g2.save).to be_truthy
         g1.soft_validate(only_sets: :homotypic_synonyms)
         expect(g1.soft_validations.messages_on(:base)).to include(msg)
-      
+
         #  g1.iczn_set_as_unnecessary_replaced_name = g2
         #  if it has relatinship, then it shouldn't get the type relationship
-         TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnnecessaryReplacementName.create(subject_taxon_name: g1, object_taxon_name: g2) 
+         TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnnecessaryReplacementName.create(subject_taxon_name: g1, object_taxon_name: g2)
 
         #  at this point g1 is INVALID
          g1.reload
@@ -627,7 +682,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym, :soft_validat
         g1.soft_validate(only_sets: :homotypic_synonyms)
         expect(g1.soft_validations.messages_on(:base)).to_not include(msg)
       end
-      
+
       specify 'same type specimen' do
         s1 = FactoryBot.create(:relationship_species, name: 'bus', parent: @genus)
         s2 = FactoryBot.create(:relationship_species, name: 'cus', parent: @genus)
@@ -639,8 +694,8 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym, :soft_validat
         expect(s1.soft_validations.messages_on(:base).size).to eq(1)
 
         s1.iczn_set_as_unjustified_emendation_of = s2
-        # TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnjustifiedEmendation.create(subject_taxon_name: s1, object_taxon_name: s2) 
-       
+        # TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective::UnjustifiedEmendation.create(subject_taxon_name: s1, object_taxon_name: s2)
+
         expect(s1.save).to be_truthy
         s1.soft_validate(only_sets: :homotypic_synonyms)
         expect(s1.soft_validations.messages_on(:base).empty?).to be_truthy
@@ -677,7 +732,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym, :soft_validat
         s.soft_validate(only_sets: :potential_homonyms)
         expect(s.soft_validations.messages_on(:base).empty?).to be_truthy
       end
-      
+
       specify 'secondary homonym' do
         s1 = FactoryBot.create(:relationship_species, name: 'bus', parent: @genus)
         s2 = FactoryBot.create(:relationship_species, name: 'bus', parent: @genus)
@@ -816,6 +871,26 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym, :soft_validat
         g.reload
         g.soft_validate(only_sets: :extant_children)
         expect(g.soft_validations.messages_on(:base).empty?).to be_truthy
+      end
+    end
+
+    context 'missing subsequent combination' do
+      specify 'create subsequent combination' do
+        g = FactoryBot.create(:relationship_genus, name: 'Aus')
+        og = FactoryBot.create(:relationship_genus, name: 'Bus', parent_id: g.parent_id)
+        s = FactoryBot.create(:relationship_species, name: 'aus', parent: g)
+        s.original_genus = og
+        s.original_species = s
+        s.save
+        s.soft_validate(only_sets: :presence_of_combination)
+        expect(s.soft_validations.messages_on(:base).empty?).to be_truthy
+        s.soft_validate(only_sets: :presence_of_combination, include_flagged: true)
+        expect(s.soft_validations.messages_on(:base).size).to eq(1)
+        s.fix_soft_validations
+        s.reload
+        expect(Combination.where(cached_valid_taxon_name_id: s.id).any?).to be_truthy
+        s.soft_validate(only_sets: :presence_of_combination, include_flagged: true)
+        expect(s.soft_validations.messages_on(:base).empty?).to be_truthy
       end
     end
   end

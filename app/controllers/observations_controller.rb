@@ -1,9 +1,9 @@
 class ObservationsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  skip_before_action :verify_authenticity_token
-
-  before_action :set_observation, only: [:show, :edit, :update, :destroy, :annotations]
+  before_action :set_observation, only: [:show, :edit, :update, :destroy,
+    :annotations, :navigation]
+  after_action -> { set_pagination_headers(:observations) }, only: [:index, :api_index], if: :json_request?
 
   # GET /observations
   # GET /observations.json
@@ -15,19 +15,27 @@ class ObservationsController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @observations = Queries::Observation::Filter.new(filter_params).all.with_project_id(sessions_current_project_id)
+        @observations = Queries::Observation::Filter.new(params)
+          .all
+          .where(project_id: sessions_current_project_id)
+          .page(params[:page])
+          .per(params[:per])
       }
     end
   end
 
   def api_index
-    @observations = Queries::Observation::Filter.new(api_params).all.with_project_id(sessions_current_project_id)
-    render '/observations/api/index.json.jbuilder'
+    @observations = Queries::Observation::Filter.new(params.merge!(api: true)).all
+      .with_project_id(sessions_current_project_id)
+      .page(params[:page])
+      .per(params[:per])
+
+    render '/observations/api/v1/index'
   end
 
   def api_show
     @observation = Observation.where(project_id: sessions_current_project_id).find(params[:id])
-    render '/observations/api/show.json.jbuilder'
+    render '/observations/api/v1/show'
   end
 
   # GET /observations/1
@@ -52,15 +60,15 @@ class ObservationsController < ApplicationController
   # POST /observations.json
   def create
     @observation = Observation.new(observation_params)
-
     respond_to do |format|
       if @observation.save
-        format.html { redirect_to observation_path(@observation.metamorphosize),
-                      notice: 'Observation was successfully created.' }
+        format.html {
+          redirect_to observation_path(@observation.metamorphosize),
+          notice: 'Observation was successfully created.' }
         format.json { render :show, status: :created, location: @observation.metamorphosize }
       else
         format.html { render :new }
-        format.json { render json: @observation.metamorphosize.errors, status: :unprocessable_entity }
+        format.json { render json: @observation.metamorphosize.errors, status: :unprocessable_content }
       end
     end
   end
@@ -75,7 +83,7 @@ class ObservationsController < ApplicationController
         format.json { render :show, status: :ok, location: @observation.metamorphosize }
       else
         format.html { render :edit }
-        format.json { render json: @observation.metamorphosize.errors, status: :unprocessable_entity }
+        format.json { render json: @observation.metamorphosize.errors, status: :unprocessable_content }
       end
     end
   end
@@ -83,10 +91,15 @@ class ObservationsController < ApplicationController
   # DELETE /observations/1
   # DELETE /observations/1.json
   def destroy
-    @observation.destroy!
+    @observation.destroy
     respond_to do |format|
-      format.html { redirect_to observations_url, notice: 'Observation was successfully destroyed.' }
-      format.json { head :no_content }
+      if @observation.destroyed?
+        format.html { destroy_redirect @observation, notice: 'Observation was successfully destroyed.' }
+        format.json { head :no_content}
+      else
+        format.html { destroy_redirect @observation, notice: 'Observation was not destroyed, ' + @observation.errors.full_messages.join('; ') }
+        format.json { render json: @observation.errors, status: :unprocessable_content }
+      end
     end
   end
 
@@ -100,10 +113,41 @@ class ObservationsController < ApplicationController
     end
   end
 
+  # DELETE /observations/destroy_column.json?observation_matrix_column_id=123
+  def destroy_column
+    @observation_matrix_column = ObservationMatrixColumn.where(project_id: sessions_current_project_id).find(params.require(:observation_matrix_column_id))
+    if Observation.destroy_column(@observation_matrix_column.id)
+      render json: {success: true}
+    else
+      render json: {success: false}
+    end
+  end
+
+  # POST /observations/code_column.json?observation_matrix_column_id=123&observation_matrix_id=456&<observation params>
+  def code_column
+    if o = ObservationMatrixColumn.where(project_id: sessions_current_project_id).find(params[:observation_matrix_column_id])
+      render json: Observation.code_column(params[:observation_matrix_column_id], observation_params )
+    end
+  end
+
   # GET /annotations
   def annotations
     @object = @observation
     render '/shared/data/all/annotations'
+  end
+
+  def autocomplete
+    @observations = Queries::Observation::Autocomplete.new(
+      params[:term], project_id: sessions_current_project_id,
+      polymorphic_types: params[:polymorphic_types_allowed]
+    ).autocomplete
+  end
+
+  def navigation
+  end
+
+  def select_options
+    @observations = Observation.select_optimized(sessions_current_user_id, sessions_current_project_id, params.require(:target))
   end
 
   private
@@ -114,14 +158,23 @@ class ObservationsController < ApplicationController
 
   def observation_params
     params.require(:observation).permit(
-      :observation_object_global_id,
-      :descriptor_id, :otu_id, :collection_object_id,
       :character_state_id, :frequency,
       :continuous_value, :continuous_unit,
-      :sample_n, :sample_min, :sample_max, :sample_median, :sample_mean, :sample_units, :sample_standard_deviation, :sample_standard_error,
-      :presence,
+      :day_made,
+      :day_made,
       :description,
+      :descriptor_id,
+      :month_made,
+      :month_made,
+      :observation_object_global_id,
+      :observation_object_type, :observation_object_id,
+      :presence,
+      :sample_n, :sample_min, :sample_max, :sample_median, :sample_mean, :sample_units, :sample_standard_deviation, :sample_standard_error,
+      :time_made,
+      :time_made,
       :type,
+      :year_made,
+      :year_made,
       images_attributes: [:id, :_destroy, :image_file, :rotate],
       depictions_attributes: [
         :id,
@@ -134,14 +187,6 @@ class ObservationsController < ApplicationController
         image_attributes: [:image_file]
       ]
     )
-  end
-
-  def filter_params
-    params.permit(:otu_id, :descriptor_id, :collection_object_id, :observation_object_global_id, :token, :project_token, :format, :authenticate_user_or_project)
-  end
-
-  def api_params 
-    params.permit(:otu_id, :descriptor_id, :collection_object_id, :observation_object_global_id).to_h
   end
 
 end

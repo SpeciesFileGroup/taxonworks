@@ -3,11 +3,30 @@ module IdentifiersHelper
   # @return [String, nil]
   def identifier_tag(identifier)
     return nil if identifier.nil? || identifier.new_record?
-    content_tag(:span, identifier.cached, title: identifier.type.demodulize.titleize.humanize)
+    title = identifier.type.demodulize.titleize.humanize
+    if identifier.is_local?
+
+      if identifier.is_virtual?
+        [
+          tag.span(identifier.namespace.short_name, class: [:feedback, 'feedback-thin', 'feedback-light']),
+          tag.span(identifier.identifier, title:)
+        ].join('&nbsp;').html_safe
+
+      else
+        tag.span(identifier.cached, title:)
+      end
+    else
+      tag.span(identifier.cached, title:)
+    end
+  end
+
+  def label_for_identifier(identifier)
+    return nil if identifier.nil?
+    identifier.cached
   end
 
   # @return [String, nil]
-  #   link to GET idnetifiers/:id
+  #   link to GET identifiers/:id
   def identifier_link(identifier)
     return nil if identifier.nil?
     link_to(identifier_tag(identifier).html_safe, identifier.identifier_object.metamorphosize)
@@ -20,15 +39,16 @@ module IdentifiersHelper
   end
 
   # @return [String, nil]
-  def identifier_autocomplete_tag(identifier)
+  def identifier_autocomplete_tag(identifier, term = nil)
     return nil if identifier.nil?
-    content_tag(:span, class: :annotation__identifier) do
+    s = content_tag(:span, class: :annotation__identifier) do
       [
         object_tag(identifier.annotated_object.metamorphosize),
         content_tag(:span, identifier.identifier_object_type, class: [:feedback, 'feedback-thin', 'feedback-primary']),
         content_tag(:span, identifier.type, class: [:feedback, 'feedback-thin', 'feedback-secondary']),
       ].join('&nbsp;').html_safe
     end
+    mark_tag(s, term)
   end
 
   # @return [String, nil]
@@ -43,41 +63,50 @@ module IdentifiersHelper
     content_tag(:span, identifier.cached, class: [:feedback, 'feedback-thin', 'feedback-primary'])
   end
 
-  # TODO: Unify to helpers/README.md pattern
-  def identifier_label(identifier)
-    return nil if identifier.nil?
-    identifier.cached
-  end
-
-  def label_for_identifier(identifier)
-    return nil if identifier.nil?
-    identifier.cached
+  # @return [String]
+  #   assumes the display context is on the object in question
+  def identifier_list_tag(object)
+    ids = visible_identifiers(object).load
+    return nil unless ids.any?
+    content_tag(:h3, 'Identifiers') +
+      identifier_ul_list(object)
   end
 
   # @return [String]
   #   assumes the display context is on the object in question
-  def identifier_list_tag(object)
-    return nil unless object.has_identifiers? && object.identifiers.any?
-    content_tag(:h3, 'Identifiers') +
+  def identifier_ul_list(object)
+    ids = visible_identifiers(object).load
+    return nil unless ids.any?
       content_tag(:ul, class: 'annotations_identifier_list') do
-      object.identifiers.collect{|a| content_tag(:li, identifier_annotation_tag(a)) }.join.html_safe 
-    end
+        ids.collect{|a| content_tag(:li, identifier_annotation_tag(a)) }.join.html_safe
+      end
+  end
+
+  # @return [String, nil]
+  #   a list of identifiers *with* HTML
+  def simple_identifier_list_tag(object)
+    ids = visible_identifiers(object).load
+    return nil unless ids.any?
+    ids.collect{|a| tag.span(identifier_annotation_tag(a)) }.join(', ').html_safe
   end
 
   # @return [String, nil]
   #   a list of identifiers *without* HTML
-  def simple_identifier_list_tag(object)
-    return nil if !object.identifiers.any?
-    object.identifiers.collect{|a| content_tag(:span, identifier_annotation_tag(a)) }.join.html_safe
+  def identifier_list_labels(object)
+    return nil unless object&.has_identifiers?
+    project_id = controller ? sessions_current_project_id : nil
+    ids = object.visible_identifiers_for(project_id)
+    return nil if ids.empty?
+
+    ids.map(&:cached).join(', ')
   end
 
   # @return [String, nil]
   #    identifiers for object with HTML
   def identifiers_tag(object)
-    if object.identifiers.any?
-      return object.identifiers.collect{|a| content_tag(:span, identifier_tag(a))}.join('; ').html_safe
-    end
-    nil
+    ids = visible_identifiers(object)
+    return nil unless ids.any?
+    return ids.collect{|a| content_tag(:span, identifier_tag(a))}.join('; ').html_safe
   end
 
   def add_identifier_link(object: nil)
@@ -94,21 +123,49 @@ module IdentifiersHelper
   # @return [True]
   #   indicates a custom partial should be used, see list_helper.rb
   def identifiers_partial
-    true 
+    true
   end
 
   # @return [True]
   #   indicates a custom partial should be used, see list_helper.rb
   def identifier_recent_objects_partial
-    true 
+    true
   end
-  
+
   def identifier_type_select_options
     a = []
     %I{global local unknown}.each do |t|
       a += IDENTIFIERS_JSON[t][:all].collect{|b,c| [c[:label], b]}
     end
     a
+  end
+
+  def extend_identifiers(object)
+    r = {}
+    object.identifiers.collect{|i|
+      {
+        id: i.id,
+        type: i.type,
+        value: i.cached,
+        created_at: i.created_at,
+        updated_at: i.updated_at
+      }
+    }
+  end
+
+  private
+
+  def visible_identifiers(object)
+    if object.has_identifiers?
+
+      if controller
+        object.identifiers.visible(sessions_current_project_id)
+      else
+        object.identifiers.visible(nil)
+      end
+    else
+      ::Identifier.none
+    end
   end
 
 end

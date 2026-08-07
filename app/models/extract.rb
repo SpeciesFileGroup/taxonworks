@@ -23,29 +23,45 @@ class Extract < ApplicationRecord
   include Shared::ProtocolRelationships
   include Shared::OriginRelationship
   include Shared::Containable
+  include Shared::Confidences
+  include Shared::Citations
   include Shared::DataAttributes
-  include Shared::HasRoles
+  include Shared::Observations
+  include Shared::Tags
   include SoftValidation
   include Shared::IsData
+  include Shared::AutoUuid
+
+  # TODO: make loanable
+  # TODO: auto-UUID
 
   is_origin_for 'Extract', 'Sequence'
-  originates_from 'Extract', 'Specimen', 'Lot', 'RangedLot', 'Otu'
+  originates_from 'Extract', 'Specimen', 'Lot', 'RangedLot', 'Otu', 'CollectionObject', 'FieldOccurrence', 'AnatomicalPart'
+
+  GRAPH_ENTRY_POINTS = [:origin_relationships]
 
   belongs_to :repository, inverse_of: :extracts
 
-  has_many :extractor_roles, -> { order('roles.position ASC') }, class_name: 'Extractor', as: :role_object, dependent: :destroy, validate: true
+  has_many :extractor_roles, -> { order('roles.position ASC') }, class_name: 'Extractor', as: :role_object, dependent: :destroy, validate: true, inverse_of: :role_object
   has_many :extractors, -> { order('roles.position ASC') }, through: :extractor_roles, source: :person, validate: true
-  
-  # Upstream 
+
+  # Upstream - aliases of `origin_otus` and `origin_collection_objects` TODO remove
   has_many :otus, through: :related_origin_relationships, source: :old_object, source_type: 'Otu'
   has_many :collection_objects, through: :related_origin_relationships, source: :old_object, source_type: 'CollectionObject'
+  has_many :anatomical_parts, through: :related_origin_relationships, source: :old_object, source_type: 'AnatomicalPart'
 
-  # Downstresm
+  # Downstresm - aliases of `derived_*`, TODO: remove
   has_many :sequences, through: :origin_relationships, source: :new_object, source_type: 'Sequence'
   has_many :extracts, through: :related_origin_relationships, source: :old_object, source_type: 'Extract'
 
-
   attr_accessor :is_made_now
+
+  # TODO: Unify in concern, with CO too
+  # Identifier delegations
+  # .catalog_number_cached
+  delegate :cached, to: :preferred_catalog_number, prefix: :catalog_number, allow_nil: true
+  # .catalog_number_namespace
+  delegate :namespace, to: :preferred_catalog_number, prefix: :catalog_number, allow_nil: true
 
   before_validation :set_made, if: -> {is_made_now}
 
@@ -53,14 +69,34 @@ class Extract < ApplicationRecord
   validates :month_made, date_month: true
   validates :day_made, date_day: {year_sym: :year_made, month_sym: :month_made}, unless: -> {year_made.nil? || month_made.nil?}
 
-
   # @return Array
   #   all inferred or asserted OTUs that this OTU came from
-  def referenced_otus 
+  def referenced_otus
     [
       [otus],
-      [collection_objects.collect{|o| o.current_otu} ]
+      [collection_objects.collect{ |o| o.current_otu } ],
+      [anatomical_parts.collect{ |ap| ap.origin_otu }]
     ].flatten.compact.uniq
+  end
+
+  # TODO: Unify with CollectionObject in concern
+  # @return [Identifier::Local::CatalogNumber, nil]
+  #   the first (position) catalog number for this collection object, either on specimen, or container
+  def preferred_catalog_number
+    if i = Identifier::Local::CatalogNumber.where(identifier_object: self).order(:position).first
+      i
+    else
+      if container
+        container.identifiers.where(identifiers: {type: 'Identifier::Local::CatalogNumber'}).order(:position).first
+      else
+        nil
+      end
+    end
+  end
+
+  # In anticipation of DwC handling
+  def dwc_catalog_number
+    catalog_number_cached
   end
 
   protected
@@ -75,6 +111,8 @@ class Extract < ApplicationRecord
   # @return [Scope]
   #    the max 10 most recently used collection_objects, as `used_on`
   def self.used_recently(user_id, project_id, used_on = '')
+    # TODO: write this for Extract (not CollectionObject).
+    return []
     return [] if used_on != 'TaxonDetermination' && used_on != 'BiologicalAssociation'
     t = case used_on
         when 'TaxonDetermination'
@@ -90,17 +128,17 @@ class Extract < ApplicationRecord
         when 'BiologicalAssociation'
           t.project(t['biological_association_subject_id'], t['updated_at']).from(t)
             .where(
-              t['updated_at'].gt(1.weeks.ago).and(
-                t['biological_association_subject_type'].eq('CollectionObject') # !! note it's not biological_collection_object_id
+              t['updated_at'].gt(1.week.ago).and(
+                t['biological_association_subject_type'].eq('CollectionObject')
               )
             )
-              .where(t['created_by_id'].eq(user_id))
+              .where(t['updated_by_id'].eq(user_id))
               .where(t['project_id'].eq(project_id))
             .order(t['updated_at'].desc)
         else
-          t.project(t['biological_collection_object_id'], t['updated_at']).from(t)
-            .where(t['updated_at'].gt( 1.weeks.ago ))
-            .where(t['created_by_id'].eq(user_id))
+          t.project(t['taxon_determination_object_id'], t['taxon_determination_object_type'], t['updated_at']).from(t)
+            .where(t['updated_at'].gt( 1.week.ago ))
+            .where(t['updated_by_id'].eq(user_id))
             .where(t['project_id'].eq(project_id))
             .order(t['updated_at'].desc)
         end
@@ -114,7 +152,8 @@ class Extract < ApplicationRecord
             z['biological_association_subject_id'].eq(p['id'])
           ))
         else
-          Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['biological_collection_object_id'].eq(p['id']))) # !! note it's not biological_collection_object_id
+          # TODO fix biological_collection_object_id transition scoping
+          Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['taxon_determination_object_id'].eq(p['id'])))
         end
 
     CollectionObject.joins(j).pluck(:id).uniq
@@ -126,18 +165,18 @@ class Extract < ApplicationRecord
     r = used_recently(user_id, project_id, target)
     h = {
       quick: [],
-      pinboard: Extract.pinned_by(user_id).where(project_id: project_id).to_a,
+      pinboard: Extract.pinned_by(user_id).where(project_id:).to_a,
       recent: []
     }
 
     if target && !r.empty?
       n = target.tableize.to_sym
       h[:recent] = Extract.where('"extracts"."id" IN (?)', r.first(10) ).to_a
-      h[:quick] = (Extract.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a  +
+      h[:quick] = (Extract.pinned_by(user_id).pinboard_inserted.where(project_id:).to_a  +
           Extract.where('"extracts"."id" IN (?)', r.first(4) ).to_a).uniq
     else
-      h[:recent] = Extract.where(project_id: project_id, updated_by_id: user_id).order('updated_at DESC').limit(10).to_a
-      h[:quick] = Extract.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a
+      h[:recent] = Extract.where(project_id:, updated_by_id: user_id).order('updated_at DESC').limit(10).to_a
+      h[:quick] = Extract.pinned_by(user_id).pinboard_inserted.where(project_id:).to_a
     end
 
     h

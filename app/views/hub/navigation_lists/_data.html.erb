@@ -4,12 +4,12 @@
     <div data-section="<%= s -%>" class="data_section">
       <div class="cards-section">
         <% Hub::Data.visual_items_for(s).each do |i| %>
-          <div class="card-container" tabindex="0">
+          <div class="card-container">
             <%= data_card(i) -%>
           </div>
         <% end %>
       </div>
-      <div class="data_section_label">
+      <div class="hub_section_label">
         <div class="data-controls">
           <a class="cards-up" href="#" data-icon="arrow-up"></a>
           <a class="cards-down" href="#" data-icon="arrow-down"></a>

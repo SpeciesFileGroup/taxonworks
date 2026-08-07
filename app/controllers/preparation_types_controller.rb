@@ -41,7 +41,7 @@ class PreparationTypesController < ApplicationController
         format.json { render action: 'show', status: :created, location: @preparation_type }
       else
         format.html { render action: 'new' }
-        format.json { render json: @preparation_type.errors, status: :unprocessable_entity }
+        format.json { render json: @preparation_type.errors, status: :unprocessable_content }
       end
     end
   end
@@ -55,7 +55,7 @@ class PreparationTypesController < ApplicationController
         format.json { head :no_content }
       else
         format.html { render action: 'edit' }
-        format.json { render json: @preparation_type.errors, status: :unprocessable_entity }
+        format.json { render json: @preparation_type.errors, status: :unprocessable_content }
       end
     end
   end
@@ -82,11 +82,17 @@ class PreparationTypesController < ApplicationController
     end
   end
 
+  def autocomplete
+    @preparation_types = ::Queries::PreparationType::Autocomplete.new(
+      params.require(:term)
+    ).autocomplete
+  end
+
   # GET /preparation_types/download
   def download
-    send_data(Export::Download.generate_csv(PreparationType.all),
+    send_data(Export::CSV.generate_csv(PreparationType.all),
               type: 'text',
-              filename: "preparation_types_#{DateTime.now}.csv")
+              filename: "preparation_types_#{DateTime.now}.tsv")
   end
 
   # def autocomplete

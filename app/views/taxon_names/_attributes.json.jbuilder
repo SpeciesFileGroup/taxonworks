@@ -1,13 +1,21 @@
 json.partial! '/taxon_names/base_attributes', taxon_name: taxon_name
-json.partial! '/shared/data/all/metadata', object: taxon_name, klass: 'TaxonName'
+json.partial! '/shared/data/all/metadata', object: taxon_name
 
-json.original_combination full_original_taxon_name_tag(taxon_name) # contains HTML
+json.original_combination defined_full_original_taxon_name_tag(taxon_name) # contains HTML
 
 if extend_response_with('parent')
   if taxon_name.parent
     json.parent do |parent|
       json.extract! taxon_name.parent, :id, :cached_valid_taxon_name_id, :cached_is_valid, :rank_string
-      json.partial! '/shared/data/all/metadata', object: taxon_name.parent, klass: 'TaxonName', extensions: false
+      json.partial! '/shared/data/all/metadata', object: taxon_name.parent, extensions: false
+    end
+  end
+end
+
+if extend_response_with('valid_name')
+  json.valid_name do
+    if !taxon_name.is_valid?
+      json.partial! '/taxon_names/base_attributes', taxon_name: taxon_name.valid_taxon_name
     end
   end
 end
@@ -17,7 +25,7 @@ if extend_response_with('otus')
     json.otus do
       json.array!(taxon_name.otus) do |otu|
         json.extract! otu, :id, :name
-        json.partial! '/shared/data/all/metadata', object: otu, klass: 'Otu', extensions: false
+        json.partial! '/shared/data/all/metadata', object: otu, extensions: false
       end
     end
   end
@@ -60,3 +68,15 @@ if extend_response_with('type_taxon_name_relationship')
   end
 end
 
+if extend_response_with('protonyms')
+   if taxon_name.is_a?(Combination)
+    json.protonyms do
+      taxon_name.combination_relationships.each do |r|
+        json.set! r.rank_name do
+          json.taxon_name_relationship_id r.id
+          json.partial! '/taxon_names/attributes', taxon_name: r.subject_taxon_name 
+        end
+      end
+    end
+  end
+end

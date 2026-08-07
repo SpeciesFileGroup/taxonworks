@@ -1,41 +1,74 @@
 <template>
   <div class="panel content">
     <h2>Download Darwin Core Archive</h2>
-    <i>Includes only records stored as DwC occurrences.</i>
+
+    <div class="margin-medium-bottom">
+      <h3>Occurrence Downloads</h3>
+      <i>Includes only records stored as DwC occurrences.</i>
+    </div>
     <div class="field label-above margin-medium-top">
-      <v-btn
-        color="create"
-        medium
-        :disabled="!downloadCount"
-        @click="download({ per: downloadCount })">
-        All ({{ downloadCount }})
-      </v-btn>
+      <DwcDownload
+        :params="{ per: downloadCount }"
+        v-slot="{ action }"
+        @create="actions.addDownloadRecord"
+      >
+        <VBtn
+          class="capitalize"
+          color="create"
+          :total="downloadCount"
+          medium
+          :disabled="!downloadCount"
+          @click="action"
+        >
+          All ({{ downloadCount }})
+        </VBtn>
+      </DwcDownload>
     </div>
     <div class="field label-above">
       <label>Past</label>
-      <download-date-button
-        v-for="(days, label) in DATE_BUTTONS"
-        class="margin-small-right capitalize"
-        :key="label"
-        :label="label"
-        :days="days"
-        :count="getTotal(label)"
-        @onDate="download"
-      >
-        {{ label }}
-      </download-date-button>
+      <div class="horizontal-left-content gap-small">
+        <DwcDownload
+          v-for="(days, key) in DATE_BUTTONS"
+          :key="key"
+          :params="makeParameters(days)"
+          v-slot="{ action }"
+          @create="actions.addDownloadRecord"
+        >
+          <VBtn
+            class="capitalize"
+            color="create"
+            medium
+            :disabled="!getTotal(key)"
+            @click="action"
+          >
+            {{ key }} ({{ getTotal(key) }})
+          </VBtn>
+        </DwcDownload>
+      </div>
     </div>
     <filter-link>
       Create DwC Archive by filtered collection object result
     </filter-link>
+
+    <hr class="divisor full_width margin-large-top" />
+
+    <div class="margin-large-top">
+      <h3>Checklist Downloads</h3>
+      Taxonomic checklists with optional extensions. <i>Includes only OTUs related to DwC occurrences.</i>
+      <div class="margin-medium-top">
+        <a :href="filterOtusLink">
+          Create DwC Checklist by filtered OTU result
+        </a>
+      </div>
+    </div>
   </div>
 </template>
 <script setup>
-
-import { DwcOcurrence } from 'routes/endpoints'
+import { getPastDateByDays } from '@/helpers/dates.js'
 import { inject, computed } from 'vue'
-import DownloadDateButton from './DownloadDateButton.vue'
-import VBtn from 'components/ui/VBtn/index.vue'
+import { RouteNames } from '@/routes/routes.js'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import DwcDownload from '@/tasks/collection_objects/filter/components/dwcDownload.vue'
 import FilterLink from '../FilterLink.vue'
 
 const DATE_BUTTONS = {
@@ -45,14 +78,24 @@ const DATE_BUTTONS = {
   year: 365
 }
 
-const useAction = inject('actions')
-const useState = inject('state')
-const downloadCount = computed(() => useState?.metadata?.index?.record_total)
+const actions = inject('actions')
+const state = inject('state')
+const downloadCount = computed(() => state?.metadata?.index?.record_total)
 
-const getTotal = date => useState?.metadata?.index.freshness[`one_${date}`]
-
-const download = async downloadParams => {
-  useAction.addDownloadRecord((await DwcOcurrence.generateDownload({ ...downloadParams, dwc_indexed: true })).body)
+function getTotal(date) {
+  return state?.metadata?.index.freshness[`one_${date}`]
 }
 
+function makeParameters(days) {
+  return {
+    user_date_start: getPastDateByDays(Number(days)),
+    user_date_end: getPastDateByDays(0),
+    dwc_indexed: true
+  }
+}
+
+const filterOtusLink = computed(() => {
+  const params = new URL(window.location.href).searchParams.toString()
+  return `${RouteNames.FilterOtus}${params ? '?' + params : ''}`
+})
 </script>

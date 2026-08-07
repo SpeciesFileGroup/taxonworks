@@ -2,6 +2,7 @@ import { createStore } from 'vuex'
 import { ActionFunctions } from '../store/actions/actions'
 import { GetterFunctions } from '../store/getters/getters'
 import { MutationFunctions } from '../store/mutations/mutations'
+import makeOriginRelationship from '../helpers/makeOriginRelationship'
 
 import makeExtract from '../const/makeExtract'
 
@@ -10,12 +11,13 @@ const makeInitialState = () => {
     settings: {
       isLoading: false,
       lock: {
+        confidences: false,
         made: false,
-        identifiers: false,
         lock: false,
-        originRelationship: false,
+        originRelationships: false,
         protocols: false,
-        repository: false
+        repository: false,
+        roles: false
       },
       sortable: false
     },
@@ -27,15 +29,18 @@ const makeInitialState = () => {
     identifiers: [],
     lastChange: 0,
     lastSave: 0,
-    originRelationship: {},
+    originRelationship: makeOriginRelationship(),
+    originRelationships: [],
     recents: [],
     protocols: [],
     repository: undefined,
-    softValidation: []
+    softValidation: [],
+    roles: [],
+    confidences: []
   }
 }
 
-function newStore () {
+function newStore() {
   return createStore({
     state: makeInitialState(),
     getters: GetterFunctions,
@@ -44,7 +49,4 @@ function newStore () {
   })
 }
 
-export {
-  newStore,
-  makeInitialState
-}
+export { newStore, makeInitialState }

@@ -6,9 +6,9 @@ module Shared::AlternateValues
   included do
     AlternateValue.related_foreign_keys.push self.name.foreign_key
 
-    has_many :alternate_values, as: :alternate_value_object, validate: true, dependent: :destroy
+    has_many :alternate_values, as: :alternate_value_object, validate: true, dependent: :destroy, inverse_of: :alternate_value_object
     has_many :alternate_value_languages, source: :language, through: :alternate_values
-    
+
     # has_many :alternate_value_languages, through: :alternate_values, > {where(type: 'AlternateValue::Translation')}
 
     accepts_nested_attributes_for :alternate_values
@@ -33,7 +33,7 @@ module Shared::AlternateValues
   end
 
   module ClassMethods
-    
+
     # @return [Scope]
     # @param [:symbol] the column name/attribute
     # @param [String, Integer, etc] the value to look for

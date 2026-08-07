@@ -1,0 +1,10 @@
+import {
+  TASK_COMPACT_DWC,
+  TASK_FIELD_SYNCHRONIZE,
+  TASK_MULTI_UPDATE,
+} from "../constants/links";
+
+export const AssertedDistribution = {
+  all: [TASK_COMPACT_DWC, TASK_FIELD_SYNCHRONIZE, TASK_MULTI_UPDATE],
+  ids: [TASK_COMPACT_DWC, TASK_FIELD_SYNCHRONIZE, TASK_MULTI_UPDATE],
+};

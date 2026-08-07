@@ -22,7 +22,7 @@
 ---
 filter_taxon_names_task:
   hub: true
-  name: 'Filter nomenclature'
+  name: 'Filter taxon names'
   related:
   categories:
     - nomenclature
@@ -38,9 +38,9 @@ filter_collecting_events_task:
     - filters
   status: prototype
   description: 'Filter collecting events by shape, tag, and various other params.'
-browse_annotations_task:
+annotations_filter_task:
   hub: true
-  name: 'Browse annotations'
+  name: 'Filter annotations'
   related:
   categories:
     - collection_object
@@ -51,10 +51,9 @@ browse_annotations_task:
     - matrix
     - dna
     - filters
-    - browse
   status: stable
   description: 'Filter data by annotations (e.g. Notes, Data attributes).  Delete or create additional annotations on filtered objects.  Generate JSON request based on annotations.'
-otus_filter_task:
+filter_otus_task:
   hub: true
   name: 'Filter OTUs'
   related:
@@ -63,6 +62,15 @@ otus_filter_task:
     - filters
   status: prototype
   description: 'Find OTUs by nomenclature, geography and author.'
+material_examined_otus_task:
+  hub: true
+  name: 'Material examined preview'
+  related:
+  categories:
+    - otu
+    - collection_object
+  status: prototype
+  description: 'Preview material examined section rendered from DarwinCore occurrence data.'
 comprehensive_collection_object_task:
   hub: true
   name: 'Comprehensive specimen digitization'
@@ -84,12 +92,21 @@ new_taxon_name_task:
   description: 'Create or edit a taxon name along with its related metadata including original combinations, status, type material and synonym.'
 browse_nomenclature_task:
   hub: true
-  name: 'Browse nomenclature'
-  description: 'Browse through nomenclature, focusing on a single record at a time.'
+  name: 'Browse taxon names'
+  description: 'Browse through nomenclature and classification, focusing on a single record at a time.'
   status: stable
   categories:
     - nomenclature
     - browse
+observation_matrices_hub_task:
+  hub: true
+  name: 'Observation matrix hub'
+  related:
+  categories:
+    - matrix
+    - dna
+  status: prototype
+  description: 'An overview of observation matrices and descriptors.  Includes links to new records.'
 nomenclature_by_source_task:
   hub: true
   name: 'Citations by source'
@@ -99,7 +116,7 @@ nomenclature_by_source_task:
     - nomenclature
     - source
     - browse
-index_new_image_task:
+new_image_task:
   description: 'Add images via drag-and-drop. Applies attribution and depiction metadata across sets of added images. Add staged specimen images.'
   hub: true
   name: 'New image'
@@ -110,7 +127,7 @@ index_new_image_task:
     - collection_object
     - new
   status: prototype
-index_matrix_image_task:
+image_matrix_task:
   hub: true
   name: 'Image matrix'
   related:
@@ -158,42 +175,26 @@ build_biocuration_group_task:
   name:
   related:
     - build_biocuration_groups_task
-match_georeference_task:
-  hub: true
-  name: 'Match georeferences'
-  description: 'Re-use georeference efforts from past collecting events.'
-  categories:
-    - collecting_event
-    - collection_object
-  status: prototype
-otu_distribution_data_task:
-  hub: true
-  name: 'Otu distribution'
-  description: 'Display distribution data and map for an Otu (or taxon name).'
-  categories:
-    - nomenclature
-    - collecting_event
-    - collection_object
-  status: prototype
 author_list_task:
   hub: true
   name: 'Alphabetical list of source authors'
   description: 'Display all source authors with links to source list.'
   categories:
     - source
-  status: stable 
+  status: stable
 sqed_depiction_breakdown_todo_map_task:
   hub: true
-  name: 'Collection object image breakdown TODO list'
-  description: 'Lists all collection objects currently being processed through depictions.  Indicates those that have transcribed provisional ("buffered") collecting event data.'
+  name: 'Filter staged images'
+  description: 'Filter staged images currently being processed. Visualize current data extracted from an image. Was "TODO list".'
   categories:
+    - filters
     - collecting_event
     - collection_object
     - image
   status: stable
 simple_specimen_task:
   hub: true
-  name: 'Simple new specimen'
+  name: 'New collection object'
   description: 'A bare bones specimen creation interface. Creates related collecting events, images, and identifiers.'
   categories:
     - collection_object
@@ -201,14 +202,6 @@ simple_specimen_task:
     - image
     - new
   status: prototype
-new_asserted_distribution_from_map_task:
-  hub: true
-  name: 'New asserted distribution from map'
-  description: 'Create asserted distributions by selecting OTUs and sources, then click a map to select a geographic area. OTU and source are lockable as defaults for the next record.'
-  status: prototype
-  categories:
-    - source
-    - new
 report_dwc_task:
   hub: true
   name: 'Report DwC-A table'
@@ -234,11 +227,12 @@ collecting_event_lat_long_task:
     - collecting_event
   status: prototype
   description: "Parse the collecting_events table's verbatim label for possible lat/long combinations."
-index_editor_task:
+content_editor_task:
   hub: true
   name: 'Content editor'
   related:
   categories:
+    - new
     - source
   status: prototype
   description: 'Edit content (text) per subject, for example "Biology of Aus bus". Text can be cited and figured.'
@@ -259,14 +253,6 @@ dates_index_task:
     - collecting_event
   status: prototype
   description: "Parse the collecting_events table's verbatim label for possible date combinations."
-overdue_loans_task:
-  hub: true
-  name: 'Overdue loans'
-  related:
-  categories:
-    - collection_object
-  status: prototype
-  description: 'List overdue loans.'
 browse_collection_objects_task:
   hub: true
   name: 'Browse collection objects'
@@ -321,7 +307,7 @@ browse_otus_task:
   description: 'Browse through brief summaries of data for an OTU, including ability to annotate and add related data.'
 new_descriptor_task:
   hub: true
-  name: 'New Descriptor'
+  name: 'New descriptor'
   related:
     - character_states
     - observations
@@ -329,7 +315,6 @@ new_descriptor_task:
   categories:
     - matrix
     - new
-    - browse
   status: prototype
   description: 'Create and update descriptors (e.g. phylogenetic or descriptive characters).'
 new_matrix_task:
@@ -342,27 +327,19 @@ new_matrix_task:
     - new
   status: prototype
   description: 'Assign the rows and columns of observation matrices.'
-uniquify_people_task:
+unify_people_task:
   hub: true
-  name: 'Uniquify people'
+  name: 'Unify people'
   related:
   categories:
+    - people
     - source
     - nomenclature
-  status: stable 
-  description: 'Find and merge redundant or duplicated people, e.g., from import.'
-observation_matrices_hub_task:
-  hub: true
-  name: 'Observation matrix hub'
-  related:
-  categories:
-    - matrix
-    - dna
-  status: prototype
-  description: 'An overview of observation matrices and descriptors.  Includes links to new records.'
+  status: stable
+  description: 'Find and merge identical/duplicate people removing redundancy.'
 observation_matrix_view_task:
   hub: true
-  name: 'View an observation matrix'
+  name: 'Browse observation matrix'
   related:
   categories:
     - matrix
@@ -384,7 +361,7 @@ new_asserted_distribution_task:
   categories:
     - new
   status: prototype
-  description: 'Create new asserted distributions (Otu, source, and geographic area combinations). Has locking and cloning mechanisms.'
+  description: 'Create new asserted distributions (Object, source, and shape combinations). Has locking and cloning mechanisms.'
 index_topics_hub_task:
   hub: true
   name: 'Topics hub'
@@ -405,25 +382,16 @@ new_source_task:
   name: 'New source'
   related:
   categories:
-   - source
-   - new
-  status: stable
-  description: 'Add a source (person, or reference to a book, serial, publication etc.) via a number of different methods including CrossRef lookup, DOI, or cut-paste of BibTeX.'
-new_bibtex_source_task:
-  hub: true
-  name: 'New source from BibTeX'
-  related:
-  categories:
     - source
     - new
-  status: prototype
-  description: 'Parse a captured BibTeX string into a new source'
+  status: stable
+  description: 'Add a source (person, or reference to a book, serial, publication etc.) via a number of different methods including CrossRef lookup, DOI, or cut-paste of BibTeX.'
 visualize_confidences_task:
   hub: true
-  name: 'Visualize confidences.'
+  name: 'Visualize confidences'
   related:
   categories:
-  status: stable 
+  status: stable
   description: 'See a graph of confidences applied per data type.'
 observation_matrices_dashboard_task:
   hub: true
@@ -443,7 +411,7 @@ interactive_key_task:
   description: 'Interactive key based on an observation matrix.'
 nomenclature_stats_task:
   hub: true
-  name: 'Nomenclature stats'
+  name: 'Taxon name stats'
   related:
   categories:
     - nomenclature
@@ -457,15 +425,15 @@ export_coldp_task:
     - nomenclature
   status: prototype
   description: 'Export a zip of text files in the Catalogue of Life CoLDP format.'
-index_browse_asserted_distributions_task:
+browse_asserted_distributions_task:
   hub: true
   name: 'Browse asserted distributions'
   related:
   categories:
     - browse
   status: prototype
-  description: 'Browse through asserted distributions summarized by OTU.  Map, table, and CSV downloads.'
-collection_objects_filter_task:
+  description: 'Browse through asserted distributions summarized by object.  Map, table, and CSV downloads.'
+filter_collection_objects_task:
   hub: true
   name: 'Filter collection objects'
   related:
@@ -474,9 +442,9 @@ collection_objects_filter_task:
     - filters
   status: prototype
   description: 'Filter collection objects by many different facets, download or visualize results.'
-syncronize_otus_to_nomenclature_task:
+synchronize_otus_to_nomenclature_task:
   hub: true
-  name: 'Synchronize nomenclature and OTUs'
+  name: 'Synchronize taxon names and OTUs'
   related:
   categories:
     - nomenclature
@@ -496,7 +464,7 @@ collection_object_summary_task:
   categories:
     - collection_object
   status: prototype
-  description: 'Summary statistics for the collection(s) managed in this project'
+  description: 'Summary statistics for the collection(s) managed in this project.'
 browse_collecting_events_task:
   hub: true
   name: 'Browse collecting events'
@@ -512,6 +480,7 @@ biological_relationship_composer_task:
   related:
   categories:
     - biology
+    - new
   status: prototype
   description: 'Define and add properties to biological relationships, e.g. things like "host/parasite".'
 grid_digitize_task:
@@ -525,15 +494,15 @@ grid_digitize_task:
   description: 'Break images of collection objects in a grid (e.g. slide folders) into individual collection objects and their depictions.'
 export_basic_nomenclature_task:
   hub: true
-  name: 'Download nomenclature (basic)'
+  name: 'Download taxon names (basic)'
   related:
   categories:
     - nomenclature
   status: prototype
-  description: 'Download (also generate for API) a CSV table of the nomenclature with just the name, and a subset of the hierarchy'
+  description: 'Download (also generate for API) a CSV table of the nomenclature with just the name, and a subset of the hierarchy.'
 match_nomenclature_task:
   hub: true
-  name: 'Match names'
+  name: 'Match taxon names'
   related:
   categories:
     - nomenclature
@@ -544,24 +513,16 @@ manage_controlled_vocabulary_terms_task:
   name: 'Manage controlled vocabulary terms'
   related:
   categories:
-  status: stable 
+  status: stable
   description: 'View and create custom fields, tags, etc. used throughout this project.'
 match_collection_objects_task:
   hub: true
-  name: 'Collection object match'
+  name: 'Match collection objects'
   related:
   categories:
     - collection_object
   status: prototype
   description: 'Use a quick list of catalog numbers or ids to find collection objects.'
-work_report_task:
-  hub: true
-  name: 'Collection object work report'
-  related:
-  categories:
-    - collection_object
-  status: prototype
-  description: 'Estimate time spent on digitization tasks per user. Project administrators can see all users.'
 filter_sources_task:
   hub: true
   name: 'Filter sources'
@@ -571,13 +532,14 @@ filter_sources_task:
     - filters
   status: prototype
   description: 'Filter and find sources then download or share bibliographies.'
-project_data_task:
-  hub: true
-  name: 'Project data overview and download'
+documents_packager_task:
+  name: 'Documents packager'
   related:
   categories:
+    - source
+    - filters
   status: prototype
-  description: 'Quick stats and download options for the overall project.'
+  description: 'Bundle Source Documents into size-limited download packages.'
 gnfinder_task:
   hub: true
   name: 'Gnfinder playground'
@@ -586,7 +548,7 @@ gnfinder_task:
     - nomenclature
   status: prototype
   description: 'Show all names in a document.'
-index_dwca_import_task:
+dwca_import_task:
   hub: true
   name: 'Darwin Core Archive (DwC-A) import'
   related:
@@ -607,24 +569,40 @@ new_collecting_event_task:
   description: 'Create a new collecting event.  Quickly add collection objects to the collecting event.  Generate labels and specimen barcodes. Navigate between collecting events with similar properties.'
 filter_images_task:
   hub: true
-  name: 'Filter images task'
+  name: 'Filter images'
   related:
   categories:
     - image
     - filters
   status: prototype
   description: 'Filter images.'
-export_taxonworks_project_task:
+images_packager_task:
+  name: 'Images packager'
+  related:
+  categories:
+    - image
+    - filters
+  status: prototype
+  description: 'Bundle Images into size-limited download packages.'
+project_data_task:
   hub: true
-  name: 'Export project database'
+  name: 'Project data overview and download'
   related:
   categories:
   status: prototype
-  description: 'Generate a downloadable copy of the database with data from this project and community data (Sources, People, Repositories, etc.)'
+  description: 'Quick stats and download options for the overall project.'
 dwc_dashboard_task:
   hub: true
   name: 'DwC Dashboard'
   description: 'Report DwC Occurrence metadata, issues, and coverage. Manage DwC-A export.'
+  status: prototype
+  categories:
+    - collection_object
+    - collecting_event
+compact_dwc_task:
+  hub: true
+  name: 'Compact DarwinCore'
+  description: 'Compact and summarize DwC Occurrence data by catalog number with visualizations.'
   status: prototype
   categories:
     - collection_object
@@ -640,7 +618,7 @@ new_extract_task:
   description: 'Create new extracts, e.g. for DNA purposes.'
 content_by_nomenclature_task:
   hub: true
-  name: 'Content by nomenclature ("Brock")'
+  name: 'Content by taxon names ("Brock")'
   related:
   categories:
   status: prototype
@@ -657,11 +635,660 @@ new_namespace_task:
     - collecting_event
   status: prototype
   description: 'Create new Namespaces, used in identifiers.'
-
-object_graph_task:
+index_matrix_column_coder_task:
   hub: true
-  name: 'TODO: Task name'
+  name: 'Matrix column coder'
   related:
   categories:
   status: prototype
-  description: 'TODO: Task description'
+  description: 'Code a matrix column'
+object_graph_task:
+  hub: false
+  name: 'Task - Object graph'
+  related:
+  categories:
+  status: prototype
+  description: 'Visualize how data are related to each other in a dynamic (force-directed) graph.  Navigate throughout the graph.'
+batch_add_users_task:
+  hub: false
+  name: 'Administration: Batch add users'
+  related:
+  categories:
+  status: prototype
+  description: 'Add a list of users.'
+administrator_year_in_review_task:
+  hub: false
+  name: 'Administration: Year in review'
+  related:
+    - year_in_review_task
+  categories:
+  status: prototype
+  description: 'A dashboard summarizing activity across all projects for a calendar year.'
+filter_extract_task:
+  hub: true
+  name: 'Filter extracts'
+  related:
+  categories:
+    - filters
+    - dna
+  status: prototype
+  description: 'Search and list extracts from collection objects, OTUs, other extracts, date ranges etc.'
+project_activity_task:
+  hub: true
+  name: 'Project activity'
+  related:
+  categories:
+    - collection_object
+    - collecting_event
+    - nomenclature
+    - image
+  status: prototype
+  description: 'Overview project and member activity, recent records, totals, member contributions, and more.'
+filter_people_task:
+  hub: true
+  name: 'Filter people'
+  related:
+  categories:
+    - filters
+  status: prototype
+  description: 'Filter people.'
+stepwise_determinations_task:
+  hub: true
+  name: 'Stepwise determinations'
+  related:
+  categories:
+    - collection_object
+    - people
+  status: prototype
+  description: 'Parse verbatim determinations into their semantic components.'
+classification_summary_task:
+  hub: true
+  name: 'Collection object classification summary'
+  related:
+  categories:
+    - collection_object
+  status: prototype
+  description: 'Summarize collection objects totals and preparation by classification (by class, order, family).'
+publisher_task:
+  hub: true
+  name: 'Content publisher'
+  related:
+  categories:
+  status: prototype
+  description: 'Manage the publishing of OTU content (text per topic).'
+taxon_name_merge_task:
+  hub: true
+  name: 'Merge taxon names'
+  related:
+  categories:
+    - nomenclature
+  status: prototype
+  description: 'Basic tools that facilitate merging taxon names.'
+paper_catalog_generator_task:
+  hub: true
+  name: 'Paper catalog preview'
+  related:
+  categories:
+    - nomenclature
+    - export
+  status: prototype
+  description: 'Experimenting with rendering nomenclature as a paper catalog.'
+freeform_digitize_task:
+  hub: true
+  name: 'Task - freeform digitize'
+  description: 'Digitize specimen by drawing free-form shapes on images.'
+  status: prototype
+filter_biological_associations_task:
+  hub: true
+  name: 'Filter biological associations'
+  related:
+  categories:
+    - collection_object
+    - biology
+    - filters
+  status: prototype
+  description: 'Facet search on biological associations.'
+collection_object_chronology_task:
+  hub: true
+  name: 'Collection object chronology'
+  related:
+  categories:
+    - collection_object
+  status: prototype
+  description: 'All collection objects by year collected.'
+filter_asserted_distributions_task:
+  hub: true
+  name: 'Filter asserted distributions'
+  related:
+  categories:
+    - filters
+  status: prototype
+  description: 'Create sets of asserted distributions.'
+related_data_task:
+  hub: false
+  name: 'Related data task'
+  related:
+  categories:
+  status: prototype
+  description: 'Simple linear report of the data related to this object.'
+filter_descriptors_task:
+  hub: true
+  name: 'Filter descriptors'
+  related:
+  categories:
+    - matrix
+    - filters
+  status: prototype
+  description: 'Create sets of descriptors.'
+filter_loans_task:
+  hub: true
+  name: 'Filter loans'
+  related:
+  categories:
+    - filters
+    - loan
+  status: prototype
+  description: 'Filter loans.'
+filter_observations_task:
+  hub: true
+  name: 'Filter observations'
+  related:
+  categories:
+    - filters
+    - matrix
+  status: prototype
+  description: 'Create sets of observations. See also the observation matrix hub and multi-key interfaces.'
+filter_contents_task:
+  hub: true
+  name: 'Filter contents'
+  related:
+  categories:
+    - source
+    - filters
+  status: prototype
+  description: 'Content is text blocks, with optional figures, per OTU. Search and return sets by text, topic, or OTU.'
+source_citation_totals_task:
+  hub: false
+  name: 'Source citation totals'
+  related:
+  categories:
+  status: prototype
+  description: 'Report a count per citation object type for each source in the result.'
+edit_biological_associations_graph_task:
+  hub: true
+  name: 'New biological associations graph'
+  related:
+  categories:
+    - biology
+    - new
+  status: prototype
+  description: 'Create, edit, and cite biological associations and their inter-relationships.'
+loan_dashboard_task:
+  hub: true
+  name: 'Loans dashboard'
+  related:
+  categories:
+    - loan
+  status: prototype
+  description: 'Summarize various loan-related statistics.'
+geographic_area_usage_task:
+  hub: true
+  name: 'Geographic area usage'
+  related:
+  categories:
+  status: prototype
+  description: "Summarize this project's geographic area usage."
+taxon_name_stats_task:
+  hub: false
+  name: 'Taxon names stats'
+  related:
+  categories:
+  status: prototype
+  description: 'Plot stats / year for taxon name filter results.'
+stepwise_collectors_task:
+  hub: true
+  name: 'Stepwise collectors'
+  related:
+  categories:
+    - collecting_event
+    - people
+  status: prototype
+  description: 'Parse verbatim collectors into their semantic components.'
+new_field_occurrence_task:
+  hub: true
+  name: 'New field occurrence'
+  related:
+  categories:
+    - collecting_event
+    - georeference
+    - new
+  status: prototype
+  description: 'Link OTUs to collecting events. Used when no physical object was collected and returned to a repository.'
+debug_geographic_item_task:
+  hub: false
+  name: 'Debug geographic item'
+  related:
+  categories:
+    - geographic_area
+    - collecting_event
+    - georeference
+  status: prototype
+  description: 'Report metadat about a geographic item.'
+new_lead_task:
+  hub: true
+  name: 'New key'
+  related:
+  categories:
+    - new
+  status: prototype
+  description: 'Create a new key.'
+show_lead_task:
+  hub: true
+  name: 'Use a key'
+  related:
+  categories:
+  status: prototype
+  description: 'Use an existing key.'
+project_vocabulary_task:
+  hub: true
+  name: 'Project vocabulary'
+  related:
+  categories:
+  status: prototype
+  description: 'Visualize data values used in this project.  Word clouds.'
+new_otu_task:
+  hub: true
+  name: 'New OTU'
+  related:
+  categories:
+    - otu
+    - new
+  status: prototype
+  description: 'Create one or many OTUs in batch.'
+leads_hub_task:
+  hub: true
+  name: 'Keys hub'
+  related:
+  categories:
+  status: prototype
+  description: 'A centralized hub unifying access to the different means of creating and displaying keys.'
+week_in_review_task:
+  hub: true
+  name: 'Week in review'
+  related:
+  categories:
+    - metadata
+  status: prototype
+  description: 'A quick look dashboard of past activity.'
+field_synchronize_task:
+  hub: false
+  name: 'Field synchronize'
+  related:
+  categories:
+  status: prototype
+  description: 'Batch edit or synchronize the values in one or two fields or data-attributes.'
+collecting_events_spatial_summary_task:
+  hub: false
+  name: 'Collecting Event Spatial Summary'
+  related:
+  categories:
+  status: prototype
+  description: 'Summarize spatial characteristics of a set of Collecting Events.'
+new_container_task:
+  hub: true
+  name: 'New container'
+  related:
+    - collection_object
+    - extract
+  categories:
+    - new
+    - collection_object
+  status: prototype
+  description: 'Create containers and edit their contents. Add collection objects to containers.'
+import_nexus_task:
+  hub: true
+  name: 'Import Nexus file data'
+  related:
+    - observation_matrices
+  categories:
+    - matrix
+    - new
+  status: prototype
+  description: 'Populate an observation matrix with data imported from a Nexus file.'
+filter_dwc_occurrences_task:
+  hub: true
+  name: 'Filter DwC Occurrences'
+  related:
+    - collection_object
+    - collecting_event
+    - asserted_distribution
+  categories:
+    - filters
+  status: prototype
+  description: 'Filter records in the DarwinCore index.'
+new_gazetteer_task:
+  hub: true
+  name: 'Create or edit Gazetteers'
+  related:
+  categories:
+    - collecting_event
+    - new
+  status: prototype
+  description: 'Create or edit named shapes for use in your project.'
+import_gazetteers_task:
+  hub: true
+  name: 'Import Gazetteers'
+  related:
+  categories:
+  status: prototype
+  description: 'Import Gazetteers from a shapefile.'
+unify_objects_task:
+  hub: true
+  name: 'Unify objects'
+  related:
+  categories:
+    - unify
+  status: prototype
+  description: 'Merge two objects into a single one.  Moves annotations and unifies would-be duplicates and their annotations if possible.'
+new_filename_depicting_image_task:
+  hub: true
+  name: 'New filename depicting image'
+  related:
+  categories:
+    - image
+    - collection_object
+  status: prototype
+  description: "Upload images assigning them as depictions of CollectionObjects based on the identifier in the filename. You shouldn't really be using this as a day-to-day workflow, there are better approaches."
+inaturalist_import_task:
+  hub: true
+  name: 'iNaturalist import'
+  related:
+    - collecting_event
+  categories:
+    - field_occurrence
+  status: prototype
+  description: 'Create FieldOccurrences from iNaturalist observations.'
+new_biological_association_task:
+  hub: true
+  name: 'New biological association'
+  related:
+  categories:
+    - biology
+    - new
+  status: prototype
+  description: 'Create, edit, and cite biological associations.'
+duplicate_otus_task:
+  hub: true
+  name: 'Duplicate OTU predictor'
+  related:
+  categories:
+    - otu
+  status: prototype
+  description: 'A list of OTUs with whose combination of name and taxon name are found exactly/ in duplicate.'
+match_otu_by_taxon_name_task:
+  hub: true
+  name: 'Match OTU by taxon name'
+  related:
+    - assign_taxon_name_task
+  categories:
+    - otu
+    - nomenclature
+  status: prototype
+  description: 'Match external taxon names to TaxonWorks OTUs via taxon name matching. Supports exact and fuzzy matching, synonym resolution, and batch processing.'
+print_key_task:
+  hub: false
+  name: 'Print key'
+  related:
+  categories:
+  status: prototype
+  description: 'Format a key for print.'
+summarize_projects_controlled_vocabulary_terms_task:
+  hub: true
+  name: 'Controlled vocabulary across projects'
+  related:
+  categories:
+  status: prototype
+  description: 'Visualize controlled vocabulary terms across the projects you are a member of.'
+browse_sounds_task:
+  hub: true
+  name: 'Browse sounds'
+  related:
+  categories:
+    - browse
+  status: prototype
+  description: 'View individual sounds and their related.'
+browse_field_occurrence_task:
+  hub: true
+  name: 'Browse field occurrences'
+  related:
+  categories:
+    - browse
+  status: prototype
+  description: 'Report everything known about a field occurrence. Includes determinations, images, collecting event, biological associations, etc.'
+filter_sounds_task:
+  hub: true
+  name: 'Filter sounds'
+  related:
+  categories:
+    - filters
+  status: prototype
+  description: 'Filter sounds by various params.'
+index_multi_update_task:
+  hub: false
+  name: 'Multi-update data attributes'
+  related:
+  categories:
+  status: prototype
+  description: 'Faciliate spreadsheet editing of multiple data attributes.'
+filter_field_occurrences_task:
+  hub: true
+  name: 'Filter field occurrences'
+  related:
+  categories:
+    - filters
+  status: prototype
+  description: 'Filter field occurrences by many different facets, download or visualize results.'
+taxon_names_table_task:
+  hub: false
+  name: 'Taxon names table'
+  description: 'A simple table view of taxon names including checklist-style columns of names at rank, author, and year.'
+  status: prototype
+  categories:
+    - nomenclature
+taxon_name_author_summary_task:
+  hub: false
+  name: 'Author summary report'
+  related:
+  categories:
+    - nomenclature
+  status: prototype
+  description: 'Summarizes People instances through taxon_name_author roles per year with visualizations.'
+taxon_name_gender_task:
+  hub: false
+  name: 'Nomenclatural gender summary'
+  related:
+  categories:
+    - nomenclature
+  status: prototype
+  description: 'Brief summary of gender status for a filtered set of names.'
+filter_taxon_name_relationships_task:
+  hub: true
+  name: 'Filter taxon name relationships'
+  related:
+  categories:
+    - filters
+    - nomenclature
+  status: prototype
+  description: 'Filter taxon name relationships by many different facets, download or visualize results.'
+monograph_facilitator_task:
+  hub: false
+  name: 'Monograph facilitator'
+  related:
+  categories:
+  status: prototype
+  description: 'Plot objects on a map.  Group, updated determinations, and more.'
+filter_anatomical_parts_task:
+  hub: true
+  name: 'Filter anatomical parts'
+  related:
+  categories:
+    - filters
+    - biology
+  status: prototype
+  description: 'Filter anatomical parts by many different facets, download or visualize results.'
+anatomical_parts_graph_task:
+  hub: true
+  name: 'New/graph anatomical part'
+  related:
+  categories:
+    - biology
+    - filters
+    - new
+  status: prototype
+  description: 'Display graphs of relations between anatomical parts; create and edit anatomical parts.'
+project_dwc_export_preferences_task:
+  hub: false
+  name: 'Project preferences for DwCA project downloads'
+  related:
+  categories:
+  status: prototype
+  description: 'Set preferences for Darwin Core Archive complete project downloads.'
+select_ontologies_task:
+  hub: false
+  name: 'Select anatomical part ontologies'
+  related:
+  categories:
+  status: prototype
+  description: 'Select OSL ontologies that can be used to find term uris for anatomical parts.'
+edit_anatomical_part_task:
+  hub: false
+  name: 'Edit anatomical part'
+  related:
+  categories:
+  status: prototype
+  description: 'Edit anatomical part.'
+taxon_name_reclassifier_task:
+  hub: true
+  name: 'Taxon name reclassifier'
+  related:
+  categories:
+    - nomenclature
+  status: prototype
+  description: 'Drag-drop to change the parents of TaxonNames.'
+new_news_task:
+  hub: true
+  name: 'New news'
+  related:
+  categories:
+    - new
+  status: prototype
+  description: 'Create and edit blog posts, notices, etc.'
+browse_news_task:
+  hub: true
+  name: 'Browse News'
+  related:
+  categories:
+    - browse
+  status: prototype
+  description: "A Newspaper summarizing this project's current news."
+dichotomous_key_task:
+  hub: true
+  name: 'Dichotomous key'
+  related:
+  categories:
+  status: prototype
+  description: 'Interactive dichotomous key interface.'
+browse_images_task:
+  hub: true
+  name: 'Browse images'
+  related:
+  categories:
+    - image
+    - browse
+  status: prototype
+  description: 'Browse and explore images in this project, including their depictions and related objects, and take measurements by drawing lines on images.'
+verbatim_author_year_source_task:
+  hub: true
+  name: 'TaxonName verbatim author/year without citations'
+  related:
+  categories:
+  status: prototype
+  description: 'Facilitate working through TaxonName records that have verbatim author-year data, but no citations/source.'
+year_in_review_task:
+  hub: true
+  name: 'Year in review'
+  related:
+    - week_in_review_task
+  categories:
+    - project
+  status: prototype
+  description: 'A dashboard summarizing project activity for a calendar year.'
+duplicate_data_attributes_task:
+  hub: false
+  name: 'Repeated DataAttributes'
+  related:
+    - index_multi_update_task
+    - field_synchronize_task
+  categories:
+    - data_attributes
+  status: prototype
+  description: 'Report identifying objects with duplicate predicates on their data attributes.'
+filter_namespaces_task:
+  hub: true
+  name: 'Filter namespaces'
+  related:
+  categories:
+    - filters
+  status: prototype
+  description: 'Filter namespaces by many different facets, download or visualize results.'
+new_ba_task:
+  hub: true
+  name: 'New biological associations II'
+  related:
+  categories:
+    - biology
+    - new
+  status: prototype
+  description: 'Create, edit, and cite biological associations, with support for anatomical parts and asserted distributions.'
+collection_layout_task:
+  hub: true
+  name: 'Collection layout'
+  related:
+  categories:
+  status: prototype
+  description: 'Rapidly create and visualize a physical collection layout (Building, Rooms, Cabinets, Drawers).'
+index_autoselects_task:
+  hub: true
+  name: 'Autoselect playground'
+  related:
+  categories:
+    - debugging
+  status: prototype
+  description: 'Interactive development playground for testing Autoselect field behavior across models.'
+collection_visualization_task:
+  hub: true
+  name: 'Collection visualization'
+  related:
+    - collection_layout_task
+  categories:
+    - collection objects
+  status: prototype
+  description: 'Visualize a collection hierarchy using treemap and other views.'
+assign_taxon_name_task:
+  hub: true
+  name: 'Assign taxon name to OTU'
+  related:
+    - match_otu_by_taxon_name_task
+  categories:
+    - otu
+    - nomenclature
+  status: prototype
+  description: 'Assign OTUs that have no taxon name to a taxon name. Supports exact and fuzzy matching, original combinations, and author/year differentiation.'
+project_organizations_task:
+  hub: false
+  name: 'Project organizations'
+  related:
+  categories:
+    - project
+  status: prototype
+  description: 'Add and remove the organizations that are associated with your project.'

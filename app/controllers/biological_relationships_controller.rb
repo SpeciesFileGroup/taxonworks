@@ -17,6 +17,27 @@ class BiologicalRelationshipsController < ApplicationController
     end
   end
 
+  def api_index
+    q =  BiologicalRelationship
+      .where(project_id: sessions_current_project_id)
+      .order(:name)
+
+    respond_to do |format|
+      format.json {
+        @biological_relationships = q.page(params[:page]).per(params[:per])
+        render '/biological_relationships/api/v1/index'
+      }
+      format.csv {
+        @biological_relationships = q
+        send_data Export::CSV.generate_csv(
+          @biological_relationships,
+          exclude_columns: %w{updated_by_id created_by_id project_id},
+        ), type: 'text',
+       filename: "biological_relationships_#{DateTime.now}.tsv"
+      }
+    end
+  end
+
   # GET /biological_relationships/1
   # GET /biological_relationships/1.json
   def show
@@ -46,7 +67,7 @@ class BiologicalRelationshipsController < ApplicationController
         format.json { render :show, status: :created, location: @biological_relationship }
       else
         format.html { render :new }
-        format.json { render json: @biological_relationship.errors, status: :unprocessable_entity }
+        format.json { render json: @biological_relationship.errors, status: :unprocessable_content }
       end
     end
   end
@@ -60,7 +81,7 @@ class BiologicalRelationshipsController < ApplicationController
         format.json { render :show, status: :ok, location: @biological_relationship }
       else
         format.html { render :edit }
-        format.json { render json: @biological_relationship.errors, status: :unprocessable_entity }
+        format.json { render json: @biological_relationship.errors, status: :unprocessable_content }
       end
     end
   end
@@ -92,10 +113,6 @@ class BiologicalRelationshipsController < ApplicationController
   end
 
   private
-
-  def filter_sql
-    {}
-  end
 
   def set_biological_relationship
     @biological_relationship = BiologicalRelationship.where(project_id: sessions_current_project_id).find(params[:id])

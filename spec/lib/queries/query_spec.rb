@@ -1,31 +1,57 @@
 require 'rails_helper'
 
-describe Queries::Query do
+describe Queries::Query, type: :model do
 
-  let(:query) { q = Queries::Query.new({}) }
+  let(:query) { Queries::Query.new }
 
-  before {
+  before do
     allow(query).to receive(:table) { ::Otu.arel_table }
     allow(query).to receive(:base_query) { ::Otu.select('otus.*') }
-  }
+  end
+
+  specify '#query_string' do
+    expect(query.query_string).to eq(nil)
+  end
+
+  specify '#terms' do
+    expect(query.terms).to eq([])
+  end
 
   specify '#no_terms?' do
     expect(query.no_terms?).to be_truthy
-  end 
+  end
 
   specify '#terms= builds @terms' do
     query.terms = 'a b c'
     expect(query.terms).to contain_exactly('a b c%', '%a b c%')
-  end 
+  end
 
-  specify '#autocomplete_exact_id 1' do
-    query.terms = '123'
-    expect(query.autocomplete_exact_id.to_sql).to eq( "SELECT otus.* FROM \"otus\" WHERE \"otus\".\"id\" = 123 LIMIT 1")
-  end 
+  # See spec/lib/queries/otu/filter_spec.rb for base_query and table specs
 
-  specify '#autocomplete_exact_id 2' do
-    query.terms = []
-    expect(query.autocomplete_exact_id).to eq(nil)
-  end 
+  context '.union' do
+    let!(:o1) { FactoryBot.create(:valid_otu) }
+    let!(:o2) { FactoryBot.create(:valid_otu) }
+    let!(:o3) { FactoryBot.create(:valid_otu) }
+    let(:q1) { Otu.where(id: [o1.id, o2.id]) }
+    let(:q2) { Otu.where(id: [o1.id, o3.id]) }
+    let(:qcross) { Otu.joins('LEFT OUTER JOIN otus AS o ON 1 = 1') } # 9 results
+    let(:query) { Queries::Otu::Filter.new({}) }
 
+    specify '0 queries' do
+      expect(query.referenced_klass_union([]).map(&:id)).to contain_exactly(o1.id, o2.id, o3.id)
+    end
+
+    specify '1 query, distinct results' do
+      expect(query.referenced_klass_union([qcross]).map(&:id)).to contain_exactly(o1.id, o2.id, o3.id)
+    end
+
+    specify '2 queries, distinct results' do
+      expect(query.referenced_klass_union([q1, q2]).map(&:id)).to contain_exactly(o1.id, o2.id, o3.id)
+    end
+
+    specify '2 queries, one None, distinct results' do
+      expect(qcross.count).to eq(9)
+      expect(query.referenced_klass_union([qcross, Otu.none]).map(&:id)).to contain_exactly(o1.id, o2.id, o3.id)
+    end
+  end
 end

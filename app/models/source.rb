@@ -190,40 +190,39 @@ class Source < ApplicationRecord
   include Housekeeping::Timestamps
   include Shared::AlternateValues
   include Shared::DataAttributes
+  include Shared::Documentation
   include Shared::Identifiers
   include Shared::Notes
   include Shared::SharedAcrossProjects
   include Shared::Tags
-  include Shared::Documentation
-  include Shared::HasRoles
-  include Shared::IsData
   include Shared::HasPapertrail
+  include Shared::BiologicalAssociationIndexHooks
   include SoftValidation
+  include Shared::IsData
+  # !! Must not have Shared::Depictions
 
   ignore_whitespace_on(:verbatim_contents)
 
   ALTERNATE_VALUES_FOR = [
-    :address, :annote, :booktitle, :edition, :editor, :institution, :journal, :note, :organization,
-    :publisher, :school, :title, :doi, :abstract, :language, :translator, :author, :url].freeze
+    :address, :annote, :booktitle, :edition, :institution, :journal, :note, :organization,
+    :publisher, :school, :title, :doi, :abstract, :language, :translator, :url].freeze
 
-    # @return [Boolean]
-  #  When true, cached values are not built
+  # @return [Boolean, nil]
+  #   When true, cached values are not built
   attr_accessor :no_year_suffix_validation
 
   # Keep this order for citations/topics
   has_many :citations, inverse_of: :source, dependent: :restrict_with_error
+  has_many :origin_citations, -> {where(citations: {is_original: true})}, class_name: 'Citation', dependent: :restrict_with_error, inverse_of: :source
   has_many :citation_topics, through: :citations, inverse_of: :source
   has_many :topics, through: :citation_topics, inverse_of: :sources
 
-  # !! must be below has_many :citations
-  has_many :asserted_distributions, through: :citations, source: :citation_object, source_type: 'AssertedDistribution'
-
-  has_many :project_sources, dependent: :destroy
-  has_many :projects, through: :project_sources
+  has_many :project_sources, inverse_of: :source, dependent: :destroy
+  has_many :projects, inverse_of: :sources, through: :project_sources
 
   after_save :set_cached
 
-  validates_presence_of :type
+  validates :type, presence: true
   validates :type, inclusion: {in: ['Source::Bibtex', 'Source::Human', 'Source::Verbatim']} # TODO: not needed
 
   accepts_nested_attributes_for :project_sources, reject_if: :reject_project_sources
@@ -236,6 +235,13 @@ class Source < ApplicationRecord
     description: 'Check if cached values need to be updated' )
 
   soft_validate(
+    :sv_stated_year,
+    set: :stated_year,
+    fix: :sv_fix_stated_year,
+    name: 'Stated year',
+    description: "'Stated year' is not needed if identical to 'year'" )
+
+  soft_validate(
     :sv_html_tags,
     set: :html_tags,
     name: 'html tags',
@@ -243,14 +249,15 @@ class Source < ApplicationRecord
 
     # Redirect type here
   # @param [String] file
+  # @param [Integer] namespace_id optional namespace for creating Identifier::Local::Import::Bibtex from BibTeX key
   # @return [[Array, message]]
   #   TODO: return a more informative response?
-  def self.batch_preview(file)
+  def self.batch_preview(file, namespace_id = nil)
     begin
       bibliography = BibTeX::Bibliography.parse(file.read.force_encoding('UTF-8'), filter: :latex)
       sources = []
       bibliography.each do |record|
-        a = Source::Bibtex.new_from_bibtex(record)
+        a = Source::Bibtex.new_from_bibtex(record, nil, namespace_id)
         sources.push(a)
       end
       return sources, nil
@@ -261,15 +268,18 @@ class Source < ApplicationRecord
     end
   end
 
-    # @return [String] A string that represents the authors last_names and year (no suffix)
+  # @return [String]
+  #   A string that represents the authors last_names and year (no suffix)
   def author_year
     return 'not yet calculated' if new_record?
     [cached_author_string, year].compact.join(', ')
   end
 
     # @param [String] file
+  # @param [Integer] project_id optional project to associate sources with
+  # @param [Integer] namespace_id optional namespace for creating Identifier::Local::Import::Bibtex from BibTeX key
   # @return [Array, Boolean]
-  def self.batch_create(file)
+  def self.batch_create(file, project_id = nil, namespace_id = nil)
     sources = []
     valid = 0
     begin
@@ -277,7 +287,8 @@ class Source < ApplicationRecord
       Source.transaction do
         bibliography = BibTeX::Bibliography.parse(file.read.force_encoding('UTF-8'), filter: :latex)
         bibliography.each do |record|
-          a = Source::Bibtex.new_from_bibtex(record)
+          a = Source::Bibtex.new_from_bibtex(record, project_id, namespace_id)
+
           if a.valid?
             if a.save
               valid += 1
@@ -294,27 +305,18 @@ class Source < ApplicationRecord
     return {records: sources, count: valid}
   end
 
-  # @param used_on [String] a model name 
+  # @param used_on [String] a model name
   # @return [Scope]
-  #    the max 10 most recently used (1 week, could parameterize) TaxonName, as used 
+  #    the max 10 most recently used (1 week, could parameterize) TaxonName, as used
   def self.used_recently(user_id, project_id, used_on = 'TaxonName')
-    t = Citation.arel_table
-    p = Source.arel_table
-
-    # i is a select manager
-    i = t.project(t['source_id'], t['created_at']).from(t)
-      .where(t['created_at'].gt(1.weeks.ago))
-      .where(t['citation_object_type'].eq(used_on))
-      .where(t['created_by_id'].eq(user_id))
-      .where(t['project_id'].eq(project_id))
-      .order(t['created_at'].desc)
-
-    # z is a table alias
-    z = i.as('recent_t')
-
-    Source.joins(
-      Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['source_id'].eq(p['id'])))
-    ).select(:id).distinct.pluck(:id)
+    Source.select('sources.id').
+      joins(:citations)
+          .where(citations: {updated_by_id: user_id,
+                 project_id:,
+                 citation_object_type: used_on,
+                 updated_at: 1.week.ago..})
+         .order('citations.updated_at DESC')
+       .pluck(:id).uniq
   end
 
   # @params target [String] a citable model name
@@ -323,22 +325,22 @@ class Source < ApplicationRecord
     r = used_recently(user_id, project_id, target)
     h = {
       quick: [],
-      pinboard: Source.pinned_by(user_id).where(pinboard_items: {project_id: project_id}).to_a,
+      pinboard: Source.pinned_by(user_id).where(pinboard_items: {project_id:}).to_a,
       recent: []
     }
 
     if r.empty?
       h[:recent] = Source.where(created_by_id: user_id, updated_at: 2.hours.ago..Time.now )
         .order('created_at DESC')
-        .limit(5).order(:cached).to_a
-      h[:quick] = Source.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id: project_id}).to_a
+        .limit(5).to_a
+      h[:quick] = Source.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id:}).to_a
     else
       h[:recent] =
         (Source.where(created_by_id: user_id, updated_at: 2.hours.ago..Time.now )
         .order('created_at DESC')
-        .limit(5).order(:cached).to_a +
+        .limit(5).to_a +
       Source.where('"sources"."id" IN (?)', r.first(6) ).to_a).uniq
-      h[:quick] = ( Source.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id: project_id}).to_a +
+      h[:quick] = ( Source.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id:}).to_a +
                    Source.where('"sources"."id" IN (?)', r.first(4) ).to_a).uniq
     end
 
@@ -361,33 +363,31 @@ class Source < ApplicationRecord
     projects.where(id: project_id).any?
   end
 
-    #  Month handling allows values from bibtex like 'may' to be handled
-    # @return [Time]
+  # Month handling allows values from bibtex like 'may' to be handled
+  # @return [Date]
   def nomenclature_date
-    Utilities::Dates.nomenclature_date(day, Utilities::Dates.month_index(month), year)
+    Utilities::Dates.nomenclature_date(day, Utilities::Dates.month_index(month), year)&.to_date
   end
 
-  # @return [Source, false]
+  # @return [Source]
   def clone
     s = dup
+
     m = "[CLONE of #{id}] "
-    begin
-      Source.transaction do |t|
-        roles.each do |r|
-          s.roles << Role.new(person: r.person, type: r.type, position: r.position )
-        end
 
-        case type
-        when 'Source::Verbatim'
-          s.verbatim = m + verbatim.to_s
-        when 'Source::Bibtex'
-          s.title = m + title.to_s
-        end
-
-        s.save!
-      end
-    rescue ActiveRecord::RecordInvalid
+    case type
+    when 'Source::Verbatim'
+      s.verbatim = m + verbatim.to_s
+    when 'Source::Bibtex'
+      s.title = m + title.to_s
     end
+
+    roles.reload.each do |r|
+      s.roles << Role.new(person: r.person, type: r.type, position: r.position )
+    end
+
+    s.year_suffix = nil
+    s.save
     s
   end
 
@@ -398,7 +398,7 @@ class Source < ApplicationRecord
   def set_cached
   end
 
-    #set in subclasses
+  # Defined in subclasses
   def get_cached
   end
 
@@ -415,7 +415,7 @@ class Source < ApplicationRecord
 
   def sv_fix_cached_names
     begin
-      TaxonName.transaction do
+      Source.transaction do
         self.set_cached
       end
       true
@@ -424,10 +424,39 @@ class Source < ApplicationRecord
     end
   end
 
+  def sv_stated_year
+    soft_validations.add(
+      :base, "'Stated year' is not needed if identical to 'year'; applying the Fix will delete it",
+      success_message: "'Stated year' was deleted",
+      failure_message:  "Failed to delete 'Stated year'") if year.to_s == stated_year.to_s
+  end
+
+  def sv_fix_stated_year
+    begin
+      Source.transaction do
+        self.stated_year = nil
+        self.save
+      end
+      true
+    rescue
+      false
+    end
+  end
+
+
   def sv_html_tags
-    unless title.blank?
+    if title.present?
       str = title.squish.gsub(/\<i>[^<>]*?<\/i>/, '')
       soft_validations.add(:title, 'The title contains unmatched html tags') if str.include?('<i>') || str.include?('</i>')
     end
+  end
+
+  # @return [ActiveRecord::Relation]
+  #   BiologicalAssociationIndex records for associations that cite this source
+  def biological_association_indices
+    BiologicalAssociationIndex
+      .joins('INNER JOIN biological_associations ba ON biological_association_indices.biological_association_id = ba.id')
+      .joins("INNER JOIN citations c ON c.citation_object_id = ba.id AND c.citation_object_type = 'BiologicalAssociation'")
+      .where('c.source_id = ?', id)
   end
 end

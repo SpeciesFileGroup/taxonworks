@@ -51,10 +51,13 @@
         </label>
       </li>
     </ul>
-    <textarea
-      class="full_width margin-small-top"
-      v-model="biologicalRelationship.definition"
-      rows="5"/>
+    <div class="field margin-small-top">
+      <label>Definition</label>
+      <textarea
+        class="full_width margin-small-top"
+        v-model="biologicalRelationship.definition"
+        rows="5"/>
+    </div>
   </div>
 </template>
 

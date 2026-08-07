@@ -1,0 +1,4 @@
+class Tasks::BiologicalAssociations::BiologicalAssociationsGraphController < ApplicationController
+  include TaskControllerConfiguration
+
+end

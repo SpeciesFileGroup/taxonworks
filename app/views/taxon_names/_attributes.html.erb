@@ -64,6 +64,10 @@
     <%= @taxon_name.cached_author_year %>
   </p>
   <p>
+    <strong>Cached author:</strong>
+    <%= @taxon_name.cached_author %>
+  </p>
+  <p>
     <strong>Cached classified as:</strong>
     <%= @taxon_name.cached_classified_as %>
   </p>
@@ -99,6 +103,21 @@
     <strong>Cached is valid:</strong>
     <%= @taxon_name.cached_is_valid %>
   </p>
+  <p>
+    <strong>Cached nomenclature date:</strong>
+    <%= @taxon_name.cached_nomenclature_date %>
+  </p>
+
+  <p>
+    <strong>Cached gender:</strong>
+    <%= @taxon_name.cached_gender %>
+  </p>
+
+  <p>
+    <strong>Cached is_available:</strong>
+    <%= @taxon_name.cached_is_available %>
+  </p>
+
   <p>
     <strong>Rank class:</strong>
     <%= @taxon_name.rank_class -%>

@@ -12,12 +12,23 @@
   <% end%>
 </p>
 
+<p>
+<strong>Data curation issue tracker url:</strong>
+<% if @project.data_curation_issue_tracker_url.present? %>
+  <%= link_to(@project.data_curation_issue_tracker_url, @project.data_curation_issue_tracker_url)  %>
+<% else %>
+  <em> None </em>
+<% end %>
+</p>
+
 <%= render partial: '/shared/data/all/show/housekeeping', locals: {object: @project} -%>
 
 
 <div class="attribute_set" data-title="Preferences">
-  <p> 
+  <p>
     <strong>Preferences:</strong>
-    <%= ap(@project.preferences).html_safe %>
+    <div style="max-width: 400px; overflow: auto; background-color: var(--bg-foreground);">
+      <%= ap(@project.preferences).html_safe %>
+    </div>
   </p>
 </div>

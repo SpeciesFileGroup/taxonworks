@@ -6,8 +6,9 @@ class TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary::Forgotten < T
 
   def self.disjoint_taxon_name_relationships
     self.parent.disjoint_taxon_name_relationships +
-        self.collect_to_s(TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary) +
-        self.collect_to_s(TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary::Suppressed)
+        self.collect_to_s(TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary,
+                          TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary::Suppressed) -
+        self.collect_to_s(TaxonNameRelationship::Iczn::Validating::UncertainPlacement)
   end
 
   def object_status
@@ -40,10 +41,16 @@ class TaxonNameRelationship::Iczn::Invalidating::Homonym::Primary::Forgotten < T
   end
 
   def sv_validate_priority
-    date1 = self.subject_taxon_name.nomenclature_date
-    date2 = self.object_taxon_name.nomenclature_date
+    date1 = self.subject_taxon_name.cached_nomenclature_date
+    date2 = self.object_taxon_name.cached_nomenclature_date
     if !!date1 && !!date2 && date1 > date2 && subject_invalid_statuses.empty?
       soft_validations.add(:type, "#{self.subject_status.capitalize} #{self.subject_taxon_name.cached_html_name_and_author_year} should not be younger than #{self.object_taxon_name.cached_html_name_and_author_year}")
+    end
+  end
+
+  def sv_synonym_relationship
+    unless self.source
+      soft_validations.add(:base, 'The original publication is not selected')
     end
   end
 end

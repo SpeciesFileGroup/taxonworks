@@ -1,10 +1,32 @@
 require 'rails_helper'
 
 describe 'IsDwcOccurrence', type: :model, group: :darwin_core do
+  include IsDwcOccurrenceHelper
 
   let(:class_with_dwc_occurrence) {TestIsDwcOccurrence.new}
   let(:collection_object) { FactoryBot.create(:valid_specimen) }
   let(:dwc_occurrence) {class_with_dwc_occurrence.dwc_occurrence}
+
+  describe '#dwc_otu_id' do
+    specify 'raises on unsupported includers' do
+      stub_const('UnsupportedIsDwcOccurrence', Class.new(ApplicationRecord) do
+        include FakeTable
+        include Shared::IsDwcOccurrence
+
+        DWC_OCCURRENCE_MAP = {}.freeze
+      end)
+
+      expect { UnsupportedIsDwcOccurrence.new.dwc_otu_id }
+        .to raise_error(NotImplementedError, /Unhandled dwc_otu_id for UnsupportedIsDwcOccurrence/)
+    end
+
+    specify 'does not raise for supported application classes' do
+      direct_is_dwc_occurrence_classes.each do |klass|
+        record = FactoryBot.create(valid_factory_for_class(klass).name)
+        expect { record.dwc_otu_id }.not_to raise_error
+      end
+    end
+  end
 
   specify '.dwc_attribute_vector' do
     expect(TestIsDwcOccurrence.dwc_attribute_vector.first).to eq(TestIsDwcOccurrence.arel_table[:id])
@@ -70,11 +92,11 @@ describe 'IsDwcOccurrence', type: :model, group: :darwin_core do
       expect(class_with_dwc_occurrence.dwc_occurrence_persisted?).to be_falsey
     end
 
-    specify 'a map between TW and DWC attributes is defined in DWC_OCCURRENCE_METADATA' do
+    specify 'a map between TW and DWC attributes is defined in DWC_OCCURRENCE_MAP' do
       expect(TestIsDwcOccurrence::DWC_OCCURRENCE_MAP).to be_truthy
     end
 
-    context 'DWC_OCCURRENCE_METADATA map is used to' do
+    context 'DWC_OCCURRENCE_MAP is used to' do
       before {class_with_dwc_occurrence.save!}
       specify 'generate #dwc_occurrence_attributes' do
         expect(class_with_dwc_occurrence.dwc_occurrence_attributes).to include(island: 'Gold', disposition: 'Old Men')
@@ -111,6 +133,11 @@ class TestIsDwcOccurrence < ApplicationRecord
     'Old Men'
   end
 
+  # This fake class exists to exercise the generic concern behavior, not the
+  # supported application-class switch inside Shared::IsDwcOccurrence#dwc_otu_id
+  # (i.e. don't use this class for any use relating to dwc_otu_id).
+  def dwc_otu_id
+    nil
+  end
+
 end
-
-

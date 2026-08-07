@@ -1,9 +1,26 @@
 # Vernacular Names extension class
 # Repository: http://rs.gbif.org/extension/gbif/1.0/vernacular.xml
 
-module Dwca::GbifProfile
+module Export::Dwca::GbifProfile
 
   class VernacularName
+    NAMESPACES = {
+      :taxonID => 'http://rs.tdwg.org/dwc/terms/taxonID',
+      :vernacularName => 'http://rs.tdwg.org/dwc/terms/vernacularName',
+      :source => 'http://purl.org/dc/terms/source',
+      :language => 'http://purl.org/dc/terms/language',
+      :temporal => 'http://purl.org/dc/terms/temporal',
+      :locationID => 'http://rs.tdwg.org/dwc/terms/locationID',
+      :locality => 'http://rs.tdwg.org/dwc/terms/locality',
+      :countryCode => 'http://rs.tdwg.org/dwc/terms/countryCode',
+      :sex => 'http://rs.tdwg.org/dwc/terms/sex',
+      :lifeStage => 'http://rs.tdwg.org/dwc/terms/lifeStage',
+      :isPlural => 'http://rs.gbif.org/terms/1.0/isPlural',
+      :isPreferredName => 'http://rs.gbif.org/terms/1.0/isPreferredName',
+      :organismPart => 'http://rs.gbif.org/terms/1.0/organismPart',
+      :taxonRemarks => 'http://rs.tdwg.org/dwc/terms/taxonRemarks'
+    }.freeze
+
     # taxonID (http://rs.tdwg.org/dwc/terms/taxonID)
     #
     # @return [String]
@@ -11,7 +28,7 @@ module Dwca::GbifProfile
     # taxon in the core data file to which this vernacular name points. This
     # identifier provides the link between the core data record and the
     # extension record.
-    attr_accessor :taxonID # [USED IN SF]
+    attr_accessor :taxonID
 
     # vernacularName (http://rs.tdwg.org/dwc/terms/vernacularName)
     #
@@ -20,7 +37,7 @@ module Dwca::GbifProfile
     #
     # Example: Andean Condor", "Condor Andino", "American Eagle",
     # "Gönsegeier"
-    attr_accessor :vernacularName # [USED IN SF]
+    attr_accessor :vernacularName
 
     # source (http://purl.org/dc/terms/source)
     #
@@ -37,15 +54,15 @@ module Dwca::GbifProfile
     # @return [String]
     # ISO 639-1 language code used for the vernacular name value.
     #
-    # Example: “ES”, “Spanish”, “Español”
-    attr_accessor :language # [USED IN SF]
+    # Example: "ES", "Spanish", "Español"
+    attr_accessor :language
 
     # temporal (http://purl.org/dc/terms/temporal)
     #
     # @return [String]
     # temporal context when name is/was used
     #
-    # Example: “19th Century”; 1950
+    # Example: "19th Century"; 1950
     attr_accessor :temporal
 
     # locationID (http://rs.tdwg.org/dwc/terms/locationID)
@@ -94,7 +111,7 @@ module Dwca::GbifProfile
     #
     # Vocabulary: http://rs.gbif.org/vocabulary/gbif/sex.xml
     #
-    # Example: “male”
+    # Example: "male"
     attr_accessor :sex
 
     # lifeStage (http://rs.tdwg.org/dwc/terms/lifeStage)
@@ -106,8 +123,8 @@ module Dwca::GbifProfile
     #
     # Vocabulary: http://rs.gbif.org/vocabulary/gbif/life_stage.xml
     #
-    # Example: ‘juvenile" is the life stage of the fish Pomatomus saltatrix
-    # for which the name "snapper blue" refers.’
+    # Example: 'juvenile" is the life stage of the fish Pomatomus saltatrix
+    # for which the name "snapper blue" refers.'
     attr_accessor :lifeStage
 
     # isPlural (http://rs.gbif.org/terms/1.0/isPlural)
@@ -138,7 +155,7 @@ module Dwca::GbifProfile
     #
     # Vocabulary: http://rs.gbif.org/vocabulary/basic/boolean.xml
     #
-    # Example: “True” “False”
+    # Example: "True" "False"
     attr_accessor :isPreferredName
 
     # organismPart (http://rs.gbif.org/terms/1.0/organismPart)
@@ -159,10 +176,10 @@ module Dwca::GbifProfile
     # A description of any context that qualify the specific usage of the
     # vernacular name.
     #
-    # Example: “This name applies only when the fruit has been blessed by
-    # a tribal shaman”
+    # Example: "This name applies only when the fruit has been blessed by
+    # a tribal shaman"
     attr_accessor :taxonRemarks
 
   end
-  
+
 end

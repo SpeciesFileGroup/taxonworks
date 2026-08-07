@@ -1,7 +1,7 @@
 class ControlledVocabularyTermsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_controlled_vocabulary_term, only: [:show, :edit, :update, :destroy, :depictions, :citations, :confidences]
+  before_action :set_controlled_vocabulary_term, only: [:show, :edit, :update, :destroy, :depictions, :citations, :confidences, :api_show]
 
   # GET /controlled_vocabulary_terms
   # GET /controlled_vocabulary_terms.json
@@ -42,7 +42,7 @@ class ControlledVocabularyTermsController < ApplicationController
         }
       else
         format.json {
-          render json: @controlled_vocabulary_term.errors, status: :unprocessable_entity
+          render json: @controlled_vocabulary_term.errors, status: :unprocessable_content
         }
       end
     end
@@ -54,7 +54,7 @@ class ControlledVocabularyTermsController < ApplicationController
       if @controlled_vocabulary_term.update(controlled_vocabulary_term_params)
         format.json { render :show, status: :ok, location: @controlled_vocabulary_term.metamorphosize }
       else
-        format.json { render json: @controlled_vocabulary_term.errors, status: :unprocessable_entity }
+        format.json { render json: @controlled_vocabulary_term.errors, status: :unprocessable_content }
       end
     end
   end
@@ -63,8 +63,24 @@ class ControlledVocabularyTermsController < ApplicationController
   def destroy
     @controlled_vocabulary_term.destroy
     respond_to do |format|
-      format.html { destroy_redirect @controlled_vocabulary_term }
-      format.json { head :no_content }
+      if @controlled_vocabulary_term.destroyed?
+        format.html { destroy_redirect @controlled_vocabulary_term, notice: 'OTU was successfully destroyed.' }
+        format.json { head :no_content}
+      else
+        format.html { destroy_redirect @controlled_vocabulary_term, notice: 'OTU was not destroyed, ' + @controlled_vocabulary_term.errors.full_messages.join('; ') }
+        format.json { render json: @controlled_vocabulary_term.errors, status: :unprocessable_content }
+      end
+    end
+  end
+
+  def clone_from_project
+    if ControlledVocabularyTerm.clone_from_project(
+        from_id: params[:project_id],
+        to_id: sessions_current_project_id,
+        klass: params[:target])
+      render json: {}, status: :ok
+    else
+      render json: {}, status: :unprocessable_content
     end
   end
 
@@ -95,7 +111,7 @@ class ControlledVocabularyTermsController < ApplicationController
   def autocomplete
     @controlled_vocabulary_terms = Queries::ControlledVocabularyTerm::Autocomplete.new(
       params.require(:term),
-      type: filter_params[:type],
+      controlled_vocabulary_term_type: filter_params[:type],
       project_id: sessions_current_project_id
     ).all
   end
@@ -103,14 +119,28 @@ class ControlledVocabularyTermsController < ApplicationController
   # GET /controlled_vocabulary_terms/download
   def download
     send_data(
-      Export::Download.generate_csv(ControlledVocabularyTerm.where(project_id: sessions_current_project_id)),
+      Export::CSV.generate_csv(ControlledVocabularyTerm.where(project_id: sessions_current_project_id)),
       type: 'text',
-      filename: "controlled_vocabulary_terms_#{DateTime.now}.csv")
+      filename: "controlled_vocabulary_terms_#{DateTime.now}.tsv")
   end
 
   # GET /controlled_vocabulary_terms/1/tagged_objects
   def tagged_objects
     set_controlled_vocabulary_term
+  end
+
+  # GET /api/v1/controlled_vocabulary_terms
+  def api_index
+    @controlled_vocabulary_terms = Queries::ControlledVocabularyTerm::Filter.new(params.merge!(api: true)).all
+      .where(project_id: sessions_current_project_id)
+      .page(params[:page])
+      .per(params[:per])
+    render '/controlled_vocabulary_terms/api/v1/index'
+  end
+
+  # GET /api/v1/controlled_vocabulary_terms/:id
+  def api_show
+    render '/controlled_vocabulary_terms/api/v1/show'
   end
 
   private
@@ -124,6 +154,7 @@ class ControlledVocabularyTermsController < ApplicationController
     params.require(:controlled_vocabulary_term).permit(:type, :name, :definition, :uri, :uri_relation, :css_color)
   end
 
+  # ! No corresponding filter.rb
   def filter_params
     params.permit(
       type: [],

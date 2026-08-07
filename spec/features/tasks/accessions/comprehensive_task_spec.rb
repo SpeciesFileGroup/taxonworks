@@ -33,9 +33,9 @@ describe 'Task - Comprehensive digitization', type: :feature, group: :collection
           fill_in('namespace-autocomplete', with: 'INHS')
 
           # TODO: Improve this. Possibly adding more HTML to easily identify fields.
-          catalog_number = find('#namespace-autocomplete').find(:xpath, '..')
+          catalog_number = find('.vue-autocomplete-list')
           catalog_number.find('li', text: 'INHS').hover.click
-          fill_in(id: "identifier-field", with: '1234')
+          fill_in(id: 'catalog-number-identifier-field', with: '1234')
 
           click_button 'Save'
 
@@ -46,7 +46,7 @@ describe 'Task - Comprehensive digitization', type: :feature, group: :collection
       end
 
       specify 'adds collecting events' do
-        fill_in "verbatim-locality", with: 'Somewhere over the rainbow'
+        fill_in 'verbatim-locality', with: 'Somewhere over the rainbow'
         click_button 'Save'
         expect(page).to have_text('Sequential uses: 1')
       end
@@ -55,7 +55,7 @@ describe 'Task - Comprehensive digitization', type: :feature, group: :collection
         let!(:o) { Otu.create!(name: 'Foo', by: @user, project: @project) } 
 
         specify 'adds taxon determinations' do
-          fill_in('determination-otu-autocomplete', with: 'Foo')
+          find('#taxon-determination-digitize .vue-otu-picker .vue-autocomplete-input').set('Foo')
 
           find('.vue-autocomplete-list li', text: 'Foo').hover.click
 

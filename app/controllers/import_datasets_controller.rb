@@ -19,6 +19,7 @@ class ImportDatasetsController < ApplicationController
   def import
     params.permit(:record_id, :retry_errored, filter: {})
 
+    @filters = params[:filter]
     @results = @import_dataset.import(5000, 100,
       retry_errored: params[:retry_errored],
       filters: params[:filter],
@@ -28,6 +29,9 @@ class ImportDatasetsController < ApplicationController
 
   # POST /import_datasets/1/stop_import.json
   def stop_import
+    params.permit(:record_id, :retry_errored, filter: {})
+
+    @filters = params[:filter]
     @import_dataset.stop_import
   end
 
@@ -52,7 +56,7 @@ class ImportDatasetsController < ApplicationController
         format.json { render :show, status: :created, location: @import_dataset.becomes(ImportDataset) }
       else
         format.html { render :new }
-        format.json { render json: @import_dataset.errors, status: :unprocessable_entity }
+        format.json { render json: @import_dataset.errors, status: :unprocessable_content }
       end
     end
   end
@@ -66,7 +70,7 @@ class ImportDatasetsController < ApplicationController
         format.json { render :show, status: :ok, location: @import_dataset.becomes(ImportDataset) }
       else
         format.html { render :edit }
-        format.json { render json: @import_dataset.errors, status: :unprocessable_entity }
+        format.json { render json: @import_dataset.errors, status: :unprocessable_content }
       end
     end
   end
@@ -85,22 +89,22 @@ class ImportDatasetsController < ApplicationController
 
   def list
     @import_datasets = ImportDataset.with_project_id(sessions_current_project_id).order(:id).page(params[:page])
-  end  
+  end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_import_dataset
-      @import_dataset = ImportDataset.where(project_id: sessions_current_project_id).find(params[:id])
-    end
+  def set_import_dataset
+    @import_dataset = ImportDataset.where(project_id: sessions_current_project_id).find(params[:id])
+  end
 
-    # Only allow a list of trusted parameters through.
-    def import_dataset_params
-      params.require(:import_dataset).permit(
-        :source,
-        :description,
-        import_settings: [
-          :nomenclatural_code,
-          :row_type
-        ])
-    end
+  def import_dataset_params
+    params.require(:import_dataset).permit(
+      :source,
+      :description,
+      import_settings: [
+        :nomenclatural_code,
+        :row_type,
+        :col_sep,
+        :quote_char
+      ])
+  end
 end

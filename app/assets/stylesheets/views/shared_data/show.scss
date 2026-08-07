@@ -1,9 +1,13 @@
 #show {
   /* Panel size for show view */
-  .item1 { 
+  .item1 {
     display: block;
-    width: 300px;
+    width: 350px;
     min-width: 270px;
+
+    .tw-autocomplete {
+      width: 100%;
+    }
   }
   .item3 {
     display: block;
@@ -17,13 +21,13 @@
     min-width: 450px;
   }
 
-  #related-panel { 
+  #related-panel {
     display: flex;
     min-width: 40%;
     flex: 1 100%;
   }
 
-  #annotations-panel { 
+  #annotations-panel {
     display: flex;
     min-width: 40%;
     flex: 1 auto;
@@ -45,45 +49,68 @@
     display: flex;
     min-width: 50%;
     flex: 1 auto;
-  } 
+  }
+
+  #vue-validation-panel {
+    .soft-validation-box {
+      height: 100%;
+      box-sizing: border-box;
+    }
+    margin-bottom: 1em;
+  }
 
   .fullSize {
     width: 100%;
     flex: 1 auto;
-  }   
+  }
 
-  .item { 
+  .item {
     word-wrap: break-word;
-    flex-direction:column;
+    flex-direction: column;
   }
 }
 
-.icn, .iczn {
+.icn,
+.iczn {
   color: $default_text;
   background: none;
 }
 
 mark {
   font-weight: 700;
-  background-color: transparent;
+  color: var(--color-on-attention);
+  background-color: var(--color-attention);
+  padding: 0 0.08em;
+  border-radius: 0.15em;
   a {
     font-weight: 700;
-  }        
+  }
+}
+
+// Italic text leans right into whatever follows it, and whatever comes before
+// leans into it; give marked text a little breathing room here so neither side
+// gets cut off.
+i mark,
+em mark,
+cite mark {
+  margin-left: 0.14em;
+  padding-right: 0.14em;
+  padding-left: 0;
 }
 
 .housekeeping {
   display: flex;
-  flex-direction:column;
+  flex-direction: column;
 }
 
 .attributes {
-  .easyzoom  {
+  .easyzoom {
     width: 100%;
 
     .imageZoom {
-      box-shadow: 0px 2px 3px 0px $navigation_border;
+      box-shadow: 0px 2px 3px 0px var(--border-color);
       max-width: 100%;
-    }                     
+    }
   }
 
   strong {
@@ -91,31 +118,27 @@ mark {
   }
   p {
     font-size: $font_normal;
-    color: $default_text;
   }
   a {
     font-size: $font_normal;
   }
 }
 
-
 .soft_validation {
   color: $soft_validation;
-  
+
   ul {
     list-style: none;
     padding: 0px;
   }
 
   li {
-    background-image: image-url("attention.svg");
-    background-repeat: no-repeat;  
-    background-position: left, center;   
+    background-image: image-url('attention.svg');
+    background-repeat: no-repeat;
+    background-position: left, center;
   }
 }
 
-[data-view="development"] {
+[data-view='development'] {
   display: none;
 }
-
-

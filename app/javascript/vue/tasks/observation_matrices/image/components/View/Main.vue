@@ -1,6 +1,6 @@
 <template>
   <div>
-    <spinner-component v-if="isLoading"/>
+    <spinner-component v-if="isLoading" />
     <div class="horizontal-left-content margin-medium-bottom">
       <filter-rank v-model="filters.identified_to_rank" />
       <filter-language
@@ -13,7 +13,8 @@
     <div>
       <button
         class="button normal-input button-default"
-        @click="resetView">
+        @click="resetView"
+      >
         Unhide
       </button>
     </div>
@@ -24,7 +25,8 @@
         0: '50px',
         1: '200px'
       }"
-      gap="4">
+      gap="4"
+    >
       <div />
       <div />
       <cell-header
@@ -35,7 +37,8 @@
       />
       <template
         v-for="(descriptor, index) in observationColumns"
-        :key="descriptor.id">
+        :key="descriptor.id"
+      >
         <cell-header
           v-if="!hideColumn.includes(index)"
           v-model="hideColumn"
@@ -45,24 +48,19 @@
       </template>
       <template
         v-for="(row, rIndex) in observationRows"
-        :key="rIndex">
+        :key="rIndex"
+      >
         <template v-if="!hideRows.includes(rIndex)">
           <div class="observation-cell">
-            <tippy
-              animation="scale"
-              placement="bottom"
-              size="small"
-              arrow-size="small"
-              inertia
-              arrow
-              content="Hide">
+            <VTooltip content="Hide">
               <input
                 type="checkbox"
                 v-model="hideRows"
-                :value="rIndex">
-            </tippy>
+                :value="rIndex"
+              />
+            </VTooltip>
           </div>
-          <div class="otu-cell padding-small">
+          <div class="otu-cell padding-small gap-small">
             <cell-link
               :label="row.object.object_tag"
               :row-object="row.object"
@@ -80,7 +78,8 @@
 
           <template
             v-for="(rCol, cIndex) in row.depictions"
-            :key="`${rIndex} ${cIndex}`">
+            :key="`${rIndex} ${cIndex}`"
+          >
             <cell-depiction
               v-if="!hideColumn.includes(cIndex)"
               class="observation-cell padding-small"
@@ -96,25 +95,24 @@
 </template>
 
 <script>
-
-import SpinnerComponent from 'components/spinner'
+import SpinnerComponent from '@/components/ui/VSpinner'
 import CellHeader from './CellHeader.vue'
-import RadialObject from 'components/radials/object/radial'
-import TableGrid from 'components/layout/Table/TableGrid.vue'
-import FilterLanguage from 'tasks/interactive_keys/components/Filters/Language'
-import FilterRank from 'tasks/interactive_keys/components/Filters/IdentifierRank'
+import RadialObject from '@/components/radials/object/radial'
+import TableGrid from '@/components/layout/Table/TableGrid.vue'
+import FilterLanguage from '@/tasks/interactive_keys/components/Filters/Language'
+import FilterRank from '@/tasks/interactive_keys/components/Filters/IdentifierRank'
 import CellDepiction from './CellDepiction.vue'
 import CellLink from '../CellLink.vue'
 
 import { GetterNames } from '../../store/getters/getters'
-import { Tippy } from 'vue-tippy'
+import VTooltip from '@/components/ui/VTooltip/VTooltip.vue'
 
 export default {
   components: {
     FilterLanguage,
     FilterRank,
     SpinnerComponent,
-    Tippy,
+    VTooltip,
     CellDepiction,
     CellHeader,
     RadialObject,
@@ -125,21 +123,17 @@ export default {
     matrixId: {
       type: [Number, String],
       default: undefined
-    },
-
-    otusId: {
-      type: [String, Array],
-      default: () => []
     }
   },
 
-  data () {
+  data() {
     return {
       hideColumn: [],
       hideRows: [],
       isLoading: false,
       rows: [],
-      filters: { // TODO: Move and create a filter in vuex store
+      filters: {
+        // TODO: Move and create a filter in vuex store
         language_id: undefined,
         identified_to_rank: undefined
       }
@@ -147,37 +141,41 @@ export default {
   },
 
   computed: {
-    columnsCount () {
-      return this.observationColumns.length - this.hideColumn.length + this.staticColumns
+    columnsCount() {
+      return (
+        this.observationColumns.length -
+        this.hideColumn.length +
+        this.staticColumns
+      )
     },
 
-    staticColumns () {
+    staticColumns() {
       return this.existingOTUDepictions ? 3 : 2
     },
 
-    observationColumns () {
+    observationColumns() {
       return this.$store.getters[GetterNames.GetObservationColumns]
     },
 
-    observationMatrix () {
+    observationMatrix() {
       return this.$store.getters[GetterNames.GetObservationMatrix]
     },
 
-    observationRows () {
+    observationRows() {
       return this.$store.getters[GetterNames.GetObservationRows]
     },
 
-    observationLanguages () {
+    observationLanguages() {
       return this.$store.getters[GetterNames.GetObservationLanguages]
     },
 
-    existingOTUDepictions () {
-      return this.observationRows.some(row => row.objectDepictions?.length)
+    existingOTUDepictions() {
+      return this.observationRows.some((row) => row.objectDepictions?.length)
     }
   },
 
   methods: {
-    resetView () {
+    resetView() {
       this.hideRows = []
       this.hideColumn = []
     }

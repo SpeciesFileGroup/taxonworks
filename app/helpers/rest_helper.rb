@@ -13,4 +13,10 @@ module RestHelper
     end
   end
 
+  def exclude_from_response(value)
+    if p = params.dig(:exclude)
+      return p.include?(value)
+    end
+  end
+
 end

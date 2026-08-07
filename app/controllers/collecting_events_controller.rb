@@ -2,7 +2,7 @@ class CollectingEventsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
   before_action :set_collecting_event, only: [:show, :edit, :update, :destroy, :card, :clone, :navigation]
-  after_action -> { set_pagination_headers(:collecting_events) }, only: [:index], if: :json_request?
+  after_action -> { set_pagination_headers(:collecting_events) }, only: [:index, :api_index], if: :json_request?
 
   # GET /collecting_events
   # GET /collecting_events.json
@@ -13,7 +13,9 @@ class CollectingEventsController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @collecting_events = Queries::CollectingEvent::Filter.new(filter_params).all.where(project_id: sessions_current_project_id).page(params[:page]).per(params[:per] || 500)
+        @collecting_events = Queries::CollectingEvent::Filter.new(params).all
+        .page(params[:page])
+        .per(params[:per])
       }
     end
   end
@@ -25,11 +27,12 @@ class CollectingEventsController < ApplicationController
 
   # GET /collecting_events/new
   def new
-    @collecting_event = CollectingEvent.new
+    redirect_to new_collecting_event_task_path, notice: 'Redirected to new interface.'
   end
 
   # GET /collecting_events/1/edit
   def edit
+    redirect_to new_collecting_event_task_path(collecting_event_id: @collecting_event.id), notice: 'Editing in new interface.'
   end
 
   # POST /collecting_events
@@ -42,21 +45,26 @@ class CollectingEventsController < ApplicationController
         format.json { render action: 'show', status: :created, location: @collecting_event }
       else
         format.html { render action: 'new' }
-        format.json { render json: @collecting_event.errors, status: :unprocessable_entity }
+        format.json { render json: @collecting_event.errors, status: :unprocessable_content }
       end
     end
   end
 
   # POST /collecting_events/1/clone.json
   def clone
-    @collecting_event = @collecting_event.clone
-    respond_to do |format|
-      if @collecting_event.persisted?
+    begin
+      @collecting_event = @collecting_event.clone(
+        annotations: params[:annotations],
+        incremented_identifier_id: params[:incremented_identifier_id]
+      )
+      respond_to do |format|
         format.html { redirect_to new_collecting_event_task_path(@collecting_event), notice: 'Clone successful, editing new record.' }
         format.json { render :show }
-      else
-        format.html { redirect_to new_collecting_event_task_path(@collecting_event), notice: 'Failed to clone the collecting event..' }
-        format.json {render json: @collecting_event.errors, status: :unprocessable_entity}
+      end
+    rescue TaxonWorks::Error => e
+      respond_to do |format|
+        format.html { redirect_to new_collecting_event_task_path, notice: e.message }
+        format.json { render json: e.message, status: :unprocessable_content }
       end
     end
   end
@@ -70,7 +78,7 @@ class CollectingEventsController < ApplicationController
         format.json { render :show, status: :ok, location: @collecting_event }
       else
         format.html { render action: 'edit' }
-        format.json { render json: @collecting_event.errors, status: :unprocessable_entity }
+        format.json { render json: @collecting_event.errors, status: :unprocessable_content }
       end
     end
   end
@@ -85,7 +93,7 @@ class CollectingEventsController < ApplicationController
         format.json { head :no_content }
       else
         format.html { destroy_redirect @collecting_event, notice: 'CollectingEvent was not destroyed: ' + @collecting_event.errors.full_messages.join('; ') }
-        format.json { render json: @collecting_event.errors, status: :unprocessable_entity }
+        format.json { render json: @collecting_event.errors, status: :unprocessable_content }
       end
     end
   end
@@ -104,8 +112,8 @@ class CollectingEventsController < ApplicationController
 
   def attributes
     render json: ::CollectingEvent.columns.select{
-      |a| Queries::CollectingEvent::Filter::ATTRIBUTES.include?(
-        a.name)
+      |a| ([:cached_level0_geographic_name, :cached_level1_geographic_name, :cached_level2_geographic_name ] + Queries::CollectingEvent::Filter::ATTRIBUTES).include?(
+        a.name.to_sym)
     }.collect{|b| {'name' => b.name, 'type' => b.type } }
   end
 
@@ -122,6 +130,20 @@ class CollectingEventsController < ApplicationController
     @collecting_events = Queries::CollectingEvent::Autocomplete.new(params[:term], project_id: sessions_current_project_id).autocomplete
   end
 
+  # PATCH /collecting_events/batch_update.json?collecting_event_query=<>&collecting_event={}
+  def batch_update
+    if r = CollectingEvent.batch_update(
+        preview: params[:preview],
+        collecting_event: collecting_event_params,
+        collecting_event_query: params[:collecting_event_query],
+        user_id: sessions_current_user_id,
+        project_id: sessions_current_project_id)
+      render json: r.to_json, status: :ok
+    else
+      render json: {}, status: :unprocessable_content
+    end
+  end
+
   # GET /collecting_events/autocomplete_collecting_event_verbatim_locality?term=asdf
   # see rails-jquery-autocomplete
   def autocomplete_collecting_event_verbatim_locality
@@ -132,9 +154,9 @@ class CollectingEventsController < ApplicationController
 
   # GET /collecting_events/download
   def download
-    send_data(Export::Download.generate_csv(CollectingEvent.where(project_id: sessions_current_project_id)),
+    send_data(Export::CSV.generate_csv(CollectingEvent.where(project_id: sessions_current_project_id)),
               type: 'text',
-              filename: "collecting_events_#{DateTime.now}.csv")
+              filename: "collecting_events_#{DateTime.now}.tsv")
   end
 
   # parse verbatim label, return date and coordinates
@@ -206,19 +228,19 @@ class CollectingEventsController < ApplicationController
 
   def preview_gpx_batch_load
     if params[:file]
-      @result = BatchLoad::Import::CollectingEvents::GpxInterpreter.new(**batch_params)
+      @result = BatchLoad::Import::CollectingEvents::GPXInterpreter.new(**batch_params)
       digest_cookie(params[:file].tempfile, :gpx_batch_load_collecting_events_md5)
       render 'collecting_events/batch_load/gpx/preview'
       # render '/shared/data/all/batch_load/preview'
     else
-      flash[:notice] = "No file provided!"
+      flash[:notice] = 'No file provided!'
       redirect_to action: :batch_load
     end
   end
 
   def create_gpx_batch_load
     if params[:file] && digested_cookie_exists?(params[:file].tempfile, :gpx_batch_load_collecting_events_md5)
-      @result = BatchLoad::Import::CollectingEvents::GpxInterpreter.new(**batch_params)
+      @result = BatchLoad::Import::CollectingEvents::GPXInterpreter.new(**batch_params)
       if @result.create
         flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} collecting events w/georeferences were created."
         render 'collecting_events/batch_load/gpx/create' and return
@@ -237,7 +259,7 @@ class CollectingEventsController < ApplicationController
   end
 
   def api_index
-    @collecting_events = Queries::CollectingEvent::Filter.new(api_params).all
+    @collecting_events = Queries::CollectingEvent::Filter.new(params.merge!(api: true)).all
       .where(project_id: sessions_current_project_id)
       .order('collecting_events.id')
       .page(params[:page]).per(params[:per])
@@ -269,16 +291,19 @@ class CollectingEventsController < ApplicationController
     params.require(:collecting_event).permit(
       :verbatim_label, :print_label, :print_label_number_to_print, :document_label,
       :verbatim_locality, :verbatim_date, :verbatim_longitude, :verbatim_latitude,
-      :verbatim_geolocation_uncertainty, :verbatim_trip_identifier, :verbatim_collectors,
+      :verbatim_geolocation_uncertainty, :verbatim_field_number, :verbatim_collectors,
       :verbatim_method, :geographic_area_id, :minimum_elevation, :maximum_elevation,
       :elevation_precision, :time_start_hour, :time_start_minute, :time_start_second,
       :time_end_hour, :time_end_minute, :time_end_second, :start_date_day,
       :start_date_month, :start_date_year, :end_date_day, :end_date_month,
       :group, :member, :formation, :lithology, :max_ma, :min_ma,
       :end_date_year, :verbatim_habitat, :field_notes, :verbatim_datum,
-      :verbatim_elevation,
-      roles_attributes: [:id, :_destroy, :type, :person_id, :position,
-                         person_attributes: [:last_name, :first_name, :suffix, :prefix]],
+      :verbatim_elevation, :meta_prioritize_geographic_area,
+      georeferences_attributes: [:type, :geographic_item_id, :error_radius,
+        :error_depth, :error_geographic_item, :is_public, :api_request,
+        :year_georeferenced, :month_georeferenced, :day_georeferenced], # batch add only use right now
+      roles_attributes: [:id, :_destroy, :type, :person_id, :position, :by,
+                         person_attributes: [:last_name, :first_name, :suffix, :prefix, :by]],
     identifiers_attributes: [:id, :namespace_id, :identifier, :type, :_destroy],
     data_attributes_attributes: [ :id, :_destroy, :controlled_vocabulary_term_id, :type, :attribute_subject_id, :attribute_subject_type, :value ]
     )
@@ -293,70 +318,4 @@ class CollectingEventsController < ApplicationController
         user_id: sessions_current_user_id,
         project_id: sessions_current_project_id).to_h.symbolize_keys
   end
-
-  def filter_params
-    params.permit(
-      Queries::CollectingEvent::Filter::ATTRIBUTES,
-      :collection_objects,
-      :collector_id,
-      :collector_ids_or,
-      :end_date,   # used in date range
-      :geo_json,
-      :geographic_area_id,
-      :in_labels,
-      :in_verbatim_locality,
-      :identifier,
-      :identifier_end,
-      :identifier_exact,
-      :identifier_start,
-      :identifiers,
-      :md5_verbatim_label,
-      :otu_id,
-      :partial_overlap_dates,
-      :radius,
-      :recent,
-      :spatial_geographic_areas,
-      :start_date, # used in date range
-      :wkt,
-      collecting_event_wildcards: [],
-      collector_id: [],
-      geographic_area_id: [],
-      keyword_id_and: [],
-      keyword_id_or: [],
-      otu_id: [],
-    )
-  end
-
-  def api_params
-    params.permit(
-      Queries::CollectingEvent::Filter::ATTRIBUTES,
-      :collection_objects,
-      :collector_id,
-      :collector_ids_or,
-      :end_date, # used in date range
-      :geo_json,
-      :geographic_area_id,
-      :identifier,
-      :identifier_end,
-      :identifier_exact,
-      :identifier_start,
-      :identifiers,
-      :in_labels,
-      :in_verbatim_locality,
-      :md5_verbatim_label,
-      :partial_overlap_dates,
-      :otu_id,
-      :radius,
-      :recent,
-      :spatial_geographic_areas,
-      :start_date, # used in date range
-      :wkt,
-      collector_id: [],
-      geographic_area_id: [],
-      keyword_id_and: [],
-      keyword_id_or: [],
-      otu_id: [],
-    )
-  end
-
 end

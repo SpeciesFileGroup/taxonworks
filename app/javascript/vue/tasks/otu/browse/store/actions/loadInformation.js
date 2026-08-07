@@ -1,46 +1,55 @@
 import ActionNames from './actionNames'
 import { MutationNames } from '../mutations/mutations'
-import { TaxonName } from 'routes/endpoints'
+import { TaxonName } from '@/routes/endpoints'
 
-export default ({ dispatch, commit, state }, otus) => {
-  const otuIds = otus.map(otu => otu.id)
+export default async ({ dispatch, commit, state }, otus) => {
+  const { currentOtu } = state
+  const otuIds = otus.map((otu) => otu.id)
+  const taxonNameIds = [
+    ...new Set(otus.map((otu) => otu.taxon_name_id))
+  ].filter(Boolean)
 
-  function loadOtuInformation (otu) {
-    const promises = []
-    return new Promise((resolve, reject) => {
+  await dispatch(ActionNames.LoadPreferences)
 
-      promises.push(dispatch(ActionNames.LoadBiologicalAssociations, otu.global_id))
-      promises.push(dispatch(ActionNames.LoadDepictions, otu.id))
-      promises.push(dispatch(ActionNames.LoadCommonNames, otu.id))
+  async function loadOtuInformation(otu) {
+    await Promise.all([
+      dispatch(ActionNames.LoadBiologicalAssociations, otu.id),
+      dispatch(ActionNames.LoadDepictions, otu.id),
+      dispatch(ActionNames.LoadConveyances, otu.id),
+      dispatch(ActionNames.LoadCommonNames, otu.id)
+    ])
+  }
 
-      Promise.all(promises).then(() => {
-        resolve()
-      })
+  if (currentOtu.taxon_name_id) {
+    await dispatch(ActionNames.LoadTaxonName, currentOtu.taxon_name_id)
+  }
+
+  dispatch(ActionNames.LoadDistribution, currentOtu.id)
+
+  if (taxonNameIds.length) {
+    TaxonName.all({
+      taxon_name_id: taxonNameIds
+    }).then((response) => {
+      commit(MutationNames.SetTaxonNames, response.body)
     })
   }
-  if (state.currentOtu.taxon_name_id) {
-    dispatch(ActionNames.LoadTaxonName, state.currentOtu.taxon_name_id)
-  }
-  TaxonName.where({ taxon_name_id: [...new Set(otus.map(otu => otu.taxon_name_id))] }).then(response => {
-    commit(MutationNames.SetTaxonNames, response.body)
-  })
 
   dispatch(ActionNames.LoadObservationDepictions, otus)
   dispatch(ActionNames.LoadDescendants, state.currentOtu)
-  dispatch(ActionNames.LoadPreferences)
 
   async function processArray(otus) {
     for (const item of otus) {
       await loadOtuInformation(item)
     }
 
-    dispatch(ActionNames.LoadCollectionObjects, otuIds).then(() => {
-      dispatch(ActionNames.LoadCollectingEvents, otuIds)
-    })
+    dispatch(ActionNames.LoadFieldOccurrences, otuIds)
 
     state.loadState.biologicalAssociations = false
     state.loadState.assertedDistribution = false
   }
   processArray(otus)
-  dispatch(ActionNames.LoadAssertedDistributions, state.otus.map(otu => otu.id))
+  dispatch(
+    ActionNames.LoadAssertedDistributions,
+    state.otus.map((otu) => otu.id)
+  )
 }

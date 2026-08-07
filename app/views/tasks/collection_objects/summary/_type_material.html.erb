@@ -1,0 +1,18 @@
+<h3> Type material </h3>
+<table>
+  <tr><th></th><th>Count</th><th> % total </th> </tr>
+  <tr>
+    <td> Type collection objects </td>
+    <td> <%= type_collection_objects = @collection_objects.joins(:type_materials).count -%> </td>
+    <td> 100 </td>
+  </tr>
+
+  <% TypeMaterial.where(project_id: sessions_current_project_id).select(:type_type).distinct.pluck(:type_type).sort.each do |t| -%>
+    <tr>
+      <td><%= t -%></td>
+      <td> <%= tot = @collection_objects.joins(:type_materials).where(type_materials: {type_type: t}).count -%> </td>
+      <td> <%= (100.0 * (tot.to_f / type_collection_objects.to_f)).round(2) -%> </td>
+    </tr>
+  <% end %>
+</table>
+

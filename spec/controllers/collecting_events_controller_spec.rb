@@ -67,7 +67,7 @@ describe CollectingEventsController, type: :controller do
   describe 'GET new' do
     it 'assigns a new collecting_event as @collecting_event' do
       get :new, params: {}, session: valid_session
-      expect(assigns(:collecting_event)).to be_a_new(CollectingEvent)
+      expect(response).to redirect_to(new_collecting_event_task_path)
     end
   end
 
@@ -163,20 +163,5 @@ describe CollectingEventsController, type: :controller do
     end
   end
 
-  describe 'DELETE destroy' do
-    it 'destroys the requested collecting_event' do
-      collecting_event = CollectingEvent.create! valid_attributes
-      expect {
-        delete :destroy, params: {id: collecting_event.to_param}, session: valid_session
-      }.to change(CollectingEvent, :count).by(-1)
-    end
-
-    it 'redirects to the collecting_events list' do
-      request.env['HTTP_REFERER'] = collecting_events_url
-      collecting_event = CollectingEvent.create! valid_attributes
-      delete :destroy, params: {id: collecting_event.to_param}, session: valid_session
-      expect(response).to redirect_to(collecting_events_url)
-    end
-  end
-
+  include_examples 'DELETE #destroy', CollectingEvent
 end

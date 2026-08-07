@@ -1,89 +1,102 @@
 <template>
-  <modal-component
-    @close="$emit('close', true)"
-    class="full_width">
+  <VModal
+    class="full_width"
+    @close="emit('close', true)"
+  >
     <template #header>
       <h3>New source from BibTeX</h3>
     </template>
     <template #body>
-      <spinner-component
-        v-if="creating"
+      <VSpinner
+        v-if="isCreating"
         :full-screen="true"
-        legend="Creating..."/>
-      <p>Creates a single record. For multiple records use a Source batch loader.</p>
-      <textarea 
+        legend="Creating..."
+      />
+      <p>
+        Creates a single record. For multiple records use a Source batch loader.
+      </p>
+      <textarea
+        ref="textarea"
         class="full_width"
         v-model="bibtexInput"
         placeholder="@article{naumann1988ambositrinae,
-          title={Ambositrinae (Insecta: Hymenoptera: Diapriidae)},
-          author={Naumann, Ian D},
-          journal={Fauna of New Zealand},
-          volume={15},
-          year={1988}
-      }"/>
+  title={Ambositrinae (Insecta: Hymenoptera: Diapriidae)},
+  author={Naumann, Ian D},
+  journal={Fauna of New Zealand},
+  volume={15},
+  year={1988}
+}"
+      />
     </template>
     <template #footer>
-      <div class="flex-separate separate-top">
-        <button
-          @click="createSource"
-          :disabled="!bibtexInput.length"
-          class="button normal-input button-default"
-          type="button">
-          Create
-        </button>
-      </div>
+      <VBtn
+        color="create"
+        medium
+        :disabled="!bibtexInput.length"
+        @click="createSource"
+      >
+        Create
+      </VBtn>
     </template>
-  </modal-component>
+  </VModal>
 </template>
 
-<script>
+<script setup>
+import { ref, nextTick, onMounted, useTemplateRef } from 'vue'
+import { useSourceStore } from '../store'
+import { Source, Serial } from '@/routes/endpoints'
+import VSpinner from '@/components/ui/VSpinner'
+import VModal from '@/components/ui/Modal'
+import VBtn from '@/components/ui/VBtn/index.vue'
 
-import SpinnerComponent from 'components/spinner'
-import ModalComponent from 'components/ui/Modal'
-import { MutationNames } from '../store/mutations/mutations'
-import { ActionNames } from '../store/actions/actions'
-import { Source } from 'routes/endpoints'
+const emit = defineEmits(['close'])
 
-export default {
-  components: {
-    ModalComponent,
-    SpinnerComponent
-  },
+const store = useSourceStore()
+const bibtexInput = ref('')
+const isCreating = ref(false)
+const textareaRef = useTemplateRef('textarea')
 
-  emits: ['close'],
+onMounted(() => {
+  nextTick(() => {
+    textareaRef.value.focus()
+  })
+})
 
-  data () {
-    return {
-      bibtexInput: '',
-      creating: false,
-      recentCreated: []
-    }
-  },
+function createSource() {
+  isCreating.value = true
+  store.reset()
+  Source.create({ bibtex_input: bibtexInput.value })
+    .then(({ body }) => {
+      bibtexInput.value = ''
+      store.reset()
+      store.setSource(body)
 
-  methods: {
-    createSource () {
-      this.creating = true
-      this.$store.dispatch(ActionNames.ResetSource)
-      Source.create({ bibtex_input: this.bibtexInput }).then(response => {
-        this.bibtexInput = ''
-        this.$emit('close', true)
-        this.$store.commit(MutationNames.SetSource, response.body)
-        TW.workbench.alert.create('New source from BibTeX created.', 'notice')
-      }, () => {
-        TW.workbench.alert.create('Wrong data', 'error')
-      }).finally(() => {
-        this.creating = false
-      })
-    }
-  }
+      if (body.journal) {
+        Serial.where({ name: body.journal }).then(({ body }) => {
+          const [serial] = body
+
+          if (serial) {
+            store.source.serial_id = serial.id
+            store.source.isUnsaved = true
+          }
+        })
+      }
+
+      emit('close', true)
+      TW.workbench.alert.create('New source from BibTeX created.', 'notice')
+    })
+    .catch(() => {})
+    .finally(() => {
+      isCreating.value = false
+    })
 }
 </script>
 
 <style scoped>
-  :deep(.modal-container) {
-    width: 500px;
-  }
-  textarea {
-    height: 200px;
-  }
+:deep(.modal-container) {
+  width: 500px;
+}
+textarea {
+  height: 200px;
+}
 </style>

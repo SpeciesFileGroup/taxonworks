@@ -4,7 +4,7 @@
 # !! or `build` may not inherit correctly (would otherwise need to be above `def initialize`
 class Catalog::Entry
 
-  # The target object for this entry
+  # The target object(s) for this entry
   attr_accessor :object
 
   # @return [Array]
@@ -25,7 +25,7 @@ class Catalog::Entry
   attr_accessor :sources
 
   # @return [Array]
-  # All Topics observed for this entry 
+  # All Topics observed for this entry
   attr_accessor :topics
 
   # @return [Array]
@@ -37,15 +37,15 @@ class Catalog::Entry
   def initialize(object, sort_order = [])
     @object = object
     @items = []
-    @sort_order = sort_order 
+    @sort_order = sort_order
     build
     index_items
   end
 
-  # Redefined in subclasses! 
-  # !! This is default only, it should be defined in subclasses.
+  # Redefined in subclasses!
+  # !! This is default only, it should be (re)defined in subclasses.
   def build
-    @items << Catalog::EntryItem.new(object: object, citation: object.origin_citation )
+    @items << Catalog::EntryItem.new(object:, citation: object.origin_citation)
     true
   end
 
@@ -79,7 +79,7 @@ class Catalog::Entry
   # @return Boolean
   # Returns true if
   #   * it's the only item with this object
-  #   * it's the last citation chronologically 
+  #   * it's the last citation chronologically
   # Inversely, returns false in all other cases:
   def last_item?(item)
     o = items_by_object(item.object)
@@ -131,13 +131,13 @@ class Catalog::Entry
     [dates.first, dates.last].compact
   end
 
-  # @return [Scope]
+  # @return [Array]
   def dates
     @dates ||= all_dates
     @dates
   end
 
-  # @return [Scope]
+  # @return [Array]
   def sources
     @sources ||= all_sources
     @sources
@@ -155,7 +155,7 @@ class Catalog::Entry
     end
     h
   end
- 
+
   def to_json
     return {
       item_count: items.count,
@@ -168,38 +168,51 @@ class Catalog::Entry
   def coordinate_entry_items
   end
 
+  def citations
+    @citations ||= all_citations
+    @citations
+  end
+
   protected
 
   # @return [Array of Source]
+  #
+  # Here .source is item.source, not item.object.source, i.e.
+  # it comes from a specific citation, not one of many citations
+  # for the object.
+  #
   # !! Redefined in some subclasses
   def all_sources
-    items.collect{|i| i.source} || []
+    items.collect{|i| i.source}.compact
   end
 
-  # @return [Array]
-  # Some duplication here 
+  def all_citations
+    items.map(&:citation).compact
+  end
+
+  # @return [Array of Date] # !! not Time
+  # Some duplication here
   def all_dates
     d = []
     sources.each do |s|
-      d.push s.nomenclature_date # was cached_nomenclature_date (a Date)
+      d.push s.cached_nomenclature_date
     end
 
     items.each do |i|
       d.push i.nomenclature_date
     end
-    
+
     d.compact.uniq.sort
   end
 
   # @return [Array of Topics]
   def all_topics
-    t = []
-    sources.each do |s|
-      t.push topics_for_source(s)
-    end
-    t.flatten.uniq.compact.sort
+    # Optimized: collect topics directly from items instead of O(n²) iteration through sources
+    items.flat_map(&:topics).uniq.compact.sort
   end
 end
 
 require_dependency Rails.root.to_s + '/lib/catalog/nomenclature/entry.rb'
 require_dependency Rails.root.to_s + '/lib/catalog/otu/entry.rb'
+
+# require_dependency Rails.root.to_s + '/lib/catalog/distribution/entry.rb'

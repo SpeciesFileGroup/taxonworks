@@ -1,3 +1,3 @@
 json.array!(@descriptors) do |descriptor|
-  json.partial! 'attributes', descriptor: descriptor
+  json.partial! '/descriptors/attributes', descriptor: descriptor
 end

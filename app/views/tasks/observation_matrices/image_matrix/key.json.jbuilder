@@ -13,18 +13,45 @@ json.row_id_filter_array @key.row_id_filter_array
 json.otu_filter @key.otu_filter
 json.otu_id_filter_array @key.otu_id_filter_array
 json.identified_to_rank @key.identified_to_rank
+
+json.pagination @key, :pagination_page, :pagination_per_page, :pagination_total, :pagination_total_pages, :pagination_next_page, :pagination_previous_page
+
 json.list_of_descriptors @key.list_of_descriptors.sort_by {|k, v| v[:index]}.map { |k, v| v }
-json.image_hash @key.image_hash
-#json.depiction_matrix @key.depiction_matrix
+json.image_hash do 
+  @key.image_hash.each do |id, data|
+    json.set! id do
+      json.image do
+        i = data[:image]
+
+        json.extract! i, :id, :image_file_file_name, :image_file_file_size, :image_file_content_type, :user_file_name, :height, :width
+        json.global_id i.to_global_id.to_s
+        json.original_url i.image_file.url
+        json.medium_url i.image_file.url(:medium)
+        json.thumb_url i.image_file.url(:thumb)
+      end
+
+      json.citations data[:citations] do |citation|
+        json.extract! citation, :id, :citation_object_id, :citation_object_type, :cached, :cached_author_string, :source_id, :pages, :is_original, :year, :created_by_id, :updated_by_id, :project_id
+        json.global_id citation.to_global_id.to_s
+      end
+    end
+  end
+end
 
 json.depiction_matrix (@key.depiction_matrix) do |d, v|
   json.object do
-    json.partial! '/shared/data/all/metadata', object: v[:object]
+    json.object_tag object_tag(v[:object])
+    json.global_id v[:object].to_global_id.to_s
+    json.base_class v[:object].class.base_class.name
     json.merge! v[:object].attributes
   end
-  # json.extract! v, :object
   json.extract! v, :row_id
-  json.extract! v, :depictions
+  json.depictions (v[:depictions]) do |depiction|
+    json.array! depiction do |d|
+      json.extract! d, :id, :depiction_object_id, :depiction_object_type, :image_id, :caption, :figure_label
+      json.global_id d.to_global_id.to_s
+    end
+  end
 end
 
 if @key.observation_matrix

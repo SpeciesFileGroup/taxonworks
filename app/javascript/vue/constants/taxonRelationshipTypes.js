@@ -7,3 +7,4 @@ export const TAXON_RELATIONSHIP_ORIGINAL_SUBVARIETY = 'TaxonNameRelationship::Or
 export const TAXON_RELATIONSHIP_ORIGINAL_FORM = 'TaxonNameRelationship::OriginalCombination::OriginalForm'
 export const TAXON_RELATIONSHIP_ORIGINAL_SUBFORM = 'TaxonNameRelationship::OriginalCombination::OriginalSubform'
 export const TAXON_RELATIONSHIP_CURRENT_COMBINATION = 'TaxonNameRelationship::CurrentCombination'
+export const TAXON_RELATIONSHIP_FAMILY_GROUP_NAME_FORM = 'TaxonNameRelationship::Iczn::Invalidating::Usage::FamilyGroupNameForm'

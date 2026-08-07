@@ -10,7 +10,7 @@ class ProjectMembersController < ApplicationController
 
   # GET /project_members.json
   def index
-    @project_members = ProjectMember.joins(:user).where(project_id: sessions_current_project_id).order('users.name ASC')
+    @project_members = ProjectMember.joins(:user).where(project_id: sessions_current_project_id).order('users.name ASC').eager_load(:user, :project)
   end
 
   # GET /project_members/new
@@ -30,7 +30,7 @@ class ProjectMembersController < ApplicationController
     respond_to do |format|
       if @project_member.save
         format.html { redirect_to project_path(@project_member.project),
-                      notice: "User #{@project_member.user.name}' was successfully added to #{@project_member.project.name}." }
+                      notice: "User #{@project_member.user.name} was successfully added to #{@project_member.project.name}." }
       else
         set_available_users
         format.html { render action: 'new' }
@@ -43,7 +43,7 @@ class ProjectMembersController < ApplicationController
     begin
       ApplicationRecord.transaction do
         project_members_params.each do |user_id|
-          @member_project.project_members.create!(project_member_params.merge(user_id: user_id))
+          @member_project.project_members.create!(project_member_params.merge(user_id:))
         end
       end
 
@@ -69,18 +69,18 @@ class ProjectMembersController < ApplicationController
         format.json { render :show, status: :ok, location: @project_member }
       else
         format.html { render :edit }
-        format.json { render json: @project_member.errors, status: :unprocessable_entity }
+        format.json { render json: @project_member.errors, status: :unprocessable_content }
       end
     end
   end
 
   # PATCH /project_members/1/update_clipboard.json
   def update_clipboard
-    @project_member = sessions_current_user.project_members.where(project_id: sessions_current_project_id).first  
+    @project_member = sessions_current_user.project_members.where(project_id: sessions_current_project_id).first
     if @project_member.update( params.require(:project_member).permit(clipboard: {}) )
-      render :show, status: :ok, location: @project_member 
+      render :show, status: :ok, location: @project_member
     else
-      render json: @project_member.errors, status: :unprocessable_entity 
+      render json: @project_member.errors, status: :unprocessable_content
     end
   end
 

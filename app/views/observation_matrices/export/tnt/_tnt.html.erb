@@ -10,16 +10,16 @@ xread
 <% if m.continuous_descriptors.any? -%>
 <%= as_file ? '&'.html_safe : '&' -%>[continuous]
 <% m.observation_matrix_rows.each do |r| -%>
-  <%= observation_matrix_row_label(r).ljust(col_width) -%>
-  <% m.continuous_descriptors.each do |d| %><%= observations_cell_label(observations_hash, d, r.row_object_global_id, :tnt) %><% end -%>
+  <%= observation_matrix_row_label_tnt(r).ljust(col_width) -%>
+  <% m.continuous_descriptors.each do |d| %><%= observations_cell_label(observations_hash, d, r.observation_index, :tnt) %><% end -%>
 <% end %>
 <% end -%>
 <% if m.qualitative_descriptors.load.any? -%>
 <%= ((as_file ? '&'.html_safe : '&') + '[numeric]') if m.continuous_descriptors.any? -%>
 
 <% m.observation_matrix_rows.each do |r| %>
-  <%= observation_matrix_row_label(r).ljust(col_width) -%>
-  <% (m.qualitative_descriptors + m.presence_absence_descriptors).each do |d| %><%= observations_cell_label(observations_hash, d, r.row_object_global_id, :tnt) %><% end -%>
+  <%= observation_matrix_row_label_tnt(r).ljust(col_width) -%>
+  <% (m.qualitative_descriptors + m.presence_absence_descriptors).each do |d| %><%= observations_cell_label(observations_hash, d, r.observation_index, :tnt) %><% end -%>
 <% end -%>
 <% end -%>
 ;

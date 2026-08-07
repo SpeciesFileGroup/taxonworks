@@ -8,40 +8,47 @@
       2: collapseColumns.includes('otu') ? '40px' : 'auto',
       ...hideColumns
     }"
-    gap="4">
+    gap="4"
+  >
     <div>
       <div class="header-cell">
         <label class="header-label">Collapse</label>
       </div>
     </div>
-    <div/>
+    <div />
     <div v-show="existingOTUDepictions">
       <div class="header-cell">
         <label
           class="header-label cursor-pointer ellipsis"
-          title="OTU depictions">
+          title="OTU depictions"
+        >
           <input
             type="checkbox"
             value="otu"
-            v-model="collapseColumns">
+            v-model="collapseColumns"
+          />
           OTU depictions
         </label>
       </div>
     </div>
     <template
       v-for="(column, index) in imageColums"
-      :key="column.id">
+      :key="column.id"
+    >
       <div
         class="header-cell"
-        :class="{ 'collapse-cell': collapseColumns.includes(index)}">
+        :class="{ 'collapse-cell': collapseColumns.includes(index) }"
+      >
         <div class="header-cell">
           <label
             class="header-label cursor-pointer ellipsis"
-            :title="column.name">
+            :title="column.name"
+          >
             <input
               type="checkbox"
               :value="index"
-              v-model="collapseColumns">
+              v-model="collapseColumns"
+            />
             {{ column.name }}
           </label>
         </div>
@@ -49,16 +56,16 @@
     </template>
     <template
       v-for="(row, rowIndex) in rows"
-      :key="row.object.id">
-      <div
-        class="observation-cell">
+      :key="row.object.id"
+    >
+      <div class="observation-cell">
         <input
           type="checkbox"
           :value="rowIndex"
-          v-model="collapseRows">
+          v-model="collapseRows"
+        />
       </div>
-      <div
-        class="otu-cell padding-small">
+      <div class="otu-cell padding-small">
         <cell-link
           :row-object="row.object"
           :label="row.object.object_tag"
@@ -69,32 +76,36 @@
         class="observation-cell padding-small edit-cell"
         :show="!filterCell('otu', rowIndex)"
         :depictions="row.objectDepictions || []"
-        @removeDepiction="removeOtuDepiction({ rowIndex, index: $event })"/>
+        @remove-depiction="removeOtuDepiction({ rowIndex, index: $event })"
+      />
       <template
         v-for="(depictions, columnIndex) in row.depictions"
-        :key="`${columnIndex} ${row.object.id}`">
-        <div class="observation-cell padding-small edit-cell">
-          <cell-observation
-            class="full_width"
-            :column="imageColums[columnIndex]"
-            :show="!filterCell(columnIndex, rowIndex)"
-            :row-object="row.object"
-            :depictions="depictions"
-            @addDepiction="addDepiction({ rowIndex, columnIndex, depiction: $event })"
-            @removeDepiction="removeDepiction({ rowIndex, columnIndex, index: $event })"/>
-        </div>
+        :key="`${columnIndex}-${row.object.id}`"
+      >
+        <cell-observation
+          class="observation-cell padding-small edit-cell full_width"
+          :descriptor-id="imageColums[columnIndex].id"
+          :show="!filterCell(columnIndex, rowIndex)"
+          :row-object="row.object"
+          :depictions="depictions"
+          :column-index="columnIndex"
+          :row-index="rowIndex"
+          @remove-depiction="
+            removeDepiction({ rowIndex, columnIndex, index: $event })
+          "
+        />
       </template>
     </template>
   </table-grid>
 </template>
 
 <script>
-
 import CellObservation from './CellObservation.vue'
 import CellDepiction from './CellDepiction'
-import TableGrid from 'components/layout/Table/TableGrid'
+import TableGrid from '@/components/layout/Table/TableGrid'
 import CellLink from './CellLink.vue'
 import { MutationNames } from '../store/mutations/mutations'
+import { DESCRIPTOR_MEDIA } from '@/constants/index'
 
 export default {
   components: {
@@ -107,15 +118,15 @@ export default {
   props: {
     rows: {
       type: Array,
-      default: () => ([])
+      default: () => []
     },
     columns: {
       type: Array,
-      default: () => ([])
+      default: () => []
     }
   },
 
-  data () {
+  data() {
     return {
       collapseRows: [],
       collapseColumns: []
@@ -123,47 +134,47 @@ export default {
   },
 
   computed: {
-    hideColumns () {
-      return Object.assign({}, ...this.collapseColumns.map(position => ({ [position + this.staticColumns]: '40px' })))
+    hideColumns() {
+      return Object.assign(
+        {},
+        ...this.collapseColumns.map((position) => ({
+          [position + this.staticColumns]: '40px'
+        }))
+      )
     },
 
-    imageColums () {
-      return this.columns.filter(column => column.type === 'Descriptor::Media')
+    imageColums() {
+      return this.columns.filter((column) => column.type === DESCRIPTOR_MEDIA)
     },
 
-    staticColumns () {
+    staticColumns() {
       return this.existingOTUDepictions ? 3 : 2
     },
 
-    existingOTUDepictions () {
-      return this.rows.some(row => row.objectDepictions?.length)
+    existingOTUDepictions() {
+      return this.rows.some((row) => row.objectDepictions?.length)
     }
   },
 
   methods: {
-    reset () {
+    reset() {
       this.collapseRows = []
       this.collapseColumns = []
     },
 
-    collapseAll () {
+    collapseAll() {
       this.collapseRows = [...Array(this.rows.length).keys()]
       this.collapseColumns = ['otu', ...Array(this.columns.length).keys()]
     },
 
-    filterCell (cIndex, index) {
-      return this.collapseColumns.includes(cIndex) || this.collapseRows.includes(index)
+    filterCell(cIndex, index) {
+      return (
+        this.collapseColumns.includes(cIndex) ||
+        this.collapseRows.includes(index)
+      )
     },
 
-    addDepiction ({ rowIndex, columnIndex, depiction }) {
-      this.$store.commit(MutationNames.AddDepiction, {
-        rowIndex,
-        columnIndex,
-        depiction
-      })
-    },
-
-    removeDepiction ({ rowIndex, columnIndex, index }) {
+    removeDepiction({ rowIndex, columnIndex, index }) {
       this.$store.commit(MutationNames.RemoveDepiction, {
         rowIndex,
         columnIndex,
@@ -171,7 +182,7 @@ export default {
       })
     },
 
-    removeOtuDepiction ({ rowIndex, index }) {
+    removeOtuDepiction({ rowIndex, index }) {
       this.$store.commit(MutationNames.RemoveOtuDepiction, {
         rowIndex,
         index
@@ -185,17 +196,18 @@ export default {
 #vue-matrix-image {
   .observation-cell {
     display: flex;
-    align-items: center;
+    align-items: stretch;
     justify-content: center;
     flex-direction: column;
-    background-color: white;
+    background-color: var(--bg-foreground);
+    box-sizing: border-box;
   }
 
   .otu-cell {
     display: flex;
     align-items: center;
     justify-content: left;
-    background-color: white;
+    background-color: var(--bg-foreground);
   }
 
   .header-label {
@@ -217,7 +229,7 @@ export default {
   }
 
   .otu_tag_taxon_name {
-    white-space: normal
+    white-space: normal;
   }
 
   .ellipsis {

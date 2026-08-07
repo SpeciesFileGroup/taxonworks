@@ -1,109 +1,115 @@
-<h1 class="task_header"> Browse nomenclature </h1>
+<div id="browse-nomenclature" class="browse-view margin-medium-top" data-taxon-id="<%= @taxon_name.id %>">
+  <div>
+    <div class="browse-nomenclature-navbar panel content sticky-navbar">
+      <div class="flex-separate middle">
 
-<div id="browse-view" data-taxon-id="<%= @taxon_name.id %>">
-  <div class="panel content">
-    <div class="flex-separate middle">
+        <div class="middle">
+          <div
+              class="separate-right"
+              id="vue-browse-nomenclature-search"></div>
 
-      <div class="middle">
-        <div
-          class="separate-right"
-          id="vue-browse-nomenclature-search"></div>
-
-        <div class="separate-left separate-right">
-        <%= render('/taxon_names/breadcrumb_navigator', taxon_name: @taxon_name, target: :browse_nomenclature_task_path) -%>
+          <div class="separate-left separate-right">
+            <%= render('/taxon_names/breadcrumb_navigator', taxon_name: @taxon_name, target: :browse_nomenclature_task_path) -%>
+          </div>
         </div>
-      </div>
 
-      <span class="right_float flex-separate middle">
-        <span class="margin-medium-right">OTU</span>
-        <div class="square-brackets">
-          <ul class="no_bullets context-menu">
-            <li><%= browse_otu_link(@taxon_name) %></li>
-            <li><%= otus_radial_disambiguate(@taxon_name) %></li>
+        <span class="right_float flex-separate middle">
+          <span class="margin-medium-right">OTU</span>
+          <div class="square-brackets">
+            <ul class="no_bullets context-menu">
+              <li><%= radial_annotator_otu(@taxon_name) %></li>
+              <li><%= browse_otu_link(@taxon_name) %></li>
+              <li><%= otus_radial_disambiguate(@taxon_name) %></li>
+            </ul>
+          </div>
+          <ul class="context-menu">
+            <li><%= radial_annotator(@taxon_name, annotations_exist(@taxon_name)) %></li>
+            <li><%= confidence_default_icon(@taxon_name) %></li>
+            <li><%= tag_default_icon(@taxon_name) %></li>
+            <li><%= pin_item_to_pinboard_link(@taxon_name, sessions_current_user) %></li>
+            <li>
+              <a 
+                class="circle-button btn-edit edit-taxon-name" 
+                href="<%= new_taxon_name_task_path(taxon_name_id: @taxon_name.id) %>" 
+                data-tooltip-content="Edit Taxon Name"
+                data-tooltip-placement="bottom"
+              ></a>
+            </li>
+            <li><%= radial_navigation_tag(@taxon_name) %></li>
           </ul>
-        </div>
-        <ul class="context-menu">
-          <li><%= radial_annotator(@taxon_name, annotations_exist(@taxon_name)) %></li>
-          <li><%= confidence_default_icon(@taxon_name) %></li>
-          <li><%= tag_default_icon(@taxon_name) %></li>
-          <li><%= pin_item_to_pinboard_link(@taxon_name, sessions_current_user) %></li>
-          <li>
-            <a class="circle-button btn-edit edit-taxon-name" href="<%= new_taxon_name_task_path(taxon_name_id: @taxon_name.id) %>"></a>
-          </li>
-          <li><%= radial_navigation_tag(@taxon_name) %></li>
-        </ul>
-      </span>    
+        </span>
+      </div>
     </div>
   </div>
 
-  <div id="show" class="panels-container">
-    <div class="item item1 nav-column">
-      <div class="panel separate-right">
-        <%= render('/taxon_names/parent_navigator', taxon_name: @taxon_name, target: :browse_nomenclature_task_path) -%>
-      </div>
+  <div id="show" class="panels-container gap-medium">
+    <div class="nav-column">
+    <div 
+      class="nav-column sticky-navbar panel" 
+      data-relative-to=".browse-nomenclature-navbar"
+      data-sticky-classes="margin-medium-top"
+    >
+      <%= render('taxonomic_tree', taxon_name: @taxon_name, target: :browse_nomenclature_task_path) -%>
+    </div>
     </div>
 
-    <div class="item item2 separate-bottom">
-      <div class="flexbox separate-bottom">
-        <div class="panel separate-left separate-right">
-          <div>
-            <div id="browse-nomenclature-taxon-name" class="content subtitle filter middle"> 
+        <div class="panel full_width">
+          <div id="browse-nomenclature-taxon-name" class="content subtitle filter middle <%= @taxon_name.is_valid? ? '' : 'invalid' %>">
             <h3 class="item center_text">
-              <%= content_tag(:span, rank_tag(@taxon_name), class: :subtle) -%>
-              <%= content_tag(:span, full_taxon_name_tag(@taxon_name), class: :name) -%>
+              <%= tag.span(rank_tag(@taxon_name), class: :subtle) -%>
+              <%= tag.span(full_taxon_name_tag(@taxon_name), class: :name) -%>
+              <%= tag.span(taxon_name_inferred_combination_tag(@taxon_name), class: :subtle) -%>
             </h3>
-            </div>
-            <div class="horizontal-center-content filter">
-              <div id="filterBrowse_button" class="circle-button open" title="Reveal metadata and filter timeline"></div>
-            </div>
-            <%= render "filter" %>
-            <div class="content">
-              <div class="attributes"> 
-                <h3>History (<%= @data.ordered_by_nomenclature_date.length  -%>)</h3>
-                <ul class="taxonomic_history">
-                  <% @data.ordered_by_nomenclature_date.each do |c| -%>
-                    <%= nomenclature_catalog_li_tag(c, @data.object, :browse_nomenclature_task_path) -%> 
+          </div>
+          <div class="horizontal-center-content filter">
+            <div id="filterBrowse_button" class="circle-button open" title="Reveal metadata and filter timeline"></div>
+          </div>
+          <%= render "filter" %>
+          <div class="content">
+            <div class="attributes">
+              <h3>History (<%= @data.ordered_by_nomenclature_date.length  -%>)</h3>
+              <ul class="taxonomic_history">
+                <% @data.ordered_by_nomenclature_date.each do |c| -%>
+                  <%= nomenclature_catalog_li_tag(c, @data.object, :browse_nomenclature_task_path) -%>
+                <% end %>
+              </ul>
+              <br/>
+              <% if @data.sources.any? %>
+                <%= content_tag(:h3, 'References')-%>
+                <ul class="citations">
+                  <% @data.sources.each do |s| -%>
+                    <%= content_tag(:li, source_nomenclature_tag(s, @data.topics_for_source(s))) -%>
                   <% end %>
                 </ul>
-                <br/>
-                <% if @data.sources.any? %> 
-                  <%= content_tag(:h3, 'References')-%>
-                  <ul class="citations">
-                    <% @data.sources.each do |s| -%>
-                      <%= content_tag(:li, source_nomenclature_tag(s, @data.topics_for_source(s)), class: 'horizontal-left-content') -%>
-                    <% end %> 
-                  </ul>                          
-                <% end %>
-              </div>
+              <% end %>
             </div>
           </div>
         </div>
+
+
         <div id="third-column">
-          <div class="flex-wrap-row margin-small-left"> 
+          <div class="flex-wrap-row">
             <%= render "summary" %>
             <%= render "soft_validation" %>
             <%= annotations_summary_tag(@taxon_name) %>
             <div class="panel content fullSize">
               <div class="attributes">
-                <%= render(partial: '/shared/data/all/show/housekeeping', locals: {object: @taxon_name}) -%> 
+                <%= render(partial: '/shared/data/all/show/housekeeping', locals: {object: @taxon_name}) -%>
               </div>
             </div>
           </div>
+
+          <% if @taxon_name.depictions.any? %>
+            <div>
+              <div id="depiction-panel" class="panel content">
+                <h2> Depictions </h2>
+                <div class="horizontal-left-content flexbox">
+                  <%= thumb_list_tag(@taxon_name) -%>
+                </div>
+              </div>
+            </div>
+          <% end %>
         </div>
-      </div>
-
-    <% if @taxon_name.depictions.any? %>
-      <div>
-        <div id="depiction-panel" class="panel content separate-left">
-          <h2> Depictions </h2>
-          <div class="horizontal-left-content flexbox"> 
-          <%= thumb_list_tag(@taxon_name) -%>
-          </div>
-        </div>
-      </div> 
-    <% end %>
-
-    </div>
-
   </div>
+  <div id="vue-browse-nomenclature-validation-modal"></div>
 </div>

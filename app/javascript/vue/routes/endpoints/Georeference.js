@@ -13,9 +13,11 @@ const permitParams = {
     position: Number,
     is_public: Boolean,
     api_request: String,
-    is_undefined_z: Boolean,
-    is_median_z: Boolean,
+    gazetteer_id: Number,
     wkt: Number,
+    year_georeferenced: Number,
+    day_georeferenced: Number,
+    month_georeferenced: Number,
     geographic_item_attributes: {
       shape: Object
     },

@@ -1,9 +1,25 @@
 # References class
 # Repository: http://rs.gbif.org/extension/gbif/1.0/references.xml
 
-module Dwca::GbifProfile
+module Export::Dwca::GbifProfile
 
   class Reference
+    NAMESPACES = {
+      :taxonID => 'http://rs.tdwg.org/dwc/terms/taxonID',
+      :identifier => 'http://purl.org/dc/terms/identifier',
+      :bibliographicCitation => 'http://purl.org/dc/terms/bibliographicCitation',
+      :title => 'http://purl.org/dc/terms/title',
+      :creator => 'http://purl.org/dc/terms/creator',
+      :date => 'http://purl.org/dc/terms/date',
+      :source => 'http://purl.org/dc/terms/source',
+      :description => 'http://purl.org/dc/terms/description',
+      :subject => 'http://purl.org/dc/terms/subject',
+      :language => 'http://purl.org/dc/terms/language',
+      :rights => 'http://purl.org/dc/terms/rights',
+      :taxonRemarks => 'http://rs.tdwg.org/dwc/terms/taxonRemarks',
+      :type => 'http://purl.org/dc/terms/type'
+    }.freeze
+
     # taxonID (http://rs.tdwg.org/dwc/terms/taxonID)
     #
     # @return [String]
@@ -11,7 +27,7 @@ module Dwca::GbifProfile
     # taxon in the core data file to which this reference record points. This
     # identifier provides the link between the core data record and the
     # extension record.
-    attr_accessor :taxonID # [USED IN SF]
+    attr_accessor :taxonID
 
     # identifier (http://purl.org/dc/terms/identifier)
     #
@@ -29,9 +45,9 @@ module Dwca::GbifProfile
     # @return [String]
     # A text string referring to an un-parsed bibliographic citation.
     #
-    # Example: “Hartge, P., Genetics of reproductive lifespan. Nature
-    # Genetics 41, 637 - 638 (2009)”
-    attr_accessor :bibliographicCitation # [USED IN SF]
+    # Example: "Hartge, P., Genetics of reproductive lifespan. Nature
+    # Genetics 41, 637 - 638 (2009)"
+    attr_accessor :bibliographicCitation
 
     # title (http://purl.org/dc/terms/title)
     #
@@ -40,7 +56,7 @@ module Dwca::GbifProfile
     #
     # Example: "Genetics of reproductive lifespan", "Field Guide to Moths of
     # Eastern North America"
-    attr_accessor :title # [USED IN SF]
+    attr_accessor :title
 
     # creator (http://purl.org/dc/terms/creator)
     #
@@ -48,7 +64,7 @@ module Dwca::GbifProfile
     # The author or authors of the referenced work
     #
     # Example: "Patricia Hartge"
-    attr_accessor :creator # [USED IN SF]
+    attr_accessor :creator
 
     # date (http://purl.org/dc/terms/date)
     #
@@ -56,7 +72,7 @@ module Dwca::GbifProfile
     # Date of publication, recommended ISO format YYYY or YYYY-MM-DD
     #
     # Example: "6/1/2009"; "2009"
-    attr_accessor :date # [USED IN SF]
+    attr_accessor :date
 
     # source (http://purl.org/dc/terms/source)
     #
@@ -65,7 +81,7 @@ module Dwca::GbifProfile
     # of articles this is the journal, for parts of books the book itself
     #
     # Example: Nature Genetics 41, 635 (2009)
-    attr_accessor :source # [USED IN SF]
+    attr_accessor :source
 
     # description (http://purl.org/dc/terms/description)
     #
@@ -83,7 +99,7 @@ module Dwca::GbifProfile
     # subject (http://purl.org/dc/terms/subject)
     #
     # @return [String]
-    # Semicolon seperated list of keywords. Can include a resource qualifier
+    # Semicolon separated list of keywords. Can include a resource qualifier
     # that specifies the relation of this reference to the taxon, e.g
     # namePublishedIn
     #
@@ -96,7 +112,7 @@ module Dwca::GbifProfile
     # ISO 639-1 language code indicating the source language of the referent
     # publication
     #
-    # Example: “en”
+    # Example: "en"
     attr_accessor :language
 
     # rights (http://purl.org/dc/terms/rights)
@@ -104,7 +120,7 @@ module Dwca::GbifProfile
     # @return [String]
     # Copyright information relating to the referenced publication
     #
-    # Example: “Copyright © 2009 Wiley-Liss, Inc., A Wiley Company”
+    # Example: "Copyright © 2009 Wiley-Liss, Inc., A Wiley Company"
     attr_accessor :rights
 
     # taxonRemarks (http://rs.tdwg.org/dwc/terms/taxonRemarks)
@@ -126,9 +142,9 @@ module Dwca::GbifProfile
     #
     # Vocabulary: http://rs.gbif.org/vocabulary/gbif/reference_type.xml
     #
-    # Example: “Original publication of new combination (comb nov.)”
-    attr_accessor :type # [USED IN SF]
+    # Example: "Original publication of new combination (comb nov.)"
+    attr_accessor :type
 
   end
-  
+
 end

@@ -1,37 +1,50 @@
 <template>
   <div>
     <button
+      :disabled="disabled"
       class="button normal-input button-default"
-      @click="openModal">Enter coordinates</button>
+      @click="isModalVisible = true"
+    >
+      Enter coordinates
+    </button>
     <modal-component
-      v-if="show"
-      @close="show = false">
+      v-if="isModalVisible"
+      @close="isModalVisible = false"
+    >
       <template #header>
-        <h3>Create georeference</h3>
+        <h3>{{ title }}</h3>
       </template>
       <template #body>
         <div class="field label-above">
           <label>Latitude</label>
           <input
             type="text"
-            v-model="shape.lat">
+            v-model="shape.lat"
+            ref="inputText"
+          />
         </div>
         <div class="field label-above">
           <label>Longitude</label>
           <input
             type="text"
-            v-model="shape.long">
+            v-model="shape.long"
+          />
         </div>
-        <div class="field label-above">
+        <div
+          v-if="includeRange"
+          class="field label-above"
+        >
           <label>Range distance</label>
           <label
-            v-for="range in ranges"
-            :key="range">
+            v-for="range in RANGES"
+            :key="range"
+          >
             <input
               type="radio"
               name="georeference-distance"
               :value="range"
-              v-model="shape.range">
+              v-model="shape.range"
+            />
             {{ range }}
           </label>
         </div>
@@ -41,7 +54,8 @@
           type="button"
           class="normal-input button button-submit"
           :disabled="!validateFields"
-          @click="createShape">
+          @click="createShape"
+        >
           Add point
         </button>
       </template>
@@ -49,60 +63,69 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import ModalComponent from '@/components/ui/Modal'
+import convertDMS from '@/helpers/parseDMS.js'
+import { computed, nextTick, ref, watch } from 'vue'
 
-import ModalComponent from 'components/ui/Modal'
-import convertDMS from 'helpers/parseDMS.js'
+const RANGES = [0, 10, 100, 1000, 10000]
 
-export default {
-  components: { ModalComponent },
-
-  computed: {
-    validateFields () {
-      return convertDMS(this.shape.lat) && convertDMS(this.shape.long)
-    }
+const props = defineProps({
+  title: {
+    type: String,
+    default: 'Create georeference'
   },
-
-  data () {
-    return {
-      show: false,
-      ranges: [0, 10, 100, 1000, 10000],
-      shape: this.resetShape()
-    }
+  includeRange: {
+    type: Boolean,
+    default: true
   },
+  disabled: {
+    type: Boolean,
+    default: false
+  }
+})
 
-  methods: {
-    createShape () {
-      this.$emit('create', {
-        type: 'Feature',
-        properties: this.shape.range > 0 ? { radius: this.shape.range } : {},
-        geometry: {
-          type: 'Point',
-          coordinates: [convertDMS(this.shape.long), convertDMS(this.shape.lat)]
-        }
-      })
-      this.shape = this.resetShape()
-      this.show = false
-    },
+const emit = defineEmits(['create'])
 
-    resetShape () {
-      return {
-        lat: undefined,
-        long: undefined,
-        range: 0
-      }
-    },
+const inputText = ref(null)
 
-    openModal () {
-      this.show = true
-      this.shape = this.resetShape()
+const validateFields = computed(
+  () => convertDMS(shape.value.lat) && convertDMS(shape.value.long)
+)
+const isModalVisible = ref(false)
+const shape = ref({})
+
+function createShape() {
+  const geoJson = {
+    type: 'Feature',
+    properties: { radius: shape.value.range || null },
+    geometry: {
+      type: 'Point',
+      coordinates: [convertDMS(shape.value.long), convertDMS(shape.value.lat)]
     }
   }
+
+  emit('create', geoJson)
+  isModalVisible.value = false
 }
+
+watch(isModalVisible, (newVal) => {
+  if (newVal) {
+    shape.value = {
+      lat: undefined,
+      long: undefined,
+      range: 0
+    }
+
+    nextTick(() => {
+      inputText.value.focus()
+    })
+  }
+})
 </script>
 
 <style lang="scss" scoped>
-  :deep(.modal-container) {
-    max-width: 300px;
-  }
+:deep(.modal-container) {
+  max-width: 300px;
+}
 </style>

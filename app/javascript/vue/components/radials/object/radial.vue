@@ -1,369 +1,377 @@
 <template>
   <div>
-    <div class="radial-annotator">
-      <modal-component
-        v-if="display"
-        :container-style="{ backgroundColor: 'transparent', boxShadow: 'none' }"
-        @close="closeModal()">
-        <template #header>
-          <h3
-            class="flex-separate">
-            <span v-html="title" />
-            <span
-              v-if="metadata"
-              class="separate-right">
-              {{ metadata.object_type }}
-            </span>
-          </h3>
-        </template>
-        <template #body>
-          <div class="flex-separate">
-            <spinner-component v-if="!menuCreated" />
-            <div class="radial-annotator-menu">
-              <div>
-                <radial-menu
-                  v-if="menuCreated"
-                  :options="menuOptions"
-                  @onClick="selectComponent"/>
+    <Teleport
+      v-if="isVisible"
+      :disabled="!teleport"
+      to="body"
+    >
+      <div class="radial-annotator">
+        <VModal
+          transparent
+          @close="closeModal()"
+        >
+          <template #header>
+            <RadialHeader
+              :object-type="metadata?.object_type"
+              :object-id="metadata?.object_id"
+              :title="title"
+            />
+          </template>
+          <template #body>
+            <div class="flex-separate">
+              <spinner-component v-if="!metadata" />
+              <div class="radial-annotator-menu">
+                <div>
+                  <RadialMenu
+                    v-if="metadata"
+                    :options="menuOptions"
+                    @click="selectComponent"
+                  />
+                </div>
+              </div>
+              <div
+                class="radial-annotator-template panel"
+                v-show="currentAnnotator"
+              >
+                <div class="flex-separate middle">
+                  <h2 class="capitalize view-title">
+                    {{
+                      currentAnnotator
+                        ? currentAnnotator.replaceAll('_', ' ')
+                        : ''
+                    }}
+                  </h2>
+                  <div
+                    :id="headerRightTargetId"
+                    class="horizontal-right-content middle"
+                  />
+                </div>
+                <component
+                  v-if="currentAnnotator"
+                  class="radial-annotator-container"
+                  :is="SLICE[currentAnnotator]"
+                  :type="currentAnnotator"
+                  :url="metadata.url"
+                  :metadata="metadata"
+                  :global-id="globalId"
+                  :object-id="metadata.object_id"
+                  :object-type="metadata.object_type"
+                  :header-right-target-id="headerRightTargetId"
+                  :radial-emit="handleEmitRadial"
+                  @update-count="setTotal"
+                  @close="closeModal"
+                />
               </div>
             </div>
-            <div
-              class="radial-annotator-template panel"
-              :style="{ 'max-height': windowHeight(), 'min-height': windowHeight() }"
-              v-if="currentAnnotator">
-              <h2 class="capitalize view-title">
-                {{ currentAnnotator.replace("_"," ") }}
-              </h2>
-              <component
-                class="radial-annotator-container"
-                :is="(currentAnnotator ? currentAnnotator + 'Annotator' : undefined)"
-                :type="currentAnnotator"
-                :url="url"
-                :metadata="metadata"
-                :global-id="globalId"
-                :object-type="metadata.object_type"
-                @updateCount="setTotal"
-                @close="closeModal"/>
-            </div>
-          </div>
-        </template>
-      </modal-component>
-      <span
-        v-if="showBottom"
-        :title="buttonTitle"
-        type="button"
-        class="circle-button button-default"
-        :class="[buttonClass]"
-        @click="displayAnnotator()">Radial annotator
-      </span>
-      <div
-        v-if="metadataCount && showCount"
-        class="circle-count button-submit middle">
-        <span class="citation-count-text">{{ metadataCount }}</span>
+          </template>
+        </VModal>
       </div>
+    </Teleport>
+    <VBtn
+      v-if="showBottom"
+      :title="buttonTitle"
+      color="radial"
+      circle
+      :disabled="disabled"
+      @click="openRadialMenu()"
+    >
+      <VIcon
+        name="radialObject"
+        x-small
+      />
+    </VBtn>
+    <div
+      v-if="metadataCount && showCount"
+      class="circle-count button-submit middle"
+    >
+      <span class="citation-count-text">{{ metadataCount }}</span>
     </div>
   </div>
 </template>
-<script>
 
-import RadialMenu from 'components/radials/RadialMenu.vue'
-import ModalComponent from 'components/ui/Modal.vue'
-import SpinnerComponent from 'components/spinner.vue'
-
-import CRUD from './request/crud'
-
-import data_attributesAnnotator from './components/data_attribute/data_attribute_annotator.vue'
-import biological_associationsAnnotator from './components/biological_relationships/biological_relationships_annotator.vue'
-import asserted_distributionsAnnotator from './components/asserted_distributions/asserted_distributions_annotator.vue'
-import common_namesAnnotator from './components/common_names/main.vue'
-import contentsAnnotator from './components/contents/main.vue'
-import biocuration_classificationsAnnotator from './components/biocurations/biocurations'
-import taxon_determinationsAnnotator from './components/taxon_determinations/taxon_determinations'
-import observation_matricesAnnotator from './components/observation_matrices/main.vue'
-import collecting_eventAnnotator from './components/collecting_event/main.vue'
-import origin_relationshipsAnnotator from './components/origin_relationship/main'
-import extractsAnnotator from './components/extract/Main.vue'
-import shortcutsMixin from '../mixins/shortcuts'
-
+<script setup>
+import RadialMenu from '@/components/radials/RadialMenu.vue'
+import VModal from '@/components/ui/Modal.vue'
+import SpinnerComponent from '@/components/ui/VSpinner.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
+import RadialHeader from '../shared/RadialHeader.vue'
+import makeRequest from '@/helpers/ajaxCall'
 import Icons from './images/icons.js'
-import { Tag } from 'routes/endpoints'
+import { useShortcuts } from '@/components/radials/composables'
+import { SLICE, SLICES_BY_OBJECT_TYPE } from './constants/slices.js'
+import { Tag } from '@/routes/endpoints'
+import { ref, computed, onMounted, getCurrentInstance } from 'vue'
 
 const MIDDLE_RADIAL_BUTTON = 'circleButton'
 
-export default {
-  mixins: [CRUD, shortcutsMixin],
+defineOptions({
+  name: 'QuickForms'
+})
 
-  name: 'RadialObject',
+const props = defineProps({
+  reload: {
+    type: Boolean,
+    default: false
+  },
+
+  globalId: {
+    type: String,
+    required: true
+  },
+
+  showBottom: {
+    type: Boolean,
+    default: true
+  },
+
+  buttonTitle: {
+    type: String,
+    default: 'Quick forms'
+  },
+
+  showCount: {
+    type: Boolean,
+    default: false
+  },
 
   components: {
-    RadialMenu,
-    ModalComponent,
-    SpinnerComponent,
-    extractsAnnotator,
-    data_attributesAnnotator,
-    biological_associationsAnnotator,
-    asserted_distributionsAnnotator,
-    common_namesAnnotator,
-    contentsAnnotator,
-    biocuration_classificationsAnnotator,
-    taxon_determinationsAnnotator,
-    observation_matricesAnnotator,
-    collecting_eventAnnotator,
-    origin_relationshipsAnnotator
+    type: Object,
+    default: () => ({})
   },
 
-  props: {
-    reload: {
-      type: Boolean,
-      default: false
-    },
+  type: {
+    type: String,
+    default: 'graph'
+  },
 
-    globalId: {
-      type: String,
-      required: true
-    },
+  disabled: {
+    type: Boolean,
+    default: false
+  },
 
-    showBottom: {
-      type: Boolean,
-      default: true
-    },
+  teleport: {
+    type: Boolean,
+    default: true
+  }
+})
 
-    buttonClass: {
-      type: String,
-      default: 'btn-hexagon-w'
-    },
+const emit = defineEmits(['close', 'update', 'create', 'delete', 'change'])
+const currentAnnotator = ref(null)
+const isVisible = ref(false)
+const metadata = ref(null)
+const title = ref('Quick forms')
+const defaultTag = ref(null)
+const headerRightTargetId = `radial-object-header-right-${getCurrentInstance().uid}`
+const { removeListener, setShortcutsEvent } = useShortcuts({
+  metadata,
+  currentAnnotator
+})
 
-    buttonTitle: {
-      type: String,
-      default: 'Quick forms'
-    },
+function getEndpoints() {
+  const endpoints = { ...metadata.value.endpoints }
+  const objectType = metadata.value.object_type
 
-    showCount: {
-      type: Boolean,
-      default: false
-    },
+  const slicesByType = SLICES_BY_OBJECT_TYPE[objectType] || []
 
-    components: {
-      type: Object,
-      default: () => ({})
-    },
-    type: {
-      type: String,
-      default: 'graph'
+  slicesByType.forEach((slice) => {
+    if (!(slice in SLICE)) return
+
+    if (!(slice in endpoints)) {
+      endpoints[slice] = { total: 0 }
     }
-  },
+  })
 
-  emits: ['close'],
+  return endpoints
+}
 
-  data () {
-    return {
-      currentAnnotator: undefined,
-      display: false,
-      url: undefined,
-      globalIdSaved: undefined,
-      metadata: undefined,
-      title: 'Otu radial',
-      defaultTag: undefined,
-      hardcodeSections: [
-        {
-          section: 'observation_matrices',
-          objectTypes: ['Otu', 'CollectionObject']
-        }
-      ]
-    }
-  },
+const menuOptions = computed(() => {
+  const endpoints = getEndpoints()
 
-  computed: {
-    menuOptions () {
-      const endpoints = this.metadata.endpoints || {}
-
-      const slices = Object.entries(endpoints).map(([annotator, { total }]) => ({
-        name: annotator,
-        label: (annotator.charAt(0).toUpperCase() + annotator.slice(1)).replace('_', ' '),
-        innerPosition: 1.7,
-        svgAttributes: {
-          class: this.currentAnnotator === annotator
-            ? 'slice active'
-            : 'slice'
-        },
-        slices: total
-          ? [{
-              label: total.toString(),
-              size: 26,
-              svgAttributes: {
-                class: 'slice-total'
-              }
-            }]
-          : [],
-        icon: Icons[annotator]
-          ? {
-              url: Icons[annotator],
-              width: '20',
-              height: '20'
+  const slices = Object.entries(endpoints).map(([annotator, { total }]) => ({
+    name: annotator,
+    label: (annotator.charAt(0).toUpperCase() + annotator.slice(1)).replaceAll(
+      '_',
+      ' '
+    ),
+    innerPosition: 1.7,
+    svgAttributes: {
+      class: currentAnnotator.value === annotator ? 'slice active' : 'slice'
+    },
+    slices: total
+      ? [
+          {
+            label: total.toString(),
+            size: 26,
+            svgAttributes: {
+              class: 'slice-total'
             }
-          : undefined
-      }))
-
-      return {
-        width: 400,
-        height: 400,
-        sliceSize: 120,
-        centerSize: 34,
-        margin: 2,
-        middleButton: this.middleButton,
-        svgAttributes: {
-          class: 'svg-radial-menu'
-        },
-        svgSliceAttributes: {
-          fontSize: 11,
-          class: 'slice'
-        },
-        slices: slices
-      }
-    },
-
-    menuCreated () {
-      return this.metadata?.endpoints
-    },
-
-    metadataCount () {
-      if (this.metadata) {
-        let totalCounts = 0
-        for (const key in this.metadata.endpoints) {
-          const section = this.metadata.endpoints[key]
-          if (typeof section === 'object') {
-            totalCounts = totalCounts + Number(section.total)
           }
-        }
-        return totalCounts
-      }
-      return undefined
-    },
-
-    isTagged () {
-      return this.defaultTag
-    },
-
-    middleButton () {
-      return {
-        name: MIDDLE_RADIAL_BUTTON,
-        radius: 30,
-        icon: {
-          url: Icons.tags,
+        ]
+      : [],
+    icon: Icons[annotator]
+      ? {
+          url: Icons[annotator],
           width: '20',
           height: '20'
-        },
-        svgAttributes: {
-          fill: this.getDefault() ? (this.isTagged ? '#F44336' : '#9ccc65') : '#CACACA'
         }
-      }
-    }
+      : undefined
+  }))
+
+  return {
+    width: 440,
+    height: 440,
+    sliceSize: 140,
+    centerSize: 34,
+    margin: 2,
+    middleButton: middleButton.value,
+    svgAttributes: {
+      class: 'svg-radial-menu'
+    },
+    svgSliceAttributes: {
+      fontSize: 11,
+      class: 'slice'
+    },
+    slices
+  }
+})
+
+const metadataCount = computed(() => {
+  const values = Object.values(metadata.value?.endpoints || {})
+
+  return values.reduce((acc, curr) => acc + curr.total, 0)
+})
+
+const middleButton = computed(() => ({
+  name: MIDDLE_RADIAL_BUTTON,
+  radius: 30,
+  icon: {
+    url: Icons.tags,
+    width: '20',
+    height: '20'
   },
+  svgAttributes: {
+    fill: getDefault() ? (defaultTag.value ? '#F44336' : '#9ccc65') : '#CACACA'
+  }
+}))
 
-  mounted () {
-    if (this.showCount) {
-      this.loadMetadata()
+onMounted(() => {
+  if (props.showCount) {
+    loadMetadata()
+  }
+})
+
+function getDefault() {
+  const defaultTag = document.querySelector(
+    '[data-pinboard-section="Keywords"] [data-insert="true"]'
+  )
+
+  return defaultTag?.getAttribute('data-pinboard-object-id')
+}
+
+function alreadyTagged() {
+  const keyId = getDefault()
+  if (!keyId) return
+
+  const params = {
+    global_id: props.globalId,
+    keyword_id: keyId
+  }
+
+  Tag.exists(params).then(({ body }) => {
+    defaultTag.value = body
+  })
+}
+
+function selectComponent({ name }) {
+  if (name === MIDDLE_RADIAL_BUTTON) {
+    if (getDefault()) {
+      defaultTag.value ? deleteTag() : createTag()
     }
-  },
-
-  methods: {
-    getDefault () {
-      const defaultTag = document.querySelector('[data-pinboard-section="Keywords"] [data-insert="true"]')
-      return defaultTag ? defaultTag.getAttribute('data-pinboard-object-id') : undefined
-    },
-
-    alreadyTagged () {
-      const keyId = this.getDefault()
-      if (!keyId) return
-
-      const params = {
-        global_id: this.globalId,
-        keyword_id: keyId
-      }
-
-      Tag.exists(params).then(response => {
-        this.defaultTag = response.body
-      })
-    },
-
-    selectComponent ({ name }) {
-      if (name === MIDDLE_RADIAL_BUTTON) {
-        if (this.getDefault()) {
-          this.isTagged
-            ? this.deleteTag()
-            : this.createTag()
-        }
-      } else {
-        this.currentAnnotator = name
-      }
-    },
-
-    closeModal () {
-      this.display = false
-      this.eventClose()
-      this.$emit('close')
-      this.removeListener()
-    },
-
-    async displayAnnotator () {
-      this.display = true
-      this.currentAnnotator = undefined
-      await this.loadMetadata()
-      this.alreadyTagged()
-      this.setShortcutsEvent()
-    },
-
-    async loadMetadata () {
-      if (this.globalId === this.globalIdSaved && this.menuCreated && !this.reload) return
-      this.globalIdSaved = this.globalId
-
-      return this.getList(`/${this.type}/${encodeURIComponent(this.globalId)}/metadata`).then(response => {
-        this.metadata = response.body
-        this.metadata.endpoints = Object.assign({}, this.metadata.endpoints, ...this.addHardcodeSections(response.body.object_type))
-        this.title = response.body.object_tag
-        this.url = response.body.url
-      })
-    },
-
-    setTotal (total) {
-      this.metadata.endpoints[this.currentAnnotator].total = total
-    },
-
-    eventClose () {
-      const event = new CustomEvent('radialObject:close', {
-        detail: {
-          metadata: this.metadata
-        }
-      })
-      document.dispatchEvent(event)
-    },
-
-    windowHeight () {
-      return ((window.innerHeight - 100) > 650 ? 650 : window.innerHeight - 100) + 'px !important'
-    },
-
-    createTag () {
-      const tag = {
-        keyword_id: this.getDefault(),
-        annotated_global_entity: this.globalId
-      }
-
-      Tag.create({ tag }).then(response => {
-        this.defaultTag = response.body
-        TW.workbench.alert.create('Tag item was successfully created.', 'notice')
-      })
-    },
-
-    deleteTag () {
-      Tag.destroy(this.defaultTag.id).then(_ => {
-        this.defaultTag = undefined
-        TW.workbench.alert.create('Tag item was successfully destroyed.', 'notice')
-      })
-    },
-
-    addHardcodeSections (type) {
-      return this.hardcodeSections.filter(item => item.objectTypes.includes(type)).map(item => ({ [item.section]: { total: 0 } }))
-    }
+  } else {
+    currentAnnotator.value = name
   }
 }
+
+function closeModal() {
+  isVisible.value = false
+  eventClose()
+  emit('close')
+  removeListener()
+}
+
+async function openRadialMenu() {
+  isVisible.value = true
+  currentAnnotator.value = undefined
+  await loadMetadata()
+  alreadyTagged()
+  setShortcutsEvent()
+}
+
+async function loadMetadata() {
+  if (metadata.value && !props.reload) return
+
+  const urlMetadata = `/${props.type}/${encodeURIComponent(
+    props.globalId
+  )}/metadata`
+
+  return makeRequest('get', urlMetadata).then(({ body }) => {
+    metadata.value = body
+    title.value = body.object_tag
+  })
+}
+
+function setTotal(total) {
+  metadata.value.endpoints[currentAnnotator.value].total = total
+}
+
+function eventClose() {
+  const event = new CustomEvent('radialObject:close', {
+    detail: {
+      metadata: metadata.value
+    }
+  })
+  document.dispatchEvent(event)
+}
+
+function createTag() {
+  const tag = {
+    keyword_id: getDefault(),
+    annotated_global_entity: props.globalId
+  }
+
+  Tag.create({ tag }).then((response) => {
+    defaultTag.value = response.body
+    TW.workbench.alert.create('Tag item was successfully created.', 'notice')
+  })
+}
+
+function deleteTag() {
+  Tag.destroy(defaultTag.value.id).then((_) => {
+    defaultTag.value = undefined
+    TW.workbench.alert.create('Tag item was successfully destroyed.', 'notice')
+  })
+}
+
+const handleEmitRadial = {
+  add(item) {
+    emit('create', { item, slice: currentAnnotator.value })
+  },
+  delete(item) {
+    emit('delete', { item, slice: currentAnnotator.value })
+  },
+  update(item) {
+    emit('update', { item, slice: currentAnnotator.value })
+  },
+  change(item) {
+    emit('change', { item, metadata, slice: currentAnnotator.value })
+  },
+  count(total) {
+    setTotal(total)
+  }
+}
+
+defineExpose({
+  openRadialMenu
+})
 </script>

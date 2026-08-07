@@ -29,9 +29,8 @@ module Vendor
       opts[:language] = 'detect' if detect_language
       opts[:language] = language unless language.nil?
 
-      ::Vendor::Gnfinder::Result.new(finder.find_names(text, opts), project_id)
+      Vendor::Gnfinder::Result.new(finder.find_names(text, opts), project_id)
     end
   end
 
 end
-

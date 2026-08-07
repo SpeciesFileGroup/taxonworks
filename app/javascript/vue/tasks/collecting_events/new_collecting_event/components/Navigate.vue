@@ -1,22 +1,24 @@
 <template>
   <div>
-    <button
-      type="button"
-      class="button normal-input button-default"
+    <VBtn
+      color="primary"
+      medium
       @click="setModalView(true)"
-      :disabled="!collectingEvent.id">
+      :disabled="!collectingEvent.id"
+    >
       Navigate
-    </button>
-    <modal-component
-      v-if="showModal"
+    </VBtn>
+    <VModal
+      v-if="isModalVisible"
       @close="setModalView(false)"
-      :container-style="{ width: '500px'}">
+      :container-style="{ width: '500px' }"
+    >
       <template #header>
         <h3>Navigate</h3>
       </template>
       <template #body>
-        <p>Current: <span v-html="collectingEvent.object_tag"/></p>
-        <spinner-component v-if="isLoading"/>
+        <p>Current: <span v-html="collectingEvent.object_tag" /></p>
+        <VSpinner v-if="isLoading" />
         <table class="full_width">
           <thead>
             <tr>
@@ -26,90 +28,81 @@
           </thead>
           <tbody>
             <tr
-              v-for="key in Object.keys(navigate.previous_by || navigate.next_by)"
-              :key="key">
+              v-for="key in Object.keys(
+                navigate.previous_by || navigate.next_by
+              )"
+              :key="key"
+            >
               <td>
-                <button
-                  type="button"
-                  class="button normal-input button-default"
+                <VBtn
+                  color="primary"
+                  medium
                   :disabled="!navigate.previous_by[key]"
-                  @click="loadCE(navigate.previous_by[key])">
+                  @click="loadCE(navigate.previous_by[key])"
+                >
                   {{ key.replaceAll('_', ' ') }}
-                </button>
+                </VBtn>
               </td>
               <td>
-                <button
-                  class="button normal-input button-default"
-                  type="button"
+                <VBtn
+                  color="primary"
+                  medium
                   :disabled="!navigate.next_by[key]"
-                  @click="loadCE(navigate.next_by[key])">
+                  @click="loadCE(navigate.next_by[key])"
+                >
                   {{ key.replaceAll('_', ' ') }}
-                </button>
+                </VBtn>
               </td>
             </tr>
           </tbody>
         </table>
       </template>
-    </modal-component>
+    </VModal>
   </div>
 </template>
 
-<script>
+<script setup>
+import VModal from '@/components/ui/Modal'
+import VSpinner from '@/components/ui/VSpinner'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import { CollectingEvent } from '@/routes/endpoints'
+import { ref, watch } from 'vue'
 
-import ModalComponent from 'components/ui/Modal'
-import SpinnerComponent from 'components/spinner'
-import { CollectingEvent } from 'routes/endpoints'
+const props = defineProps({
+  collectingEvent: {
+    type: Object,
+    required: true
+  }
+})
 
-export default {
-  components: {
-    ModalComponent,
-    SpinnerComponent
-  },
+const emit = defineEmits(['select'])
 
-  props: {
-    collectingEvent: {
-      type: Object,
-      required: true
-    }
-  },
+const isLoading = ref(false)
+const navigate = ref()
+const isModalVisible = ref(false)
 
-  emits: ['select'],
-
-  computed: {
-    collectingEventId () {
-      return this.collectingEvent.id
-    }
-  },
-
-  data () {
-    return {
-      isLoading: false,
-      navigate: undefined,
-      showModal: false
-    }
-  },
-
-  watch: {
-    collectingEventId (newVal) {
-      if (newVal) {
-        this.isLoading = true
-        CollectingEvent.navigation(this.collectingEvent.id).then(response => {
-          this.navigate = response.body
-        }).finally(() => {
-          this.isLoading = false
+watch(
+  () => props.collectingEvent.id,
+  (newVal) => {
+    if (newVal) {
+      isLoading.value = true
+      CollectingEvent.navigation(newVal)
+        .then(({ body }) => {
+          navigate.value = body
         })
-      }
-    }
-  },
-
-  methods: {
-    setModalView (value) {
-      this.showModal = value
-    },
-
-    loadCE (id) {
-      this.$emit('select', id)
+        .finally(() => {
+          isLoading.value = false
+        })
     }
   }
+)
+
+function setModalView(value) {
+  isModalVisible.value = value
+}
+
+function loadCE(id) {
+  isModalVisible.value = false
+  emit('select', { id })
 }
 </script>
