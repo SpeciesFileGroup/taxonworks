@@ -202,6 +202,57 @@ module ApplicationEnumeration
     true
   end
 
+  # Bulk equivalent of .no_related_data? — checks whether *any* record in a
+  # set (not a single instance) has related data, using one COUNT query per
+  # relation rather than one check per record. Intended for auditing before a
+  # bulk destructive operation (e.g. delete_all) that will not run Rails
+  # callbacks/dependent: options, where a per-record no_related_data? loop
+  # would not scale to thousands+ of records.
+  #
+  # !! STI caveat: only checks reflections declared on `klass` itself, the
+  # same as .reflect_on_all_associations. A subclass-only association (e.g.
+  # Protonym#type_materials, not declared on the base TaxonName class) is
+  # invisible if `klass` is the base class. Callers working with an STI model
+  # should determine which concrete type(s) are actually present in `ids` and
+  # call this once per type, merging results — this method does not guess at
+  # descendants itself.
+  #
+  # @param klass [Class] an ActiveRecord model class (e.g. TaxonName, Otu)
+  # @param ids [ActiveRecord::Relation, Array<Integer>]
+  #   the id set to check. A Relation is strongly preferred for large sets —
+  #   it's used as a subquery, so it never embeds a literal id list per
+  #   relation query — while a plain Array is fine for small or already-
+  #   materialized sets.
+  # @param ignore [Array<Symbol>] additional relation names not to check —
+  #   e.g. because the caller cleans them up explicitly elsewhere
+  # @return [Hash{Symbol => Integer}]
+  #   relation name => row count, for every non-excluded has_many/has_one
+  #   relation (excluding `through`) with at least one row referencing `ids`.
+  #   Empty hash means clean.
+  def self.related_data_counts(klass, ids, ignore: [])
+    excluded = EXCLUDE_RELATIONS_FOR_RELATED_DATA + ignore
+
+    counts = {}
+
+    (klass_reflections(klass, :has_many) + klass_reflections(klass, :has_one)).each do |relation|
+      next if relation.options[:through].present?
+      next if excluded.include?(relation.name)
+      next if relation.options[:foreign_key]&.match?(/cache/)
+
+      child_klass = relation.klass
+      foreign_key = relation.foreign_key
+      type_column = relation.type # polymorphic type column name, or nil
+
+      scope = type_column ?
+        child_klass.where(type_column => klass.base_class.name, foreign_key => ids) :
+        child_klass.where(foreign_key => ids)
+
+      count = scope.count
+      counts[relation.name] = count if count > 0
+    end
+
+    counts
+  end
 
   # Filter out STI subclass relations that are redundant with their parent class
   # (e.g., `protonym` belongs_to duplicates `taxon_name` belongs_to).

@@ -130,4 +130,83 @@ describe 'ApplicationEnumeration' do
     end
   end
 
+  context '.related_data_counts', type: :model do
+    let(:otu) { FactoryBot.create(:valid_otu) }
+    let(:otu_ignore) { [:identifiers, :uuids, :uris] } # Otus come with a UUID identifier.
+
+    specify 'returns an empty hash when no related data' do
+      note = FactoryBot.create(:valid_note)
+      expect(ae.related_data_counts(Note, [note.id])).to eq({})
+    end
+
+    specify 'returns an empty hash when the only related data is ignored' do
+      expect(ae.related_data_counts(Otu, [otu.id], ignore: otu_ignore)).to eq({})
+    end
+
+    specify 'counts has_many data (citations)' do
+      otu.citations.create!(source: FactoryBot.create(:valid_source))
+      counts = ae.related_data_counts(Otu, [otu.id], ignore: otu_ignore)
+      # origin_citation/subsequent_citations are separate reflections scoped
+      # onto the same underlying citations rows (by is_original) — a single
+      # citation can legitimately show up under more than one relation name.
+      expect(counts).to eq(citations: 1, origin_citation: 1, subsequent_citations: 1)
+    end
+
+    specify 'counts has_one data (attribution)' do
+      lead = FactoryBot.create(:valid_lead)
+      lead.create_attribution!(license: 'Attribution')
+      counts = ae.related_data_counts(Lead, [lead.id])
+      expect(counts[:attribution]).to eq(1)
+    end
+
+    specify 'excludes cached relations by default' do
+      geographic_item = FactoryBot.create(:valid_geographic_item)
+      CachedMapItem.create!(
+        otu: FactoryBot.create(:valid_otu),
+        geographic_item:,
+        type: 'CachedMapItem::WebLevel1',
+        reference_count: 1
+      )
+      expect(ae.related_data_counts(GeographicItem, [geographic_item.id])).to eq({})
+    end
+
+    specify 'sums matches across every id in the set, not just the first' do
+      other_otu = FactoryBot.create(:valid_otu)
+      otu.citations.create!(source: FactoryBot.create(:valid_source))
+      other_otu.citations.create!(source: FactoryBot.create(:valid_source))
+      counts = ae.related_data_counts(Otu, [otu.id, other_otu.id], ignore: otu_ignore)
+      expect(counts[:citations]).to eq(2)
+    end
+
+    specify 'does not flag records outside the given id set' do
+      other_otu = FactoryBot.create(:valid_otu)
+      other_otu.citations.create!(source: FactoryBot.create(:valid_source))
+      counts = ae.related_data_counts(Otu, [otu.id], ignore: otu_ignore)
+      expect(counts).to eq({})
+    end
+
+    specify 'accepts an ActiveRecord::Relation in place of an Array of ids' do
+      otu.citations.create!(source: FactoryBot.create(:valid_source))
+      counts = ae.related_data_counts(Otu, Otu.where(id: otu.id), ignore: otu_ignore)
+      expect(counts[:citations]).to eq(1)
+    end
+
+    context 'STI: base class reflections do not cover subclass-only associations' do
+      # type_materials is declared on Protonym, not on the base TaxonName class.
+      # A caller checking the wrong class silently misses it — this is exactly
+      # the gap that motivated documenting the caveat rather than guessing at
+      # STI descendants internally.
+      specify 'TaxonName misses Protonym-only relations (type_materials)' do
+        type_material = FactoryBot.create(:valid_type_material)
+        expect(ae.related_data_counts(TaxonName, [type_material.protonym_id])).not_to have_key(:type_materials)
+      end
+
+      specify 'Protonym catches its own type_materials' do
+        type_material = FactoryBot.create(:valid_type_material)
+        counts = ae.related_data_counts(Protonym, [type_material.protonym_id])
+        expect(counts[:type_materials]).to eq(1)
+      end
+    end
+  end
+
 end
