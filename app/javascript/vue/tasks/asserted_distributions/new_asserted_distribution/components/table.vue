@@ -56,7 +56,7 @@
 
         <td>
           <QuickForms
-            :global_id="item.asserted_distribution_object.global_id"
+            :global-id="item.asserted_distribution_object.global_id"
           />
         </td>
         <td>
