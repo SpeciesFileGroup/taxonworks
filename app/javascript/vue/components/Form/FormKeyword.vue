@@ -43,19 +43,21 @@
     </div>
 
     <div class="flex-separate">
-      <button
+      <VBtn
+        medium
+        color="create"
         type="submit"
-        class="button normal-input button-submit"
       >
         {{ controlledVocabularyTerm.id ? 'Update' : 'Create' }}
-      </button>
-      <button
-        type="button"
-        class="button normal-input button-default"
+      </VBtn>
+      <VBtn
+        medium
+        color="primary"
+        variant="tonal"
         @click="newCVT"
       >
         New
-      </button>
+      </VBtn>
     </div>
   </form>
 </template>
@@ -63,6 +65,7 @@
 <script setup>
 import { computed } from 'vue'
 import makeControlledVocabularyTerm from '@/factory/controlledVocabularyTerm.js'
+import VBtn from '@/components/ui/VBtn/index.vue'
 
 const props = defineProps({
   modelValue: {

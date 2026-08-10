@@ -2,6 +2,7 @@
   <VBtn
     color="primary"
     medium
+    variant="tonal"
     @click="() => (isModalVisible = true)"
   >
     Clone {{ type }} from project
