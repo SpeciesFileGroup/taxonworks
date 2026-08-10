@@ -15,6 +15,12 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 ### Changed
 
 - `Simple new specimen` task is now `New collection object`
+- Support partial dates (year only, year-month only) for `startDate` and `endDate` from the api
+
+### Fixed
+
+- Error when clicking quick forms radial menu in New Asserted Distribution
+- Error on viewing deprecated Edit Taxon Determination page for a taxon determination on a Field Occurrence
 
 [#4873]: https://github.com/SpeciesFileGroup/taxonworks/issues/4873
 
