@@ -88,7 +88,6 @@ watch(expanded, (newVal) => {
 </script>
 <style lang="scss" scoped>
 .block-layout {
-  border-top-left-radius: 0px;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
@@ -103,13 +102,9 @@ watch(expanded, (newVal) => {
 
   .header {
     border-left: 4px solid green;
-    padding: var(--spacing-md);
-    padding-left: var(--spacing-lg);
+    padding: var(--spacing-lg) var(--spacing-xl);
+    padding-left: calc(var(--spacing-xl) - 4px);
     border-bottom: 1px solid var(--border-color);
-
-    h3 {
-      font-weight: 300;
-    }
   }
 
   .body {

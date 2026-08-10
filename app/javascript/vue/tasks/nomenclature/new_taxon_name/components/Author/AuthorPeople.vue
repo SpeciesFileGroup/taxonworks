@@ -10,14 +10,15 @@
       role-type="TaxonNameAuthor"
     />
     <div>
-      <button
-        type="button"
-        class="button normal-input button-submit"
+      <VBtn
+        medium
+        color="update"
+        variant="tonal"
         :disabled="!citation || isAlreadyClone"
         @click="cloneFromSource"
       >
         Clone from source
-      </button>
+      </VBtn>
     </div>
   </div>
 </template>
@@ -28,9 +29,10 @@ import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
 import { sortArray } from '@/helpers'
 import RolePicker from '@/components/role_picker.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
 
 export default {
-  components: { RolePicker },
+  components: { VBtn, RolePicker },
 
   computed: {
     citation() {

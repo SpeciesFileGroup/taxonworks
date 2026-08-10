@@ -22,10 +22,9 @@
       />
       <VBtn
         v-if="parent"
-        color="primary"
         icon
         medium
-        variant="tonal"
+        variant="outline"
         title="Edit parent"
         @click="loadParent"
       >

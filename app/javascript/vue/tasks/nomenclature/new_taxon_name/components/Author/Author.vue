@@ -9,7 +9,7 @@
     </template>
     <template #body>
       <switch-component
-        class="margin-medium-bottom"
+        class="margin-small-bottom"
         :options="sections"
         use-index
         v-model="tabIndex"

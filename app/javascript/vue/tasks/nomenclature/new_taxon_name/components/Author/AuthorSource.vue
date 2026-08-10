@@ -35,45 +35,47 @@
         <IconBookPlus class="w-4 h-4" />
       </VBtn>
     </div>
-    <div v-if="citation">
-      <div class="flex-separate middle gap-small">
-        <p>
-          <span
-            class="break_words"
-            v-html="citation.source.cached"
+
+    <div
+      v-if="citation"
+      class="flex-separate middle gap-small margin-medium-top"
+    >
+      <div>
+        <span
+          class="break_words"
+          v-html="citation.source.cached"
+        />
+        <span class="padding-xsmall">
+          <SoftValidation
+            :validate-object="citation"
+            :global-id="citation.global_id"
           />
-          <span class="padding-xsmall">
-            <SoftValidation
-              :validate-object="citation"
-              :global-id="citation.global_id"
-            />
-          </span>
-        </p>
-        <div class="horizontal-left-content gap-small">
-          <CitationPages
-            :citation="citation"
-            :disabled="isSaving"
-            @setPages="addPages"
-            @save="triggerSave"
-          />
-          <PdfButton
-            v-if="citation.hasOwnProperty('target_document')"
-            :pdf="citation.target_document"
-          />
-          <RadialAnnotator
-            type="annotations"
-            :global-id="citation.source.global_id"
-          />
-          <RadialObject :global-id="citation.source.global_id" />
-          <VBtn
-            icon
-            color="destroy"
-            variant="tonal"
-            @click="removeSource(taxon.origin_citation.id)"
-          >
-            <IconTrash class="w-4 h-4" />
-          </VBtn>
-        </div>
+        </span>
+      </div>
+      <div class="horizontal-left-content gap-small">
+        <CitationPages
+          :citation="citation"
+          :disabled="isSaving"
+          @setPages="addPages"
+          @save="triggerSave"
+        />
+        <PdfButton
+          v-if="citation.hasOwnProperty('target_document')"
+          :pdf="citation.target_document"
+        />
+        <RadialAnnotator
+          type="annotations"
+          :global-id="citation.source.global_id"
+        />
+        <RadialObject :global-id="citation.source.global_id" />
+        <VBtn
+          icon
+          color="destroy"
+          variant="tonal"
+          @click="removeSource(taxon.origin_citation.id)"
+        >
+          <IconTrash class="w-4 h-4" />
+        </VBtn>
       </div>
     </div>
   </div>
