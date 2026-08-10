@@ -194,11 +194,11 @@ module Workbench::SessionsHelper
 
   def session_user_header_links
     [
-      link_to('Account', sessions_current_user, data: {
+      header_menu_link('Account', sessions_current_user, 'user', data: {
         current_user_id: sessions_current_user.id.to_s,
         current_user_is_administrator: sessions_current_user.is_administrator,
       }),
-      link_to('Sign out', signout_path, method: :delete, id: 'sign_out')
+      header_menu_link('Sign out', signout_path, 'log-out', method: :delete, id: 'sign_out')
     ]
   end
 

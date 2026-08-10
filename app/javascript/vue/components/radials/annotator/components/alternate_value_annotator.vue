@@ -66,6 +66,7 @@
         v-if="!alternateValue.id"
         color="primary"
         medium
+        variant="tonal"
         @click="reset"
       >
         New
