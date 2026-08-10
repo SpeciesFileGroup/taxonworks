@@ -34,12 +34,8 @@
           </td>
           <td>
             <div class="horizontal-right-content gap-xsmall">
-              <CitationCount
-                :object="item"
-                :values="item.citations"
-                target="asserted_distributions"
-              />
               <RadialAnnotator :global-id="item.global_id" />
+              <CitationCount :citations="item.citations" />
               <VBtn
                 icon
                 variant="tonal"
@@ -70,7 +66,7 @@ import VBtn from '@/components/ui/VBtn/index.vue'
 import IconPencil from '@/components/Icon/IconPencil.vue'
 import IconTrash from '@/components/Icon/IconTrash.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
-import CitationCount from '../shared/citationsCount.vue'
+import CitationCount from '@/components/citations/CitationsCount.vue'
 
 defineProps({
   list: {
@@ -111,7 +107,9 @@ function deleteItem(item) {
 
 .list-complete-item {
   justify-content: space-between;
-  transition: all 0.5s, opacity 0.2s;
+  transition:
+    all 0.5s,
+    opacity 0.2s;
 }
 
 .list-complete-enter-active,

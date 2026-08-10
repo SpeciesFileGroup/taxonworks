@@ -1,21 +1,10 @@
 <template>
   <div class="biological_relationships_annotator">
-    <div
+    <EditingBanner
       v-if="assertedDistribution?.id"
-      class="flex-separate gap-small"
-    >
-      <h3>
-        <span v-html="editTitle" />
-      </h3>
-      <VBtn
-        icon
-        variant="tonal"
-        color="primary"
-        @click="resetForm"
-      >
-        <IconReset class="w-4 h-4" />
-      </VBtn>
-    </div>
+      :label="editTitle"
+      @close="resetForm"
+    />
     <h3 v-else>New asserted distribution</h3>
 
     <FormCitation
@@ -110,7 +99,7 @@ import VSpinner from '@/components/ui/VSpinner.vue'
 import VMap from '@/components/ui/VMap/VMap.vue'
 import makeEmptyCitation from '../../helpers/makeEmptyCitation.js'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import IconReset from '@/components/Icon/IconReset.vue'
+import EditingBanner from '@/components/ui/EditingBanner/EditingBanner.vue'
 import FormCitation from '@/components/Form/FormCitation.vue'
 import VBroadcast from '@/components/ui/VBroadcast/VBroadcast.vue'
 import sortArray from '@/helpers/sortArray'

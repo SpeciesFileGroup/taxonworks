@@ -15,10 +15,6 @@
         v-html="displayName(item)"
       />
       <div class="horizontal-right-content">
-        <CitationsCount
-          :target="targetCitations"
-          :object="item"
-        />
         <RadialAnnotator
           v-if="annotator"
           :global-id="item.global_id"
