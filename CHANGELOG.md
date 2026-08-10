@@ -11,6 +11,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 - raw id search for Biological Association autocompletes
 - `New Collection Object`: Added a CO Total field to the CO form. Added a `identifier end` field that automatically increments based on the Identifier and the total number of specimens/lots being created. [#4873]
+- `New asserted distribution`: Added preferences modal, moved autosave there, and added option to hide Confidence panel
 
 ### Changed
 
