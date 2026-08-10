@@ -25,17 +25,14 @@
           </td>
           <td>
             <div class="horizontal-right-content gap-xsmall">
-              <citation-count
-                :object="item"
-                :values="item.citations"
-                target="biological_associations"
-              />
               <RadialAnnotator :global-id="item.global_id" />
               <RadialObject :global-id="item.global_id" />
+              <CitationCount :citations="item.citations" />
               <VBtn
                 icon
                 variant="tonal"
                 color="primary"
+                title="Edit record"
                 @click="emit('edit', Object.assign({}, item))"
               >
                 <IconPencil class="w-4 h-4" />
@@ -44,7 +41,8 @@
               <VBtn
                 icon
                 variant="tonal"
-                :color="softDelete ? 'primary' : 'destroy'"
+                title="Remove record"
+                color="destroy"
                 @click="deleteItem(item, index)"
               >
                 <IconTrash class="w-4 h-4" />
@@ -62,7 +60,7 @@ import IconPencil from '@/components/Icon/IconPencil.vue'
 import IconTrash from '@/components/Icon/IconTrash.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialObject from '@/components/radials/object/radial.vue'
-import CitationCount from '../shared/citationsCount.vue'
+import CitationCount from '@/components/citations/CitationsCount.vue'
 
 const props = defineProps({
   list: {
@@ -113,7 +111,9 @@ function getSubjectOrObject(item) {
 
 .list-complete-item {
   justify-content: space-between;
-  transition: all 0.5s, opacity 0.2s;
+  transition:
+    all 0.5s,
+    opacity 0.2s;
 }
 
 .list-complete-enter-active,

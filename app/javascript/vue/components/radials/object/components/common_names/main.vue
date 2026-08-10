@@ -1,6 +1,11 @@
 <template>
   <div class="common_name_annotator separate-bottom">
-    <div class="separate-bottom">
+    <EditingBanner
+      v-if="commonName.id"
+      :label="commonName.object_tag"
+      @close="reset"
+    />
+    <div class="field label-above">
       <label>Name</label>
       <input
         type="text"
@@ -22,9 +27,7 @@
         @selected="(item) => (geographicArea = item)"
       >
         <template #map>
-          <MapShapePicker
-            @select="(item) => (geographicArea = item)"
-          />
+          <MapShapePicker @select="(item) => (geographicArea = item)" />
         </template>
       </SmartSelector>
       <div>
@@ -53,7 +56,7 @@
       />
     </fieldset>
 
-    <div class="field margin-medium-top">
+    <div class="field label-above margin-medium-top">
       <label>Start year</label>
       <input
         class="date-input"
@@ -65,7 +68,7 @@
       />
     </div>
 
-    <div class="field">
+    <div class="field label-above">
       <label>End year</label>
       <input
         class="date-input"
@@ -87,9 +90,11 @@
         {{ commonName.id ? 'Update' : 'Create' }}
       </VBtn>
       <VBtn
+        v-if="!commonName.id"
         class="margin-small-left"
         medium
         color="primary"
+        variant="tonal"
         @click="reset"
         type="button"
       >
@@ -123,6 +128,7 @@ import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 import makeCommonName from '@/factory/CommonName.js'
 import MapShapePicker from '@/components/ui/SmartSelector/MapShapePicker.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import EditingBanner from '@/components/ui/EditingBanner/EditingBanner.vue'
 import { CommonName } from '@/routes/endpoints'
 import { computed, ref } from 'vue'
 import { useSlice } from '@/components/radials/composables'
@@ -209,19 +215,3 @@ CommonName.where({ otu_id: props.objectId }).then(({ body }) => {
   list.value = body
 })
 </script>
-
-<style lang="scss">
-.radial-annotator {
-  .common_name_annotator {
-    label {
-      display: block;
-    }
-    .date-input {
-      min-width: 150px;
-    }
-    .vue-autocomplete-input {
-      width: 374px;
-    }
-  }
-}
-</style>

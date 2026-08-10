@@ -13,19 +13,11 @@
       </label>
     </Teleport>
 
-    <template v-if="createdBiologicalAssociation">
-      <div class="flex-separate">
-        <h3>Edit mode</h3>
-        <button
-          type="button"
-          class="button button-default"
-          @click="reset"
-        >
-          Cancel
-        </button>
-      </div>
-      <br />
-    </template>
+    <EditingBanner
+      v-if="createdBiologicalAssociation"
+      :label="createdBiologicalAssociation.object_tag"
+      @close="reset"
+    />
 
     <FormCitation
       v-model="citation"
@@ -226,6 +218,7 @@ import TaxonDeterminationOtu from '@/components/TaxonDetermination/TaxonDetermin
 import useBiologicalAssociationAnatomicalParts from './composables/useBiologicalAssociationAnatomicalParts.js'
 import LockComponent from '@/components/ui/VLock/index.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import EditingBanner from '@/components/ui/EditingBanner/EditingBanner.vue'
 import IconReset from '@/components/Icon/IconReset.vue'
 import FormCitation from '@/components/Form/FormCitation.vue'
 import VPagination from '@/components/pagination.vue'

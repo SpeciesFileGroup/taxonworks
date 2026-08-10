@@ -1,8 +1,9 @@
 <template>
   <div class="content_annotator">
-    <h3
+    <EditingBanner
       v-if="content.id"
-      v-html="content.object_tag"
+      :label="content.object_tag"
+      @close="() => setContent(makeContent())"
     />
     <h3 v-else>New record</h3>
     <fieldset class="margin-medium-bottom">
@@ -71,13 +72,11 @@
         {{ content.id ? 'Update' : 'Create' }}
       </VBtn>
       <VBtn
+        v-if="!content.id"
         color="primary"
         medium
-        @click="
-          () => {
-            setContent(makeContent())
-          }
-        "
+        variant="tonal"
+        @click="() => setContent(makeContent())"
       >
         New
       </VBtn>
@@ -98,6 +97,7 @@ import SmartSelector from '@/components/ui/SmartSelector.vue'
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import EditingBanner from '@/components/ui/EditingBanner/EditingBanner.vue'
 import TableContents from './TableContents.vue'
 import { ControlledVocabularyTerm, Content } from '@/routes/endpoints'
 import { computed, ref, onBeforeMount } from 'vue'

@@ -1,16 +1,20 @@
 <template>
   <div class="horizontal-left-content">
-    <div
-      v-if="citations.length"
+    <VBtn
+      v-if="citations?.length"
+      icon
+      color="primary"
+      variant="tonal"
       class="citation-count"
+      title="Citations"
       @click.prevent="setModalView(true)"
     >
-      <span class="circle-button btn-citation button-default">
-        <span class="circle-count button-data middle"
-          >{{ citations.length }}
-        </span>
-      </span>
-    </div>
+      <IconQuote class="w-4 h-4" />
+      <span
+        class="circle-count button-data middle"
+        v-text="citations.length"
+      />
+    </VBtn>
     <VModal
       v-if="showCitations"
       @close="setModalView(false)"
