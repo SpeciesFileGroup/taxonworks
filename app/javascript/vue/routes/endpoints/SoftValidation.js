@@ -16,15 +16,11 @@ export const SoftValidation = {
       filterParams(params, permitParams)
     ),
 
-  // TODO: axiosConfig (cancelRequest etc.) is passed as AjaxCall's 4th arg, which
-  // axios.get silently ignores — cancellation has never worked for this endpoint.
   find: (globalId, config = {}) => {
     const { params: extraParams = {}, ...axiosConfig } = config
-    return AjaxCall(
-      'get',
-      '/soft_validations/validate',
-      { params: { global_id: globalId, ...extraParams } },
-      axiosConfig
-    )
+    return AjaxCall('get', '/soft_validations/validate', {
+      params: { global_id: globalId, ...extraParams },
+      ...axiosConfig
+    })
   }
 }

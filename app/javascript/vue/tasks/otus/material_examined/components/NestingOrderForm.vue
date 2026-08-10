@@ -15,7 +15,7 @@
           >
             <template #item="{ element }">
               <div class="nesting-item nesting-item--active">
-                <span class="drag-handle">&#8597;</span>
+                <DragHandle label="item" />
                 <span class="nesting-item-label">{{ element.label }}</span>
                 <button
                   type="button"
@@ -78,6 +78,7 @@
 <script setup>
 import { ref } from 'vue'
 import Draggable from 'vuedraggable'
+import DragHandle from '@/components/ui/DragHandle/DragHandle.vue'
 import {
   NESTING_VARIABLES,
   DEFAULT_NESTING_ORDER
@@ -194,13 +195,6 @@ function reset() {
 
 .nesting-item--available {
   background: #f5f5f5;
-}
-
-.drag-handle {
-  cursor: grab;
-  color: #999;
-  font-size: 1.1em;
-  line-height: 1;
 }
 
 .nesting-item-label {

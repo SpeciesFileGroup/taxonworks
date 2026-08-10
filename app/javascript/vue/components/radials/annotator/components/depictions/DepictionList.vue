@@ -2,6 +2,7 @@
   <table class="full_width table-striped">
     <thead>
       <tr>
+        <th class="w-4" />
         <th>Image</th>
         <th>Is data</th>
         <th>Label</th>

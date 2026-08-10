@@ -9,17 +9,11 @@
       <h3>Relationship</h3>
     </template>
     <template #body>
-      <div v-if="editMode">
-        <p class="inline">
-          <span class="separate-right">Editing relationship: </span>
-          <span v-html="editMode.object_tag" />
-          <span
-            title="Undo"
-            class="circle-button button-default btn-undo"
-            @click="closeEdit"
-          />
-        </p>
-      </div>
+      <editing-banner
+        v-if="editMode"
+        :label="editMode.object_tag"
+        @close="closeEdit"
+      />
       <div v-if="!taxonRelation">
         <div class="horizontal-left-content">
           <autocomplete
@@ -27,7 +21,6 @@
             url="/taxon_names/autocomplete"
             label="label_html"
             min="2"
-            @getItem="taxonRelation = $event"
             event-send="autocompleteTaxonRelationshipSelected"
             placeholder="Search taxon name for the new relationship..."
             :add-params="{
@@ -35,20 +28,36 @@
               'nomenclature_group[]': getRankGroup
             }"
             param="term"
+            @getItem="taxonRelation = $event"
           />
         </div>
       </div>
       <template v-else>
-        <div v-if="isInsertaeSedis">
-          <p class="inline">
+        <div class="picker-step">
+          <span class="picker-step__label text-xs text-muted-color">
+            Related taxon name
+          </span>
+          <div class="horizontal-left-content middle gap-small">
             <span v-html="taxonLabel" />
-            <span
-              type="button"
-              title="Undo"
-              class="circle-button button-default btn-undo"
+            <VBtn
+              icon
+              color="primary"
+              variant="tonal"
+              title="Pick a different taxon name"
               @click="taxonRelation = undefined"
-            />
-          </p>
+            >
+              <IconReset class="w-4 h-4" />
+            </VBtn>
+          </div>
+        </div>
+
+        <div
+          v-if="isInsertaeSedis"
+          class="picker-step"
+        >
+          <span class="picker-step__label text-xs text-muted-color">
+            Relationship type
+          </span>
           <ul class="no_bullets">
             <li @click="addEntry(incertaeSedis[nomenclaturalCode])">
               <label>
@@ -58,7 +67,10 @@
             </li>
           </ul>
         </div>
-        <div v-else>
+        <div
+          v-else
+          class="picker-step"
+        >
           <tree-display
             v-if="showModal"
             :taxon-rank="taxon.rank_string"
@@ -76,19 +88,13 @@
             @selected="addEntry"
           />
 
+          <span class="picker-step__label text-xs text-muted-color">
+            Relationship type
+          </span>
           <switch-component
             v-model="view"
             :options="tabs"
           />
-          <p class="inline">
-            <span v-html="taxonLabel" />
-            <span
-              type="button"
-              title="Undo"
-              class="circle-button button-default btn-undo"
-              @click="taxonRelation = undefined"
-            />
-          </p>
           <div class="separate-top">
             <autocomplete
               v-if="view === 'Advanced'"
@@ -113,6 +119,7 @@
         </div>
       </template>
       <list-entrys
+        class="created-list"
         @update="loadTaxonRelationships"
         @addCitation="setRelationship"
         @delete="removeRelationship"
@@ -143,6 +150,9 @@ import Autocomplete from '@/components/ui/Autocomplete.vue'
 import getRankGroup from '../helpers/getRankGroup'
 import SwitchComponent from '@/components/ui/VSwitch'
 import BlockLayout from '@/components/layout/BlockLayout'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import IconReset from '@/components/Icon/IconReset.vue'
+import EditingBanner from '@/components/ui/EditingBanner/EditingBanner.vue'
 
 const FILTER_RELATIONSHIPS = [
   TAXON_RELATIONSHIP_CURRENT_COMBINATION,
@@ -159,11 +169,18 @@ export default {
     TreeDisplay,
     ListCommon,
     SwitchComponent,
-    BlockLayout
+    BlockLayout,
+    VBtn,
+    IconReset,
+    EditingBanner
   },
   computed: {
     taxonLabel() {
-      return this.taxonRelation.label_html || this.taxonRelation.object_tag
+      return (
+        this.taxonRelation.label_html ||
+        this.taxonRelation.object_object_tag ||
+        this.taxonRelation.object_tag
+      )
     },
 
     treeList() {

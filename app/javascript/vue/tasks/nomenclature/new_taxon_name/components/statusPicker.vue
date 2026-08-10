@@ -8,17 +8,11 @@
       <h3>Status</h3>
     </template>
     <template #body>
-      <div v-if="classificationObject.id">
-        <p class="inline">
-          <span class="separate-right">Editing status: </span>
-          <span v-html="classificationObject.object_tag" />
-          <span
-            title="Undo"
-            class="circle-button button-default btn-undo"
-            @click="classificationObject = {}"
-          />
-        </p>
-      </div>
+      <EditingBanner
+        v-if="classificationObject.id"
+        :label="classificationObject.object_tag"
+        @close="classificationObject = {}"
+      />
       <classification-main
         @select="saveClassification"
         :created="getStatusCreated"
@@ -32,6 +26,7 @@
         </li>
       </ul>
       <display-list
+        class="created-list"
         @delete="removeStatus"
         @edit="classificationObject = $event"
         edit
@@ -52,6 +47,7 @@ import { MutationNames } from '../store/mutations/mutations'
 import DisplayList from '@/components/displayList.vue'
 import BlockLayout from '@/components/layout/BlockLayout'
 import ClassificationMain from './Classification/ClassificationMain.vue'
+import EditingBanner from '@/components/ui/EditingBanner/EditingBanner.vue'
 
 const store = useStore()
 

@@ -9,17 +9,11 @@
       <h3>Classification</h3>
     </template>
     <template #body>
-      <div v-if="editMode">
-        <p class="inline">
-          <span class="separate-right">Editing relationship: </span>
-          <span v-html="editMode.object_tag" />
-          <span
-            title="Undo"
-            class="circle-button button-default btn-undo"
-            @click="closeEdit"
-          />
-        </p>
-      </div>
+      <editing-banner
+        v-if="editMode"
+        :label="editMode.object_tag"
+        @close="closeEdit"
+      />
       <div v-if="!taxonRelation">
         <div class="horizontal-left-content">
           <autocomplete
@@ -46,16 +40,27 @@
         </div>
       </div>
       <template v-else>
-        <div>
-          <p class="inline">
+        <div class="picker-step">
+          <span class="picker-step__label text-xs text-muted-color">
+            Related taxon name
+          </span>
+          <div class="horizontal-left-content middle gap-small">
             <span v-html="taxonLabel" />
-            <span
-              type="button"
-              title="Undo"
-              class="circle-button button-default btn-undo"
+            <VBtn
+              icon
+              color="primary"
+              variant="tonal"
+              title="Pick a different taxon name"
               @click="taxonRelation = undefined"
-            />
-          </p>
+            >
+              <IconReset class="w-4 h-4" />
+            </VBtn>
+          </div>
+        </div>
+        <div class="picker-step">
+          <span class="picker-step__label text-xs text-muted-color">
+            Classification type
+          </span>
           <ul class="no_bullets">
             <li @click.prevent="addEntry(incertaeSedis[nomenclaturalCode])">
               <label>
@@ -73,6 +78,7 @@
         </div>
       </template>
       <list-entrys
+        class="created-list"
         :edit="true"
         :list="GetRelationshipsCreated"
         :display="[
@@ -100,17 +106,25 @@ import BlockLayout from '@/components/layout/BlockLayout'
 import ListEntrys from './listEntrys.vue'
 import Autocomplete from '@/components/ui/Autocomplete.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import IconReset from '@/components/Icon/IconReset.vue'
+import EditingBanner from '@/components/ui/EditingBanner/EditingBanner.vue'
 
 export default {
   components: {
     ListEntrys,
     Autocomplete,
     BlockLayout,
-    VBtn
+    VBtn,
+    IconReset,
+    EditingBanner
   },
   computed: {
     taxonLabel() {
-      return this.taxonRelation.label_html || this.taxonRelation.object_tag
+      return (
+        this.taxonRelation.label_html ||
+        this.taxonRelation.object_object_tag ||
+        this.taxonRelation.object_tag
+      )
     },
     GetRelationshipsCreated() {
       return this.$store.getters[GetterNames.GetTaxonRelationshipList].filter(

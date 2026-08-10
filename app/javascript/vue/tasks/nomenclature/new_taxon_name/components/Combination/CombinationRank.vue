@@ -25,12 +25,10 @@
             class="horizontal-left-content middle gap-small"
             v-if="!element.taxon"
           >
-            <span
-              class="handle drag-handle drag-handle--primary"
-              v-tooltip="'Press and hold to drag input'"
-            >
-              <IconGripVertical class="w-4 h-4" />
-            </span>
+            <DragHandle
+              color="primary"
+              label="input"
+            />
             <Autocomplete
               :ref="(el) => setAutocompleteRef(el, index)"
               url="/taxon_names/autocomplete"
@@ -50,12 +48,10 @@
             class="original-combination-item horizontal-left-content middle gap-small"
             v-else
           >
-            <span
-              class="handle drag-handle drag-handle--primary"
-              v-tooltip="'Press and hold to drag input'"
-            >
-              <IconGripVertical class="w-4 h-4" />
-            </span>
+            <DragHandle
+              color="primary"
+              label="input"
+            />
             <div>
               <span
                 class="vue-autocomplete-input normal-input combination middle"
@@ -83,10 +79,9 @@
 import Draggable from 'vuedraggable'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import Autocomplete from '@/components/ui/Autocomplete.vue'
-import IconGripVertical from '@/components/Icon/IconGripVertical.vue'
+import DragHandle from '@/components/ui/DragHandle/DragHandle.vue'
 import { ref, watch, watchPostEffect, computed } from 'vue'
 import { TaxonName } from '@/routes/endpoints'
-import { vTooltip } from '@/directives'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import IconTrash from '@/components/Icon/IconTrash.vue'
 

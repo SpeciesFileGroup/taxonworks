@@ -26,9 +26,9 @@
         <tr>
           <td>
             <div class="flex flex-row middle gap-small">
-              <IconGripVertical
-                class="w-4 h-4 handle text-primary-color cursor-grab"
-                v-tooltip="'Press and hold to drag taxon determination'"
+              <DragHandle
+                color="create"
+                label="taxon determination"
               />
 
               <a
@@ -78,12 +78,11 @@
 import { computed } from 'vue'
 import { RouteNames } from '@/routes/routes'
 import { TaxonDetermination } from '@/routes/endpoints'
-import { vTooltip } from '@/directives/tooltip'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import VLock from '@/components/ui/VLock/index.vue'
 import Draggable from 'vuedraggable'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import IconGripVertical from '@/components/Icon/IconGripVertical.vue'
+import DragHandle from '@/components/ui/DragHandle/DragHandle.vue'
 import IconPencil from '@/components/Icon/IconPencil.vue'
 import IconTrash from '@/components/Icon/IconTrash.vue'
 

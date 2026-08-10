@@ -1,22 +1,10 @@
 <template>
   <div class="citation_annotator">
-    <div
+    <EditingBanner
       v-if="citation?.id"
-      class="flex-separate gap-small"
-    >
-      <h3>
-        Edit:
-        <span v-html="citation.object_tag" />
-      </h3>
-      <VBtn
-        icon
-        variant="tonal"
-        color="primary"
-        @click="() => (citation = newCitation())"
-      >
-        <IconReset class="w-4 h-4" />
-      </VBtn>
-    </div>
+      :label="citation.object_tag"
+      @close="() => (citation = newCitation())"
+    />
     <h3 v-else>New citation</h3>
     <FormCitation
       v-model="citation"
@@ -32,6 +20,7 @@
           v-if="!citation.id"
           color="primary"
           medium
+          variant="tonal"
           @click="() => (citation = newCitation())"
         >
           New
@@ -113,7 +102,7 @@ import CitationTopicForm from './CitationTopicForm.vue'
 import TopicPages from './TopicPages.vue'
 import HandleCitations from './handleOriginalModal'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import IconReset from '@/components/Icon/IconReset.vue'
+import EditingBanner from '@/components/ui/EditingBanner/EditingBanner.vue'
 import IconTrash from '@/components/Icon/IconTrash.vue'
 import makeCitation from '@/factory/Citation'
 import VPagination from '@/components/pagination.vue'

@@ -37,13 +37,16 @@
             :global-id="item.global_id"
             @close="update()"
           />
-          <span
-            type="button"
-            title="Remove citation"
-            class="circle-button button-delete btn-undo"
+          <VBtn
             v-if="getCitation(item)"
+            icon
+            color="destroy"
+            variant="tonal"
+            title="Remove citation"
             @click="removeCitation(item)"
-          />
+          >
+            <IconTrash class="w-4 h-4" />
+          </VBtn>
           <VBtn
             v-if="edit"
             icon

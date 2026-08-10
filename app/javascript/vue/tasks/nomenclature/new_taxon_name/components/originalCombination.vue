@@ -29,12 +29,10 @@
             class="horizontal-left-content middle gap-small"
             v-if="!element.value"
           >
-            <span
-              class="handle drag-handle drag-handle--create"
-              v-tooltip="'Press and hold to drag input'"
-            >
-              <IconGripVertical class="w-4 h-4" />
-            </span>
+            <DragHandle
+              color="create"
+              label="input"
+            />
             <autocomplete
               :ref="(el) => setAutocompleteRef(el, index)"
               url="/taxon_names/autocomplete"
@@ -54,12 +52,10 @@
             class="original-combination-item horizontal-left-content middle gap-small"
             v-else
           >
-            <span
-              class="handle drag-handle drag-handle--create"
-              v-tooltip="'Press and hold to drag input'"
-            >
-              <IconGripVertical class="w-4 h-4" />
-            </span>
+            <DragHandle
+              color="create"
+              label="input"
+            />
             <div>
               <span
                 class="vue-autocomplete-input normal-input combination middle"
@@ -90,23 +86,18 @@ import { ActionNames } from '../store/actions/actions'
 import Autocomplete from '@/components/ui/Autocomplete.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import Draggable from 'vuedraggable'
-import IconGripVertical from '@/components/Icon/IconGripVertical.vue'
+import DragHandle from '@/components/ui/DragHandle/DragHandle.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import IconTrash from '@/components/Icon/IconTrash.vue'
-import { vTooltip } from '@/directives'
 
 export default {
   components: {
     RadialAnnotator,
     Autocomplete,
     Draggable,
-    IconGripVertical,
+    DragHandle,
     IconTrash,
     VBtn
-  },
-
-  directives: {
-    tooltip: vTooltip
   },
 
   props: {

@@ -1,40 +1,27 @@
 <template>
   <div class="notes_annotator">
+    <EditingBanner
+      v-if="note.id"
+      :label="note.text"
+      @close="note = newNote()"
+    />
     <textarea
       class="separate-bottom"
       v-model="note.text"
       rows="10"
       placeholder="Text..."
     />
-    <div v-if="note.id">
-      <v-btn
-        class="margin-small-right"
-        color="create"
-        medium
-        :disabled="!validateFields"
-        @click="saveNote()"
-      >
-        Update
-      </v-btn>
-      <v-btn
-        color="primary"
-        medium
-        @click="note = newNote()"
-      >
-        New
-      </v-btn>
-    </div>
-    <div v-else>
-      <v-btn
+    <div class="horizontal-left-content gap-small margin-small-bottom">
+      <VBtn
         medium
         color="create"
         :disabled="!validateFields"
         @click="saveNote()"
       >
-        Create
-      </v-btn>
+        {{ note.id ? 'Update' : 'Create' }}
+      </VBtn>
     </div>
-    <display-list
+    <DisplayList
       label="text"
       :list="list"
       edit
@@ -50,6 +37,7 @@ import { ref, computed } from 'vue'
 import { useSlice } from '@/components/radials/composables'
 import DisplayList from '@/components/displayList.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import EditingBanner from '@/components/ui/EditingBanner/EditingBanner.vue'
 
 const props = defineProps({
   objectId: {

@@ -1,16 +1,13 @@
 <template>
   <div>
     <VBtn
+      icon
       color="primary"
-      circle
+      variant="tonal"
       title="Move annotation"
       @click="() => (isModalVisible = true)"
     >
-      <VIcon
-        name="swap"
-        x-small
-        title="Move annotation"
-      />
+      <IconArrowLeftRight class="w-4 h-4" />
     </VBtn>
     <VModal
       v-if="isModalVisible"
@@ -76,11 +73,11 @@
 import { ref, watch } from 'vue'
 import { OBJECT_TYPES } from './types'
 import { Annotation } from '@/routes/endpoints'
-import VIcon from '@/components/ui/VIcon/index.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VModal from '@/components/ui/Modal.vue'
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 import VAutocomplete from '@/components/ui/Autocomplete.vue'
+import IconArrowLeftRight from '@/components/Icon/IconArrowLeftRight.vue'
 import * as services from '@/routes/endpoints'
 
 const props = defineProps({

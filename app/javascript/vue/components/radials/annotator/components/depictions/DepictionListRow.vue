@@ -1,5 +1,11 @@
 <template>
   <tr>
+    <td>
+      <DragHandle
+        color="create"
+        label="depiction"
+      />
+    </td>
     <td v-html="depiction.object_tag" />
     <td>{{ depiction.is_metadata_depiction }}</td>
     <td>
@@ -27,19 +33,6 @@
           @move="(item) => emit('move', item)"
         />
         <VBtn
-          color="primary"
-          circle
-          class="cursor-grab handle"
-          title="Press and hold to drag depiction"
-        >
-          <VIcon
-            title="Press and hold to drag depiction"
-            color="white"
-            name="scrollV"
-            small
-          />
-        </VBtn>
-        <VBtn
           class="circle-button"
           color="primary"
           icon
@@ -66,7 +59,7 @@
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import EditInPlace from '@/components/editInPlace.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import DragHandle from '@/components/ui/DragHandle/DragHandle.vue'
 import IconPencil from '@/components/Icon/IconPencil.vue'
 import IconTrash from '@/components/Icon/IconTrash.vue'
 import MoveAnnotation from '../shared/MoveAnnotation/MoveAnnotation.vue'

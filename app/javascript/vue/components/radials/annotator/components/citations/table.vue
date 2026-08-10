@@ -26,17 +26,21 @@
           </td>
           <td>
             <div class="horizontal-right-content middle gap-small">
-              <a
-                class="button-default circle-button btn-citation"
+              <RadialAnnotator :global-id="item.global_id" />
+              <VBtn
+                icon
+                variant="tonal"
+                color="primary"
                 title="Open in citations by source task"
                 :href="`${RouteNames.NomenclatureBySource}?source_id=${item.source_id}`"
                 target="blank"
-              />
+              >
+                <IconQuote class="w-4 h-4" />
+              </VBtn>
               <PdfButton
                 v-if="item.hasOwnProperty('target_document')"
                 :pdf="item.target_document"
               />
-              <RadialAnnotator :global-id="item.global_id" />
               <MoveAnnotation
                 :annotation="item"
                 @move="(e) => emit('move', e)"
@@ -77,6 +81,7 @@ import MoveAnnotation from '../shared/MoveAnnotation/MoveAnnotation.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import IconPencil from '@/components/Icon/IconPencil.vue'
 import IconTrash from '@/components/Icon/IconTrash.vue'
+import IconQuote from '@/components/Icon/IconQuote.vue'
 
 defineProps({
   list: {

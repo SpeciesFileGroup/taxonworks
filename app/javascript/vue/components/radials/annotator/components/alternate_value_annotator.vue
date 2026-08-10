@@ -1,6 +1,12 @@
 <template>
   <div>
     <div class="alternate_values_annotator">
+      <EditingBanner
+        v-if="alternateValue.id"
+        @close="reset"
+      >
+        {{ alternateValue.value }}
+      </EditingBanner>
       <VSwitch
         :options="Object.values(TYPE_LIST)"
         use-index
@@ -57,6 +63,7 @@
         Save
       </VBtn>
       <VBtn
+        v-if="!alternateValue.id"
         color="primary"
         medium
         @click="reset"
@@ -90,6 +97,7 @@ import DisplayList from '@/components/displayList.vue'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import EditingBanner from '@/components/ui/EditingBanner/EditingBanner.vue'
 import makeRequest from '@/helpers/ajaxCall.js'
 
 const TYPE_LIST = {

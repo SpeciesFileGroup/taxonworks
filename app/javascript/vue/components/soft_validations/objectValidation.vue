@@ -8,18 +8,18 @@
       :key="index"
       class="flex-row gap-small middle padding-small-top padding-small-bottom"
     >
-      <IconWarning class="w-4 h-4 text-attention-color" />
+      <IconWarning class="btn-attention w-4 h-4" />
       <span v-html="validation" />
     </li>
   </ul>
 
   <template v-else>
-    <VIcon
+    <IconCircleQuestionMark
       v-if="isLoading"
+      class="text-muted-color w-4 h-4"
       small
       name="question"
-      color="gray"
-      title="Loading validation."
+      v-tooltip="'Loading validation...'"
     />
     <IconCircleCheckBig
       v-else-if="!validations.length"
@@ -28,6 +28,7 @@
     />
     <VBtn
       v-else-if="validations.length"
+      icon
       color="attention"
       variant="ghost"
       small
@@ -52,7 +53,7 @@
             :key="index"
           >
             <span>
-              <IconWarning class="w-4 h-4" />
+              <IconWarning class="w-4 h-4 text-attention-color" />
               <span
                 class="margin-small-left"
                 v-html="validation"
@@ -67,13 +68,13 @@
 
 <script setup>
 import { ref, watch, onMounted, onBeforeUnmount } from 'vue'
+import { SoftValidation } from '@/routes/endpoints'
+import { vTooltip } from '@/directives/tooltip.js'
 import IconCircleCheckBig from '@/components/Icon/IconCircleCheckBig.vue'
 import ModalComponent from '@/components/ui/Modal.vue'
-import { SoftValidation } from '@/routes/endpoints'
-import VIcon from '@/components/ui/VIcon/index.vue'
 import IconWarning from '@/components/Icon/IconWarning.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import { vTooltip } from '@/directives/tooltip.js'
+import IconCircleQuestionMark from '../Icon/IconCircleQuestionMark.vue'
 
 const props = defineProps({
   globalId: {
@@ -96,7 +97,7 @@ const validations = ref([])
 const showModal = ref(false)
 const isLoading = ref(false)
 
-let cancelRequest
+let controller
 
 watch(
   () => props.validateObject,
@@ -113,26 +114,30 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
-  if (cancelRequest) {
-    cancelRequest()
-  }
+  controller?.abort()
 })
 
 function getSoftValidation() {
+  controller?.abort()
+
+  const currentController = new AbortController()
+
+  controller = currentController
   isLoading.value = true
-  SoftValidation.find(props.globalId, {
-    cancelRequest: (c) => {
-      cancelRequest = c
-    }
-  })
+
+  SoftValidation.find(props.globalId, { signal: currentController.signal })
     .then((response) => {
+      if (controller !== currentController) return
+
       validations.value = response.body.soft_validations.map(
         (validation) => validation.message
       )
     })
     .catch((_) => {})
     .finally(() => {
-      isLoading.value = false
+      if (controller === currentController) {
+        isLoading.value = false
+      }
     })
 }
 

@@ -42,12 +42,10 @@
                 <div
                   class="horizontal-left-content middle item-draggable gap-small"
                 >
-                  <span
-                    class="handle drag-handle drag-handle--create"
-                    v-tooltip="'Press and hold to drag input'"
-                  >
-                    <IconGripVertical class="w-4 h-4" />
-                  </span>
+                  <DragHandle
+                    color="create"
+                    label="input"
+                  />
                   <input
                     type="text"
                     class="normal-input current-taxon"
@@ -130,13 +128,12 @@ import Draggable from 'vuedraggable'
 import OriginalCombination from './originalCombination.vue'
 import BlockLayout from '@/components/layout/BlockLayout'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import IconGripVertical from '@/components/Icon/IconGripVertical.vue'
+import DragHandle from '@/components/ui/DragHandle/DragHandle.vue'
 import IconTrash from '@/components/Icon/IconTrash.vue'
 import {
   originalCombinationType,
   combinationIcnType
 } from '../const/combinationTypes'
-import { vTooltip } from '@/directives'
 
 export default {
   components: {
@@ -145,11 +142,7 @@ export default {
     BlockLayout,
     VBtn,
     IconTrash,
-    IconGripVertical
-  },
-
-  directives: {
-    tooltip: vTooltip
+    DragHandle
   },
 
   data() {

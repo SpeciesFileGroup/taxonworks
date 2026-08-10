@@ -25,14 +25,12 @@
       </div>
       <div class="margin-small-right">
         <VBtn
+          icon
           color="primary"
-          circle
+          variant="tonal"
           @click="flip = !flip"
         >
-          <VIcon
-            name="swap"
-            x-small
-          />
+          <IconArrowLeftRight class="w-4 h-4" />
         </VBtn>
       </div>
     </div>
@@ -42,7 +40,7 @@
       <select v-model="type">
         <option :value="null">Select type</option>
         <option
-          v-for="(key) in Object.keys(typeList).sort()"
+          v-for="key in Object.keys(typeList).sort()"
           :key="key"
           :value="key"
         >
@@ -89,10 +87,10 @@
       class="margin-large-bottom"
     >
       <legend>Endpoints</legend>
-      <VSpinner
-        v-if="loadingNewObjects"
-      />
-      <h3 class="no-flex"><span v-html="props.metadata.object_tag" />&nbsp;is the origin of:</h3>
+      <VSpinner v-if="loadingNewObjects" />
+      <h3 class="no-flex">
+        <span v-html="props.metadata.object_tag" />&nbsp;is the origin of:
+      </h3>
       <RelationshipsTable
         v-if="newObjectsList.length > 0"
         v-model="newObjectsList"
@@ -111,10 +109,12 @@
 
     <fieldset v-if="Object.keys(originatesFromList).length > 0">
       <legend>Origins</legend>
-      <VSpinner
-        v-if="loadingOldObjects"
-      />
-      <h3 class="no-flex"><span class="blank d-inline-block" />&nbsp;is the origin of&nbsp;<span v-html="props.metadata.object_tag" />:</h3>
+      <VSpinner v-if="loadingOldObjects" />
+      <h3 class="no-flex">
+        <span class="blank d-inline-block" />&nbsp;is the origin of&nbsp;<span
+          v-html="props.metadata.object_tag"
+        />:
+      </h3>
       <RelationshipsTable
         v-if="oldObjectsList.length > 0"
         v-model="oldObjectsList"
@@ -156,10 +156,12 @@
           :object-type="objectType"
           :flip="flip"
           :mode="CREATE_VERB"
-          @originRelationshipCreated="(relationship) => {
-            addRelationship(relationship)
-            showingCreate = false
-          }"
+          @originRelationshipCreated="
+            (relationship) => {
+              addRelationship(relationship)
+              showingCreate = false
+            }
+          "
         />
       </template>
     </VModal>
@@ -178,6 +180,7 @@ import VBtn from '@/components/ui/VBtn/index.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import VModal from '@/components/ui/Modal'
 import RelationshipsTable from './components/relationshipsTable.vue'
+import IconArrowLeftRight from '@/components/Icon/IconArrowLeftRight.vue'
 import { addToArray, removeFromArray } from '@/helpers'
 import { CREATE_VERB } from '@/constants'
 
@@ -218,9 +221,13 @@ const props = defineProps({
     required: true
   }
 })
-const originForList = props.metadata.endpoints.origin_relationships.origin_for || []
-const originatesFromList = props.metadata.endpoints.origin_relationships.originates_from || []
-const typeList = computed(() => flip.value ? originatesFromList : originForList)
+const originForList =
+  props.metadata.endpoints.origin_relationships.origin_for || []
+const originatesFromList =
+  props.metadata.endpoints.origin_relationships.originates_from || []
+const typeList = computed(() =>
+  flip.value ? originatesFromList : originForList
+)
 
 const { list, addToList, removeFromList } = useSlice({
   radialEmit: props.radialEmit
@@ -236,7 +243,9 @@ const oldObjectsList = ref([])
 const newObjectsList = ref([])
 
 const offerCreate = computed(() => {
-  if (!Object.keys(SLICES_WITH_CREATE.origin_relationships).includes(type.value)) {
+  if (
+    !Object.keys(SLICES_WITH_CREATE.origin_relationships).includes(type.value)
+  ) {
     return false
   }
   const flipsAllowed = SLICES_WITH_CREATE.origin_relationships[type.value].flip
@@ -247,7 +256,7 @@ const offerCreate = computed(() => {
   return false
 })
 
-const originEndpoint = computed(() => flip.value ? 'Origin' : 'Endpoint')
+const originEndpoint = computed(() => (flip.value ? 'Origin' : 'Endpoint'))
 const originOf = computed(() => {
   return !flip.value ? props.metadata.object_tag : objective.value?.object_tag
 })
@@ -303,17 +312,23 @@ function createOrigin() {
 
 function addRelationship(relationship) {
   addToList(relationship) // just to trigger useSlice emits
-  addToArray(flip.value ? oldObjectsList.value : newObjectsList.value, relationship)
+  addToArray(
+    flip.value ? oldObjectsList.value : newObjectsList.value,
+    relationship
+  )
 }
 
 function removeRelationship(relationship, newOrOld) {
   removeFromList(relationship) // just to trigger useSlice emits
-  removeFromArray(newOrOld == 'new' ? newObjectsList.value : oldObjectsList.value, relationship)
+  removeFromArray(
+    newOrOld == 'new' ? newObjectsList.value : oldObjectsList.value,
+    relationship
+  )
 }
 
 function removeOrigin(item, t) {
-  OriginRelationship
-    .destroy(item.id).then(() => {
+  OriginRelationship.destroy(item.id)
+    .then(() => {
       TW.workbench.alert.create(
         'Origin relationship was successfully destroyed.',
         'notice'
@@ -340,24 +355,26 @@ function onSortable({ newIndex }) {
 
 onMounted(() => {
   loadingNewObjects.value = true
-  OriginRelationship.where({ old_object_global_id: props.globalId, extend: ['global_ids'] })
-    .then(
-      ({ body }) => {
-        newObjectsList.value = body
-      }
-    )
+  OriginRelationship.where({
+    old_object_global_id: props.globalId,
+    extend: ['global_ids']
+  })
+    .then(({ body }) => {
+      newObjectsList.value = body
+    })
     .catch(() => {})
-    .finally(() => loadingNewObjects.value = false)
+    .finally(() => (loadingNewObjects.value = false))
 
   loadingOldObjects.value = true
-  OriginRelationship.where({ new_object_global_id: props.globalId, extend: ['global_ids'] })
-    .then(
-      ({ body }) => {
-        oldObjectsList.value = body
-      }
-    )
+  OriginRelationship.where({
+    new_object_global_id: props.globalId,
+    extend: ['global_ids']
+  })
+    .then(({ body }) => {
+      oldObjectsList.value = body
+    })
     .catch(() => {})
-    .finally(() => loadingOldObjects.value = false)
+    .finally(() => (loadingOldObjects.value = false))
 })
 </script>
 

@@ -11,6 +11,24 @@
     }
   }
 
+  .picker-step {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+
+    & + .picker-step {
+      margin-top: var(--spacing-lg);
+    }
+  }
+
+  .picker-step__label {
+    line-height: normal;
+  }
+
+  .created-list {
+    margin-top: var(--spacing-lg);
+  }
+
   .status-item span {
     display: inline-block;
   }

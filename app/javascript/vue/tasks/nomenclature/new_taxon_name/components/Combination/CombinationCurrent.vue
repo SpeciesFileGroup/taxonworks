@@ -28,12 +28,10 @@
             <div
               class="horizontal-left-content middle item-draggable gap-small margin-small-bottom"
             >
-              <span
-                class="handle drag-handle drag-handle--primary"
-                v-tooltip="'Press and hold to drag input'"
-              >
-                <IconGripVertical class="w-4 h-4" />
-              </span>
+              <DragHandle
+                color="primary"
+                label="input"
+              />
               <input
                 type="text"
                 class="normal-input current-taxon"
@@ -56,8 +54,7 @@ import { GetterNames } from '../../store/getters/getters.js'
 import { TaxonName } from '@/routes/endpoints'
 import Draggable from 'vuedraggable'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import IconGripVertical from '@/components/Icon/IconGripVertical.vue'
-import { vTooltip } from '@/directives'
+import DragHandle from '@/components/ui/DragHandle/DragHandle.vue'
 
 const props = defineProps({
   combinationRanks: {

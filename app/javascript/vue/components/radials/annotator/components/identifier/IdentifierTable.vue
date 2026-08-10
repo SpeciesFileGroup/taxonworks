@@ -2,6 +2,7 @@
   <table class="table-striped">
     <thead>
       <tr>
+        <th class="w-4" />
         <th>Identifier</th>
         <th>Type</th>
         <th />
@@ -16,24 +17,17 @@
       @end="updatePosition"
     >
       <template #item="{ element }">
-        <tr class="cursor-grab">
+        <tr>
+          <td>
+            <DragHandle
+              color="create"
+              label="identifier"
+            />
+          </td>
           <td v-html="element.cached"></td>
           <td v-text="element.type" />
           <td>
             <div class="horizontal-right-content gap-small">
-              <VBtn
-                color="primary"
-                circle
-                class="handle"
-                title="Press and hold to drag identifier"
-              >
-                <VIcon
-                  title="Press and hold to drag identifier"
-                  color="white"
-                  name="scrollV"
-                  small
-                />
-              </VBtn>
               <VBtn
                 icon
                 variant="tonal"
@@ -53,7 +47,7 @@
 <script setup>
 import { Identifier } from '@/routes/endpoints'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import DragHandle from '@/components/ui/DragHandle/DragHandle.vue'
 import IconTrash from '@/components/Icon/IconTrash.vue'
 import VDraggable from 'vuedraggable'
 

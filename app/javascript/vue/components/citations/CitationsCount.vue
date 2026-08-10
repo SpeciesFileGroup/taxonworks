@@ -28,12 +28,16 @@
         >
           <template #options="{ item }">
             <div>
-              <a
+              <VBtn
+                icon
+                color="primary"
+                variant="tonal"
                 :title="item.source.object_tag"
-                class="button-default circle-button btn-citation"
                 :href="`${RouteNames.NomenclatureBySource}?source_id=${item.source.id}`"
                 target="blank"
-              />
+              >
+                <IconQuote class="w-4 h-4" />
+              </VBtn>
             </div>
           </template>
         </display-list>
@@ -47,6 +51,8 @@ import { RouteNames } from '@/routes/routes'
 import { ref } from 'vue'
 import DisplayList from '@/components/displayList'
 import VModal from '@/components/ui/Modal'
+import IconQuote from '@/components/Icon/IconQuote.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
 
 defineProps({
   citations: {

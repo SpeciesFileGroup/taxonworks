@@ -1,5 +1,10 @@
 <template>
   <div class="data_attribute_annotator">
+    <EditingBanner
+      v-if="selectedDataAttribute.id"
+      :label="selectedDataAttribute.object_tag"
+      @close="resetForm"
+    />
     <SmartSelector
       autocomplete-url="/controlled_vocabulary_terms/autocomplete"
       :autocomplete-params="{ 'type[]': 'Predicate' }"
@@ -42,8 +47,10 @@
         {{ selectedDataAttribute.id ? 'Update' : 'Create' }}
       </VBtn>
       <VBtn
+        v-if="!selectedDataAttribute.id"
         medium
         color="primary"
+        variant="tonal"
         @click="resetForm"
       >
         New
@@ -84,6 +91,7 @@ import {
 } from '@/constants'
 import { useSlice } from '@/components/radials/composables'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import EditingBanner from '@/components/ui/EditingBanner/EditingBanner.vue'
 import TableList from './shared/tableList'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
