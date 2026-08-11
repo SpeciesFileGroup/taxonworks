@@ -18,4 +18,8 @@ defineProps({
 .facet-container-highlight {
   background-color: var(--soft-validation-bg-color);
 }
+
+:deep(h3) {
+  margin-bottom: var(--spacing-xs);
+}
 </style>

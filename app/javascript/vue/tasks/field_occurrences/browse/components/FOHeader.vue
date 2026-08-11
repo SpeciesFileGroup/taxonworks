@@ -4,7 +4,23 @@
       v-if="store.fieldOccurrence"
       class="flex-separate middle"
     >
-      <span v-html="store.fieldOccurrence.object_tag" />
+      <div class="horizontal-left-content middle gap-small">
+        <AutocompletePopover
+          ref="autocomplete"
+          url="/field_occurrences/autocomplete"
+          title="Search a field occurrence to browse"
+          placeholder="Search a field occurrence"
+          param="term"
+          label="label_html"
+          medium
+          clear-after
+          @select="(item) => emit('select', item.id)"
+        />
+        <span
+          class="margin-small-left"
+          v-html="store.fieldOccurrence.object_tag"
+        />
+      </div>
       <div class="horizontal-right-content">
         <ul class="context-menu">
           <li>
@@ -50,9 +66,11 @@
 </template>
 
 <script setup>
-import { addToArray, removeFromArray } from '@/helpers'
+import { addToArray, removeFromArray, getPlatformKey } from '@/helpers'
 import { DEPICTION, IDENTIFIER } from '@/constants'
 import { RouteNames } from '@/routes/routes'
+import { ref, useTemplateRef } from 'vue'
+import { useHotkey } from '@/composables'
 import useStore from '../store/store.js'
 import VBtn from '@/components/ui/VBtn'
 import IconPencil from '@/components/Icon/IconPencil.vue'
@@ -61,6 +79,7 @@ import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialObject from '@/components/radials/object/radial.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import VAutocomplete from '@/components/ui/Autocomplete.vue'
+import AutocompletePopover from '@/components/ui/Autocomplete/AutocompletePopover.vue'
 import useDepictionStore from '../store/depictions.js'
 import useIdentifierStore from '../store/identifiers.js'
 
@@ -69,6 +88,7 @@ const emit = defineEmits(['select'])
 const store = useStore()
 const depictionStore = useDepictionStore()
 const identifierStore = useIdentifierStore()
+const autocompleteRef = useTemplateRef('autocomplete')
 
 const openEditFieldOccurrence = (id) => {
   window.open(
@@ -107,4 +127,22 @@ function handleRadialUpdate({ item }) {
       break
   }
 }
+
+const shortcuts = ref([
+  {
+    keys: [getPlatformKey(), 'f'],
+    preventDefault: true,
+    handler() {
+      autocompleteRef.value?.open()
+    }
+  }
+])
+
+useHotkey(shortcuts.value)
+
+TW.workbench.keyboard.createLegend(
+  `${getPlatformKey()}+f`,
+  'Search a field occurrence',
+  'Browse field occurrence'
+)
 </script>

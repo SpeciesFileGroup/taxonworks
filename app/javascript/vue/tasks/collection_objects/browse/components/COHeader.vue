@@ -10,6 +10,7 @@
           title="Search a collection object to browse"
           placeholder="Search a collection object"
           param="term"
+          medium
           label="label_html"
           autofocus
           clear-after

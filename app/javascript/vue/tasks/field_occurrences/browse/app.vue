@@ -1,21 +1,8 @@
 <template>
-  <div class="flex flex-separate middle">
-    <VSpinner
-      v-if="isLoading"
-      full-screen
-    />
-    <h1>Browse field occurrence</h1>
-    <VAutocomplete
-      v-if="store.fieldOccurrence"
-      class="autocomplete"
-      url="/field_occurrences/autocomplete"
-      placeholder="Search a field occurrence"
-      param="term"
-      label="label_html"
-      clear-after
-      @get-item="({ id }) => loadData(id)"
-    />
-  </div>
+  <VSpinner
+    v-if="isLoading"
+    full-screen
+  />
   <FOHeader @select="loadData" />
   <TableGrid
     :columns="1"
@@ -43,7 +30,6 @@ import { FIELD_OCCURRENCE, COLLECTING_EVENT } from '@/constants'
 import { URLParamsToJSON } from '@/helpers'
 import { onBeforeMount, ref } from 'vue'
 
-import VAutocomplete from '@/components/ui/Autocomplete.vue'
 import FOHeader from './components/FOHeader.vue'
 import PanelFO from './components/Panel/PanelFO.vue'
 import PanelCE from './components/PanelCE/PanelCE.vue'

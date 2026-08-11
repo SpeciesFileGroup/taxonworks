@@ -2,7 +2,7 @@
   <div>
     <VSpinner v-if="loading" />
 
-    <div class="horizontal-left-content separate-bottom">
+    <div class="horizontal-left-content margin-small-bottom">
       <VSwitch
         :options="tabDisplayOptions"
         v-model="tab"
@@ -109,9 +109,15 @@ const loading = ref(false)
 
 const emit = defineEmits(['selectObject'])
 
-const tabData = computed(() => props.objectTypes.find((o) => o.display == tab.value))
-const tabDisplayOptions = computed(() => props.objectTypes.map((o) => o.display))
-const smartSelectorTabs = computed(() => tabData.value.smartSelector?.tabs || {})
+const tabData = computed(() =>
+  props.objectTypes.find((o) => o.display == tab.value)
+)
+const tabDisplayOptions = computed(() =>
+  props.objectTypes.map((o) => o.display)
+)
+const smartSelectorTabs = computed(
+  () => tabData.value.smartSelector?.tabs || {}
+)
 
 // inputObject gets passed on to the selector if they have the same object type;
 // object assigned from the selector *always* gets passed back to inputObject.
