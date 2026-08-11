@@ -1,53 +1,45 @@
 <template>
   <Navbar>
     <div class="flex-separate full_width">
-      <div class="middle margin-small-left">
-        <Autocomplete
+      <div class="horizontal-left-content gap-medium middle">
+        <AutocompletePopover
+          ref="autocomplete"
           url="/field_occurrences/autocomplete"
           param="term"
           placeholder="Search"
           label="label_html"
-          :legend="
-            settings.isLoading
-              ? 'Loading, please wait...'
-              : 'Saving, please wait...'
-          "
           clear-after
-          @get-item="({ id }) => loadForms(id)"
+          min="1"
+          medium
+          title="Search a field occurrence"
+          @select="({ id }) => loadForms(id)"
         />
         <span
           v-if="foStore.fieldOccurrence.id"
-          class="margin-small-left"
           v-html="foStore.fieldOccurrence.object_tag"
         />
-        <span
-          class="margin-small-left"
-          v-else
-        >
-          New record
-        </span>
+        <span v-else> New record </span>
         <div
           v-if="foStore.fieldOccurrence.id"
-          class="horizontal-left-content margin-small-left gap-small"
+          class="horizontal-left-content gap-small"
         >
           <RadialAnnotator :global-id="foStore.fieldOccurrence.global_id" />
           <RadialObject :global-id="foStore.fieldOccurrence.global_id" />
           <RadialNavigator :global-id="foStore.fieldOccurrence.global_id" />
         </div>
       </div>
-      <ul class="context-menu no_bullets">
-        <li class="horizontal-right-content gap-small">
-          <VIcon
-            v-if="isUnsaved"
-            name="attention"
-            color="attention"
-            small
-            title="You have unsaved changes."
-          />
-          <VRecent @selected="({ id }) => loadForms(id)" />
+      <div class="horizontal-right-content gap-medium">
+        <VIcon
+          v-if="isUnsaved"
+          name="attention"
+          color="attention"
+          small
+          title="You have unsaved changes."
+        />
+        <div class="horizontal-right-content gap-small">
           <VBtn
-            color="create"
             medium
+            color="create"
             :disabled="!validateSave"
             @click="save"
           >
@@ -56,6 +48,7 @@
           <VBtn
             medium
             color="create"
+            variant="tonal"
             :disabled="!validateSave"
             @click="saveAndNew"
           >
@@ -64,12 +57,17 @@
           <VBtn
             medium
             color="primary"
+            variant="tonal"
             @click="reset"
           >
             New
           </VBtn>
-        </li>
-      </ul>
+        </div>
+        <div class="horizontal-right-content gap-small">
+          <VRecent @selected="({ id }) => loadForms(id)" />
+          <LayoutConfiguration />
+        </div>
+      </div>
     </div>
   </Navbar>
   <VSpinner
@@ -79,7 +77,7 @@
 </template>
 
 <script setup>
-import { computed, onBeforeMount, watch, ref } from 'vue'
+import { computed, onBeforeMount, watch, ref, useTemplateRef } from 'vue'
 import { setParam, smartSelectorRefresh } from '@/helpers'
 import { FIELD_OCCURRENCE } from '@/constants'
 import { useHotkey } from '@/composables'
@@ -87,7 +85,7 @@ import { useHotkey } from '@/composables'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialObject from '@/components/radials/object/radial.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
-import Autocomplete from '@/components/ui/Autocomplete.vue'
+import AutocompletePopover from '@/components/ui/Autocomplete/AutocompletePopover.vue'
 import Navbar from '@/components/layout/NavBar.vue'
 import useFieldOccurrenceStore from '../store/fieldOccurrence.js'
 import useCitationStore from '../store/citations.js'
@@ -101,6 +99,7 @@ import useOriginRelationshipStore from '../store/originRelationships.js'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import VRecent from './Recent.vue'
+import LayoutConfiguration from './LayoutConfiguration.vue'
 import platformKey from '@/helpers/getPlatformKey'
 import VSpinner from '@/components/ui/VSpinner.vue'
 
@@ -113,6 +112,7 @@ const ceStore = useCEStore()
 const biocurationStore = useBiocurationStore()
 const depictionStore = useDepictionStore()
 const originRelationshipStore = useOriginRelationshipStore()
+const autocompleteRef = useTemplateRef('autocomplete')
 const fieldOccurrenceId = computed(() => foStore.fieldOccurrence.id)
 const isUnsaved = computed(
   () =>
@@ -282,6 +282,13 @@ const hotkeys = ref([
     handler() {
       settings.toggleLock()
     }
+  },
+  {
+    keys: [platformKey(), 'f'],
+    preventDefault: true,
+    handler() {
+      autocompleteRef.value?.open()
+    }
   }
 ])
 
@@ -306,6 +313,12 @@ TW.workbench.keyboard.createLegend(
 TW.workbench.keyboard.createLegend(
   `${platformKey()}+l`,
   'Lock/Unlock all',
+  'New field occurrence'
+)
+
+TW.workbench.keyboard.createLegend(
+  `${platformKey()}+f`,
+  'Search a field occurrence',
   'New field occurrence'
 )
 </script>

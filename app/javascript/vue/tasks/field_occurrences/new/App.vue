@@ -1,24 +1,4 @@
 <template>
-  <div class="flex-separate middle">
-    <h1>New field occurrence</h1>
-    <ul class="context-menu">
-      <li>
-        <LayoutConfiguration
-          :hidden="hiddenComponents"
-          @update="(list) => setPreference(KEY_STORAGE_HIDDEN, list)"
-        />
-      </li>
-      <li>
-        <label>
-          <input
-            type="checkbox"
-            v-model="settings.sortable"
-          />
-          Reorder fields
-        </label>
-      </li>
-    </ul>
-  </div>
   <div>
     <VSpinner
       v-if="isLoading"
@@ -55,10 +35,7 @@ import CollectingEventForm from './components/CollectingEventForm.vue'
 import useSettingStore from './store/settings'
 import VueComponents from './constants/components'
 import VSpinner from '@/components/ui/VSpinner.vue'
-import LayoutConfiguration from './components/LayoutConfiguration.vue'
-
-const KEY_STORAGE = 'task::FieldOccurrence::Form::ComponentsOrder'
-const KEY_STORAGE_HIDDEN = 'task::FieldOccurrence::Form::ComponentsHidden'
+import { KEY_STORAGE, KEY_STORAGE_HIDDEN } from './constants/preferences'
 
 const layout = ref(Object.keys(VueComponents))
 const { preferences, loadPreferences, setPreference } = useUserPreferences()

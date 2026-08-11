@@ -1,17 +1,24 @@
 <template>
   <VBtn
-    color="primary"
+    icon
     medium
+    variant="tonal"
+    color="primary"
+    title="Layout settings"
     @click="() => (isModalVisible = true)"
   >
-    Layout settings
+    <IconSettings class="w-4 h-4" />
   </VBtn>
   <VModal
     v-if="isModalVisible"
+    :container-style="{ width: '500px' }"
     @close="handleClose"
   >
-    <template #header> Layout Configuration </template>
+    <template #header>
+      <h3>Layout settings</h3>
+    </template>
     <template #body>
+      <h3>Field occurrence form</h3>
       <ul class="no_bullets">
         <li
           v-for="({ title }, key) in VueComponents"
@@ -27,31 +34,41 @@
           </label>
         </li>
       </ul>
+      <h3 class="separate-top">Behavior</h3>
+      <label class="middle horizontal-left-content gap-small">
+        <input
+          type="checkbox"
+          v-model="settings.sortable"
+        />
+        Reorder fields
+      </label>
     </template>
   </VModal>
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
+import { useUserPreferences } from '@/composables'
+import { KEY_STORAGE_HIDDEN } from '../constants/preferences'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VModal from '@/components/ui/Modal.vue'
+import IconSettings from '@/components/Icon/IconSettings.vue'
 import VueComponents from '../constants/components'
+import useSettingStore from '../store/settings'
 
-const props = defineProps({
-  hidden: {
-    type: Array,
-    required: true
-  }
-})
+const settings = useSettingStore()
+const { preferences, setPreference } = useUserPreferences()
 
-const emit = defineEmits(['update'])
+const hiddenComponents = computed(
+  () => preferences.value.layout?.[KEY_STORAGE_HIDDEN] || []
+)
 
 const list = ref([])
 const isModalVisible = ref(false)
 
 function handleClose() {
   isModalVisible.value = false
-  emit('update', list.value)
+  setPreference(KEY_STORAGE_HIDDEN, list.value)
 }
 
 function handleToggle(key, checked) {
@@ -60,11 +77,5 @@ function handleToggle(key, checked) {
     : [...list.value, key]
 }
 
-watch(
-  () => props.hidden,
-  (newVal) => {
-    list.value = newVal
-  },
-  { immediate: true }
-)
+watch(hiddenComponents, (newVal) => (list.value = newVal), { immediate: true })
 </script>
