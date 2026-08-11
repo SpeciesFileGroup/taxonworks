@@ -14,11 +14,9 @@
           </a>
           <div class="flex-col gap-small">
             <div class="flex-row gap-small">
-              <VIcon
+              <UnsavedIndicator
                 v-if="store.hasUnsavedChanges"
-                name="attention"
-                color="attention"
-                title="You have unsaved changes."
+                compact
               />
               <OtuRadial
                 ref="browseOtu"
@@ -125,7 +123,7 @@ import RadialObject from '@/components/radials/navigation/radial.vue'
 import VPin from '@/components/ui/Button/ButtonPin.vue'
 import OtuRadial from '@/components/otu/otu.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import UnsavedIndicator from '@/components/ui/UnsavedIndicator/UnsavedIndicator.vue'
 import IconReset from '@/components/Icon/IconReset.vue'
 import IconPencil from '@/components/Icon/IconPencil.vue'
 import IconTrash from '@/components/Icon/IconTrash.vue'

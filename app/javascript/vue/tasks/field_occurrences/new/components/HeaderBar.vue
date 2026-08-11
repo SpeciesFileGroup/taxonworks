@@ -29,13 +29,7 @@
         </div>
       </div>
       <div class="horizontal-right-content gap-medium">
-        <VIcon
-          v-if="isUnsaved"
-          name="attention"
-          color="attention"
-          small
-          title="You have unsaved changes."
-        />
+        <UnsavedIndicator v-if="isUnsaved" />
         <div class="horizontal-right-content gap-small">
           <VBtn
             medium
@@ -97,7 +91,7 @@ import useBiologicalAssociationStore from '@/components/Form/FormBiologicalAssoc
 import useDepictionStore from '../store/depictions.js'
 import useOriginRelationshipStore from '../store/originRelationships.js'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import UnsavedIndicator from '@/components/ui/UnsavedIndicator/UnsavedIndicator.vue'
 import VRecent from './Recent.vue'
 import LayoutConfiguration from './LayoutConfiguration.vue'
 import platformKey from '@/helpers/getPlatformKey'

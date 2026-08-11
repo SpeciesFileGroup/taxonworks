@@ -28,7 +28,7 @@
         </template>
       </ul>
       <div v-if="inSpeciesGroup && adjectiveOrParticiple">
-        <div class="field label-above">
+        <div class="field label-above margin-medium-top">
           <label>Masculine</label>
           <input
             v-model="masculine"

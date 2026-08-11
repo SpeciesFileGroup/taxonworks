@@ -69,6 +69,14 @@ Examples:
 - Icons
 - Generic layout components
 
+**Status indicators:**
+
+- DO use `components/ui/UnsavedIndicator/UnsavedIndicator.vue` to report unsaved
+  state in a task (navbar, header, side column). DO NOT hand-roll a warning
+  icon plus a `title`/tooltip: the indicator owns its copy, its warning
+  color tokens, and its `role="status"` announcement. Pass `compact` where the
+  row is too tight for the label, and `saving` while the record is persisting.
+
 ---
 
 ## 4. Task-based Applications

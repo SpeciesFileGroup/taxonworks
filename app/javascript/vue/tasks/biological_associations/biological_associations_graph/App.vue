@@ -41,13 +41,7 @@
               </template>
             </div>
             <div class="horizontal-left-content gap-small">
-              <VIcon
-                v-if="isGraphUnsaved"
-                name="attention"
-                small
-                color="attention"
-                title="You have unsaved changes."
-              />
+              <UnsavedIndicator v-if="isGraphUnsaved" />
               <VBtn
                 color="create"
                 medium
@@ -130,7 +124,7 @@
 import BiologicalAssociationsGraph from './components/BiologicalAssociationsGraph.vue'
 import VNavbar from '@/components/layout/NavBar'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import UnsavedIndicator from '@/components/ui/UnsavedIndicator/UnsavedIndicator.vue'
 import IconReset from '@/components/Icon/IconReset.vue'
 import IconPencil from '@/components/Icon/IconPencil.vue'
 import IconDownload from '@/components/Icon/IconDownload.vue'

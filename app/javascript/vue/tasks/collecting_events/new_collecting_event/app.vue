@@ -36,11 +36,7 @@
           </div>
         </div>
         <div class="horizontal-right-content middle gap-small">
-          <IconWarning
-            v-if="store.isUnsaved"
-            class="w-4 h-4 text-attention-color"
-            v-tooltip="'You have unsaved changes.'"
-          />
+          <UnsavedIndicator v-if="store.isUnsaved" />
           <VBtn
             color="create"
             medium
@@ -143,7 +139,7 @@ import RadialObject from '@/components/radials/navigation/radial'
 import platformKey from '@/helpers/getPlatformKey'
 import SetParam from '@/helpers/setParam'
 
-import IconWarning from '@/components/Icon/IconWarning.vue'
+import UnsavedIndicator from '@/components/ui/UnsavedIndicator/UnsavedIndicator.vue'
 import VPin from '@/components/ui/Button/ButtonPin.vue'
 import RightSection from './components/RightSection'
 import NavBar from '@/components/layout/NavBar'

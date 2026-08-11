@@ -2,7 +2,7 @@
   <VTooltip
     v-if="compact"
     :content="message"
-    class="unsaved-changes__compact"
+    class="unsaved-indicator__compact"
     role="status"
     aria-live="polite"
   >
@@ -10,7 +10,7 @@
   </VTooltip>
   <div
     v-else
-    class="unsaved-changes"
+    :class="['unsaved-indicator', `unsaved-indicator--${size}`]"
     role="status"
     aria-live="polite"
   >
@@ -24,21 +24,23 @@ import { computed } from 'vue'
 import IconWarning from '@/components/Icon/IconWarning.vue'
 import VTooltip from '@/components/ui/VTooltip/VTooltip.vue'
 
-defineOptions({ name: 'UnsavedChanges' })
+defineOptions({ name: 'UnsavedIndicator' })
 
 const props = defineProps({
-  // While true the record is being persisted: the state is already understood
-  // by the user, so the indicator reports progress instead of the warning.
   saving: {
     type: Boolean,
     default: false
   },
 
-  // Icon only, with the message moved into a tooltip. For rows too tight to
-  // carry the label.
   compact: {
     type: Boolean,
     default: false
+  },
+
+  size: {
+    type: String,
+    default: 'small',
+    validator: (value) => ['small', 'medium', 'large'].includes(value)
   },
 
   label: {
@@ -52,13 +54,12 @@ const message = computed(
 )
 </script>
 
-<style>
-.unsaved-changes {
-  display: flex;
+<style scoped>
+.unsaved-indicator {
+  display: inline-flex;
   align-items: center;
   flex-shrink: 0;
   gap: var(--spacing-xxs);
-  padding: var(--spacing-xxs) var(--spacing-xs);
   border: 1px solid var(--color-soft-warning-border);
   border-radius: var(--border-radius-small);
   background-color: var(--color-soft-warning-bg);
@@ -68,10 +69,24 @@ const message = computed(
   white-space: nowrap;
 }
 
-.unsaved-changes--compact {
-  padding: 0;
-  border: none;
-  background-color: transparent;
+.unsaved-indicator--small {
+  padding: var(--spacing-xxs) var(--spacing-xs);
+}
+
+.unsaved-indicator--medium {
+  padding: var(--spacing-xs) var(--spacing-sm);
+}
+
+.unsaved-indicator--large {
+  padding: var(--spacing-sm) var(--spacing-md);
+  gap: var(--spacing-xs);
+}
+
+.unsaved-indicator__compact {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  color: var(--color-warning-on-surface);
   cursor: help;
 }
 </style>

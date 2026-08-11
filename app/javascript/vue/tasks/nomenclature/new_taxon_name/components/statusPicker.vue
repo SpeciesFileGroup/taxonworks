@@ -17,22 +17,23 @@
         @select="saveClassification"
         :created="getStatusCreated"
       />
-      <ul
+
+      <div
         v-if="!getStatusCreated.length && taxon.cached_is_valid"
-        class="table-entrys-list"
+        class="margin-medium-top"
       >
-        <li class="list-complete-item middle">
-          <p>Valid as default</p>
-        </li>
-      </ul>
-      <display-list
-        class="created-list"
-        @delete="removeStatus"
-        @edit="classificationObject = $event"
+        Valid as default
+      </div>
+
+      <DisplayList
+        v-if="getStatusCreated.length"
+        class="margin-medium-top"
         edit
         annotator
         :list="getStatusCreated"
         label="object_tag"
+        @delete="removeStatus"
+        @edit="classificationObject = $event"
       />
     </template>
   </block-layout>

@@ -10,13 +10,7 @@
         @get-item="({ id }) => store.loadGraph(id)"
       />
       <div class="horizontal-left-content gap-small">
-        <VIcon
-          v-if="store.isUnsaved"
-          name="attention"
-          small
-          color="attention"
-          title="You have unsaved changes."
-        />
+        <UnsavedIndicator v-if="store.isUnsaved" />
         <VBtn
           color="primary"
           medium
@@ -41,7 +35,7 @@
 <script setup>
 import VNavbar from '@/components/layout/NavBar'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import UnsavedIndicator from '@/components/ui/UnsavedIndicator/UnsavedIndicator.vue'
 import VAutocomplete from '@/components/ui/Autocomplete.vue'
 import { useGraphStore } from '../store/useGraphStore.js'
 

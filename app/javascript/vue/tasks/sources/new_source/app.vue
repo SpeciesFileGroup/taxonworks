@@ -35,12 +35,7 @@
           <span v-else>New record</span>
         </div>
         <div class="nav__buttons gap-small">
-          <VIcon
-            v-if="isUnsaved"
-            name="attention"
-            color="attention"
-            title="You have unsaved changes."
-          />
+          <UnsavedIndicator v-if="isUnsaved" />
           <VBtn
             medium
             color="create"
@@ -161,7 +156,7 @@ import RadialAnnotator from '@/components/radials/annotator/annotator'
 import RadialObject from '@/components/radials/navigation/radial'
 import AddSource from '@/components/ui/Button/ButtonAddToProjectSource'
 import CloneSource from './components/cloneSource.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import UnsavedIndicator from '@/components/ui/UnsavedIndicator/UnsavedIndicator.vue'
 import VPin from '@/components/ui/Button/ButtonPin.vue'
 import CitationTotal from './components/CitationTotal.vue'
 

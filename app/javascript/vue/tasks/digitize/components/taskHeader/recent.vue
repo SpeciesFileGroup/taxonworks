@@ -5,6 +5,7 @@
       medium
       variant="tonal"
       color="primary"
+      title="Recent collection objects"
       @click="() => (isModalVisible = true)"
     >
       <IconFileClock class="w-4 h-4" />

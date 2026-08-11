@@ -61,7 +61,10 @@
               </a>
             </li>
           </ul>
-          <ul class="table-entrys-list">
+          <ul
+            v-if="typeMaterialList.length"
+            class="table-entrys-list"
+          >
             <li
               class="flex-separate list-complete-item"
               v-for="typeSpecimen in typeMaterialList"
@@ -150,6 +153,7 @@ import { ActionNames } from '../store/actions/actions'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import { TypeMaterial } from '@/routes/endpoints'
+import { useHotkey } from '@/composables'
 import TreeDisplay from './treeDisplay.vue'
 import ListEntrys from './listEntrys.vue'
 import ListCommon from './commonList.vue'
@@ -162,7 +166,6 @@ import platformKey from '@/helpers/getPlatformKey.js'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import IconTrash from '@/components/Icon/IconTrash.vue'
 import showForThisGroup from '../helpers/showForThisGroup'
-import { useHotkey } from '@/composables'
 import IconReset from '@/components/Icon/IconReset.vue'
 
 const TAB = {

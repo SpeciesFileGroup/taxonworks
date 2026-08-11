@@ -74,16 +74,9 @@
             </li>
           </ul>
         </div>
-        <VTooltip
-          v-if="hasChanges"
-          class="middle"
-        >
-          <template #content>
-            <span>You have unsaved changes.</span>
-          </template>
-          <IconWarning class="w-5 h-5 text-attention-color" />
-        </VTooltip>
+        <UnsavedIndicator v-if="hasChanges" />
         <VBtn
+          class="margin-small-left"
           medium
           color="create"
           @click="saveDigitalization"
@@ -99,7 +92,7 @@
           Save and new
         </VBtn>
         <VBtn
-          class="margin-small-left margin-small-right"
+          class="margin-small-right"
           color="primary"
           medium
           variant="tonal"
@@ -123,8 +116,8 @@ import { ActionNames } from '../../store/actions/actions.js'
 import { GetterNames } from '../../store/getters/getters.js'
 import { useHotkey } from '@/composables'
 import { RouteNames } from '@/routes/routes.js'
-import VTooltip from '@/components/ui/VTooltip/VTooltip.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import UnsavedIndicator from '@/components/ui/UnsavedIndicator/UnsavedIndicator.vue'
 import AutocompletePopover from '@/components/ui/Autocomplete/AutocompletePopover.vue'
 import ConfirmationModal from '@/components/ConfirmationModal.vue'
 import RecentComponent from './recent.vue'

@@ -24,13 +24,7 @@
         />
       </div>
       <div class="horizontal-left-content gap-small">
-        <VIcon
-          v-if="store.hasUnsavedChanges"
-          name="attention"
-          small
-          color="attention"
-          title="You have unsaved changes."
-        />
+        <UnsavedIndicator v-if="store.hasUnsavedChanges" />
         <VBtn
           color="create"
           medium
@@ -58,7 +52,7 @@ import VBtn from '@/components/ui/VBtn/index.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import RecentButton from '../RecentButton.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import UnsavedIndicator from '@/components/ui/UnsavedIndicator/UnsavedIndicator.vue'
 import { useHotkey } from '@/composables'
 import platformKey from '@/helpers/getPlatformKey'
 import { useContainerStore } from '../../store'

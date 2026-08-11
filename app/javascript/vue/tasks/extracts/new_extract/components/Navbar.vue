@@ -11,16 +11,7 @@
       </div>
       <span v-else> New </span>
       <div class="horizontal-right-content gap-small">
-        <VTooltip
-          v-if="unsavedChanges"
-          content="You have unsaved changes."
-        >
-          <VIcon
-            name="attention"
-            color="attention"
-            small
-          />
-        </VTooltip>
+        <UnsavedIndicator v-if="unsavedChanges" />
 
         <button
           type="button"
@@ -43,7 +34,6 @@
 
 <script setup>
 import { GetterNames } from '../store/getters/getters'
-import VTooltip from '@/components/ui/VTooltip/VTooltip.vue'
 import { useStore } from 'vuex'
 import { ref, computed } from 'vue'
 import { useHotkey } from '@/composables'
@@ -51,7 +41,7 @@ import NavbarComponent from '@/components/layout/NavBar'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import platformKey from '@/helpers/getPlatformKey.js'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import UnsavedIndicator from '@/components/ui/UnsavedIndicator/UnsavedIndicator.vue'
 
 const emit = defineEmits(['onSave', 'onReset'])
 
