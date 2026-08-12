@@ -17,6 +17,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 - `Simple new specimen` task is now `New collection object`
 - Support partial dates (year only, year-month only) for `startDate` and `endDate` from the api
+- Sort people by uses in Match Authors to People
 
 ### Fixed
 
