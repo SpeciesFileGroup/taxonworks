@@ -23,8 +23,10 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 - Error when clicking quick forms radial menu in New Asserted Distribution
 - Error on viewing deprecated Edit Taxon Determination page for a taxon determination on a Field Occurrence
+- Field synchronize and multi update task are not sorting records by id [#5045]
 
 [#4873]: https://github.com/SpeciesFileGroup/taxonworks/issues/4873
+[#5045]: https://github.com/SpeciesFileGroup/taxonworks/issues/5045
 
 ## [0.64.0] - 2026-08-04
 

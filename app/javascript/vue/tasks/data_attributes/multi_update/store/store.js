@@ -279,7 +279,7 @@ export default defineStore('store', {
 
     loadObjects({ queryParam, queryValue }) {
       const { service, model } = QUERY_PARAMETER[queryParam]
-      const ids = queryValue[ID_PARAM_FOR[model]]
+      const ids = queryValue[ID_PARAM_FOR[model]]?.map(Number)
 
       this.isLoading = true
 
