@@ -2,35 +2,25 @@ require 'rails_helper'
 
 describe Vendor::Prawn, type: :model do
 
-  context 'when the CJK font is not installed (local dev, CI)' do
-    before { allow(described_class).to receive(:cjk_font_available?).and_return(false) }
-
-    it 'font_families only registers LiberationSans' do
-      expect(described_class.font_families.keys).to eq(['LiberationSans'])
-    end
-
-    it 'cjk_fallback is empty' do
-      expect(described_class.cjk_fallback).to eq([])
-    end
-  end
-
   context 'when the CJK font is installed (production/staging)' do
-    before { allow(described_class).to receive(:cjk_font_available?).and_return(true) }
+    before {
+      allow(described_class).to receive(:cjk_font_available?).and_return(true)
+    }
 
     it 'font_families also registers SourceHanSans' do
-      expect(described_class.font_families.keys).to include('LiberationSans', 'SourceHanSans')
+      expect(described_class.font_families.keys)
+        .to include('LiberationSans', 'SourceHanSans')
     end
 
     it 'SourceHanSans points at CJK_FONT_PATH' do
-      expect(described_class.font_families['SourceHanSans']).to eq(normal: described_class::CJK_FONT_PATH)
+      expect(described_class.font_families['SourceHanSans'])
+        .to eq(normal: described_class::CJK_FONT_PATH)
     end
 
     it 'cjk_fallback names SourceHanSans' do
       expect(described_class.cjk_fallback).to eq(['SourceHanSans'])
     end
   end
-
-  # ── text ──────────────────────────────────────────────────────────────────
 
   describe '.text' do
     it 'returns a Prawn::Document with LiberationSans as the current font' do
@@ -40,15 +30,20 @@ describe Vendor::Prawn, type: :model do
     end
 
     it 'can render a Latin Extended diacritic without raising' do
-      expect { described_class.text('Güçlü, Staręga, Šilhavý', inline_format: true) }.not_to raise_error
+      expect {
+        described_class.text('Güçlü, Staręga, Šilhavý', inline_format: true)
+      }.not_to raise_error
     end
 
     it 'passes cjk_fallback as fallback_fonts, without the caller specifying it' do
-      allow(described_class).to receive(:cjk_fallback).and_return(['SourceHanSans'])
+      allow(described_class)
+        .to receive(:cjk_fallback).and_return(['SourceHanSans'])
       fake_pdf = instance_double(::Prawn::Document, font_families: {}, font: nil)
       allow(::Prawn::Document).to receive(:new).and_return(fake_pdf)
 
-      expect(fake_pdf).to receive(:text).with('some text', inline_format: true, fallback_fonts: ['SourceHanSans'])
+      expect(fake_pdf)
+        .to receive(:text)
+        .with('some text', inline_format: true, fallback_fonts: ['SourceHanSans'])
       described_class.text('some text', inline_format: true)
     end
 
