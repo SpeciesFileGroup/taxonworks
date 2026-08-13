@@ -40,6 +40,12 @@ class Citation < ApplicationRecord
 
   attr_accessor :no_cached
 
+  # unify's dedup logic resets is_original to false on a would-be duplicate
+  # before comparing it to the surviving Citation via #identical; if
+  # is_original weren't ignored here that reset would make the two look
+  # different and the duplicate would never be matched.
+  IGNORE_IDENTICAL = [:is_original].freeze
+
   polymorphic_annotates('citation_object')
 
   # belongs_to :source, inverse_of: :origin_citations
@@ -164,6 +170,14 @@ class Citation < ApplicationRecord
     # the parent instead, where everything 'just works'.
     return if marked_for_destruction?
     return if citation_object && citation_object.respond_to?(:ignore_citation_restriction) && citation_object.ignore_citation_restriction
+
+    # Allow the destroy if citation_object itself is already committed to
+    # being destroyed by an enclosing Shared::Unify#unify call - it's not
+    # losing its last citation, it's going away entirely, so the "must have
+    # at least one citation" guard below is moot.
+    return if citation_object && UnifyDestroyContext.objects_in_destroy&.include?(
+      { id: citation_object.id, type: citation_object.class.base_class.name }
+    )
 
     if citation_object.requires_citation? && citation_object.citations.count == 1
       errors.add(:base, 'at least one citation is required')

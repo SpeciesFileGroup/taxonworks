@@ -16,11 +16,11 @@
         thumb-size="medium"
         edit
       >
-        <template #default="{ src, hasCrop }">
+        <template #default="{ url, hasCrop }">
           <div class="depictions-gallery__tile">
             <img
               class="depictions-gallery__image"
-              :src="src"
+              :src="url"
               :srcset="hasCrop ? undefined : srcsetFor(item)"
               :sizes="TILE_SIZES"
               :alt="plainText(item.figure_label) || 'Depiction'"

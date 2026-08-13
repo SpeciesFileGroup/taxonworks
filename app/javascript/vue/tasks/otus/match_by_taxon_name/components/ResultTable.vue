@@ -391,7 +391,7 @@ thead th {
 /* !important needed: .table-striped's tr:nth-of-type(even/odd) td rule has
    higher specificity than a single class here. */
 .cell-ambiguous {
-  background-color: #fcf8e3 !important;
+  background-color: var(--badge-yellow-bg) !important;
 }
 
 .row-disabled td {
@@ -406,11 +406,11 @@ thead th {
    leaves tr no visible area of its own to paint into — so a tr-level
    background-color (even with !important) is invisible; it must target td. */
 .row-no-match td {
-  background-color: #fdf2f2 !important;
+  background-color: var(--badge-red-bg) !important;
 }
 
 .row-empty td {
-  background-color: #f5f5f5 !important;
+  background-color: var(--bg-muted) !important;
 }
 
 .row-empty {
@@ -418,7 +418,7 @@ thead th {
 }
 
 .empty-label {
-  color: #999;
+  color: var(--text-muted-color);
   font-style: italic;
   font-size: 0.85em;
 }
@@ -427,8 +427,8 @@ thead th {
   width: 24px;
   height: 24px;
   border-radius: 50%;
-  border: 1px solid #ccc;
-  background: white;
+  border: 1px solid var(--border-color);
+  background: var(--input-bg-color);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -436,7 +436,7 @@ thead th {
   font-size: 12px;
   font-style: italic;
   font-weight: bold;
-  color: #555;
+  color: var(--text-muted-color);
 }
 
 .circle-button:disabled {
@@ -450,7 +450,7 @@ thead th {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: var(--modal-mask-bg-color);
   z-index: 9999;
   display: flex;
   align-items: center;
@@ -458,8 +458,8 @@ thead th {
 }
 
 .modal-container {
-  background: white;
-  border-radius: 4px;
+  background: var(--panel-bg-color);
+  border-radius: var(--border-radius-xsmall);
   padding: 24px;
   max-width: 600px;
   max-height: 80vh;

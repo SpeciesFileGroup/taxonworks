@@ -707,6 +707,24 @@ function closeHelp() {
   })
 }
 
+// Fill the field from the outside, run the search, and leave the caret at the end so the
+// text can be trimmed straight away. Used where a caller already knows a good starting term.
+// @param text [String]
+function prefill(text) {
+  inputText.value = text ?? ''
+  onInput()
+
+  nextTick(() => {
+    const el = inputEl.value
+    if (!el) return
+    el.focus()
+    const len = el.value.length
+    el.setSelectionRange(len, len)
+  })
+}
+
+defineExpose({ prefill })
+
 // Fire an operator from the help list: close overlay, inject trigger, run onInput
 function fireOperator(op) {
   showHelp.value = false

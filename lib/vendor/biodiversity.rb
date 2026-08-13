@@ -397,6 +397,10 @@ module Vendor
 
       def name_without_author_year
         pos = author_word_position
+
+        # nothing was parsed, there is no author/year to remove
+        return name if pos.nil?
+
         # author_word doesn't point to parens if any
         offset = pos > 0 && '(' == name[pos-1] ? 2 : 1
 

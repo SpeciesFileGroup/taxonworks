@@ -8,27 +8,35 @@
 import { ref } from 'vue'
 import AjaxCall from '@/helpers/ajaxCall'
 
-// Module-level cache: url -> config hash (avoids re-fetching on re-mount)
-const configCache = new Map()
+const configRequests = new Map()
+
+function requestConfig(url) {
+  if (!configRequests.has(url)) {
+    const request = AjaxCall('get', url)
+      .then(({ body }) => {
+        if (body && body.config) return body
+
+        configRequests.delete(url)
+        return null
+      })
+      .catch((e) => {
+        console.warn('[useAutoselect] Failed to fetch config from', url, e)
+        configRequests.delete(url)
+        return null
+      })
+
+    configRequests.set(url, request)
+  }
+
+  return configRequests.get(url)
+}
 
 export function useAutoselect(url) {
   const config = ref(null)
 
   async function fetchConfig() {
-    if (configCache.has(url)) {
-      config.value = configCache.get(url)
-      return config.value
-    }
-
-    try {
-      const { body } = await AjaxCall('get', url)
-      if (body && body.config) {
-        configCache.set(url, body)
-        config.value = body
-      }
-    } catch (e) {
-      console.warn('[useAutoselect] Failed to fetch config from', url, e)
-    }
+    const body = await requestConfig(url)
+    if (body) config.value = body
 
     return config.value
   }

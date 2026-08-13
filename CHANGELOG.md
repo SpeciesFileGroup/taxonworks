@@ -9,6 +9,32 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 ### Added
 
+- raw id search for Biological Association autocompletes
+- `New Collection Object`: Added a CO Total field to the CO form. Added a `identifier end` field that automatically increments based on the Identifier and the total number of specimens/lots being created. [#4873]
+- `New asserted distribution`: Added preferences modal, moved autosave there, and added option to hide Confidence panel
+
+### Changed
+
+- `Simple new specimen` task is now `New collection object`
+- Support partial dates (year only, year-month only) for `startDate` and `endDate` from the api
+- Sort people by uses in Match Authors to People
+
+### Fixed
+
+- Error when clicking quick forms radial menu in New Asserted Distribution
+- Error on viewing deprecated Edit Taxon Determination page for a taxon determination on a Field Occurrence
+- Field synchronize and multi update task are not sorting records by id [#5045]
+- Browse OTUs: TIFF images of observations are not displayed in the image viewer
+
+[#4873]: https://github.com/SpeciesFileGroup/taxonworks/issues/4873
+[#5045]: https://github.com/SpeciesFileGroup/taxonworks/issues/5045
+
+## [0.64.0] - 2026-08-04
+
+### Added
+
+- Assing OTU to taxon name task [#130]
+- ProjectOrganization model, link projects to org/depiction metadata [#5027]
 - Radial annotator: Add pagination to citations slice [#4964]
 - In the TaxonName verbatim author/year task, add a Source selector as an option when citing, and add a modal for assigning page numbers to source-only citations that get added to names
 - Add object ID to Radial annotator/object/navigator header [#4978]
@@ -40,6 +66,10 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Collecting Events with Georeferences raise an error when attempting to destroy [#4937]
 - Unify fixes related to: Georeferences when Collecting Events are unified, matrix columns when descriptors are unified, and dynamix matrix rows/columns when dynamic data are unified [#4944]
 - Unify now preserves list order of associated data: e.g. if two Collection Objects are unified, the kept object has its original list of Taxon Determinations in the same order, followed by the Taxon Determinations of the destroyed Collection Object in their original order
+- Can't unify two Taxon Names when they have the same relationship type from/to a same third Taxon Name [#4971]
+- A "successful" unify between two Taxon Names, one of which has a synonym, can leave the synonym in an unusable state [#4971]
+- Unify of two Asserted Distributions with the "same" Citation can cause loss of annotation data from the citation that gets destroyed [#4971]
+- Unify blocked by "duplicate" is_original citations now works [#4971]
 - Monograph facilitator: Determination label is not visible in Safari browser
 - Checklist importer crashing on empty `originalNameUsageID` in some cases
 - Source and Repository autocompletes sometimes miss results, repository usage counts were sometimes wrong [#4990]
@@ -48,7 +78,10 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - PDF viewer is not rendering pages [#5023]
 - Add 'Exclude' option to Tags and Confidences facets in filters (for finding objects NOT satisfying the given conditions) [#4157]
 - New BA: Forms do not reset if a citation has already been created
+- Unexpected failure from api/v1/otus?extend[]=taxon_name when a returned OTU has no taxon name
 
+[#130]: https://github.com/SpeciesFileGroup/taxonworks/issues/130
+[#5027]: https://github.com/SpeciesFileGroup/taxonworks/issues/5027
 [#4157]: https://github.com/SpeciesFileGroup/taxonworks/issues/4157
 [#4937]: https://github.com/SpeciesFileGroup/taxonworks/issues/4937
 [#4944]: https://github.com/SpeciesFileGroup/taxonworks/issues/4944
@@ -61,6 +94,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 [#4994]: https://github.com/SpeciesFileGroup/taxonworks/issues/4994
 [#5017]: https://github.com/SpeciesFileGroup/taxonworks/issues/5017
 [#5023]: https://github.com/SpeciesFileGroup/taxonworks/issues/5023
+[#4971]: https://github.com/SpeciesFileGroup/taxonworks/issues/4971
 
 ## [0.63.1] - 2026-06-22
 
@@ -6415,7 +6449,8 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.63.1...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.64.0...development
+[0.64.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.63.1...v0.64.0
 [0.63.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.63.0...v0.63.1
 [0.63.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.62.0...v0.63.0
 [0.62.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.61.0...v0.62.0

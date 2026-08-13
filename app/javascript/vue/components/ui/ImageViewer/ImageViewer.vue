@@ -155,8 +155,9 @@
         @click="isModalVisible = true"
       >
         <slot
-          :src="thumbUrlSrc"
           :image="imageObject"
+          :url="thumbUrlSrc"
+          :depiction="depiction"
           :has-crop="hasSVGBox"
         >
           <div :class="[`depiction-${thumbSize}-image`]">

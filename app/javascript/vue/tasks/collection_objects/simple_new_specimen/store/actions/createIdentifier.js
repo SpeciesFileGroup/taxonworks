@@ -4,9 +4,9 @@ import {
   COLLECTION_OBJECT
 } from '@/constants/index'
 
-export default function (coId) {
+export default function (coId, identifier = this.identifier) {
   const payload = {
-    identifier: this.identifier,
+    identifier,
     namespace_id: this.namespace.id,
     type: IDENTIFIER_LOCAL_CATALOG_NUMBER,
     identifier_object_id: coId,
