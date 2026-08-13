@@ -170,7 +170,7 @@ module SourcesHelper
         class: 'flex-row gap-xsmall'
       ) +
       t.flatten.compact.join(' ').html_safe,
-      class: 'inline gap-small'
+      class: 'inline gap-medium'
     )
   end
 

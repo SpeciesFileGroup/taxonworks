@@ -3,6 +3,10 @@
     display: inline-block;
     vertical-align: middle;
   }
+
+  > div[data-radial-annotator] {
+    margin-right: var(--spacing-xs);
+  }
 }
 
 .history_record {

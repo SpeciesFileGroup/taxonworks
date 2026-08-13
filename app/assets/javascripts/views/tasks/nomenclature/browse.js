@@ -85,7 +85,7 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
         if (!element.querySelector('.v-badge')) {
           const badge = document.createElement('span')
 
-          badge.classList.add('v-badge', 'v-badge--green')
+          badge.classList.add('v-badge', 'v-badge--green', 'margin-small-left')
           badge.textContent = 'Valid'
           element.append(badge)
         }

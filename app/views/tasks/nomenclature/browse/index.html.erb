@@ -56,7 +56,7 @@
         <div class="panel full_width">
           <div id="browse-nomenclature-taxon-name" class="content subtitle middle browse-record-title <%= @taxon_name.is_valid? ? '' : 'invalid' %>">
             <h3 class="item center_text">
-              <%= tag.span(rank_tag(@taxon_name), class: :subtle) -%>
+              <%= tag.span(rank_tag(@taxon_name), class: [:subtle, 'rank-name']) -%>
               <%= tag.span(full_taxon_name_tag(@taxon_name), class: :name) -%>
               <%= tag.span(taxon_name_inferred_combination_tag(@taxon_name), class: :subtle) -%>
             </h3>
