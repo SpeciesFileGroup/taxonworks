@@ -270,17 +270,8 @@ class SourcesController < ApplicationController
 
     respond_to do |format|
       format.pdf do
-        pdf = ::Prawn::Document.new
-        pdf.font_families.update(
-          'LiberationSans' => {
-            normal: Rails.root.join('vendor', 'assets', 'fonts', 'liberation_sans', 'LiberationSans-Regular.ttf').to_s,
-            bold: Rails.root.join('vendor', 'assets', 'fonts', 'liberation_sans', 'LiberationSans-Bold.ttf').to_s,
-            italic: Rails.root.join('vendor', 'assets', 'fonts', 'liberation_sans', 'LiberationSans-Italic.ttf').to_s,
-            bold_italic: Rails.root.join('vendor', 'assets', 'fonts', 'liberation_sans', 'LiberationSans-BoldItalic.ttf').to_s
-          }
-        )
-        pdf.font('LiberationSans')
-        pdf.text(f, inline_format: true) # Formats <i>
+        Vendor::Prawn.warn_on_uncovered_glyphs(f, context: { style_id: params[:style_id] })
+        pdf = Vendor::Prawn.text(f, inline_format: true) # Formats <i>
 
         send_data(pdf.render, filename: "tw_bibliography_#{DateTime.now}.pdf", type: 'application/pdf')
       end
