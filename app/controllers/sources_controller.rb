@@ -270,7 +270,6 @@ class SourcesController < ApplicationController
 
     respond_to do |format|
       format.pdf do
-        Vendor::Prawn.warn_on_uncovered_glyphs(f, context: { style_id: params[:style_id] })
         pdf = Vendor::Prawn.text(f, inline_format: true) # Formats <i>
 
         send_data(pdf.render, filename: "tw_bibliography_#{DateTime.now}.pdf", type: 'application/pdf')

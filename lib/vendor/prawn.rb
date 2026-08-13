@@ -1,9 +1,9 @@
 module Vendor
 
   # A middle-layer wrapper between Prawn and TaxonWorks, adding font
-  # registration and detection of characters neither vendored font can
-  # render. The default Prawn raises Prawn::Errors::IncompatibleStringEncoding
-  # on anything outside Windows-1252 (diacritics, CJK, etc).
+  # registration for characters outside Prawn's default fonts. The default
+  # Prawn raises Prawn::Errors::IncompatibleStringEncoding on anything
+  # outside Windows-1252 (diacritics, CJK, etc).
   module Prawn
 
     LIBERATION_SANS_REGULAR = Rails.root.join(
@@ -51,46 +51,13 @@ module Vendor
 
     # A new ::Prawn::Document with TW's vendored fonts registered, `string`
     # rendered on it with the CJK fallback font applied whenever it's
-    # available. Callers never need to know about Prawn font setup or
-    # `fallback_fonts:` at all.
+    # available.
     def self.text(string, **options)
       pdf = ::Prawn::Document.new
       pdf.font_families.update(font_families)
       pdf.font('LiberationSans')
       pdf.text(string, **options, fallback_fonts: cjk_fallback)
       pdf
-    end
-
-    # Codepoints actually renderable by the fonts registered in this
-    # environment. Memoized at the class level: parsing a font's cmap
-    # table is a few ms, not worth repeating per-request.
-    def self.covered_codepoints
-      @covered_codepoints ||= begin
-        paths = [LIBERATION_SANS_REGULAR]
-        paths << CJK_FONT_PATH if cjk_font_available?
-
-        paths.each_with_object(Set.new) do |path, set|
-          set.merge(TTFunk::File.open(path).cmap.unicode.first.code_map.keys)
-        end
-      end
-    end
-
-    # Flags characters that will silently render as a blank glyph (tofu)
-    # because they're outside every font available in this environment.
-    # Doesn't block rendering -- just surfaces the gap so it's visible
-    # instead of failing quietly in prod. Only meaningful once the CJK
-    # font is present (production/staging); skipped entirely otherwise,
-    # since CJK support just isn't shipped there by design.
-    def self.warn_on_uncovered_glyphs(text, context: {})
-      return unless cjk_font_available?
-
-      uncovered = text.chars.uniq.reject { |c| covered_codepoints.include?(c.ord) }
-      return if uncovered.empty?
-
-      ExceptionNotifier.notify_exception(
-        StandardError.new('Vendor::Prawn: characters uncovered by vendored fonts'),
-        data: { uncovered_chars: uncovered.join }.merge(context)
-      )
     end
 
   end
