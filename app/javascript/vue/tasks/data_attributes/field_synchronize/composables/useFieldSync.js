@@ -344,7 +344,8 @@ export function useFieldSync() {
     )
 
     request.then((response) => {
-      const ids = queryValue.value[ID_PARAM_FOR[currentModel.value]]
+      const ids =
+        queryValue.value[ID_PARAM_FOR[currentModel.value]]?.map(Number)
       const items = Array.isArray(ids)
         ? sortArrayByReference({
             list: response.body,
