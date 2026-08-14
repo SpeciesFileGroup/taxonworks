@@ -29,13 +29,13 @@ Core: # a Section
   CollectingEvent:
     status: :prototype
     categories:
-      - collecting_event
+      - collecting
     related_models:
       - Georeference
   CollectionObject:
     status: :stable
     categories:
-      - collection_object
+      - occurrences
       - matrix
     related_models:
       - CollectingEvent
@@ -59,7 +59,7 @@ Core: # a Section
   Observation:
     categories:
       - matrix
-      - collection_object
+      - occurrences
     related_models:
       - Descriptor
       - ObservationMatrix
@@ -103,7 +103,7 @@ Supporting:
       - Otu
     categories:
       - biology
-      - collection_object
+      - occurrences
       - dna
       - matrix
       - otu
@@ -130,21 +130,21 @@ Supporting:
   CollectionProfile:
     status: :prototype
     categories:
-      - collection_object
+      - occurrences
   CollectionObjectObservation:
     status: :prototype
     categories:
-      - collection_object
+      - occurrences
   Container:
     status: :prototype
     categories:
-      - collection_object
+      - occurrences
     related_models:
       - ContainerItem
   ContainerItem:
     status: :prototype
     categories:
-      - collection_object
+      - occurrences
     related_models:
       - Container
   Content:
@@ -156,7 +156,7 @@ Supporting:
     related_models:
       - Sound
     categories:
-      - collection_object
+      - occurrences
       - otu
       - observation
   CommonName:
@@ -182,8 +182,8 @@ Supporting:
     related_models:
       - Image
     categories:
-      - collection_object
-      - collecting_event
+      - occurrences
+      - collecting
   Download:
     status: prototype
   Extract:
@@ -201,7 +201,7 @@ Supporting:
       - Georeference
       - CollectingEvent
     categories:
-      - collecting_event
+      - collecting
   GeneAttribute:
     status: :prototype
     related_models:
@@ -213,7 +213,7 @@ Supporting:
   Georeference:
     status: :prototype
     categories:
-      - collecting_event
+      - collecting
   GeographicArea:
     status: :stable
     shared: true
@@ -222,7 +222,7 @@ Supporting:
       - CollectingEvent
       - Georeference
     categories:
-      - collecting_event
+      - collecting
   GeographicItem:
     status: :stable
     hide: true
@@ -234,12 +234,12 @@ Supporting:
   Image:
     status: :stable
     categories:
-      - collection_object
+      - occurrences
   Label:
     status: :prototype
     categories:
-      - collection_object
-      - collecting_event
+      - occurrences
+      - collecting
     related_models:
       - Container
       - CollectionObject
@@ -252,7 +252,7 @@ Supporting:
   Loan:
     status: :prototype
     categories:
-      - collection_object
+      - occurrences
     related_models:
       - CollectionProfile
       - Repository
@@ -260,7 +260,7 @@ Supporting:
   LoanItem:
     status: :prototype
     categories:
-      - collection_object
+      - occurrences
     related_models:
       - Loan
       - CollectionObject
@@ -295,7 +295,7 @@ Supporting:
       - ObservationMatrix
   OriginRelationship:
     catgories:
-      - collection_object
+      - occurrences
       - dna
     related_models:
       - CollectionObject
@@ -328,7 +328,7 @@ Supporting:
     status: :prototype
     shared: true
     categories:
-      - collection_object
+      - occurrences
   ProjectSource:
     status: :stable
     related_models:
@@ -350,7 +350,7 @@ Supporting:
   RangedLotCategory:
     status: :prototype
     categories:
-      - collection_object
+      - occurrences
   Repository:
     status: :prototype
     shared: true
@@ -373,7 +373,7 @@ Supporting:
   TaxonDetermination:
     status: :prototype
     categories:
-      - collection_object
+      - occurrences
     related_models:
       - Otu
       - CollectionObject
@@ -395,7 +395,7 @@ Supporting:
     status: :prototype
     categories:
       - nomenclature
-      - collection_object
+      - occurrences
 Annotations:
   Attribution:
     status: prototype

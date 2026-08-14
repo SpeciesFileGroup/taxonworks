@@ -155,9 +155,9 @@ Object.assign(TW.views.hub.filter, {
 
   loadCategoriesIcons: function () {
     const categories = [
-      'collecting_event',
+      'collecting',
       'nomenclature',
-      'collection_object',
+      'occurrences',
       'source',
       'biology',
       'matrix',
