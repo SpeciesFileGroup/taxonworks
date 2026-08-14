@@ -16,20 +16,21 @@
     </div>
     <div class="field">
       <span class="font-bold">In range (Integers)</span>
-      <div class="horizontal-left-content">
-        <div class="field separate-right">
+      <div class="horizontal-left-content gap-small">
+        <div class="field label-above">
           <label>Start:</label>
-          <br />
+
           <input
+            class="w-full"
             type="text"
             v-number-only
             v-model="params.identifier_start"
           />
         </div>
-        <div class="field">
+        <div class="field label-above">
           <label>End:</label>
-          <br />
           <input
+            class="w-full"
             type="text"
             v-number-only
             v-model="params.identifier_end"

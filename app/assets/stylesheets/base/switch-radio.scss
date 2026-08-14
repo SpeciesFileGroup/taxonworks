@@ -51,6 +51,7 @@
     border-radius: var(--border-radius-xsmall);
     font-weight: 500;
     padding: 0 var(--spacing-sm);
+    min-width: 50px;
     transition:
       background-color 0.12s ease,
       box-shadow 0.12s ease,

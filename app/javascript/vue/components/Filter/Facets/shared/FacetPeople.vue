@@ -1,7 +1,9 @@
 <template>
   <FacetContainer>
     <div class="flex-separate middle">
-      <h3>{{ title }}</h3>
+      <slot name="title">
+        <h3>{{ title }}</h3>
+      </slot>
       <VSwitch
         v-if="toggle"
         v-model="peopleView"
@@ -107,14 +109,11 @@ const peopleView = computed({
   }
 })
 
-watch(
-  params,
-  (newVal) => {
-    if (!newVal[props.paramPeople]?.length && list.value.length) {
-      list.value = []
-    }
+watch(params, (newVal) => {
+  if (!newVal[props.paramPeople]?.length && list.value.length) {
+    list.value = []
   }
-)
+})
 
 watch(
   list,
@@ -124,13 +123,11 @@ watch(
   { deep: true }
 )
 
-watch(
-  isPeopleView, (newVal) => {
-    emit('toggle', newVal)
-    list.value = []
-    params.value.determiner_name_regex = undefined
-  }
-)
+watch(isPeopleView, (newVal) => {
+  emit('toggle', newVal)
+  list.value = []
+  params.value.determiner_name_regex = undefined
+})
 
 onMounted(() => {
   const urlParams = URLParamsToJSON(location.href)

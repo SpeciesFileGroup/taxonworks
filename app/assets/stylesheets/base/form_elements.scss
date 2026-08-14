@@ -167,7 +167,7 @@ form div.required {
       display: none;
     }
     input {
-      padding-left: $standard_padding;
+      padding-left: var(--spacing-xs);
     }
   }
 }

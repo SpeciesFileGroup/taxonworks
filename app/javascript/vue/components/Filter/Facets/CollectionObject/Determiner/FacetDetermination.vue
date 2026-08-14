@@ -1,8 +1,8 @@
 <template>
   <FacetContainer>
     <h3>Determinations</h3>
-    <div class="field">
-      <h4>Otu</h4>
+    <div class="margin-medium-top">
+      <b>Otu</b>
       <autocomplete
         url="/otus/autocomplete"
         placeholder="Select an OTU"
@@ -13,7 +13,7 @@
         @get-item="addOtu($event.id)"
       />
     </div>
-    <div class="field separate-top">
+    <div class="field">
       <ul class="no_bullets table-entrys-list">
         <li
           class="middle flex-separate list-complete-item"
@@ -32,7 +32,7 @@
         </li>
       </ul>
     </div>
-    <div class="field">
+    <div class="field margin-small-top">
       <FacetPeople
         class="no-shadow no-padding"
         v-model="params"
@@ -48,7 +48,11 @@
             isCurrentDeterminationVisible = $event
           }
         "
-      />
+      >
+        <template #title>
+          <h4>Determiner</h4>
+        </template>
+      </FacetPeople>
     </div>
 
     <FacetCurrentDetermination

@@ -102,7 +102,7 @@ watch(expanded, (newVal) => {
 
   .header {
     border-left: 4px solid green;
-    padding: var(--spacing-lg) var(--spacing-xl);
+    padding: var(--spacing-sm) var(--spacing-xl);
     padding-left: calc(var(--spacing-xl) - 4px);
     border-bottom: 1px solid var(--border-color);
   }

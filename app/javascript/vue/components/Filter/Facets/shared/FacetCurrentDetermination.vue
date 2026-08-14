@@ -1,8 +1,6 @@
 <template>
-  <div class="field">
-    <label
-      v-if="headerText"
-    >
+  <div>
+    <label v-if="headerText">
       {{ headerText }}
     </label>
     <ul class="no_bullets">
@@ -71,5 +69,4 @@ const selectedValue = computed({
     params.value[props.paramName] = value
   }
 })
-
 </script>
