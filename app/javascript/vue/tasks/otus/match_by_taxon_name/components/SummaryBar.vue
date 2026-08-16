@@ -6,7 +6,7 @@
           <strong>{{ totalRows }}</strong> rows
         </span>
         <span class="matched-count">
-          <strong>{{ matchedCount }}</strong> matched
+          <strong>{{ matchedCount }}</strong> matched (<span class="ambiguous-count"><strong>{{ ambiguousCount }}</strong> ambiguous</span>)
         </span>
         <span class="unmatched-count">
           <strong>{{ unmatchedCount }}</strong> unmatched
@@ -58,6 +58,9 @@ const matchedCount = computed(
 )
 const unmatchedCount = computed(
   () => nonEmptyRows.value.length - matchedCount.value
+)
+const ambiguousCount = computed(
+  () => nonEmptyRows.value.filter((r) => r.matched && r.ambiguous).length
 )
 
 const matchedPercent = computed(() =>
@@ -125,5 +128,9 @@ const clipboardText = computed(() =>
 
 .unmatched-count {
   color: #d9534f;
+}
+
+.ambiguous-count {
+  color: var(--badge-yellow-color);
 }
 </style>
