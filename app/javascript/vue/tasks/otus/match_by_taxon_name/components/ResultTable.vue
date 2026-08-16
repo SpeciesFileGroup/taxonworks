@@ -14,6 +14,7 @@
         <th class="line-nowrap" data-help="Override the string used for matching. Leave blank to match using the scientificName value as-is. A manually-entered value shows a small dot. Regex modifiers (left panel) write to this field automatically.">Match <ButtonClipboard :text="columnClipboardText('match')" title="Copy match column" /></th>
         <th class="line-nowrap" data-help="A yellow cell indicates that there was more than one matching Taxon Name to choose from, so you may want to confirm the name selected - if the wrong name was selected you can select the correct one in the Refine column.">TaxonName <ButtonClipboard :text="columnClipboardText('taxonName')" title="Copy TaxonName column" /></th>
         <th />
+        <th class="w-2" />
         <th data-help="Manually search for and select a TaxonName, overriding the automatic match result. Use this to fix incorrect or ambiguous matches.">Refine</th>
         <th class="line-nowrap">OTU <ButtonClipboard :text="columnClipboardText('otuLabel')" title="Copy OTU column" /></th>
         <th class="line-nowrap">OTU id <ButtonClipboard :text="columnClipboardText('otuId')" title="Copy OTU id column" /></th>
@@ -120,17 +121,36 @@
           </div>
         </td>
 
+        <!-- search scientificName in Refine -->
+        <td>
+          <VBtn
+            v-if="isActionable(row)"
+            circle
+            color="primary"
+            :disabled="row.fixedOtuId != null"
+            title="Search the scientificName in Refine"
+            @click="prefillRefine(row)"
+          >
+            <VIcon
+              x-small
+              name="zoomIn"
+            />
+          </VBtn>
+        </td>
+
         <!-- reselect (Refine) -->
         <td>
-          <Autocomplete
+          <AutoselectField
             v-if="isActionable(row)"
-            url="/taxon_names/autocomplete"
-            param="term"
-            label="label_html"
-            clear-after
+            :ref="(el) => setRefineRef(row.index, el)"
+            url="/taxon_names/autoselect"
+            param="taxon_name_id"
+            :id="`match-taxon-name-refine-${row.index}`"
+            :new-record-component="TaxonNameNewModal"
+            reset-on-select
             :disabled="row.fixedOtuId != null"
             placeholder="Search taxon name..."
-            @getItem="
+            @select="
               (item) =>
                 emit('update-row', {
                   index: row.index,
@@ -262,7 +282,8 @@ import { OTU, TAXON_NAME } from '@/constants'
 import { makeBrowseUrl } from '@/helpers'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
-import Autocomplete from '@/components/ui/Autocomplete.vue'
+import AutoselectField from '@/components/ui/AutoselectField.vue'
+import TaxonNameNewModal from '@/components/ui/AutoselectField/TaxonNameNewModal.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import ButtonClipboard from '@/components/ui/Button/ButtonClipboard.vue'
@@ -288,6 +309,24 @@ const emit = defineEmits([
 ])
 
 const contextRow = ref(null)
+
+// Autocomplete instances, keyed by row index, so a row's Refine search can be driven from its
+// button.
+const refineRefs = ref({})
+
+function setRefineRef(index, el) {
+  if (el) {
+    refineRefs.value[index] = el
+  } else {
+    delete refineRefs.value[index]
+  }
+}
+
+// Hand the row's scientificName to Refine and start the search there, caret at the end so the
+// curator can trim the string immediately.
+function prefillRefine(row) {
+  refineRefs.value[row.index]?.prefill(row.scientificName)
+}
 
 const selectableRows = computed(() =>
   props.rows.filter((r) => !r.isEmpty && !isDuplicate(r))
