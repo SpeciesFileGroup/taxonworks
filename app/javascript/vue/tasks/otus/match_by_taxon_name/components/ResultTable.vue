@@ -12,7 +12,22 @@
         <th />
         <th class="line-nowrap">scientificName <ButtonClipboard :text="columnClipboardText('scientificName')" title="Copy scientificName column" /></th>
         <th class="line-nowrap" data-help="Override the string used for matching. Leave blank to match using the scientificName value as-is. A manually-entered value shows a small dot. Regex modifiers (left panel) write to this field automatically.">Match <ButtonClipboard :text="columnClipboardText('match')" title="Copy match column" /></th>
-        <th class="line-nowrap" data-help="A yellow cell indicates that there was more than one matching Taxon Name to choose from, so you may want to confirm the name selected - if the wrong name was selected you can select the correct one in the Refine column.">TaxonName <ButtonClipboard :text="columnClipboardText('taxonName')" title="Copy TaxonName column" /></th>
+        <th class="line-nowrap" data-help="A yellow cell indicates that there was more than one matching Taxon Name to choose from, so you may want to confirm the name selected - if the wrong name was selected you can select the correct one in the Refine column.">
+          <div class="horizontal-left-content middle gap-small">
+            <span>TaxonName</span>
+            <select
+              class="normal-input"
+              :value="taxonNameFilter"
+              title="Which rows to show"
+              @change="emit('update:taxonNameFilter', $event.target.value)"
+            >
+              <option :value="TAXON_NAME_FILTER.All">All</option>
+              <option :value="TAXON_NAME_FILTER.Ambiguous">Ambiguous</option>
+              <option :value="TAXON_NAME_FILTER.Unmatched">Unmatched</option>
+            </select>
+            <ButtonClipboard :text="columnClipboardText('taxonName')" title="Copy TaxonName column" />
+          </div>
+        </th>
         <th />
         <th class="w-2" />
         <th data-help="Manually search for and select a TaxonName, overriding the automatic match result. Use this to fix incorrect or ambiguous matches.">Refine</th>
@@ -288,6 +303,7 @@ import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import ButtonClipboard from '@/components/ui/Button/ButtonClipboard.vue'
 import effectiveName from '../utils/effectiveName.js'
+import { TAXON_NAME_FILTER } from '../constants.js'
 
 const props = defineProps({
   rows: {
@@ -298,6 +314,11 @@ const props = defineProps({
   csvData: {
     type: Object,
     default: null
+  },
+
+  taxonNameFilter: {
+    type: String,
+    default: TAXON_NAME_FILTER.All
   }
 })
 
@@ -305,7 +326,8 @@ const emit = defineEmits([
   'update-row',
   'create-otu',
   'scroll-to-row',
-  'match-row'
+  'match-row',
+  'update:taxonNameFilter'
 ])
 
 const contextRow = ref(null)

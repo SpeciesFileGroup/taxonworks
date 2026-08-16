@@ -50,8 +50,9 @@
             />
 
             <ResultTable
-              :rows="rows"
+              :rows="visibleRows"
               :csv-data="csvData"
+              v-model:taxon-name-filter="taxonNameFilter"
               @update-row="handleRowUpdate"
               @create-otu="handleCreateOtu"
               @scroll-to-row="scrollToRow"
@@ -65,7 +66,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { TaxonName, Otu } from '@/routes/endpoints'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
@@ -74,7 +75,7 @@ import InputPanel from './components/InputPanel.vue'
 import ResultTable from './components/ResultTable.vue'
 import SummaryBar from './components/SummaryBar.vue'
 import MatchOptionsPanel from './components/MatchOptionsPanel.vue'
-import { MAX_ROWS, defaultModifiers } from './constants.js'
+import { MAX_ROWS, TAXON_NAME_FILTER, defaultModifiers } from './constants.js'
 import effectiveName from './utils/effectiveName.js'
 import sortOtus from './utils/sortOtus.js'
 
@@ -86,6 +87,15 @@ const stage = ref('input') // 'input' or 'results'
 const isProcessing = ref(false)
 const rows = ref([])
 const csvData = ref(null)
+const taxonNameFilter = ref(TAXON_NAME_FILTER.All)
+
+const visibleRows = computed(() =>
+  rows.value.filter((row) => {
+    if (taxonNameFilter.value === TAXON_NAME_FILTER.Ambiguous) return row.matched && row.ambiguous
+    if (taxonNameFilter.value === TAXON_NAME_FILTER.Unmatched) return !row.matched
+    return true
+  })
+)
 
 const scopeTaxonName = ref()
 const levenshteinDistance = ref(0)
@@ -448,6 +458,7 @@ function reset() {
   stage.value = 'input'
   rows.value = []
   csvData.value = null
+  taxonNameFilter.value = TAXON_NAME_FILTER.All
   resetMatchOptions()
 }
 </script>
