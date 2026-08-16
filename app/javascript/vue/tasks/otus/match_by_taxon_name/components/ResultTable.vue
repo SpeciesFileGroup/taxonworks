@@ -128,6 +128,7 @@
             param="term"
             label="label_html"
             clear-after
+            :disabled="row.fixedOtuId != null"
             placeholder="Search taxon name..."
             @getItem="
               (item) =>
@@ -153,14 +154,9 @@
                 :name="'otu-select-' + row.index"
                 :value="otu.id"
                 :checked="row.selectedOtuId === otu.id"
-                :disabled="isDuplicate(row)"
-                @change="
-                  emit('update-row', {
-                    index: row.index,
-                    field: 'selectedOtuId',
-                    value: otu.id
-                  })
-                "
+                :disabled="isDuplicate(row) || row.fixedOtuId != null"
+                @click="selectOtu(row, otu.id)"
+                @change="selectOtu(row, otu.id)"
               />
               <span>{{ otu.object_label || otu.name || `OTU ${otu.id}` }}</span>
             </div>
@@ -180,13 +176,33 @@
 
         <!-- create OTU -->
         <td>
-          <VBtn
-            v-if="isActionable(row) && row.taxonNameId && !row.otus.length"
-            color="create"
-            @click="emit('create-otu', { index: row.index })"
-          >
-            Create OTU
-          </VBtn>
+          <div class="horizontal-left-content gap-xsmall">
+            <VBtn
+              v-if="isActionable(row) && row.taxonNameId && !row.otus.length && row.fixedOtuId == null"
+              color="create"
+              @click="emit('create-otu', { index: row.index })"
+            >
+              Create OTU
+            </VBtn>
+            <VBtn
+              v-if="row.fixedOtuId != null"
+              circle
+              color="primary"
+              title="Clear fixed OTU selection"
+              @click="
+                emit('update-row', {
+                  index: row.index,
+                  field: 'fixedOtuId',
+                  value: null
+                })
+              "
+            >
+              <VIcon
+                x-small
+                name="reset"
+              />
+            </VBtn>
+          </div>
         </td>
 
         <!-- set (duplicate link) -->
@@ -326,6 +342,10 @@ function isDuplicate(row) {
 
 function isActionable(row) {
   return !isDuplicate(row) && !row.isEmpty
+}
+
+function selectOtu(row, otuId) {
+  emit('update-row', { index: row.index, field: 'selectedOtuId', value: otuId })
 }
 
 function activeRowIndex(row) {

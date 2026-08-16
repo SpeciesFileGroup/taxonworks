@@ -131,6 +131,7 @@ async function handleDataSubmit({ names, csv }) {
       taxonNameId: null,
       otus: [],
       selectedOtuId: null,
+      fixedOtuId: null,
       ambiguous: false,
       matched: false,
       selected: false,
@@ -266,8 +267,13 @@ function handleRowUpdate({ index, field, value }) {
   } else if (field === 'selected') {
     row.selected = value
   } else if (field === 'selectedOtuId') {
+    // A radio click explicitly fixes the OTU: it survives subsequent
+    // re-matches (e.g. toggling match options) until reset.
+    row.fixedOtuId = value
     row.selectedOtuId = value
     syncDuplicateRows(row)
+  } else if (field === 'fixedOtuId') {
+    row.fixedOtuId = value
   }
 }
 
@@ -341,6 +347,7 @@ async function handleCreateOtu({ index }) {
     }
 
     row.otus.push(newOtu)
+    row.fixedOtuId = newOtu.id
     row.selectedOtuId = newOtu.id
 
     syncDuplicateRows(row)
@@ -351,11 +358,21 @@ async function handleCreateOtu({ index }) {
   }
 }
 
+// A row.fixedOtuId (set by an explicit radio click) survives a re-applied
+// otus list: reselect it if still present, otherwise leave nothing selected
+// (rather than falling back to source.selectedOtuId) until it reappears.
+function resolveSelectedOtuId(row, otus, defaultSelectedOtuId) {
+  if (row.fixedOtuId != null) {
+    return otus.some((otu) => otu.id === row.fixedOtuId) ? row.fixedOtuId : null
+  }
+  return defaultSelectedOtuId
+}
+
 function applyMatchResult(row, source) {
   row.taxonName = source.taxonName
   row.taxonNameId = source.taxonNameId
   row.otus = source.otus
-  row.selectedOtuId = source.selectedOtuId
+  row.selectedOtuId = resolveSelectedOtuId(row, source.otus, source.selectedOtuId)
   row.ambiguous = source.ambiguous
   row.matched = source.matched
 }
@@ -407,6 +424,7 @@ function clearAllMatches() {
     row.taxonNameId = null
     row.otus = []
     row.selectedOtuId = null
+    row.fixedOtuId = null
     row.ambiguous = false
     row.matched = false
     row.regexMatchString = ''
