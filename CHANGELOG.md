@@ -18,6 +18,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - `Simple new specimen` task is now `New collection object`
 - Support partial dates (year only, year-month only) for `startDate` and `endDate` from the api
 - Sort people by uses in Match Authors to People
+- `Citations by source`: All OTU links now redirect to Browse OTU [#2261]
 
 ### Fixed
 
@@ -26,6 +27,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Field synchronize and multi update task are not sorting records by id [#5045]
 - Browse OTUs: TIFF images of observations are not displayed in the image viewer
 
+[#2261]: https://github.com/SpeciesFileGroup/taxonworks/issues/2261
 [#4873]: https://github.com/SpeciesFileGroup/taxonworks/issues/4873
 [#5045]: https://github.com/SpeciesFileGroup/taxonworks/issues/5045
 
