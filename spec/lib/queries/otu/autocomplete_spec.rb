@@ -231,42 +231,48 @@ describe Queries::Otu::Autocomplete, type: :model do
       expect(query.autocomplete.first).to eq(otu2)
     end
 
-    # Regression: `terms` (Queries::Query#terms) always returns a 2-element
-    # array of wildcarded copies of the *whole* query_string, never the
-    # query_string split on whitespace. `autocomplete_taxon_name_hybrid` was
-    # (mis)written assuming `terms.first`/`terms.second` were the genus and
-    # otu.name (e.g. "Tapinoma CASC_2231") words, so `terms.length == 2` was
-    # vacuously true for any query, and it trigram-matched the *entire*
-    # phrase against both `taxon_names.cached` and `otus.name` instead of
-    # matching each word against its own column.
-    context '#autocomplete_taxon_name_hybrid' do
+    # #5047: a prefix match on the taxon name (without authorship) followed
+    # by a prefix match on the otu name, in that order - e.g. 'Tapinoma
+    # CASC_2231' or a partially-typed 'Tapino CASC'. Only exactly two terms
+    # are supported - unlike an exact match, a prefix match can't try every
+    # word-position boundary unambiguously.
+    context '#autocomplete_taxon_name_and_otu_name' do
       let!(:tapinoma) { Protonym.create!(name: 'Tapinoma', rank_class: Ranks.lookup(:iczn, 'genus'), parent: root) }
       let!(:target) { Otu.create!(taxon_name: tapinoma, name: 'CASC_2231', project_id: project_id) }
 
-      specify 'matches genus term to taxon_names.cached and otu term to otus.name, independently' do
-        # This otu.name redundantly restates the genus (as happens in real
-        # data, e.g. "Scaphoideus menoni_E26" under genus "Scaphoideus").
-        # Under the old whole-phrase bug this shared genus text was enough
-        # to pass both trigram conditions even though the otu-specific part
-        # ("sp2_Z9") has nothing to do with the query's otu term
-        # ("CASC_2231").
-        decoy = Otu.create!(taxon_name: tapinoma, name: 'Tapinoma sp2_Z9', project_id: project_id)
-
+      specify 'matches an exact single-word taxon name and otu name' do
         q = Queries::Otu::Autocomplete.new('Tapinoma CASC_2231', project_id: project_id)
-        r = q.autocomplete_taxon_name_hybrid.to_a
+        expect(q.autocomplete_taxon_name_and_otu_name.to_a).to include(target)
+      end
 
-        expect(r).to include(target)
-        expect(r).not_to include(decoy)
+      specify 'matches on prefixes of both terms' do
+        q = Queries::Otu::Autocomplete.new('Tapino CASC', project_id: project_id)
+        expect(q.autocomplete_taxon_name_and_otu_name.to_a).to include(target)
+      end
+
+      specify 'does not match when the order is reversed' do
+        q = Queries::Otu::Autocomplete.new('CASC_2231 Tapinoma', project_id: project_id)
+        expect(q.autocomplete_taxon_name_and_otu_name.to_a).not_to include(target)
+      end
+
+      specify 'does not match a term that is not a prefix' do
+        q = Queries::Otu::Autocomplete.new('apinoma ASC_2231', project_id: project_id)
+        expect(q.autocomplete_taxon_name_and_otu_name.to_a).not_to include(target)
+      end
+
+      specify 'does not match a term absent from both columns' do
+        q = Queries::Otu::Autocomplete.new('Tapinoma NOPE_9999', project_id: project_id)
+        expect(q.autocomplete_taxon_name_and_otu_name.to_a).not_to include(target)
       end
 
       specify 'does not run for single-word queries' do
         q = Queries::Otu::Autocomplete.new('Tapinoma', project_id: project_id)
-        expect(q.autocomplete_taxon_name_hybrid).to be_nil
+        expect(q.autocomplete_taxon_name_and_otu_name).to be_nil
       end
 
       specify 'does not run for queries with more than two words' do
-        q = Queries::Otu::Autocomplete.new('Tapinoma CASC 2231', project_id: project_id)
-        expect(q.autocomplete_taxon_name_hybrid).to be_nil
+        q = Queries::Otu::Autocomplete.new('Tapinoma sessile CASC_2231', project_id: project_id)
+        expect(q.autocomplete_taxon_name_and_otu_name).to be_nil
       end
     end
 
