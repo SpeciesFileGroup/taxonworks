@@ -116,15 +116,7 @@ module Queries
       #
       # The query is a prefix match on the taxon name (without authorship)
       # followed by a prefix match on the otu name - in that order. Only
-      # exactly two terms are supported: once matching is loosened from
-      # exact to prefix there is no reliable way to guess how many words
-      # belong to each side, so unlike an exact match (where trying every
-      # word position is still cheap and unambiguous) that would mean
-      # trying every combination of prefix lengths per word - not worth it.
-      #
-      # Note this intentionally does not use `terms` (Queries::Query#terms) -
-      # that always returns a 2-element array of wildcarded copies of the
-      # *whole* query_string, not the query_string split into words.
+      # exactly two terms are supported.
       def autocomplete_taxon_name_and_otu_name
         words = query_string.to_s.split(/\s+/)
         return nil unless words.length == 2

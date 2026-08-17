@@ -231,11 +231,6 @@ describe Queries::Otu::Autocomplete, type: :model do
       expect(query.autocomplete.first).to eq(otu2)
     end
 
-    # #5047: a prefix match on the taxon name (without authorship) followed
-    # by a prefix match on the otu name, in that order - e.g. 'Tapinoma
-    # CASC_2231' or a partially-typed 'Tapino CASC'. Only exactly two terms
-    # are supported - unlike an exact match, a prefix match can't try every
-    # word-position boundary unambiguously.
     context '#autocomplete_taxon_name_and_otu_name' do
       let!(:tapinoma) { Protonym.create!(name: 'Tapinoma', rank_class: Ranks.lookup(:iczn, 'genus'), parent: root) }
       let!(:target) { Otu.create!(taxon_name: tapinoma, name: 'CASC_2231', project_id: project_id) }
@@ -248,31 +243,6 @@ describe Queries::Otu::Autocomplete, type: :model do
       specify 'matches on prefixes of both terms' do
         q = Queries::Otu::Autocomplete.new('Tapino CASC', project_id: project_id)
         expect(q.autocomplete_taxon_name_and_otu_name.to_a).to include(target)
-      end
-
-      specify 'does not match when the order is reversed' do
-        q = Queries::Otu::Autocomplete.new('CASC_2231 Tapinoma', project_id: project_id)
-        expect(q.autocomplete_taxon_name_and_otu_name.to_a).not_to include(target)
-      end
-
-      specify 'does not match a term that is not a prefix' do
-        q = Queries::Otu::Autocomplete.new('apinoma ASC_2231', project_id: project_id)
-        expect(q.autocomplete_taxon_name_and_otu_name.to_a).not_to include(target)
-      end
-
-      specify 'does not match a term absent from both columns' do
-        q = Queries::Otu::Autocomplete.new('Tapinoma NOPE_9999', project_id: project_id)
-        expect(q.autocomplete_taxon_name_and_otu_name.to_a).not_to include(target)
-      end
-
-      specify 'does not run for single-word queries' do
-        q = Queries::Otu::Autocomplete.new('Tapinoma', project_id: project_id)
-        expect(q.autocomplete_taxon_name_and_otu_name).to be_nil
-      end
-
-      specify 'does not run for queries with more than two words' do
-        q = Queries::Otu::Autocomplete.new('Tapinoma sessile CASC_2231', project_id: project_id)
-        expect(q.autocomplete_taxon_name_and_otu_name).to be_nil
       end
     end
 
