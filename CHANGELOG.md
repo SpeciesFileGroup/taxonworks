@@ -19,6 +19,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Support partial dates (year only, year-month only) for `startDate` and `endDate` from the api
 - Sort people by uses in Match Authors to People
 - `Citations by source`: All OTU links now redirect to Browse OTU [#2261]
+- Autocomplete highlighting now matches each occurrence of each of your search terms in the result: e.g. if you search on `aus cus` and one of the results is `Aus (bus) cus`, the "Aus" and "cus" terms in the result will be highlighted [#5043]
 
 ### Fixed
 
@@ -30,6 +31,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 [#2261]: https://github.com/SpeciesFileGroup/taxonworks/issues/2261
 [#4873]: https://github.com/SpeciesFileGroup/taxonworks/issues/4873
+[#5043]: https://github.com/SpeciesFileGroup/taxonworks/issues/5043
 [#5045]: https://github.com/SpeciesFileGroup/taxonworks/issues/5045
 [#5047]: https://github.com/SpeciesFileGroup/taxonworks/issues/5047
 

@@ -69,4 +69,18 @@ describe Workbench::HtmlHelper, type: :helper do
     expect(s).to eq('<mark>term</mark> <span>x</span>')
   end
 
+  specify '#mark_tag prefers matching the whole term contiguously over its individual words' do
+    expect(helper.mark_tag('Aus bus name', 'Aus bus')).to eq('<mark>Aus bus</mark> name')
+  end
+
+  specify '#mark_tag falls back to marking individual words when a tag splits the term apart' do
+    expect(helper.mark_tag('Aus <i>(bus)</i> current', 'Aus bus'))
+      .to eq('<mark>Aus</mark> <i>(<mark>bus</mark>)</i> current')
+  end
+
+  specify '#mark_tag word fallback is case insensitive' do
+    expect(helper.mark_tag('AUS <i>(BUS)</i>', 'Aus bus'))
+      .to eq('<mark>AUS</mark> <i>(<mark>BUS</mark>)</i>')
+  end
+
 end
