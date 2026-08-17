@@ -14,6 +14,8 @@ module Workbench::HtmlHelper
   def mark_tag(string, term, html_safe: true)
     return nil if string.nil?
 
+    term = term.to_s.strip
+
     s = if term.blank?
       string
     else
