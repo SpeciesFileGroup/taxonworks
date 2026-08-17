@@ -126,6 +126,7 @@ module Queries
         base_query
           .joins(:taxon_name)
           .where('taxon_names.cached ILIKE ? AND otus.name ILIKE ?', "#{genus_term}%", "#{otu_term}%")
+          .order('taxon_names.cached, otus.name, length(taxon_names.cached), length(otus.name)')
       end
 
       # @return [Scope]
