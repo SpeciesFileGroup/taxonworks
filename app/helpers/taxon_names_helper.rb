@@ -46,7 +46,7 @@ module TaxonNamesHelper
       content_tag(:span, mark_tag(taxon_name.cached_html_name_and_author_year, term),  class: :klass),
       taxon_name_rank_tag(taxon_name),
       taxon_name_parent_tag(taxon_name),
-      taxon_name_original_combination_tag(taxon_name),
+      taxon_name_original_combination_tag(taxon_name, term:),
       taxon_name_type_short_tag(taxon_name)
       # " [#{taxon_name.sml_t}]"
     ].compact.join('&nbsp;').html_safe
@@ -68,9 +68,11 @@ module TaxonNamesHelper
     content_tag(:span, taxon_name_tag(taxon_name.parent).html_safe, class: css_class)
   end
 
-  def taxon_name_original_combination_tag(taxon_name, css_class = [:feedback, 'feedback-notice', 'feedback-thin'] )
+  # @param term [String, nil]
+  #   the autocomplete search term, if any; matches are wrapped in `<mark>`
+  def taxon_name_original_combination_tag(taxon_name, css_class = [:feedback, 'feedback-notice', 'feedback-thin'], term: nil)
     return nil if taxon_name.nil? || taxon_name.cached_original_combination.blank?
-    content_tag(:span, taxon_name.cached_original_combination, class: css_class)
+    content_tag(:span, mark_tag(h(taxon_name.cached_original_combination), term), class: css_class)
   end
 
   # Styling indicating the current valid name
