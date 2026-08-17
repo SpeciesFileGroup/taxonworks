@@ -36,6 +36,14 @@ describe Workbench::HtmlHelper, type: :helper do
     expect(helper.mark_tag('Smith &amp; term', 'term')).to eq('Smith &amp; <mark>term</mark>')
   end
 
+  specify '#mark_tag strips leading/trailing whitespace from the term before matching' do
+    expect(helper.mark_tag('plain asdf text', '   asdf  ')).to eq('plain <mark>asdf</mark> text')
+  end
+
+  specify '#mark_tag treats a whitespace-only term as blank' do
+    expect(helper.mark_tag('abc', '   ')).to eq('abc')
+  end
+
   specify '#mark_tag returns nil when the string is nil' do
     expect(helper.mark_tag(nil, 'term')).to be_nil
   end
