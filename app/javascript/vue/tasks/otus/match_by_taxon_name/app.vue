@@ -92,8 +92,12 @@ const taxonNameFilter = ref(TAXON_NAME_FILTER.All)
 
 const visibleRows = computed(() =>
   rows.value.filter((row) => {
-    if (taxonNameFilter.value === TAXON_NAME_FILTER.Ambiguous) return row.matched && row.ambiguous
-    if (taxonNameFilter.value === TAXON_NAME_FILTER.Unmatched) return !row.matched
+    if (taxonNameFilter.value === TAXON_NAME_FILTER.Ambiguous) {
+      return row.matched && row.ambiguous
+    }
+    if (taxonNameFilter.value === TAXON_NAME_FILTER.Unmatched) {
+      return !row.matched
+    }
     return true
   })
 )
@@ -242,11 +246,7 @@ async function matchRows(targetRows) {
       })
     })
   } catch (e) {
-    TW.workbench.alert.create(
-      'Error matching names. See console for details.',
-      'error'
-    )
-    console.error(e)
+    TW.workbench.alert.create('Error matching names.', 'error')
   } finally {
     syncAllDuplicates()
     isProcessing.value = false
@@ -259,8 +259,9 @@ function handleRowUpdate({ index, field, value }) {
 
   if (field === 'taxonName') {
     if (value) {
-      // The autocomplete result doesn't include cached_html (only label/label_html,
-      // meant for the dropdown itself), so re-fetch the full record for display.
+      // The autoselect result doesn't include cached_html
+      // (only label/label_html, meant for the dropdown itself), so re-fetch the
+      // full record for display.
       refreshTaxonNameSelection(value.id, row)
     } else {
       applyMatchResult(row, {
@@ -312,7 +313,6 @@ async function refreshTaxonNameSelection(taxonNameId, row) {
       'Error loading TaxonName/OTU details.',
       'error'
     )
-    console.error(e)
   } finally {
     isProcessing.value = false
   }
@@ -365,7 +365,6 @@ async function handleCreateOtu({ index }) {
     TW.workbench.alert.create('OTU created successfully.', 'notice')
   } catch (e) {
     TW.workbench.alert.create('Failed to create OTU.', 'error')
-    console.error(e)
   }
 }
 

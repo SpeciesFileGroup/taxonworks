@@ -21,9 +21,13 @@
               title="Which rows to show"
               @change="emit('update:taxonNameFilter', $event.target.value)"
             >
-              <option :value="TAXON_NAME_FILTER.All">All</option>
-              <option :value="TAXON_NAME_FILTER.Ambiguous">Ambiguous</option>
-              <option :value="TAXON_NAME_FILTER.Unmatched">Unmatched</option>
+              <option
+                v-for="[label, value] in Object.entries(TAXON_NAME_FILTER)"
+                :key="value"
+                :value="value"
+              >
+                {{ label }}
+              </option>
             </select>
             <ButtonClipboard :text="columnClipboardText('taxonName')" title="Copy TaxonName column" />
           </div>
@@ -332,7 +336,7 @@ const emit = defineEmits([
 
 const contextRow = ref(null)
 
-// Autocomplete instances, keyed by row index, so a row's Refine search can be driven from its
+// AutoselectField instances, keyed by row index, so a row's Refine search can be driven from its
 // button.
 const refineRefs = ref({})
 
