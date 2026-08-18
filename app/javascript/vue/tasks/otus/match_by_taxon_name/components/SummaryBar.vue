@@ -48,6 +48,10 @@ const props = defineProps({
   rows: {
     type: Array,
     required: true
+  },
+  filteredRows: {
+    type: Array,
+    required: true
   }
 })
 
@@ -93,7 +97,7 @@ const uniqueOtuCount = computed(() => {
 const clipboardText = computed(() =>
   [
     CLIPBOARD_HEADERS.join('\t'),
-    ...props.rows.map((row) => {
+    ...props.filteredRows.map((row) => {
       const name = row.scientificName || ''
       const match = effectiveName(row)
       const otuId = row.selectedOtuId != null ? String(row.selectedOtuId) : ''

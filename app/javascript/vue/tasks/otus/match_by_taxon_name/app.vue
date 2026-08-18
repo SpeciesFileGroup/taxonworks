@@ -47,6 +47,7 @@
             <SummaryBar
               v-if="rows.length"
               :rows="rows"
+              :filtered-rows="visibleRows"
             />
 
             <ResultTable
