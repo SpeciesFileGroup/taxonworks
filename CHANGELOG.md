@@ -12,6 +12,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - raw id search for Biological Association autocompletes
 - `New Collection Object`: Added a CO Total field to the CO form. Added a `identifier end` field that automatically increments based on the Identifier and the total number of specimens/lots being created. [#4873]
 - `New asserted distribution`: Added preferences modal, moved autosave there, and added option to hide Confidence panel
+- Smart selector for preparation type [#1130]
 
 ### Changed
 
@@ -30,6 +31,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - OTU autocomplete overwhelmed by incorrect fuzzy matches on 'hybrid' genus + otu_name searches like "Tapinoma CASC_123" [#5047]
 - Don't include highlights with text chosen in autocompletes [#5052]
 
+[#1130]: https://github.com/SpeciesFileGroup/taxonworks/issues/1130
 [#2261]: https://github.com/SpeciesFileGroup/taxonworks/issues/2261
 [#4873]: https://github.com/SpeciesFileGroup/taxonworks/issues/4873
 [#5043]: https://github.com/SpeciesFileGroup/taxonworks/issues/5043

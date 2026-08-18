@@ -805,6 +805,9 @@ end
 
 resources :preparation_types do
   concerns [:data_routes]
+  collection do
+    get :select_options, defaults: {format: :json}
+  end
 end
 
 resources :projects, only: [] do
