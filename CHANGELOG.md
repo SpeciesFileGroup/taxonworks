@@ -14,6 +14,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - `New asserted distribution`: Added preferences modal, moved autosave there, and added option to hide Confidence panel
 - Smart selector for preparation type [#1130]
 - Smart selector for protocols [#2890]
+- `Match collection objects`: Added button to destroy selected collection objects [#2942]
 
 ### Changed
 
@@ -43,6 +44,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 [#1130]: https://github.com/SpeciesFileGroup/taxonworks/issues/1130
 [#2261]: https://github.com/SpeciesFileGroup/taxonworks/issues/2261
 [#2890]: https://github.com/SpeciesFileGroup/taxonworks/issues/2890
+[#2942]: https://github.com/SpeciesFileGroup/taxonworks/issues/2942
 [#4873]: https://github.com/SpeciesFileGroup/taxonworks/issues/4873
 [#5043]: https://github.com/SpeciesFileGroup/taxonworks/issues/5043
 [#5045]: https://github.com/SpeciesFileGroup/taxonworks/issues/5045
