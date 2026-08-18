@@ -39,12 +39,14 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
   - changing options shouldn't be able to unselect an OTU the user has specifically chosen
   - add 'ambiguous' count to summary
   - uses autoselect instead of autocomplete for Taxon Name selection
+- Adding duplicate images to an observation now uses the image that was already created instead of returning an error stating that the image is already in use [#4146]
 
 [#1060]: https://github.com/SpeciesFileGroup/taxonworks/issues/1060
 [#1130]: https://github.com/SpeciesFileGroup/taxonworks/issues/1130
 [#2261]: https://github.com/SpeciesFileGroup/taxonworks/issues/2261
 [#2890]: https://github.com/SpeciesFileGroup/taxonworks/issues/2890
 [#2942]: https://github.com/SpeciesFileGroup/taxonworks/issues/2942
+[#4146]: https://github.com/SpeciesFileGroup/taxonworks/issues/4146
 [#4873]: https://github.com/SpeciesFileGroup/taxonworks/issues/4873
 [#5043]: https://github.com/SpeciesFileGroup/taxonworks/issues/5043
 [#5045]: https://github.com/SpeciesFileGroup/taxonworks/issues/5045
