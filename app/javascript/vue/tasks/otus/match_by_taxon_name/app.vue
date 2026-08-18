@@ -438,6 +438,8 @@ function syncDuplicateRows(sourceRow) {
     if (row.index === sourceRow.index) return
 
     if (effectiveName(row) === sourceName) {
+      row.fixedOtuId = sourceRow.fixedOtuId
+      row.fixedOtuName = sourceRow.fixedOtuName
       applyMatchResult(row, sourceRow)
     }
   })
@@ -456,6 +458,8 @@ function syncAllDuplicates() {
       seen.set(name, row)
     } else {
       const source = seen.get(name)
+      row.fixedOtuId = source.fixedOtuId
+      row.fixedOtuName = source.fixedOtuName
       applyMatchResult(row, source)
       row.selected = false
     }
