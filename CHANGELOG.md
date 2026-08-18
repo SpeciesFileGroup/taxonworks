@@ -21,6 +21,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Sort people by uses in Match Authors to People
 - `Citations by source`: All OTU links now redirect to Browse OTU [#2261]
 - Autocomplete highlighting now matches each occurrence of each of your search terms in the result: e.g. if you search on `aus cus` and one of the results is `Aus (bus) cus`, the "Aus" and "cus" terms in the result will be highlighted [#5043]
+- `New images task`: Images now display a warning or check mark icon to indicate whether annotations have been applied. [#1060]
 
 ### Fixed
 
@@ -31,6 +32,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - OTU autocomplete overwhelmed by incorrect fuzzy matches on 'hybrid' genus + otu_name searches like "Tapinoma CASC_123" [#5047]
 - Don't include highlights with text chosen in autocompletes [#5052]
 
+[#1060]: https://github.com/SpeciesFileGroup/taxonworks/issues/1060
 [#1130]: https://github.com/SpeciesFileGroup/taxonworks/issues/1130
 [#2261]: https://github.com/SpeciesFileGroup/taxonworks/issues/2261
 [#4873]: https://github.com/SpeciesFileGroup/taxonworks/issues/4873
