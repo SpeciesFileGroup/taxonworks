@@ -6,6 +6,13 @@ export const TAXON_NAME_FILTER = {
   Unmatched: 'unmatched'
 }
 
+export const OTU_FILTER = {
+  All: 'all',
+  'Multiple OTUs': 'multiple',
+  'No OTU': 'no_otu',
+  Selected: 'selected'
+}
+
 // A fresh array/objects each call, so callers never share mutable state.
 export function defaultModifiers() {
   return [

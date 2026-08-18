@@ -35,7 +35,29 @@
         <th />
         <th class="w-2" />
         <th data-help="Manually search for and select a TaxonName, overriding the automatic match result. Use this to fix incorrect or ambiguous matches.">Refine</th>
-        <th class="line-nowrap">OTU <ButtonClipboard :text="columnClipboardText('otuLabel')" title="Copy OTU column" /></th>
+        <th
+          class="line-nowrap"
+          data-help="'Selected' means the OTU was fixed by the user (radio click or Create OTU) rather than merely auto-picked, so it survives re-matches."
+        >
+          <div class="horizontal-left-content middle gap-small">
+            <span>OTU</span>
+            <select
+              class="normal-input"
+              :value="otuFilter"
+              title="Which rows to show"
+              @change="emit('update:otuFilter', $event.target.value)"
+            >
+              <option
+                v-for="[label, value] in Object.entries(OTU_FILTER)"
+                :key="value"
+                :value="value"
+              >
+                {{ label }}
+              </option>
+            </select>
+            <ButtonClipboard :text="columnClipboardText('otuLabel')" title="Copy OTU column" />
+          </div>
+        </th>
         <th class="line-nowrap">OTU id <ButtonClipboard :text="columnClipboardText('otuId')" title="Copy OTU id column" /></th>
         <th />
         <th>Set</th>
@@ -308,7 +330,7 @@ import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import ButtonClipboard from '@/components/ui/Button/ButtonClipboard.vue'
 import effectiveName from '../utils/effectiveName.js'
-import { TAXON_NAME_FILTER } from '../constants.js'
+import { TAXON_NAME_FILTER, OTU_FILTER } from '../constants.js'
 
 const props = defineProps({
   rows: {
@@ -324,6 +346,11 @@ const props = defineProps({
   taxonNameFilter: {
     type: String,
     default: TAXON_NAME_FILTER.All
+  },
+
+  otuFilter: {
+    type: String,
+    default: OTU_FILTER.All
   }
 })
 
@@ -332,7 +359,8 @@ const emit = defineEmits([
   'create-otu',
   'scroll-to-row',
   'match-row',
-  'update:taxonNameFilter'
+  'update:taxonNameFilter',
+  'update:otuFilter'
 ])
 
 const contextRow = ref(null)

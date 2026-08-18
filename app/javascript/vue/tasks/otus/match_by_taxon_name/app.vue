@@ -54,6 +54,7 @@
               :rows="visibleRows"
               :csv-data="csvData"
               v-model:taxon-name-filter="taxonNameFilter"
+              v-model:otu-filter="otuFilter"
               @update-row="handleRowUpdate"
               @create-otu="handleCreateOtu"
               @scroll-to-row="scrollToRow"
@@ -76,7 +77,7 @@ import InputPanel from './components/InputPanel.vue'
 import ResultTable from './components/ResultTable.vue'
 import SummaryBar from './components/SummaryBar.vue'
 import MatchOptionsPanel from './components/MatchOptionsPanel.vue'
-import { MAX_ROWS, TAXON_NAME_FILTER, defaultModifiers } from './constants.js'
+import { MAX_ROWS, TAXON_NAME_FILTER, OTU_FILTER, defaultModifiers } from './constants.js'
 import effectiveName from './utils/effectiveName.js'
 import sortOtus from './utils/sortOtus.js'
 
@@ -89,17 +90,33 @@ const isProcessing = ref(false)
 const rows = ref([])
 const csvData = ref(null)
 const taxonNameFilter = ref(TAXON_NAME_FILTER.All)
+const otuFilter = ref(OTU_FILTER.All)
+
+function matchesTaxonNameFilter(row) {
+  if (taxonNameFilter.value === TAXON_NAME_FILTER.Ambiguous) {
+    return row.matched && row.ambiguous
+  }
+  if (taxonNameFilter.value === TAXON_NAME_FILTER.Unmatched) {
+    return !row.matched
+  }
+  return true
+}
+
+function matchesOtuFilter(row) {
+  if (otuFilter.value === OTU_FILTER['Multiple OTUs']) {
+    return row.otus.length > 1
+  }
+  if (otuFilter.value === OTU_FILTER.Selected) {
+    return row.fixedOtuId != null
+  }
+  if (otuFilter.value === OTU_FILTER['No OTU']) {
+    return row.selectedOtuId == null
+  }
+  return true
+}
 
 const visibleRows = computed(() =>
-  rows.value.filter((row) => {
-    if (taxonNameFilter.value === TAXON_NAME_FILTER.Ambiguous) {
-      return row.matched && row.ambiguous
-    }
-    if (taxonNameFilter.value === TAXON_NAME_FILTER.Unmatched) {
-      return !row.matched
-    }
-    return true
-  })
+  rows.value.filter((row) => matchesTaxonNameFilter(row) && matchesOtuFilter(row))
 )
 
 const scopeTaxonName = ref()
@@ -432,6 +449,8 @@ function resetMatchOptions() {
 
 function clearAllMatches() {
   resetMatchOptions()
+  taxonNameFilter.value = TAXON_NAME_FILTER.All
+  otuFilter.value = OTU_FILTER.All
 
   rows.value.forEach((row) => {
     row.taxonName = null
@@ -464,6 +483,7 @@ function reset() {
   rows.value = []
   csvData.value = null
   taxonNameFilter.value = TAXON_NAME_FILTER.All
+  otuFilter.value = OTU_FILTER.All
   resetMatchOptions()
 }
 </script>
