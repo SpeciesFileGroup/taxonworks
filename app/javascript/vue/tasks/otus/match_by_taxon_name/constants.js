@@ -10,7 +10,7 @@ export const OTU_FILTER = {
   All: 'all',
   'Multiple OTUs': 'multiple',
   'No OTU': 'no_otu',
-  Selected: 'selected'
+  'User selected': 'selected'
 }
 
 // A fresh array/objects each call, so callers never share mutable state.

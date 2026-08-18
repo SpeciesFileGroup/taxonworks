@@ -106,7 +106,7 @@ function matchesOtuFilter(row) {
   if (otuFilter.value === OTU_FILTER['Multiple OTUs']) {
     return row.otus.length > 1
   }
-  if (otuFilter.value === OTU_FILTER.Selected) {
+  if (otuFilter.value === OTU_FILTER['User selected']) {
     return row.fixedOtuId != null
   }
   if (otuFilter.value === OTU_FILTER['No OTU']) {

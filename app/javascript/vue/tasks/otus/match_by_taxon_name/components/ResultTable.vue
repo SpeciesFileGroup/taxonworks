@@ -37,7 +37,7 @@
         <th data-help="Manually search for and select a TaxonName, overriding the automatic match result. Use this to fix incorrect or ambiguous matches.">Refine</th>
         <th
           class="line-nowrap"
-          data-help="'Selected' means the OTU was fixed by the user (radio click or Create OTU) rather than merely auto-picked, so it survives re-matches."
+          data-help="'User selected' means the OTU was fixed by the user (radio click or Create OTU) rather than merely auto-picked, so it survives re-matches."
         >
           <div class="horizontal-left-content middle gap-small">
             <span>OTU</span>
