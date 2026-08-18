@@ -68,7 +68,7 @@
 </template>
 
 <script setup>
-import { computed, ref, onMounted } from 'vue'
+import { computed, ref, watch, onMounted } from 'vue'
 import { TaxonName, Otu } from '@/routes/endpoints'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
@@ -115,8 +115,31 @@ function matchesOtuFilter(row) {
   return true
 }
 
+// The set of rows a filter selects is captured once, when the filter is applied - not
+// recomputed live - so a background re-match can't cause rows to disappear out from under the
+// user mid-review. The rows themselves stay reactive: their content (match status, OTU, etc.)
+// still updates live, only set membership is frozen until the filter changes again.
+const visibleRowIndices = ref(null) // null: no filter active, show every row live
+
+function snapshotVisibleRowIndices() {
+  if (taxonNameFilter.value === TAXON_NAME_FILTER.All && otuFilter.value === OTU_FILTER.All) {
+    visibleRowIndices.value = null
+    return
+  }
+
+  visibleRowIndices.value = new Set(
+    rows.value
+      .filter((row) => matchesTaxonNameFilter(row) && matchesOtuFilter(row))
+      .map((row) => row.index)
+  )
+}
+
+watch([taxonNameFilter, otuFilter], snapshotVisibleRowIndices)
+
 const visibleRows = computed(() =>
-  rows.value.filter((row) => matchesTaxonNameFilter(row) && matchesOtuFilter(row))
+  visibleRowIndices.value === null
+    ? rows.value
+    : rows.value.filter((row) => visibleRowIndices.value.has(row.index))
 )
 
 const scopeTaxonName = ref()
