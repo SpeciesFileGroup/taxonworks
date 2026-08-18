@@ -197,7 +197,7 @@ function applyModifiers(name) {
 
 function scopedRows() {
   const checked = rows.value.filter((r) => r.selected && !r.isEmpty)
-  return checked.length ? checked : rows.value.filter((r) => !r.isEmpty)
+  return checked.length ? checked : visibleRows.value.filter((r) => !r.isEmpty)
 }
 
 function applyModifiersToRows(targetRows) {

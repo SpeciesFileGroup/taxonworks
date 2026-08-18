@@ -2,7 +2,7 @@
   <table class="table-striped full_width">
     <thead>
       <tr>
-        <th data-help="Check rows to restrict option changes and regex application to only those rows. When none are checked, all rows are affected.">
+        <th data-help="Check rows to restrict option changes and regex application to only those rows. When none are checked, all rows currently visible (per the TaxonName/OTU filters) are affected.">
           <input
             type="checkbox"
             :checked="allSelected"
