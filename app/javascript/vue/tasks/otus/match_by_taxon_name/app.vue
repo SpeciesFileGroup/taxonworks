@@ -369,22 +369,18 @@ async function handleCreateOtu({ index }) {
 }
 
 // A row.fixedOtuId (set by an explicit radio click) survives a re-applied
-// otus list: reselect it if still present, otherwise leave nothing selected
-// (rather than falling back to source.selectedOtuId) until it reappears.
-function resolveSelectedOtuId(row, otus, defaultSelectedOtuId) {
-  if (row.fixedOtuId != null) {
-    return otus.some((otu) => otu.id === row.fixedOtuId) ? row.fixedOtuId : null
-  }
-  return defaultSelectedOtuId
+// otus list regardless of whether the new list still contains it.
+function resolveSelectedOtuId(row, defaultSelectedOtuId) {
+  return row.fixedOtuId ?? defaultSelectedOtuId
 }
 
 function applyMatchResult(row, source) {
   row.taxonName = source.taxonName
   row.taxonNameId = source.taxonNameId
   row.otus = source.otus
-  row.selectedOtuId = resolveSelectedOtuId(row, source.otus, source.selectedOtuId)
+  row.selectedOtuId = resolveSelectedOtuId(row, source.selectedOtuId)
   row.ambiguous = source.ambiguous
-  row.matched = source.matched
+  row.matched = source.matched || row.fixedOtuId != null
 }
 
 function syncDuplicateRows(sourceRow) {
