@@ -147,6 +147,7 @@ async function handleDataSubmit({ names, csv }) {
       otus: [],
       selectedOtuId: null,
       fixedOtuId: null,
+      fixedOtuName: null,
       ambiguous: false,
       matched: false,
       selected: false,
@@ -281,11 +282,17 @@ function handleRowUpdate({ index, field, value }) {
   } else if (field === 'selectedOtuId') {
     // A radio click explicitly fixes the OTU: it survives subsequent
     // re-matches (e.g. toggling match options) until reset.
-    row.fixedOtuId = value
-    row.selectedOtuId = value
+    row.fixedOtuId = value.id
+    row.fixedOtuName = value.object_label || value.name || `OTU ${value.id}`
+    row.selectedOtuId = value.id
     syncDuplicateRows(row)
   } else if (field === 'fixedOtuId') {
+    // Unlocking a fixed OTU: re-match the row so its taxonName/otus/matched
+    // status reflect the current match options instead of the stale state
+    // from before it was fixed.
     row.fixedOtuId = value
+    row.fixedOtuName = null
+    matchRows([row])
   }
 }
 
@@ -359,6 +366,7 @@ async function handleCreateOtu({ index }) {
 
     row.otus.push(newOtu)
     row.fixedOtuId = newOtu.id
+    row.fixedOtuName = newOtu.object_label || newOtu.name || `OTU ${newOtu.id}`
     row.selectedOtuId = newOtu.id
 
     syncDuplicateRows(row)
@@ -431,6 +439,7 @@ function clearAllMatches() {
     row.otus = []
     row.selectedOtuId = null
     row.fixedOtuId = null
+    row.fixedOtuName = null
     row.ambiguous = false
     row.matched = false
     row.regexMatchString = ''

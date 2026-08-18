@@ -182,7 +182,8 @@
 
         <!-- OTU -->
         <td>
-          <template v-if="row.otus.length">
+          <span v-if="row.fixedOtuId != null">{{ row.fixedOtuName }}</span>
+          <template v-else-if="row.otus.length">
             <div
               v-for="otu in row.otus"
               :key="otu.id"
@@ -193,9 +194,9 @@
                 :name="'otu-select-' + row.index"
                 :value="otu.id"
                 :checked="row.selectedOtuId === otu.id"
-                :disabled="isDuplicate(row) || row.fixedOtuId != null"
-                @click="selectOtu(row, otu.id)"
-                @change="selectOtu(row, otu.id)"
+                :disabled="isDuplicate(row)"
+                @click="selectOtu(row, otu)"
+                @change="selectOtu(row, otu)"
               />
               <span>{{ otu.object_label || otu.name || `OTU ${otu.id}` }}</span>
             </div>
@@ -409,8 +410,8 @@ function isActionable(row) {
   return !isDuplicate(row) && !row.isEmpty
 }
 
-function selectOtu(row, otuId) {
-  emit('update-row', { index: row.index, field: 'selectedOtuId', value: otuId })
+function selectOtu(row, otu) {
+  emit('update-row', { index: row.index, field: 'selectedOtuId', value: otu })
 }
 
 function activeRowIndex(row) {
@@ -433,6 +434,7 @@ function columnClipboardText(field) {
       case 'taxonName':
         return row.taxonName?.cached || ''
       case 'otuLabel': {
+        if (row.fixedOtuId != null) return row.fixedOtuName || ''
         const otu = row.otus.find((o) => o.id === row.selectedOtuId)
         return otu?.object_label || otu?.name || ''
       }
