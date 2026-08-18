@@ -32,6 +32,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Browse OTUs: TIFF images of observations are not displayed in the image viewer
 - OTU autocomplete overwhelmed by incorrect fuzzy matches on 'hybrid' genus + otu_name searches like "Tapinoma CASC_123" [#5047]
 - Don't include highlights with text chosen in autocompletes [#5052]
+- New OTU task keeps existing OTUs selected after Find [#5054]
 
 [#1060]: https://github.com/SpeciesFileGroup/taxonworks/issues/1060
 [#1130]: https://github.com/SpeciesFileGroup/taxonworks/issues/1130
@@ -42,6 +43,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 [#5045]: https://github.com/SpeciesFileGroup/taxonworks/issues/5045
 [#5047]: https://github.com/SpeciesFileGroup/taxonworks/issues/5047
 [#5052]: https://github.com/SpeciesFileGroup/taxonworks/issues/5052
+[#5054]: https://github.com/SpeciesFileGroup/taxonworks/issues/5054
 
 ## [0.64.0] - 2026-08-04
 

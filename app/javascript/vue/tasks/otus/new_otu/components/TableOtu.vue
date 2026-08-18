@@ -35,6 +35,7 @@
             <VBtn
               color="create"
               medium
+              :disabled="item.exist"
               @click="emit('create', { item, index })"
             >
               Create
