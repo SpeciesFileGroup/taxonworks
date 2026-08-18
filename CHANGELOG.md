@@ -13,6 +13,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - `New Collection Object`: Added a CO Total field to the CO form. Added a `identifier end` field that automatically increments based on the Identifier and the total number of specimens/lots being created. [#4873]
 - `New asserted distribution`: Added preferences modal, moved autosave there, and added option to hide Confidence panel
 - Smart selector for preparation type [#1130]
+- Smart selector for protocols [#2890]
 
 ### Changed
 
@@ -35,6 +36,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 [#1060]: https://github.com/SpeciesFileGroup/taxonworks/issues/1060
 [#1130]: https://github.com/SpeciesFileGroup/taxonworks/issues/1130
 [#2261]: https://github.com/SpeciesFileGroup/taxonworks/issues/2261
+[#2890]: https://github.com/SpeciesFileGroup/taxonworks/issues/2890
 [#4873]: https://github.com/SpeciesFileGroup/taxonworks/issues/4873
 [#5043]: https://github.com/SpeciesFileGroup/taxonworks/issues/5043
 [#5045]: https://github.com/SpeciesFileGroup/taxonworks/issues/5045
