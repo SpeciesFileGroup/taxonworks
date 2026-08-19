@@ -1,31 +1,5 @@
 <template>
   <div>
-<<<<<<< HEAD
-    <h2 class="tw-section-title">Preparation</h2>
-    <div class="flex-row gap-small align-start">
-      <ul
-        v-for="(itemsGroup, index) in chunkList"
-        :key="index"
-        class="no_bullets preparation-list"
-      >
-        <li
-          v-for="type in itemsGroup"
-          :key="type.id"
-        >
-          <label>
-            <input
-              type="radio"
-              :value="type.id"
-              v-model="collectionObject.preparation_type_id"
-              name="collection-object-type"
-            />
-            {{ type.name }}
-          </label>
-        </li>
-      </ul>
-      <lock-component v-model="locked.collection_object.preparation_type_id" />
-    </div>
-=======
     <h2>Preparation</h2>
     <PreparationTypeSelector
       target="CollectionObject"
@@ -35,7 +9,6 @@
         <LockComponent v-model="locked.collection_object.preparation_type_id" />
       </template>
     </PreparationTypeSelector>
->>>>>>> development
   </div>
 </template>
 
