@@ -106,7 +106,7 @@ class PeopleController < ApplicationController
     @person_role_types = Role.where(person_id: people_ids)
       .select(:person_id, :type).distinct.pluck(:person_id, :type)
       .group_by(&:first).transform_values { |pairs| pairs.map(&:last) }
-    @in_project_person_ids = Person.project_use_counts(people_ids, sessions_current_project_id).keys
+    @in_project_person_ids = Person.project_use_counts(people_ids, sessions_current_project_id).keys.to_set
   end
 
   # GET /people/select_options

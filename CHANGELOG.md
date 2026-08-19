@@ -40,6 +40,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
   - add 'ambiguous' count to summary
   - uses autoselect instead of autocomplete for Taxon Name selection
 - Adding duplicate images to an observation now uses the image that was already created instead of returning an error stating that the image is already in use [#4146]
+- Sped up Person autocomplete [#5037]
 
 [#1060]: https://github.com/SpeciesFileGroup/taxonworks/issues/1060
 [#1130]: https://github.com/SpeciesFileGroup/taxonworks/issues/1130
@@ -48,6 +49,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 [#2942]: https://github.com/SpeciesFileGroup/taxonworks/issues/2942
 [#4146]: https://github.com/SpeciesFileGroup/taxonworks/issues/4146
 [#4873]: https://github.com/SpeciesFileGroup/taxonworks/issues/4873
+[#5037]: https://github.com/SpeciesFileGroup/taxonworks/issues/5037
 [#5043]: https://github.com/SpeciesFileGroup/taxonworks/issues/5043
 [#5045]: https://github.com/SpeciesFileGroup/taxonworks/issues/5045
 [#5047]: https://github.com/SpeciesFileGroup/taxonworks/issues/5047
