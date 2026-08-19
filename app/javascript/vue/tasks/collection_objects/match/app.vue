@@ -131,6 +131,13 @@
                         :object-type="COLLECTION_OBJECT"
                       />
                     </li>
+                    <li>
+                      <DeleteCollectionObjects
+                        :ids="selectedIds"
+                        :disabled="!selectedIds.length"
+                        @delete="unmatchDeletedCollectionObjects"
+                      />
+                    </li>
                   </ul>
                 </div>
               </div>
@@ -174,6 +181,7 @@ import RadialFilter from '@/components/radials/filter/radial.vue'
 import RadialMass from '@/components/radials/mass/radial.vue'
 import RadialCollectionObject from '@/components/radials/co/radial.vue'
 import RadialLoan from '@/components/radials/loan/radial.vue'
+import DeleteCollectionObjects from '@/tasks/collection_objects/filter/components/DeleteCollectionObjects.vue'
 import { COLLECTION_OBJECT } from '@/constants'
 import { FILTER_COLLECTION_OBJECT } from '@/components/radials/filter/constants/filterLinks'
 
@@ -214,6 +222,14 @@ const sectionTitles = computed(() => {
     [TABLE_COMPONENT.Both]: `Both (${bothCount})`
   }
 })
+
+function unmatchDeletedCollectionObjects(ids) {
+  list.value = list.value.map((row) =>
+    ids.includes(row.item?.id) ? { identifier: row.identifier } : row
+  )
+
+  selectedIds.value = selectedIds.value.filter((id) => !ids.includes(id))
+}
 
 function reset() {
   params.value = {}

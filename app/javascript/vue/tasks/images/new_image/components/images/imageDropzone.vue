@@ -10,34 +10,49 @@
     />
     <template v-if="images.length">
       <div class="flex-wrap-row separate-top">
-        <ImageViewer
+        <div
           v-for="image in images"
           :key="image.id"
-          :image="image"
-          edit
-          @delete="removeImage"
+          class="image-applied-container"
         >
-          <template #thumbfooter>
-            <div
-              class="flex-separate gap-xsmall padding-xsmall-bottom padding-xsmall-top"
-            >
-              <RadialAnnotator
-                type="annotations"
-                :global-id="image.global_id"
-              />
-              <RadialObject :global-id="image.global_id" />
-              <RadialNavigator :global-id="image.global_id" />
-              <VBtn
-                icon
-                variant="tonal"
-                color="destroy"
-                @click="() => removeImage(image)"
+          <VBadge
+            v-if="appliedBadges[image.id]"
+            class="image-applied-badge"
+            :color="appliedBadges[image.id].color"
+            v-tooltip="appliedBadges[image.id].title"
+          >
+            <VIcon
+              small
+              :name="appliedBadges[image.id].icon"
+            />
+          </VBadge>
+          <ImageViewer
+            :image="image"
+            edit
+            @delete="removeImage"
+          >
+            <template #thumbfooter>
+              <div
+                class="flex-separate gap-xsmall padding-xsmall-bottom padding-xsmall-top"
               >
-                <IconTrash class="w-4 h-4" />
-              </VBtn>
-            </div>
-          </template>
-        </ImageViewer>
+                <RadialAnnotator
+                  type="annotations"
+                  :global-id="image.global_id"
+                />
+                <RadialObject :global-id="image.global_id" />
+                <RadialNavigator :global-id="image.global_id" />
+                <VBtn
+                  icon
+                  variant="tonal"
+                  color="destroy"
+                  @click="() => removeImage(image)"
+                >
+                  <IconTrash class="w-4 h-4" />
+                </VBtn>
+              </div>
+            </template>
+          </ImageViewer>
+        </div>
       </div>
       <div class="margin-medium-top">
         <VBtn
@@ -53,14 +68,15 @@
 </template>
 
 <script setup>
-import { ActionNames } from '../../store/actions/actions.js'
 import { GetterNames } from '../../store/getters/getters.js'
-import { useTemplateRef } from 'vue'
+import { computed, useTemplateRef } from 'vue'
 import { useStore } from 'vuex'
+import { vTooltip } from '@/directives/tooltip.js'
 import VDropzone from '@/components/dropzone.vue'
 import ImageViewer from '@/components/ui/ImageViewer/ImageViewer.vue'
 import IconTrash from '@/components/Icon/IconTrash.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import VBadge from '@/components/ui/VBadge/VBadge.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import RadialObject from '@/components/radials/object/radial.vue'
@@ -89,6 +105,37 @@ const emit = defineEmits(['created', 'onClear', 'delete'])
 
 const dropzoneRef = useTemplateRef('dropzone')
 const store = useStore()
+const appliedBadges = computed(() =>
+  Object.fromEntries(
+    images.value.map((image) => [image.id, makeAppliedBadge(image.id)])
+  )
+)
+
+function makeAppliedBadge(imageId) {
+  const { applied, pending } =
+    store.getters[GetterNames.GetImageAppliedStatus](imageId)
+
+  if (pending.length) {
+    return {
+      color: 'yellow',
+      icon: 'attention',
+      title: [
+        `Pending: ${pending.join(', ')}`,
+        applied.length ? `Applied: ${applied.join(', ')}` : undefined
+      ]
+        .filter(Boolean)
+        .join('. ')
+    }
+  }
+
+  return applied.length
+    ? {
+        color: 'green',
+        icon: 'check',
+        title: `Applied: ${applied.join(', ')}`
+      }
+    : undefined
+}
 
 function success(file, response) {
   const isCreated = images.value.some((item) => item.id === response.id)
@@ -98,7 +145,6 @@ function success(file, response) {
   if (!isCreated) {
     images.value.push(response)
     emit('created', response)
-    store.dispatch(ActionNames.SetAllApplied, false)
   }
 }
 
@@ -119,3 +165,18 @@ function clearImages() {
   }
 }
 </script>
+
+<style scoped>
+.image-applied-container {
+  position: relative;
+}
+
+.image-applied-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 1;
+  display: flex;
+  padding: 2px 4px;
+}
+</style>

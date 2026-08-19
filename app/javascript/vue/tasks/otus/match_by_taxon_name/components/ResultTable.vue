@@ -2,7 +2,7 @@
   <table class="table-striped full_width">
     <thead>
       <tr>
-        <th data-help="Check rows to restrict option changes and regex application to only those rows. When none are checked, all rows are affected.">
+        <th data-help="Check rows to restrict option changes and regex application to only those rows. When none are checked, all rows currently visible (per the TaxonName/OTU filters) are affected.">
           <input
             type="checkbox"
             :checked="allSelected"
@@ -12,10 +12,52 @@
         <th />
         <th class="line-nowrap">scientificName <ButtonClipboard :text="columnClipboardText('scientificName')" title="Copy scientificName column" /></th>
         <th class="line-nowrap" data-help="Override the string used for matching. Leave blank to match using the scientificName value as-is. A manually-entered value shows a small dot. Regex modifiers (left panel) write to this field automatically.">Match <ButtonClipboard :text="columnClipboardText('match')" title="Copy match column" /></th>
-        <th class="line-nowrap" data-help="A yellow cell indicates that there was more than one matching Taxon Name to choose from, so you may want to confirm the name selected - if the wrong name was selected you can select the correct one in the Refine column.">TaxonName <ButtonClipboard :text="columnClipboardText('taxonName')" title="Copy TaxonName column" /></th>
+        <th class="line-nowrap" data-help="A yellow cell indicates that there was more than one matching Taxon Name to choose from, so you may want to confirm the name selected - if the wrong name was selected you can select the correct one in the Refine column.">
+          <div class="horizontal-left-content middle gap-small">
+            <span>TaxonName</span>
+            <select
+              class="normal-input"
+              :value="taxonNameFilter"
+              title="Which rows to show"
+              @change="emit('update:taxonNameFilter', $event.target.value)"
+            >
+              <option
+                v-for="[label, value] in Object.entries(TAXON_NAME_FILTER)"
+                :key="value"
+                :value="value"
+              >
+                {{ label }}
+              </option>
+            </select>
+            <ButtonClipboard :text="columnClipboardText('taxonName')" title="Copy TaxonName column" />
+          </div>
+        </th>
         <th />
+        <th class="w-2" />
         <th data-help="Manually search for and select a TaxonName, overriding the automatic match result. Use this to fix incorrect or ambiguous matches.">Refine</th>
-        <th class="line-nowrap">OTU <ButtonClipboard :text="columnClipboardText('otuLabel')" title="Copy OTU column" /></th>
+        <th
+          class="line-nowrap"
+          data-help="'User selected' means the OTU was fixed by the user (radio click or Create OTU) rather than merely auto-picked, so it survives re-matches."
+        >
+          <div class="horizontal-left-content middle gap-small">
+            <span>OTU</span>
+            <select
+              class="normal-input"
+              :value="otuFilter"
+              title="Which rows to show"
+              @change="emit('update:otuFilter', $event.target.value)"
+            >
+              <option
+                v-for="[label, value] in Object.entries(OTU_FILTER)"
+                :key="value"
+                :value="value"
+              >
+                {{ label }}
+              </option>
+            </select>
+            <ButtonClipboard :text="columnClipboardText('otuLabel')" title="Copy OTU column" />
+          </div>
+        </th>
         <th class="line-nowrap">OTU id <ButtonClipboard :text="columnClipboardText('otuId')" title="Copy OTU id column" /></th>
         <th />
         <th>Set</th>
@@ -120,16 +162,36 @@
           </div>
         </td>
 
+        <!-- search scientificName in Refine -->
+        <td>
+          <VBtn
+            v-if="isActionable(row)"
+            circle
+            color="primary"
+            :disabled="row.fixedOtuId != null"
+            title="Search the scientificName in Refine"
+            @click="prefillRefine(row)"
+          >
+            <VIcon
+              x-small
+              name="zoomIn"
+            />
+          </VBtn>
+        </td>
+
         <!-- reselect (Refine) -->
         <td>
-          <Autocomplete
+          <AutoselectField
             v-if="isActionable(row)"
-            url="/taxon_names/autocomplete"
-            param="term"
-            label="label_html"
-            clear-after
+            :ref="(el) => setRefineRef(row.index, el)"
+            url="/taxon_names/autoselect"
+            param="taxon_name_id"
+            :id="`match-taxon-name-refine-${row.index}`"
+            :new-record-component="TaxonNameNewModal"
+            reset-on-select
+            :disabled="row.fixedOtuId != null"
             placeholder="Search taxon name..."
-            @getItem="
+            @select="
               (item) =>
                 emit('update-row', {
                   index: row.index,
@@ -142,7 +204,8 @@
 
         <!-- OTU -->
         <td>
-          <template v-if="row.otus.length">
+          <span v-if="row.fixedOtuId != null">{{ row.fixedOtuName }}</span>
+          <template v-else-if="row.otus.length">
             <div
               v-for="otu in row.otus"
               :key="otu.id"
@@ -154,13 +217,8 @@
                 :value="otu.id"
                 :checked="row.selectedOtuId === otu.id"
                 :disabled="isDuplicate(row)"
-                @change="
-                  emit('update-row', {
-                    index: row.index,
-                    field: 'selectedOtuId',
-                    value: otu.id
-                  })
-                "
+                @click="selectOtu(row, otu)"
+                @change="selectOtu(row, otu)"
               />
               <span>{{ otu.object_label || otu.name || `OTU ${otu.id}` }}</span>
             </div>
@@ -180,13 +238,33 @@
 
         <!-- create OTU -->
         <td>
-          <VBtn
-            v-if="isActionable(row) && row.taxonNameId && !row.otus.length"
-            color="create"
-            @click="emit('create-otu', { index: row.index })"
-          >
-            Create OTU
-          </VBtn>
+          <div class="horizontal-left-content gap-xsmall">
+            <VBtn
+              v-if="isActionable(row) && row.taxonNameId && !row.otus.length && row.fixedOtuId == null"
+              color="create"
+              @click="emit('create-otu', { index: row.index })"
+            >
+              Create OTU
+            </VBtn>
+            <VBtn
+              v-if="row.fixedOtuId != null"
+              circle
+              color="primary"
+              title="Clear fixed OTU selection"
+              @click="
+                emit('update-row', {
+                  index: row.index,
+                  field: 'fixedOtuId',
+                  value: null
+                })
+              "
+            >
+              <VIcon
+                x-small
+                name="reset"
+              />
+            </VBtn>
+          </div>
         </td>
 
         <!-- set (duplicate link) -->
@@ -246,11 +324,13 @@ import { OTU, TAXON_NAME } from '@/constants'
 import { makeBrowseUrl } from '@/helpers'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
-import Autocomplete from '@/components/ui/Autocomplete.vue'
+import AutoselectField from '@/components/ui/AutoselectField.vue'
+import TaxonNameNewModal from '@/components/ui/AutoselectField/TaxonNameNewModal.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import ButtonClipboard from '@/components/ui/Button/ButtonClipboard.vue'
 import effectiveName from '../utils/effectiveName.js'
+import { TAXON_NAME_FILTER, OTU_FILTER } from '../constants.js'
 
 const props = defineProps({
   rows: {
@@ -261,6 +341,16 @@ const props = defineProps({
   csvData: {
     type: Object,
     default: null
+  },
+
+  taxonNameFilter: {
+    type: String,
+    default: TAXON_NAME_FILTER.All
+  },
+
+  otuFilter: {
+    type: String,
+    default: OTU_FILTER.All
   }
 })
 
@@ -268,10 +358,30 @@ const emit = defineEmits([
   'update-row',
   'create-otu',
   'scroll-to-row',
-  'match-row'
+  'match-row',
+  'update:taxonNameFilter',
+  'update:otuFilter'
 ])
 
 const contextRow = ref(null)
+
+// AutoselectField instances, keyed by row index, so a row's Refine search can be driven from its
+// button.
+const refineRefs = ref({})
+
+function setRefineRef(index, el) {
+  if (el) {
+    refineRefs.value[index] = el
+  } else {
+    delete refineRefs.value[index]
+  }
+}
+
+// Hand the row's scientificName to Refine and start the search there, caret at the end so the
+// curator can trim the string immediately.
+function prefillRefine(row) {
+  refineRefs.value[row.index]?.prefill(row.scientificName)
+}
 
 const selectableRows = computed(() =>
   props.rows.filter((r) => !r.isEmpty && !isDuplicate(r))
@@ -328,6 +438,10 @@ function isActionable(row) {
   return !isDuplicate(row) && !row.isEmpty
 }
 
+function selectOtu(row, otu) {
+  emit('update-row', { index: row.index, field: 'selectedOtuId', value: otu })
+}
+
 function activeRowIndex(row) {
   return firstUniqueIndex(row)
 }
@@ -348,6 +462,7 @@ function columnClipboardText(field) {
       case 'taxonName':
         return row.taxonName?.cached || ''
       case 'otuLabel': {
+        if (row.fixedOtuId != null) return row.fixedOtuName || ''
         const otu = row.otus.find((o) => o.id === row.selectedOtuId)
         return otu?.object_label || otu?.name || ''
       }

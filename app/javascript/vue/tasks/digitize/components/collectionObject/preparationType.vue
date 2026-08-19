@@ -1,5 +1,6 @@
 <template>
   <div>
+<<<<<<< HEAD
     <h2 class="tw-section-title">Preparation</h2>
     <div class="flex-row gap-small align-start">
       <ul
@@ -24,56 +25,47 @@
       </ul>
       <lock-component v-model="locked.collection_object.preparation_type_id" />
     </div>
+=======
+    <h2>Preparation</h2>
+    <PreparationTypeSelector
+      target="CollectionObject"
+      v-model="preparationTypeId"
+    >
+      <template #tabs-right>
+        <LockComponent v-model="locked.collection_object.preparation_type_id" />
+      </template>
+    </PreparationTypeSelector>
+>>>>>>> development
   </div>
 </template>
 
-<script>
+<script setup>
+import { computed } from 'vue'
+import { useStore } from 'vuex'
 import { MutationNames } from '../../store/mutations/mutations.js'
 import { GetterNames } from '../../store/getters/getters.js'
-import { PreparationType } from '@/routes/endpoints'
 import LockComponent from '@/components/ui/VLock/index.vue'
-import extendCO from './mixins/extendCO.js'
+import PreparationTypeSelector from '@/components/ui/SmartSelector/PreparationTypeSelector.vue'
 
-export default {
-  mixins: [extendCO],
+const store = useStore()
 
-  components: { LockComponent },
+const locked = computed({
+  get: () => store.getters[GetterNames.GetLocked],
+  set: (value) => store.commit(MutationNames.SetLocked, value)
+})
 
-  data() {
-    return {
-      coTypes: []
+const collectionObject = computed({
+  get: () => store.getters[GetterNames.GetCollectionObject],
+  set: (value) => store.commit(MutationNames.SetCollectionObject, value)
+})
+
+const preparationTypeId = computed({
+  get: () => collectionObject.value.preparation_type_id,
+  set: (value) => {
+    collectionObject.value = {
+      ...collectionObject.value,
+      preparation_type_id: value || null
     }
-  },
-
-  computed: {
-    locked: {
-      get() {
-        return this.$store.getters[GetterNames.GetLocked]
-      },
-      set(value) {
-        this.$store.commit(MutationNames.SetLocked, value)
-      }
-    },
-
-    chunkList() {
-      return this.coTypes.chunk(Math.ceil(this.coTypes.length / 3))
-    }
-  },
-
-  created() {
-    PreparationType.all().then((response) => {
-      this.coTypes = response.body
-      this.coTypes.unshift({
-        id: null,
-        name: 'None'
-      })
-    })
   }
-}
+})
 </script>
-
-<style scoped>
-.preparation-list {
-  width: 100%;
-}
-</style>

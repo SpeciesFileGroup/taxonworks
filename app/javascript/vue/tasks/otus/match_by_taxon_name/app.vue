@@ -45,11 +45,14 @@
             <SummaryBar
               v-if="rows.length"
               :rows="rows"
+              :filtered-rows="visibleRows"
             />
 
             <ResultTable
-              :rows="rows"
+              :rows="visibleRows"
               :csv-data="csvData"
+              v-model:taxon-name-filter="taxonNameFilter"
+              v-model:otu-filter="otuFilter"
               @update-row="handleRowUpdate"
               @create-otu="handleCreateOtu"
               @scroll-to-row="scrollToRow"
@@ -63,7 +66,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { computed, ref, watch, onMounted } from 'vue'
 import { TaxonName, Otu } from '@/routes/endpoints'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
@@ -72,7 +75,7 @@ import InputPanel from './components/InputPanel.vue'
 import ResultTable from './components/ResultTable.vue'
 import SummaryBar from './components/SummaryBar.vue'
 import MatchOptionsPanel from './components/MatchOptionsPanel.vue'
-import { MAX_ROWS, defaultModifiers } from './constants.js'
+import { MAX_ROWS, TAXON_NAME_FILTER, OTU_FILTER, defaultModifiers } from './constants.js'
 import effectiveName from './utils/effectiveName.js'
 import sortOtus from './utils/sortOtus.js'
 
@@ -84,6 +87,58 @@ const stage = ref('input') // 'input' or 'results'
 const isProcessing = ref(false)
 const rows = ref([])
 const csvData = ref(null)
+const taxonNameFilter = ref(TAXON_NAME_FILTER.All)
+const otuFilter = ref(OTU_FILTER.All)
+
+function matchesTaxonNameFilter(row) {
+  if (taxonNameFilter.value === TAXON_NAME_FILTER.Ambiguous) {
+    return row.matched && row.ambiguous
+  }
+  if (taxonNameFilter.value === TAXON_NAME_FILTER.Unmatched) {
+    return !row.matched
+  }
+  return true
+}
+
+function matchesOtuFilter(row) {
+  if (otuFilter.value === OTU_FILTER['Multiple OTUs']) {
+    return row.otus.length > 1
+  }
+  if (otuFilter.value === OTU_FILTER['User selected']) {
+    return row.fixedOtuId != null
+  }
+  if (otuFilter.value === OTU_FILTER['No OTU']) {
+    return row.selectedOtuId == null
+  }
+  return true
+}
+
+// The set of rows a filter selects is captured once, when the filter is applied - not
+// recomputed live - so a background re-match can't cause rows to disappear out from under the
+// user mid-review. The rows themselves stay reactive: their content (match status, OTU, etc.)
+// still updates live, only set membership is frozen until the filter changes again.
+const visibleRowIndices = ref(null) // null: no filter active, show every row live
+
+function snapshotVisibleRowIndices() {
+  if (taxonNameFilter.value === TAXON_NAME_FILTER.All && otuFilter.value === OTU_FILTER.All) {
+    visibleRowIndices.value = null
+    return
+  }
+
+  visibleRowIndices.value = new Set(
+    rows.value
+      .filter((row) => matchesTaxonNameFilter(row) && matchesOtuFilter(row))
+      .map((row) => row.index)
+  )
+}
+
+watch([taxonNameFilter, otuFilter], snapshotVisibleRowIndices)
+
+const visibleRows = computed(() =>
+  visibleRowIndices.value === null
+    ? rows.value
+    : rows.value.filter((row) => visibleRowIndices.value.has(row.index))
+)
 
 const scopeTaxonName = ref()
 const levenshteinDistance = ref(0)
@@ -129,6 +184,8 @@ async function handleDataSubmit({ names, csv }) {
       taxonNameId: null,
       otus: [],
       selectedOtuId: null,
+      fixedOtuId: null,
+      fixedOtuName: null,
       ambiguous: false,
       matched: false,
       selected: false,
@@ -161,7 +218,7 @@ function applyModifiers(name) {
 
 function scopedRows() {
   const checked = rows.value.filter((r) => r.selected && !r.isEmpty)
-  return checked.length ? checked : rows.value.filter((r) => !r.isEmpty)
+  return checked.length ? checked : visibleRows.value.filter((r) => !r.isEmpty)
 }
 
 function applyModifiersToRows(targetRows) {
@@ -228,11 +285,7 @@ async function matchRows(targetRows) {
       })
     })
   } catch (e) {
-    TW.workbench.alert.create(
-      'Error matching names. See console for details.',
-      'error'
-    )
-    console.error(e)
+    TW.workbench.alert.create('Error matching names.', 'error')
   } finally {
     syncAllDuplicates()
     isProcessing.value = false
@@ -245,8 +298,9 @@ function handleRowUpdate({ index, field, value }) {
 
   if (field === 'taxonName') {
     if (value) {
-      // The autocomplete result doesn't include cached_html (only label/label_html,
-      // meant for the dropdown itself), so re-fetch the full record for display.
+      // The autoselect result doesn't include cached_html
+      // (only label/label_html, meant for the dropdown itself), so re-fetch the
+      // full record for display.
       refreshTaxonNameSelection(value.id, row)
     } else {
       applyMatchResult(row, {
@@ -264,8 +318,19 @@ function handleRowUpdate({ index, field, value }) {
   } else if (field === 'selected') {
     row.selected = value
   } else if (field === 'selectedOtuId') {
-    row.selectedOtuId = value
+    // A radio click explicitly fixes the OTU: it survives subsequent
+    // re-matches (e.g. toggling match options) until reset.
+    row.fixedOtuId = value.id
+    row.fixedOtuName = value.object_label || value.name || `OTU ${value.id}`
+    row.selectedOtuId = value.id
     syncDuplicateRows(row)
+  } else if (field === 'fixedOtuId') {
+    // Unlocking a fixed OTU: re-match the row so its taxonName/otus/matched
+    // status reflect the current match options instead of the stale state
+    // from before it was fixed.
+    row.fixedOtuId = value
+    row.fixedOtuName = null
+    matchRows([row])
   }
 }
 
@@ -293,7 +358,6 @@ async function refreshTaxonNameSelection(taxonNameId, row) {
       'Error loading TaxonName/OTU details.',
       'error'
     )
-    console.error(e)
   } finally {
     isProcessing.value = false
   }
@@ -339,23 +403,30 @@ async function handleCreateOtu({ index }) {
     }
 
     row.otus.push(newOtu)
+    row.fixedOtuId = newOtu.id
+    row.fixedOtuName = newOtu.object_label || newOtu.name || `OTU ${newOtu.id}`
     row.selectedOtuId = newOtu.id
 
     syncDuplicateRows(row)
     TW.workbench.alert.create('OTU created successfully.', 'notice')
   } catch (e) {
     TW.workbench.alert.create('Failed to create OTU.', 'error')
-    console.error(e)
   }
+}
+
+// A row.fixedOtuId (set by an explicit radio click) survives a re-applied
+// otus list regardless of whether the new list still contains it.
+function resolveSelectedOtuId(row, defaultSelectedOtuId) {
+  return row.fixedOtuId ?? defaultSelectedOtuId
 }
 
 function applyMatchResult(row, source) {
   row.taxonName = source.taxonName
   row.taxonNameId = source.taxonNameId
   row.otus = source.otus
-  row.selectedOtuId = source.selectedOtuId
+  row.selectedOtuId = resolveSelectedOtuId(row, source.selectedOtuId)
   row.ambiguous = source.ambiguous
-  row.matched = source.matched
+  row.matched = source.matched || row.fixedOtuId != null
 }
 
 function syncDuplicateRows(sourceRow) {
@@ -365,6 +436,8 @@ function syncDuplicateRows(sourceRow) {
     if (row.index === sourceRow.index) return
 
     if (effectiveName(row) === sourceName) {
+      row.fixedOtuId = sourceRow.fixedOtuId
+      row.fixedOtuName = sourceRow.fixedOtuName
       applyMatchResult(row, sourceRow)
     }
   })
@@ -383,6 +456,8 @@ function syncAllDuplicates() {
       seen.set(name, row)
     } else {
       const source = seen.get(name)
+      row.fixedOtuId = source.fixedOtuId
+      row.fixedOtuName = source.fixedOtuName
       applyMatchResult(row, source)
       row.selected = false
     }
@@ -399,12 +474,16 @@ function resetMatchOptions() {
 
 function clearAllMatches() {
   resetMatchOptions()
+  taxonNameFilter.value = TAXON_NAME_FILTER.All
+  otuFilter.value = OTU_FILTER.All
 
   rows.value.forEach((row) => {
     row.taxonName = null
     row.taxonNameId = null
     row.otus = []
     row.selectedOtuId = null
+    row.fixedOtuId = null
+    row.fixedOtuName = null
     row.ambiguous = false
     row.matched = false
     row.regexMatchString = ''
@@ -428,6 +507,8 @@ function reset() {
   stage.value = 'input'
   rows.value = []
   csvData.value = null
+  taxonNameFilter.value = TAXON_NAME_FILTER.All
+  otuFilter.value = OTU_FILTER.All
   resetMatchOptions()
 }
 </script>

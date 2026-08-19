@@ -82,37 +82,30 @@
           </button>
         </div>
       </div>
-      <button
-        class="button normal-input button-submit button-apply-both"
-        type="button"
-        :disabled="
-          !(
-            (validateDepic ||
-              validateSqedObject ||
-              validateAttr ||
-              pixels ||
-              source) &&
-            areImagesCreated
-          )
-        "
-        @click="
-          () => {
-            applyTags()
-            applyAttr()
-            applyDepic()
-            applyPxToCm()
-            applySource()
-          }
-        "
-      >
-        Apply all
-      </button>
+      <div class="flex-wrap-column gap-small">
+        <button
+          class="button normal-input button-submit flex-grow-1"
+          type="button"
+          :disabled="!canApplyAll"
+          @click="applyAll"
+        >
+          Apply all
+        </button>
+        <button
+          class="button normal-input button-submit flex-grow-1"
+          type="button"
+          :disabled="!canApplyAll"
+          title="Apply everything to the current images and remove them from the list. The panels below keep their values, ready for the next batch."
+          @click="applyAllAndClearImages"
+        >
+          Apply all and upload new images
+        </button>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
-import { MutationNames } from '../store/mutations/mutations.js'
 import { GetterNames } from '../store/getters/getters.js'
 import { ActionNames } from '../store/actions/actions.js'
 import validateSqed from '../helpers/validateSqed'
@@ -152,17 +145,20 @@ export default {
       return this.$store.getters[GetterNames.IsAllApplied]
     },
 
-    applied: {
-      get() {
-        return this.$store.getters[GetterNames.GetApplied]
-      },
-      set(value) {
-        this.$store.commit(MutationNames.SetApplied, value)
-      }
-    },
-
     areImagesCreated() {
       return this.$store.getters[GetterNames.GetImagesCreated].length > 0
+    },
+
+    canApplyAll() {
+      return (
+        (this.tags.length ||
+          this.validateDepic ||
+          this.validateSqedObject ||
+          this.validateAttr ||
+          this.pixels ||
+          this.source) &&
+        this.areImagesCreated
+      )
     },
 
     validateDepic() {
@@ -274,36 +270,59 @@ export default {
     },
 
     applyAttr() {
-      if (this.validateAttr) {
-        this.$store.dispatch(ActionNames.ApplyAttributions)
-      }
+      return this.validateAttr
+        ? this.$store.dispatch(ActionNames.ApplyAttributions)
+        : Promise.resolve()
     },
 
     applySource() {
-      if (this.source) {
-        this.$store.dispatch(ActionNames.ApplySource)
-      }
+      return this.source
+        ? this.$store.dispatch(ActionNames.ApplySource)
+        : Promise.resolve()
     },
 
     applyDepic() {
-      if (this.validateDepic || this.validateSqedObject) {
-        this.$store.dispatch(ActionNames.ApplyDepictions)
-      }
+      return this.validateDepic || this.validateSqedObject
+        ? this.$store.dispatch(ActionNames.ApplyDepictions)
+        : Promise.resolve()
     },
 
     applyPxToCm() {
-      if (this.pixels) {
-        this.$store.dispatch(ActionNames.ApplyPixelToCentimeter)
-      }
+      return this.pixels
+        ? this.$store.dispatch(ActionNames.ApplyPixelToCentimeter)
+        : Promise.resolve()
     },
 
     applyTags() {
-      if (this.tags.length) {
-        this.$store.dispatch(ActionNames.ApplyTags, {
-          objectIds: this.imagesCreated.map((image) => image.id),
-          objectType: 'Image'
+      return this.tags.length
+        ? this.$store.dispatch(ActionNames.ApplyTags, {
+            objectIds: this.imagesCreated.map((image) => image.id),
+            objectType: 'Image'
+          })
+        : Promise.resolve()
+    },
+
+    applyAll() {
+      return Promise.all([
+        this.applyTags(),
+        this.applyAttr(),
+        this.applyDepic(),
+        this.applyPxToCm(),
+        this.applySource()
+      ])
+    },
+
+    applyAllAndClearImages() {
+      return this.applyAll()
+        .then(() => {
+          this.$store.dispatch(ActionNames.ClearImages)
         })
-      }
+        .catch(() => {
+          TW.workbench.alert.create(
+            'Some changes could not be applied, the images were not cleared.',
+            'error'
+          )
+        })
     }
   }
 }

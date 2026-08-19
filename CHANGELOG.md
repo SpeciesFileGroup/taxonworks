@@ -12,12 +12,19 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - raw id search for Biological Association autocompletes
 - `New Collection Object`: Added a CO Total field to the CO form. Added a `identifier end` field that automatically increments based on the Identifier and the total number of specimens/lots being created. [#4873]
 - `New asserted distribution`: Added preferences modal, moved autosave there, and added option to hide Confidence panel
+- Smart selector for preparation type [#1130]
+- Smart selector for protocols [#2890]
+- `Match collection objects`: Added button to destroy selected collection objects [#2942]
 
 ### Changed
 
 - `Simple new specimen` task is now `New collection object`
 - Support partial dates (year only, year-month only) for `startDate` and `endDate` from the api
 - Sort people by uses in Match Authors to People
+- `Citations by source`: All OTU links now redirect to Browse OTU [#2261]
+- Autocomplete highlighting now matches each occurrence of each of your search terms in the result: e.g. if you search on `aus cus` and one of the results is `Aus (bus) cus`, the "Aus" and "cus" terms in the result will be highlighted [#5043]
+- `New images task`: Images now display a warning or check mark icon to indicate whether annotations have been applied. [#1060]
+- `Radial CE`: Assign georeference slice now only displays collecting events with georeferences. [#4797]
 
 ### Fixed
 
@@ -25,9 +32,32 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Error on viewing deprecated Edit Taxon Determination page for a taxon determination on a Field Occurrence
 - Field synchronize and multi update task are not sorting records by id [#5045]
 - Browse OTUs: TIFF images of observations are not displayed in the image viewer
+- OTU autocomplete overwhelmed by incorrect fuzzy matches on 'hybrid' genus + otu_name searches like "Tapinoma CASC_123" [#5047]
+- Don't include highlights with text chosen in autocompletes [#5052]
+- New OTU task keeps existing OTUs selected after Find [#5054]
+- [#5051] In the Match Taxon Name to OTU task:
+  - add ability to filter on columns
+  - changing options shouldn't be able to unselect an OTU the user has specifically chosen
+  - add 'ambiguous' count to summary
+  - uses autoselect instead of autocomplete for Taxon Name selection
+- Adding duplicate images to an observation now uses the image that was already created instead of returning an error stating that the image is already in use [#4146]
+- Sped up Person autocomplete [#5037]
 
+[#1060]: https://github.com/SpeciesFileGroup/taxonworks/issues/1060
+[#1130]: https://github.com/SpeciesFileGroup/taxonworks/issues/1130
+[#2261]: https://github.com/SpeciesFileGroup/taxonworks/issues/2261
+[#2890]: https://github.com/SpeciesFileGroup/taxonworks/issues/2890
+[#2942]: https://github.com/SpeciesFileGroup/taxonworks/issues/2942
+[#4146]: https://github.com/SpeciesFileGroup/taxonworks/issues/4146
+[#4797]: https://github.com/SpeciesFileGroup/taxonworks/issues/4797
 [#4873]: https://github.com/SpeciesFileGroup/taxonworks/issues/4873
+[#5037]: https://github.com/SpeciesFileGroup/taxonworks/issues/5037
+[#5043]: https://github.com/SpeciesFileGroup/taxonworks/issues/5043
 [#5045]: https://github.com/SpeciesFileGroup/taxonworks/issues/5045
+[#5047]: https://github.com/SpeciesFileGroup/taxonworks/issues/5047
+[#5051]: https://github.com/SpeciesFileGroup/taxonworks/issues/5052
+[#5052]: https://github.com/SpeciesFileGroup/taxonworks/issues/5052
+[#5054]: https://github.com/SpeciesFileGroup/taxonworks/issues/5054
 
 ## [0.64.0] - 2026-08-04
 
