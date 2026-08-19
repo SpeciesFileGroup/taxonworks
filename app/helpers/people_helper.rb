@@ -19,12 +19,20 @@ module PeopleHelper
     link_to(person_tag(person), person.metamorphosize)
   end
 
-  def person_autocomplete_tag(person, term = nil)
+  # @param role_counts [Hash{Integer => Integer}]
+  #   `person.id => total role count`, e.g. from `Role.where(person_id: people.map(&:id)).group(:person_id).count`
+  # @param role_types [Hash{Integer => Array<String>}]
+  #   `person.id => distinct Role subclass names`, e.g. from
+  #   `Role.where(person_id: people.map(&:id)).select(:person_id, :type).distinct.pluck(:person_id, :type)`,
+  #   grouped by person_id
+  # @param in_project_person_ids [Set<Integer>, #include?]
+  #   ids of people used in the current project - e.g. `Person.project_use_counts(...).keys`
+  def person_autocomplete_tag(person, term = nil, role_counts: {}, role_types: {}, in_project_person_ids: [])
     return nil if person.nil?
     s = [ person_tag(person),
       person_timeframe_tag(person),
-      person_used_tag(person),
-      person_project_membership_tag(person)
+      person_used_tag(person, role_counts:, role_types:),
+      person_project_membership_tag(person, in_project_person_ids:)
     ].compact.join(' ')
     mark_tag(s, term)
   end
@@ -39,14 +47,9 @@ module PeopleHelper
     'lived: ' + [person.year_born || '?', person.year_died || '?'].join('-')
   end
 
-  def person_project_membership_tag(person)
-    if person && person.respond_to?(:in_project) && person.in_project == sessions_current_project_id
-      content_tag(:span, "In&nbsp;Project".html_safe, class: [:feedback, 'feedback-thin', 'feedback-success'])
-    elsif person && person.used_in_project?(sessions_current_project_id)
-      content_tag(:span, "In&nbsp;Project".html_safe, class: [:feedback, 'feedback-thin', 'feedback-success'])
-    else
-      nil
-    end
+  def person_project_membership_tag(person, in_project_person_ids: [])
+    return nil unless person && in_project_person_ids.include?(person.id)
+    content_tag(:span, 'In&nbsp;Project'.html_safe, class: [:feedback, 'feedback-thin', 'feedback-success'])
   end
 
   def person_active_tag(person)
@@ -58,31 +61,16 @@ module PeopleHelper
     'active ~ ' + [ person.year_active_start || '?', ae || '?'].join('-')
   end
 
-  # TODO: optimize, too expensive
-  def person_used_tag(person)
-    # use_count is SQL based attribute
-    if person.respond_to?(:use_count)
-      a = ''
-      if person.use_count == 0
-        a += content_tag(:span, 'unused', class: [:feedback, 'feedback-thin', 'feedback-danger'] )
-      elsif person.use_count > 0
-        a = a + content_tag(:span, "#{person.use_count} #{"use".pluralize(person.use_count)}", class: [:feedback, 'feedback-thin', 'feedback-primary'], data: {count: person.use_count}) + ' '
-        a = a + content_tag(:span, "#{person.roles.select(:type).distinct.pluck(:type).map(&:safe_constantize).collect{|r| r.human_name}.join(', ')}", class: [:feedback, 'feedback-thin', 'feedback-secondary'] )
-      else
-        ''
-      end
-    else
-      t = person.roles #.load
-      a = ''
-      if t.count == 0
-        a += content_tag(:span, 'unused', class: [:feedback, 'feedback-thin', 'feedback-danger'] )
-      elsif t.count > 0
-        a = a + content_tag(:span, "#{person.roles.size} #{"use".pluralize(t)}", class: [:feedback, 'feedback-thin', 'feedback-primary'], data: {count: t.count}) + ' '
-        a = a + content_tag(:span, "#{person.roles.select(:type).distinct.pluck(:type).map(&:safe_constantize).collect{|r| r.human_name}.join(', ')}", class: [:feedback, 'feedback-thin', 'feedback-secondary'] )
-      else
-        ''
-      end
-    end
+  def person_used_tag(person, role_counts: {}, role_types: {})
+    count = role_counts.fetch(person.id, 0)
+
+    return content_tag(:span, 'unused', class: [:feedback, 'feedback-thin', 'feedback-danger']) if count == 0
+
+    types = role_types.fetch(person.id, []).map(&:safe_constantize).compact.collect(&:human_name).join(', ')
+
+    content_tag(:span, "#{count} #{"use".pluralize(count)}", class: [:feedback, 'feedback-thin', 'feedback-primary'], data: {count:}) +
+      ' ' +
+      content_tag(:span, types, class: [:feedback, 'feedback-thin', 'feedback-secondary'])
   end
 
   def people_search_form
