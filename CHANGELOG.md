@@ -26,6 +26,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Autocomplete highlighting now matches each occurrence of each of your search terms in the result: e.g. if you search on `aus cus` and one of the results is `Aus (bus) cus`, the "Aus" and "cus" terms in the result will be highlighted [#5043]
 - `New images task`: Images now display a warning or check mark icon to indicate whether annotations have been applied. [#1060]
 - `Radial CE`: Assign georeference slice now only displays collecting events with georeferences. [#4797]
+- Replaced otu picker by autoselect in Taxon determinations form
 
 ### Fixed
 
