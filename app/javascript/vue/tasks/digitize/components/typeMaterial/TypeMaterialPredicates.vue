@@ -1,11 +1,9 @@
 <template>
   <CustomAttributes
-    v-if="projectPreferences"
     :key="typeMaterial.uuid"
     :object-id="typeMaterial.id"
     :object-type="TYPE_MATERIAL"
     :model="TYPE_MATERIAL"
-    :model-preferences="projectPreferences.model_predicate_sets?.TypeMaterial"
     :pending-attributes="typeMaterial.data_attributes_attributes"
     @on-update="setAttributes"
   />
@@ -21,10 +19,6 @@ import { useStore } from 'vuex'
 const store = useStore()
 
 const typeMaterial = computed(() => store.getters[GetterNames.GetTypeMaterial])
-
-const projectPreferences = computed(
-  () => store.getters[GetterNames.GetProjectPreferences]
-)
 
 /*
   The panel edits a draft (`state.typeMaterial`), not a persisted record, so the

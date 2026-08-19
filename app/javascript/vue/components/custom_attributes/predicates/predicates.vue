@@ -52,11 +52,6 @@ const props = defineProps({
     required: true
   },
 
-  modelPreferences: {
-    type: Array,
-    required: false
-  },
-
   pendingAttributes: {
     type: Array,
     default: () => []

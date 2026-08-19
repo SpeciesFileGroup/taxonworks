@@ -15,6 +15,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Smart selector for preparation type [#1130]
 - Smart selector for protocols [#2890]
 - `Match collection objects`: Added button to destroy selected collection objects [#2942]
+- Custom attributes for type material in comprehensive and new type specimen tasks
 
 ### Changed
 
