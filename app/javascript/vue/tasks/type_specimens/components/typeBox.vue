@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <div class="panel separate-bottom">
+  <div class="flex-col gap-medium">
+    <div class="panel">
       <div class="content header">
         <div
           v-if="store.taxonName?.id"
@@ -14,10 +14,6 @@
           </a>
           <div class="flex-col gap-small">
             <div class="flex-row gap-small">
-              <UnsavedIndicator
-                v-if="store.hasUnsavedChanges"
-                compact
-              />
               <OtuRadial
                 ref="browseOtu"
                 :object-id="store.taxonName.id"
@@ -57,6 +53,12 @@
         />
       </div>
     </div>
+
+    <UnsavedIndicator
+      size="medium"
+      v-if="store.hasUnsavedChanges"
+    />
+
     <div
       class="panel content"
       v-if="store.typeMaterials.length"
