@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Preparation</h2>
+    <h3>Preparation</h3>
     <PreparationTypeSelector
       target="CollectionObject"
       v-model="preparationTypeId"
