@@ -55,6 +55,11 @@ const props = defineProps({
   modelPreferences: {
     type: Array,
     required: false
+  },
+
+  pendingAttributes: {
+    type: Array,
+    default: () => []
   }
 })
 
@@ -73,7 +78,7 @@ watch(() => props.objectId, loadDataAttributes, {
 })
 
 function loadDataAttributes() {
-  dataAttributes.value = []
+  dataAttributes.value = [...props.pendingAttributes]
   list.value = []
   resetRows()
 
@@ -117,6 +122,14 @@ async function loadPredicates(ids) {
 }
 
 function findExisting(id) {
+  const pending = props.pendingAttributes.find(
+    (item) => item.controlled_vocabulary_term_id === id
+  )
+
+  if (pending) {
+    return pending._destroy ? undefined : pending
+  }
+
   return list.value.find((item) => item.controlled_vocabulary_term_id === id)
 }
 
