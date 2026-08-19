@@ -24,6 +24,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - `Citations by source`: All OTU links now redirect to Browse OTU [#2261]
 - Autocomplete highlighting now matches each occurrence of each of your search terms in the result: e.g. if you search on `aus cus` and one of the results is `Aus (bus) cus`, the "Aus" and "cus" terms in the result will be highlighted [#5043]
 - `New images task`: Images now display a warning or check mark icon to indicate whether annotations have been applied. [#1060]
+- `Radial CE`: Assign georeference slice now only displays collecting events with georeferences. [#4797]
 
 ### Fixed
 
@@ -48,6 +49,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 [#2890]: https://github.com/SpeciesFileGroup/taxonworks/issues/2890
 [#2942]: https://github.com/SpeciesFileGroup/taxonworks/issues/2942
 [#4146]: https://github.com/SpeciesFileGroup/taxonworks/issues/4146
+[#4797]: https://github.com/SpeciesFileGroup/taxonworks/issues/4797
 [#4873]: https://github.com/SpeciesFileGroup/taxonworks/issues/4873
 [#5037]: https://github.com/SpeciesFileGroup/taxonworks/issues/5037
 [#5043]: https://github.com/SpeciesFileGroup/taxonworks/issues/5043
