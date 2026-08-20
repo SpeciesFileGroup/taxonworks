@@ -39,17 +39,17 @@ module Autoselect
 
           # Pattern 1 — standalone OTU name (no taxon_name attachment)
           p1 = o[:taxon_name_id].eq(nil).and(
-            o[:name].eq(term).or(o[:name].matches("#{sanitized}%"))
+            o[:name].matches("#{sanitized}%")
           )
 
           # Pattern 2 — OTU backed by a TaxonName whose cached column matches
-          p2 = tn[:cached].eq(term).or(tn[:cached].matches("#{sanitized}%"))
+          p2 = tn[:cached].matches("#{sanitized}%")
 
           conditions = p1.or(p2)
 
           # Pattern 3 — multi-word hybrid: try every split point so that both
           # short abbreviations ('P PE01') and longer prefixes ('Phei PE01') work.
-          # The taxon half uses a prefix match; the OTU half uses exact-or-prefix.
+          # Both halves use prefix matching.
           words = term.split(' ')
           if words.length >= 2
             hybrid = (1...words.length).map do |i|
@@ -58,7 +58,7 @@ module Autoselect
               s_taxon = ::ApplicationRecord.sanitize_sql_like(taxon_part)
               s_otu   = ::ApplicationRecord.sanitize_sql_like(otu_part)
               tn[:cached].matches("#{s_taxon}%").and(
-                o[:name].eq(otu_part).or(o[:name].matches("#{s_otu}%"))
+                o[:name].matches("#{s_otu}%")
               )
             end.reduce(:or)
 

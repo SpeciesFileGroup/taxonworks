@@ -27,9 +27,7 @@ module Autoselect
           sanitized = ::ApplicationRecord.sanitize_sql_like(term)
           t = ::TaxonName.arel_table
 
-          exact  = t[:cached].eq(term)
-          prefix = t[:cached].matches("#{sanitized}%")
-          clause = exact.or(prefix)
+          clause = t[:cached].matches("#{sanitized}%")
 
           scope = ::TaxonName.where(clause.to_sql)
           scope = scope.where(project_id:) if project_id.present?
