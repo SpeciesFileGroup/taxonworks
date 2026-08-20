@@ -528,7 +528,8 @@ class OtusController < ApplicationController
   end
 
   # POST /otus/create_morphospecies_otu
-  # Finds-or-creates the Otu for an exact "Genus otu_name" pair.
+  # TODO: sort out what morpho_<rank> ("anchored OTU"?) looks like in general,
+  # across nomenclatural codes, add a view.
   def create_morphospecies_otu
     otu = ::Otu.create_morphospecies_otu(
       name: create_morphospecies_otu_params[:name],

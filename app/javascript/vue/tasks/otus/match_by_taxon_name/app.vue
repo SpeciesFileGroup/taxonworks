@@ -101,6 +101,8 @@ defineOptions({
   name: 'MatchOtuByTaxonName'
 })
 
+const MATCH_OTU_NAMES_STORAGE_KEY = 'tw::otus::match_by_taxon_name::match_otu_names'
+
 const stage = ref('input') // 'input' or 'results'
 const isProcessing = ref(false)
 const rows = ref([])
@@ -168,8 +170,7 @@ const scopeTaxonName = ref()
 const levenshteinDistance = ref(0)
 const tryWithoutSubgenus = ref(false)
 const resolveSynonyms = ref(false)
-const matchOtuNames = ref(false)
-
+const matchOtuNames = ref(localStorage.getItem(MATCH_OTU_NAMES_STORAGE_KEY) === 'true')
 const modifiers = ref(defaultModifiers())
 
 // The scope the task was actually launched with (via ?taxon_name_id=), so
@@ -188,6 +189,10 @@ onMounted(() => {
       })
       .catch(() => {})
   }
+})
+
+watch(matchOtuNames, (value) => {
+  localStorage.setItem(MATCH_OTU_NAMES_STORAGE_KEY, value ? 'true' : 'false')
 })
 
 async function handleDataSubmit({ names, csv }) {
@@ -350,6 +355,9 @@ function handleRowUpdate({ index, field, value }) {
       // The autoselect result doesn't include the OTU's genus TaxonName
       // (only label/label_html, meant for the dropdown itself), so re-fetch
       // both full records for display.
+      // TODO: add an `extend` option to autoselect (see lib/autoselect/otu/autoselect.rb
+      // response_values) so the OTU and its taxon_name can come back in the result directly,
+      // instead of this follow-up refetch.
       refreshOtuRefineSelection(value.id, row)
     } else {
       // Cleared - behaves like unlocking a fixed OTU (see 'fixedOtuId' below).
@@ -599,7 +607,6 @@ function resetMatchOptions() {
   levenshteinDistance.value = 0
   tryWithoutSubgenus.value = false
   resolveSynonyms.value = false
-  matchOtuNames.value = false
   modifiers.value = defaultModifiers()
 }
 
