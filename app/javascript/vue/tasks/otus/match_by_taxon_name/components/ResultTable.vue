@@ -33,7 +33,6 @@
           </div>
         </th>
         <th />
-        <th class="w-2" />
         <th data-help="Manually search for and select a TaxonName, overriding the automatic match result. Use this to fix incorrect or ambiguous matches.">Refine</th>
         <th
           class="line-nowrap"
@@ -166,62 +165,78 @@
           </div>
         </td>
 
-        <!-- search scientificName in Refine -->
-        <td>
-          <VBtn
-            v-if="isActionable(row)"
-            circle
-            color="primary"
-            :disabled="row.fixedOtuId != null"
-            title="Search the scientificName in Refine"
-            @click="prefillRefine(row)"
-          >
-            <VIcon
-              x-small
-              name="zoomIn"
-            />
-          </VBtn>
-        </td>
-
         <!-- reselect (Refine) -->
         <td>
           <div class="refine-cell">
-            <AutoselectField
+            <div
               v-if="isActionable(row)"
-              :ref="(el) => setRefineRef(row.index, el)"
-              url="/taxon_names/autoselect"
-              param="taxon_name_id"
-              :id="`match-taxon-name-refine-${row.index}`"
-              :new-record-component="TaxonNameNewModal"
-              reset-on-select
-              :disabled="row.fixedOtuId != null"
-              placeholder="Search taxon name..."
-              @select="
-                (item) =>
-                  emit('update-row', {
-                    index: row.index,
-                    field: 'taxonName',
-                    value: item
-                  })
-              "
-            />
-            <AutoselectField
+              class="horizontal-left-content gap-small"
+            >
+              <VBtn
+                circle
+                color="primary"
+                :disabled="row.fixedOtuId != null"
+                title="Search the scientificName in Refine"
+                @click="prefillRefine(row)"
+              >
+                <VIcon
+                  x-small
+                  name="zoomIn"
+                />
+              </VBtn>
+              <AutoselectField
+                :ref="(el) => setRefineRef(row.index, el)"
+                url="/taxon_names/autoselect"
+                param="taxon_name_id"
+                :id="`match-taxon-name-refine-${row.index}`"
+                :new-record-component="TaxonNameNewModal"
+                reset-on-select
+                :disabled="row.fixedOtuId != null"
+                placeholder="Search taxon name..."
+                @select="
+                  (item) =>
+                    emit('update-row', {
+                      index: row.index,
+                      field: 'taxonName',
+                      value: item
+                    })
+                "
+              />
+            </div>
+            <div
               v-if="isActionable(row) && matchOtuNames"
-              url="/otus/autoselect"
-              param="otu_id"
-              :id="`match-otu-refine-${row.index}`"
-              reset-on-select
-              :disabled="row.fixedOtuId != null"
-              placeholder="Search OTU..."
-              @select="
-                (item) =>
-                  emit('update-row', {
-                    index: row.index,
-                    field: 'otuRefine',
-                    value: item
-                  })
-              "
-            />
+              class="horizontal-left-content gap-small"
+            >
+              <VBtn
+                circle
+                color="primary"
+                :disabled="row.fixedOtuId != null"
+                title="Search the scientificName in OTU Refine"
+                @click="prefillOtuRefine(row)"
+              >
+                <VIcon
+                  x-small
+                  name="zoomIn"
+                />
+              </VBtn>
+              <AutoselectField
+                :ref="(el) => setOtuRefineRef(row.index, el)"
+                url="/otus/autoselect"
+                param="otu_id"
+                :id="`match-otu-refine-${row.index}`"
+                reset-on-select
+                :disabled="row.fixedOtuId != null"
+                placeholder="Search OTU..."
+                @select="
+                  (item) =>
+                    emit('update-row', {
+                      index: row.index,
+                      field: 'otuRefine',
+                      value: item
+                    })
+                "
+              />
+            </div>
           </div>
         </td>
 
@@ -426,6 +441,7 @@ const contextRow = ref(null)
 // AutoselectField instances, keyed by row index, so a row's Refine search can be driven from its
 // button.
 const refineRefs = ref({})
+const otuRefineRefs = ref({})
 
 function setRefineRef(index, el) {
   if (el) {
@@ -435,10 +451,22 @@ function setRefineRef(index, el) {
   }
 }
 
+function setOtuRefineRef(index, el) {
+  if (el) {
+    otuRefineRefs.value[index] = el
+  } else {
+    delete otuRefineRefs.value[index]
+  }
+}
+
 // Hand the row's scientificName to Refine and start the search there, caret at the end so the
 // curator can trim the string immediately.
 function prefillRefine(row) {
   refineRefs.value[row.index]?.prefill(row.scientificName)
+}
+
+function prefillOtuRefine(row) {
+  otuRefineRefs.value[row.index]?.prefill(row.scientificName)
 }
 
 const selectableRows = computed(() =>
@@ -585,8 +613,11 @@ thead th {
   margin-bottom: 4px;
 }
 
+/* Each row's button sits beside its own autoselect (see .horizontal-left-content usage
+   above), so the autoselect fills the remaining row width instead of a fixed 100%. */
 .refine-cell :deep(.autoselect) {
-  width: 100%;
+  flex: 1;
+  min-width: 0;
 }
 
 /* Vertical centering happens on the td itself (below) - percentage heights on a
