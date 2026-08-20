@@ -1591,7 +1591,7 @@ class TaxonName < ApplicationRecord
     klass = (target == 'TypeMaterial' ? Protonym : TaxonName)
     h = {
       recent: klass.used_recently(user_id, project_id, target: klass.name),
-      pinboard: klass.pinned_by(user_id).pinned_in_project(project_id).to_a
+      pinboard: klass.pinned_by(user_id).pinned_in_project(project_id).pinboard_ordered.to_a
     }
 
     h[:quick] = (klass.pinned_by(user_id).pinboard_inserted.pinned_in_project(project_id).to_a + h[:recent][0..3]).uniq

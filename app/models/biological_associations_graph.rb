@@ -67,7 +67,7 @@ class BiologicalAssociationsGraph < ApplicationRecord
     r = used_recently(user_id, project_id, klass)
     h = {
       quick: [],
-      pinboard: BiologicalAssociationsGraph.pinned_by(user_id).where(project_id: project_id).to_a,
+      pinboard: BiologicalAssociationsGraph.pinned_by(user_id).where(project_id: project_id).pinboard_ordered.to_a,
       recent: []
     }
 

@@ -522,7 +522,7 @@ class Person < ApplicationRecord
     r = used_recently(user_id, role_type)
     h = {
       quick: [],
-      pinboard: Person.pinned_by(user_id).where(pinboard_items: {project_id:}).to_a,
+      pinboard: Person.pinned_by(user_id).where(pinboard_items: {project_id:}).pinboard_ordered.to_a,
       recent: []
     }
 

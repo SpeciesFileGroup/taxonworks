@@ -408,7 +408,7 @@ class Otu < ApplicationRecord
 
     h = {
       quick: [],
-      pinboard: q.pinned_by(user_id).to_a,
+      pinboard: q.pinned_by(user_id).pinboard_ordered.to_a,
       recent: []
     }
 
