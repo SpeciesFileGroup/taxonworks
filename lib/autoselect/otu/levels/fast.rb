@@ -2,10 +2,14 @@
 module Autoselect
   module Otu
     module Levels
-      # Fast level: prefix-only match via a single LEFT JOIN query; no GIN, no similarity.
+      # Fast level: prefix-only match via a single LEFT JOIN query; no similarity/fuzzy
+      # matching. Note the underlying `cached`/`name` columns only carry trigram GIN
+      # indexes (no plain btree under this DB's collation), so Postgres still serves
+      # these prefix scans off the GIN index — "no GIN" describes the matching
+      # strategy (deterministic prefix, no similarity scoring), not the query plan.
       # Covers three patterns in one round-trip:
-      #   1. Otu#name (taxon_name_id IS NULL) — exact or prefix
-      #   2. TaxonName#cached               — exact or prefix
+      #   1. Otu#name (taxon_name_id IS NULL) — prefix match
+      #   2. TaxonName#cached               — prefix match
       #   3. Multi-word hybrid — every possible split of the term into a
       #      (taxon_prefix, otu_part) pair; both halves use prefix matching so
       #      'P PE01' matches 'Pheidole' + 'PE01', 'Ph PE01' also matches, etc.
@@ -24,7 +28,7 @@ module Autoselect
         end
 
         def description
-          'Prefix match on OTU name and linked taxon name cached (no fuzzy matching)'
+          'Prefix match on OTU name, linked taxon name cached, and taxon name x OTU name combinations (no fuzzy matching)'
         end
 
         # @param term [String]
