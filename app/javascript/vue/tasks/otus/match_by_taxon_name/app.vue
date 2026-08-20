@@ -412,7 +412,9 @@ async function refreshOtuRefineSelection(otuId, row) {
 
   try {
     const { body: otu } = await Otu.find(otuId)
-    const taxonName = await fetchTaxonName(otu.taxon_name_id)
+    const taxonName = otu.taxon_name_id
+      ? await fetchTaxonName(otu.taxon_name_id)
+      : null
 
     applyMatchResult(row, {
       taxonName,
@@ -443,7 +445,7 @@ async function refreshOtuRefineSelection(otuId, row) {
 async function fetchTaxonName(taxonNameId) {
   const { body } = await TaxonName
     .find(taxonNameId)
-    .catch(() => {})
+    .catch(() => ({}))
 
   return body
 }
@@ -532,7 +534,7 @@ async function handleCreateMorphospeciesOtu({ index }) {
     TW.workbench.alert.create('OTU created successfully.', 'notice')
   } catch (e) {
     TW.workbench.alert.create(
-      e?.response?.data?.error || 'Failed to create OTU.',
+      e?.response?.body?.error || 'Failed to create OTU.',
       'error'
     )
   }
