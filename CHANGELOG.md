@@ -38,11 +38,12 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - OTU autocomplete overwhelmed by incorrect fuzzy matches on 'hybrid' genus + otu_name searches like "Tapinoma CASC_123" [#5047]
 - Don't include highlights with text chosen in autocompletes [#5052]
 - New OTU task keeps existing OTUs selected after Find [#5054]
-- [#5051] In the Match Taxon Name to OTU task:
-  - add ability to filter on columns
-  - changing options shouldn't be able to unselect an OTU the user has specifically chosen
-  - add 'ambiguous' count to summary
-  - uses autoselect instead of autocomplete for Taxon Name selection
+- In the Match Taxon Name to OTU task:
+  - add ability to filter on columns #[5051]
+  - changing options shouldn't be able to unselect an OTU the user has specifically chosen [#5051]
+  - add 'ambiguous' count to summary [#5051]
+  - add mode for matching to OTUs in addition to Taxon Names - currently OTUs only match on names in the morphospecies format [genus] + [one-word-otu_name], e.g. `Tetramorium FHG_pumi` [#5039]
+  - uses autoselect instead of autocomplete for Taxon Name and OTU selection [#5051]
 - Adding duplicate images to an observation now uses the image that was already created instead of returning an error stating that the image is already in use [#4146]
 - Sped up Person autocomplete [#5037]
 
@@ -56,6 +57,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 [#4797]: https://github.com/SpeciesFileGroup/taxonworks/issues/4797
 [#4873]: https://github.com/SpeciesFileGroup/taxonworks/issues/4873
 [#5037]: https://github.com/SpeciesFileGroup/taxonworks/issues/5037
+[#5039]: https://github.com/SpeciesFileGroup/taxonworks/issues/5039
 [#5043]: https://github.com/SpeciesFileGroup/taxonworks/issues/5043
 [#5045]: https://github.com/SpeciesFileGroup/taxonworks/issues/5045
 [#5047]: https://github.com/SpeciesFileGroup/taxonworks/issues/5047

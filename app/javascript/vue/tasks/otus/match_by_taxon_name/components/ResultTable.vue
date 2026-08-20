@@ -224,6 +224,7 @@
                 url="/otus/autoselect"
                 param="otu_id"
                 :id="`match-otu-refine-${row.index}`"
+                :new-record-component="OtuNewModal"
                 reset-on-select
                 :disabled="row.fixedOtuId != null"
                 placeholder="Search OTU..."
@@ -374,6 +375,7 @@ import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import AutoselectField from '@/components/ui/AutoselectField.vue'
 import TaxonNameNewModal from '@/components/ui/AutoselectField/TaxonNameNewModal.vue'
+import OtuNewModal from '@/components/ui/AutoselectField/OtuNewModal.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import ButtonClipboard from '@/components/ui/Button/ButtonClipboard.vue'
