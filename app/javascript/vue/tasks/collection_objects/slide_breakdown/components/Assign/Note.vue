@@ -10,13 +10,14 @@
       </textarea>
       <lock-component v-model="lock.notes_attributes" />
     </div>
-    <button
-      @click="addNote"
+    <VBtn
+      color="primary"
+      medium
       :disabled="!text"
-      class="button normal-input button-submit"
+      @click="addNote"
     >
       Add
-    </button>
+    </VBtn>
     <list-component
       v-if="collectionObject.notes_attributes.length"
       :list="collectionObject.notes_attributes"

@@ -28,6 +28,16 @@ class SledImage < ApplicationRecord
   #  defaults to 'column', used only to compute object identifiers
   attr_accessor :step_identifier_on #row, column
 
+  # @param horizontal_step_direction [String]
+  #   'left_to_right' (default), or 'right_to_left'.  The order in which columns
+  #   are visited when computing object identifiers.
+  attr_accessor :horizontal_step_direction
+
+  # @param vertical_step_direction [String]
+  #   'top_to_bottom' (default), or 'bottom_to_top'.  The order in which rows
+  #   are visited when computing object identifiers.
+  attr_accessor :vertical_step_direction
+
   # If assigned to 'nuke', and .destroy, then will
   # additionall destroy all related collection objects
   attr_accessor :nuke
@@ -96,6 +106,14 @@ class SledImage < ApplicationRecord
     @step_identifier_on ||= 'column'
   end
 
+  def horizontal_step_direction
+    @horizontal_step_direction ||= 'left_to_right'
+  end
+
+  def vertical_step_direction
+    @vertical_step_direction ||= 'top_to_bottom'
+  end
+
   private
 
   def destroy_related
@@ -158,56 +176,45 @@ class SledImage < ApplicationRecord
     end
   end
 
-  def increment_matrix
-    i = []
-    j = identity_matrix
-    k = 0
-    case step_identifier_on
-    when 'row'
-      (0.._row_total).each do |r|
-        (0.._column_total).each do |c|
-          k += j[r][c]
-          i[r] ||= []
-          i[r][c] = (j[r][c] == 1 ? 0 : k)
-        end
-      end
+  # @return [Array of Arrays]
+  #   [row, column] pairs, in the order in which identifiers are assigned to them.
+  #   The pattern is the combination of the axis stepped on first
+  #   (`step_identifier_on`) and the direction each axis is travelled in
+  #   (`horizontal_step_direction`, `vertical_step_direction`).
+  def ordered_sections
+    return [] if metadata.blank?
 
-    when 'column'
-      (0.._column_total).each do |c|
-        (0.._row_total).each do |r|
-          k += j[r][c]
-          i[r] ||= []
-          i[r][c] = (j[r][c] == 1 ? 0 : k)
-        end
-      end
+    rows = (0.._row_total).to_a
+    columns = (0.._column_total).to_a
+
+    rows.reverse! if vertical_step_direction == 'bottom_to_top'
+    columns.reverse! if horizontal_step_direction == 'right_to_left'
+
+    if step_identifier_on == 'row'
+      rows.product(columns)
+    else
+      columns.product(rows).collect { |column, row| [row, column] }
     end
-    i
   end
 
   def get_identifier_matrix
-    i = increment_matrix
-
+    sections = identity_matrix
     m = []
+    increment = 0
 
-    metadata.each do |s|
-      r = s['row'].to_i
-      c = s['column'].to_i
-      m[r] ||= []
-      m[r][c] = nil if s['metadata'].present?
-      next if s['metadata'].present? || _first_identifier.nil?
+    ordered_sections.each do |row, column|
+      m[row] ||= []
 
-      inc = r + c - i[r][c]
-      v = nil
-
-      case step_identifier_on
-        when 'row'
-          v = increment_identifier(_first_identifier, (r * _column_total) + inc)
-        when 'column'
-          v = increment_identifier(_first_identifier, (c * _row_total) + inc)
+      # Sections that are metadata, or that are not present at all, are skipped
+      # without consuming an identifier.
+      if sections.dig(row, column) == 0
+        m[row][column] = _first_identifier.nil? ? nil : increment_identifier(_first_identifier, increment)
+        increment += 1
+      else
+        m[row][column] = nil
       end
-
-      m[r][c] = v
     end
+
     @_identifier_matrix = m
   end
 
