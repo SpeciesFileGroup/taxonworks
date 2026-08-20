@@ -12,9 +12,9 @@
         <th />
         <th class="line-nowrap">scientificName <ButtonClipboard :text="columnClipboardText('scientificName')" title="Copy scientificName column" /></th>
         <th class="line-nowrap" data-help="Override the string used for matching. Leave blank to match using the scientificName value as-is. A manually-entered value shows a small dot. Regex modifiers (left panel) write to this field automatically.">Match <ButtonClipboard :text="columnClipboardText('match')" title="Copy match column" /></th>
-        <th class="line-nowrap" data-help="A yellow cell indicates that there was more than one matching Taxon Name to choose from, so you may want to confirm the name selected - if the wrong name was selected you can select the correct one in the Refine column.">
+        <th class="line-nowrap" data-help="A yellow cell indicates that there was more than one matching Taxon Name to choose from, so you may want to confirm the name selected - if the wrong name was selected you can select the correct one in the Refine column. Blue indicates a match via an OTU's genus+otu_name. Purple indicates both a TaxonName and an OTU-name matched - since it's unclear which identification is right, these also count as ambiguous.">
           <div class="horizontal-left-content middle gap-small">
-            <span>TaxonName</span>
+            <span>Match result</span>
             <select
               class="normal-input"
               :value="taxonNameFilter"
@@ -22,14 +22,14 @@
               @change="emit('update:taxonNameFilter', $event.target.value)"
             >
               <option
-                v-for="[label, value] in Object.entries(TAXON_NAME_FILTER)"
+                v-for="[label, value] in taxonNameFilterOptions"
                 :key="value"
                 :value="value"
               >
                 {{ label }}
               </option>
             </select>
-            <ButtonClipboard :text="columnClipboardText('taxonName')" title="Copy TaxonName column" />
+            <ButtonClipboard :text="columnClipboardText('taxonName')" title="Copy Match result column" />
           </div>
         </th>
         <th />
@@ -141,8 +141,12 @@
           </div>
         </td>
 
-        <!-- TaxonName -->
-        <td :class="{ 'cell-ambiguous': row.ambiguous }">
+        <!-- Match result -->
+        <td :class="{
+          'cell-match-both': row.matchSource === 'both',
+          'cell-ambiguous': row.ambiguous && row.matchSource !== 'both',
+          'cell-match-otu': !row.ambiguous && row.matchSource === 'otu'
+        }">
           <a
             v-if="row.taxonName"
             :href="browseTaxonNameUrl(row.taxonNameId)"
@@ -181,25 +185,44 @@
 
         <!-- reselect (Refine) -->
         <td>
-          <AutoselectField
-            v-if="isActionable(row)"
-            :ref="(el) => setRefineRef(row.index, el)"
-            url="/taxon_names/autoselect"
-            param="taxon_name_id"
-            :id="`match-taxon-name-refine-${row.index}`"
-            :new-record-component="TaxonNameNewModal"
-            reset-on-select
-            :disabled="row.fixedOtuId != null"
-            placeholder="Search taxon name..."
-            @select="
-              (item) =>
-                emit('update-row', {
-                  index: row.index,
-                  field: 'taxonName',
-                  value: item
-                })
-            "
-          />
+          <div class="refine-cell">
+            <AutoselectField
+              v-if="isActionable(row)"
+              :ref="(el) => setRefineRef(row.index, el)"
+              url="/taxon_names/autoselect"
+              param="taxon_name_id"
+              :id="`match-taxon-name-refine-${row.index}`"
+              :new-record-component="TaxonNameNewModal"
+              reset-on-select
+              :disabled="row.fixedOtuId != null"
+              placeholder="Search taxon name..."
+              @select="
+                (item) =>
+                  emit('update-row', {
+                    index: row.index,
+                    field: 'taxonName',
+                    value: item
+                  })
+              "
+            />
+            <AutoselectField
+              v-if="isActionable(row) && matchOtuNames"
+              url="/otus/autoselect"
+              param="otu_id"
+              :id="`match-otu-refine-${row.index}`"
+              reset-on-select
+              :disabled="row.fixedOtuId != null"
+              placeholder="Search OTU (morphospecies)..."
+              @select="
+                (item) =>
+                  emit('update-row', {
+                    index: row.index,
+                    field: 'otuRefine',
+                    value: item
+                  })
+              "
+            />
+          </div>
         </td>
 
         <!-- OTU -->
@@ -237,14 +260,24 @@
         </td>
 
         <!-- create OTU -->
-        <td>
-          <div class="horizontal-left-content gap-xsmall">
+        <td class="create-otu-cell">
+          <div class="create-otu-buttons gap-xsmall">
             <VBtn
               v-if="isActionable(row) && row.taxonNameId && !row.otus.length && row.fixedOtuId == null"
+              medium
               color="create"
               @click="emit('create-otu', { index: row.index })"
             >
               Create OTU
+            </VBtn>
+            <VBtn
+              v-if="matchOtuNames && isActionable(row) && !row.otus.length && row.fixedOtuId == null && row.matchSource !== 'both' && isTwoWordName(row)"
+              medium
+              color="create"
+              title="Create an OTU named after the second word, under the genus TaxonName matching the first word"
+              @click="emit('create-morphospecies-otu', { index: row.index })"
+            >
+              Create Morphospecies OTU
             </VBtn>
             <VBtn
               v-if="row.fixedOtuId != null"
@@ -351,17 +384,35 @@ const props = defineProps({
   otuFilter: {
     type: String,
     default: OTU_FILTER.All
+  },
+
+  matchOtuNames: {
+    type: Boolean,
+    default: false
   }
 })
 
 const emit = defineEmits([
   'update-row',
   'create-otu',
+  'create-morphospecies-otu',
   'scroll-to-row',
   'match-row',
   'update:taxonNameFilter',
   'update:otuFilter'
 ])
+
+// The two match-source filter options are only meaningful (and shown) once OTU-name
+// matching is enabled - keeps the dropdown unchanged for anyone not using the feature.
+const taxonNameFilterOptions = computed(() =>
+  Object.entries(TAXON_NAME_FILTER).filter(
+    ([label]) => props.matchOtuNames || (label !== 'Matched TNs' && label !== 'Matched OTUs')
+  )
+)
+
+function isTwoWordName(row) {
+  return effectiveName(row).trim().split(/\s+/).length === 2
+}
 
 const contextRow = ref(null)
 
@@ -507,6 +558,41 @@ thead th {
    higher specificity than a single class here. */
 .cell-ambiguous {
   background-color: var(--badge-yellow-bg) !important;
+}
+
+.cell-match-otu {
+  background-color: var(--badge-blue-bg) !important;
+}
+
+.cell-match-both {
+  background-color: var(--badge-purple-bg) !important;
+}
+
+/* The TaxonName and OTU Refine autoselects always stack on separate lines. */
+.refine-cell {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  gap: 2px;
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
+
+.refine-cell :deep(.autoselect) {
+  width: 100%;
+}
+
+/* Vertical centering happens on the td itself (below) - percentage heights on a
+   div inside a table cell don't reliably resolve against the row's actual height. */
+.create-otu-cell {
+  vertical-align: middle;
+}
+
+/* Two create-OTU buttons stack vertically. */
+.create-otu-buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 .row-disabled td {

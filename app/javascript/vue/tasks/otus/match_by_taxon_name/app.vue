@@ -14,7 +14,7 @@
     <template v-if="stage === 'results'">
       <div class="flex-row align-start gap-medium">
         <div class="flex-col gap-medium left-column">
-          <div class="panel content">
+          <div class="panel content reset-panel">
             <div class="flex-row flex-separate middle">
               <VBtn
                 circle
@@ -27,6 +27,20 @@
                   name="reset"
                 />
               </VBtn>
+            </div>
+
+            <div class="margin-small-top">
+              <label
+                class="middle"
+                data-help="Also matches scientificNames against an existing OTU's genus + otu_name (e.g. a morphospecies code like 'Tapinoma CASC_2231') - exact match only, two words, no fuzzy matching."
+              >
+                <input
+                  type="checkbox"
+                  v-model="matchOtuNames"
+                  @change="handleOptionsChange"
+                />
+                Match to both taxon names and otus
+              </label>
             </div>
           </div>
 
@@ -53,10 +67,12 @@
             <ResultTable
               :rows="visibleRows"
               :csv-data="csvData"
+              :match-otu-names="matchOtuNames"
               v-model:taxon-name-filter="taxonNameFilter"
               v-model:otu-filter="otuFilter"
               @update-row="handleRowUpdate"
               @create-otu="handleCreateOtu"
+              @create-morphospecies-otu="handleCreateMorphospeciesOtu"
               @scroll-to-row="scrollToRow"
               @match-row="handleMatchRow"
             />
@@ -98,6 +114,12 @@ function matchesTaxonNameFilter(row) {
   }
   if (taxonNameFilter.value === TAXON_NAME_FILTER.Unmatched) {
     return !row.matched
+  }
+  if (taxonNameFilter.value === TAXON_NAME_FILTER['Matched TNs']) {
+    return row.matchSource === 'taxon_name' || row.matchSource === 'both'
+  }
+  if (taxonNameFilter.value === TAXON_NAME_FILTER['Matched OTUs']) {
+    return row.matchSource === 'otu' || row.matchSource === 'both'
   }
   return true
 }
@@ -146,6 +168,7 @@ const scopeTaxonName = ref()
 const levenshteinDistance = ref(0)
 const tryWithoutSubgenus = ref(false)
 const resolveSynonyms = ref(false)
+const matchOtuNames = ref(false)
 
 const modifiers = ref(defaultModifiers())
 
@@ -190,6 +213,7 @@ async function handleDataSubmit({ names, csv }) {
       fixedOtuName: null,
       ambiguous: false,
       matched: false,
+      matchSource: null,
       selected: false,
       isEmpty,
       csvRow: csv ? csv.rows[index] : null
@@ -266,7 +290,8 @@ async function matchRows(targetRows) {
       levenshtein_distance: levenshteinDistance.value,
       taxon_name_id: scopeTaxonName.value?.id,
       resolve_synonyms: resolveSynonyms.value ? 'true' : 'false',
-      try_without_subgenus: tryWithoutSubgenus.value ? 'true' : 'false'
+      try_without_subgenus: tryWithoutSubgenus.value ? 'true' : 'false',
+      match_otu_names: matchOtuNames.value ? 'true' : 'false'
     })
 
     body.forEach((result) => {
@@ -282,7 +307,8 @@ async function matchRows(targetRows) {
           otus,
           selectedOtuId: otus.length ? otus[0].id : null,
           ambiguous: result.ambiguous,
-          matched: result.matched
+          matched: result.matched,
+          matchSource: result.match_source
         })
       })
     })
@@ -311,9 +337,22 @@ function handleRowUpdate({ index, field, value }) {
         otus: [],
         selectedOtuId: null,
         ambiguous: false,
-        matched: false
+        matched: false,
+        matchSource: null
       })
       syncDuplicateRows(row)
+    }
+  } else if (field === 'otuRefine') {
+    if (value) {
+      // The autoselect result doesn't include the OTU's genus TaxonName
+      // (only label/label_html, meant for the dropdown itself), so re-fetch
+      // both full records for display.
+      refreshOtuRefineSelection(value.id, row)
+    } else {
+      // Cleared - behaves like unlocking a fixed OTU (see 'fixedOtuId' below).
+      row.fixedOtuId = null
+      row.fixedOtuName = null
+      matchRows([row])
     }
   } else if (field === 'userMatchString') {
     row.userMatchString = value
@@ -351,7 +390,8 @@ async function refreshTaxonNameSelection(taxonNameId, row) {
       otus,
       selectedOtuId: otus.length ? otus[0].id : null,
       ambiguous: false,
-      matched: true
+      matched: true,
+      matchSource: 'taxon_name'
     })
 
     syncDuplicateRows(row)
@@ -360,6 +400,41 @@ async function refreshTaxonNameSelection(taxonNameId, row) {
       'Error loading TaxonName/OTU details.',
       'error'
     )
+  } finally {
+    isProcessing.value = false
+  }
+}
+
+// A manual OTU Refine pick: locks the row to that specific OTU (like a radio-click
+// fix) and shows its genus TaxonName in the Match result column.
+async function refreshOtuRefineSelection(otuId, row) {
+  isProcessing.value = true
+
+  try {
+    const { body: otu } = await Otu.find(otuId)
+    const taxonName = await fetchTaxonName(otu.taxon_name_id)
+
+    applyMatchResult(row, {
+      taxonName,
+      taxonNameId: otu.taxon_name_id,
+      otus: [{
+        id: otu.id,
+        name: otu.name,
+        taxon_name_id: otu.taxon_name_id,
+        object_label: otu.object_label
+      }],
+      selectedOtuId: otu.id,
+      ambiguous: false,
+      matched: true,
+      matchSource: 'otu'
+    })
+
+    row.fixedOtuId = otu.id
+    row.fixedOtuName = otu.object_label || otu.name || `OTU ${otu.id}`
+
+    syncDuplicateRows(row)
+  } catch (e) {
+    TW.workbench.alert.create('Error loading OTU/TaxonName details.', 'error')
   } finally {
     isProcessing.value = false
   }
@@ -408,11 +483,58 @@ async function handleCreateOtu({ index }) {
     row.fixedOtuId = newOtu.id
     row.fixedOtuName = newOtu.object_label || newOtu.name || `OTU ${newOtu.id}`
     row.selectedOtuId = newOtu.id
+    row.matchSource = 'taxon_name'
 
     syncDuplicateRows(row)
     TW.workbench.alert.create('OTU created successfully.', 'notice')
   } catch (e) {
     TW.workbench.alert.create('Failed to create OTU.', 'error')
+  }
+}
+
+// Creates the Otu for an exact "Genus otu_name" pair, independent of whatever
+// TaxonName may or may not already be matched for this row.
+async function handleCreateMorphospeciesOtu({ index }) {
+  const row = rows.value[index]
+  if (!row) return
+
+  try {
+    const { body } = await Otu.createMorphospeciesOtu({ name: effectiveName(row) })
+
+    const newOtu = {
+      id: body.otu_id,
+      name: body.otu_name,
+      taxon_name_id: body.taxon_name_id,
+      object_label: body.otu_object_label
+    }
+    const taxonName = {
+      id: body.taxon_name_id,
+      cached: body.taxon_name_cached,
+      cached_html: body.taxon_name_cached_html,
+      global_id: body.taxon_name_global_id,
+      object_label: body.taxon_name_object_label
+    }
+
+    applyMatchResult(row, {
+      taxonName,
+      taxonNameId: body.taxon_name_id,
+      otus: [newOtu],
+      selectedOtuId: newOtu.id,
+      ambiguous: false,
+      matched: true,
+      matchSource: 'otu'
+    })
+
+    row.fixedOtuId = newOtu.id
+    row.fixedOtuName = newOtu.object_label || newOtu.name
+
+    syncDuplicateRows(row)
+    TW.workbench.alert.create('OTU created successfully.', 'notice')
+  } catch (e) {
+    TW.workbench.alert.create(
+      e?.response?.data?.error || 'Failed to create OTU.',
+      'error'
+    )
   }
 }
 
@@ -429,6 +551,7 @@ function applyMatchResult(row, source) {
   row.selectedOtuId = resolveSelectedOtuId(row, source.selectedOtuId)
   row.ambiguous = source.ambiguous
   row.matched = source.matched || row.fixedOtuId != null
+  row.matchSource = source.matchSource ?? null
 }
 
 function syncDuplicateRows(sourceRow) {
@@ -471,6 +594,7 @@ function resetMatchOptions() {
   levenshteinDistance.value = 0
   tryWithoutSubgenus.value = false
   resolveSynonyms.value = false
+  matchOtuNames.value = false
   modifiers.value = defaultModifiers()
 }
 
@@ -488,6 +612,7 @@ function clearAllMatches() {
     row.fixedOtuName = null
     row.ambiguous = false
     row.matched = false
+    row.matchSource = null
     row.regexMatchString = ''
     row.userMatchString = ''
     row.selected = false
@@ -527,6 +652,12 @@ function reset() {
 .sticky-panel {
   position: sticky;
   top: 0;
+}
+
+/* Matches .match-options-panel's own max-width (MatchOptionsPanel.vue) so this
+   panel never grows wider than the options panel below it. */
+.reset-panel {
+  max-width: 400px;
 }
 
 /* Table cells paint their own (striped) background over the row's, so the

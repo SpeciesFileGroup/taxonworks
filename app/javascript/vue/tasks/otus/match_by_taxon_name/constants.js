@@ -3,7 +3,9 @@ export const MAX_ROWS = 3000
 export const TAXON_NAME_FILTER = {
   All: 'all',
   Ambiguous: 'ambiguous',
-  Unmatched: 'unmatched'
+  Unmatched: 'unmatched',
+  'Matched TNs': 'matched_tn',
+  'Matched OTUs': 'matched_otu'
 }
 
 export const OTU_FILTER = {
