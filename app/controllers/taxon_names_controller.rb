@@ -256,7 +256,7 @@ class TaxonNamesController < ApplicationController
 
     @result = if match_params[:match_otu_names] == 'true'
       otu_results = Match::Otu::MorphospeciesName.new(names:, project_id:, taxon_name_id:).call
-      merge_otu_name_matches(tn_results, otu_results)
+      Match::Otu::MergeResults.new(tn_results:, otu_results:).call
     else
       tn_results.map { |r| r.merge(match_source: r[:matched] ? 'taxon_name' : nil) }
     end
@@ -446,28 +446,6 @@ class TaxonNamesController < ApplicationController
       :valid, :exact, :no_leaves,
       type: [], parent_id: [], nomenclature_group: []
     ).to_h.symbolize_keys.merge(project_id: sessions_current_project_id)
-  end
-
-  # Merges Match::Otu::TaxonName's per-name results with Match::Otu::MorphospeciesName's
-  # (same order, both preserve input order). A TaxonName match's taxon_name/otus are
-  # never altered by an OTU-name match - the latter only tags `match_source` for
-  # display/filtering. When both matched, the row is flagged ambiguous: the curator
-  # has two plausible identifications (the TaxonName match and the OTU-name match) to
-  # choose between, regardless of whether either matcher found ambiguity on its own.
-  def merge_otu_name_matches(tn_results, otu_results)
-    tn_results.zip(otu_results).map do |tn, otu|
-      if tn[:matched]
-        if otu[:matched]
-          tn.merge(match_source: 'both', ambiguous: true)
-        else
-          tn.merge(match_source: 'taxon_name')
-        end
-      elsif otu[:matched]
-        otu.merge(scientific_name: tn[:scientific_name], match_source: 'otu')
-      else
-        tn.merge(match_source: nil)
-      end
-    end
   end
 
   def match_params

@@ -26,8 +26,7 @@
 module Match
   module Otu
     class MorphospeciesName
-
-      MAX_NAMES = 3000
+      include NameBatchMatcher
 
       attr_reader :names, :project_id, :taxon_name_id
 
@@ -35,21 +34,9 @@ module Match
       # @param project_id [Integer]
       # @param taxon_name_id [Integer, nil] scope matches to descendants of this TaxonName
       def initialize(names:, project_id:, taxon_name_id: nil)
-        @names = names.first(MAX_NAMES)
+        @names = names.first(NameBatchMatcher::MAX_NAMES)
         @project_id = project_id
         @taxon_name_id = taxon_name_id
-      end
-
-      # @return [Array<Hash>]
-      def call
-        unique_names = names.uniq
-        match_cache = {}
-
-        unique_names.each do |name|
-          match_cache[name] = match_name(name)
-        end
-
-        names.map { |name| match_cache[name].merge(scientific_name: name) }
       end
 
       private

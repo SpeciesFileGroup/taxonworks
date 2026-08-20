@@ -22,11 +22,11 @@
               @change="emit('update:taxonNameFilter', $event.target.value)"
             >
               <option
-                v-for="[label, value] in taxonNameFilterOptions"
+                v-for="value in taxonNameFilterOptions"
                 :key="value"
                 :value="value"
               >
-                {{ label }}
+                {{ TAXON_NAME_FILTER_LABELS[value] }}
               </option>
             </select>
             <ButtonClipboard :text="columnClipboardText('taxonName')" title="Copy Match result column" />
@@ -48,11 +48,11 @@
               @change="emit('update:otuFilter', $event.target.value)"
             >
               <option
-                v-for="[label, value] in Object.entries(OTU_FILTER)"
+                v-for="value in Object.values(OTU_FILTER)"
                 :key="value"
                 :value="value"
               >
-                {{ label }}
+                {{ OTU_FILTER_LABELS[value] }}
               </option>
             </select>
             <ButtonClipboard :text="columnClipboardText('otuLabel')" title="Copy OTU column" />
@@ -212,7 +212,7 @@
               :id="`match-otu-refine-${row.index}`"
               reset-on-select
               :disabled="row.fixedOtuId != null"
-              placeholder="Search OTU (morphospecies)..."
+              placeholder="Search OTU..."
               @select="
                 (item) =>
                   emit('update-row', {
@@ -363,7 +363,12 @@ import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import ButtonClipboard from '@/components/ui/Button/ButtonClipboard.vue'
 import effectiveName from '../utils/effectiveName.js'
-import { TAXON_NAME_FILTER, OTU_FILTER } from '../constants.js'
+import {
+  TAXON_NAME_FILTER,
+  TAXON_NAME_FILTER_LABELS,
+  OTU_FILTER,
+  OTU_FILTER_LABELS
+} from '../constants.js'
 
 const props = defineProps({
   rows: {
@@ -378,12 +383,12 @@ const props = defineProps({
 
   taxonNameFilter: {
     type: String,
-    default: TAXON_NAME_FILTER.All
+    default: TAXON_NAME_FILTER.ALL
   },
 
   otuFilter: {
     type: String,
-    default: OTU_FILTER.All
+    default: OTU_FILTER.ALL
   },
 
   matchOtuNames: {
@@ -405,8 +410,10 @@ const emit = defineEmits([
 // The two match-source filter options are only meaningful (and shown) once OTU-name
 // matching is enabled - keeps the dropdown unchanged for anyone not using the feature.
 const taxonNameFilterOptions = computed(() =>
-  Object.entries(TAXON_NAME_FILTER).filter(
-    ([label]) => props.matchOtuNames || (label !== 'Matched TNs' && label !== 'Matched OTUs')
+  Object.values(TAXON_NAME_FILTER).filter(
+    (value) =>
+      props.matchOtuNames ||
+      (value !== TAXON_NAME_FILTER.MATCHED_TN && value !== TAXON_NAME_FILTER.MATCHED_OTU)
   )
 )
 

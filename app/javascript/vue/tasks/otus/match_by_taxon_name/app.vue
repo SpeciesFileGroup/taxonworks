@@ -105,33 +105,33 @@ const stage = ref('input') // 'input' or 'results'
 const isProcessing = ref(false)
 const rows = ref([])
 const csvData = ref(null)
-const taxonNameFilter = ref(TAXON_NAME_FILTER.All)
-const otuFilter = ref(OTU_FILTER.All)
+const taxonNameFilter = ref(TAXON_NAME_FILTER.ALL)
+const otuFilter = ref(OTU_FILTER.ALL)
 
 function matchesTaxonNameFilter(row) {
-  if (taxonNameFilter.value === TAXON_NAME_FILTER.Ambiguous) {
+  if (taxonNameFilter.value === TAXON_NAME_FILTER.AMBIGUOUS) {
     return row.matched && row.ambiguous
   }
-  if (taxonNameFilter.value === TAXON_NAME_FILTER.Unmatched) {
+  if (taxonNameFilter.value === TAXON_NAME_FILTER.UNMATCHED) {
     return !row.matched
   }
-  if (taxonNameFilter.value === TAXON_NAME_FILTER['Matched TNs']) {
+  if (taxonNameFilter.value === TAXON_NAME_FILTER.MATCHED_TN) {
     return row.matchSource === 'taxon_name' || row.matchSource === 'both'
   }
-  if (taxonNameFilter.value === TAXON_NAME_FILTER['Matched OTUs']) {
+  if (taxonNameFilter.value === TAXON_NAME_FILTER.MATCHED_OTU) {
     return row.matchSource === 'otu' || row.matchSource === 'both'
   }
   return true
 }
 
 function matchesOtuFilter(row) {
-  if (otuFilter.value === OTU_FILTER['Multiple OTUs']) {
+  if (otuFilter.value === OTU_FILTER.MULTIPLE) {
     return row.otus.length > 1
   }
-  if (otuFilter.value === OTU_FILTER['User selected']) {
+  if (otuFilter.value === OTU_FILTER.USER_SELECTED) {
     return row.fixedOtuId != null
   }
-  if (otuFilter.value === OTU_FILTER['No OTU']) {
+  if (otuFilter.value === OTU_FILTER.NO_OTU) {
     return row.selectedOtuId == null
   }
   return true
@@ -144,7 +144,7 @@ function matchesOtuFilter(row) {
 const visibleRowIndices = ref(null) // null: no filter active, show every row live
 
 function snapshotVisibleRowIndices() {
-  if (taxonNameFilter.value === TAXON_NAME_FILTER.All && otuFilter.value === OTU_FILTER.All) {
+  if (taxonNameFilter.value === TAXON_NAME_FILTER.ALL && otuFilter.value === OTU_FILTER.ALL) {
     visibleRowIndices.value = null
     return
   }
@@ -258,6 +258,9 @@ async function handleOptionsChange() {
   const target = scopedRows()
   applyModifiersToRows(target)
   await matchRows(target)
+  // A global option (e.g. match_otu_names) can change which matchSource/ambiguous values
+  // exist across the board, so the frozen filtered view needs to refresh with it.
+  snapshotVisibleRowIndices()
 }
 
 async function handleMatchRow({ index }) {
@@ -602,8 +605,8 @@ function resetMatchOptions() {
 
 function clearAllMatches() {
   resetMatchOptions()
-  taxonNameFilter.value = TAXON_NAME_FILTER.All
-  otuFilter.value = OTU_FILTER.All
+  taxonNameFilter.value = TAXON_NAME_FILTER.ALL
+  otuFilter.value = OTU_FILTER.ALL
 
   rows.value.forEach((row) => {
     row.taxonName = null
@@ -636,8 +639,8 @@ function reset() {
   stage.value = 'input'
   rows.value = []
   csvData.value = null
-  taxonNameFilter.value = TAXON_NAME_FILTER.All
-  otuFilter.value = OTU_FILTER.All
+  taxonNameFilter.value = TAXON_NAME_FILTER.ALL
+  otuFilter.value = OTU_FILTER.ALL
   resetMatchOptions()
 }
 </script>
