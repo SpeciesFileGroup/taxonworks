@@ -431,7 +431,7 @@ module Queries
 
       def genus_name_facet
         return nil if genus_name.blank?
-        ::Otu.joins(:taxon_name).where(taxon_names: { cached: genus_name, rank_class: ::GENUS_RANK_NAMES })
+        ::Otu.joins(:taxon_name).where(taxon_names: { cached: genus_name, rank_class: ::GENUS_ONLY_RANK_NAMES })
       end
 
       def observations_facet

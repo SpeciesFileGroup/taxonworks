@@ -61,6 +61,15 @@ describe Match::Otu::MorphospeciesName, type: :model do
     end
   end
 
+  specify 'an otu on a same-named Subgenus (e.g. the nominotypical subgenus) does not match' do
+    subgenus = Protonym.create!(name: 'Aus', rank_class: Ranks.lookup(:iczn, :subgenus), parent: genus)
+    Otu.create!(taxon_name: subgenus, name: 'code1')
+
+    result = match(names: ['Aus code1']).first
+    expect(result[:otus].map(&:id)).to contain_exactly(otu.id)
+    expect(result[:ambiguous]).to be false
+  end
+
   context 'taxon_name_id scope' do
     let!(:other_family) { Protonym.create!(name: 'Busidae', rank_class: Ranks.lookup(:iczn, :family), parent: root) }
     let!(:other_genus) { Protonym.create!(name: 'Aus', rank_class: Ranks.lookup(:iczn, :genus), parent: other_family) }

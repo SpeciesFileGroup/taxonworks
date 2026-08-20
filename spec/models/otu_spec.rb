@@ -400,6 +400,13 @@ describe Otu, type: :model, group: :otu do
         Otu.create_morphospecies_otu(name: 'Aus', project_id: Current.project_id, user_id: Current.user_id)
       }.to raise_error(ArgumentError, /two-word/)
     end
+
+    specify 'a same-named Subgenus (e.g. the nominotypical subgenus) is not treated as a genus match' do
+      Protonym.create!(name: 'Aus', parent: genus, rank_class: Ranks.lookup(:iczn, :subgenus))
+
+      o = Otu.create_morphospecies_otu(name: 'Aus bus', project_id: Current.project_id, user_id: Current.user_id)
+      expect(o.taxon_name_id).to eq(genus.id)
+    end
   end
 
   context '#unused?' do

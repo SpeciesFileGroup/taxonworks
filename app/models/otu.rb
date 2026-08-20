@@ -232,7 +232,7 @@ class Otu < ApplicationRecord
     genus_term, otu_term = split_morphospecies_name(name)
     raise ArgumentError, "'#{name}' is not a two-word genus + otu name" if genus_term.nil?
 
-    genera = ::TaxonName.where(project_id:, cached: genus_term, rank_class: ::GENUS_RANK_NAMES).to_a
+    genera = ::TaxonName.where(project_id:, cached: genus_term, rank_class: ::GENUS_ONLY_RANK_NAMES).to_a
     raise ArgumentError, "No genus named '#{genus_term}' found" if genera.empty?
     raise ArgumentError, "#{genera.size} genera named '#{genus_term}' found, ambiguous" if genera.size > 1
 
