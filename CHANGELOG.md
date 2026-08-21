@@ -28,6 +28,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - `New images task`: Images now display a warning or check mark icon to indicate whether annotations have been applied. [#1060]
 - `Radial CE`: Assign georeference slice now only displays collecting events with georeferences. [#4797]
 - Replaced otu picker by autoselect in Taxon determinations form
+- `Taxon name stats task`: Now uses the standard filter interface
 
 ### Fixed
 
@@ -49,6 +50,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - The `pinboard` tab of smart selectors now lists items in the order they were arranged on the pinboard [#5058]
 - Smart selectors for depictions and observations listed conveyances instead of depictions and observations
 - `Taxon name stats`: the `Observation matrices dashboard` app mounted over the task, replacing its interface
+- `Taxon name stats`: `Set to <parent>` is not displayed after selecting a taxon name
 
 [#1060]: https://github.com/SpeciesFileGroup/taxonworks/issues/1060
 [#1130]: https://github.com/SpeciesFileGroup/taxonworks/issues/1130
