@@ -287,6 +287,10 @@ scope :tasks do
   end
 
   scope :annotations do
+    scope :table_annotator, controller: 'tasks/annotations/table_annotator' do
+      get '/', action: :index, as: 'table_annotator_task'
+    end
+
     scope :filter, controller: 'tasks/annotations/filter' do
       get '/', action: :index, as: 'annotations_filter_task'
     end

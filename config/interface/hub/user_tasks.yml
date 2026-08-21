@@ -1290,3 +1290,15 @@ project_organizations_task:
     - project
   status: prototype
   description: 'Add and remove the organizations that are associated with your project.'
+
+table_annotator_task:
+  hub: true
+  name: 'Table annotator'
+  related:
+  categories:
+    - occurrences
+    - collecting
+    - biology
+    - source
+  status: prototype
+  description: 'Edit tags and data attributes for many objects at once in a table view.'

@@ -101,6 +101,7 @@ const RouteNames = {
   ProjectVocabulary: '/tasks/metadata/vocabulary/project_vocabulary',
   ShowLead: '/tasks/leads/show',
   SourceHub: '/tasks/sources/hub',
+  TableAnnotator: '/tasks/annotations/table_annotator',
   TypeMaterial: '/tasks/type_material/edit_type_material',
   UnifyObjects: '/tasks/unify/objects',
   UnifyPeople: '/tasks/unify/people'
