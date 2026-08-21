@@ -17,6 +17,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - `Match collection objects`: Added button to destroy selected collection objects [#2942]
 - Custom attributes for type material in comprehensive and new type specimen tasks
 - `Grid digitizer`: catalogue numbers can be numbered in any of 8 directions, combining across/down first with a left or right start and a top or bottom start [#1394]
+- `Filter CO`: container facet [#3196]
 
 ### Changed
 
@@ -58,6 +59,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 [#2261]: https://github.com/SpeciesFileGroup/taxonworks/issues/2261
 [#2890]: https://github.com/SpeciesFileGroup/taxonworks/issues/2890
 [#2942]: https://github.com/SpeciesFileGroup/taxonworks/issues/2942
+[#3196]: https://github.com/SpeciesFileGroup/taxonworks/issues/3196
 [#4146]: https://github.com/SpeciesFileGroup/taxonworks/issues/4146
 [#4797]: https://github.com/SpeciesFileGroup/taxonworks/issues/4797
 [#4873]: https://github.com/SpeciesFileGroup/taxonworks/issues/4873
