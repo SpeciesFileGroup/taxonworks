@@ -1,5 +1,5 @@
 <template>
-  <div id="vue-task-observation-dashboard">
+  <div id="vue-task-nomenclature-stats">
     <spinner-component
       v-if="isLoading"
       :full-screen="true"
@@ -213,8 +213,8 @@ export default {
   }
 }
 </script>
-<style lang="scss">
-#vue-task-observation-dashboard {
+<style lang="scss" scoped>
+#vue-task-nomenclature-stats {
   .header-box {
     height: 30px;
   }
