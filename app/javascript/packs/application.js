@@ -37,6 +37,7 @@ import '../vanilla/views/users/show.js'
 
 import '../vue/data/downloads/index.js'
 
+import '../vue/initializers/Autoselect/main.js'
 import '../vue/initializers/BrowseNomenclature/main.js'
 import '../vue/initializers/ButtonConfidence/main.js'
 import '../vue/initializers/ButtonOtu/main.js'

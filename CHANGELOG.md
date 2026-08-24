@@ -18,6 +18,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Custom attributes for type material in comprehensive and new type specimen tasks
 - `Grid digitizer`: catalogue numbers can be numbered in any of 8 directions, combining across/down first with a left or right start and a top or bottom start [#1394]
 - `Filter CO`: container facet [#3196]
+- Rails initializer for the Autoselect component
 
 ### Changed
 
@@ -29,6 +30,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - `New images task`: Images now display a warning or check mark icon to indicate whether annotations have been applied. [#1060]
 - `Radial CE`: Assign georeference slice now only displays collecting events with georeferences. [#4797]
 - Replaced otu picker by autoselect in Taxon determinations form
+- Replaced taxon name autocomplete by autoselect in the Edit OTU form
 - `Taxon name stats task`: Now uses the standard filter interface
 
 ### Fixed
