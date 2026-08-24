@@ -170,6 +170,29 @@ RSpec.describe Autoselect::TaxonName::ColCreator, type: :model do
       end
     end
 
+    context 'when the target (final) row has an existing taxonworks_id' do
+      let!(:existing) { FactoryBot.create(:valid_taxon_name) }
+
+      let(:rows) do
+        [
+          row(col_name: 'Animalia', col_rank: 'kingdom'),
+          row(col_name: existing.cached, col_rank: 'genus', taxonworks_id: existing.id)
+        ]
+      end
+
+      subject(:result) {
+        described_class.new(rows:, project_id:, user_id:, col_code: 'zoological').call
+      }
+
+      it 'does not create a duplicate for the target' do
+        expect { result }.to change(::TaxonName, :count).by(1) # only the ancestor
+      end
+
+      it 'returns the existing record as taxon_name_id, not a newly created one' do
+        expect(result[:taxon_name_id]).to eq(existing.id)
+      end
+    end
+
     context 'when a row has an unknown rank (e.g. domain)' do
       let(:rows) do
         [

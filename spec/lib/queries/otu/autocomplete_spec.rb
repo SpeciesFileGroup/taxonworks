@@ -262,4 +262,60 @@ describe Queries::Otu::Autocomplete, type: :model do
     end
   end
 
+  # Regression: `exact:` was accepted but never actually consulted — #autocomplete
+  # ran the full fuzzy QUERIES stack regardless, so a caller asking for an exact
+  # match (e.g. Autoselect::Otu::Levels::ColValidName, checking whether an Otu
+  # already exists before offering to create one) got back unrelated
+  # trigram-similar names instead of [] when no real match existed.
+  context 'exact: true' do
+    specify 'matches an Otu whose linked TaxonName.cached equals the term exactly' do
+      genus = Protonym.create!(name: 'Exactonoma', rank_class: Ranks.lookup(:iczn, 'genus'), parent: root)
+      exact_otu = Otu.create!(taxon_name: genus, project_id: project_id)
+
+      q = Queries::Otu::Autocomplete.new(genus.cached, project_id: project_id, exact: true)
+      expect(q.autocomplete.to_a).to contain_exactly(exact_otu)
+    end
+
+    specify 'excludes fuzzy/substring matches that are not exact' do
+      genus = Protonym.create!(name: 'Erasmoneura', rank_class: Ranks.lookup(:iczn, 'genus'), parent: root)
+      Otu.create!(taxon_name: genus, project_id: project_id)
+
+      # Without exact:, this term does match (see '#autocomplete_cached_end_wildcard 3' above).
+      q = Queries::Otu::Autocomplete.new('Erasmon', project_id: project_id, exact: true)
+      expect(q.autocomplete.to_a).to be_empty
+    end
+
+    specify 'matches the "Genus morphospecies" pattern: genus cached exact + Otu#name exact' do
+      genus = Protonym.create!(name: 'Morphonoma', rank_class: Ranks.lookup(:iczn, 'genus'), parent: root)
+      target = Otu.create!(taxon_name: genus, name: 'sp1', project_id: project_id)
+      Otu.create!(taxon_name: genus, name: 'sp10', project_id: project_id) # not an exact match on the second word
+
+      q = Queries::Otu::Autocomplete.new('Morphonoma sp1', project_id: project_id, exact: true)
+      expect(q.autocomplete.to_a).to contain_exactly(target)
+    end
+
+    specify 'does not match the morphospecies pattern when the genus does not exist locally' do
+      q = Queries::Otu::Autocomplete.new('Nonexistus sp1', project_id: project_id, exact: true)
+      expect(q.autocomplete.to_a).to be_empty
+    end
+
+    specify 'does not apply the morphospecies pattern to a query with other than two words' do
+      genus = Protonym.create!(name: 'Onewordonoma', rank_class: Ranks.lookup(:iczn, 'genus'), parent: root)
+      Otu.create!(taxon_name: genus, name: 'sp1 extra', project_id: project_id)
+
+      q = Queries::Otu::Autocomplete.new('Onewordonoma sp1 extra', project_id: project_id, exact: true)
+      expect(q.autocomplete.to_a).to be_empty
+    end
+
+    specify 'a same-named Subgenus (e.g. the nominotypical subgenus) is not treated as a genus match' do
+      genus = Protonym.create!(name: 'Subgenoma', rank_class: Ranks.lookup(:iczn, 'genus'), parent: root)
+      subgenus = Protonym.create!(name: 'Subgenoma', rank_class: Ranks.lookup(:iczn, :subgenus), parent: genus)
+      Otu.create!(taxon_name: subgenus, name: 'sp1', project_id: project_id) # would match if Subgenus were allowed
+      target = Otu.create!(taxon_name: genus, name: 'sp1', project_id: project_id)
+
+      q = Queries::Otu::Autocomplete.new('Subgenoma sp1', project_id: project_id, exact: true)
+      expect(q.autocomplete.to_a).to contain_exactly(target)
+    end
+  end
+
 end

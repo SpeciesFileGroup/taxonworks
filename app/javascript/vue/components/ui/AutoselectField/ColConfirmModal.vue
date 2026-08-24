@@ -249,7 +249,13 @@ async function doCreate() {
     col_rank: ext.value.col_rank,
     col_id: ext.value.col_key,
     dataset_id: ext.value.col_dataset_id ?? null,
-    taxonworks_id: null,
+    // When the target itself already exists locally (ext.target_taxonworks_id, set by
+    // TaxonName::Levels::CatalogueOfLife#call), pass it through so ColCreator reuses it
+    // instead of creating a duplicate — same as exact-match ancestor rows above. This path
+    // still has to hit the server (unlike nothingToCreate) because a hook flow (e.g. OTU
+    // creation) needs the create endpoint to make its own record even when the TaxonName
+    // itself needs nothing.
+    taxonworks_id: ext.value.target_taxonworks_id ?? null,
     col_authorship: ext.value.col_authorship ?? null,
     col_year: ext.value.col_year ?? null,
     col_status: ext.value.col_status ?? null

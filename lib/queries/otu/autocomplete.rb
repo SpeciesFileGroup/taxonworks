@@ -304,7 +304,19 @@ module Queries
       end
 
       def autocomplete
+        return exact_matches if exact
         compact_priorities( autocomplete_base.limit(40) )
+      end
+
+      # @return [ActiveRecord::Relation]
+      #   What counts as an "exact" OTU name match is expected to grow (right now
+      #   it's a cached-name match plus one "Genus morphospecies" pattern below) —
+      #   kept in its own method, separate from the fuzzy QUERIES stack, for that
+      #   reason.
+      def exact_matches
+        ids = base_query.joins(:taxon_name).where(taxon_names: {cached: query_string}).pluck(:id)
+        ids |= morphospecies_match_ids
+        base_query.where(id: ids)
       end
 
       def autocomplete_base(targets = QUERIES)
@@ -344,6 +356,24 @@ module Queries
         query = query.where.missing(:taxon_name) if with_taxon_name == false
         query = query.where(otus: {name: nil}) if having_taxon_name_only
         query
+      end
+
+      private
+
+      # @return [Array<Integer>]
+      #   Otu ids matching the "Genus morphospecies" exact-match pattern: query_string
+      #   splits into exactly two words, the first matching the cached name of a
+      #   genus-rank TaxonName exactly, the second matching the #name of an Otu
+      #   directly linked to that TaxonName.
+      def morphospecies_match_ids
+        words = query_string.to_s.split(/\s+/)
+        return [] unless words.length == 2
+
+        genus_name, morphospecies_name = words
+        genus_ids = ::TaxonName.where(project_id:, cached: genus_name, rank_class: ::GENUS_ONLY_RANK_NAMES).pluck(:id)
+        return [] if genus_ids.empty?
+
+        base_query.where(taxon_name_id: genus_ids, name: morphospecies_name).pluck(:id)
       end
 
       # # @return [Array]

@@ -58,10 +58,14 @@ RSpec.describe Autoselect::Otu::Levels::ColValidName, type: :model do
     end
 
     context 'when resolved and a local OTU matches the valid name exactly' do
-      let!(:otu) { ::Otu.create!(name: 'Panthera leo', project_id:, by: user_id) }
-      let(:record) { resolved_record(valid_name: 'Panthera leo', resolved_from: 'Panthera leo persica') }
+      before { find_or_create_root_taxon_name }
+      let(:root) { ::TaxonName.where(project_id:, parent_id: nil).first }
+      let(:genus) { ::Protonym.create!(name: 'Panthera', rank_class: Ranks.lookup(:iczn, 'genus'), parent: root, project_id:, by: user_id) }
+      let(:species) { ::Protonym.create!(name: 'leo', rank_class: Ranks.lookup(:iczn, 'species'), parent: genus, project_id:, by: user_id) }
+      let!(:otu) { ::Otu.create!(taxon_name: species, project_id:, by: user_id) }
+      let(:record) { resolved_record(valid_name: species.cached, resolved_from: 'Panthera leo persica') }
 
-      before { stub_resolved_taxon_name(term: 'Panthera leo persica', valid_name: 'Panthera leo', records: [record]) }
+      before { stub_resolved_taxon_name(term: 'Panthera leo persica', valid_name: species.cached, records: [record]) }
 
       it 'returns the matching Otu instead of a creation offer' do
         result = level.call(term: 'Panthera leo persica', project_id:, user_id:)
@@ -70,16 +74,20 @@ RSpec.describe Autoselect::Otu::Levels::ColValidName, type: :model do
 
       it 'attaches _col_resolution provenance to the record' do
         result = level.call(term: 'Panthera leo persica', project_id:, user_id:)
-        expect(result.first._col_resolution).to eq(input: 'Panthera leo persica', valid_name: 'Panthera leo')
+        expect(result.first._col_resolution).to eq(input: 'Panthera leo persica', valid_name: species.cached)
       end
     end
 
     context 'when multiple local OTUs match the valid name' do
-      let!(:otu_a) { ::Otu.create!(name: 'Panthera leo', project_id:, by: user_id) }
-      let!(:otu_b) { ::Otu.create!(name: 'Panthera leo', project_id:, by: user_id) }
-      let(:record) { resolved_record(valid_name: 'Panthera leo', resolved_from: 'leo') }
+      before { find_or_create_root_taxon_name }
+      let(:root) { ::TaxonName.where(project_id:, parent_id: nil).first }
+      let(:genus) { ::Protonym.create!(name: 'Panthera', rank_class: Ranks.lookup(:iczn, 'genus'), parent: root, project_id:, by: user_id) }
+      let(:species) { ::Protonym.create!(name: 'leo', rank_class: Ranks.lookup(:iczn, 'species'), parent: genus, project_id:, by: user_id) }
+      let!(:otu_a) { ::Otu.create!(taxon_name: species, project_id:, by: user_id) }
+      let!(:otu_b) { ::Otu.create!(taxon_name: species, project_id:, by: user_id) }
+      let(:record) { resolved_record(valid_name: species.cached, resolved_from: 'leo') }
 
-      before { stub_resolved_taxon_name(term: 'leo', valid_name: 'Panthera leo', records: [record]) }
+      before { stub_resolved_taxon_name(term: 'leo', valid_name: species.cached, records: [record]) }
 
       it 'returns all matching Otus, letting the normal dropdown handle disambiguation' do
         expect(level.call(term: 'leo', project_id:, user_id:)).to contain_exactly(otu_a, otu_b)
