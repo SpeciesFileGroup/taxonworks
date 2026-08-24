@@ -70,7 +70,7 @@ RSpec.describe Autoselect::Otu::Levels::ColValidName, type: :model do
 
       it 'attaches _col_resolution provenance to the record' do
         result = level.call(term: 'Panthera leo persica', project_id:, user_id:)
-        expect(result.first._col_resolution).to include(input: 'Panthera leo persica', valid_name: 'Panthera leo')
+        expect(result.first._col_resolution).to eq(input: 'Panthera leo persica', valid_name: 'Panthera leo')
       end
     end
 
@@ -90,25 +90,66 @@ RSpec.describe Autoselect::Otu::Levels::ColValidName, type: :model do
   describe '#record_info' do
     let!(:otu) { ::Otu.create!(name: 'Panthera leo', project_id:, by: user_id) }
 
-    it 'notes the CoL resolution when input differs from the valid name' do
+    it 'leads with a TW source tag for an existing-match record — CoL only helped find it' do
       otu.define_singleton_method(:_col_resolution) { { input: 'Panthera leo persica', valid_name: 'Panthera leo' } }
-      expect(level.record_info(otu)).to include('resolved via CoL from "Panthera leo persica"')
+      expect(level.record_info(otu)).to eq(['TW', 'valid name for "Panthera leo persica"'])
     end
 
-    it 'does not add a note when input already equals the valid name' do
-      otu.define_singleton_method(:_col_resolution) { { input: 'Panthera leo', valid_name: 'Panthera leo' } }
-      expect(level.record_info(otu)).not_to include(a_string_matching(/resolved via CoL/))
-    end
-
-    it 'falls back to the default record_info for records without _col_resolution' do
+    it 'falls back to the default record_info for records without _col_resolution or _col_extension' do
       expect(level.record_info(otu)).to be_an(Array)
     end
 
-    it 'notes the resolved-from term for a creation offer' do
+    it 'shows just the TW source tag, no "valid name for" note, when the typed term already is the valid name' do
+      otu.define_singleton_method(:_col_resolution) { { input: 'Panthera leo', valid_name: 'Panthera leo' } }
+      expect(level.record_info(otu)).to eq(['TW'])
+    end
+
+    it 'leads with a CoL source tag for a creation offer — still purely CoL data, not yet in TW' do
       offer = OpenStruct.new(
+        name: 'Panthera leo',
         _col_extension: { col_status: 'accepted', col_rank: 'species', resolved_from: 'Panthera leo persica' }
       )
-      expect(level.record_info(offer)).to eq(['accepted', 'species', 'valid name for "Panthera leo persica"'])
+      expect(level.record_info(offer)).to eq(['CoL', 'valid name for "Panthera leo persica"'])
+    end
+
+    it 'shows just the CoL source tag, no "valid name for" note, for a creation offer when the typed term already is the valid name' do
+      offer = OpenStruct.new(
+        name: 'Panthera leo',
+        _col_extension: { col_status: 'accepted', resolved_from: 'Panthera leo' }
+      )
+      expect(level.record_info(offer)).to eq(['CoL'])
+    end
+  end
+
+  describe '#record_info_html' do
+    let!(:otu) { ::Otu.create!(name: 'Panthera leo', project_id:, by: user_id) }
+
+    it 'renders the TW icon in front of the "valid name for" badge, for an existing-match record' do
+      otu.define_singleton_method(:_col_resolution) { { input: 'Panthera leo persica', valid_name: 'Panthera leo' } }
+      html = level.record_info_html(otu)
+      expect(html).to start_with(described_class::TW_ICON)
+      expect(html).to include('<span class="feedback feedback-thin feedback-warning">valid name for &quot;Panthera leo persica&quot;</span>')
+      expect(html).not_to include(described_class::COL_ICON)
+    end
+
+    it 'renders the CoL icon in front of the "valid name for" badge, for a creation offer' do
+      offer = OpenStruct.new(
+        name: 'Panthera leo',
+        _col_extension: { col_status: 'synonym', col_rank: 'species', resolved_from: 'Panthera leo persica' }
+      )
+      html = level.record_info_html(offer)
+      expect(html).to start_with(described_class::COL_ICON)
+      expect(html).to include('<span class="feedback feedback-thin feedback-warning">valid name for &quot;Panthera leo persica&quot;</span>')
+      expect(html).not_to include(described_class::TW_ICON)
+    end
+
+    it 'falls back to the default record_info_html for records without CoL provenance' do
+      expect(level.record_info_html(otu)).not_to include('valid name for')
+    end
+
+    it 'renders just the TW icon, no "valid name for" badge, when the typed term already is the valid name' do
+      otu.define_singleton_method(:_col_resolution) { { input: 'Panthera leo', valid_name: 'Panthera leo' } }
+      expect(level.record_info_html(otu)).to eq(described_class::TW_ICON)
     end
   end
 end

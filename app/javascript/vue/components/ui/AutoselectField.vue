@@ -202,7 +202,10 @@ import CatalogueOfLifeSpinner from '@/components/ui/AutoselectField/CatalogueOfL
 import TaxonWorksSpinner from '@/components/ui/AutoselectField/TaxonWorksSpinner.vue'
 
 const LEVEL_SPINNERS = {
-  catalogue_of_life: CatalogueOfLifeSpinner
+  catalogue_of_life: CatalogueOfLifeSpinner,
+  // Always a CoL round-trip while searching, regardless of whether the result
+  // turns out to be an existing TW match or a creation offer once it arrives.
+  col_valid_name: CatalogueOfLifeSpinner
 }
 
 // ── Props & emits ──────────────────────────────────────────────────────────────
