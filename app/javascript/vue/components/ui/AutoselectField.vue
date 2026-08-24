@@ -712,8 +712,13 @@ function itemClicked(idx) {
 function completeSelection(item) {
   pendingExtensionItem.value = null
 
+  // Captured before inputText is overwritten/cleared below — the raw text the
+  // user typed to arrive at this item, for callers that want to flag when the
+  // matched result isn't what was searched for (e.g. a synonym resolution).
+  const searchText = inputText.value
+
   if (props.resetOnSelect) {
-    emit('select', item)
+    emit('select', item, searchText)
     emit('update:modelValue', null)
     inputText.value = ''
     currentLevel.value = getFirstVisibleLevelKey()
@@ -722,7 +727,7 @@ function completeSelection(item) {
   } else {
     inputText.value = item.label ?? ''
     emit('update:modelValue', item)
-    emit('select', item)
+    emit('select', item, searchText)
   }
 }
 
