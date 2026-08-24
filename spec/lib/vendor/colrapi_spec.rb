@@ -350,6 +350,94 @@ describe Vendor::Colrapi, type: :model do
     end
   end
 
+  # ── resolve_accepted_name ────────────────────────────────────────────────────
+
+  describe '.resolve_accepted_name' do
+    context 'when CoL has no results' do
+      before do
+        allow(::Colrapi).to receive(:nameusage).and_return({ 'total' => 0, 'result' => [] })
+      end
+
+      it 'returns nil' do
+        expect(described_class.resolve_accepted_name('Nonexistens')).to be_nil
+      end
+    end
+
+    context 'when the top hit is accepted' do
+      before do
+        allow(::Colrapi).to receive(:nameusage)
+          .and_return({ 'total' => 1, 'result' => [col_nameusage_result(id: '6MB3T', scientific_name: 'Homo sapiens', status: 'accepted')] })
+      end
+
+      it 'resolves to the matched name itself' do
+        result = described_class.resolve_accepted_name('Homo sapiens')
+        expect(result[:matched_name]).to eq('Homo sapiens')
+        expect(result[:matched_status]).to eq('accepted')
+        expect(result[:valid_name]).to eq('Homo sapiens')
+        expect(result[:valid_col_key]).to eq('6MB3T')
+        expect(result[:valid_status]).to eq('accepted')
+        expect(result[:dataset_id]).to eq('3LR')
+      end
+    end
+
+    context 'when the top hit is a synonym with a single accepted target' do
+      let(:synonym_result) do
+        col_nameusage_result(id: 'SYN1', scientific_name: 'Bison bison', status: 'synonym').merge(
+          'accepted' => {
+            'id'     => 'ACC1',
+            'status' => 'accepted',
+            'name'   => { 'scientificName' => 'Bos bison', 'authorship' => 'Linnaeus, 1758' }
+          }
+        )
+      end
+
+      before do
+        allow(::Colrapi).to receive(:nameusage).and_return({ 'total' => 1, 'result' => [synonym_result] })
+      end
+
+      it 'resolves to the accepted target, not the matched synonym' do
+        result = described_class.resolve_accepted_name('Bison bison')
+        expect(result[:matched_name]).to eq('Bison bison')
+        expect(result[:matched_status]).to eq('synonym')
+        expect(result[:matched_col_key]).to eq('SYN1')
+        expect(result[:valid_name]).to eq('Bos bison')
+        expect(result[:valid_col_key]).to eq('ACC1')
+        expect(result[:valid_authorship]).to eq('Linnaeus, 1758')
+        expect(result[:valid_status]).to eq('accepted')
+      end
+    end
+
+    context 'when the top hit is an ambiguous synonym with no single accepted target' do
+      let(:ambiguous_result) do
+        col_nameusage_result(id: 'AMB1', scientific_name: 'Crayracion', status: 'ambiguous synonym')
+      end
+
+      before do
+        allow(::Colrapi).to receive(:nameusage).and_return({ 'total' => 1, 'result' => [ambiguous_result] })
+      end
+
+      it 'resolves to itself, same as an accepted name would' do
+        result = described_class.resolve_accepted_name('Crayracion')
+        expect(result[:valid_name]).to eq('Crayracion')
+        expect(result[:valid_col_key]).to eq('AMB1')
+        expect(result[:valid_status]).to eq('ambiguous synonym')
+      end
+    end
+
+    context 'with an explicit dataset_id' do
+      before do
+        allow(::Colrapi).to receive(:nameusage)
+          .with('9802', hash_including(q: 'Mus musculus'))
+          .and_return({ 'total' => 1, 'result' => [col_nameusage_result(scientific_name: 'Mus musculus')] })
+      end
+
+      it 'passes the dataset through to the search and the result' do
+        result = described_class.resolve_accepted_name('Mus musculus', dataset_id: '9802')
+        expect(result[:dataset_id]).to eq('9802')
+      end
+    end
+  end
+
   # ── ancestors_via_parent_id ──────────────────────────────────────────────────
 
   describe '.ancestors_via_parent_id' do

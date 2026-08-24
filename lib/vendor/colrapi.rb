@@ -324,6 +324,45 @@ module Vendor
       { col_key:, col_name:, col_status:, col_authorship:, col_year:, col_rank:, col_code:, col_dataset_id:, alignment: }
     end
 
+    # Resolves a free-text name (e.g. transcribed from a specimen label) to the name
+    # currently accepted by the Catalogue of Life, so a caller doesn't have to look up
+    # synonymy by hand before searching TaxonWorks.
+    #
+    # Takes CoL's top-ranked search hit for name_string as-is (no re-scoring here). When
+    # that hit is a synonym with a single accepted target, follows it; an accepted hit, or
+    # a synonym with no single accepted target (e.g. an ambiguous synonym), resolves to
+    # itself.
+    #
+    # @param name_string [String]
+    # @param dataset_id [String, nil] CoL dataset ID; falls back to the default hardwired ID when nil
+    # @return [Hash, nil] nil when CoL has no results, else
+    #   { input:, matched_name:, matched_status:, matched_col_key:,
+    #     valid_name:, valid_col_key:, valid_authorship:, valid_status:, dataset_id: }
+    def self.resolve_accepted_name(name_string, dataset_id: nil)
+      top = search(name_string, dataset_id:)['result']&.first
+      return nil if top.nil?
+
+      # Full scientific name (e.g. "Homo sapiens"), not the single-word component
+      # uninomial_name extracts for building TW Protonym trees — TaxonName/Otu#cached
+      # holds the full combination, so that's what a caller needs to search against.
+      matched_name   = top.dig('name', 'scientificName') || top['label']
+      matched_status = top['status']
+      target_dataset_id = dataset_id.presence || DATASETS[:col]
+      accepted = top['accepted'] if matched_status.present? && matched_status != 'accepted'
+
+      {
+        input:            name_string,
+        matched_name:,
+        matched_status:,
+        matched_col_key:  top['id'],
+        valid_name:       accepted ? accepted.dig('name', 'scientificName') : matched_name,
+        valid_col_key:    accepted ? accepted['id'] : top['id'],
+        valid_authorship: accepted ? accepted.dig('name', 'authorship') : top.dig('name', 'authorship'),
+        valid_status:     accepted ? (accepted['status'] || 'accepted') : matched_status,
+        dataset_id:       target_dataset_id
+      }
+    end
+
     # Returns the single-word name component suitable for storing as a TaxonWorks Protonym name.
     # CoL's scientificName is the full combination (e.g. "Homo sapiens"), but TaxonWorks
     # Protonym requires just the uninomial or epithet.
