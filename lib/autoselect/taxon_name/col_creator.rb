@@ -4,7 +4,10 @@ module Autoselect
     #
     # Receives an ordered list of rows (distal → proximal, i.e. kingdom first, target last).
     # Each row represents one name to be created or an existing TaxonName to be used as a parent.
-    # Rows with a taxonworks_id are already in the project and serve only as parent anchors.
+    # Rows with a taxonworks_id are already in the project; if the row immediately above
+    # them was just inserted (a rank CoL reports that TaxonWorks' real chain skipped),
+    # the existing record is reparented onto it. Otherwise it's used as-is as a parent
+    # anchor and left untouched.
     #
     # @param rows [Array<Hash>] ordered distal→proximal; each hash has:
     #   col_name      [String]  — scientific name string from CoL
@@ -54,10 +57,35 @@ module Autoselect
         parent_id = project_root_id
         created_ids = []
 
+        # One batched lookup for every matched row's real current parent_id, instead of
+        # a find per row — the common case (nothing needs reparenting) then costs zero
+        # additional queries in the loop below.
+        matched_ids = @rows.filter_map { |row| row[:taxonworks_id].presence&.to_i }
+        current_parent_ids = ::TaxonName.where(id: matched_ids).pluck(:id, :parent_id).to_h
+
         ::ActiveRecord::Base.transaction do
           @rows.each do |row|
             if row[:taxonworks_id].present?
-              parent_id = row[:taxonworks_id].to_i
+              existing_id = row[:taxonworks_id].to_i
+
+              # A row directly above this one may have just been inserted (a rank CoL
+              # reports that TaxonWorks' real chain skipped) — reattach this existing
+              # record onto it. When nothing was inserted above, current_parent_ids
+              # already agrees with parent_id, so no query or update happens at all.
+              if current_parent_ids[existing_id] != parent_id
+                existing = ::TaxonName.find(existing_id)
+                begin
+                  existing.update!(parent_id:)
+                rescue ::ActiveRecord::RecordInvalid => e
+                  raise CreationError.new(
+                    "Reparenting #{existing.cached}: #{e.record.errors.full_messages.join(', ')}",
+                    col_name: row[:col_name],
+                    col_id:   row[:col_id]
+                  )
+                end
+              end
+
+              parent_id = existing_id
               next
             end
 
