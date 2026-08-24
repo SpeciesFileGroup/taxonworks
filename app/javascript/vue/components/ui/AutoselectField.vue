@@ -237,7 +237,13 @@ const props = defineProps({
   // that's otherwise absent from the level map entirely. Not reactive — changing
   // which levels are available mid-session isn't supported; mount a fresh instance
   // (e.g. via :key) if that's needed.
-  extraParams: { type: Object, default: () => ({}) }
+  extraParams: { type: Object, default: () => ({}) },
+  // Focus the input once it's actually usable. A plain HTML `autofocus` attribute
+  // (or focusing from a parent right after mount) doesn't work here: the input is
+  // `:disabled` until the initial config fetch resolves, and browsers won't focus
+  // a disabled element. This waits for that internally instead of callers having to
+  // guess when the field becomes ready.
+  autofocus: { type: Boolean, default: false }
 })
 
 const emit = defineEmits(['update:modelValue', 'select'])
@@ -353,6 +359,12 @@ onMounted(async () => {
   currentLevel.value = getFirstVisibleLevelKey()
   ready.value = true
   window.addEventListener('resize', updateDropdownPosition)
+
+  if (props.autofocus) {
+    // ready just flipped true, but the :disabled binding hasn't repainted yet.
+    await nextTick()
+    inputEl.value?.focus()
+  }
 })
 
 onBeforeUnmount(() => {
