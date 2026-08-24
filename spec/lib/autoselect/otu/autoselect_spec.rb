@@ -30,9 +30,20 @@ RSpec.describe Autoselect::Otu::Autoselect, type: :model do
   end
 
   describe 'level stack' do
-    it 'has three levels in order: fast → smart → catalogue_of_life' do
+    it 'has three levels by default: fast → smart → catalogue_of_life' do
       keys = autoselect.levels.map { |l| l.key.to_s }
       expect(keys).to eq(%w[fast smart catalogue_of_life])
+    end
+
+    context 'when col_valid_names is requested' do
+      subject(:autoselect) {
+        described_class.new(project_id:, user_id:, col_valid_names: true)
+      }
+
+      it 'inserts col_valid_name between smart and catalogue_of_life' do
+        keys = autoselect.levels.map { |l| l.key.to_s }
+        expect(keys).to eq(%w[fast smart col_valid_name catalogue_of_life])
+      end
     end
   end
 
