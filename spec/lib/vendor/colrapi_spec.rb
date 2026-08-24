@@ -98,12 +98,14 @@ describe Vendor::Colrapi, type: :model do
   # ── ancestors ─────────────────────────────────────────────────────────────────
 
   describe '.ancestors' do
+    # The real classification subresource returns kingdom-first (distal-to-proximal) —
+    # confirmed directly against the live ChecklistBank API.
     let(:classification) {
       [
-        col_classification_entry(id: '636X2', name: 'Homo',     rank: 'genus'),
-        col_classification_entry(id: '6256T', name: 'Hominidae', rank: 'family'),
-        col_classification_entry(id: 'CH2',   name: 'Chordata', rank: 'phylum'),
         col_classification_entry(id: 'N',     name: 'Animalia', rank: 'kingdom'),
+        col_classification_entry(id: 'CH2',   name: 'Chordata', rank: 'phylum'),
+        col_classification_entry(id: '6256T', name: 'Hominidae', rank: 'family'),
+        col_classification_entry(id: '636X2', name: 'Homo',     rank: 'genus'),
       ]
     }
 
@@ -133,11 +135,11 @@ describe Vendor::Colrapi, type: :model do
       expect(entry['id']).to be_a(String)
     end
 
-    it 'returns entries in proximal-to-distal order (genus before kingdom)' do
+    it 'returns entries in distal-to-proximal order (kingdom before genus)' do
       result = described_class.ancestors('6MB3T')
       ranks = result.map { |e| e['rank'] }
-      expect(ranks.first).to eq('genus')
-      expect(ranks.last).to eq('kingdom')
+      expect(ranks.first).to eq('kingdom')
+      expect(ranks.last).to eq('genus')
     end
 
     context 'when Colrapi raises an error' do
@@ -151,15 +153,59 @@ describe Vendor::Colrapi, type: :model do
     end
   end
 
+  # ── rank_class_for ────────────────────────────────────────────────────────────
+
+  describe '.rank_class_for' do
+    # When col_code is recognized, that lookup is tried first so that e.g. plant
+    # names get ICN rank classes rather than ICZN ones. Falls back through all four
+    # codes in order so any rank resolves if possible.
+    it 'resolves species as ICN for botanical code' do
+      result = described_class.rank_class_for('species', col_code: 'botanical')
+      expect(result).to include('Icn')
+      expect(result).not_to include('Iczn')
+    end
+
+    it 'resolves species as ICZN for zoological code' do
+      result = described_class.rank_class_for('species', col_code: 'zoological')
+      expect(result).to include('Iczn')
+      expect(result).not_to include('::Icn::')
+    end
+
+    it 'resolves genus as ICNP for bacterial code' do
+      result = described_class.rank_class_for('genus', col_code: 'bacterial')
+      expect(result).to include('Icnp')
+    end
+
+    it 'falls back through all codes when col_code is nil' do
+      expect(described_class.rank_class_for('species')).to include('Iczn')
+    end
+
+    it 'returns nil for unknown rank' do
+      expect(described_class.rank_class_for('domain')).to be_nil
+    end
+
+    it 'returns nil for blank rank' do
+      expect(described_class.rank_class_for('')).to be_nil
+      expect(described_class.rank_class_for(nil)).to be_nil
+    end
+
+    it 'is case-insensitive' do
+      expect(described_class.rank_class_for('SPECIES', col_code: 'zoological'))
+        .to eq(described_class.rank_class_for('species', col_code: 'zoological'))
+    end
+  end
+
   # ── build_extension ───────────────────────────────────────────────────────────
 
   describe '.build_extension' do
     let(:col_result) { col_nameusage_result }
 
+    # ancestors() (the real classification subresource) returns kingdom-first
+    # (distal before proximal) — family before genus here.
     let(:classification) {
       [
-        col_classification_entry(id: '636X2', name: 'Homo', rank: 'genus'),
         col_classification_entry(id: '6256T', name: 'Hominidae', rank: 'family'),
+        col_classification_entry(id: '636X2', name: 'Homo', rank: 'genus'),
       ]
     }
 
@@ -169,7 +215,7 @@ describe Vendor::Colrapi, type: :model do
       .and_return(classification)
     end
 
-    subject(:extension) { described_class.build_extension(col_result, nil) }
+    subject(:extension) { described_class.build_extension(col_result) }
 
     it 'extracts col_key from top-level id' do
       expect(extension[:col_key]).to eq('6MB3T')
@@ -188,9 +234,9 @@ describe Vendor::Colrapi, type: :model do
       expect(extension[:alignment].length).to eq(2)
     end
 
-    it 'alignment entries have rank, col_name, col_id, dataset_id, taxonworks_id, taxonworks_name, match' do
+    it 'alignment entries have rank, col_name, col_id, dataset_id, col_authorship' do
       entry = extension[:alignment].first
-      expect(entry).to include(:rank, :col_name, :col_id, :dataset_id, :taxonworks_id, :taxonworks_name, :match)
+      expect(entry).to include(:rank, :col_name, :col_id, :dataset_id, :col_authorship)
     end
 
     it 'alignment entry dataset_id is the main CoL dataset' do
@@ -203,7 +249,7 @@ describe Vendor::Colrapi, type: :model do
     end
 
     it 'extension col_dataset_id reflects the searched dataset when provided' do
-      ext = described_class.build_extension(col_result, nil, dataset_id: '3LXR')
+      ext = described_class.build_extension(col_result, dataset_id: '3LXR')
       expect(ext[:col_dataset_id]).to eq('3LXR')
     end
 
@@ -216,34 +262,6 @@ describe Vendor::Colrapi, type: :model do
     it 'alignment entry rank is downcased' do
       entry = extension[:alignment].first
       expect(entry[:rank]).to eq('family')
-    end
-
-    it 'alignment entry match is none when TaxonName not in project' do
-      entry = extension[:alignment].first
-      expect(entry[:match]).to eq('none')
-      expect(entry[:taxonworks_id]).to be_nil
-    end
-
-    context 'when a TaxonName matches an ancestor name' do
-      let!(:taxon_name) { FactoryBot.create(:valid_taxon_name) }
-
-      let(:classification_with_match) {
-        [col_classification_entry(id: 'XXX', name: taxon_name.cached, rank: 'family')]
-      }
-
-      before do
-        allow(described_class).to receive(:ancestors)
-          .with('6MB3T')
-          .and_return(classification_with_match)
-      end
-
-      it 'sets match to exact and populates taxonworks_id' do
-        ext = described_class.build_extension(col_result, taxon_name.project_id)
-        entry = ext[:alignment].first
-        expect(entry[:match]).to eq('exact')
-        expect(entry[:taxonworks_id]).to eq(taxon_name.id)
-        expect(entry[:taxonworks_name]).to eq(taxon_name.cached)
-      end
     end
 
     context 'when result is subgenus rank with paren-wrapped combination' do
@@ -266,7 +284,7 @@ describe Vendor::Colrapi, type: :model do
         allow(described_class).to receive(:ancestors).with('SG1').and_return([])
       end
 
-      subject(:ext) { described_class.build_extension(subgenus_result, nil) }
+      subject(:ext) { described_class.build_extension(subgenus_result) }
 
       it 'col_name extracts the epithet from inside the parentheses' do
         expect(ext[:col_name]).to eq('Cyperana')
@@ -285,7 +303,7 @@ describe Vendor::Colrapi, type: :model do
       let(:col_result_no_id) { col_nameusage_result(id: nil) }
 
       it 'skips the ancestors call and returns empty alignment' do
-        ext = described_class.build_extension(col_result_no_id, nil)
+        ext = described_class.build_extension(col_result_no_id)
         expect(described_class).not_to have_received(:ancestors)
         expect(ext[:alignment]).to eq([])
       end
@@ -306,7 +324,7 @@ describe Vendor::Colrapi, type: :model do
           ])
       end
 
-      subject(:ext) { described_class.build_extension(denormed_result, nil, dataset_id: '9802') }
+      subject(:ext) { described_class.build_extension(denormed_result, dataset_id: '9802') }
 
       it 'calls ancestors_via_parent_id rather than ancestors' do
         ext
@@ -536,7 +554,7 @@ describe Vendor::Colrapi, type: :model do
         }
         skip 'No accepted result for Lepisma found in CoL 3LR' if lepisma_result.nil?
 
-        ext = described_class.build_extension(lepisma_result, nil)
+        ext = described_class.build_extension(lepisma_result)
 
         expect(ext[:col_authorship]).to be_nil
         expect(ext[:col_name]).to eq('Lepisma')
@@ -552,7 +570,7 @@ describe Vendor::Colrapi, type: :model do
         }
         skip 'No synonym result for Lepisma found in CoL 3LR' if botanical_result.nil?
 
-        ext = described_class.build_extension(botanical_result, nil)
+        ext = described_class.build_extension(botanical_result)
 
         expect(ext[:col_authorship]).to eq('E.Mey.')
       end
@@ -568,7 +586,7 @@ describe Vendor::Colrapi, type: :model do
         }
         skip 'No subgenus result for Cicadula (Cyperana) found in CoL 3LR' if subgenus_result.nil?
 
-        ext = described_class.build_extension(subgenus_result, nil)
+        ext = described_class.build_extension(subgenus_result)
 
         expect(ext[:col_rank]).to eq('subgenus')
         expect(ext[:col_name]).to eq('Cyperana'),
@@ -586,7 +604,7 @@ describe Vendor::Colrapi, type: :model do
         }
         skip 'No ambiguous synonym result for Crayracion found in CoL 3LR' if crayracion_result.nil?
 
-        ext = described_class.build_extension(crayracion_result, nil)
+        ext = described_class.build_extension(crayracion_result)
 
         expect(ext[:col_status]).to eq('ambiguous synonym')
         expect(ext[:col_rank]).to eq('genus')
@@ -615,7 +633,7 @@ describe Vendor::Colrapi, type: :model do
         accepted_name = campa_result.dig('accepted', 'name', 'scientificName')
         accepted_id   = campa_result.dig('accepted', 'id')
 
-        ext = described_class.build_extension(campa_result, nil)
+        ext = described_class.build_extension(campa_result)
 
         expect(ext[:col_status]).to eq('synonym')
 

@@ -41,14 +41,6 @@ module Autoselect
       # TODO:
       COL_BASE_URI = 'https://www.catalogueoflife.org/data/taxon/'.freeze
 
-      # Maps CoL code strings to the primary lookup constant to use for rank resolution.
-      COL_CODE_LOOKUP_MAP = {
-        'zoological' => :ICZN_LOOKUP,
-        'botanical' => :ICN_LOOKUP,
-        'bacterial' => :ICNP_LOOKUP,
-        'viral' => :ICVCN_LOOKUP
-      }.freeze
-
       def initialize(rows:, project_id:, user_id:, col_code: nil)
         @rows = rows
         @project_id = project_id.to_i
@@ -161,35 +153,10 @@ module Autoselect
       end
 
 
-      # TODO: needs to be in an isolated library
-
       # Maps a human-readable CoL rank string to a TaxonWorks rank_class string.
-      #
-      # When @col_code is recognized (e.g. 'botanical' → ICN_LOOKUP), that lookup is tried first
-      # so that plant names receive ICN rank classes rather than ICZN ones.  Falls back through
-      # all four codes in order so that any rank resolves if possible.
-      #
       # Returns nil for unknown ranks; callers should skip creation for those rows.
       def resolve_rank_class(rank_string)
-        return nil if rank_string.blank?
-        r = rank_string.to_s.downcase
-
-        primary_key = COL_CODE_LOOKUP_MAP[@col_code]
-
-        if primary_key
-          primary_lookup = Object.const_get("::#{primary_key}")
-          result = primary_lookup[r]
-          return result if result
-        end
-
-        # Fall through all codes (excluding the primary already tried)
-        fallbacks = [:ICZN_LOOKUP, :ICN_LOOKUP, :ICNP_LOOKUP, :ICVCN_LOOKUP].reject { |k| k == primary_key }
-        fallbacks.each do |key|
-          result = Object.const_get("::#{key}")[r] # TODO: BAD
-          return result if result
-        end
-
-        nil
+        ::Vendor::Colrapi.rank_class_for(rank_string, col_code: @col_code)
       end
 
       #

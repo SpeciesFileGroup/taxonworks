@@ -41,14 +41,20 @@
                 disabled
               />
               <input
-                v-else
+                v-else-if="row.match === 'conflict'"
+                type="checkbox"
+                disabled
+              />
+              <input
+                v-else-if="row.match === 'none'"
                 type="checkbox"
                 :checked="checkedNames.has(row.col_name)"
                 @change="toggleRow(row.col_name)"
               />
+              <!-- 'extra' rows (TaxonWorks-only, informational) get no checkbox -->
             </td>
             <td>{{ row.rank }}</td>
-            <td>{{ row.col_name }}</td>
+            <td>{{ row.col_name ?? '—' }}</td>
             <td>{{ row.taxonworks_name ?? '—' }}</td>
             <td>{{ row.col_authorship ?? '—' }}</td>
             <td>
@@ -93,8 +99,24 @@
         </tbody>
       </table>
 
-      <p class="col-confirm-modal__note">
-        <template v-if="nothingToCreate">
+      <p
+        class="col-confirm-modal__note"
+        :class="{ 'col-confirm-modal__note--warning': chainConflict || isAmbiguous }"
+      >
+        <template v-if="isAmbiguous">
+          {{ ext.ambiguous_match.count }} TaxonWorks records are named
+          <em>{{ ext.ambiguous_match.col_name }}</em> at rank <em>{{ ext.ambiguous_match.rank }}</em> —
+          there's no way to tell which one this lineage should use. Resolve this manually before creating.
+        </template>
+        <template v-else-if="chainConflict">
+          TaxonWorks and Catalogue of Life disagree at
+          <template v-for="(row, i) in conflictRows" :key="row.rank">
+            <template v-if="i > 0">, </template>
+            <em>{{ row.rank }}</em> (TaxonWorks: {{ row.taxonworks_name }} · CoL: {{ row.col_name }})
+          </template>
+          — resolve this before creating.
+        </template>
+        <template v-else-if="nothingToCreate">
           All names already exist in TaxonWorks. Click Select to use the existing record.
         </template>
         <template v-else-if="cannotCreate">
@@ -112,7 +134,7 @@
         <VBtn
           ref="confirmBtn"
           :color="nothingToCreate ? 'default' : 'create'"
-          :disabled="isCreating || cannotCreate"
+          :disabled="isCreating || cannotCreate || chainConflict"
           @click="doConfirm"
           @keydown.enter.prevent="doConfirm"
         >
@@ -146,10 +168,9 @@ const emit = defineEmits(['confirm', 'cancel'])
 // Shorthand for the extension hash
 const ext = computed(() => props.item.extension)
 
-// Ancestor rows in distal→proximal order (alignment is proximal→distal, so reverse it)
-const ancestorRowsDistalFirst = computed(() =>
-  [...(ext.value.alignment ?? [])].reverse()
-)
+// Ancestor rows in distal→proximal (kingdom-first) order — already how alignment
+// comes back from Vendor::Colrapi.build_extension.
+const ancestorRowsDistalFirst = computed(() => ext.value.alignment ?? [])
 
 // Set of col_name values the user has checked for creation (match==='none' rows)
 const checkedNames = ref(
@@ -178,6 +199,26 @@ const cannotCreate = computed(
     !!ext.value.target_rank_unknown
 )
 
+// Server-computed (Autoselect::TaxonName::Levels::CatalogueOfLife#call, via
+// Autoselect::TaxonName::ColAncestryComparator): whether TaxonWorks' real ancestor
+// chain for the matched anchor actually agrees with CoL's classification, rank by
+// rank — not just independent per-row name matches. Undefined (older/other extension
+// shapes) is treated as consistent.
+const chainConsistent = computed(() => ext.value.chain_consistent !== false)
+
+// Rows where TaxonWorks' real ancestor and CoL disagree on the name at the same rank.
+const conflictRows = computed(() => (ext.value.alignment ?? []).filter((r) => r.match === 'conflict'))
+
+// Set instead of a real conflict when the walk found more than one same-name,
+// same-rank TaxonWorks candidate at some position — a homonym with no principled
+// way to pick between them, distinct from a genuine name disagreement.
+const isAmbiguous = computed(() => !!ext.value.ambiguous_match)
+
+// Only blocks Create itself — nothingToCreate's "Select" shortcut doesn't create or
+// reparent anything, so a pre-existing inconsistency among already-matched records
+// isn't this action's problem to block.
+const chainConflict = computed(() => !chainConsistent.value && !nothingToCreate.value)
+
 // Returns a Checklistbank web URL including dataset context, falling back to
 // the legacy catalogueoflife.org path when no dataset_id is available.
 function clbTaxonUrl(datasetId, taxonId) {
@@ -198,9 +239,11 @@ function toggleRow(colName) {
 }
 
 function rowClass(row) {
-  if (row.col_name === errorColName.value)
-    return 'col-confirm-modal__row--error'
-  return row.match === 'exact' ? 'col-confirm-modal__row--exact' : ''
+  if (errorColName.value !== null && row.col_name === errorColName.value) return 'col-confirm-modal__row--error'
+  if (row.match === 'exact') return 'col-confirm-modal__row--exact'
+  if (row.match === 'extra') return 'col-confirm-modal__row--extra'
+  if (row.match === 'conflict') return 'col-confirm-modal__row--conflict'
+  return ''
 }
 
 const confirmBtn = ref(null)
@@ -227,12 +270,11 @@ async function doCreate() {
   isCreating.value = true
   errorColName.value = null
 
-  // Build distal→proximal rows for the server.
+  // Build distal→proximal rows for the server — alignment already comes back in that
+  // order (kingdom-first) from Vendor::Colrapi.build_extension.
   // Exact-match ancestors pass their taxonworks_id so the server uses them as parent anchors.
   // Unchecked none-match ancestors are excluded.
   const ancestorRows = (ext.value.alignment ?? [])
-    .slice()
-    .reverse() // distal first
     .filter((r) => r.match === 'exact' || checkedNames.value.has(r.col_name))
     .map((r) => ({
       col_name: r.col_name,
@@ -311,6 +353,16 @@ async function doCreate() {
   background-color: rgba(0, 128, 0, 0.06);
 }
 
+/* A real TaxonWorks ancestor CoL's chain doesn't mention here — informational only,
+   nothing to select or create. */
+.col-confirm-modal__row--extra {
+  background-color: rgba(0, 90, 200, 0.06);
+}
+
+.col-confirm-modal__row--conflict {
+  background-color: rgba(200, 0, 0, 0.08);
+}
+
 .col-confirm-modal__row--target {
   font-weight: 600;
   border-top: 2px solid var(--border-color, #ccc);
@@ -324,6 +376,10 @@ async function doCreate() {
   font-size: 11px;
   color: var(--text-color-muted, #777);
   margin: 4px 0 0;
+}
+
+.col-confirm-modal__note--warning {
+  color: var(--color-destroy, #c00);
 }
 
 .col-confirm-modal__error {

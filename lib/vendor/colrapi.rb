@@ -8,25 +8,6 @@ module Vendor
       col_extended: '3LXR'  # Human plus algorithmic extensions
     }.freeze
 
-    # @params taxonworks_object
-    #   any object that responds_to `.taxonomy`
-    #
-    # @params colrapi_result
-    #    a nameusage result
-    #
-    # @return [Array]
-    #   with hashes {
-    #    { rank: 'species'
-    #      col: 'name',
-    #      taxonworks: 'name'
-    #      rank_origin: :col, :taxonworks, :both
-    #    }
-    #
-    # 2 row alignment facilitator
-    #
-    def self.align_classification(taxonworks_object, colrapi_result)
-      r = []
-    end
 
     # @params taxonworks_object
     #   currently only an CollectionObject
@@ -218,7 +199,10 @@ module Vendor
       []
     end
 
-    # Builds an alignment hash comparing a CoL nameusage result against TaxonNames in the project.
+    # Builds CoL's own classification chain for a nameusage result — pure CoL data, no
+    # TaxonWorks matching (see Autoselect::TaxonName::Levels::CatalogueOfLife#call and
+    # Autoselect::TaxonName::ColAncestryComparator for how that's done, and why matching
+    # each ancestor independently by name here used to be a source of bugs).
     #
     # col_result is a flat nameusage hash as returned by search (no 'usage' wrapper):
     #   { 'id' => '6MB3T', 'status' => 'accepted',
@@ -232,11 +216,11 @@ module Vendor
     # Note: in classification entries 'name' is a plain String, not a hash.
     #
     # @param col_result [Hash] a single entry from search['result']
-    # @param project_id [Integer, nil]
     # @param dataset_id [String, nil] the dataset that was searched; falls back to DATASETS[:col]
     # @return [Hash] extension hash with :col_key, :col_name, :col_status, :col_authorship,
-    #   :col_year, :col_rank, :col_dataset_id, and :alignment (Array of ancestor hashes each including :col_id, :dataset_id)
-    def self.build_extension(col_result, project_id, dataset_id: nil)
+    #   :col_year, :col_rank, :col_code, :col_dataset_id, and :alignment (Array of ancestor
+    #   hashes, kingdom-first, each with :rank, :col_name, :col_id, :dataset_id, :col_authorship)
+    def self.build_extension(col_result, dataset_id: nil)
       col_key        = col_result['id']
       col_name       = uninomial_name(col_result['name'])
       col_rank       = col_result.dig('name', 'rank')&.downcase
@@ -295,29 +279,24 @@ module Vendor
 
       # Drop suprakingdom ranks (e.g. 'domain') that have no equivalent in TaxonWorks
       # nomenclatural codes.  Kingdom is the highest rank we include.
-      # CoL classification returns proximal→distal (immediate parent first); reverse to kingdom-first.
-      ancestor_chain = ancestor_chain.reject { |a| a['rank']&.downcase == 'domain' }.reverse
+      # Both ancestor sources are already distal→proximal (kingdom before genus): the
+      # classification subresource used by ancestors() returns it in that order natively,
+      # and ancestors_via_parent_id() explicitly reverses its own proximal-built walk to
+      # match. No reversal needed here.
+      ancestor_chain = ancestor_chain.reject { |a| a['rank']&.downcase == 'domain' }
 
       alignment = ancestor_chain.map do |ancestor|
         rank     = ancestor['rank']&.downcase
         # In classification entries 'name' is a plain String (the uninomial name)
         anc_name = ancestor['name'].is_a?(String) ? ancestor['name'] : ancestor.dig('name', 'scientificName')
         anc_name = extract_subgenus_name(anc_name) if rank == 'subgenus'
-        col_id   = ancestor['id']
-
-        scope = ::TaxonName.where(cached: anc_name) # !!!
-        scope = scope.where(project_id:) if project_id.present?
-        tw_record = scope.first
 
         {
           rank:,
-          col_name:        anc_name,
-          col_id:,
-          dataset_id:      ancestor_dataset_id,
-          col_authorship:  ancestor['authorship'].presence,
-          taxonworks_id:   tw_record&.id,
-          taxonworks_name: tw_record&.cached,
-          match:           tw_record ? 'exact' : 'none'
+          col_name:       anc_name,
+          col_id:         ancestor['id'],
+          dataset_id:     ancestor_dataset_id,
+          col_authorship: ancestor['authorship'].presence
         }
       end
 
@@ -383,6 +362,42 @@ module Vendor
     def self.extract_subgenus_name(name)
       return name if name.nil?
       name[/\(([^)]+)\)/, 1] || name
+    end
+
+    COL_CODE_LOOKUP_MAP = {
+      'zoological' => :ICZN_LOOKUP,
+      'botanical'  => :ICN_LOOKUP,
+      'bacterial'  => :ICNP_LOOKUP,
+      'viral'      => :ICVCN_LOOKUP
+    }.freeze
+
+    # Maps a human-readable CoL rank string to a TaxonWorks rank_class string.
+    #
+    # When col_code is recognized (e.g. 'botanical' → ICN_LOOKUP), that lookup is tried
+    # first so that plant names get ICN rank classes rather than ICZN ones. Falls back
+    # through all four codes in order so any rank resolves if possible.
+    #
+    # @param rank_string [String, nil] e.g. 'genus', 'family'
+    # @param col_code [String, nil] 'zoological', 'botanical', 'bacterial', 'viral'
+    # @return [String, nil] a TaxonWorks rank_class string, or nil for an unknown rank
+    def self.rank_class_for(rank_string, col_code: nil)
+      return nil if rank_string.blank?
+      r = rank_string.to_s.downcase
+
+      primary_key = COL_CODE_LOOKUP_MAP[col_code]
+
+      if primary_key
+        result = Object.const_get("::#{primary_key}")[r]
+        return result if result
+      end
+
+      fallbacks = [:ICZN_LOOKUP, :ICN_LOOKUP, :ICNP_LOOKUP, :ICVCN_LOOKUP].reject { |k| k == primary_key }
+      fallbacks.each do |key|
+        result = Object.const_get("::#{key}")[r]
+        return result if result
+      end
+
+      nil
     end
 
     # Maps a CoL rank name ('genus', 'family', …) and CoL nomenclatural code
