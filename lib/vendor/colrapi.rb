@@ -371,6 +371,15 @@ module Vendor
       'viral'      => :ICVCN_LOOKUP
     }.freeze
 
+    # Maps a CoL nomenclatural code string to the TaxonWorks nomenclature_code symbol
+    # (NomenclaturalRank.nomenclatural_code / rank_class.nomenclatural_code) it corresponds to.
+    COL_CODE_TO_NOMENCLATURE_CODE = {
+      'zoological' => :iczn,
+      'botanical'  => :icn,
+      'bacterial'  => :icnp,
+      'viral'      => :icvcn
+    }.freeze
+
     # Maps a human-readable CoL rank string to a TaxonWorks rank_class string.
     #
     # When col_code is recognized (e.g. 'botanical' → ICN_LOOKUP), that lookup is tried

@@ -102,6 +102,14 @@ module Autoselect
             .where(project_id:, cached: full_chain.map { |row| row[:col_name] })
             .group_by(&:cached)
 
+          # When CoL tells us the code, require candidates to match it too — same-name,
+          # same-rank homonyms do occur across codes (e.g. a zoological vs a botanical
+          # genus sharing a name), and this is the only point that needs the check: once
+          # an anchor is chosen, TaxonName's own validate_same_nomenclatural_code already
+          # guarantees every real ancestor above it shares its code, so nothing further
+          # down this method needs to re-check it.
+          expected_nomenclature_code = ::Vendor::Colrapi::COL_CODE_TO_NOMENCLATURE_CODE[extension[:col_code]]
+
           anchor = nil
           anchor_index = nil
 
@@ -109,6 +117,10 @@ module Autoselect
             row = full_chain[i]
             rank_matched = (candidates_by_name[row[:col_name]] || [])
               .select { |candidate| rank_name_for(candidate.rank_class) == row[:rank] }
+
+            if expected_nomenclature_code
+              rank_matched = rank_matched.select { |candidate| candidate.rank_class.nomenclatural_code == expected_nomenclature_code }
+            end
 
             if rank_matched.length > 1
               return ambiguous_result(extension, row, rank_matched.length)

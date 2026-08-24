@@ -2,11 +2,11 @@ require 'rails_helper'
 
 # Minimal Colrapi wire-format fixtures — see spec/lib/vendor/colrapi_spec.rb for the
 # canonical shapes; duplicated in miniature here to keep this file self-contained.
-def col_result_for_target(id:, scientific_name:, rank: 'genus')
+def col_result_for_target(id:, scientific_name:, rank: 'genus', code: nil)
   {
     'id'     => id,
     'status' => 'accepted',
-    'name'   => { 'scientificName' => scientific_name, 'rank' => rank, 'authorship' => nil },
+    'name'   => { 'scientificName' => scientific_name, 'rank' => rank, 'authorship' => nil, 'code' => code },
     'label'     => scientific_name,
     'labelHtml' => scientific_name
   }
@@ -241,6 +241,64 @@ RSpec.describe Autoselect::TaxonName::Levels::CatalogueOfLife, type: :model do
         ext = result.first._col_extension
         expect(ext[:chain_consistent]).to be false
         expect(ext[:ambiguous_match]).to eq(rank: 'family', col_name: 'Homonymidae', count: 2)
+      end
+    end
+
+    context 'when an ancestor rank has same-name, same-rank candidates under two different nomenclatural codes, and CoL specifies the code' do
+      # Family-rank names are suffix-constrained per code (-idae vs -aceae) and can never
+      # collide as strings, so this uses genus rank — real cross-code homonyms (e.g. a
+      # zoological vs a botanical genus sharing a name) are unconstrained bare words.
+      let!(:iczn_homonym) do
+        Protonym.create!(name: 'Homonymus', rank_class: Ranks.lookup(:iczn, 'genus'), parent: family.root, project_id:, by: user_id)
+      end
+      let!(:icn_homonym) do
+        Protonym.create!(name: 'Homonymus', rank_class: Ranks.lookup(:icn, 'genus'), parent: family.root, project_id:, by: user_id)
+      end
+      let(:col_result) { col_result_for_target(id: 'TGT1', scientific_name: 'newella', rank: 'species', code: 'zoological') }
+
+      before do
+        allow(::Vendor::Colrapi).to receive(:search).and_return('result' => [col_result])
+        allow(::Vendor::Colrapi).to receive(:ancestors).and_return([
+          col_classification_entry(id: 'A1', name: 'Homonymus', rank: 'genus')
+        ])
+      end
+
+      it 'is not ambiguous — the nomenclatural code disambiguates the two same-name, same-rank candidates' do
+        result = level.call(term: 'newella', project_id:, user_id:)
+        ext = result.first._col_extension
+        expect(ext[:ambiguous_match]).to be_nil
+        expect(ext[:chain_consistent]).to be true
+      end
+
+      it 'anchors on the candidate matching the CoL-specified code, not the other-code homonym' do
+        result = level.call(term: 'newella', project_id:, user_id:)
+        genus_row = result.first._col_extension[:alignment].find { |r| r[:rank] == 'genus' }
+        expect(genus_row[:taxonworks_id]).to eq(iczn_homonym.id)
+        expect(genus_row[:match]).to eq('exact')
+      end
+    end
+
+    context 'when CoL specifies no code and same-name, same-rank candidates exist under two different codes' do
+      let!(:iczn_homonym) do
+        Protonym.create!(name: 'Homonymus', rank_class: Ranks.lookup(:iczn, 'genus'), parent: family.root, project_id:, by: user_id)
+      end
+      let!(:icn_homonym) do
+        Protonym.create!(name: 'Homonymus', rank_class: Ranks.lookup(:icn, 'genus'), parent: family.root, project_id:, by: user_id)
+      end
+      let(:col_result) { col_result_for_target(id: 'TGT1', scientific_name: 'newella', rank: 'species') }
+
+      before do
+        allow(::Vendor::Colrapi).to receive(:search).and_return('result' => [col_result])
+        allow(::Vendor::Colrapi).to receive(:ancestors).and_return([
+          col_classification_entry(id: 'A1', name: 'Homonymus', rank: 'genus')
+        ])
+      end
+
+      it 'falls back to the old ambiguous behavior — there is no code to disambiguate with' do
+        result = level.call(term: 'newella', project_id:, user_id:)
+        ext = result.first._col_extension
+        expect(ext[:chain_consistent]).to be false
+        expect(ext[:ambiguous_match]).to eq(rank: 'genus', col_name: 'Homonymus', count: 2)
       end
     end
 
