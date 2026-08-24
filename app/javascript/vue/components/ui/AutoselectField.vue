@@ -116,46 +116,49 @@
       </ul>
     </teleport>
 
-    <!-- Help overlay (!?) -->
-    <div
-      v-if="showHelp"
-      class="autoselect__help-overlay"
-    >
-      <button
-        class="autoselect__help-close"
-        title='Use "Esc" to close'
-        @click="closeHelp"
+    <!-- Help overlay (!?) — teleported to escape any scrollable/clipping
+         ancestor (e.g. a table wrapper with overflow-x: auto), same reason
+         the dropdown and fuse tooltip are teleported. Position is computed
+         in JS (updateHelpOverlayPosition) from the input's own bounding
+         rect, same technique as those. -->
+    <teleport to="body">
+      <div
+        v-if="showHelp"
+        class="autoselect__help-overlay"
+        :style="helpOverlayStyle"
       >
-        &#x2715;
-      </button>
-      <h4>Available operators</h4>
-      <ul class="autoselect__help-list">
-        <li
-          v-for="op in sortedOperators"
-          :key="op.trigger"
-          class="autoselect__help-item"
-        >
-          <template v-if="isOperatorLinkable(op)">
-            <button
-              ref="helpItemEls"
-              class="autoselect__help-btn"
-              @click="fireOperator(op)"
-              @keydown.up.prevent="moveHelpFocus(-1)"
-              @keydown.down.prevent="moveHelpFocus(1)"
-              @keydown.enter.prevent="fireOperator(op)"
-              @keydown.escape.prevent="closeHelp"
-            >
-              <code>{{ op.trigger }}</code>
-            </button>
-          </template>
-          <code
-            v-else
-            class="autoselect__help-trigger-muted"
-          >{{ op.trigger }}</code>
-          <span class="autoselect__help-desc"> — {{ op.description }}</span>
-        </li>
-      </ul>
-    </div>
+        <button
+          class="autoselect__help-close"
+          title='Use "Esc" to close'
+          @click="closeHelp"
+        >&#x2715;</button>
+        <h4>Available operators</h4>
+        <ul class="autoselect__help-list">
+          <li
+            v-for="op in sortedOperators"
+            :key="op.trigger"
+            class="autoselect__help-item"
+          >
+            <template v-if="isOperatorLinkable(op)">
+              <button
+                ref="helpItemEls"
+                class="autoselect__help-btn"
+                @click="fireOperator(op)"
+                @keydown.up.prevent="moveHelpFocus(-1)"
+                @keydown.down.prevent="moveHelpFocus(1)"
+                @keydown.enter.prevent="fireOperator(op)"
+                @keydown.escape.prevent="closeHelp"
+              ><code>{{ op.trigger }}</code></button>
+            </template>
+            <code
+              v-else
+              class="autoselect__help-trigger-muted"
+            >{{ op.trigger }}</code>
+            <span class="autoselect__help-desc"> — {{ op.description }}</span>
+          </li>
+        </ul>
+      </div>
+    </teleport>
 
     <!-- CoL confirmation modal -->
     <Teleport to="body">
@@ -294,6 +297,20 @@ let fuseTimer = null
 const pinboardNoneFlash = ref(false)
 let pinboardNoneTimer = null
 
+const helpOverlayStyle = ref({})
+
+// Page-absolute coordinates so the teleported overlay isn't clipped by a
+// scrollable ancestor (e.g. a table wrapper with overflow-x: auto).
+function updateHelpOverlayPosition() {
+  const rect = inputEl.value?.getBoundingClientRect()
+  if (!rect) return
+  helpOverlayStyle.value = {
+    top: `${rect.bottom + window.scrollY}px`,
+    left: `${rect.left + window.scrollX}px`,
+    width: `${rect.width}px`
+  }
+}
+
 // overlays
 const showHelp = ref(false)
 const showPreferences = ref(false)
@@ -425,6 +442,7 @@ function onInput() {
     inputText.value = (helpMatch[1] + ' ' + helpMatch[2])
       .replace(/\s+/g, ' ')
       .trim()
+    updateHelpOverlayPosition()
     showHelp.value = true
     return
   }
@@ -1064,10 +1082,10 @@ function clearResults() {
 
 /* ── Help overlay ── */
 .autoselect__help-overlay {
+  /* top/left/width are page-absolute pixel coordinates set via :style (see
+     updateHelpOverlayPosition) — teleported to body, so this positions
+     against the page's containing block, not a parent that might clip it. */
   position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
   z-index: 999998;
   background: var(--panel-bg-color, #fff);
   border: 1px solid var(--border-color, #ccc);
