@@ -235,6 +235,21 @@
       </template>
 
       <template #body>
+        <div
+          v-if="bootstrapTruncation"
+          class="feedback feedback-warning padding-small margin-medium-bottom d-flex middle flex-separate gap-small"
+        >
+          <span>
+            Only the first {{ bootstrapTruncation.loaded }} of
+            {{ bootstrapTruncation.total }} filtered taxa were loaded. Refine
+            the filter or split into multiple keys to cover the rest.
+          </span>
+          <span
+            class="button button-circle btn-undo button-default"
+            title="Dismiss"
+            @click="bootstrapTruncation = null"
+          />
+        </div>
         <div class="d-flex gap-small middle margin-medium-bottom flex-wrap-row">
           <label
             for="descendants_filter"
@@ -392,6 +407,7 @@ const descendantsLoading = ref(false)
 const descendantsFilter = ref('valid')
 const autoPruneAfterPublication = ref(true)
 const pruneMisspellings = ref(true)
+const bootstrapTruncation = ref(null)
 
 const rootId = computed(() => root.value.id)
 const rootGlobalId = computed(() => root.value.global_id)
@@ -646,6 +662,7 @@ function reset() {
   rootCitationId.value = null
   originalMetadata.value = null
   existingKeys.value = []
+  bootstrapTruncation.value = null
   setParam(RouteNames.CiteKey, 'lead_id', null)
 }
 
@@ -941,17 +958,17 @@ function bootstrapFromOtus({ otuIds, otuQuery }) {
         root.value.otu_id = body.parent_otu.id
       }
       body.otus.forEach((otu) => addSpecies(otu))
-      const truncationNote = body.truncated
-        ? ` (capped at ${body.otus.length} of ${body.total}; refine the filter or split the key)`
-        : ''
+      bootstrapTruncation.value = body.truncated
+        ? { loaded: body.otus.length, total: body.total }
+        : null
       const parentNote = body.parent_otu
         ? 'parent inferred as ' + stripHtml(body.parent_otu.object_tag)
         : 'no shared parent inferred'
       TW.workbench.alert.create(
-        `Prefilled ${body.otus.length} taxa from Filter OTUs${truncationNote}; ` +
+        `Prefilled ${body.otus.length} taxa from Filter OTUs; ` +
           parentNote +
           '. Pick a source and title, then Cite this key.',
-        body.truncated ? 'warning' : 'notice'
+        'notice'
       )
     })
     .catch(() => {})
