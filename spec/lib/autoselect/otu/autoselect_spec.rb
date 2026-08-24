@@ -40,9 +40,9 @@ RSpec.describe Autoselect::Otu::Autoselect, type: :model do
         described_class.new(project_id:, user_id:, col_valid_names: true)
       }
 
-      it 'inserts col_valid_name between smart and catalogue_of_life' do
+      it 'replaces the whole default stack with just col_valid_name' do
         keys = autoselect.levels.map { |l| l.key.to_s }
-        expect(keys).to eq(%w[fast smart col_valid_name catalogue_of_life])
+        expect(keys).to eq(%w[col_valid_name])
       end
     end
   end

@@ -228,7 +228,13 @@ const props = defineProps({
   // When true, clear the field and reset to level 0 after selection instead of filling
   // the input with the selected label.  Use for "append to list" contexts where the
   // field should be ready for the next search immediately after each pick.
-  resetOnSelect: { type: Boolean, default: false }
+  resetOnSelect: { type: Boolean, default: false },
+  // Extra query params sent with every request (config fetch and term search alike),
+  // e.g. { col_valid_names: true } to opt this instance into a task-specific level
+  // that's otherwise absent from the level map entirely. Not reactive — changing
+  // which levels are available mid-session isn't supported; mount a fresh instance
+  // (e.g. via :key) if that's needed.
+  extraParams: { type: Object, default: () => ({}) }
 })
 
 const emit = defineEmits(['update:modelValue', 'select'])
@@ -238,7 +244,8 @@ const effectiveId = props.id ?? `autoselect_${randomUUID()}`
 
 // ── Composables ────────────────────────────────────────────────────────────────
 const { config, fetchConfig, getFirstLevelKey, getOperators } = useAutoselect(
-  props.url
+  props.url,
+  props.extraParams
 )
 
 const prefs = usePreferences(props.url, props.preferencesKey ?? effectiveId)
@@ -508,6 +515,7 @@ function triggerSearch(term) {
       term,
       level: currentLevel.value,
       ...levelOptions,
+      ...props.extraParams,
       show_info: prefs.getShowInfo()
     },
     signal: controller.value.signal

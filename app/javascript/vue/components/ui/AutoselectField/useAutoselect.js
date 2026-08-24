@@ -10,32 +10,49 @@ import AjaxCall from '@/helpers/ajaxCall'
 
 const configRequests = new Map()
 
-function requestConfig(url) {
-  if (!configRequests.has(url)) {
-    const request = AjaxCall('get', url)
+// Extra params (e.g. col_valid_names) change which levels the server returns, so
+// they must be part of the cache key — otherwise two instances of the same url with
+// different extraParams would clobber each other's cached level map.
+function cacheKey(url, extraParams) {
+  const entries = Object.entries(extraParams).sort(([a], [b]) => a.localeCompare(b))
+  return entries.length ? `${url}?${new URLSearchParams(entries).toString()}` : url
+}
+
+function requestConfig(url, extraParams) {
+  const key = cacheKey(url, extraParams)
+
+  if (!configRequests.has(key)) {
+    const request = AjaxCall('get', url, { params: extraParams })
       .then(({ body }) => {
         if (body && body.config) return body
 
-        configRequests.delete(url)
+        configRequests.delete(key)
         return null
       })
       .catch((e) => {
         console.warn('[useAutoselect] Failed to fetch config from', url, e)
-        configRequests.delete(url)
+        configRequests.delete(key)
         return null
       })
 
-    configRequests.set(url, request)
+    configRequests.set(key, request)
   }
 
-  return configRequests.get(url)
+  return configRequests.get(key)
 }
 
-export function useAutoselect(url) {
+/**
+ * @param {string} url
+ * @param {Object} [extraParams] - extra query params sent with every request (config
+ *   and term search alike) — e.g. { col_valid_names: true } to opt a specific
+ *   autoselect instance into a task-specific level. Read once at call time; pass a
+ *   plain object, not a ref (component owns reactivity, this composable doesn't).
+ */
+export function useAutoselect(url, extraParams = {}) {
   const config = ref(null)
 
   async function fetchConfig() {
-    const body = await requestConfig(url)
+    const body = await requestConfig(url, extraParams)
     if (body) config.value = body
 
     return config.value

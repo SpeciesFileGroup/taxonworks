@@ -10,18 +10,22 @@ module Autoselect
 
       # Ordered level stack — defines the fuse escalation sequence.
       #
-      # Levels::ColValidName is conditional: it's a task-specific tool (currently
-      # print_label2), not a default OTU search strategy, so it's only included when
-      # the caller explicitly asks for it via the col_valid_names param — never appears
+      # Levels::ColValidName is conditional and, when requested, *replaces* the
+      # entire default stack rather than joining it: it's a task-specific tool
+      # (currently print_label2) for text that's expected to need CoL synonymy
+      # resolution, so local fast/smart matching on the raw (possibly-outdated) term
+      # is skipped rather than tried first. Levels::CatalogueOfLife isn't needed
+      # alongside it either — ColValidName already offers its own creation flow when
+      # no local match exists, so there's nothing left to escalate to. Never appears
       # in the level map/preferences modal for any other OTU autoselect field.
       def levels
-        stack = [
+        return [::Autoselect::Otu::Levels::ColValidName.new] if col_valid_names?
+
+        [
           ::Autoselect::Otu::Levels::Fast.new,
           ::Autoselect::Otu::Levels::Smart.new,
+          ::Autoselect::Otu::Levels::CatalogueOfLife.new,
         ]
-        stack << ::Autoselect::Otu::Levels::ColValidName.new if col_valid_names?
-        stack << ::Autoselect::Otu::Levels::CatalogueOfLife.new
-        stack
       end
 
       # @param record [Otu or OpenStruct]
