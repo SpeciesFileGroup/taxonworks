@@ -148,7 +148,10 @@
               <code>{{ op.trigger }}</code>
             </button>
           </template>
-          <code v-else>{{ op.trigger }}</code>
+          <code
+            v-else
+            class="autoselect__help-trigger-muted"
+          >{{ op.trigger }}</code>
           <span class="autoselect__help-desc"> — {{ op.description }}</span>
         </li>
       </ul>
@@ -1126,6 +1129,14 @@ function clearResults() {
 .autoselect__help-btn:focus {
   border-color: var(--color-primary, #2563eb);
   outline: none;
+}
+
+/* Non-linkable operators (e.g. !n with no newRecordComponent) render as plain
+   <code> instead of a <button> — same size as the clickable ones, but muted,
+   so it's visually clear before you try arrow-navigating to it that this one
+   isn't part of that focus order. */
+.autoselect__help-trigger-muted {
+  color: var(--text-color-muted, #666);
 }
 
 .autoselect__help-desc {
