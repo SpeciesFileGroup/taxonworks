@@ -32,6 +32,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Replaced otu picker by autoselect in Taxon determinations form
 - Replaced taxon name autocomplete by autoselect in the Edit OTU form
 - `Taxon name stats task`: Now uses the standard filter interface
+- `Field synchronize task`: Allow filling multiple columns by pasting from the clipboard [#4286]
 
 ### Fixed
 
@@ -63,6 +64,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 [#2942]: https://github.com/SpeciesFileGroup/taxonworks/issues/2942
 [#3196]: https://github.com/SpeciesFileGroup/taxonworks/issues/3196
 [#4146]: https://github.com/SpeciesFileGroup/taxonworks/issues/4146
+[#4286]: https://github.com/SpeciesFileGroup/taxonworks/issues/4286
 [#4797]: https://github.com/SpeciesFileGroup/taxonworks/issues/4797
 [#4873]: https://github.com/SpeciesFileGroup/taxonworks/issues/4873
 [#5037]: https://github.com/SpeciesFileGroup/taxonworks/issues/5037
