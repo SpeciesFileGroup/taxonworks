@@ -31,8 +31,7 @@
 module Match
   module Otu
     class TaxonName
-
-      MAX_NAMES = 3000
+      include NameBatchMatcher
 
       # Columns that may be interpolated into the raw SQL below.
       MATCHABLE_COLUMNS = [
@@ -64,7 +63,7 @@ module Match
                      taxon_name_query: nil, resolve_synonyms: false, try_without_subgenus: false,
                      candidates: nil, match_original_combination: false, use_author_year: false,
                      trigram_prefilter: false)
-        @names = names.first(MAX_NAMES)
+        @names = names.first(NameBatchMatcher::MAX_NAMES)
         @project_id = project_id
         @levenshtein_distance = levenshtein_distance.to_i.clamp(0, 8)
         @taxon_name_id = taxon_name_id
@@ -75,18 +74,6 @@ module Match
         @match_original_combination = match_original_combination
         @use_author_year = use_author_year
         @trigram_prefilter = trigram_prefilter
-      end
-
-      # @return [Array<Hash>]
-      def call
-        unique_names = names.uniq
-        match_cache = {}
-
-        unique_names.each do |name|
-          match_cache[name] = match_name(name)
-        end
-
-        names.map { |name| match_cache[name].merge(scientific_name: name) }
       end
 
       private

@@ -50,6 +50,8 @@ class SledImagesController < ApplicationController
   def sled_image_params
     params.require(:sled_image).permit( :image_id,
       :step_identifier_on,
+      :horizontal_step_direction,
+      :vertical_step_direction,
       metadata: [
         :index, :row, :column, :metadata,
         lowerCorner: [:x, :y],

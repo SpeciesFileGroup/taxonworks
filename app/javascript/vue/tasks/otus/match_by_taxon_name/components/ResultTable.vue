@@ -12,9 +12,9 @@
         <th />
         <th class="line-nowrap">scientificName <ButtonClipboard :text="columnClipboardText('scientificName')" title="Copy scientificName column" /></th>
         <th class="line-nowrap" data-help="Override the string used for matching. Leave blank to match using the scientificName value as-is. A manually-entered value shows a small dot. Regex modifiers (left panel) write to this field automatically.">Match <ButtonClipboard :text="columnClipboardText('match')" title="Copy match column" /></th>
-        <th class="line-nowrap" data-help="A yellow cell indicates that there was more than one matching Taxon Name to choose from, so you may want to confirm the name selected - if the wrong name was selected you can select the correct one in the Refine column.">
+        <th class="line-nowrap" data-help="A yellow cell indicates that there was more than one matching Taxon Name to choose from, so you may want to confirm the name selected - if the wrong name was selected you can select the correct one in the Refine column. Blue indicates a match via an OTU's genus+otu_name. Purple indicates both a TaxonName and an OTU-name matched - since it's unclear which identification is right, these also count as ambiguous.">
           <div class="horizontal-left-content middle gap-small">
-            <span>TaxonName</span>
+            <span>Match result</span>
             <select
               class="normal-input"
               :value="taxonNameFilter"
@@ -22,18 +22,17 @@
               @change="emit('update:taxonNameFilter', $event.target.value)"
             >
               <option
-                v-for="[label, value] in Object.entries(TAXON_NAME_FILTER)"
+                v-for="value in taxonNameFilterOptions"
                 :key="value"
                 :value="value"
               >
-                {{ label }}
+                {{ TAXON_NAME_FILTER_LABELS[value] }}
               </option>
             </select>
-            <ButtonClipboard :text="columnClipboardText('taxonName')" title="Copy TaxonName column" />
+            <ButtonClipboard :text="columnClipboardText('taxonName')" title="Copy Match result column" />
           </div>
         </th>
         <th />
-        <th class="w-2" />
         <th data-help="Manually search for and select a TaxonName, overriding the automatic match result. Use this to fix incorrect or ambiguous matches.">Refine</th>
         <th
           class="line-nowrap"
@@ -48,11 +47,11 @@
               @change="emit('update:otuFilter', $event.target.value)"
             >
               <option
-                v-for="[label, value] in Object.entries(OTU_FILTER)"
+                v-for="value in Object.values(OTU_FILTER)"
                 :key="value"
                 :value="value"
               >
-                {{ label }}
+                {{ OTU_FILTER_LABELS[value] }}
               </option>
             </select>
             <ButtonClipboard :text="columnClipboardText('otuLabel')" title="Copy OTU column" />
@@ -141,8 +140,12 @@
           </div>
         </td>
 
-        <!-- TaxonName -->
-        <td :class="{ 'cell-ambiguous': row.ambiguous }">
+        <!-- Match result -->
+        <td :class="{
+          'cell-match-both': row.matchSource === 'both',
+          'cell-ambiguous': row.ambiguous && row.matchSource !== 'both',
+          'cell-match-otu': !row.ambiguous && row.matchSource === 'otu'
+        }">
           <a
             v-if="row.taxonName"
             :href="browseTaxonNameUrl(row.taxonNameId)"
@@ -162,44 +165,80 @@
           </div>
         </td>
 
-        <!-- search scientificName in Refine -->
-        <td>
-          <VBtn
-            v-if="isActionable(row)"
-            circle
-            color="primary"
-            :disabled="row.fixedOtuId != null"
-            title="Search the scientificName in Refine"
-            @click="prefillRefine(row)"
-          >
-            <VIcon
-              x-small
-              name="zoomIn"
-            />
-          </VBtn>
-        </td>
-
         <!-- reselect (Refine) -->
         <td>
-          <AutoselectField
-            v-if="isActionable(row)"
-            :ref="(el) => setRefineRef(row.index, el)"
-            url="/taxon_names/autoselect"
-            param="taxon_name_id"
-            :id="`match-taxon-name-refine-${row.index}`"
-            :new-record-component="TaxonNameNewModal"
-            reset-on-select
-            :disabled="row.fixedOtuId != null"
-            placeholder="Search taxon name..."
-            @select="
-              (item) =>
-                emit('update-row', {
-                  index: row.index,
-                  field: 'taxonName',
-                  value: item
-                })
-            "
-          />
+          <div class="refine-cell">
+            <div
+              v-if="isActionable(row)"
+              class="horizontal-left-content gap-small"
+            >
+              <VBtn
+                circle
+                color="primary"
+                :disabled="row.fixedOtuId != null"
+                title="Search the scientificName in Refine"
+                @click="prefillRefine(row)"
+              >
+                <VIcon
+                  x-small
+                  name="zoomIn"
+                />
+              </VBtn>
+              <AutoselectField
+                :ref="(el) => setRefineRef(row.index, el)"
+                url="/taxon_names/autoselect"
+                param="taxon_name_id"
+                :id="`match-taxon-name-refine-${row.index}`"
+                :new-record-component="TaxonNameNewModal"
+                reset-on-select
+                :disabled="row.fixedOtuId != null"
+                placeholder="Search taxon name..."
+                @select="
+                  (item) =>
+                    emit('update-row', {
+                      index: row.index,
+                      field: 'taxonName',
+                      value: item
+                    })
+                "
+              />
+            </div>
+            <div
+              v-if="isActionable(row) && matchOtuNames"
+              class="horizontal-left-content gap-small"
+            >
+              <VBtn
+                circle
+                color="primary"
+                :disabled="row.fixedOtuId != null"
+                title="Search the scientificName in OTU Refine"
+                @click="prefillOtuRefine(row)"
+              >
+                <VIcon
+                  x-small
+                  name="zoomIn"
+                />
+              </VBtn>
+              <AutoselectField
+                :ref="(el) => setOtuRefineRef(row.index, el)"
+                url="/otus/autoselect"
+                param="otu_id"
+                :id="`match-otu-refine-${row.index}`"
+                :new-record-component="OtuNewModal"
+                reset-on-select
+                :disabled="row.fixedOtuId != null"
+                placeholder="Search OTU..."
+                @select="
+                  (item) =>
+                    emit('update-row', {
+                      index: row.index,
+                      field: 'otuRefine',
+                      value: item
+                    })
+                "
+              />
+            </div>
+          </div>
         </td>
 
         <!-- OTU -->
@@ -237,14 +276,24 @@
         </td>
 
         <!-- create OTU -->
-        <td>
-          <div class="horizontal-left-content gap-xsmall">
+        <td class="create-otu-cell">
+          <div class="create-otu-buttons gap-xsmall">
             <VBtn
               v-if="isActionable(row) && row.taxonNameId && !row.otus.length && row.fixedOtuId == null"
+              medium
               color="create"
               @click="emit('create-otu', { index: row.index })"
             >
               Create OTU
+            </VBtn>
+            <VBtn
+              v-if="matchOtuNames && isActionable(row) && !row.otus.length && row.fixedOtuId == null && row.matchSource !== 'both' && isTwoWordName(row)"
+              medium
+              color="create"
+              title="Create an OTU named after the second word, under the genus TaxonName matching the first word"
+              @click="emit('create-morphospecies-otu', { index: row.index })"
+            >
+              Create Morphospecies OTU
             </VBtn>
             <VBtn
               v-if="row.fixedOtuId != null"
@@ -326,11 +375,17 @@ import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import AutoselectField from '@/components/ui/AutoselectField.vue'
 import TaxonNameNewModal from '@/components/ui/AutoselectField/TaxonNameNewModal.vue'
+import OtuNewModal from '@/components/ui/AutoselectField/OtuNewModal.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import ButtonClipboard from '@/components/ui/Button/ButtonClipboard.vue'
 import effectiveName from '../utils/effectiveName.js'
-import { TAXON_NAME_FILTER, OTU_FILTER } from '../constants.js'
+import {
+  TAXON_NAME_FILTER,
+  TAXON_NAME_FILTER_LABELS,
+  OTU_FILTER,
+  OTU_FILTER_LABELS
+} from '../constants.js'
 
 const props = defineProps({
   rows: {
@@ -345,29 +400,50 @@ const props = defineProps({
 
   taxonNameFilter: {
     type: String,
-    default: TAXON_NAME_FILTER.All
+    default: TAXON_NAME_FILTER.ALL
   },
 
   otuFilter: {
     type: String,
-    default: OTU_FILTER.All
+    default: OTU_FILTER.ALL
+  },
+
+  matchOtuNames: {
+    type: Boolean,
+    default: false
   }
 })
 
 const emit = defineEmits([
   'update-row',
   'create-otu',
+  'create-morphospecies-otu',
   'scroll-to-row',
   'match-row',
   'update:taxonNameFilter',
   'update:otuFilter'
 ])
 
+// The two match-source filter options are only meaningful (and shown) once OTU-name
+// matching is enabled - keeps the dropdown unchanged for anyone not using the feature.
+const taxonNameFilterOptions = computed(() =>
+  Object.values(TAXON_NAME_FILTER).filter(
+    (value) =>
+      props.matchOtuNames ||
+      (value !== TAXON_NAME_FILTER.MATCHED_TN && value !== TAXON_NAME_FILTER.MATCHED_OTU)
+  )
+)
+
+function isTwoWordName(row) {
+  return effectiveName(row).trim().split(/\s+/).length === 2
+}
+
 const contextRow = ref(null)
 
 // AutoselectField instances, keyed by row index, so a row's Refine search can be driven from its
 // button.
 const refineRefs = ref({})
+const otuRefineRefs = ref({})
 
 function setRefineRef(index, el) {
   if (el) {
@@ -377,10 +453,22 @@ function setRefineRef(index, el) {
   }
 }
 
+function setOtuRefineRef(index, el) {
+  if (el) {
+    otuRefineRefs.value[index] = el
+  } else {
+    delete otuRefineRefs.value[index]
+  }
+}
+
 // Hand the row's scientificName to Refine and start the search there, caret at the end so the
 // curator can trim the string immediately.
 function prefillRefine(row) {
   refineRefs.value[row.index]?.prefill(row.scientificName)
+}
+
+function prefillOtuRefine(row) {
+  otuRefineRefs.value[row.index]?.prefill(row.scientificName)
 }
 
 const selectableRows = computed(() =>
@@ -507,6 +595,44 @@ thead th {
    higher specificity than a single class here. */
 .cell-ambiguous {
   background-color: var(--badge-yellow-bg) !important;
+}
+
+.cell-match-otu {
+  background-color: var(--badge-blue-bg) !important;
+}
+
+.cell-match-both {
+  background-color: var(--badge-purple-bg) !important;
+}
+
+/* The TaxonName and OTU Refine autoselects always stack on separate lines. */
+.refine-cell {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  gap: 2px;
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
+
+/* Each row's button sits beside its own autoselect (see .horizontal-left-content usage
+   above), so the autoselect fills the remaining row width instead of a fixed 100%. */
+.refine-cell :deep(.autoselect) {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Vertical centering happens on the td itself (below) - percentage heights on a
+   div inside a table cell don't reliably resolve against the row's actual height. */
+.create-otu-cell {
+  vertical-align: middle;
+}
+
+/* Two create-OTU buttons stack vertically. */
+.create-otu-buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 .row-disabled td {

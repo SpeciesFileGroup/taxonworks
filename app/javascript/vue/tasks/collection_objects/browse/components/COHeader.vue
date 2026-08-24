@@ -6,6 +6,7 @@
     >
       <div class="horizontal-left-content middle gap-small">
         <AutocompletePopover
+          ref="autocomplete"
           url="/collection_objects/autocomplete"
           title="Search a collection object to browse"
           placeholder="Search a collection object"
@@ -63,9 +64,10 @@
 </template>
 
 <script setup>
-import { addToArray, removeFromArray } from '@/helpers'
+import { addToArray, removeFromArray, getPlatformKey } from '@/helpers'
 import { useStore } from 'vuex'
-import { computed } from 'vue'
+import { computed, useTemplateRef, ref } from 'vue'
+import { useHotkey } from '@/composables'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
 import { DEPICTION, IDENTIFIER, COLLECTION_OBJECT } from '@/constants'
@@ -85,6 +87,31 @@ import AutocompletePopover from '@/components/ui/Autocomplete/AutocompletePopove
 const emit = defineEmits(['select'])
 
 const store = useStore()
+
+const autocompleteRef = useTemplateRef('autocomplete')
+
+const shortcuts = ref([
+  {
+    keys: [getPlatformKey(), 't'],
+    handler() {
+      const id = store.getters[GetterNames.GetCollectionObject].id
+
+      if (id) {
+        window.open(`${RouteNames.DigitizeTask}?collection_object_id=${id}`)
+      }
+    }
+  },
+  {
+    keys: [getPlatformKey(), 'f'],
+    preventDefault: true,
+    handler() {
+      autocompleteRef.value?.open()
+    }
+  }
+])
+
+useHotkey(shortcuts.value)
+
 const collectionObject = computed(
   () => store.getters[GetterNames.GetCollectionObject]
 )

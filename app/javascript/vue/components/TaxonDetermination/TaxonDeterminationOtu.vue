@@ -9,7 +9,8 @@
         pin-section="Otus"
         pin-type="Otu"
         :autocomplete="false"
-        :otu-picker="true"
+        otu-picker
+        otu-autoselect
         target="TaxonDetermination"
         v-model="selectedOtu"
         @selected="setOtu"

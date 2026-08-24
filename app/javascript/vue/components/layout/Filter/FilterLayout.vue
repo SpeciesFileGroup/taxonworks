@@ -16,7 +16,10 @@
             >
               Filter
             </VBtn>
-            <ModalNestedParameters :parameters="parameters" />
+            <ModalNestedParameters
+              v-if="buttonNestedParameters"
+              :parameters="parameters"
+            />
             <slot name="nav-query-left" />
           </div>
           <div class="horizontal-left-content gap-small">
@@ -263,6 +266,11 @@ const props = defineProps({
   },
 
   buttonUnify: {
+    type: Boolean,
+    default: true
+  },
+
+  buttonNestedParameters: {
     type: Boolean,
     default: true
   }

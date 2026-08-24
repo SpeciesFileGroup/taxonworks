@@ -15,6 +15,10 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Smart selector for preparation type [#1130]
 - Smart selector for protocols [#2890]
 - `Match collection objects`: Added button to destroy selected collection objects [#2942]
+- Custom attributes for type material in comprehensive and new type specimen tasks
+- `Grid digitizer`: catalogue numbers can be numbered in any of 8 directions, combining across/down first with a left or right start and a top or bottom start [#1394]
+- `Filter CO`: container facet [#3196]
+- Rails initializer for the Autoselect component
 
 ### Changed
 
@@ -25,6 +29,9 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Autocomplete highlighting now matches each occurrence of each of your search terms in the result: e.g. if you search on `aus cus` and one of the results is `Aus (bus) cus`, the "Aus" and "cus" terms in the result will be highlighted [#5043]
 - `New images task`: Images now display a warning or check mark icon to indicate whether annotations have been applied. [#1060]
 - `Radial CE`: Assign georeference slice now only displays collecting events with georeferences. [#4797]
+- Replaced otu picker by autoselect in Taxon determinations form
+- Replaced taxon name autocomplete by autoselect in the Edit OTU form
+- `Taxon name stats task`: Now uses the standard filter interface
 
 ### Fixed
 
@@ -35,23 +42,31 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - OTU autocomplete overwhelmed by incorrect fuzzy matches on 'hybrid' genus + otu_name searches like "Tapinoma CASC_123" [#5047]
 - Don't include highlights with text chosen in autocompletes [#5052]
 - New OTU task keeps existing OTUs selected after Find [#5054]
-- [#5051] In the Match Taxon Name to OTU task:
-  - add ability to filter on columns
-  - changing options shouldn't be able to unselect an OTU the user has specifically chosen
-  - add 'ambiguous' count to summary
-  - uses autoselect instead of autocomplete for Taxon Name selection
+- In the Match Taxon Name to OTU task:
+  - add ability to filter on columns #[5051]
+  - changing options shouldn't be able to unselect an OTU the user has specifically chosen [#5051]
+  - add 'ambiguous' count to summary [#5051]
+  - add mode for matching to OTUs in addition to Taxon Names - currently OTUs only match on names in the morphospecies format [genus] + [one-word-otu_name], e.g. `Tetramorium FHG_pumi` [#5039]
+  - uses autoselect instead of autocomplete for Taxon Name and OTU selection [#5051]
 - Adding duplicate images to an observation now uses the image that was already created instead of returning an error stating that the image is already in use [#4146]
 - Sped up Person autocomplete [#5037]
+- The `pinboard` tab of smart selectors now lists items in the order they were arranged on the pinboard [#5058]
+- Smart selectors for depictions and observations listed conveyances instead of depictions and observations
+- `Taxon name stats`: the `Observation matrices dashboard` app mounted over the task, replacing its interface
+- `Taxon name stats`: `Set to <parent>` is not displayed after selecting a taxon name
 
 [#1060]: https://github.com/SpeciesFileGroup/taxonworks/issues/1060
 [#1130]: https://github.com/SpeciesFileGroup/taxonworks/issues/1130
+[#1394]: https://github.com/SpeciesFileGroup/taxonworks/issues/1394
 [#2261]: https://github.com/SpeciesFileGroup/taxonworks/issues/2261
 [#2890]: https://github.com/SpeciesFileGroup/taxonworks/issues/2890
 [#2942]: https://github.com/SpeciesFileGroup/taxonworks/issues/2942
+[#3196]: https://github.com/SpeciesFileGroup/taxonworks/issues/3196
 [#4146]: https://github.com/SpeciesFileGroup/taxonworks/issues/4146
 [#4797]: https://github.com/SpeciesFileGroup/taxonworks/issues/4797
 [#4873]: https://github.com/SpeciesFileGroup/taxonworks/issues/4873
 [#5037]: https://github.com/SpeciesFileGroup/taxonworks/issues/5037
+[#5039]: https://github.com/SpeciesFileGroup/taxonworks/issues/5039
 [#5043]: https://github.com/SpeciesFileGroup/taxonworks/issues/5043
 [#5045]: https://github.com/SpeciesFileGroup/taxonworks/issues/5045
 [#5047]: https://github.com/SpeciesFileGroup/taxonworks/issues/5047

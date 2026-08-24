@@ -9,19 +9,7 @@
         <IconMegaphone />
       </template>
       <template #actions>
-        <VRecent
-          v-if="projectId"
-          project
-          title="Recent project news"
-          :service="News.where"
-          @edit="setNews"
-        />
-        <VRecent
-          v-if="isAdministrator"
-          title="Recent administration news"
-          :service="News.administration"
-          @edit="setNews"
-        />
+        <VRecent @edit="setNews" />
       </template>
       <VForm v-model="news" />
       <template #footer>
@@ -56,7 +44,6 @@
 <script setup>
 import { ref, computed, onBeforeMount, watch } from 'vue'
 import { News } from '@/routes/endpoints'
-import { getCurrentProjectId, isCurrentUserAdministrator } from '@/helpers'
 import { makeNews, makeNewsPayload } from './adapters'
 import { usePopstateListener } from '@/composables'
 import { RouteNames } from '@/routes/routes'
@@ -74,8 +61,6 @@ defineOptions({
 
 const news = ref(makeNews())
 const isSaving = ref(false)
-const projectId = ref(getCurrentProjectId())
-const isAdministrator = ref(isCurrentUserAdministrator())
 
 const isSaveAvailable = computed(
   () => news.value.type && news.value.title && news.value.body

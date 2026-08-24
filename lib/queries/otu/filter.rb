@@ -29,6 +29,7 @@ module Queries
         :geo_shape_id,
         :geo_mode,
         :geo_shape_type,
+        :genus_name,
         :geo_json,
         :name,
         :name_exact,
@@ -149,6 +150,10 @@ module Queries
       #   nil - not applied
       attr_accessor :taxon_name
 
+      # @return [String, nil]
+      #   exact match against the cached name of the Otu's genus-rank TaxonName
+      attr_accessor :genus_name
+
       # @param descriptor_id [String, Array]
       # @return [Array]
       attr_accessor :descriptor_id
@@ -216,6 +221,7 @@ module Queries
         @descendants = boolean_param(params, :descendants)
         @dwc_occurrences = boolean_param(params, :dwc_occurrences)
         @descriptor_id = params[:descriptor_id]
+        @genus_name = params[:genus_name]
         @geo_json = params[:geo_json]
         @historical_determinations = boolean_param(params, :historical_determinations)
         @name = params[:name]
@@ -421,6 +427,11 @@ module Queries
         else
           table[:taxon_name_id].eq(nil)
         end
+      end
+
+      def genus_name_facet
+        return nil if genus_name.blank?
+        ::Otu.joins(:taxon_name).where(taxon_names: { cached: genus_name, rank_class: ::GENUS_ONLY_RANK_NAMES })
       end
 
       def observations_facet
@@ -812,6 +823,7 @@ module Queries
           common_names_facet,
           contents_facet,
           descriptor_id_facet,
+          genus_name_facet,
           geo_json_facet,
           observations_facet,
           otu_geo_facet,

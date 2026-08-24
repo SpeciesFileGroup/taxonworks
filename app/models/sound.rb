@@ -99,7 +99,7 @@ class Sound < ApplicationRecord
     r = used_recently(user_id, project_id, target)
     h = {
       quick: [],
-      pinboard: Sound.pinned_by(user_id).where(project_id:).to_a,
+      pinboard: Sound.pinned_by(user_id).where(project_id:).pinboard_ordered.to_a,
       recent: []
     }
 

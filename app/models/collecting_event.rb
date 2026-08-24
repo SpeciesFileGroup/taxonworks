@@ -396,7 +396,7 @@ class CollectingEvent < ApplicationRecord
         CollectingEvent.where(project_id:, updated_by_id: user_id, created_at: 3.hours.ago..Time.now)
           .merge(georeference_restriction).limit(5).to_a).uniq,
         pinboard: CollectingEvent.pinned_by(user_id).pinned_in_project(project_id)
-          .merge(georeference_restriction).to_a
+          .merge(georeference_restriction).pinboard_ordered.to_a
       }
 
       h[:quick] = (CollectingEvent.pinned_by(user_id).pinboard_inserted.pinned_in_project(project_id)

@@ -118,7 +118,7 @@ class Organization < ApplicationRecord
     r = used_recently(user_id, role_type)
     h = {
       quick: [],
-      pinboard: Organization.pinned_by(user_id).where(pinboard_items: {project_id:}).to_a,
+      pinboard: Organization.pinned_by(user_id).where(pinboard_items: {project_id:}).pinboard_ordered.to_a,
       recent: []
     }
 

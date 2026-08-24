@@ -60,7 +60,7 @@ class PreparationType < ApplicationRecord
 
     h = {
       quick: [],
-      pinboard: PreparationType.pinned_by(user_id).pinned_in_project(project_id).to_a,
+      pinboard: PreparationType.pinned_by(user_id).pinned_in_project(project_id).pinboard_ordered.to_a,
       recent: []
     }
 
