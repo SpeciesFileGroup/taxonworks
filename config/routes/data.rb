@@ -275,6 +275,7 @@ resources :controlled_vocabulary_terms do
 
   collection do
     post :clone_from_project, default: {format: :json}
+    get :for_object_type, defaults: {format: :json}
   end
 end
 

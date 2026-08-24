@@ -18,5 +18,10 @@ export const ControlledVocabularyTerm = {
   ...baseCRUD('controlled_vocabulary_terms', permitParams),
 
   cloneFromProject: (params) =>
-    ajaxCall('post', `/${controller}/clone_from_project`, params)
+    ajaxCall('post', `/${controller}/clone_from_project`, params),
+
+  forObjectType: (objectType) =>
+    ajaxCall('get', `/${controller}/for_object_type.json`, {
+      params: { object_type: objectType }
+    })
 }

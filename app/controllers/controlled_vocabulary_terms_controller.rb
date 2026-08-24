@@ -116,6 +116,39 @@ class ControlledVocabularyTermsController < ApplicationController
     ).all
   end
 
+  # GET /controlled_vocabulary_terms/for_object_type.json?object_type=Otu
+  # Returns Keyword and Predicate CVTs that are applied (via Tag or
+  # DataAttribute) to at least one object of the given type in this project,
+  # with a project-wide usage count. Used by table_annotator to auto-populate
+  # its column set.
+  def for_object_type
+    object_type = params[:object_type].to_s
+    if object_type.blank?
+      render json: [] and return
+    end
+
+    project_id = sessions_current_project_id
+
+    predicate_usage = DataAttribute
+      .where(attribute_subject_type: object_type, project_id: project_id)
+      .group(:controlled_vocabulary_term_id)
+      .count
+
+    keyword_usage = Tag
+      .where(tag_object_type: object_type, project_id: project_id)
+      .group(:keyword_id)
+      .count
+
+    cvt_ids = (predicate_usage.keys + keyword_usage.keys).uniq
+    cvts = ControlledVocabularyTerm
+      .where(project_id: project_id, id: cvt_ids, type: %w[Keyword Predicate])
+
+    render json: cvts.map { |c|
+      count = c.type == 'Keyword' ? keyword_usage[c.id] : predicate_usage[c.id]
+      { id: c.id, type: c.type, name: c.name, usage_count: count.to_i }
+    }
+  end
+
   # GET /controlled_vocabulary_terms/download
   def download
     send_data(

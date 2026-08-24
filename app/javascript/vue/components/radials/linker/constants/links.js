@@ -138,6 +138,13 @@ export const TASK_MULTI_UPDATE = {
   saveQuery: true,
 };
 
+export const TASK_TABLE_ANNOTATOR = {
+  label: "Table annotator",
+  link: "/tasks/annotations/table_annotator",
+  queryParam: true,
+  saveQuery: true,
+};
+
 export const TASK_MONOGRAPH_FACILITATOR = {
   label: "Monograph facilitator",
   link: "/tasks/gis/monograph_facilitator",
