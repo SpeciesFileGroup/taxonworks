@@ -33,6 +33,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Replaced taxon name autocomplete by autoselect in the Edit OTU form
 - `Taxon name stats task`: Now uses the standard filter interface
 - `Field synchronize task`: Allow filling multiple columns by pasting from the clipboard [#4286]
+- `Browse sounds task`: Layout updated. Sound regions now use different colors to identify the associated conveyance object.
 
 ### Fixed
 

@@ -80,6 +80,14 @@ const emit = defineEmits([
 const audioPlayerRef = useTemplateRef('player')
 let audioPlayer
 let regionsPlugin
+let isDecoded = false
+
+function renderRegions() {
+  if (!regionsPlugin || !isDecoded) return
+
+  regionsPlugin.clearRegions()
+  props.regions.forEach((region) => regionsPlugin.addRegion(makeRegion(region)))
+}
 
 onMounted(() => {
   if (props.error) {
@@ -87,24 +95,20 @@ onMounted(() => {
     return
   }
 
-  const plugins = []
+  regionsPlugin = RegionsPlugin.create()
 
-  if (props.regions.length) {
-    regionsPlugin = RegionsPlugin.create()
+  regionsPlugin.on('region-clicked', (r, e) =>
+    emit('region:click', { region: r, event: e })
+  )
+  regionsPlugin.on('region-created', (e) => emit('region:created', e))
+  regionsPlugin.on('region-double-click', (e) => emit('region:dblclick', e))
+  regionsPlugin.on('region-in', (e) => emit('region:in', e))
+  regionsPlugin.on('region-out', (e) => emit('region:out', e))
+  regionsPlugin.on('region-removed', (e) => emit('region:removed', e))
+  regionsPlugin.on('region-update', (e) => emit('region:update', e))
+  regionsPlugin.on('region-updated', (e) => emit('region:updated', e))
 
-    regionsPlugin.on('region-clicked', (r, e) =>
-      emit('region:click', { region: r, event: e })
-    )
-    regionsPlugin.on('region-created', (e) => emit('region:created', e))
-    regionsPlugin.on('region-double-click', (e) => emit('region:dblclick', e))
-    regionsPlugin.on('region-in', (e) => emit('region:in', e))
-    regionsPlugin.on('region-out', (e) => emit('region:out', e))
-    regionsPlugin.on('region-removed', (e) => emit('region:removed', e))
-    regionsPlugin.on('region-update', (e) => emit('region:update', e))
-    regionsPlugin.on('region-updated', (e) => emit('region:updated', e))
-
-    plugins.push(regionsPlugin)
-  }
+  const plugins = [regionsPlugin]
 
   audioPlayer = WaveSurfer.create({
     container: audioPlayerRef.value,
@@ -124,18 +128,18 @@ onMounted(() => {
     )
   }
 
-  if (props.regions.length) {
-    audioPlayer.on('decode', () => {
-      props.regions.forEach((region) =>
-        regionsPlugin.addRegion(makeRegion(region))
-      )
-    })
-  }
+  audioPlayer.on('decode', () => {
+    isDecoded = true
+    renderRegions()
+  })
 
   audioPlayer.on('play', () => emit('play'))
   audioPlayer.on('stop', () => emit('stop'))
   audioPlayer.on('pause', () => emit('pause'))
-  audioPlayer.on('load', (url) => emit('load', url))
+  audioPlayer.on('load', (url) => {
+    isDecoded = false
+    emit('load', url)
+  })
   audioPlayer.on('finish', () => emit('finish'))
   audioPlayer.on('ready', (duration) => emit('ready', duration))
 })
@@ -164,8 +168,8 @@ function load(url) {
   audioPlayer.load(url)
 }
 
-function play() {
-  audioPlayer.play()
+function play(start, end) {
+  audioPlayer.play(start, end)
 }
 
 function stop() {
@@ -193,16 +197,7 @@ watch(
   (url) => load(url)
 )
 
-watch(
-  () => props.regions,
-  (newVal) => {
-    regionsPlugin.clearRegions()
-
-    newVal.forEach((region) => {
-      regionsPlugin.addRegion(makeRegion(region))
-    })
-  }
-)
+watch(() => props.regions, renderRegions)
 
 defineExpose({
   audioPlayer,
