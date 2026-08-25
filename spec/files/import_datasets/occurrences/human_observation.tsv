@@ -1,0 +1,3 @@
+occurrenceID	basisOfRecord	scientificName	taxonRank	individualCount	eventDate	recordedBy	decimalLatitude	decimalLongitude	occurrenceRemarks	institutionCode	recordNumber	TW:Namespace:recordNumber	catalogNumber	TW:Namespace:catalogNumber
+inat-observation-1	HumanObservation	Orotettix andeanus	species	3	2024-05-12	Jane Observer	-34.1	18.4	Observed alive	iNaturalist	record-1	INAT-RECORD	catalog-1	INAT-CATALOG
+inat-observation-2	HUMAN_OBSERVATION	Orotettix andeanus	species	1	2024-05-13	Jane Observer	-34.2	18.5	Second observation	iNaturalist	record-2	INAT-RECORD	catalog-2	INAT-CATALOG
