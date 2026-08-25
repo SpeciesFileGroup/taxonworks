@@ -34,7 +34,7 @@
               <label class="prefs-modal__level-label">
                 <input
                   type="checkbox"
-                  :checked="!draft.levels[level.key]?.hide"
+                  :checked="isLevelChecked(level)"
                   @change="toggleLevel(level.key, $event.target.checked)"
                 />
                 <span>{{ level.label }}</span>
@@ -104,7 +104,8 @@ import Modal from '@/components/ui/Modal.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 
 const props = defineProps({
-  // Array of level metadata objects from the autoselect config
+  // Array of level metadata objects from the autoselect config, each including
+  // is_default (see Autoselect::Level#is_default)
   levels: { type: Array, required: true },
 
   // Current saved preferences { levels: { key: { hide, options } }, show_info: Boolean }
@@ -130,6 +131,13 @@ const draft = reactive({
   show_info: props.currentPrefs.show_info !== false,
   auto_jump: props.currentPrefs.auto_jump !== false
 })
+
+// Checked when the user explicitly hasn't hidden it, falling back to the
+// level's own is_default when the user has never touched this checkbox.
+function isLevelChecked(level) {
+  const hide = draft.levels[level.key]?.hide
+  return hide === undefined ? (level.is_default ?? true) : !hide
+}
 
 function toggleLevel(key, checked) {
   draft.levels[key] ??= {}

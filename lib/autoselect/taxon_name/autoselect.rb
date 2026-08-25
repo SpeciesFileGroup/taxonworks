@@ -8,11 +8,18 @@ module Autoselect
       end
 
       # Ordered level stack — defines the fuse escalation sequence.
+      #
+      # Levels::ColValidName is always the 4th level: fast/smart/catalogue_of_life
+      # get a shot at the raw term first, and only once those all come up empty does
+      # the fuse escalate to resolving CoL synonymy. It's `is_default` false (see
+      # Autoselect::Level#is_default), so it stays present-but-unchecked in the
+      # preferences modal until a user opts in.
       def levels
         [
           ::Autoselect::TaxonName::Levels::Fast.new,
           ::Autoselect::TaxonName::Levels::Smart.new,
           ::Autoselect::TaxonName::Levels::CatalogueOfLife.new,
+          ::Autoselect::TaxonName::Levels::ColValidName.new,
         ]
       end
 

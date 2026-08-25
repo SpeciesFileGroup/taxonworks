@@ -16,9 +16,10 @@ module Autoselect
       # `resolved_from:` so the confirmation UI can make clear this is the accepted
       # name for what was typed, not a literal match on it.
       #
-      # Only ever included in the level stack when explicitly requested (see
-      # Autoselect::Otu::Autoselect#levels) — this is a task-specific tool, not a
-      # default search strategy for OTU fields generally.
+      # Always the last level in Autoselect::Otu::Autoselect#levels, but `is_default`
+      # false (see Autoselect::Level#is_default) — it stays present-but-unchecked in
+      # the preferences modal for every OTU field until a user opts in, since
+      # fast/smart/catalogue_of_life cover the common cases on their own.
       class ColValidName < ::Autoselect::Level
 
         # Source-of-truth marks for the info badge: TW_ICON for an existing-match
@@ -65,6 +66,11 @@ module Autoselect
 
         def external?
           true
+        end
+
+        # Opt-in only — see the class comment above.
+        def is_default
+          false
         end
 
         def record_label(record)

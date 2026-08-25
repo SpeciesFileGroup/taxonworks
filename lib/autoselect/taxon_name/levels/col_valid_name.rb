@@ -9,7 +9,11 @@ module Autoselect
       # Returns at most one pseudo-record — the resolved valid name — flagged with
       # `resolved_from:` so callers (and the confirmation UI) can show this is the
       # accepted name for what was typed, not a literal search match.
+      #
+      # Also reached indirectly via Autoselect::Otu::Levels::ColValidName's
+      # delegation (which renders its own record_info/label instead of this level's).
       class ColValidName < ::Autoselect::Level
+        include ::Autoselect::Levels::ColRecordInfo
 
         def key
           :col_valid_name
@@ -25,6 +29,12 @@ module Autoselect
 
         def external?
           true
+        end
+
+        # Opt-in only — fast/smart/catalogue_of_life cover the common cases; this
+        # stays present-but-unchecked in the preferences modal until a user opts in.
+        def is_default
+          false
         end
 
         def record_label(record)

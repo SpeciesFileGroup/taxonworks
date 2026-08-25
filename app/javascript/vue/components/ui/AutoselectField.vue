@@ -238,11 +238,9 @@ const props = defineProps({
   // the input with the selected label.  Use for "append to list" contexts where the
   // field should be ready for the next search immediately after each pick.
   resetOnSelect: { type: Boolean, default: false },
-  // Extra query params sent with every request (config fetch and term search alike),
-  // e.g. { col_valid_names: true } to opt this instance into a task-specific level
-  // that's otherwise absent from the level map entirely. Not reactive — changing
-  // which levels are available mid-session isn't supported; mount a fresh instance
-  // (e.g. via :key) if that's needed.
+  // Extra query params sent with every request (config fetch and term search alike).
+  // Not reactive — changing which levels are available mid-session isn't supported;
+  // mount a fresh instance (e.g. via :key) if that's needed.
   extraParams: { type: Object, default: () => ({}) },
   // Focus the input once it's actually usable. A plain HTML `autofocus` attribute
   // (or focusing from a parent right after mount) doesn't work here: the input is
@@ -334,14 +332,15 @@ const allFuseSegments = computed(() =>
       displayLabel,
       description: l.description,
       external: l.external ?? false,
-      fuse_ms: l.fuse_ms ?? 600
+      fuse_ms: l.fuse_ms ?? 600,
+      is_default: l.is_default ?? true
     }
   })
 )
 
 // Segments visible after applying preferences (hide flag)
 const visibleFuseSegments = computed(() =>
-  allFuseSegments.value.filter((s) => prefs.isLevelVisible(s.key))
+  allFuseSegments.value.filter((s) => prefs.isLevelVisible(s.key, s.is_default))
 )
 
 // Help operator moved to bottom; !N is a pattern placeholder (not directly invokable)
@@ -765,8 +764,10 @@ function onPrefsSave(updatedPrefs) {
   prefs.savePrefs(updatedPrefs)
   currentPrefs.value = updatedPrefs
   showPreferences.value = false
-  // If the current level was hidden, jump to the first still-visible level
-  if (!prefs.isLevelVisible(currentLevel.value)) {
+  // If the current level was hidden, jump to the first still-visible level.
+  // (currentPrefs.value was just reassigned above, so visibleFuseSegments — which
+  // reads it via prefs.isLevelVisible — already reflects the saved preferences.)
+  if (!visibleFuseSegments.value.some((s) => s.key === currentLevel.value)) {
     currentLevel.value = getFirstVisibleLevelKey()
   }
   // Reset search state so the field re-runs with the new preferences applied

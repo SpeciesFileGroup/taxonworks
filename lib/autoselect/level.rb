@@ -37,6 +37,14 @@ class Autoselect::Level
     false
   end
 
+  # @return [Boolean] whether this level should be checked (visible in the fuse
+  #   bar) by default, absent any stored user preference. Task-specific/niche
+  #   levels (e.g. a level only ever included when explicitly requested by a
+  #   particular caller) should override this to false so they stay opt-in.
+  def is_default
+    true
+  end
+
   # @return [Integer] milliseconds for the fuse animation before auto-escalating
   def fuse_ms
     external? ? EXTERNAL_FUSE_MS : DEFAULT_FUSE_MS
@@ -65,7 +73,8 @@ class Autoselect::Level
       label:,
       description:,
       external: external?,
-      fuse_ms:
+      fuse_ms:,
+      is_default:
     }
   end
 

@@ -64,9 +64,14 @@ export function usePreferences(url, id) {
     saveAll(all)
   }
 
-  /** @param {string} levelKey */
-  function isLevelVisible(levelKey) {
-    return !(getPrefs().levels?.[levelKey]?.hide === true)
+  /**
+   * @param {string} levelKey
+   * @param {boolean} [isDefault=true] - falls back to this when the user has never
+   *   touched this level's checkbox (no stored `hide` entry) — see Autoselect::Level#is_default
+   */
+  function isLevelVisible(levelKey, isDefault = true) {
+    const hide = getPrefs().levels?.[levelKey]?.hide
+    return hide === undefined ? isDefault : !hide
   }
 
   /**

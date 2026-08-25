@@ -10,9 +10,9 @@ import AjaxCall from '@/helpers/ajaxCall'
 
 const configRequests = new Map()
 
-// Extra params (e.g. col_valid_names) change which levels the server returns, so
-// they must be part of the cache key — otherwise two instances of the same url with
-// different extraParams would clobber each other's cached level map.
+// Extra params can change which levels the server returns, so they must be part of
+// the cache key — otherwise two instances of the same url with different extraParams
+// would clobber each other's cached level map.
 function cacheKey(url, extraParams) {
   const entries = Object.entries(extraParams).sort(([a], [b]) => a.localeCompare(b))
   return entries.length ? `${url}?${new URLSearchParams(entries).toString()}` : url
@@ -44,9 +44,8 @@ function requestConfig(url, extraParams) {
 /**
  * @param {string} url
  * @param {Object} [extraParams] - extra query params sent with every request (config
- *   and term search alike) — e.g. { col_valid_names: true } to opt a specific
- *   autoselect instance into a task-specific level. Read once at call time; pass a
- *   plain object, not a ref (component owns reactivity, this composable doesn't).
+ *   and term search alike). Read once at call time; pass a plain object, not a ref
+ *   (component owns reactivity, this composable doesn't).
  */
 export function useAutoselect(url, extraParams = {}) {
   const config = ref(null)

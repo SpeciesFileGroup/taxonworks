@@ -23,6 +23,15 @@ A level is `external?` when it reaches outside the local database.  External
 levels get a longer default fuse (`EXTERNAL_FUSE_MS = 2000` vs
 `DEFAULT_FUSE_MS = 600`).
 
+A level is `is_default` (true unless overridden) when it should start out checked
+(visible in the fuse bar) in the preferences modal, absent any stored user
+preference.  A level can be a normal, always-present member of a model's `levels`
+stack and still be niche enough to want opt-in visibility — e.g.
+`Autoselect::Otu::Levels::ColValidName` is always the 4th OTU level but overrides
+this to `false`, so it stays present-but-unchecked until a user opts in, rather
+than cluttering the fuse bar by default.  See `is_default` under Preferences below
+for how the client applies it.
+
 Example external call:
 
 | Type | Class | Description |
@@ -133,7 +142,7 @@ Client (AutoselectField.vue)
 ```json
 {
   "resource": "/otus/autoselect",
-  "levels": [ { "key": "smart", "label": "Smart", "external": false, "fuse_ms": 600 }, ... ],
+  "levels": [ { "key": "smart", "label": "Smart", "external": false, "fuse_ms": 600, "is_default": true }, ... ],
   "operators": [ { "key": "new_record", "trigger": "!n", ... }, ... ],
   "map": ["smart", "catalogue_of_life"]
 }
@@ -210,6 +219,13 @@ tw_autoselect_prefs → {
   }
 }
 ```
+
+A level with no `"hide"` entry (the user has never touched its checkbox) falls
+back to that level's own `is_default` (see Levels above) rather than a hardcoded
+default — so a niche level added with `is_default` false starts out unchecked
+without needing a stored preference, while everything else starts out checked.
+Once the user toggles a level's checkbox, the stored `hide` value takes over and
+`is_default` is no longer consulted for that level/instance.
 
 ### `id` attribute
 

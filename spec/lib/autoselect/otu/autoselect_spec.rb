@@ -19,8 +19,13 @@ RSpec.describe Autoselect::Otu::Autoselect, type: :model do
       expect(config[:response]).to be_nil
     end
 
-    it 'includes fast, smart, catalogue_of_life as level keys in map' do
-      expect(config[:map]).to include('fast', 'smart', 'catalogue_of_life')
+    it 'includes fast, smart, catalogue_of_life, col_valid_name as level keys in map' do
+      expect(config[:map]).to include('fast', 'smart', 'catalogue_of_life', 'col_valid_name')
+    end
+
+    it 'col_valid_name level metadata has is_default: false' do
+      levels_by_key = config[:levels].index_by { |l| l[:key].to_s }
+      expect(levels_by_key['col_valid_name'][:is_default]).to be false
     end
 
     it 'includes !n operator trigger' do
@@ -30,20 +35,19 @@ RSpec.describe Autoselect::Otu::Autoselect, type: :model do
   end
 
   describe 'level stack' do
-    it 'has three levels by default: fast → smart → catalogue_of_life' do
+    it 'has four levels: fast → smart → catalogue_of_life → col_valid_name' do
       keys = autoselect.levels.map { |l| l.key.to_s }
-      expect(keys).to eq(%w[fast smart catalogue_of_life])
+      expect(keys).to eq(%w[fast smart catalogue_of_life col_valid_name])
     end
 
-    context 'when col_valid_names is requested' do
-      subject(:autoselect) {
-        described_class.new(project_id:, user_id:, col_valid_names: true)
-      }
+    it 'col_valid_name is not default (present but unchecked absent a stored preference)' do
+      col_valid_name = autoselect.levels.find { |l| l.key.to_s == 'col_valid_name' }
+      expect(col_valid_name.is_default).to be false
+    end
 
-      it 'replaces the whole default stack with just col_valid_name' do
-        keys = autoselect.levels.map { |l| l.key.to_s }
-        expect(keys).to eq(%w[col_valid_name])
-      end
+    it 'fast, smart, and catalogue_of_life are default' do
+      defaults = autoselect.levels.reject { |l| l.key.to_s == 'col_valid_name' }
+      expect(defaults.map(&:is_default)).to all(be true)
     end
   end
 

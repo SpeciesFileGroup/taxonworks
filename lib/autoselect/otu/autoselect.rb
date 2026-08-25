@@ -10,21 +10,17 @@ module Autoselect
 
       # Ordered level stack — defines the fuse escalation sequence.
       #
-      # Levels::ColValidName is conditional and, when requested, *replaces* the
-      # entire default stack rather than joining it: it's a task-specific tool
-      # (currently print_label2) for text that's expected to need CoL synonymy
-      # resolution, so local fast/smart matching on the raw (possibly-outdated) term
-      # is skipped rather than tried first. Levels::CatalogueOfLife isn't needed
-      # alongside it either — ColValidName already offers its own creation flow when
-      # no local match exists, so there's nothing left to escalate to. Never appears
-      # in the level map/preferences modal for any other OTU autoselect field.
+      # Levels::ColValidName is always the 4th level: fast/smart/catalogue_of_life
+      # get a shot at the raw term first, and only once those all come up empty does
+      # the fuse escalate to resolving CoL synonymy. It's `is_default` false (see
+      # Autoselect::Level#is_default), so it stays present-but-unchecked in every OTU
+      # field's preferences modal until a user opts in for that field/instance.
       def levels
-        return [::Autoselect::Otu::Levels::ColValidName.new] if col_valid_names?
-
         [
           ::Autoselect::Otu::Levels::Fast.new,
           ::Autoselect::Otu::Levels::Smart.new,
           ::Autoselect::Otu::Levels::CatalogueOfLife.new,
+          ::Autoselect::Otu::Levels::ColValidName.new,
         ]
       end
 
@@ -54,13 +50,6 @@ module Autoselect
             extension: ext
           }
         end
-      end
-
-      # @return [Boolean] whether the caller asked for Levels::ColValidName to be
-      #   included in the level stack — passed through from the controller as a
-      #   level param, e.g. `?col_valid_names=true`.
-      def col_valid_names?
-        level_params[:col_valid_names].to_s == 'true'
       end
 
     end
