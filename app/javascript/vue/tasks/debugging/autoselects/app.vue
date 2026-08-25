@@ -66,12 +66,15 @@ import AutoselectField from "@/components/ui/AutoselectField.vue";
 import RadialNavigator from "@/components/radials/navigation/radial.vue";
 import OtuNewModal from "@/components/ui/AutoselectField/OtuNewModal.vue";
 import TaxonNameNewModal from "@/components/ui/AutoselectField/TaxonNameNewModal.vue";
+import ColDatasetPicker from "@/components/ui/AutoselectField/ColDatasetPicker.vue";
 
 // Models are registered here by the autoselect generator.
 // id: stable unique identifier used for preferences storage and the DOM id attribute
 // newRecordComponent: Vue component to mount when !n is typed (null = disabled)
 // preferencesOptionsComponent: Vue component rendered inside PreferencesModal for
-//   model-specific options; omit to use AutoselectField's own default (ColDatasetPicker)
+//   model-specific options (null = none). AutoselectField itself defaults to null,
+//   so the Playground (intentionally raw AutoselectField, not AutoselectPicker) wires
+//   it explicitly per model, same as newRecordComponent below.
 const registeredModels = ref([
     {
         id: "playground-taxon-name-1",
@@ -79,6 +82,7 @@ const registeredModels = ref([
         param: "taxon_name_id",
         label: "TaxonName (1)",
         newRecordComponent: TaxonNameNewModal,
+        preferencesOptionsComponent: ColDatasetPicker,
         resetOnSelect: true,
     },
     {
@@ -87,6 +91,7 @@ const registeredModels = ref([
         param: "taxon_name_id",
         label: "TaxonName (2)",
         newRecordComponent: TaxonNameNewModal,
+        preferencesOptionsComponent: ColDatasetPicker,
         resetOnSelect: true,
     },
     {
@@ -95,6 +100,7 @@ const registeredModels = ref([
         param: "otu_id",
         label: "OTU",
         newRecordComponent: OtuNewModal,
+        preferencesOptionsComponent: ColDatasetPicker,
         resetOnSelect: true,
     },
 ]);
