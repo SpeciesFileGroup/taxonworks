@@ -37,7 +37,7 @@ function makeCurrentObject(value, label, param) {
 }
 
 function init(element) {
-  const url = element.getAttribute('data-autoselect-url')
+  const model = element.getAttribute('data-autoselect-model')
   const param = element.getAttribute('data-autoselect-param')
   const fieldObject = element.getAttribute('data-autoselect-field-object')
   const fieldProperty = element.getAttribute('data-autoselect-field-property')
@@ -55,7 +55,7 @@ function init(element) {
   )
 
   const props = removeEmptyProps({
-    url,
+    model,
     param,
     fieldObject,
     fieldProperty,
