@@ -299,18 +299,23 @@ per-model defaults most callers actually want:
   `AUTOSELECT_NEW_RECORD_COMPONENTS` (`AutoselectField/newRecordComponents.js`),
   keyed by `model`; `createComponent` overrides the lookup, `create: false` disables
   it outright.
+- `getObject` (default `false`) — when true, `select`/`update:modelValue` receive the
+  full fetched record (`GET /${model}/${id}.json`, or `getUrl` if given) instead of
+  the lightweight autoselect response item, mirroring `SmartSelector`'s own
+  `getObject`/`getUrl`/`extend` (here `fetchParams`). Off by default since most
+  callers only need `response_values`, not an extra round trip per selection.
 
-It is **not** a `SmartSelector` clone: no id→full-object upgrade (`getObject`), no
-broadcast/lock, no tabs. `AutoselectField`'s own operators (`!u`/`!r`/`!b`/`!!`)
-already cover the pinboard/recent ground `SmartSelector` exists to bolt onto
-`Autocomplete.vue`, so there's nothing analogous left for this wrapper to add.
+It is still **not** a full `SmartSelector` clone: no broadcast/lock, no tabs.
+`AutoselectField`'s own operators (`!u`/`!r`/`!b`/`!!`) already cover the
+pinboard/recent ground `SmartSelector` exists to bolt onto `Autocomplete.vue`, so
+there's nothing analogous left for this wrapper to add there.
 
 ## Client-side components
 
 | File | Purpose |
 |------|---------|
 | `app/javascript/vue/components/ui/AutoselectField.vue` | Main autocomplete input with fuse bar, dropdown, operator handling, extension panels |
-| `app/javascript/vue/components/ui/AutoselectPicker.vue` | Opinionated model-aware wrapper (ColDatasetPicker + create-by-model defaults); not a SmartSelector clone |
+| `app/javascript/vue/components/ui/AutoselectPicker.vue` | Opinionated model-aware wrapper (ColDatasetPicker + create-by-model defaults, opt-in getObject upgrade) |
 | `app/javascript/vue/components/ui/AutoselectField/newRecordComponents.js` | Shared `model → !n component` map, consumed by `AutoselectPicker` and the ERB initializer |
 | `app/javascript/vue/components/ui/AutoselectField/useAutoselect.js` | Composable: config fetch + cache, level/operator helpers |
 | `app/javascript/vue/components/ui/AutoselectField/ColConfirmModal.vue` | CoL TaxonName creation confirmation modal |
