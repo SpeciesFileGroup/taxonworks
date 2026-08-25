@@ -34,12 +34,17 @@ module Match
       include NameBatchMatcher
 
       # Columns that may be interpolated into the raw SQL below.
-      MATCHABLE_COLUMNS = [
-        :cached, :cached_original_combination, :cached_secondary_homonym, :cached_primary_homonym
-      ].freeze
+      MATCHABLE_COLUMNS = [:cached, :cached_original_combination].freeze
 
       # Candidates gathered per name before ranking.
       FUZZY_LIMIT = 10
+
+      # ICZN rank classes used by #find_taxon_names_ignoring_subgenus, which matches through the
+      # live classification hierarchy (taxon_name_hierarchies) rather than through a cached
+      # column, so it can't go stale the way a cached homonym column can.
+      GENUS_RANK_CLASS = Ranks.lookup(:iczn, :genus)
+      SPECIES_RANK_CLASS = Ranks.lookup(:iczn, :species)
+      SUBSPECIES_RANK_CLASS = Ranks.lookup(:iczn, :subspecies)
 
       attr_reader :names, :project_id, :levenshtein_distance, :taxon_name_id, :taxon_name_query,
         :resolve_synonyms, :try_without_subgenus, :candidates, :match_original_combination,
@@ -52,7 +57,11 @@ module Match
       # @param taxon_name_query [Hash, nil] scope matches to the result of a
       #   Queries::TaxonName::Filter. Takes precedence over taxon_name_id.
       # @param resolve_synonyms [Boolean] when true, resolve synonyms to valid names and return their OTUs
-      # @param try_without_subgenus [Boolean] when true and cached match fails, try cached_secondary_homonym then cached_primary_homonym
+      # @param try_without_subgenus [Boolean] when true and the plain match fails, retry by
+      #   joining directly through the current classification: the genus must match exactly,
+      #   any subgenus (or other rank) between it and the terminal epithet is ignored entirely,
+      #   and the terminal epithet is matched against its predicted gender forms rather than the
+      #   raw string. See #find_taxon_names_ignoring_subgenus.
       # @param candidates [Integer, nil] when set, include the ranked match set, capped at this many
       # @param match_original_combination [Boolean] when true, match cached_original_combination alongside cached
       # @param use_author_year [Boolean] when true, strip a parseable author/year from the name before
@@ -87,10 +96,7 @@ module Match
         taxon_names = find_taxon_names(search_string)
 
         if taxon_names.empty? && try_without_subgenus
-          taxon_names = find_taxon_names(search_string, columns: [:cached_secondary_homonym])
-          if taxon_names.empty?
-            taxon_names = find_taxon_names(search_string, columns: [:cached_primary_homonym])
-          end
+          taxon_names = find_taxon_names_ignoring_subgenus(search_string)
         end
 
         # An unambiguous match needs no differentiating.
@@ -143,6 +149,108 @@ module Match
       # @return [Array<Symbol>]
       def default_columns
         match_original_combination ? [:cached, :cached_original_combination] : [:cached]
+      end
+
+      # Matches through the live classification (current genus, current epithet spelling)
+      # instead of any cached column, so staleness in a cached homonym field can't cause a
+      # false negative.
+      #
+      # A subgenus (or any other rank) between the genus and the terminal epithet is always
+      # ignored entirely — its value, if the search string even has one, is never inspected. The
+      # genus only needs to be SOME ancestor of the terminal node, not its direct parent — that
+      # check is hop-count agnostic, so "genus directly parents species" (no subgenus at all) is
+      # just its zero-intervening-ranks case, not a separate thing to handle.
+      #
+      #   2 words ("Genus species"): word 1 is the genus, word 2 is the species epithet,
+      #   matched against its predicted gender forms (masculine/feminine/neuter) rather than the
+      #   raw string — gender agreement is exactly what's usually out of sync between a
+      #   determination label and the stored combination.
+      #
+      #   3 words: ambiguous between "Genus Subgenus species" (species-terminal, middle word
+      #   ignored) and "Genus species subspecies" (subspecies-terminal, no subgenus at all —
+      #   both words after the genus are real). Both are tried: species-terminal first, since a
+      #   subgenus on a determination label is far more common than a genuinely absent one,
+      #   then subspecies-terminal.
+      #
+      #   4 words ("Genus (Subgenus) species subspecies"): unambiguous — the species (the
+      #   second-to-last word) must match exactly, and it's the trailing subspecies epithet
+      #   that's matched against its predicted gender forms.
+      #
+      # Any other word count: there's no nomenclatural code traveling with a bare search string,
+      # so there's no reliable way to guess which word is the epithet — give up rather than guess.
+      # @param search_string [String]
+      # @return [Array<TaxonName>]
+      def find_taxon_names_ignoring_subgenus(search_string)
+        words = search_string.squish.split(' ')
+
+        case words.length
+        when 2
+          find_via_genus_ancestor(words.first, words.last, rank_class: SPECIES_RANK_CLASS)
+        when 3
+          find_via_genus_ancestor(words.first, words.last, rank_class: SPECIES_RANK_CLASS).presence ||
+            find_via_genus_and_species_ancestor(words.first, words[-2], words.last)
+        when 4
+          find_via_genus_and_species_ancestor(words.first, words[-2], words.last)
+        else
+          []
+        end
+      end
+
+      # @param genus_name [String] exact genus name expected as an ancestor
+      # @param epithet [String] the terminal word as typed; matched against its predicted
+      #   gender forms, not the raw string
+      # @param rank_class [String]
+      # @return [Array<TaxonName>]
+      def find_via_genus_ancestor(genus_name, epithet, rank_class:)
+        forms = Utilities::Nomenclature.predict_three_forms(epithet.downcase).values.uniq
+
+        base_scope
+          .where(rank_class:, name: forms)
+          .where(genus_ancestor_exists_sql('taxon_names.id'), genus_name, GENUS_RANK_CLASS)
+          .to_a
+      end
+
+      # @param genus_name [String] exact genus name expected as an ancestor of the species
+      # @param species_name [String] the species epithet, matched exactly
+      # @param subspecies_epithet [String] the terminal word; matched against its predicted
+      #   gender forms, not the raw string
+      # @return [Array<TaxonName>]
+      def find_via_genus_and_species_ancestor(genus_name, species_name, subspecies_epithet)
+        forms = Utilities::Nomenclature.predict_three_forms(subspecies_epithet.downcase).values.uniq
+
+        species_sql = <<~SQL.squish
+          taxon_names.parent_id IN (
+            SELECT species_tn.id FROM taxon_names species_tn
+            WHERE species_tn.project_id = taxon_names.project_id
+              AND species_tn.rank_class = ?
+              AND species_tn.name = ?
+              AND #{genus_ancestor_exists_sql('species_tn.id')}
+          )
+        SQL
+
+        base_scope
+          .where(rank_class: SUBSPECIES_RANK_CLASS, name: forms)
+          .where(species_sql, SPECIES_RANK_CLASS, species_name, genus_name, GENUS_RANK_CLASS)
+          .to_a
+      end
+
+      # Raw SQL fragment (two `?` binds: genus name, then genus rank_class): true when some
+      # ancestor of the row identified by `descendant_id_sql` — any number of generations, so
+      # any intervening subgenus/section/etc. is skipped over — is a Genus with that name.
+      # @param descendant_id_sql [String] a SQL expression for the descendant's id
+      # @return [String]
+      def genus_ancestor_exists_sql(descendant_id_sql)
+        <<~SQL.squish
+          EXISTS (
+            SELECT 1 FROM taxon_name_hierarchies tnh
+            JOIN taxon_names genus_tn ON genus_tn.id = tnh.ancestor_id
+            WHERE tnh.descendant_id = #{descendant_id_sql}
+              AND tnh.generations > 0
+              AND genus_tn.project_id = taxon_names.project_id
+              AND genus_tn.name = ?
+              AND genus_tn.rank_class = ?
+          )
+        SQL
       end
 
       # @param name [String]

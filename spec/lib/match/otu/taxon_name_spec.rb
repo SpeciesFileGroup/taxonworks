@@ -121,6 +121,78 @@ describe Match::Otu::TaxonName, type: :model do
     end
   end
 
+  context 'try_without_subgenus' do
+    # Matches through the live classification (taxon_name_hierarchies + current name/rank),
+    # not through any cached column — see lib/match/otu/taxon_name.rb.
+    let(:subgenus) { Protonym.create!(name: 'Bus', rank_class: Ranks.lookup(:iczn, :subgenus), parent: genus) }
+
+    let!(:species_under_subgenus) do
+      Protonym.create!(name: 'maculatus', rank_class: Ranks.lookup(:iczn, :species), parent: subgenus)
+    end
+
+    specify 'is not matched when try_without_subgenus is disabled' do
+      result = match(names: ['Aus maculata'], try_without_subgenus: false).first
+      expect(result[:matched]).to eq(false)
+    end
+
+    context '2 words (Genus species), subgenus omitted from the search string' do
+      specify 'a feminine-ending search matches the stored masculine species' do
+        result = match(names: ['Aus maculata'], try_without_subgenus: true).first
+        expect(result[:taxon_name_id]).to eq(species_under_subgenus.id)
+      end
+    end
+
+    context '3 words (Genus Subgenus species), subgenus present but ignored' do
+      specify 'the middle word is never inspected, even when it matches nothing real' do
+        result = match(names: ['Aus Nonsense maculata'], try_without_subgenus: true).first
+        expect(result[:taxon_name_id]).to eq(species_under_subgenus.id)
+      end
+
+      specify 'the real subgenus name works too' do
+        result = match(names: ['Aus Bus maculata'], try_without_subgenus: true).first
+        expect(result[:taxon_name_id]).to eq(species_under_subgenus.id)
+      end
+    end
+
+    context '3 words (Genus species subspecies), no subgenus at all' do
+      let!(:species_no_subgenus) do
+        Protonym.create!(name: 'dus', rank_class: Ranks.lookup(:iczn, :species), parent: genus)
+      end
+
+      let!(:subspecies_no_subgenus) do
+        Protonym.create!(name: 'radiatus', rank_class: Ranks.lookup(:iczn, :subspecies), parent: species_no_subgenus)
+      end
+
+      specify 'falls back to subspecies-terminal when species-terminal finds nothing' do
+        result = match(names: ['Aus dus radiata'], try_without_subgenus: true).first
+        expect(result[:taxon_name_id]).to eq(subspecies_no_subgenus.id)
+      end
+    end
+
+    context '4 words (Genus Subgenus species subspecies)' do
+      let!(:subspecies_under_subgenus) do
+        Protonym.create!(name: 'nigratus', rank_class: Ranks.lookup(:iczn, :subspecies), parent: species_under_subgenus)
+      end
+
+      specify 'the species (second-to-last word) must match exactly, subspecies epithet gender-matches' do
+        result = match(names: ['Aus Bus maculatus nigrata'], try_without_subgenus: true).first
+        expect(result[:taxon_name_id]).to eq(subspecies_under_subgenus.id)
+      end
+
+      specify 'a species epithet that does not match exactly finds nothing' do
+        result = match(names: ['Aus Bus maculata nigrata'], try_without_subgenus: true).first
+        expect(result[:matched]).to eq(false)
+      end
+    end
+
+    context 'word counts other than 2, 3, or 4' do
+      specify 'gives up rather than guessing' do
+        result = match(names: ['Aus Bus maculatus nigratus extra'], try_without_subgenus: true).first
+        expect(result[:matched]).to eq(false)
+      end
+    end
+  end
+
   context 'fuzzy matching' do
     specify 'matches within the levenshtein distance' do
       result = match(names: ['Aus bux'], levenshtein_distance: 2).first
