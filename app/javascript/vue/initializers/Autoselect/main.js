@@ -1,12 +1,13 @@
 import { createApp } from 'vue'
 import App from './App.vue'
-import OtuNewModal from '@/components/ui/AutoselectField/OtuNewModal.vue'
-import TaxonNameNewModal from '@/components/ui/AutoselectField/TaxonNameNewModal.vue'
+import { AUTOSELECT_NEW_RECORD_COMPONENTS } from '@/components/ui/AutoselectField/newRecordComponents'
 import ColDatasetPicker from '@/components/ui/AutoselectField/ColDatasetPicker.vue'
 
+// Keyed by class name here (matches the data-autoselect-new-record-component attribute
+// value authors write in ERB), unlike the model-keyed shared map it's built from.
 const NEW_RECORD_COMPONENTS = {
-  OtuNewModal,
-  TaxonNameNewModal
+  OtuNewModal: AUTOSELECT_NEW_RECORD_COMPONENTS.otus,
+  TaxonNameNewModal: AUTOSELECT_NEW_RECORD_COMPONENTS.taxon_names
 }
 
 const PREFERENCES_OPTIONS_COMPONENTS = {

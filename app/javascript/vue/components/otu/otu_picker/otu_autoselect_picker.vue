@@ -17,6 +17,7 @@
 <script setup>
 import { useTemplateRef } from 'vue'
 import AutoselectField from '@/components/ui/AutoselectField.vue'
+import ColDatasetPicker from '@/components/ui/AutoselectField/ColDatasetPicker.vue'
 import OtuNewModal from '@/components/ui/AutoselectField/OtuNewModal.vue'
 import ColDatasetPicker from '@/components/ui/AutoselectField/ColDatasetPicker.vue'
 import { Otu } from '@/routes/endpoints'

@@ -260,7 +260,8 @@ models.  It shows:
 1. **Levels section** — one checkbox per level; hiding a level removes its segment
    from the fuse bar and renumbers the `!N` jump shortcuts dynamically.
 2. **Options section** (optional) — rendered via the `preferencesOptionsComponent`
-   prop; the caller provides a model-specific component (e.g. `ColDatasetPicker`).
+   prop; `AutoselectField` itself defaults this to `null` (no section) to stay fully
+   generic. `AutoselectPicker` (see below) defaults it to `ColDatasetPicker` instead.
 
 ### Level options → server
 
@@ -282,11 +283,35 @@ a `catalogue_of_life` level.  It searches CoL datasets via
 `options.dataset_id` for the `catalogue_of_life` level preference.  When no dataset
 is chosen the `Vendor::Colrapi::DATASETS[:col]` default is used.
 
+### `AutoselectPicker` (opinionated wrapper)
+
+`AutoselectField` is deliberately generic — no model knowledge, no opinionated
+defaults — mirroring `Autocomplete.vue`'s role as the bare, reusable input primitive.
+`AutoselectPicker` is a thin wrapper around it (`components/ui/AutoselectPicker.vue`,
+a peer of `AutoselectField.vue` and `SmartSelector.vue`) that supplies the sensible
+per-model defaults most callers actually want:
+
+- `model` (e.g. `'otus'`, `'taxon_names'`) drives the autoselect `url`
+  (`` `/${model}/autoselect` ``), the same convention `SmartSelector` uses for the
+  legacy `` `/${model}/autocomplete` ``. `param` stays an explicit prop.
+- `preferencesOptionsComponent` defaults to `ColDatasetPicker`.
+- `create` (default `true`) resolves the `!n` modal from
+  `AUTOSELECT_NEW_RECORD_COMPONENTS` (`AutoselectField/newRecordComponents.js`),
+  keyed by `model`; `createComponent` overrides the lookup, `create: false` disables
+  it outright.
+
+It is **not** a `SmartSelector` clone: no id→full-object upgrade (`getObject`), no
+broadcast/lock, no tabs. `AutoselectField`'s own operators (`!u`/`!r`/`!b`/`!!`)
+already cover the pinboard/recent ground `SmartSelector` exists to bolt onto
+`Autocomplete.vue`, so there's nothing analogous left for this wrapper to add.
+
 ## Client-side components
 
 | File | Purpose |
 |------|---------|
 | `app/javascript/vue/components/ui/AutoselectField.vue` | Main autocomplete input with fuse bar, dropdown, operator handling, extension panels |
+| `app/javascript/vue/components/ui/AutoselectPicker.vue` | Opinionated model-aware wrapper (ColDatasetPicker + create-by-model defaults); not a SmartSelector clone |
+| `app/javascript/vue/components/ui/AutoselectField/newRecordComponents.js` | Shared `model → !n component` map, consumed by `AutoselectPicker` and the ERB initializer |
 | `app/javascript/vue/components/ui/AutoselectField/useAutoselect.js` | Composable: config fetch + cache, level/operator helpers |
 | `app/javascript/vue/components/ui/AutoselectField/ColConfirmModal.vue` | CoL TaxonName creation confirmation modal |
 | `app/javascript/vue/components/ui/AutoselectField/OtuNewModal.vue` | OTU new-record modal (passed via `newRecordComponent` prop) |

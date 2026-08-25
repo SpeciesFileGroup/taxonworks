@@ -29,6 +29,7 @@
 <script setup>
 import { ref, computed, onBeforeMount } from 'vue'
 import AutoselectField from '@/components/ui/AutoselectField.vue'
+import ColDatasetPicker from '@/components/ui/AutoselectField/ColDatasetPicker.vue'
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 
 const props = defineProps({
@@ -82,9 +83,12 @@ const props = defineProps({
     default: null
   },
 
+  // main.js's removeEmptyProps strips this key entirely when the mounting element has
+  // no data-autoselect-preferences-options-component attribute, so this default (not
+  // main.js's own null fallback) is what actually governs the un-customized case.
   preferencesOptionsComponent: {
     type: Object,
-    default: null
+    default: () => ColDatasetPicker
   }
 })
 
