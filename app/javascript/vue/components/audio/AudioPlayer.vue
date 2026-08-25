@@ -81,7 +81,29 @@ const emit = defineEmits([
 const audioPlayerRef = useTemplateRef('player')
 let audioPlayer
 let regionsPlugin
+let spectrogramPlugin
 let isDecoded = false
+
+function renderSpectrogram() {
+  if (!audioPlayer) return
+
+  if (spectrogramPlugin) {
+    audioPlayer.unregisterPlugin(spectrogramPlugin)
+    spectrogramPlugin = undefined
+  }
+
+  if (!props.spectrogram) return
+
+  spectrogramPlugin = audioPlayer.registerPlugin(
+    Spectrogram.create({
+      labels: true,
+      height: 400,
+      scale: 'mel',
+      labelsBackground: 'rgba(0, 0, 0, 0.1)',
+      ...props.spectrogram
+    })
+  )
+}
 
 function renderRegions() {
   if (!regionsPlugin || !isDecoded) return
@@ -126,17 +148,7 @@ onMounted(() => {
     )
   }
 
-  if (props.spectrogram) {
-    audioPlayer.registerPlugin(
-      Spectrogram.create({
-        labels: true,
-        height: 400,
-        scale: 'mel',
-        labelsBackground: 'rgba(0, 0, 0, 0.1)',
-        ...props.spectrogram
-      })
-    )
-  }
+  renderSpectrogram()
 
   audioPlayer.on('decode', () => {
     isDecoded = true
@@ -208,6 +220,8 @@ watch(
 )
 
 watch(() => props.regions, renderRegions)
+
+watch(() => !!props.spectrogram, renderSpectrogram)
 
 defineExpose({
   audioPlayer,
