@@ -51,12 +51,15 @@
           @get-item="getObject($event.id)"
         />
         <template v-if="otuPicker">
-          <OtuAutoselectPicker
+          <AutoselectPicker
             v-if="otuAutoselect"
             ref="otuAutoselectPickerRef"
             :id="otuAutoselectId"
+            model="otus"
+            param="otu_id"
+            get-object
             :autofocus="autofocus"
-            @get-item="sendObject"
+            @select="sendObject"
           />
           <OtuPicker
             v-else
@@ -153,7 +156,7 @@ import OrderSmart from '@/helpers/smartSelector/orderSmartSelector'
 import SelectFirst from '@/helpers/smartSelector/selectFirstSmartOption'
 import DefaultPin from '@/components/ui/Button/ButtonPinned.vue'
 import OtuPicker from '@/components/otu/otu_picker/otu_picker.vue'
-import OtuAutoselectPicker from '@/components/otu/otu_picker/otu_autoselect_picker.vue'
+import AutoselectPicker from '@/components/ui/AutoselectPicker.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 
 const props = defineProps({

@@ -16,6 +16,7 @@
 -->
 <template>
   <AutoselectField
+    ref="autoselectFieldRef"
     :url="url"
     :param="param"
     :new-record-component="effectiveNewRecordComponent"
@@ -26,7 +27,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, useTemplateRef } from 'vue'
 import AjaxCall from '@/helpers/ajaxCall'
 import AutoselectField from '@/components/ui/AutoselectField.vue'
 import ColDatasetPicker from '@/components/ui/AutoselectField/ColDatasetPicker.vue'
@@ -90,4 +91,17 @@ function onModelValueUpdate(item) {
   if (item !== null) return
   emit('update:modelValue', null)
 }
+
+const autoselectFieldRef = useTemplateRef('autoselectFieldRef')
+
+// AutoselectField exposes prefill but has no focus method of its own, so reach
+// straight into the DOM.
+function setFocus() {
+  autoselectFieldRef.value?.$el?.querySelector('input')?.focus()
+}
+
+defineExpose({
+  setFocus,
+  prefill: (...args) => autoselectFieldRef.value?.prefill(...args)
+})
 </script>
