@@ -28,6 +28,7 @@
         :url="sound.sound_file"
         :sample-rate="sampleRate"
         :regions="regions"
+        :timeline="{ formatTimeCallback: regionTime }"
         :spectrogram="{
           frequencyMax: sampleRate,
           fftSamples: 2048

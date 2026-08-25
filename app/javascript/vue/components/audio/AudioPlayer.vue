@@ -6,6 +6,7 @@
 import { onMounted, useTemplateRef, onBeforeUnmount, watch } from 'vue'
 import WaveSurfer from 'wavesurfer.js'
 import Spectrogram from 'wavesurfer.js/dist/plugins/spectrogram.esm.js'
+import Timeline from 'wavesurfer.js/dist/plugins/timeline.esm.js'
 import RegionsPlugin from 'wavesurfer.js/dist/plugins/regions.esm.js'
 
 const props = defineProps({
@@ -35,7 +36,7 @@ const props = defineProps({
   },
 
   timeline: {
-    type: Boolean,
+    type: [Boolean, Object],
     default: false
   },
 
@@ -115,6 +116,15 @@ onMounted(() => {
     plugins,
     ...props
   })
+
+  if (props.timeline) {
+    audioPlayer.registerPlugin(
+      Timeline.create({
+        height: 24,
+        ...props.timeline
+      })
+    )
+  }
 
   if (props.spectrogram) {
     audioPlayer.registerPlugin(
