@@ -221,7 +221,10 @@ watch(
 
 watch(() => props.regions, renderRegions)
 
-watch(() => !!props.spectrogram, renderSpectrogram)
+watch(
+  () => (props.spectrogram ? JSON.stringify(props.spectrogram) : ''),
+  renderSpectrogram
+)
 
 defineExpose({
   audioPlayer,

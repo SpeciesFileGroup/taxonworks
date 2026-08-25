@@ -70,6 +70,8 @@ import VIcon from '@/components/ui/VIcon/index.vue'
 
 const KEY_SHOW_REGIONS = 'Task::BrowseSound::ShowRegions'
 const KEY_SHOW_SPECTROGRAM = 'Task::BrowseSound::ShowSpectrogram'
+const FALLBACK_SAMPLE_RATE = 192000
+const MIN_SAMPLE_RATE = 8000
 
 const props = defineProps({
   sound: {
@@ -88,8 +90,22 @@ const isLoading = ref(false)
 const showRegions = useUserPreference(KEY_SHOW_REGIONS, true)
 const showSpectrogram = useUserPreference(KEY_SHOW_SPECTROGRAM, true)
 
+function usableSampleRate(rate) {
+  const wanted = Math.max(Number(rate) || 0, MIN_SAMPLE_RATE)
+
+  if (typeof OfflineAudioContext === 'undefined') return FALLBACK_SAMPLE_RATE
+
+  try {
+    new OfflineAudioContext(1, 1, wanted)
+
+    return wanted
+  } catch {
+    return FALLBACK_SAMPLE_RATE
+  }
+}
+
 const sampleRate = computed(() =>
-  Math.min(Math.max(props.sound.metadata.sample_rate, 8000), 192000)
+  usableSampleRate(props.sound.metadata.sample_rate)
 )
 
 function regionTime(seconds) {
@@ -113,9 +129,7 @@ const regions = computed(() =>
 const visibleRegions = computed(() => (showRegions.value ? regions.value : []))
 
 const spectrogramOptions = computed(() =>
-  showSpectrogram.value
-    ? { frequencyMax: sampleRate.value, fftSamples: 2048 }
-    : false
+  showSpectrogram.value ? { fftSamples: 2048, scale: 'linear' } : false
 )
 
 function playRegion(start, end) {

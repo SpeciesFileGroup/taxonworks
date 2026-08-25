@@ -19,6 +19,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - `Grid digitizer`: catalogue numbers can be numbered in any of 8 directions, combining across/down first with a left or right start and a top or bottom start [#1394]
 - `Filter CO`: container facet [#3196]
 - Rails initializer for the Autoselect component
+- `Browse sounds task`: Timeline under the waveform. Toggles to hide the regions and the spectrograms
 
 ### Changed
 
@@ -33,7 +34,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Replaced taxon name autocomplete by autoselect in the Edit OTU form
 - `Taxon name stats task`: Now uses the standard filter interface
 - `Field synchronize task`: Allow filling multiple columns by pasting from the clipboard [#4286]
-- `Browse sounds task`: Layout updated. Sound regions now use different colors to identify the associated conveyance object. Added a timeline under the waveform, and toggles to hide the regions and the spectrogram.
+- `Browse sounds task`: Layout updated. Sound regions now use different colors to identify the associated conveyance object. Spectrogram now uses a linear frequency scale.
 
 ### Fixed
 
