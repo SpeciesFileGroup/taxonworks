@@ -14,12 +14,13 @@
         autofocus
         @get-item="(item) => emit('select', item.id)"
       />
-      <ul
+      <div
         v-if="sound"
-        class="context-menu"
+        class="flex-row gap-small"
       >
-        <li><RadialAnnotator :global-id="sound.global_id" /></li>
-      </ul>
+        <RadialAnnotator :global-id="sound.global_id" />
+        <RadialNavigator :global-id="sound.global_id" />
+      </div>
     </div>
   </NavBar>
 </template>
@@ -28,6 +29,7 @@
 import VAutocomplete from '@/components/ui/Autocomplete.vue'
 import NavBar from '@/components/layout/NavBar.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
+import RadialNavigator from '@/components/radials/navigation/radial.vue'
 
 defineProps({
   sound: {
