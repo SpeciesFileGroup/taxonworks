@@ -39,6 +39,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 ### Fixed
 
+- `Filter biological associations`: `taxon_name_id`, `subject_taxon_name_id` and `object_taxon_name_id` now also match associations involving an AnatomicalPart
 - Error when clicking quick forms radial menu in New Asserted Distribution
 - Error on viewing deprecated Edit Taxon Determination page for a taxon determination on a Field Occurrence
 - Field synchronize and multi update task are not sorting records by id [#5045]
