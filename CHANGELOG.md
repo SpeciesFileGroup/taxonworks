@@ -20,6 +20,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - `Filter CO`: container facet [#3196]
 - Rails initializer for the Autoselect component
 - `Browse sounds task`: Timeline under the waveform. Toggles to hide the regions and the spectrograms
+- `Radial navigator`: `filter collection object` slice for taxon names [#4963]
 
 ### Changed
 
@@ -70,6 +71,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 [#4286]: https://github.com/SpeciesFileGroup/taxonworks/issues/4286
 [#4797]: https://github.com/SpeciesFileGroup/taxonworks/issues/4797
 [#4873]: https://github.com/SpeciesFileGroup/taxonworks/issues/4873
+[#4963]: https://github.com/SpeciesFileGroup/taxonworks/issues/4963
 [#5037]: https://github.com/SpeciesFileGroup/taxonworks/issues/5037
 [#5039]: https://github.com/SpeciesFileGroup/taxonworks/issues/5039
 [#5043]: https://github.com/SpeciesFileGroup/taxonworks/issues/5043
