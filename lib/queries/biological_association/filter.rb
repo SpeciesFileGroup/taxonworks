@@ -1003,7 +1003,7 @@ module Queries
           biological_association_object_id_facet,
           biological_association_object_type_facet,
           biological_association_subject_id_facet,
-          biological_association_subject_id_facet
+          biological_association_subject_type_facet
         ]
       end
 
