@@ -59,6 +59,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - `Taxon name stats`: the `Observation matrices dashboard` app mounted over the task, replacing its interface
 - `Taxon name stats`: `Set to <parent>` is not displayed after selecting a taxon name
 - Biological associations linked to an anatomical part not showing on its origin field occurrence or collection object [#5061]
+- Coordinate parsing from verbatim labels
 
 [#1060]: https://github.com/SpeciesFileGroup/taxonworks/issues/1060
 [#1130]: https://github.com/SpeciesFileGroup/taxonworks/issues/1130
