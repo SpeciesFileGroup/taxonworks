@@ -14,7 +14,7 @@ function makeCitation(data) {
   return {
     uuid: randomUUID(),
     source_id: data.source_id,
-    label: data.object_label,
+    label: data.citation_source_body,
     pages: data.pages,
     isUnsaved: false
   }
