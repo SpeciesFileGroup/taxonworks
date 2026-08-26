@@ -57,6 +57,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Smart selectors for depictions and observations listed conveyances instead of depictions and observations
 - `Taxon name stats`: the `Observation matrices dashboard` app mounted over the task, replacing its interface
 - `Taxon name stats`: `Set to <parent>` is not displayed after selecting a taxon name
+- Biological associations linked to an anatomical part not showing on its origin field occurrence or collection object [#5061]
 
 [#1060]: https://github.com/SpeciesFileGroup/taxonworks/issues/1060
 [#1130]: https://github.com/SpeciesFileGroup/taxonworks/issues/1130
@@ -77,6 +78,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 [#5051]: https://github.com/SpeciesFileGroup/taxonworks/issues/5052
 [#5052]: https://github.com/SpeciesFileGroup/taxonworks/issues/5052
 [#5054]: https://github.com/SpeciesFileGroup/taxonworks/issues/5054
+[#5061]: https://github.com/SpeciesFileGroup/taxonworks/issues/5061
 
 ## [0.64.0] - 2026-08-04
 
