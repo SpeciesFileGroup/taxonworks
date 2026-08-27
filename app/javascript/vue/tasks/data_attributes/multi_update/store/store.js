@@ -8,7 +8,11 @@ import {
 } from '../adapters'
 import { makePredicate } from '../adapters/makePredicate'
 import { DataAttribute } from '@/routes/endpoints'
-import { removeFromArray, sortArrayByReference } from '@/helpers'
+import {
+  parseClipboardTable,
+  removeFromArray,
+  sortArrayByReference
+} from '@/helpers'
 
 export default defineStore('store', {
   state: () => ({
@@ -59,17 +63,16 @@ export default defineStore('store', {
     },
 
     pasteValue({ text, objectId, predicateId }) {
-      const lines = text.replace(/(\r?\n)$/, '').split(/\r?\n/)
+      const rows = parseClipboardTable(text)
       const pIndex = this.predicates.findIndex(
         (item) => item.id === predicateId
       )
 
       let position = this.objects.findIndex((item) => item.id === objectId)
 
-      while (lines.length && position < this.objects.length) {
+      while (rows.length && position < this.objects.length) {
         const obj = this.objects[position]
-        const line = lines.shift()
-        const cells = line.split('\t')
+        const cells = rows.shift()
         let currentPredicateIndex = pIndex
 
         while (cells.length && currentPredicateIndex < this.predicates.length) {
