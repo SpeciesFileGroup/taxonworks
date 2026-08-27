@@ -1,15 +1,8 @@
 // Shared band layout comes from `.browse-record-title` in `views/tasks/browse.scss`.
-#browse-nomenclature-taxon-name {
-  #browseFilter {
-    position: absolute;
-    right: var(--spacing-md);
-    top: 50%;
-    transform: translateY(-50%);
-    flex-shrink: 0;
 
-    &.open {
-      z-index: 1100;
-    }
+.history-header {
+  #browseFilter {
+    flex-shrink: 0;
   }
 }
 
@@ -92,6 +85,7 @@
     color: #fff;
     padding-left: 7px;
     padding-right: 7px;
+    margin-left: 4px;
     margin-right: 4px;
     border-radius: 3px;
     &.protonym {

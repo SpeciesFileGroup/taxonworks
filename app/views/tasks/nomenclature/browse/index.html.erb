@@ -60,11 +60,13 @@
               <%= tag.span(full_taxon_name_tag(@taxon_name), class: :name) -%>
               <%= tag.span(taxon_name_inferred_combination_tag(@taxon_name), class: :subtle) -%>
             </h3>
-            <%= render "filter" %>
           </div>
           <div class="content">
             <div class="attributes">
-              <h3>History (<%= @data.ordered_by_nomenclature_date.length  -%>)</h3>
+              <div class="history-header flex-separate middle">
+                <h3>History (<%= @data.ordered_by_nomenclature_date.length  -%>)</h3>
+                <%= render "filter" %>
+              </div>
               <ul class="taxonomic_history">
                 <% @data.ordered_by_nomenclature_date.each do |c| -%>
                   <%= nomenclature_catalog_li_tag(c, @data.object, :browse_nomenclature_task_path) -%>
@@ -101,11 +103,16 @@
           </div>
 
           <% if @taxon_name.depictions.any? %>
-            <div>
-              <div id="depiction-panel" class="panel content">
-                <h2> Depictions </h2>
-                <div class="horizontal-left-content flexbox">
-                  <%= thumb_list_tag(@taxon_name) -%>
+            <div class="margin-medium-top">
+              <div id="depiction-panel" class="tw-card">
+                <div class="tw-card-header">
+                  <span class="card-icon-chip"><%= icon('image') %></span>
+                  <h2 class="tw-card-title">Depictions</h2>
+                </div>
+                <div class="tw-card-body">
+                  <div class="horizontal-left-content flexbox">
+                    <%= thumb_list_tag(@taxon_name) -%>
+                  </div>
                 </div>
               </div>
             </div>

@@ -106,37 +106,7 @@
           <h2 class="tw-card-title">Housekeeping</h2>
         </div>
         <div class="tw-card-body">
-          <div class="info-grid">
-            <div class="info-item">
-              <p class="info-label">Created By</p>
-              <p class="info-value">
-              <% if is_administrator? %>
-                <%= link_to(object_tag(@project.creator), user_path(@project.creator)) -%>
-              <% else %>
-                <%= object_tag(@project.creator) -%> 
-              <% end %>
-              </p>
-            </div>
-
-            <div class="info-item">
-              <p class="info-label">Updated By</p>
-              <p class="info-value">
-              <% if is_administrator? %>
-                <%= link_to(object_tag(@project.updater), user_path(@project.updater)) -%>
-              <% else %>
-                <%= object_tag(@project.creator) -%> 
-              <% end %>
-              </p>
-            </div>
-            <div class="info-item">
-              <p class="info-label">Created At</p>
-              <p class="info-value"><%= @project.created_at -%></p>
-            </div>
-            <div class="info-item">
-              <p class="info-label">Updated At</p>
-              <p class="info-value"><%= @project.updated_at -%></p>
-            </div>
-          </div>
+          <%= render(partial: '/shared/data/all/show/housekeeping_grid', locals: { object: @project }) -%>
         </div>
       </div>   
     </div>

@@ -1,7 +1,13 @@
 <div class="info-grid">
   <div class="info-item">
     <span class="info-label">Created by</span>
-    <span class="info-value"><%= object_tag(object.creator) %></span>
+    <span class="info-value">
+      <% if is_administrator? && object.creator %>
+        <%= link_to(object_tag(object.creator), user_path(object.creator)) -%>
+      <% else %>
+        <%= object_tag(object.creator) -%>
+      <% end %>
+    </span>
   </div>
 
   <div class="info-item">
@@ -11,7 +17,13 @@
 
   <div class="info-item">
     <span class="info-label">Updated by</span>
-    <span class="info-value"><%= object_tag(object.updater) %></span>
+    <span class="info-value">
+      <% if is_administrator? && object.updater %>
+        <%= link_to(object_tag(object.updater), user_path(object.updater)) -%>
+      <% else %>
+        <%= object_tag(object.updater) -%>
+      <% end %>
+    </span>
   </div>
 
   <div class="info-item">

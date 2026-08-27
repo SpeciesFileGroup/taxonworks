@@ -103,7 +103,15 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
         )
         typeElement.textContent = type.replaceAll('_', ' ')
 
-        element.prepend(typeElement)
+        const anchorElement =
+          element.querySelector(':scope > [data-radial-annotator]') ||
+          element.querySelector(':scope > [data-focus-button]')
+
+        if (anchorElement) {
+          anchorElement.after(typeElement)
+        } else {
+          element.prepend(typeElement)
+        }
       })
     }
 
