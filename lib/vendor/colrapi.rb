@@ -219,7 +219,8 @@ module Vendor
     # @param dataset_id [String, nil] the dataset that was searched; falls back to DATASETS[:col]
     # @return [Hash] extension hash with :col_key, :col_name, :col_status, :col_authorship,
     #   :col_year, :col_rank, :col_code, :col_dataset_id, and :alignment (Array of ancestor
-    #   hashes, kingdom-first, each with :rank, :col_name, :col_id, :dataset_id, :col_authorship)
+    #   hashes, kingdom-first, each with :rank, :col_name, :col_id, :dataset_id, :col_authorship,
+    #   :above_genus_group)
     def self.build_extension(col_result, dataset_id: nil)
       col_key        = col_result['id']
       col_name       = uninomial_name(col_result['name'])
@@ -293,10 +294,11 @@ module Vendor
 
         {
           rank:,
-          col_name:       anc_name,
-          col_id:         ancestor['id'],
-          dataset_id:     ancestor_dataset_id,
-          col_authorship: ancestor['authorship'].presence
+          col_name: anc_name,
+          col_id: ancestor['id'],
+          dataset_id: ancestor_dataset_id,
+          col_authorship: ancestor['authorship'].presence,
+          above_genus_group: above_genus_group?(rank, col_code)
         }
       end
 
@@ -423,6 +425,14 @@ module Vendor
                end
       rank_class = lookup[rank_name]
       rank_class ? ::RANK_SORT[rank_class] : nil
+    end
+
+    # True when rank_name resolves to FamilyGroup or above (HigherClassificationGroup)
+    # — i.e. strictly coarser than GenusGroup — for the given CoL nomenclatural code.
+    # Unresolvable ranks are treated as not-above (false).
+    def self.above_genus_group?(rank_name, col_code)
+      rank_class = rank_class_for(rank_name, col_code:)
+      rank_class ? ::FAMILY_AND_ABOVE_RANK_NAMES.include?(rank_class) : false
     end
 
     # Extend to buffered with GNA in middle layer?

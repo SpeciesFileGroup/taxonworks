@@ -18,7 +18,9 @@ module Autoselect
       #   ancestors (excluding the project root / non-taxonomic node)
       # @param col_chain [Array<Hash>] kingdom-first, CoL's classification up to and
       #   including the anchor's own rank; each hash has :col_name, :rank (human
-      #   rank name, e.g. 'family'), :col_id, :dataset_id, :col_authorship
+      #   rank name, e.g. 'family'), :col_id, :dataset_id, :col_authorship,
+      #   :above_genus_group (passed through on 'none' rows only — the client only
+      #   needs it to default those rows' checkboxes)
       # @param col_code [String, nil] CoL nomenclatural code ('zoological', 'botanical', …)
       def initialize(tw_chain:, col_chain:, col_code: nil)
         @tw_chain = tw_chain
@@ -120,6 +122,7 @@ module Autoselect
           col_id: col_entry[:col_id],
           dataset_id: col_entry[:dataset_id],
           col_authorship: col_entry[:col_authorship],
+          above_genus_group: col_entry[:above_genus_group],
           taxonworks_id: nil,
           taxonworks_name: nil,
           match: 'none'

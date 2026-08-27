@@ -172,11 +172,13 @@ const ext = computed(() => props.item.extension)
 // comes back from Vendor::Colrapi.build_extension.
 const ancestorRowsDistalFirst = computed(() => ext.value.alignment ?? [])
 
-// Set of col_name values the user has checked for creation (match==='none' rows)
+// Set of col_name values the user has checked for creation (match==='none' rows).
+// Ranks above GenusGroup (family-group and higher) default to unchecked — creating
+// higher classification is rarely wanted, unlike genus/species-group ancestors.
 const checkedNames = ref(
   new Set(
     (ext.value.alignment ?? [])
-      .filter((r) => r.match === 'none')
+      .filter((r) => r.match === 'none' && !r.above_genus_group)
       .map((r) => r.col_name)
   )
 )
