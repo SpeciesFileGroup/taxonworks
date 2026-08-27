@@ -20,6 +20,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - `Filter CO`: container facet [#3196]
 - Rails initializer for the Autoselect component
 - `Browse sounds task`: Timeline under the waveform. Toggles to hide the regions and the spectrograms
+- `Radial navigator`: `filter collection object` slice for taxon names [#4963]
 
 ### Changed
 
@@ -38,6 +39,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 ### Fixed
 
+- `Filter biological associations`: `taxon_name_id`, `subject_taxon_name_id` and `object_taxon_name_id` now also match associations involving an AnatomicalPart
 - Error when clicking quick forms radial menu in New Asserted Distribution
 - Error on viewing deprecated Edit Taxon Determination page for a taxon determination on a Field Occurrence
 - Field synchronize and multi update task are not sorting records by id [#5045]
@@ -57,6 +59,8 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Smart selectors for depictions and observations listed conveyances instead of depictions and observations
 - `Taxon name stats`: the `Observation matrices dashboard` app mounted over the task, replacing its interface
 - `Taxon name stats`: `Set to <parent>` is not displayed after selecting a taxon name
+- Biological associations linked to an anatomical part not showing on its origin field occurrence or collection object [#5061]
+- Coordinate parsing from verbatim labels
 
 [#1060]: https://github.com/SpeciesFileGroup/taxonworks/issues/1060
 [#1130]: https://github.com/SpeciesFileGroup/taxonworks/issues/1130
@@ -69,6 +73,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 [#4286]: https://github.com/SpeciesFileGroup/taxonworks/issues/4286
 [#4797]: https://github.com/SpeciesFileGroup/taxonworks/issues/4797
 [#4873]: https://github.com/SpeciesFileGroup/taxonworks/issues/4873
+[#4963]: https://github.com/SpeciesFileGroup/taxonworks/issues/4963
 [#5037]: https://github.com/SpeciesFileGroup/taxonworks/issues/5037
 [#5039]: https://github.com/SpeciesFileGroup/taxonworks/issues/5039
 [#5043]: https://github.com/SpeciesFileGroup/taxonworks/issues/5043
@@ -77,6 +82,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 [#5051]: https://github.com/SpeciesFileGroup/taxonworks/issues/5052
 [#5052]: https://github.com/SpeciesFileGroup/taxonworks/issues/5052
 [#5054]: https://github.com/SpeciesFileGroup/taxonworks/issues/5054
+[#5061]: https://github.com/SpeciesFileGroup/taxonworks/issues/5061
 
 ## [0.64.0] - 2026-08-04
 
