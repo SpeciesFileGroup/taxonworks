@@ -298,6 +298,27 @@ describe Queries::Otu::Autocomplete, type: :model do
       expect(q.autocomplete.to_a).to be_empty
     end
 
+    specify 'returns an Array (same shape as the non-exact path), not a Relation' do
+      q = Queries::Otu::Autocomplete.new('anything', project_id: project_id, exact: true)
+      expect(q.autocomplete).to be_an(Array)
+    end
+
+    specify 'ignores surrounding whitespace on the term (cached-name match)' do
+      genus = Protonym.create!(name: 'Paddedonoma', rank_class: Ranks.lookup(:iczn, 'genus'), parent: root)
+      cached_otu = Otu.create!(taxon_name: genus, project_id: project_id)
+
+      expect(Queries::Otu::Autocomplete.new('  Paddedonoma  ', project_id: project_id, exact: true).autocomplete)
+        .to contain_exactly(cached_otu)
+    end
+
+    specify 'ignores surrounding whitespace on the term (morphospecies match)' do
+      genus = Protonym.create!(name: 'Whitespaceonoma', rank_class: Ranks.lookup(:iczn, 'genus'), parent: root)
+      morpho_otu = Otu.create!(taxon_name: genus, name: 'sp1', project_id: project_id)
+
+      expect(Queries::Otu::Autocomplete.new(' Whitespaceonoma sp1 ', project_id: project_id, exact: true).autocomplete)
+        .to include(morpho_otu)
+    end
+
     specify 'excludes fuzzy/substring matches that are not exact' do
       genus = Protonym.create!(name: 'Erasmoneura', rank_class: Ranks.lookup(:iczn, 'genus'), parent: root)
       Otu.create!(taxon_name: genus, project_id: project_id)

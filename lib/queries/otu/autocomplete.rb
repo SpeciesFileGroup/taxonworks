@@ -308,16 +308,19 @@ module Queries
         compact_priorities( autocomplete_base.limit(40) )
       end
 
-      # @return [ActiveRecord::Relation]
+      # @return [Array<Otu>]
+      #   Capped and returned as an Array to match the normal (fuzzy) path's shape —
+      #   callers of #autocomplete treat the result the same way regardless of `exact`.
       #   What counts as an "exact" OTU name match is expected to grow (right now
       #   it's a linked-TaxonName cached-name match, a bare Otu#name match for OTUs
       #   with no nomenclature, and one "Genus morphospecies" pattern below) — kept
       #   in its own method, separate from the fuzzy QUERIES stack, for that reason.
       def exact_matches
-        ids = base_query.joins(:taxon_name).where(taxon_names: {cached: query_string}).pluck(:id)
-        ids |= base_query.where(taxon_name_id: nil, name: query_string).pluck(:id)
+        term = exact_query_string
+        ids = base_query.joins(:taxon_name).where(taxon_names: {cached: term}).pluck(:id)
+        ids |= base_query.where(taxon_name_id: nil, name: term).pluck(:id)
         ids |= morphospecies_match_ids
-        base_query.where(id: ids)
+        base_query.where(id: ids).limit(40).to_a
       end
 
       def autocomplete_base(targets = QUERIES)
@@ -361,13 +364,22 @@ module Queries
 
       private
 
+      # @return [String]
+      #   query_string with surrounding whitespace removed — the exact-match paths do
+      #   literal `=` comparisons, so a stray leading/trailing space (or a padded
+      #   second word in the "Genus morphospecies" split) would otherwise match nothing.
+      #   sanitize_sql doesn't trim.
+      def exact_query_string
+        query_string.to_s.strip
+      end
+
       # @return [Array<Integer>]
-      #   Otu ids matching the "Genus morphospecies" exact-match pattern: query_string
+      #   Otu ids matching the "Genus morphospecies" exact-match pattern: the term
       #   splits into exactly two words, the first matching the cached name of a
       #   genus-rank TaxonName exactly, the second matching the #name of an Otu
       #   directly linked to that TaxonName.
       def morphospecies_match_ids
-        words = query_string.to_s.split(/\s+/)
+        words = exact_query_string.split(/\s+/)
         return [] unless words.length == 2
 
         genus_name, morphospecies_name = words

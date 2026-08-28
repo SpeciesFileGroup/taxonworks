@@ -373,11 +373,19 @@ const spinnerTitle = computed(() => {
 })
 
 // ── Lifecycle ──────────────────────────────────────────────────────────────────
+// Both the dropdown and the (teleported, page-absolute) help overlay are positioned
+// from the input's bounding rect, so both go stale on a window resize. The help
+// overlay otherwise only repositions when `!?` is (re)typed.
+function repositionTeleportedOverlays() {
+  updateDropdownPosition()
+  if (showHelp.value) updateHelpOverlayPosition()
+}
+
 onMounted(async () => {
   await fetchConfig()
   currentLevel.value = getFirstVisibleLevelKey()
   ready.value = true
-  window.addEventListener('resize', updateDropdownPosition)
+  window.addEventListener('resize', repositionTeleportedOverlays)
 
   if (props.autofocus) {
     // ready just flipped true, but the :disabled binding hasn't repainted yet.
@@ -387,7 +395,7 @@ onMounted(async () => {
 })
 
 onBeforeUnmount(() => {
-  window.removeEventListener('resize', updateDropdownPosition)
+  window.removeEventListener('resize', repositionTeleportedOverlays)
   cancelPinboardNoneFlash()
 })
 
