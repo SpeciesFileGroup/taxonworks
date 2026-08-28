@@ -94,6 +94,10 @@ Rails.application.reloader.to_prepare do
     'NomenclaturalRank::Icvcn::Genus'
   ].freeze
 
+  # Nomenclatural codes whose genus-group ranks include a Subgenus. ICVCN has no infrageneric or
+  # infraspecific ranks at all, so it's the one code excluded here.
+  CODES_WITH_SUBGENUS ||= [:iczn, :icn, :icnp].freeze
+
   # Assignable ranks for species groups, for ICZN, ICN, ICNP
   SPECIES_RANK_NAMES_ICZN ||= NomenclaturalRank::Iczn::SpeciesGroup.descendants.map(&:to_s).freeze
   SPECIES_RANK_NAMES_ICN ||= NomenclaturalRank::Icn::SpeciesAndInfraspeciesGroup.descendants.map(&:to_s).freeze

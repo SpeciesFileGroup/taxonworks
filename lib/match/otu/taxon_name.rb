@@ -39,12 +39,22 @@ module Match
       # Candidates gathered per name before ranking.
       FUZZY_LIMIT = 10
 
-      # ICZN rank classes used by #find_taxon_names_ignoring_subgenus, which matches through the
-      # live classification hierarchy (taxon_name_hierarchies) rather than through a cached
-      # column, so it can't go stale the way a cached homonym column can.
-      GENUS_RANK_CLASS = Ranks.lookup(:iczn, :genus)
-      SPECIES_RANK_CLASS = Ranks.lookup(:iczn, :species)
-      SUBSPECIES_RANK_CLASS = Ranks.lookup(:iczn, :subspecies)
+      # Rank classes used by #find_taxon_names_ignoring_subgenus, which matches through the live
+      # classification hierarchy (taxon_name_hierarchies) rather than through a cached column, so
+      # it can't go stale the way a cached homonym column can. Covers every code with a Subgenus
+      # rank (see CODES_WITH_SUBGENUS).
+      GENUS_RANK_CLASSES = CODES_WITH_SUBGENUS.map { |code| Ranks.lookup(code, :genus) }.freeze
+      SPECIES_RANK_CLASSES = CODES_WITH_SUBGENUS.map { |code| Ranks.lookup(code, :species) }.freeze
+      SUBSPECIES_RANK_CLASSES = CODES_WITH_SUBGENUS.map { |code| Ranks.lookup(code, :subspecies) }.freeze
+
+      # A candidate classified with one of these can never take a different gender-agreeing
+      # spelling — a noun (in apposition, or in the genitive case) doesn't change with the
+      # genus's gender the way an adjective or participle epithet does. Anything else, including
+      # no classification at all, is treated permissively: gender-form matching is attempted.
+      NON_GENDER_AGREEING_PART_OF_SPEECH_TYPES = [
+        'TaxonNameClassification::Latinized::PartOfSpeech::NounInApposition',
+        'TaxonNameClassification::Latinized::PartOfSpeech::NounInGenitiveCase'
+      ].freeze
 
       attr_reader :names, :project_id, :levenshtein_distance, :taxon_name_id, :taxon_name_query,
         :resolve_synonyms, :try_without_subgenus, :candidates, :match_original_combination,
@@ -185,9 +195,9 @@ module Match
 
         case words.length
         when 2
-          find_via_genus_ancestor(words.first, words.last, rank_class: SPECIES_RANK_CLASS)
+          find_via_genus_ancestor(words.first, words.last, rank_classes: SPECIES_RANK_CLASSES)
         when 3
-          find_via_genus_ancestor(words.first, words.last, rank_class: SPECIES_RANK_CLASS).presence ||
+          find_via_genus_ancestor(words.first, words.last, rank_classes: SPECIES_RANK_CLASSES).presence ||
             find_via_genus_and_species_ancestor(words.first, words[-2], words.last)
         when 4
           find_via_genus_and_species_ancestor(words.first, words[-2], words.last)
@@ -197,46 +207,72 @@ module Match
       end
 
       # @param genus_name [String] exact genus name expected as an ancestor
-      # @param epithet [String] the terminal word as typed; matched against its predicted
-      #   gender forms, not the raw string
-      # @param rank_class [String]
+      # @param epithet [String] the terminal word as typed
+      # @param rank_classes [Array<String>]
       # @return [Array<TaxonName>]
-      def find_via_genus_ancestor(genus_name, epithet, rank_class:)
-        forms = Utilities::Nomenclature.predict_three_forms(epithet.downcase).values.uniq
+      def find_via_genus_ancestor(genus_name, epithet, rank_classes:)
+        downcased = epithet.downcase
+        forms = Utilities::Nomenclature.predict_three_forms(downcased).values.uniq
 
         base_scope
-          .where(rank_class:, name: forms)
-          .where(genus_ancestor_exists_sql('taxon_names.id'), genus_name, GENUS_RANK_CLASS)
+          .where(rank_class: rank_classes)
+          .where(epithet_match_sql('taxon_names'), downcased, forms, NON_GENDER_AGREEING_PART_OF_SPEECH_TYPES)
+          .where(genus_ancestor_exists_sql('taxon_names.id'), genus_name, GENUS_RANK_CLASSES)
           .to_a
       end
 
       # @param genus_name [String] exact genus name expected as an ancestor of the species
       # @param species_name [String] the species epithet, matched exactly
-      # @param subspecies_epithet [String] the terminal word; matched against its predicted
-      #   gender forms, not the raw string
+      # @param subspecies_epithet [String] the terminal word as typed
       # @return [Array<TaxonName>]
       def find_via_genus_and_species_ancestor(genus_name, species_name, subspecies_epithet)
-        forms = Utilities::Nomenclature.predict_three_forms(subspecies_epithet.downcase).values.uniq
+        downcased = subspecies_epithet.downcase
+        forms = Utilities::Nomenclature.predict_three_forms(downcased).values.uniq
 
         species_sql = <<~SQL.squish
           taxon_names.parent_id IN (
             SELECT species_tn.id FROM taxon_names species_tn
             WHERE species_tn.project_id = taxon_names.project_id
-              AND species_tn.rank_class = ?
+              AND species_tn.rank_class IN (?)
               AND species_tn.name = ?
               AND #{genus_ancestor_exists_sql('species_tn.id')}
           )
         SQL
 
         base_scope
-          .where(rank_class: SUBSPECIES_RANK_CLASS, name: forms)
-          .where(species_sql, SPECIES_RANK_CLASS, species_name, genus_name, GENUS_RANK_CLASS)
+          .where(rank_class: SUBSPECIES_RANK_CLASSES)
+          .where(epithet_match_sql('taxon_names'), downcased, forms, NON_GENDER_AGREEING_PART_OF_SPEECH_TYPES)
+          .where(species_sql, SPECIES_RANK_CLASSES, species_name, genus_name, GENUS_RANK_CLASSES)
           .to_a
       end
 
-      # Raw SQL fragment (two `?` binds: genus name, then genus rank_class): true when some
-      # ancestor of the row identified by `descendant_id_sql` — any number of generations, so
-      # any intervening subgenus/section/etc. is skipped over — is a Genus with that name.
+      # Raw SQL fragment (three `?` binds: the raw epithet, the array of predicted gender forms,
+      # and the array of "invariant" part-of-speech type strings): a candidate matches either by
+      # being an exact hit, or by matching one of the predicted gender forms PROVIDED it isn't
+      # classified as a noun (in apposition, or genitive case) — those never take a different
+      # gender-agreeing spelling regardless of what the genus's gender is.
+      # @param table_alias [String]
+      # @return [String]
+      def epithet_match_sql(table_alias)
+        <<~SQL.squish
+          (
+            #{table_alias}.name = ?
+            OR (
+              #{table_alias}.name IN (?)
+              AND NOT EXISTS (
+                SELECT 1 FROM taxon_name_classifications tnc
+                WHERE tnc.taxon_name_id = #{table_alias}.id
+                  AND tnc.type IN (?)
+              )
+            )
+          )
+        SQL
+      end
+
+      # Raw SQL fragment (two `?` binds: genus name, then the array of genus rank classes): true
+      # when some ancestor of the row identified by `descendant_id_sql` — any number of
+      # generations, so any intervening subgenus/section/etc. is skipped over — is a Genus with
+      # that name.
       # @param descendant_id_sql [String] a SQL expression for the descendant's id
       # @return [String]
       def genus_ancestor_exists_sql(descendant_id_sql)
@@ -248,7 +284,7 @@ module Match
               AND tnh.generations > 0
               AND genus_tn.project_id = taxon_names.project_id
               AND genus_tn.name = ?
-              AND genus_tn.rank_class = ?
+              AND genus_tn.rank_class IN (?)
           )
         SQL
       end

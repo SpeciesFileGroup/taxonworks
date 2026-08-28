@@ -191,6 +191,43 @@ describe Match::Otu::TaxonName, type: :model do
         expect(result[:matched]).to eq(false)
       end
     end
+
+    context 'ICN data (not just ICZN)' do
+      let(:icn_genus) { Protonym.create!(name: 'Icnaus', rank_class: Ranks.lookup(:icn, :genus), parent: root) }
+      let(:icn_subgenus) { Protonym.create!(name: 'Icnbus', rank_class: Ranks.lookup(:icn, :subgenus), parent: icn_genus) }
+
+      let!(:icn_species) do
+        Protonym.create!(name: 'maculatus', rank_class: Ranks.lookup(:icn, :species), parent: icn_subgenus)
+      end
+
+      specify 'a feminine-ending search matches the stored masculine species, subgenus ignored' do
+        result = match(names: ['Icnaus maculata'], try_without_subgenus: true).first
+        expect(result[:taxon_name_id]).to eq(icn_species.id)
+      end
+    end
+
+    context 'part of speech gates gender-form matching' do
+      specify 'a noun-in-genitive-case candidate only matches exactly, not other predicted forms' do
+        invariant_species = Protonym.create!(name: 'smithianus', rank_class: Ranks.lookup(:iczn, :species), parent: genus)
+        TaxonNameClassification::Latinized::PartOfSpeech::NounInGenitiveCase.create!(taxon_name: invariant_species)
+
+        exact_result = match(names: ['Aus smithianus'], try_without_subgenus: true).first
+        expect(exact_result[:taxon_name_id]).to eq(invariant_species.id)
+
+        # predict_three_forms('smithiana') includes 'smithianus' (the -us/-a/-um adjectival
+        # pattern) — that would cross-match an Adjective-classified or unclassified candidate,
+        # but a noun in the genitive case never takes a different gender-agreeing spelling.
+        varied_result = match(names: ['Aus smithiana'], try_without_subgenus: true).first
+        expect(varied_result[:matched]).to eq(false)
+      end
+
+      specify 'an unclassified candidate is still matched permissively' do
+        unclassified_species = Protonym.create!(name: 'smithianus', rank_class: Ranks.lookup(:iczn, :species), parent: genus)
+
+        result = match(names: ['Aus smithiana'], try_without_subgenus: true).first
+        expect(result[:taxon_name_id]).to eq(unclassified_species.id)
+      end
+    end
   end
 
   context 'fuzzy matching' do
