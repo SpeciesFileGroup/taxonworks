@@ -276,6 +276,46 @@ RSpec.describe Autoselect::TaxonName::ColCreator, type: :model do
       end
     end
 
+    context 'when a row carries a taxonworks_id that does not resolve within the project' do
+      let(:rows) do
+        [
+          row(col_name: 'Animalia', col_rank: 'kingdom'),
+          row(col_name: 'Homo', col_rank: 'genus', taxonworks_id: 999_999_999)
+        ]
+      end
+
+      subject(:result) {
+        described_class.new(rows:, project_id:, user_id:, col_code: 'zoological').call
+      }
+
+      it 'raises CreationError rather than an uncaught RecordNotFound' do
+        expect { result }.to raise_error(described_class::CreationError, /Unknown TaxonName id/)
+      end
+
+      it 'creates nothing' do
+        expect { result rescue nil }.not_to change(::TaxonName, :count)
+      end
+    end
+
+    context 'when a row carries a taxonworks_id belonging to another project' do
+      let!(:other_project_name) { FactoryBot.create(:valid_taxon_name, project: FactoryBot.create(:valid_project)) }
+
+      let(:rows) do
+        [
+          row(col_name: 'Animalia', col_rank: 'kingdom'),
+          row(col_name: other_project_name.cached, col_rank: 'genus', taxonworks_id: other_project_name.id)
+        ]
+      end
+
+      subject(:result) {
+        described_class.new(rows:, project_id:, user_id:, col_code: 'zoological').call
+      }
+
+      it 'rejects it as an unknown id for this project' do
+        expect { result }.to raise_error(described_class::CreationError, /Unknown TaxonName id/)
+      end
+    end
+
     context 'when a row has an unknown rank (e.g. domain)' do
       let(:rows) do
         [

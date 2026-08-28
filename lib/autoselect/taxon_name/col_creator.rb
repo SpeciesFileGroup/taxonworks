@@ -59,9 +59,20 @@ module Autoselect
 
         # One batched lookup for every matched row's real current parent_id, instead of
         # a find per row — the common case (nothing needs reparenting) then costs zero
-        # additional queries in the loop below.
+        # additional queries in the loop below. Scoped to the project so a taxonworks_id
+        # from another project can't be walked into the anchor/reparent logic.
         matched_ids = @rows.filter_map { |row| row[:taxonworks_id].presence&.to_i }
-        current_parent_ids = ::TaxonName.where(id: matched_ids).pluck(:id, :parent_id).to_h
+        current_parent_ids = ::TaxonName.where(id: matched_ids, project_id: @project_id)
+          .pluck(:id, :parent_id).to_h
+
+        # A client-supplied taxonworks_id that doesn't resolve within this project (stale
+        # UI state, another project's id, a hand-crafted request) would otherwise surface
+        # as an uncaught RecordNotFound mid-transaction (HTTP 500). Reject it up front as
+        # an ordinary creation failure instead.
+        unknown_ids = matched_ids - current_parent_ids.keys
+        unless unknown_ids.empty?
+          raise CreationError.new("Unknown TaxonName id(s) for this project: #{unknown_ids.join(', ')}")
+        end
 
         ::ActiveRecord::Base.transaction do
           @rows.each do |row|
@@ -73,7 +84,7 @@ module Autoselect
               # record onto it. When nothing was inserted above, current_parent_ids
               # already agrees with parent_id, so no query or update happens at all.
               if current_parent_ids[existing_id] != parent_id
-                existing = ::TaxonName.find(existing_id)
+                existing = ::TaxonName.where(project_id: @project_id).find(existing_id)
                 begin
                   existing.update!(parent_id:)
                 rescue ::ActiveRecord::RecordInvalid => e

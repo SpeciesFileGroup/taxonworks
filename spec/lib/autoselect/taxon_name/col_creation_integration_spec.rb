@@ -12,8 +12,10 @@ def col_classification_entry(id:, name:, rank:)
   { 'id' => id, 'name' => name, 'rank' => rank, 'label' => name, 'labelHtml' => name }
 end
 
-# Mirrors ColConfirmModal.vue's doCreate(): ancestor rows from alignment (kingdom-first,
-# taxonworks_id only for 'exact'/'extra' matches) plus the target row appended last.
+# Mirrors ColConfirmModal.vue's doCreate(): every 'exact'/'extra' alignment row plus
+# every checked 'none' row, kingdom-first, taxonworks_id carried on all but 'none'
+# rows, then the target row appended last. (This helper treats every 'none' row as
+# checked; the real modal defaults family-group-and-higher rows to unchecked.)
 def rows_from_level_result(col_extension, target_col_name:, target_rank:, target_col_status: 'accepted')
   ancestor_rows = col_extension[:alignment].map do |r|
     {

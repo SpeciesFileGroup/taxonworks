@@ -51,7 +51,8 @@
                 :checked="checkedNames.has(row.col_name)"
                 @change="toggleRow(row.col_name)"
               />
-              <!-- 'extra' rows (TaxonWorks-only, informational) get no checkbox -->
+              <!-- 'extra' rows (TaxonWorks-only ancestors) get no checkbox — always
+                   sent to the server as parent anchors, never user-toggleable -->
             </td>
             <td>{{ row.rank }}</td>
             <td>{{ row.col_name ?? '—' }}</td>
@@ -274,16 +275,21 @@ async function doCreate() {
 
   // Build distal→proximal rows for the server — alignment already comes back in that
   // order (kingdom-first) from Vendor::Colrapi.build_extension.
-  // Exact-match ancestors pass their taxonworks_id so the server uses them as parent anchors.
-  // Unchecked none-match ancestors are excluded.
+  // 'exact' and 'extra' ancestors both pass their taxonworks_id: the server walks them
+  // as parent anchors so the chain it sees is a faithful, contiguous picture of the
+  // real TaxonWorks lineage. Dropping 'extra' (TaxonWorks-only) rows here would leave a
+  // gap the server can't see, making its "was a row inserted above this existing
+  // record?" reparent check fire against the wrong parent and silently move a curated
+  // record. Unchecked 'none' rows (and 'conflict' rows, which block Create anyway) are
+  // the only alignment rows left out.
   const ancestorRows = (ext.value.alignment ?? [])
-    .filter((r) => r.match === 'exact' || checkedNames.value.has(r.col_name))
+    .filter((r) => r.match === 'exact' || r.match === 'extra' || checkedNames.value.has(r.col_name))
     .map((r) => ({
       col_name: r.col_name,
       col_rank: r.rank,
       col_id: r.col_id ?? null,
       dataset_id: r.dataset_id ?? null,
-      taxonworks_id: r.match === 'exact' ? r.taxonworks_id : null,
+      taxonworks_id: r.match === 'none' ? null : r.taxonworks_id,
       col_authorship: r.col_authorship ?? null,
       col_year: null
     }))
