@@ -396,6 +396,12 @@ describe Vendor::Colrapi, type: :model do
         expect(result[:valid_status]).to eq('accepted')
         expect(result[:dataset_id]).to eq('3LR')
       end
+
+      it 'returns the top hit itself as valid_col_result' do
+        result = described_class.resolve_accepted_name('Homo sapiens')
+        expect(result[:valid_col_result]).to include('id' => '6MB3T')
+        expect(result[:valid_col_result].dig('name', 'scientificName')).to eq('Homo sapiens')
+      end
     end
 
     context 'when the top hit is a synonym with a single accepted target' do
@@ -423,6 +429,11 @@ describe Vendor::Colrapi, type: :model do
         expect(result[:valid_authorship]).to eq('Linnaeus, 1758')
         expect(result[:valid_status]).to eq('accepted')
       end
+
+      it 'returns the nested accepted usage as valid_col_result' do
+        result = described_class.resolve_accepted_name('Bison bison')
+        expect(result[:valid_col_result]).to eq(synonym_result['accepted'])
+      end
     end
 
     context 'when the top hit is an ambiguous synonym with no single accepted target' do
@@ -439,6 +450,7 @@ describe Vendor::Colrapi, type: :model do
         expect(result[:valid_name]).to eq('Crayracion')
         expect(result[:valid_col_key]).to eq('AMB1')
         expect(result[:valid_status]).to eq('ambiguous synonym')
+        expect(result[:valid_col_result]).to eq(ambiguous_result)
       end
     end
 

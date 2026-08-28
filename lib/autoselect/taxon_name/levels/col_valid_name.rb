@@ -3,8 +3,10 @@ module Autoselect
   module TaxonName
     module Levels
       # Resolves a term through Catalogue of Life synonymy to its accepted name, then
-      # delegates to Levels::CatalogueOfLife (searching on the *resolved* name, not the
-      # raw term) for the actual alignment/extension data and existing-TaxonName check.
+      # reuses Levels::CatalogueOfLife#build_pseudo_record for the actual
+      # alignment/extension data and existing-TaxonName check — feeding it the accepted
+      # nameusage hash that resolve_accepted_name already returned, so no second CoL
+      # search (and no per-result classification fetch) is needed.
       #
       # Returns at most one pseudo-record — the resolved valid name — flagged with
       # `resolved_from:` so callers (and the confirmation UI) can show this is the
@@ -51,14 +53,11 @@ module Autoselect
         # @return [Array<OpenStruct>] at most one pseudo-record, for the resolved valid name
         def call(term:, operator: nil, project_id: nil, user_id: nil, dataset_id: nil, **_kwargs)
           resolved = ::Vendor::Colrapi.resolve_accepted_name(term, dataset_id:)
-          return [] if resolved.nil? || resolved[:valid_name].blank?
+          return [] if resolved.nil? || resolved[:valid_name].blank? || resolved[:valid_col_result].blank?
 
-          col_records = ::Autoselect::TaxonName::Levels::CatalogueOfLife.new.call(
-            term: resolved[:valid_name], project_id:, user_id:, dataset_id: resolved[:dataset_id]
+          target = ::Autoselect::TaxonName::Levels::CatalogueOfLife.new.build_pseudo_record(
+            resolved[:valid_col_result], project_id:, dataset_id: resolved[:dataset_id]
           )
-          return [] if col_records.empty?
-
-          target = col_records.find { |r| r._col_extension[:col_key] == resolved[:valid_col_key] } || col_records.first
           extension = target._col_extension.merge(resolved_from: term)
 
           [OpenStruct.new(

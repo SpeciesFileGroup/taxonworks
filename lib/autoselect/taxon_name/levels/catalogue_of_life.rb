@@ -41,30 +41,40 @@ module Autoselect
           results = raw['result'] || []
           return [] if results.empty?
 
-          results.map do |col_result|
-            # Flat nameusage structure: 'id', 'status', 'name' hash, 'label', 'labelHtml'
-            col_name   = col_result.dig('name', 'scientificName') || col_result['label']
-            col_rank   = col_result.dig('name', 'rank')&.downcase
-            col_name   = ::Vendor::Colrapi.extract_subgenus_name(col_name) if col_rank == 'subgenus'
-            col_status = col_result['status']
-            col_key    = col_result['id']
-            extension  = ::Vendor::Colrapi.build_extension(col_result, dataset_id:)
+          results.map { |col_result| build_pseudo_record(col_result, project_id:, dataset_id:) }
+        end
 
-            # Flag when the target's rank is not resolvable in TaxonWorks (e.g. 'domain').
-            # ColCreator silently skips such rows, so the modal needs to know up-front.
-            extension = extension.merge(target_rank_unknown: true) unless rank_resolvable?(col_rank)
+        # Builds one autoselect pseudo-record (alignment + existing-TaxonName check) from
+        # a raw CoL nameusage hash. Split out of #call so a caller that already holds the
+        # right nameusage hash — Levels::ColValidName, which gets the accepted usage back
+        # from Vendor::Colrapi.resolve_accepted_name — can reuse it without a second
+        # search() and its per-result classification fetches.
+        #
+        # @param col_result [Hash] a flat CoL nameusage hash (search-result shape)
+        # @param project_id [Integer, nil]
+        # @param dataset_id [String, nil]
+        # @return [OpenStruct] pseudo-record compatible with TaxonName autoselect format_results
+        def build_pseudo_record(col_result, project_id: nil, dataset_id: nil)
+          # Flat nameusage structure: 'id', 'status', 'name' hash, 'label', 'labelHtml'
+          col_name  = col_result.dig('name', 'scientificName') || col_result['label']
+          col_rank  = col_result.dig('name', 'rank')&.downcase
+          col_name  = ::Vendor::Colrapi.extract_subgenus_name(col_name) if col_rank == 'subgenus'
+          extension = ::Vendor::Colrapi.build_extension(col_result, dataset_id:)
 
-            extension = extension.merge(match_against_taxonworks(extension, col_name, col_rank, project_id)) if project_id.present?
+          # Flag when the target's rank is not resolvable in TaxonWorks (e.g. 'domain').
+          # ColCreator silently skips such rows, so the modal needs to know up-front.
+          extension = extension.merge(target_rank_unknown: true) unless rank_resolvable?(col_rank)
 
-            OpenStruct.new(
-              id: nil,
-              cached: col_name,
-              name: col_name,
-              rank_string: nil,
-              cached_valid_taxon_name_id: nil,
-              _col_extension: extension
-            )
-          end
+          extension = extension.merge(match_against_taxonworks(extension, col_name, col_rank, project_id)) if project_id.present?
+
+          OpenStruct.new(
+            id: nil,
+            cached: col_name,
+            name: col_name,
+            rank_string: nil,
+            cached_valid_taxon_name_id: nil,
+            _col_extension: extension
+          )
         end
 
         private

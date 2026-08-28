@@ -318,7 +318,8 @@ module Vendor
     # @param dataset_id [String, nil] CoL dataset ID; falls back to the default hardwired ID when nil
     # @return [Hash, nil] nil when CoL has no results, else
     #   { input:, matched_name:, matched_status:, matched_col_key:,
-    #     valid_name:, valid_col_key:, valid_authorship:, valid_status:, dataset_id: }
+    #     valid_name:, valid_col_key:, valid_authorship:, valid_status:,
+    #     valid_col_result:, dataset_id: }
     def self.resolve_accepted_name(name_string, dataset_id: nil)
       top = search(name_string, dataset_id:)['result']&.first
       return nil if top.nil?
@@ -331,6 +332,12 @@ module Vendor
       target_dataset_id = dataset_id.presence || DATASETS[:col]
       accepted = top['accepted'] if matched_status.present? && matched_status != 'accepted'
 
+      # The full nameusage hash for the *valid* name — CoL nests the accepted usage
+      # (a complete nameusage record, same shape as a search result) right on the
+      # synonym hit, so a caller that needs the alignment/extension for the valid
+      # name can hand this straight to build_extension instead of searching again.
+      valid_col_result = accepted || top
+
       {
         input:            name_string,
         matched_name:,
@@ -340,6 +347,7 @@ module Vendor
         valid_col_key:    accepted ? accepted['id'] : top['id'],
         valid_authorship: accepted ? accepted.dig('name', 'authorship') : top.dig('name', 'authorship'),
         valid_status:     accepted ? (accepted['status'] || 'accepted') : matched_status,
+        valid_col_result:,
         dataset_id:       target_dataset_id
       }
     end
