@@ -17,17 +17,10 @@ monograph_includes = [
   ]}
 ]
 
-if extend_response_with('descendants')
-  root = TaxonName.with_project_id(sessions_current_project_id).find(params[:id])
-
-  if root.descendants.count > 2500
-    json.array! []
-  else
-    json.array!(root.descendants.includes(monograph_includes)) do |taxon_name|
-      json.partial! '/taxon_names/api/v1/monograph_item', taxon_name: taxon_name
-    end
+if @descendants_scope
+  json.array!(@descendants_scope.includes(monograph_includes)) do |taxon_name|
+    json.partial! '/taxon_names/api/v1/monograph_item', taxon_name: taxon_name
   end
 else
-  taxon_name = TaxonName.with_project_id(sessions_current_project_id).includes(monograph_includes).find(params[:id])
-  json.partial! '/taxon_names/api/v1/monograph_item', taxon_name: taxon_name
+  json.partial! '/taxon_names/api/v1/monograph_item', taxon_name: @taxon_name_scope.includes(monograph_includes).first
 end

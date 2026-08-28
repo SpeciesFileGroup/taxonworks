@@ -34,6 +34,10 @@ describe 'Api::V1::TaxonNames', type: :request do
         Protonym.create!(name: 'Bus', rank_class: Ranks.lookup(:iczn, :genus), parent: family, by: user, project: project)
       end
 
+      let!(:genus2) do
+        Protonym.create!(name: 'Cus', rank_class: Ranks.lookup(:iczn, :genus), parent: family, by: user, project: project)
+      end
+
       before { get "/api/v1/taxon_names/#{family.id}/monograph", headers: headers, params: { project_id: project.id, extend: ['descendants'] } }
 
       it_behaves_like 'a successful response'
@@ -52,16 +56,29 @@ describe 'Api::V1::TaxonNames', type: :request do
         expect(ids).not_to include(family.id)
       end
 
-      context 'when descendant count exceeds 2500' do
-        before do
-          allow_any_instance_of(TaxonName).to receive_message_chain(:descendants, :count).and_return(2501)
-          get "/api/v1/taxon_names/#{family.id}/monograph", headers: headers, params: { project_id: project.id, extend: ['descendants'] }
+      it 'returns pagination headers' do
+        expect(response.headers['Pagination-Total']).to be_present
+        expect(response.headers['Pagination-Page']).to be_present
+        expect(response.headers['Pagination-Per-Page']).to be_present
+      end
+
+      context 'with page and per params' do
+        before { get "/api/v1/taxon_names/#{family.id}/monograph", headers: headers, params: { project_id: project.id, extend: ['descendants'], page: 1, per: 1 } }
+
+        it 'returns one result per page' do
+          expect(JSON.parse(response.body).length).to eq(1)
         end
 
-        it_behaves_like 'a successful response'
+        it 'reflects per page in pagination headers' do
+          expect(response.headers['Pagination-Per-Page'].to_i).to eq(1)
+        end
 
-        it 'returns an empty array' do
-          expect(JSON.parse(response.body)).to eq []
+        it 'reflects total count across all pages in pagination headers' do
+          expect(response.headers['Pagination-Total'].to_i).to eq(2)
+        end
+
+        it 'returns the first descendant by id on page 1' do
+          expect(JSON.parse(response.body).first['id']).to eq(genus.id)
         end
       end
     end

@@ -1,23 +1,23 @@
 <%= form_for(@otu) do |f| %>
   <%= render 'shared/errors', object: @otu %>
 
-  <div class="field">
+  <div class="field label-above">
     <%= f.label 'Name', data: {help: 'Typicaly a non-governed component of a taxon name, or a verbatim name not yet linked into the formal nomenclature.'}  %>
-    <br>
-    <%= f.text_field :name, size: 60, placeholder: '"n.sp. 123", or "TW123", or a verbatim name not yet linked to a taxon name.' %>
+    <%= f.text_field :name, class: 'w-96', placeholder: '"n.sp. 123", or "TW123", or a verbatim name not yet linked to a taxon name.' %>
   </div>
 
-  <div class="field">
+  <div class="field label-above w-96">
     <%= f.label :taxon_name, data: {help: 'Select the finest level of nomenclature applicable to the OTU. For new species you  might select the genus, for example.'}  %>
-    <br>
-    <%= render partial: 'workbench/elements/forms/ajax_select',
-      locals: {
-        controller:  'taxon_names',
-        object: 'otu',
-        method:  'taxon_name_id',
-        tag_id: 'taxon_name_id_for_otu',
-        display: taxon_name_autocomplete_selected_tag(@otu.taxon_name),
-        size: 60} %>
+    <%= autoselect_field(
+          url: autoselect_taxon_names_path,
+          param: :taxon_name_id,
+          object: :otu,
+          method: :taxon_name_id,
+          tag_id: 'taxon_name_id_for_otu',
+          current: @otu.taxon_name,
+          placeholder: 'Select a taxon name.',
+          new_record_component: 'TaxonNameNewModal',
+          preferences_options_component: 'ColDatasetPicker') %>
   </div>
 
   <div class="actions">

@@ -16,11 +16,12 @@ module ControlledVocabularyTermsHelper
     controlled_vocabulary_term.name
   end
 
-  def controlled_vocabulary_term_autocomplete_tag(controlled_vocabulary_term)
-    [ controlled_vocabulary_term_tag(controlled_vocabulary_term),
+  def controlled_vocabulary_term_autocomplete_tag(controlled_vocabulary_term, term = nil)
+    s = [ controlled_vocabulary_term_tag(controlled_vocabulary_term),
       content_tag(:span, controlled_vocabulary_term.type, class: [:feedback, 'feedback-secondary', 'feedback-thin']),
       content_tag(:span, pluralize( controlled_vocabulary_term_use(controlled_vocabulary_term), 'use'), class: [:feedback, 'feedback-info', 'feedback-thin'])
     ].compact.join(' ')
+    mark_tag(s, term)
   end
 
   def controlled_vocabulary_term_use(controlled_vocabulary_term)

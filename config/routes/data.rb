@@ -363,6 +363,12 @@ resources :documents do
   end
 end
 
+resources :biological_association_indices, only: [] do
+  collection do
+    get 'download'
+  end
+end
+
 # TODO: these should default json?
 resources :dwc_occurrences, only: [:create] do
   collection do
@@ -725,6 +731,7 @@ resources :otus do
     get :autoselect, defaults: { format: :json }
     get :select_options, defaults: {format: :json}
     post :autoselect_col_create, defaults: { format: :json }
+    post :create_morphospecies_otu, defaults: { format: :json }
 
     patch :batch_update
   end
@@ -800,6 +807,9 @@ end
 
 resources :preparation_types do
   concerns [:data_routes]
+  collection do
+    get :select_options, defaults: {format: :json}
+  end
 end
 
 resources :projects, only: [] do
@@ -822,6 +832,14 @@ resources :projects, only: [] do
     scope :dwc_export_preferences, controller: 'tasks/projects/dwc_export_preferences' do
       post :validate_eml, defaults: {format: :json}
     end
+  end
+end
+
+resources :project_organizations, only: [:index, :show, :create, :destroy] do
+  collection do 
+    get 'list'
+    get 'autocomplete'
+    get 'download'
   end
 end
 

@@ -1,13 +1,9 @@
 <template>
   <CustomAttributes
-    v-if="projectPreferences"
     ref="customAttributeRef"
     :object-id="collectionObject.id"
     :object-type="COLLECTION_OBJECT"
     :model="COLLECTION_OBJECT"
-    :model-preferences="
-      projectPreferences.model_predicate_sets.CollectionObject
-    "
     @on-update="setAttributes"
   />
 </template>
@@ -28,10 +24,6 @@ const collectionObject = computed({
   get: () => store.getters[GetterNames.GetCollectionObject],
   set: (value) => store.commit(MutationNames.SetCollectionObject, value)
 })
-
-const projectPreferences = computed(
-  () => store.getters[GetterNames.GetProjectPreferences]
-)
 
 const unsubscribe = store.subscribeAction({
   after: (action) => {

@@ -28,6 +28,7 @@ module Queries
         :collection_object_id,
         :collection_object_type,
         :collectors,
+        :container_id,
         :containerized,
         :current_determinations,
         :current_repository,
@@ -70,6 +71,7 @@ module Queries
         biological_relationship_id: [],
         collecting_event_id: [],
         collection_object_id: [],
+        container_id: [],
         determiner_id: [],
         extract_id: [],
         geographic_area_id: [],
@@ -107,6 +109,11 @@ module Queries
       # [Array]
       #   only return objects with these collecting event ID
       attr_accessor :collecting_event_id
+
+      # @return [Array]
+      #   match collection objects localized to these Containers, or to any
+      #   Container nested within them
+      attr_accessor :container_id
 
       # @param [True, False, nil]
       #   true - the collection object is in a container
@@ -355,6 +362,7 @@ module Queries
         @collecting_event_id = params[:collecting_event_id]
         @collection_object_id = params[:collection_object_id]
         @collection_object_type = params[:collection_object_type].presence
+        @container_id = params[:container_id]
         @containerized = boolean_param(params, :containerized)
         @current_determinations = boolean_param(params, :current_determinations)
         @taxon_name_current_determination = boolean_param(params, :taxon_name_current_determination)
@@ -445,6 +453,10 @@ module Queries
 
       def collection_object_id
         [@collection_object_id].flatten.compact.uniq
+      end
+
+      def container_id
+        [@container_id].flatten.compact.uniq
       end
 
       def determiner_id
@@ -694,6 +706,11 @@ module Queries
       def on_loan_facet
         return nil unless on_loan
         ::CollectionObject.on_loan
+      end
+
+      def container_id_facet
+        return nil if container_id.empty?
+        referenced_klass_containers.where(containers: {id: container_id}).distinct
       end
 
       def containerized_facet
@@ -1081,6 +1098,7 @@ module Queries
           biological_relationship_id_facet,
           collecting_event_facet,
           collectors_facet,
+          container_id_facet,
           containerized_facet,
           current_repository_facet,
           dates_facet,

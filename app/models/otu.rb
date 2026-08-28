@@ -211,6 +211,38 @@ class Otu < ApplicationRecord
     ids.uniq
   end
 
+  # @param name [String]
+  # @return [Array<String>, nil]
+  #   [genus_term, otu_term], or nil if `name` isn't exactly two whitespace-separated words
+  def self.split_morphospecies_name(name)
+    words = name.to_s.strip.split(/\s+/)
+    words.size == 2 ? words : nil
+  end
+
+  # Finds, or creates, the Otu for an exact "Genus otu_name" pair (e.g. a morphospecies
+  # code like "Tapinoma CASC_2231") - the genus must resolve to exactly one genus-rank
+  # TaxonName in the project.
+  # @param name [String]
+  # @param project_id [Integer]
+  # @param user_id [Integer]
+  # @return [Otu]
+  # @raise [ArgumentError] if `name` isn't a two-word genus+otu_name string, no genus
+  #   matches exactly, or more than one genus matches (homonyms)
+  def self.create_morphospecies_otu(name:, project_id:, user_id:)
+    genus_term, otu_term = split_morphospecies_name(name)
+    raise ArgumentError, "'#{name}' is not a two-word genus + otu name" if genus_term.nil?
+
+    genera = ::TaxonName.where(project_id:, cached: genus_term, rank_class: ::GENUS_ONLY_RANK_NAMES).to_a
+    raise ArgumentError, "No genus named '#{genus_term}' found" if genera.empty?
+    raise ArgumentError, "#{genera.size} genera named '#{genus_term}' found, ambiguous" if genera.size > 1
+
+    genus = genera.first
+    existing = Otu.find_by(project_id:, taxon_name_id: genus.id, name: otu_term)
+    return existing if existing
+
+    Otu.create!(project_id:, taxon_name_id: genus.id, name: otu_term, created_by_id: user_id, updated_by_id: user_id)
+  end
+
   # TODO: replace with filter
   # return [Scope] the Otus bound to that taxon name and its descendants
   def self.for_taxon_name(taxon_name)
@@ -376,7 +408,7 @@ class Otu < ApplicationRecord
 
     h = {
       quick: [],
-      pinboard: q.pinned_by(user_id).to_a,
+      pinboard: q.pinned_by(user_id).pinboard_ordered.to_a,
       recent: []
     }
 
@@ -391,7 +423,7 @@ class Otu < ApplicationRecord
         q.where(id: r.first(4) ).to_a
       ).uniq.sort{|a,b| a.otu_name <=> b.otu_name}
     else
-      h[:recent] = q.order(updated_at: :desc).limit(10).to_a
+      h[:recent] = q.order(updated_at: :desc).limit(10).to_a.sort{|a,b| a.otu_name <=> b.otu_name}
 
       h[:quick] = q.pinned_by(user_id).to_a.sort{|a,b| a.otu_name <=> b.otu_name}
     end

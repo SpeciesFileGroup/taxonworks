@@ -32,8 +32,9 @@ module UsersHelper
     content_tag(:div, user_initials(user), class: classes, title: title)
   end
 
-  def user_autocomplete_tag(user)
-    user.name + ' ' + content_tag(:span, user.email, class: [:feedback, 'feedback-thin', 'feedback-primary']).html_safe
+  def user_autocomplete_tag(user, term = nil)
+    s = user.name + ' ' + content_tag(:span, user.email, class: [:feedback, 'feedback-thin', 'feedback-primary'])
+    mark_tag(s, term)
   end
 
   def user_email_tag(user)

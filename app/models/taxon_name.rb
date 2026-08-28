@@ -446,6 +446,8 @@ class TaxonName < ApplicationRecord
   scope :without_otus, -> { includes(:otus).where(otus: {id: nil}) }
   scope :with_otus, -> { includes(:otus).where.not(otus: {id: nil}) }
 
+  scope :published_in_year, -> (year) { where(year_of_publication: year).or(self.where(cached_nomenclature_date: Date.new(Integer(year), 1, 1)..Date.new(Integer(year), 12, 31))) }
+
   # @return [Scope]
   #   Combinations that are composed of children of this taxon name
   #     when those children are not currently descendants of this taxon name
@@ -606,6 +608,15 @@ class TaxonName < ApplicationRecord
   #        ) as taxon_names
   #   SQL
   # end
+
+  # observation_matrix_row_items carries class_name: so inferred_relations drops it.
+  # Force it back so row items are moved to the surviving taxon name during unify
+  # rather than being destroyed with the removed one.
+  def unify_relations
+    ApplicationEnumeration.klass_reflections(self.class, :has_many).select { |r|
+      r.name == :observation_matrix_row_items
+    }
+  end
 
   # See attr_reader.
   def taxonomy(rebuild = false)
@@ -1602,7 +1613,7 @@ class TaxonName < ApplicationRecord
     klass = (target == 'TypeMaterial' ? Protonym : TaxonName)
     h = {
       recent: klass.used_recently(user_id, project_id, target: klass.name),
-      pinboard: klass.pinned_by(user_id).pinned_in_project(project_id).to_a
+      pinboard: klass.pinned_by(user_id).pinned_in_project(project_id).pinboard_ordered.to_a
     }
 
     h[:quick] = (klass.pinned_by(user_id).pinboard_inserted.pinned_in_project(project_id).to_a + h[:recent][0..3]).uniq

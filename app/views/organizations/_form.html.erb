@@ -82,6 +82,20 @@ See <%= link_to('https://schema.org/Organization for field definitions', 'https:
   </div>
 
   <div class="field">
+    <%= f.label :geographic_area %>
+    <br>
+    <%= render partial: 'workbench/elements/forms/ajax_select',
+      locals: {controller: 'geographic_areas',
+               object:     'organization',
+               method:     'geographic_area_id',
+               tag_id:     'geographic_area_id_for_organization',
+               display:    geographic_area_tag(@organization.geographic_area),
+               size: 80
+
+    } %>
+  </div>
+
+  <div class="field">
     <%= f.label :same_as %>
     <br>
     <%= render partial: 'workbench/elements/forms/ajax_select',

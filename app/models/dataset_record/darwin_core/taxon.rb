@@ -250,6 +250,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
 
           # don't create OC relationship with self if OC was assumed, default to true for any datasets
           # created before this feature existed (since creating OC was always expected then)
+          oc_dataset_record_id = nil
           if metadata.fetch('create_original_combination', true)
 
             # when creating the OC record pointing to self,
@@ -262,6 +263,8 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
               .at(get_field_mapping(:taxonID))
               .having_value(get_field_value(:originalNameUsageID))
               .pick(:dataset_record_id)
+
+            raise DarwinCore::InvalidData.new({ originalNameUsageID: ["No record with taxonID = #{get_field_value(:originalNameUsageID)} was found."] }) if oc_dataset_record_id.nil?
 
             oc_protonym_rank = import_dataset.core_records_fields
               .where(dataset_record_id: oc_dataset_record_id)
@@ -465,7 +468,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
             # if taxon has different original combination conjugation, and genus has gender, use OC name.
             # It will be conjugated correctly with new genus and the original combination will use the correct conjugation
 
-            if oc_dataset_record_id != self.id &&
+            if oc_dataset_record_id.present? && oc_dataset_record_id != self.id &&
                 taxon_name.is_species_rank? &&
                 taxon_name.ancestor_at_rank('genus').cached_gender
 
@@ -474,7 +477,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
                 .at(get_field_mapping(:scientificName))
                 .pick(:value)
 
-              finest_oc_name = oc_name.split.last
+              finest_oc_name = oc_name&.split&.last
 
               # check if OC name is conjugated differently, then see if current name can be conjugated into oc name
               if finest_oc_name != name and ::Utilities::Nomenclature.predict_three_forms(taxon_name.name).values.include?(finest_oc_name)

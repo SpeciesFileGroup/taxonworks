@@ -180,6 +180,7 @@
 <script setup>
 import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import AjaxCall from '@/helpers/ajaxCall'
+import { randomUUID } from '@/helpers'
 import { useAutoselect } from '@/components/ui/AutoselectField/useAutoselect'
 import { usePreferences } from '@/components/ui/AutoselectField/usePreferences'
 import ColConfirmModal from '@/components/ui/AutoselectField/ColConfirmModal.vue'
@@ -216,7 +217,7 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue', 'select'])
 
 // ── Effective id (prop or UUID) ────────────────────────────────────────────────
-const effectiveId = props.id ?? `autoselect_${crypto.randomUUID()}`
+const effectiveId = props.id ?? `autoselect_${randomUUID()}`
 
 // ── Composables ────────────────────────────────────────────────────────────────
 const { config, fetchConfig, getFirstLevelKey, getOperators } =
@@ -706,6 +707,24 @@ function closeHelp() {
     el.setSelectionRange(len, len)
   })
 }
+
+// Fill the field from the outside, run the search, and leave the caret at the end so the
+// text can be trimmed straight away. Used where a caller already knows a good starting term.
+// @param text [String]
+function prefill(text) {
+  inputText.value = text ?? ''
+  onInput()
+
+  nextTick(() => {
+    const el = inputEl.value
+    if (!el) return
+    el.focus()
+    const len = el.value.length
+    el.setSelectionRange(len, len)
+  })
+}
+
+defineExpose({ prefill })
 
 // Fire an operator from the help list: close overlay, inject trigger, run onInput
 function fireOperator(op) {

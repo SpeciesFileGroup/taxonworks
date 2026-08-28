@@ -2,10 +2,14 @@
 module Autoselect
   module Otu
     module Levels
-      # Fast level: prefix-only match via a single LEFT JOIN query; no GIN, no similarity.
+      # Fast level: prefix-only match via a single LEFT JOIN query; no similarity/fuzzy
+      # matching. Note the underlying `cached`/`name` columns only carry trigram GIN
+      # indexes (no plain btree under this DB's collation), so Postgres still serves
+      # these prefix scans off the GIN index — "no GIN" describes the matching
+      # strategy (deterministic prefix, no similarity scoring), not the query plan.
       # Covers three patterns in one round-trip:
-      #   1. Otu#name (taxon_name_id IS NULL) — exact or prefix
-      #   2. TaxonName#cached               — exact or prefix
+      #   1. Otu#name (taxon_name_id IS NULL) — prefix match
+      #   2. TaxonName#cached               — prefix match
       #   3. Multi-word hybrid — every possible split of the term into a
       #      (taxon_prefix, otu_part) pair; both halves use prefix matching so
       #      'P PE01' matches 'Pheidole' + 'PE01', 'Ph PE01' also matches, etc.
@@ -24,7 +28,7 @@ module Autoselect
         end
 
         def description
-          'Prefix match on OTU name and linked taxon name cached (no fuzzy matching)'
+          'Prefix match on OTU name, linked taxon name cached, and taxon name x OTU name combinations (no fuzzy matching)'
         end
 
         # @param term [String]
@@ -39,17 +43,17 @@ module Autoselect
 
           # Pattern 1 — standalone OTU name (no taxon_name attachment)
           p1 = o[:taxon_name_id].eq(nil).and(
-            o[:name].eq(term).or(o[:name].matches("#{sanitized}%"))
+            o[:name].matches("#{sanitized}%")
           )
 
           # Pattern 2 — OTU backed by a TaxonName whose cached column matches
-          p2 = tn[:cached].eq(term).or(tn[:cached].matches("#{sanitized}%"))
+          p2 = tn[:cached].matches("#{sanitized}%")
 
           conditions = p1.or(p2)
 
           # Pattern 3 — multi-word hybrid: try every split point so that both
           # short abbreviations ('P PE01') and longer prefixes ('Phei PE01') work.
-          # The taxon half uses a prefix match; the OTU half uses exact-or-prefix.
+          # Both halves use prefix matching.
           words = term.split(' ')
           if words.length >= 2
             hybrid = (1...words.length).map do |i|
@@ -58,7 +62,7 @@ module Autoselect
               s_taxon = ::ApplicationRecord.sanitize_sql_like(taxon_part)
               s_otu   = ::ApplicationRecord.sanitize_sql_like(otu_part)
               tn[:cached].matches("#{s_taxon}%").and(
-                o[:name].eq(otu_part).or(o[:name].matches("#{s_otu}%"))
+                o[:name].matches("#{s_otu}%")
               )
             end.reduce(:or)
 

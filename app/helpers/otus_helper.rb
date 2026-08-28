@@ -19,7 +19,7 @@ module OtusHelper
       end
     else
       return  [
-        otu.taxon_name&.cached_html,
+        otu.taxon_name&.cached_html_name_and_author_year,
         otu.name
       ].compact.join('&nbsp;')
     end
@@ -52,6 +52,11 @@ module OtusHelper
     content_tag(:span, a.compact.join(' ').html_safe, class: :otu_tag)
   end
 
+  def otu_autocomplete_tag(otu, term = nil)
+    return nil if otu.nil?
+    mark_tag(otu_tag(otu), term)
+  end
+
   def label_for_otu(otu)
     return nil if otu.nil?
     [ label_for_taxon_name(otu.taxon_name),
@@ -62,7 +67,7 @@ module OtusHelper
   def otu_tag_elements(otu)
     return nil if otu.nil?
     [
-      ( otu.taxon_name ? tag.span(otu.taxon_name.cached, class: :otu_tag_taxon_name, title: otu.taxon_name.id) : nil),
+      ( otu.taxon_name ? tag.span(full_taxon_name_tag(otu.taxon_name).html_safe, class: :otu_tag_taxon_name, title: otu.taxon_name.id) : nil),
       ( otu.name ? content_tag(:span, otu.name, class: :otu_tag_otu_name, title: otu.id) : nil )
     ].compact
   end

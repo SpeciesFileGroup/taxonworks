@@ -51,7 +51,7 @@ gem 'responders', '~> 3.0' # Used?!
 gem 'addressable', '~> 2.8'
 
 # Email
-gem 'exception_notification', github: 'smartinez87/exception_notification', ref: '60e158888bbff96f7a9ae00ae97305cdd33726e9' #'~> 4.5'
+gem 'exception_notification', '~> 5.0', '>= 5.0.1'
 
 # Models
 gem 'bcrypt', '~> 3.1.11'
@@ -92,7 +92,11 @@ gem 'rails-jquery-autocomplete', '~> 1.0.3'
 
 gem 'turbolinks', '~> 5.2.0'
 gem 'jquery-turbolinks', '~> 2.1'
-gem 'shakapacker', '10.1.0'
+gem 'shakapacker', '10.3.1'
+# rack-proxy >= 1.0 added an SSRF guard requiring allow_dynamic_backend: true,
+# which shakapacker 10.3.0's DevServerProxy doesn't pass, so every /packs/*
+# request 502s in development. Pin until shakapacker opts in upstream.
+gem 'rack-proxy', '< 1.0'
 
 # BibTeX handling
 gem 'csl', '~> 2.0'
@@ -125,14 +129,14 @@ gem 'wahwah', '~> 1.6.6'
 
 # "Bio" and SFG gems
 gem 'taxonifi', '~> 0.6.1'
-gem 'sqed', '~>0.8.3'
+gem 'sqed', '~> 0.8.3'
 gem 'dwc_agent', '~> 3.0'
 gem 'dwc-archive', github: 'LocoDelAssembly/dwc-archive', branch: 'overhaul', require: 'dwc_archive' # '~> 1.1', '>= 1.1.2'
 gem 'biodiversity', '~> 6.0'
 gem 'ruby-units', '~> 4.1.0', require: 'ruby_units/namespaced'
 
-gem 'colrapi', '~>0.1.1'
-gem 'hookkaido', '0.1.0'
+gem 'colrapi', '~> 0.1.1'
+gem 'hookkaido', '~> 0.1.1'
 
 gem 'nasturtium'
 

@@ -5,7 +5,6 @@
       :legend="isSaving ? 'Saving...' : 'Loading...'"
       v-if="isLoading || isSaving"
     />
-    <h1>Grid digitizer</h1>
     <nav-bar />
     <template v-if="image">
       <div class="horizontal-left-content align-start">
@@ -156,12 +155,7 @@
 <script>
 import Sled from '@sfgrp/sled'
 import ScaleValue from '@/helpers/scale'
-import {
-  GetImage,
-  GetSledImage,
-  GetUserPreferences,
-  UpdateUserPreferences
-} from './request/resource'
+import { Image as ImageEndpoint, SledImage, User } from '@/routes/endpoints'
 import { GetterNames } from './store/getters/getters'
 import { MutationNames } from './store/mutations/mutations'
 import { ActionNames } from './store/actions/actions'
@@ -177,6 +171,9 @@ import SpinnerComponent from '@/components/ui/VSpinner'
 import QuickGrid from './components/grid/Quick'
 import NavBar from './components/NavBar'
 import SetParam from '@/helpers/setParam.js'
+import identifierMatrix from './helpers/identifierMatrix.js'
+import mergeCells from './helpers/mergeCells.js'
+import { RouteNames } from '@/routes/routes.js'
 
 export default {
   components: {
@@ -266,10 +263,14 @@ export default {
 
     sledImage: {
       handler(newVal, oldVal) {
-        this.$refs.sled.cells = this.setIdentifiers(
-          newVal.metadata,
-          newVal.summary
-        )
+        this.$nextTick(() => {
+          if (this.$refs.sled) {
+            this.$refs.sled.cells = this.setIdentifiers(
+              newVal.metadata,
+              newVal.summary
+            )
+          }
+        })
       },
       deep: true
     }
@@ -281,49 +282,68 @@ export default {
 
     if (imageId && /^\d+$/.test(imageId)) {
       this.loadImage(imageId).then((response) => {
-        this.loadSled(response.sled_image_id)
+        this.loadOrCreateSled(response)
       })
     }
     if (sledId && /^\d+$/.test(sledId)) {
-      GetSledImage(sledId).then((sledResponse) => {
-        this.loadImage(sledResponse.body.image_id).then(
-          (response) => {
-            if (sledResponse.body.metadata.length) {
-              this.sledImage = sledResponse.body
-            } else {
-              sledResponse.body.metadata = this.sledImage.metadata
-              this.sledImage = sledResponse.body
-            }
-            if (sledResponse.body.metadata.length) {
-              this.setLines(
-                this.setIdentifiers(
-                  sledResponse.body.metadata,
-                  sledResponse.body.summary
+      SledImage.find(sledId)
+        .then((sledResponse) => {
+          this.loadImage(sledResponse.body.image_id).then(
+            (response) => {
+              if (sledResponse.body.metadata.length) {
+                this.sledImage = sledResponse.body
+              } else {
+                sledResponse.body.metadata = this.sledImage.metadata
+                this.sledImage = sledResponse.body
+              }
+              if (sledResponse.body.metadata.length) {
+                this.setLines(
+                  this.setIdentifiers(
+                    sledResponse.body.metadata,
+                    sledResponse.body.summary
+                  )
                 )
-              )
-              this.$nextTick(() => {
-                this.$refs.sled.cells = sledResponse.body.metadata
-              })
-            }
+                this.$nextTick(() => {
+                  this.$refs.sled.cells = sledResponse.body.metadata
+                })
+              }
 
-            this.isLoading = false
-          },
-          () => {
-            this.isLoading = false
-          }
-        )
-      })
+              this.isLoading = false
+            },
+            () => {
+              this.isLoading = false
+            }
+          )
+        })
+        .catch(() => {
+          TW.workbench.alert.create('The sled image was not found', 'error')
+        })
     }
   },
   methods: {
     loadPreferences() {
-      GetUserPreferences().then((response) => {
+      User.preferences().then((response) => {
         this.preferences = response.body
         if (this.sledImage.summary.length) return
         const sizes = this.preferences.layout[this.configString]
         if (sizes) {
           this.vlines = sizes.columns.map((column) => column * this.image.width)
           this.hlines = sizes.rows.map((row) => row * this.image.height)
+
+          if ('step_identifier_on' in sizes) {
+            this.sledImage.step_identifier_on =
+              sizes.step_identifier_on ?? undefined
+          }
+
+          if (sizes.horizontal_step_direction) {
+            this.sledImage.horizontal_step_direction =
+              sizes.horizontal_step_direction
+          }
+
+          if (sizes.vertical_step_direction) {
+            this.sledImage.vertical_step_direction =
+              sizes.vertical_step_direction
+          }
 
           if (sizes.metadata)
             this.$nextTick(() => {
@@ -349,11 +369,19 @@ export default {
       )
       const metadata = this.$refs.sled.cells.map((cell) => `${cell.metadata}`)
 
-      UpdateUserPreferences(this.preferences.id, {
-        [this.configString]: {
-          columns: columns,
-          rows: rows,
-          metadata: metadata
+      User.update(this.preferences.id, {
+        user: {
+          layout: {
+            [this.configString]: {
+              columns,
+              rows,
+              metadata,
+              step_identifier_on: this.sledImage.step_identifier_on || null,
+              horizontal_step_direction:
+                this.sledImage.horizontal_step_direction,
+              vertical_step_direction: this.sledImage.vertical_step_direction
+            }
+          }
         }
       }).then((response) => {
         this.preferences = response.body
@@ -361,12 +389,34 @@ export default {
     },
     createImage(imageId) {
       this.loadImage(imageId).then((response) => {
-        this.loadSled(response.sled_image_id)
+        this.loadOrCreateSled(response)
       })
     },
+
+    loadOrCreateSled(image) {
+      return image.sled_image_id
+        ? this.loadSled(image.sled_image_id)
+        : this.createSledForImage(image.id)
+    },
+    createSledForImage(imageId) {
+      this.isLoading = true
+
+      return SledImage.create({
+        sled_image: {
+          image_id: imageId,
+          metadata: []
+        }
+      }).then(
+        (response) => this.loadSled(response.body.id),
+        () => {
+          this.isLoading = false
+        }
+      )
+    },
     processCells(cells) {
-      if (this.sledImage.summary.length) return
-      this.sledImage.metadata = cells
+      this.sledImage.metadata = this.sledImage.summary.length
+        ? mergeCells(cells, this.sledImage.metadata)
+        : cells
     },
     createSled(load = false, id = undefined) {
       this.isSaving = true
@@ -374,12 +424,14 @@ export default {
       this.$store.dispatch(ActionNames.UpdateSled).then(
         () => {
           this.isSaving = false
+
+          SetParam(
+            RouteNames.GridDigitizer,
+            'sled_image_id',
+            load ? id : this.sledImage.id
+          )
+
           if (load) {
-            SetParam(
-              '/tasks/collection_objects/grid_digitize',
-              'sled_image_id',
-              id
-            )
             this.$store.dispatch(ActionNames.ResetStore)
           }
         },
@@ -398,13 +450,9 @@ export default {
     },
     loadSled(sledId) {
       return new Promise((resolve, reject) => {
-        GetSledImage(sledId).then(
+        SledImage.find(sledId).then(
           (response) => {
-            SetParam(
-              '/tasks/collection_objects/grid_digitize',
-              'sled_image_id',
-              sledId
-            )
+            SetParam(RouteNames.GridDigitizer, 'sled_image_id', sledId)
             if (response.body.metadata.length) {
               this.sledImage = response.body
             } else {
@@ -436,7 +484,7 @@ export default {
     loadImage(imageId) {
       return new Promise((resolve, reject) => {
         this.isLoading = true
-        GetImage(imageId).then(
+        ImageEndpoint.find(imageId).then(
           (response) => {
             const ajaxRequest = new XMLHttpRequest()
 
@@ -499,79 +547,38 @@ export default {
       this.vlines = [...new Set(xlines)]
       this.hlines = [...new Set(ylines)]
     },
-    convertToMatrix(metadata) {
-      let i = []
-
-      metadata.forEach((cell) => {
-        let r = cell.row
-        let c = cell.column
-        if (!i[r]) {
-          i[r] = []
-        }
-        i[r][c] = cell.metadata != null ? 0 : 1
-      })
-      return i
-    },
-    metadataCount(matrix, c, r) {
-      let inc = 0
-      for (let i = 0; i <= c; i++) {
-        for (let j = 0; j <= matrix.length - 1; j++) {
-          if (i == c && j > r) break
-          else {
-            if (matrix[j][i] == 0) {
-              inc++
-            }
-          }
-        }
-      }
-      return inc
-    },
     setIdentifiers(metadata, summary = undefined) {
       if (!this.sledImage.step_identifier_on)
         return metadata.map((cell) => {
           cell.textfield = undefined
           return cell
         })
+
       if (summary && summary.length) {
         return metadata.map((cell) => {
           cell.textfield = summary[cell.row][cell.column].identifier
           return cell
         })
-      } else {
-        if (this.identifier.namespace_id && this.identifier.identifier) {
-          let identifier = Number(this.identifier.identifier)
-          let matrix = this.convertToMatrix(metadata)
-          let decrease = 0
-
-          return metadata.map((cell) => {
-            let c = cell.column
-            let r = cell.row
-            let inc = r + c + identifier
-
-            if (cell.metadata) {
-              decrease++
-              cell.textfield = undefined
-            } else {
-              cell.textfield =
-                this.sledImage.step_identifier_on == 'row'
-                  ? `${this.identifier.label} ${
-                      r * (this.vlines.length - 2) + inc - decrease
-                    }`
-                  : `${this.identifier.label} ${
-                      c * (this.hlines.length - 2) +
-                      inc -
-                      this.metadataCount(matrix, c, r)
-                    }`
-            }
-            return cell
-          })
-        } else {
-          return metadata.map((cell) => {
-            cell.textfield = undefined
-            return cell
-          })
-        }
       }
+
+      const identifiers = this.identifier.namespace_id
+        ? identifierMatrix(metadata, {
+            firstIdentifier: this.identifier.identifier,
+            stepIdentifierOn: this.sledImage.step_identifier_on,
+            horizontalStepDirection: this.sledImage.horizontal_step_direction,
+            verticalStepDirection: this.sledImage.vertical_step_direction
+          })
+        : new Map()
+
+      return metadata.map((cell) => {
+        const identifier = identifiers.get(`${cell.row}-${cell.column}`)
+
+        cell.textfield = identifier
+          ? `${this.identifier.label} ${identifier}`
+          : undefined
+
+        return cell
+      })
     }
   }
 }
