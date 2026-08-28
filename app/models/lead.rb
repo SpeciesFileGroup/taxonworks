@@ -329,10 +329,14 @@ class Lead < ApplicationRecord
   #   * nil    -> excludes virtual roots (interactive/annotated keys only)
   #   * true   -> only virtual roots (simple/cite_key keys)
   #   * false  -> excludes virtual roots (same as nil, explicit)
+  #   * :all   -> includes both virtual and non-virtual roots
   def self.roots_with_data(project_id, load_root_otus = false, is_virtual: nil)
-    virtual_where = is_virtual == true ?
-      'AND leads.is_virtual = TRUE' :
-      'AND (leads.is_virtual IS NOT TRUE)'
+    virtual_where =
+      case is_virtual
+      when :all then ''
+      when true then 'AND leads.is_virtual = TRUE'
+      else 'AND (leads.is_virtual IS NOT TRUE)'
+      end
 
     # The updated_at subquery computes key_updated_at (and others), the second
     # query uses that to compute key_updated_by (by finding which node has the

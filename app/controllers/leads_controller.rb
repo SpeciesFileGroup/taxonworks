@@ -1,5 +1,6 @@
 class LeadsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
+  after_action -> { set_pagination_headers(:leads) }, only: [:index], if: :json_request?
   before_action :set_lead, only: %i[
     edit add_children update destroy show
     redirect_option_texts destroy_children insert_couplet delete_children
@@ -22,9 +23,14 @@ class LeadsController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        is_virtual = params[:is_virtual].present? ?
-          ActiveRecord::Type::Boolean.new.cast(params[:is_virtual]) :
-          nil
+        is_virtual =
+          if params[:is_virtual].to_s == 'all'
+            :all
+          elsif params[:is_virtual].present?
+            ActiveRecord::Type::Boolean.new.cast(params[:is_virtual])
+          else
+            nil
+          end
 
         @leads = Lead.roots_with_data(
           sessions_current_project_id,
@@ -36,9 +42,7 @@ class LeadsController < ApplicationController
           @leads = @leads.reorder('leads_updated_at.key_updated_at DESC NULLS LAST')
         end
 
-        if params[:per].present?
-          @leads = @leads.limit(params[:per].to_i)
-        end
+        @leads = @leads.page(params[:page]).per(params[:per])
       }
     end
   end
