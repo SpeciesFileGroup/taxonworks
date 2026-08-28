@@ -9,7 +9,11 @@ if extend_response_with('citation_object')
   json.citation_object do
     json.partial! '/shared/data/all/metadata', object: citation.citation_object, extensions: false
     if citation.citation_object.is_a?(::Lead)
-      json.extract! citation.citation_object, :is_virtual, :parent_id, :text
+      json.extract! citation.citation_object, :is_virtual, :parent_id, :text, :updated_at
+      json.updated_at_in_words time_ago_in_words(citation.citation_object.updated_at)
+      if citation.citation_object.updater
+        json.updated_by citation.citation_object.updater.name
+      end
       if citation.citation_object.otu
         json.otu do
           json.id citation.citation_object.otu.id

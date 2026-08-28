@@ -1272,9 +1272,9 @@ collection_visualization_task:
 
 cite_key_task:
   hub: true
-  name: 'Cite a key'
+  name: 'Add simple key'
   related:
   categories:
     - new
   status: prototype
-  description: 'Record a citation for a dichotomous key in the literature without building the tree.'
+  description: 'Record a citation for a dichotomous key in the literature and attach OTUs, without adding a description to every lead.'

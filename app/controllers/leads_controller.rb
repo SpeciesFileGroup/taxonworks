@@ -22,17 +22,39 @@ class LeadsController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        if params[:load_root_otus]
-          @leads = Lead.roots_with_data(sessions_current_project_id, true)
-        else
-          @leads = Lead.roots_with_data(sessions_current_project_id)
+        is_virtual = params[:is_virtual].present? ?
+          ActiveRecord::Type::Boolean.new.cast(params[:is_virtual]) :
+          nil
+
+        @leads = Lead.roots_with_data(
+          sessions_current_project_id,
+          !!params[:load_root_otus],
+          is_virtual:
+        )
+
+        if params[:recent].present? && ActiveRecord::Type::Boolean.new.cast(params[:recent])
+          @leads = @leads.reorder('leads_updated_at.key_updated_at DESC NULLS LAST')
+        end
+
+        if params[:per].present?
+          @leads = @leads.limit(params[:per].to_i)
         end
       }
     end
   end
 
   def api_index
-    @leads = Lead.roots_with_data(sessions_current_project_id, true).where(is_public: true)
+    @leads = Lead
+      .roots_with_data(sessions_current_project_id, true)
+      .where(is_public: true)
+
+    render '/leads/api/v1/index'
+  end
+
+  def api_index_simple
+    @leads = Lead
+      .roots_with_data(sessions_current_project_id, true, is_virtual: true)
+      .where(is_public: true)
 
     render '/leads/api/v1/index'
   end

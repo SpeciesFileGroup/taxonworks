@@ -325,7 +325,15 @@ class Lead < ApplicationRecord
   # !! Note, the relation is a join, check your results when changing order
   # or plucking, most of want you want is on the table joined to, which is
   # not the default table for ordering and plucking.
-  def self.roots_with_data(project_id, load_root_otus = false)
+  # `is_virtual` (default: nil) scopes the returned roots:
+  #   * nil    -> excludes virtual roots (interactive/annotated keys only)
+  #   * true   -> only virtual roots (simple/cite_key keys)
+  #   * false  -> excludes virtual roots (same as nil, explicit)
+  def self.roots_with_data(project_id, load_root_otus = false, is_virtual: nil)
+    virtual_where = is_virtual == true ?
+      'AND leads.is_virtual = TRUE' :
+      'AND (leads.is_virtual IS NOT TRUE)'
+
     # The updated_at subquery computes key_updated_at (and others), the second
     # query uses that to compute key_updated_by (by finding which node has the
     # corresponding key_updated_at).
@@ -339,6 +347,7 @@ class Lead < ApplicationRecord
       .where("
         leads.parent_id IS NULL
         AND leads.project_id = #{project_id}
+        #{virtual_where}
       ")
       .group(:id)
       .select("
@@ -459,6 +468,7 @@ class Lead < ApplicationRecord
       .where('l_h2.descendant_id IN (SELECT id FROM l_o_l)')
       .where(parent_id: nil)
       .where(is_public: true)
+      .where('leads.is_virtual IS NOT TRUE')
   end
 
   # Returns nil when no children are provided, otherwise a hash of
