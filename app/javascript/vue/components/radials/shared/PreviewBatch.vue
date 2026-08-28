@@ -25,6 +25,7 @@
       <VBtn
         color="create"
         medium
+        :disabled="isCapped"
         @click="
           () => {
             emit('finalize')
@@ -39,7 +40,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import VModal from '@/components/ui/Modal.vue'
 import PreviewTable from './PreviewTable.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
@@ -67,6 +68,7 @@ const emit = defineEmits(['finalize', 'close'])
 const data = ref(null)
 const isModalVisible = ref(false)
 const isLoading = ref(false)
+const isCapped = computed(() => !!data.value?.cap_reason)
 
 function makeBatchloadRequest() {
   isLoading.value = true

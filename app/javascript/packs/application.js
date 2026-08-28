@@ -37,6 +37,7 @@ import '../vanilla/views/users/show.js'
 
 import '../vue/data/downloads/index.js'
 
+import '../vue/initializers/Autoselect/main.js'
 import '../vue/initializers/BrowseNomenclature/main.js'
 import '../vue/initializers/ButtonConfidence/main.js'
 import '../vue/initializers/ButtonOtu/main.js'
@@ -172,3 +173,5 @@ import '../vue/tasks/biological_associations/new_ba/main.js'
 import '../vue/tasks/containers/collection_layout/main.js'
 import '../vue/tasks/containers/collection_visualization/main.js'
 import '../vue/tasks/leads/cite_key/main.js'
+import '../vue/tasks/otus/assign_taxon_name/main.js'
+import '../vue/tasks/projects/organizations/main.js'

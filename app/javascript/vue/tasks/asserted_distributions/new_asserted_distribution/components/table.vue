@@ -1,16 +1,13 @@
 <template>
-  <table>
+  <table class="table-striped">
     <thead>
       <tr>
         <th>Object</th>
         <th>Object type</th>
         <th>Shape</th>
-        <th>Citation</th>
-        <th>Trash</th>
-        <th>Radial annotator</th>
-        <th>Source/Object clone</th>
-        <th>Source/Geo clone</th>
-        <th>Object/Geo load</th>
+        <th>Citations</th>
+        <th class="w-2">OTU</th>
+        <th class="w-2">AD</th>
       </tr>
     </thead>
     <tbody>
@@ -56,47 +53,20 @@
             <SoftValidation :global-id="item.global_id" />
           </div>
         </td>
+
         <td>
-          <VBtn
-            color="destroy"
-            circle
-            @click="removeItem(item)"
-          >
-            <VIcon
-              name="trash"
-              x-small
-            />
-          </VBtn>
-        </td>
-        <td>
-          <RadialAnnotator
-            type="annotations"
-            :global-id="item.global_id"
+          <QuickForms
+            :global-id="item.asserted_distribution_object.global_id"
           />
         </td>
         <td>
-          <VBtn
-            color="primary"
-            @click="() => setSourceObject(item)"
-          >
-            Clone
-          </VBtn>
-        </td>
-        <td>
-          <VBtn
-            color="primary"
-            @click="() => setSourceGeo(item)"
-          >
-            Clone
-          </VBtn>
-        </td>
-        <td>
-          <VBtn
-            color="primary"
-            @click="() => setGeoObject(item)"
-          >
-            Load
-          </VBtn>
+          <div class="flex-row gap-small">
+            <RadialAnnotator
+              type="annotations"
+              :global-id="item.global_id"
+            />
+            <RadialNavigator :global-id="item.global_id" />
+          </div>
         </td>
       </tr>
     </tbody>
@@ -105,13 +75,13 @@
 
 <script setup>
 import RadialAnnotator from '@/components/radials/annotator/annotator'
-import CitationCount from './citationsCount'
+import RadialNavigator from '@/components/radials/navigation/radial.vue'
+import CitationCount from '@/components/citations/CitationsCount.vue'
 import SoftValidation from '@/components/soft_validations/objectValidation.vue'
-import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import QuickForms from '@/components/radials/object/radial.vue'
+
 import { RouteNames } from '@/routes/routes'
 import { useStore } from '../store/store'
-import { Source } from '@/routes/endpoints'
 import { ID_PARAM_FOR } from '@/components/radials/filter/constants/idParams'
 import { toSnakeCase } from '@/helpers'
 
@@ -119,16 +89,6 @@ const store = useStore()
 
 function nomenclatureBySourceRoute(id) {
   return `${RouteNames.NomenclatureBySource}?source_id=${id}`
-}
-
-function removeItem(item) {
-  if (
-    window.confirm(
-      "You're trying to delete this record. Are you sure you want to proceed?"
-    )
-  ) {
-    store.removeAssertedDistribution(item)
-  }
 }
 
 function browseObjectLink(item) {
@@ -140,52 +100,6 @@ function browseObjectLink(item) {
   } else {
     return `/${toSnakeCase(model)}s/${item.asserted_distribution_object_id}`
   }
-}
-
-function setSourceObject(item) {
-  store.reset()
-  setCitation(item.citations[0])
-  store.object = {
-    objectType: item.asserted_distribution_object_type,
-    ...item.asserted_distribution_object
-  }
-}
-
-function setSourceGeo(item) {
-  store.reset()
-  setCitation(item.citations[0])
-  store.shape = {
-    shapeType: item.asserted_distribution_shape_type,
-    ...item.asserted_distribution_shape
-  }
-  store.isAbsent = item.is_absent
-}
-
-function setGeoObject(item) {
-  store.reset()
-  store.autosave = false
-  store.assertedDistribution.id = item.id
-  store.shape = {
-    shapeType: item.asserted_distribution_shape_type,
-    ...item.asserted_distribution_shape
-  }
-  store.object = {
-    objectType: item.asserted_distribution_object_type,
-    ...item.asserted_distribution_object
-  }
-  store.isAbsent = item.is_absent
-}
-
-function setCitation(citation) {
-  Source.find(citation.source_id).then(({ body }) => {
-    store.citation = {
-      id: undefined,
-      source: body,
-      source_id: citation.source_id,
-      is_original: citation.is_original,
-      pages: citation.pages
-    }
-  })
 }
 
 function shapeLink(shape, type) {

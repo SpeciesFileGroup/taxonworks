@@ -33,9 +33,15 @@
 #  @!attribute parent_organization_id
 #    @return [Organization, nil]
 #
+#  @!attribute geographic_area_id
+#    @return [GeographicArea, nil]
+#      Where the Organization is.  Must resolve to a country, i.e. it is a country
+#      or any level below one.
+#
 class Organization < ApplicationRecord
   include Housekeeping::Users
   include Housekeeping::Timestamps
+  include Shared::Depictions
   include Shared::Notes
   include Shared::Identifiers
   include Shared::SharedAcrossProjects
@@ -46,6 +52,10 @@ class Organization < ApplicationRecord
   belongs_to :same_as, class_name: 'Organization'
 
   belongs_to :area_served, class_name: 'GeographicArea'
+  belongs_to :geographic_area, inverse_of: :organizations
+
+  has_many :project_organizations, inverse_of: :organization, dependent: :destroy
+  has_many :projects, inverse_of: :organizations, through: :project_organizations
 
   has_many :roles, dependent: :restrict_with_error, inverse_of: :organization #, before_remove: :set_cached_for_related
 
@@ -72,6 +82,13 @@ class Organization < ApplicationRecord
 
   validate :related_not_self
   validate :names_not_same
+  validate :geographic_area_resolves_to_country
+
+  # @return [GeographicArea, nil]
+  #   the country the Organization is in
+  def country
+    geographic_area&.level0
+  end
 
   # @param role_type [String] one of the Role types
   # @return [Scope]
@@ -101,7 +118,7 @@ class Organization < ApplicationRecord
     r = used_recently(user_id, role_type)
     h = {
       quick: [],
-      pinboard: Organization.pinned_by(user_id).where(pinboard_items: {project_id:}).to_a,
+      pinboard: Organization.pinned_by(user_id).where(pinboard_items: {project_id:}).pinboard_ordered.to_a,
       recent: []
     }
 
@@ -129,6 +146,11 @@ class Organization < ApplicationRecord
       b = send(a)
       errors.add(a, 'can not be self') if b && id == b
     end
+  end
+
+  def geographic_area_resolves_to_country
+    return true if geographic_area.nil?
+    errors.add(:geographic_area, 'does not resolve to a country') if geographic_area.level0_id.nil?
   end
 
 end

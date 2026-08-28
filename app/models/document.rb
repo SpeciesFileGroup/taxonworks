@@ -182,7 +182,7 @@ class Document < ApplicationRecord
     r = target ? used_recently(user_id, project_id, target) : []
     h = {
       quick: [],
-      pinboard: Document.pinned_by(user_id).where(project_id:).to_a,
+      pinboard: Document.pinned_by(user_id).where(project_id:).pinboard_ordered.to_a,
       recent: []
     }
 

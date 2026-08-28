@@ -9,13 +9,159 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 ### Added
 
+- raw id search for Biological Association autocompletes
+- `New Collection Object`: Added a CO Total field to the CO form. Added a `identifier end` field that automatically increments based on the Identifier and the total number of specimens/lots being created. [#4873]
+- `New asserted distribution`: Added preferences modal, moved autosave there, and added option to hide Confidence panel
+- Smart selector for preparation type [#1130]
+- Smart selector for protocols [#2890]
+- `Match collection objects`: Added button to destroy selected collection objects [#2942]
+- Custom attributes for type material in comprehensive and new type specimen tasks
+- `Grid digitizer`: catalogue numbers can be numbered in any of 8 directions, combining across/down first with a left or right start and a top or bottom start [#1394]
+- `Filter CO`: container facet [#3196]
+- Rails initializer for the Autoselect component
+- `Browse sounds task`: Timeline under the waveform. Toggles to hide the regions and the spectrograms
+- `Radial navigator`: `filter collection object` slice for taxon names [#4963]
+
+### Changed
+
+- `Simple new specimen` task is now `New collection object`
+- Support partial dates (year only, year-month only) for `startDate` and `endDate` from the api
+- Sort people by uses in Match Authors to People
+- `Citations by source`: All OTU links now redirect to Browse OTU [#2261]
+- Autocomplete highlighting now matches each occurrence of each of your search terms in the result: e.g. if you search on `aus cus` and one of the results is `Aus (bus) cus`, the "Aus" and "cus" terms in the result will be highlighted [#5043]
+- `New images task`: Images now display a warning or check mark icon to indicate whether annotations have been applied. [#1060]
+- `Radial CE`: Assign georeference slice now only displays collecting events with georeferences. [#4797]
+- Replaced otu picker by autoselect in Taxon determinations form
+- Replaced taxon name autocomplete by autoselect in the Edit OTU form
+- `Taxon name stats task`: Now uses the standard filter interface
+- `Field synchronize task`: Allow filling multiple columns by pasting from the clipboard [#4286]
+- `Browse sounds task`: Layout updated. Sound regions now use different colors to identify the associated conveyance object. Spectrogram now uses a linear frequency scale.
+
+### Fixed
+
+- `Filter biological associations`: `taxon_name_id`, `subject_taxon_name_id` and `object_taxon_name_id` now also match associations involving an AnatomicalPart
+- Error when clicking quick forms radial menu in New Asserted Distribution
+- Error on viewing deprecated Edit Taxon Determination page for a taxon determination on a Field Occurrence
+- Field synchronize and multi update task are not sorting records by id [#5045]
+- Browse OTUs: TIFF images of observations are not displayed in the image viewer
+- OTU autocomplete overwhelmed by incorrect fuzzy matches on 'hybrid' genus + otu_name searches like "Tapinoma CASC_123" [#5047]
+- Don't include highlights with text chosen in autocompletes [#5052]
+- New OTU task keeps existing OTUs selected after Find [#5054]
+- In the Match Taxon Name to OTU task:
+  - add ability to filter on columns #[5051]
+  - changing options shouldn't be able to unselect an OTU the user has specifically chosen [#5051]
+  - add 'ambiguous' count to summary [#5051]
+  - add mode for matching to OTUs in addition to Taxon Names - currently OTUs only match on names in the morphospecies format [genus] + [one-word-otu_name], e.g. `Tetramorium FHG_pumi` [#5039]
+  - uses autoselect instead of autocomplete for Taxon Name and OTU selection [#5051]
+- Adding duplicate images to an observation now uses the image that was already created instead of returning an error stating that the image is already in use [#4146]
+- Sped up Person autocomplete [#5037]
+- The `pinboard` tab of smart selectors now lists items in the order they were arranged on the pinboard [#5058]
+- Smart selectors for depictions and observations listed conveyances instead of depictions and observations
+- `Taxon name stats`: the `Observation matrices dashboard` app mounted over the task, replacing its interface
+- `Taxon name stats`: `Set to <parent>` is not displayed after selecting a taxon name
+- Biological associations linked to an anatomical part not showing on its origin field occurrence or collection object [#5061]
+- Coordinate parsing from verbatim labels
+
+[#1060]: https://github.com/SpeciesFileGroup/taxonworks/issues/1060
+[#1130]: https://github.com/SpeciesFileGroup/taxonworks/issues/1130
+[#1394]: https://github.com/SpeciesFileGroup/taxonworks/issues/1394
+[#2261]: https://github.com/SpeciesFileGroup/taxonworks/issues/2261
+[#2890]: https://github.com/SpeciesFileGroup/taxonworks/issues/2890
+[#2942]: https://github.com/SpeciesFileGroup/taxonworks/issues/2942
+[#3196]: https://github.com/SpeciesFileGroup/taxonworks/issues/3196
+[#4146]: https://github.com/SpeciesFileGroup/taxonworks/issues/4146
+[#4286]: https://github.com/SpeciesFileGroup/taxonworks/issues/4286
+[#4797]: https://github.com/SpeciesFileGroup/taxonworks/issues/4797
+[#4873]: https://github.com/SpeciesFileGroup/taxonworks/issues/4873
+[#4963]: https://github.com/SpeciesFileGroup/taxonworks/issues/4963
+[#5037]: https://github.com/SpeciesFileGroup/taxonworks/issues/5037
+[#5039]: https://github.com/SpeciesFileGroup/taxonworks/issues/5039
+[#5043]: https://github.com/SpeciesFileGroup/taxonworks/issues/5043
+[#5045]: https://github.com/SpeciesFileGroup/taxonworks/issues/5045
+[#5047]: https://github.com/SpeciesFileGroup/taxonworks/issues/5047
+[#5051]: https://github.com/SpeciesFileGroup/taxonworks/issues/5052
+[#5052]: https://github.com/SpeciesFileGroup/taxonworks/issues/5052
+[#5054]: https://github.com/SpeciesFileGroup/taxonworks/issues/5054
+[#5061]: https://github.com/SpeciesFileGroup/taxonworks/issues/5061
+
+## [0.64.0] - 2026-08-04
+
+### Added
+
+- Assing OTU to taxon name task [#130]
+- ProjectOrganization model, link projects to org/depiction metadata [#5027]
+- Radial annotator: Add pagination to citations slice [#4964]
+- In the TaxonName verbatim author/year task, add a Source selector as an option when citing, and add a modal for assigning page numbers to source-only citations that get added to names
+- Add object ID to Radial annotator/object/navigator header [#4978]
+- TypeMaterials slice to radial collection objects in Filter Collection Objects [#4974]
+- Taxon Name search now matches on full name + author_year strings, e.g. "Isocapnia crinita (Needham & Claassen, 1925)" [#4976]
+- Index option in the downloads dropdown in Filter Biological Associations - includes more data than the standard filter results download [#5017]
+- Biological Associations Index tsv download link from Project data overview and download [#5017]
+- Add help text on Geographic Area autocompletes explaining that searching for `washington un`, e.g., returns Washington state, United States (so does `WA` by the way!)
+- Add sort-column icons to the header row of the labels table in Print Labels
+
+### Changed
+
+- Upgraded postresql client to version 18
+- Names limit in the Match OTUs to Taxon Names task is now 3k, up from 1k
+- Move the list of unifiable types to Ruby (no user-facing changes)
+- `View observation matrix` task is now `Browse observation matrix`
+- The Print Labels table wraps the text in its columns more, to fit the whole table on smaller screens
+- Updated Ruby gems
+
+### Fixed
+
+- Filters: Sort buttons do not reset their state when the table content changes
+- Notification sound triggers multiple times when there is more than one notification. [#4964]
+- Error when changing the type of a label from qrcode/barcode to text
+- DwC occurrences importer not checking existing nomenclature date data correctly when matching on author/year
+- Regexes are applied when the user clicks the 'Match' button in the Match OTUs to Taxon Names task
+- "Is absent" checkbox does not display the value saved in session storage when citation form is loaded
+- Include citations on the OTU itself in addition to associated objects, for the endpoint /api/v1/otus/:id/inventory/citations [#4983]
+- Collecting Events with Georeferences raise an error when attempting to destroy [#4937]
+- Unify fixes related to: Georeferences when Collecting Events are unified, matrix columns when descriptors are unified, and dynamix matrix rows/columns when dynamic data are unified [#4944]
+- Unify now preserves list order of associated data: e.g. if two Collection Objects are unified, the kept object has its original list of Taxon Determinations in the same order, followed by the Taxon Determinations of the destroyed Collection Object in their original order
+- Can't unify two Taxon Names when they have the same relationship type from/to a same third Taxon Name [#4971]
+- A "successful" unify between two Taxon Names, one of which has a synonym, can leave the synonym in an unusable state [#4971]
+- Unify of two Asserted Distributions with the "same" Citation can cause loss of annotation data from the citation that gets destroyed [#4971]
+- Unify blocked by "duplicate" is_original citations now works [#4971]
+- Monograph facilitator: Determination label is not visible in Safari browser
+- Checklist importer crashing on empty `originalNameUsageID` in some cases
+- Source and Repository autocompletes sometimes miss results, repository usage counts were sometimes wrong [#4990]
+- OTU autocomplete sometimes returns unuseful results instead of an exact match, even when an exact match exists [#4994]
+- Biological Association UUID sent to GBIF was bad data (not a UUID)
+- PDF viewer is not rendering pages [#5023]
+- Add 'Exclude' option to Tags and Confidences facets in filters (for finding objects NOT satisfying the given conditions) [#4157]
+- New BA: Forms do not reset if a citation has already been created
+- Unexpected failure from api/v1/otus?extend[]=taxon_name when a returned OTU has no taxon name
+
+[#130]: https://github.com/SpeciesFileGroup/taxonworks/issues/130
+[#5027]: https://github.com/SpeciesFileGroup/taxonworks/issues/5027
+[#4157]: https://github.com/SpeciesFileGroup/taxonworks/issues/4157
+[#4937]: https://github.com/SpeciesFileGroup/taxonworks/issues/4937
+[#4944]: https://github.com/SpeciesFileGroup/taxonworks/issues/4944
+[#4964]: https://github.com/SpeciesFileGroup/taxonworks/issues/4964
+[#4974]: https://github.com/SpeciesFileGroup/taxonworks/issues/4974
+[#4976]: https://github.com/SpeciesFileGroup/taxonworks/issues/4976
+[#4978]: https://github.com/SpeciesFileGroup/taxonworks/issues/4978
+[#4983]: https://github.com/SpeciesFileGroup/taxonworks/issues/4983
+[#4990]: https://github.com/SpeciesFileGroup/taxonworks/issues/4990
+[#4994]: https://github.com/SpeciesFileGroup/taxonworks/issues/4994
+[#5017]: https://github.com/SpeciesFileGroup/taxonworks/issues/5017
+[#5023]: https://github.com/SpeciesFileGroup/taxonworks/issues/5023
+[#4971]: https://github.com/SpeciesFileGroup/taxonworks/issues/4971
+
+## [0.63.1] - 2026-06-22
+
+### Added
+
 - `type_taxon_name_relationship` support to the extend[] parameter in `inventory/summary.json`
 - Quick Forms: Pagination to Biological associations slice
 - CSD: Added a button to load the associated CO when the identifier is already in use by another CO
 - Ctrl+v to paste images and documents in "Drop [image/doc] here"
 - New descriptors: character states' thumbnails [#4796]
 - Project usage count for authors in Match Author task of New Source [#4943]
-- extend[]=descendants option for api/v1/taxon_names/123/monograph endpoint (limited to 2500 results or fewer) [#4860]
+- extend[]=descendants option for api/v1/taxon_names/123/monograph endpoint (defaults to 50 results, use page= and per= paging params to get more) [#4860]
 - Data Attributes facet to Filter anatomical parts, contents, descriptors, extracts, loans, and sounds tasks [#4940]
 
 ### Changed
@@ -24,6 +170,8 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Dropped support for legacy MS Excel format (xls, not xlsx) in DwC importer
 - New Taxon Name: The source section is now disabled while a taxon name is being saved. [#4909]
 - The With/Without Type Information facet in Filter Taxon Names now returns higher ranks with/without a type [#4958]
+- Updated Ruby gems
+- Jobs from 'default' jobs queue are now processed in docker deployment image (ActiveStorage uses this queue)
 
 ### Fixed
 
@@ -40,6 +188,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - No result for Collecting Events tab of the Collection Summary task for some combinations of parameters
 - Print labels: In some cases, labels are cut off in preview mode. [#4959]
 - alt+h and alt+? not working outside of text inputs
+- Include Anatomical Part object info in anatomical part labels and tags [#4970]
 
 [#4796]: https://github.com/SpeciesFileGroup/taxonworks/issues/4796
 [#4909]: https://github.com/SpeciesFileGroup/taxonworks/issues/4909
@@ -52,6 +201,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 [#4946]: https://github.com/SpeciesFileGroup/taxonworks/issues/4946
 [#4958]: https://github.com/SpeciesFileGroup/taxonworks/issues/4958
 [#4959]: https://github.com/SpeciesFileGroup/taxonworks/issues/4959
+[#4970]: https://github.com/SpeciesFileGroup/taxonworks/issues/4970
 
 ## [0.63.0] - 2026-05-15
 
@@ -6354,7 +6504,9 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.63.0...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.64.0...development
+[0.64.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.63.1...v0.64.0
+[0.63.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.63.0...v0.63.1
 [0.63.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.62.0...v0.63.0
 [0.62.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.61.0...v0.62.0
 [0.61.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.60.0...v0.61.0

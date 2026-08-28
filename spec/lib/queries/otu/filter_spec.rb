@@ -60,32 +60,39 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
     end
   end
 
-  # confidences query concern
-  specify '#confidence_level_id' do
-    l = FactoryBot.create(:valid_confidence_level)
-    c = FactoryBot.create(:valid_confidence, confidence_level: l, confidence_object: o1)
-    q.confidence_level_id = l.id
-    expect(q.all).to contain_exactly(o1)
+  context '#genus_name' do
+    let!(:root) { FactoryBot.create(:root_taxon_name) }
+    let!(:g) { Protonym.create!(name: 'Aus', parent: root, rank_class: Ranks.lookup(:iczn, :genus)) }
+    let!(:s) { Protonym.create!(name: 'bus', parent: g, rank_class: Ranks.lookup(:iczn, :species)) }
+
+    let!(:o1) { Otu.create!(taxon_name: g, name: 'code1') }
+    let!(:o2) { Otu.create!(name: 'code2') }
+
+    specify 'exact match' do
+      q.genus_name = 'Aus'
+      expect(q.all).to contain_exactly(o1)
+    end
+
+    specify 'no match' do
+      q.genus_name = 'Bus'
+      expect(q.all).to be_empty
+    end
+
+    specify 'restricted to genus rank' do
+      s.update_column(:cached, 'Aus') # fake a non-genus rank name colliding with the genus string
+      Otu.create!(taxon_name: s, name: 'code3')
+
+      q.genus_name = 'Aus'
+      expect(q.all).to contain_exactly(o1)
+    end
+
+    specify 'blank is a no-op' do
+      q.genus_name = nil
+      expect(q.all).to contain_exactly(o1, o2)
+    end
   end
 
-  specify '#without_confidence_level_id' do
-    l = FactoryBot.create(:valid_confidence_level)
-    c = FactoryBot.create(:valid_confidence, confidence_level: l, confidence_object: o1)
-    q.without_confidence_level_id = l.id
-    expect(q.all).to contain_exactly(o2)
-  end
-
-  specify '#with_confidence_level true' do
-    c = FactoryBot.create(:valid_confidence, confidence_object: o1)
-    q.confidences = true
-    expect(q.all).to contain_exactly(o1)
-  end
-
-  specify '#with_confidence_level false' do
-    c = FactoryBot.create(:valid_confidence, confidence_object: o1)
-    q.confidences = false
-    expect(q.all).to contain_exactly(o2)
-  end
+  # Confidences query concern specs have moved to spec/lib/queries/concerns/confidences_spec.rb
 
   context '#coordinatify' do
     # TODO: unify with OTU as a include

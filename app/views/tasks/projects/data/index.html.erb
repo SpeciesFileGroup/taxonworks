@@ -75,6 +75,14 @@
           <%= tag.td( Source.joins(:project_sources).where(project_sources: {project_id: sessions_current_project_id}).count.to_s) -%>
           <%= tag.td( c ? link_to('Download', download_sources_path) : 'Unavailable') -%>
         </tr>
+
+        <tr>
+          <% b = BiologicalAssociationIndicesController.new %>
+          <% c = b.respond_to?(:download) ? true : false -%>
+          <%= tag.td 'Biological association index' -%>
+          <%= tag.td( BiologicalAssociationIndex.where(project_id: sessions_current_project_id).count.to_s) -%>
+          <%= tag.td( c ? link_to('Download', download_biological_association_indices_path) : 'Unavailable') -%>
+        </tr>
       </table>
 
     </div>

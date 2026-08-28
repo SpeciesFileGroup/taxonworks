@@ -5,6 +5,10 @@ module BiologicalRelationshipsHelper
     [biological_relationship.name, biological_relationship.inverted_name].compact.join(' / ')
   end
 
+  def biological_relationship_autocomplete_tag(biological_relationship, term = nil)
+    mark_tag(biological_relationship_tag(biological_relationship), term)
+  end
+
   def label_for_biological_relationship(biological_relationship)
     return nil if biological_relationship.nil?
     biological_relationship.name

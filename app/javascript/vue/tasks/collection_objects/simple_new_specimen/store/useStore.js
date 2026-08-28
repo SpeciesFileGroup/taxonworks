@@ -8,7 +8,8 @@ const makeInitialState = () => ({
       collectingEvent: false,
       otu: false,
       namespace: false,
-      preparationTypeId: false
+      preparationTypeId: false,
+      total: false
     },
     increment: false
   },
@@ -24,6 +25,7 @@ const makeInitialState = () => ({
   identifier: undefined,
   namespace: undefined,
   otu: undefined,
+  total: 1,
   recentList: [],
   createTotal: 1,
   pixelsToCm: undefined

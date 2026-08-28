@@ -184,6 +184,7 @@ module Queries
 
         ::AnatomicalPart
           .joins(:related_origin_relationships)
+          .where(origin_relationships: { old_object_type: 'CollectionObject' })
           .where("origin_relationships.old_object_id IN (#{collection_object_query.all.select(:id).to_sql })")
       end
 
@@ -192,7 +193,8 @@ module Queries
 
         ::AnatomicalPart
           .joins(:related_origin_relationships)
-          .where("origin_relationships.old_object_id IN (#{collection_object_query.all.select(:id).to_sql })")
+          .where(origin_relationships: { old_object_type: 'FieldOccurrence' })
+          .where("origin_relationships.old_object_id IN (#{field_occurrence_query.all.select(:id).to_sql })")
       end
 
       def otu_query_facet

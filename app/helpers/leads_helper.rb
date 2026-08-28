@@ -24,8 +24,8 @@ module LeadsHelper
     link_to(lead_tag(lead), lead)
   end
 
-  def lead_autocomplete_tag(lead)
-    lead_tag(lead)
+  def lead_autocomplete_tag(lead, term = nil)
+    mark_tag(lead_tag(lead), term)
   end
 
   def label_for_lead(lead)
