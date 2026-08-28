@@ -8,9 +8,9 @@
   calls `getObject` — as sensible per-model defaults/lookups. Still no broadcast/lock,
   no tabs: this is not a full SmartSelector clone.
 
-  Props not declared here (placeholder, disabled, level-delay, id, reset-on-select,
-  extra-params, autofocus) fall through automatically onto the inner AutoselectField
-  via Vue's single-root attrs inheritance. `select` and `update:modelValue` are
+  Props not declared here (placeholder, disabled, level-delay, id, extra-params,
+  autofocus) fall through automatically onto the inner AutoselectField via Vue's
+  single-root attrs inheritance. `select` and `update:modelValue` are
   declared explicitly (see below) so they can be intercepted for the getObject
   upgrade, so they do NOT rely on fallthrough.
 -->
@@ -19,6 +19,7 @@
     ref="autoselectFieldRef"
     :url="url"
     :param="param"
+    :reset-on-select="resetOnSelect"
     :new-record-component="effectiveNewRecordComponent"
     :preferences-options-component="preferencesOptionsComponent"
     @select="onSelect"
@@ -38,6 +39,12 @@ const props = defineProps({
   // lookup, e.g. 'otus', 'taxon_names'.
   model: { type: String, required: true },
   param: { type: String, required: true },
+  // Clear the field and return to level 0 after each pick instead of leaving the
+  // selected label in the input. AutoselectField defaults this off; the picker flips
+  // it on because its consumers (SmartSelector's OTU picker, the assign/match result
+  // tables) are append-to-list or pick-then-act flows that want the field ready for
+  // the next search. Pass :reset-on-select="false" to opt out.
+  resetOnSelect: { type: Boolean, default: true },
   // When true (default), the !n modal is resolved from AUTOSELECT_NEW_RECORD_COMPONENTS
   // by model unless createComponent overrides it. When false, !n is disabled outright.
   create: { type: Boolean, default: true },

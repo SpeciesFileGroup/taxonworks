@@ -310,11 +310,12 @@ module Queries
 
       # @return [ActiveRecord::Relation]
       #   What counts as an "exact" OTU name match is expected to grow (right now
-      #   it's a cached-name match plus one "Genus morphospecies" pattern below) —
-      #   kept in its own method, separate from the fuzzy QUERIES stack, for that
-      #   reason.
+      #   it's a linked-TaxonName cached-name match, a bare Otu#name match for OTUs
+      #   with no nomenclature, and one "Genus morphospecies" pattern below) — kept
+      #   in its own method, separate from the fuzzy QUERIES stack, for that reason.
       def exact_matches
         ids = base_query.joins(:taxon_name).where(taxon_names: {cached: query_string}).pluck(:id)
+        ids |= base_query.where(taxon_name_id: nil, name: query_string).pluck(:id)
         ids |= morphospecies_match_ids
         base_query.where(id: ids)
       end

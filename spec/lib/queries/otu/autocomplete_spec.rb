@@ -276,6 +276,28 @@ describe Queries::Otu::Autocomplete, type: :model do
       expect(q.autocomplete.to_a).to contain_exactly(exact_otu)
     end
 
+    specify 'matches an Otu with no nomenclature whose #name equals the term exactly' do
+      target = Otu.create!(name: 'Lone morphospecies', project_id: project_id)
+
+      q = Queries::Otu::Autocomplete.new('Lone morphospecies', project_id: project_id, exact: true)
+      expect(q.autocomplete.to_a).to contain_exactly(target)
+    end
+
+    specify 'does not match on #name when the Otu also has a linked TaxonName' do
+      genus = Protonym.create!(name: 'Namedgenus', rank_class: Ranks.lookup(:iczn, 'genus'), parent: root)
+      Otu.create!(taxon_name: genus, name: 'Plainlabel', project_id: project_id)
+
+      q = Queries::Otu::Autocomplete.new('Plainlabel', project_id: project_id, exact: true)
+      expect(q.autocomplete.to_a).to be_empty
+    end
+
+    specify 'excludes a fuzzy/substring #name match on a no-nomenclature Otu' do
+      Otu.create!(name: 'Distinctlabel', project_id: project_id)
+
+      q = Queries::Otu::Autocomplete.new('Distinct', project_id: project_id, exact: true)
+      expect(q.autocomplete.to_a).to be_empty
+    end
+
     specify 'excludes fuzzy/substring matches that are not exact' do
       genus = Protonym.create!(name: 'Erasmoneura', rank_class: Ranks.lookup(:iczn, 'genus'), parent: root)
       Otu.create!(taxon_name: genus, project_id: project_id)
