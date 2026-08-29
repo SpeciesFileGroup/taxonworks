@@ -186,7 +186,7 @@
       <PreferencesModal
         v-if="showPreferences"
         :levels="allFuseSegments"
-        :current-prefs="prefs.getPrefs()"
+        :current-prefs="prefsForModal"
         :options-component="preferencesOptionsComponent"
         @save="onPrefsSave"
         @cancel="cancelPreferences"
@@ -247,10 +247,19 @@ const props = defineProps({
   // `:disabled` until the initial config fetch resolves, and browsers won't focus
   // a disabled element. This waits for that internally instead of callers having to
   // guess when the field becomes ready.
-  autofocus: { type: Boolean, default: false }
+  autofocus: { type: Boolean, default: false },
+  // Controlled level visibility. When bound (an array of level keys), it — not this
+  // instance's localStorage preference — decides which levels appear in the fuse
+  // bar, and the `!p` modal's level checkboxes emit `update:visibleLevels` rather
+  // than persisting a `hide` flag. `show_info`, `auto_jump` and per-level options
+  // still persist to localStorage either way. Leave unbound (null) for the default:
+  // each instance remembers its own visible levels, seeded from each level's
+  // `is_default`. Treat the array as immutable — replace it, don't mutate in place,
+  // or the change won't be observed.
+  visibleLevels: { type: Array, default: null }
 })
 
-const emit = defineEmits(['update:modelValue', 'select'])
+const emit = defineEmits(['update:modelValue', 'select', 'update:visibleLevels'])
 
 // ── Effective id (prop or UUID) ────────────────────────────────────────────────
 const effectiveId = props.id ?? `autoselect_${randomUUID()}`
@@ -338,10 +347,30 @@ const allFuseSegments = computed(() =>
   })
 )
 
-// Segments visible after applying preferences (hide flag)
+// Segments visible after applying preferences (hide flag), or — when the parent
+// binds `visibleLevels` — after applying that controlled list instead.
 const visibleFuseSegments = computed(() =>
-  allFuseSegments.value.filter((s) => prefs.isLevelVisible(s.key, s.is_default))
+  props.visibleLevels === null
+    ? allFuseSegments.value.filter((s) => prefs.isLevelVisible(s.key, s.is_default))
+    : allFuseSegments.value.filter((s) => props.visibleLevels.includes(s.key))
 )
+
+// Prefs handed to the !p modal. In controlled mode the stored `hide` flags aren't
+// consulted for visibility, so project the controlled list onto them — otherwise a
+// level the parent is showing would appear unchecked in the modal (and vice versa).
+const prefsForModal = computed(() => {
+  const base = currentPrefs.value
+  if (props.visibleLevels === null) return base
+
+  const levels = { ...(base.levels || {}) }
+  for (const seg of allFuseSegments.value) {
+    levels[seg.key] = {
+      ...(levels[seg.key] || {}),
+      hide: !props.visibleLevels.includes(seg.key)
+    }
+  }
+  return { ...base, levels }
+})
 
 // Help operator moved to bottom; !N is a pattern placeholder (not directly invokable)
 const sortedOperators = computed(() => {
@@ -398,6 +427,21 @@ onBeforeUnmount(() => {
   window.removeEventListener('resize', repositionTeleportedOverlays)
   cancelPinboardNoneFlash()
 })
+
+// Parent changed the controlled visible-levels list (e.g. a task-wide toggle that
+// drives every field at once). Segments re-derive reactively; only the active
+// level needs rescuing if it just disappeared.
+watch(
+  () => props.visibleLevels,
+  (levels) => {
+    if (levels === null || !ready.value) return
+    if (!levels.includes(currentLevel.value)) {
+      currentLevel.value = levels[0] ?? getFirstLevelKey()
+      clearResults()
+      cancelFuse()
+    }
+  }
+)
 
 // ── Level helpers ──────────────────────────────────────────────────────────────
 function getFirstVisibleLevelKey() {
@@ -772,11 +816,31 @@ function onPrefsSave(updatedPrefs) {
   prefs.savePrefs(updatedPrefs)
   currentPrefs.value = updatedPrefs
   showPreferences.value = false
+
+  // Resolve the levels the modal's checkboxes leave visible, from the same
+  // hide/is_default rule the modal itself uses.
+  const nextVisibleKeys = allFuseSegments.value
+    .filter((s) => {
+      const hide = updatedPrefs.levels?.[s.key]?.hide
+      return hide === undefined ? s.is_default : !hide
+    })
+    .map((s) => s.key)
+
+  // In controlled mode the parent owns visibility — hand it the new list and let
+  // it flow back through the prop; the stored `hide` flags above are ignored while
+  // `visibleLevels` stays bound.
+  if (props.visibleLevels !== null) {
+    emit('update:visibleLevels', nextVisibleKeys)
+  }
+
   // If the current level was hidden, jump to the first still-visible level.
-  // (currentPrefs.value was just reassigned above, so visibleFuseSegments — which
-  // reads it via prefs.isLevelVisible — already reflects the saved preferences.)
-  if (!visibleFuseSegments.value.some((s) => s.key === currentLevel.value)) {
-    currentLevel.value = getFirstVisibleLevelKey()
+  // (In uncontrolled mode visibleFuseSegments already reflects the just-saved
+  // prefs; in controlled mode the prop update is async, so check nextVisibleKeys.)
+  const stillVisible = props.visibleLevels === null
+    ? visibleFuseSegments.value.some((s) => s.key === currentLevel.value)
+    : nextVisibleKeys.includes(currentLevel.value)
+  if (!stillVisible) {
+    currentLevel.value = nextVisibleKeys[0] ?? getFirstLevelKey()
   }
   // Reset search state so the field re-runs with the new preferences applied
   clearResults()

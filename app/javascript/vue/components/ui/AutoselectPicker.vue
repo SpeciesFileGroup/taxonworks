@@ -9,10 +9,11 @@
   no tabs: this is not a full SmartSelector clone.
 
   Props not declared here (placeholder, disabled, level-delay, id, extra-params,
-  autofocus) fall through automatically onto the inner AutoselectField via Vue's
-  single-root attrs inheritance. `select` and `update:modelValue` are
-  declared explicitly (see below) so they can be intercepted for the getObject
-  upgrade, so they do NOT rely on fallthrough.
+  autofocus, visible-levels) fall through automatically onto the inner
+  AutoselectField via Vue's single-root attrs inheritance — as do their listeners,
+  so `v-model:visible-levels` on the picker works without a passthrough here.
+  `select` and `update:modelValue` are declared explicitly (see below) so they can
+  be intercepted for the getObject upgrade, so they do NOT rely on fallthrough.
 -->
 <template>
   <AutoselectField
