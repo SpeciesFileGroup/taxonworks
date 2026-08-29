@@ -825,6 +825,27 @@ resources :projects, only: [] do
       post :set_predicates_and_internal_values, defaults: {format: :json}
       post :set_default_user, defaults: {format: :json}
     end
+
+    scope :coldp_export_preferences, controller: 'tasks/projects/coldp_export_preferences', defaults: {format: :json} do
+      get :preferences
+
+      get :controlled_vocabulary_status
+      post :create_missing_predicates
+      post :create_predicate
+      get :missing_otus_count
+      get :checklistbank_citation
+      get :checklistbank_issues
+      get :fetch_checklistbank_metadata
+      get :search_datasets
+      get :issue_vocab
+    end
+  end
+
+  scope module: 'tasks/projects' do
+    resources :coldp_profiles, only: [:create, :update, :destroy], param: :otu_id, defaults: {format: :json} do
+      patch :validate, on: :collection
+    end
+    resource :coldp_settings, only: [:update], defaults: {format: :json}
   end
 
   collection do

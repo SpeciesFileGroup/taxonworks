@@ -1,15 +1,11 @@
 # Only one per project.  Includes the complete current contents of DwCOccurrences.
 class Download::DwcArchive::Complete < Download::DwcArchive
-  # Default values
+  include Shared::CompleteDownload
+
   attribute :name, default: -> { "dwc-a_complete_#{DateTime.now}.zip" }
   attribute :description, default: 'A Darwin Core archive of the complete TaxonWorks DwcOccurrence table'
   attribute :filename, default: -> { "dwc-a_complete_#{DateTime.now}.zip" }
-  attribute :expires, default: -> { 1.month.from_now }
-  attribute :request, default: -> { '/api/v1/downloads/api_dwc_archive_complete' }
-  attribute :is_public, default: -> { 1 }
-
-  before_save :sync_expires_with_preferences
-  after_save :build, unless: :ready? # prevent infinite loop callbacks
+  attribute :request, default: -> { '/api/v1/downloads/dwc_archive_complete' }
 
   validates :type, uniqueness: {
     scope: [:project_id],
@@ -21,35 +17,16 @@ class Download::DwcArchive::Complete < Download::DwcArchive
 
   validate :has_eml_without_stubs
 
-  def self.api_buildable?
-    true
+  def self.complete_download_access_authorized?(project, _params)
+    project.complete_dwc_download_is_public?
   end
 
-  # @return [Download] the complete download to be served
-  # Raises TaxonWorks::Error on error.
-  def self.process_complete_download_request(project)
-    # !! Note Current.user_id may not be set here !!
-    download = Download.where(
-      type: 'Download::DwcArchive::Complete', project_id: project.id
-    ).first
+  def self.complete_download_max_age(project, _params)
+    project.complete_dwc_download_max_age
+  end
 
-    return nil if download.nil?
-
-    if download.ready?
-      max_age = project.complete_dwc_download_max_age # in days
-      download_age = Time.current - download.created_at
-      by_id = Current.user_id || project.complete_dwc_download_default_user_id
-      if max_age && download_age.to_f / 1.day > max_age
-        # Create a fresh download that will replace the existing one when
-        # ready.
-        Download::DwcArchive::PupalComplete.create(by: by_id) # don't raise if one already exists
-      end
-
-      download.increment!(:times_downloaded)
-      return download
-    else
-      raise TaxonWorks::Error, 'The existing download is not ready yet'
-    end
+  def self.complete_download_default_user_id(project, _params)
+    project.complete_dwc_download_default_user_id
   end
 
   private

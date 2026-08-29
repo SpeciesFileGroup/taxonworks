@@ -7,6 +7,9 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 ## [unreleased]
 
+- Adds COLDP export dashboard for project administrators
+- Consistently sets COLDP exporter default to prefer_unlabelled_otus=true (but can be set false)
+
 ### Added
 
 - raw id search for Biological Association autocompletes

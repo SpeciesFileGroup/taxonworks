@@ -22,6 +22,7 @@ class Project < ApplicationRecord
   include Housekeeping::Users
   include Housekeeping::Timestamps
   include Project::Preferences
+  include Project::Coldp
 
   attr_accessor :without_root_taxon_name
   attr_accessor :clear_api_access_token

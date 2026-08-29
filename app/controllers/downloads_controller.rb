@@ -1,8 +1,18 @@
 class DownloadsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
+  # Routed via /api/v1/downloads/:download_type — keys must match the symbol
+  # passed in the URL.
+  COMPLETE_DOWNLOAD_TYPES = {
+    'dwc_archive_complete' => 'Download::DwcArchive::Complete',
+    'coldp_complete' => 'Download::Coldp::Complete'
+  }.freeze
+
   before_action :set_download, only: [:show, :download_file, :destroy, :update, :file, :edit]
   before_action :set_download_api, only: [:api_file, :api_show, :api_destroy]
+
+  before_action :resolve_complete_download_class, only: [:api_complete]
+  before_action :authorize_complete_download_access, only: [:api_complete]
 
   after_action -> { set_pagination_headers(:downloads) }, only: [:api_index], if: :json_request?
 
@@ -101,17 +111,12 @@ class DownloadsController < ApplicationController
     render '/downloads/api/v1/show'
   end
 
-  # POST /api/v1/downloads/api_dwc_archive_complete?project_token=<>
-  def api_dwc_archive_complete
+  # GET /api/v1/downloads/:download_type?project_token=<>[&...]
+  def api_complete
     project = Project.find(sessions_current_project_id)
 
-    if !project.complete_dwc_download_is_public? || !project.api_access_token
-      render json: { success: false }, status: :forbidden
-      return
-    end
-
     begin
-      if download = Download::DwcArchive::Complete.process_complete_download_request(project)
+      if download = @complete_download_class.process_complete_download_request(project, complete_download_params)
         send_file download.file_path
         return
       end
@@ -120,18 +125,42 @@ class DownloadsController < ApplicationController
       return
     end
 
-    # Complete project download doesn't exist yet, spin one up.
-    # *All* options for complete downloads are determined from project
-    # preferences, not from public request via api.
-    # !! Publicly explodes if EML prefs contain 'STUB' text.
-    # If no user token or user session then create as the complete download
-    # user.
-    by_id = Current.user_id || project.complete_dwc_download_default_user_id
-    Download::DwcArchive::Complete.create!(by: by_id, project:)
+    @complete_download_class.create_complete_download(project, complete_download_params)
     render json: { status: 'A download is being created' }, status: :unprocessable_content
   end
 
   private
+
+  def resolve_complete_download_class
+    type_name = COMPLETE_DOWNLOAD_TYPES[params[:download_type]]
+    @complete_download_class = type_name&.safe_constantize
+
+    return if @complete_download_class
+
+    render json: { error: "Unknown download type: #{params[:download_type]}" }, status: :not_found
+  end
+
+  def authorize_complete_download_access
+    project = Project.find(sessions_current_project_id)
+
+    missing = @complete_download_class.complete_download_required_params.reject { |k| params[k].present? }
+    if missing.any?
+      render json: { error: "Missing required params: #{missing.join(', ')}" }, status: :unprocessable_content
+      return
+    end
+
+    return if project.api_access_token.present? &&
+              @complete_download_class.complete_download_access_authorized?(project, complete_download_params)
+
+    render json: { success: false }, status: :forbidden
+  end
+
+  def complete_download_params
+    required = @complete_download_class.complete_download_required_params
+    required.each { |key| params.require(key) }
+    params.permit(*required).to_h.symbolize_keys
+  end
+
 
   def set_download
     # Why .unscoped ?
