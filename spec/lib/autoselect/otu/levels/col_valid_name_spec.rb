@@ -5,17 +5,19 @@ RSpec.describe Autoselect::Otu::Levels::ColValidName, type: :model do
 
   let(:fake_taxon_name_level) { instance_double(::Autoselect::TaxonName::Levels::ColValidName) }
 
-  def stub_resolved_taxon_name(term:, valid_name:, records:)
+  # The OTU level uses TaxonName::ColValidName#resolve_target (the raw pseudo-record),
+  # not #call — it makes its own existing-Otu decision.
+  def stub_resolve_target(term:, target:)
     allow(::Autoselect::TaxonName::Levels::ColValidName).to receive(:new).and_return(fake_taxon_name_level)
-    allow(fake_taxon_name_level).to receive(:call)
-      .with(hash_including(term:))
-      .and_return(records)
+    allow(fake_taxon_name_level).to receive(:resolve_target)
+      .with(term, hash_including(project_id:))
+      .and_return(target)
   end
 
-  def resolved_record(valid_name:, resolved_from:, extra_extension: {})
+  def resolved_record(valid_name:, extra_extension: {})
     OpenStruct.new(
       cached: valid_name,
-      _col_extension: { col_key: 'VALID1', col_status: 'accepted', col_rank: 'species', resolved_from: }.merge(extra_extension)
+      _col_extension: { col_key: 'VALID1', col_status: 'accepted', col_rank: 'species' }.merge(extra_extension)
     )
   end
 
@@ -30,8 +32,8 @@ RSpec.describe Autoselect::Otu::Levels::ColValidName, type: :model do
   end
 
   describe '#call' do
-    context 'when the TaxonName level resolves nothing' do
-      before { stub_resolved_taxon_name(term: 'Nonsense', valid_name: nil, records: []) }
+    context 'when CoL resolves nothing' do
+      before { stub_resolve_target(term: 'Nonsense', target: nil) }
 
       it 'returns an empty array' do
         expect(level.call(term: 'Nonsense', project_id:, user_id:)).to eq([])
@@ -39,9 +41,9 @@ RSpec.describe Autoselect::Otu::Levels::ColValidName, type: :model do
     end
 
     context 'when resolved but no local OTU matches the valid name' do
-      let(:record) { resolved_record(valid_name: 'Panthera leo', resolved_from: 'Panthera leo persica') }
+      let(:target) { resolved_record(valid_name: 'Panthera leo') }
 
-      before { stub_resolved_taxon_name(term: 'Panthera leo persica', valid_name: 'Panthera leo', records: [record]) }
+      before { stub_resolve_target(term: 'Panthera leo persica', target:) }
 
       it 'offers to create the resolved valid name' do
         result = level.call(term: 'Panthera leo persica', project_id:, user_id:)
@@ -63,9 +65,9 @@ RSpec.describe Autoselect::Otu::Levels::ColValidName, type: :model do
       let(:genus) { ::Protonym.create!(name: 'Panthera', rank_class: Ranks.lookup(:iczn, 'genus'), parent: root, project_id:, by: user_id) }
       let(:species) { ::Protonym.create!(name: 'leo', rank_class: Ranks.lookup(:iczn, 'species'), parent: genus, project_id:, by: user_id) }
       let!(:otu) { ::Otu.create!(taxon_name: species, project_id:, by: user_id) }
-      let(:record) { resolved_record(valid_name: species.cached, resolved_from: 'Panthera leo persica') }
+      let(:target) { resolved_record(valid_name: species.cached) }
 
-      before { stub_resolved_taxon_name(term: 'Panthera leo persica', valid_name: species.cached, records: [record]) }
+      before { stub_resolve_target(term: 'Panthera leo persica', target:) }
 
       it 'returns the matching Otu instead of a creation offer' do
         result = level.call(term: 'Panthera leo persica', project_id:, user_id:)
@@ -85,9 +87,9 @@ RSpec.describe Autoselect::Otu::Levels::ColValidName, type: :model do
       let(:species) { ::Protonym.create!(name: 'leo', rank_class: Ranks.lookup(:iczn, 'species'), parent: genus, project_id:, by: user_id) }
       let!(:otu_a) { ::Otu.create!(taxon_name: species, project_id:, by: user_id) }
       let!(:otu_b) { ::Otu.create!(taxon_name: species, project_id:, by: user_id) }
-      let(:record) { resolved_record(valid_name: species.cached, resolved_from: 'leo') }
+      let(:target) { resolved_record(valid_name: species.cached) }
 
-      before { stub_resolved_taxon_name(term: 'leo', valid_name: species.cached, records: [record]) }
+      before { stub_resolve_target(term: 'leo', target:) }
 
       it 'returns all matching Otus, letting the normal dropdown handle disambiguation' do
         expect(level.call(term: 'leo', project_id:, user_id:)).to contain_exactly(otu_a, otu_b)

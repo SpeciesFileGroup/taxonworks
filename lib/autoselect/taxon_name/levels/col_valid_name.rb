@@ -8,16 +8,16 @@ module Autoselect
       # nameusage hash that resolve_accepted_name already returned, so no second CoL
       # search (and no per-result classification fetch) is needed.
       #
-      # Returns at most one pseudo-record — the resolved valid name — flagged with
-      # `resolved_from:` so callers (and the confirmation UI) can show this is the
-      # accepted name for what was typed, not a literal search match.
+      # Returns at most one record — the resolved valid name. When that name is
+      # already a TaxonName in the project the real record is returned (selecting it
+      # just picks that name); otherwise a CoL creation-offer pseudo-record, flagged
+      # with `resolved_from:` so the confirmation UI can show it's the accepted name
+      # for what was typed, not a literal search match.
       #
-      # Also reached indirectly via Autoselect::Otu::Levels::ColValidName's
-      # delegation (which renders its own label, but shares this level's
-      # record_info via the same mixin).
+      # Autoselect::Otu::Levels::ColValidName reuses #resolve_target directly — it
+      # makes its own existing-Otu decision and always needs the raw pseudo-record.
       class ColValidName < ::Autoselect::Level
-        # Source mark + "valid name for X" note — every result here is a CoL
-        # creation offer (never an existing match), so it always shows COL_ICON.
+        # Source mark + "valid name for X" note, shared with the Otu-level equivalent.
         include ::Autoselect::Levels::ColResolvedName
 
         def key
@@ -43,25 +43,29 @@ module Autoselect
         end
 
         def record_label(record)
+          return super if record.is_a?(::TaxonName)
           ::Autoselect::TaxonName::Levels::CatalogueOfLife.new.record_label(record)
         end
 
         def record_label_html(record)
+          return super if record.is_a?(::TaxonName)
           ::Autoselect::TaxonName::Levels::CatalogueOfLife.new.record_label_html(record)
         end
 
         # @param term [String]
         # @param project_id [Integer, nil]
         # @param dataset_id [String, nil] CoL dataset ID from user preferences; falls back to default when nil
-        # @return [Array<OpenStruct>] at most one pseudo-record, for the resolved valid name
+        # @return [Array<::TaxonName>, Array<OpenStruct>] the existing TaxonName for the
+        #   resolved valid name, or a single creation-offer pseudo-record
         def call(term:, operator: nil, project_id: nil, user_id: nil, dataset_id: nil, **_kwargs)
-          resolved = ::Vendor::Colrapi.resolve_accepted_name(term, dataset_id:)
-          return [] if resolved.nil? || resolved[:valid_name].blank? || resolved[:valid_col_result].blank?
+          target = resolve_target(term, project_id:, dataset_id:)
+          return [] if target.nil?
 
-          target = ::Autoselect::TaxonName::Levels::CatalogueOfLife.new.build_pseudo_record(
-            resolved[:valid_col_result], project_id:, dataset_id: resolved[:dataset_id]
-          )
-          extension = target._col_extension.merge(resolved_from: term)
+          if (tw_id = target._col_extension[:target_taxonworks_id]).present? &&
+             (existing = ::TaxonName.where(project_id:).find_by(id: tw_id))
+            existing.define_singleton_method(:_col_resolution) { { input: term, valid_name: existing.cached } }
+            return [existing]
+          end
 
           [OpenStruct.new(
             id: nil,
@@ -69,19 +73,22 @@ module Autoselect
             name: target.cached,
             rank_string: nil,
             cached_valid_taxon_name_id: nil,
-            _col_extension: extension
+            _col_extension: target._col_extension.merge(resolved_from: term)
           )]
         end
 
-        private
+        # The raw resolved pseudo-record — the accepted name's CoL alignment/extension
+        # data plus build_pseudo_record's existing-TaxonName check — before #call's
+        # real-record-vs-creation-offer decision. nil when CoL resolves nothing usable.
+        #
+        # @return [OpenStruct, nil]
+        def resolve_target(term, project_id: nil, dataset_id: nil)
+          resolved = ::Vendor::Colrapi.resolve_accepted_name(term, dataset_id:)
+          return nil if resolved.nil? || resolved[:valid_name].blank? || resolved[:valid_col_result].blank?
 
-        # The result is a TW record (TW_ICON) when the resolved accepted name is
-        # already a TaxonName in this project — build_pseudo_record's
-        # match_against_taxonworks flags that as :target_taxonworks_id. Otherwise
-        # it's a pure CoL creation offer (COL_ICON).
-        def existing_match?(record)
-          record.respond_to?(:_col_extension) &&
-            record._col_extension[:target_taxonworks_id].present?
+          ::Autoselect::TaxonName::Levels::CatalogueOfLife.new.build_pseudo_record(
+            resolved[:valid_col_result], project_id:, dataset_id: resolved[:dataset_id]
+          )
         end
 
       end

@@ -11,10 +11,10 @@ module Autoselect
       # anything, checks whether an Otu already carries the resolved name — Smart
       # already searched the raw (pre-resolution) term and came up empty, but hasn't
       # tried the name CoL actually accepts. When found, returns those real Otu
-      # records directly; otherwise wraps the TaxonName-level's result with the OTU
-      # creation hook, exactly as Levels::CatalogueOfLife does — flagged with
-      # `resolved_from:` so the confirmation UI can make clear this is the accepted
-      # name for what was typed, not a literal match on it.
+      # records directly; otherwise wraps TaxonName::ColValidName#resolve_target's
+      # pseudo-record with the OTU creation hook — flagged with `resolved_from:` so
+      # the confirmation UI can make clear this is the accepted name for what was
+      # typed, not a literal match on it.
       #
       # Always the last level in Autoselect::Otu::Autoselect#levels, but `is_default`
       # false (see Autoselect::Level#is_default) — it stays present-but-unchecked in
@@ -62,30 +62,31 @@ module Autoselect
         # @return [Array<Otu>, Array<OpenStruct>] real Otu matches, or a single CoL
         #   creation-offer pseudo-record when the resolved name isn't in the project yet
         def call(term:, operator: nil, project_id: nil, user_id: nil, dataset_id: nil, **_kwargs)
-          tn_records = ::Autoselect::TaxonName::Levels::ColValidName.new.call(
-            term:, project_id:, user_id:, dataset_id:
+          # The raw resolved pseudo-record — not TaxonName::ColValidName#call, which
+          # would hand back an existing TaxonName once the accepted name is in the
+          # project; the OTU offer needs the CoL alignment data regardless.
+          target = ::Autoselect::TaxonName::Levels::ColValidName.new.resolve_target(
+            term, project_id:, dataset_id:
           )
-          return [] if tn_records.empty?
+          return [] if target.nil?
 
-          resolved_record = tn_records.first
-          valid_name = resolved_record.cached
+          valid_name = target.cached
 
           matches = ::Queries::Otu::Autocomplete.new(valid_name, project_id:, exact: true).autocomplete
           return matches.each { |otu| attach_resolution(otu, term, valid_name) } if matches.any?
 
-          extension = resolved_record._col_extension.merge(
+          extension = target._col_extension.merge(
+            resolved_from: term,
             hook: { create_url: '/otus/autoselect_col_create', yields: 'otu_id' }
           )
-          [OpenStruct.new(id: nil, name: resolved_record.cached, taxon_name: nil, _col_extension: extension)]
+          [OpenStruct.new(id: nil, name: valid_name, taxon_name: nil, _col_extension: extension)]
         end
 
         private
 
-        # record_info / record_info_html and their helpers (resolved_from,
-        # valid_name_for, resolved_and_renamed?, existing_match?) come from
-        # ::Autoselect::Levels::ColResolvedName. Here `existing_match?` is real —
-        # #call attaches _col_resolution to Otu matches it finds via the resolved
-        # name — so a match shows TW_ICON, a creation offer COL_ICON.
+        # record_info / record_info_html come from ::Autoselect::Levels::ColResolvedName;
+        # #existing_match? there keys off the `_col_resolution` this attaches to real
+        # Otu matches, so a match shows TW_ICON and a creation offer COL_ICON.
         def attach_resolution(otu, term, valid_name)
           otu.define_singleton_method(:_col_resolution) { { input: term, valid_name: } }
           otu
