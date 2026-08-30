@@ -13,9 +13,12 @@ module Autoselect
       # accepted name for what was typed, not a literal search match.
       #
       # Also reached indirectly via Autoselect::Otu::Levels::ColValidName's
-      # delegation (which renders its own record_info/label instead of this level's).
+      # delegation (which renders its own label, but shares this level's
+      # record_info via the same mixin).
       class ColValidName < ::Autoselect::Level
-        include ::Autoselect::Levels::ColRecordInfo
+        # Source mark + "valid name for X" note — every result here is a CoL
+        # creation offer (never an existing match), so it always shows COL_ICON.
+        include ::Autoselect::Levels::ColResolvedName
 
         def key
           :col_valid_name

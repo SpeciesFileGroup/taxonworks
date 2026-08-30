@@ -85,4 +85,34 @@ RSpec.describe Autoselect::TaxonName::Levels::ColValidName, type: :model do
       end
     end
   end
+
+  # Shared with Autoselect::Otu::Levels::ColValidName via
+  # Autoselect::Levels::ColResolvedName. Every result here is a CoL creation
+  # offer (never an existing TW match), so the source is always CoL.
+  describe '#record_info / #record_info_html' do
+    let(:renamed) do
+      OpenStruct.new(name: 'Panthera leo', _col_extension: { resolved_from: 'Panthera leo persica' })
+    end
+    let(:unchanged) do
+      OpenStruct.new(name: 'Panthera leo', _col_extension: { resolved_from: 'Panthera leo' })
+    end
+
+    it 'tags the CoL source and notes what was typed when CoL changed the name' do
+      expect(level.record_info(renamed)).to eq(['CoL', 'valid name for "Panthera leo persica"'])
+    end
+
+    it 'omits the note when the typed term already is the valid name' do
+      expect(level.record_info(unchanged)).to eq(['CoL'])
+    end
+
+    it 'renders the CoL icon in front of the "valid name for" badge' do
+      html = level.record_info_html(renamed)
+      expect(html).to start_with(described_class::COL_ICON)
+      expect(html).to include('<span class="feedback feedback-thin feedback-warning">valid name for &quot;Panthera leo persica&quot;</span>')
+    end
+
+    it 'renders just the CoL icon when nothing was renamed' do
+      expect(level.record_info_html(unchanged)).to eq(described_class::COL_ICON)
+    end
+  end
 end
