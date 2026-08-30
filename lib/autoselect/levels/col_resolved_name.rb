@@ -101,9 +101,11 @@ module Autoselect
         nil
       end
 
-      # True for a real, already-existing record; false for a creation offer
-      # (still purely CoL data). Only meaningful once #resolved_and_renamed? has
-      # confirmed CoL provenance.
+      # True when the result is (or is backed by) a record that already exists in
+      # this project — TW_ICON rather than COL_ICON. The default recognises the Otu
+      # level's existing-Otu marker; the TaxonName level overrides this to check
+      # whether the accepted name is already a TaxonName. Only consulted once
+      # #resolved_from has confirmed CoL provenance.
       def existing_match?(record)
         record.respond_to?(:_col_resolution)
       end

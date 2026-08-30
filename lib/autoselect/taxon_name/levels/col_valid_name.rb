@@ -73,6 +73,17 @@ module Autoselect
           )]
         end
 
+        private
+
+        # The result is a TW record (TW_ICON) when the resolved accepted name is
+        # already a TaxonName in this project — build_pseudo_record's
+        # match_against_taxonworks flags that as :target_taxonworks_id. Otherwise
+        # it's a pure CoL creation offer (COL_ICON).
+        def existing_match?(record)
+          record.respond_to?(:_col_extension) &&
+            record._col_extension[:target_taxonworks_id].present?
+        end
+
       end
     end
   end
