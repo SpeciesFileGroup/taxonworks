@@ -110,6 +110,7 @@ function setFocus() {
 
 defineExpose({
   setFocus,
-  prefill: (...args) => autoselectFieldRef.value?.prefill(...args)
+  prefill: (...args) => autoselectFieldRef.value?.prefill(...args),
+  getSearchText: () => autoselectFieldRef.value?.getSearchText() ?? ''
 })
 </script>

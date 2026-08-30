@@ -889,7 +889,13 @@ function prefill(text) {
   })
 }
 
-defineExpose({ prefill })
+// @return {String} current input text — the complement of prefill(), for a
+// caller that swaps this field out and wants to carry the term to its replacement.
+function getSearchText() {
+  return inputText.value
+}
+
+defineExpose({ prefill, getSearchText })
 
 // Fire an operator from the help list: close overlay, inject trigger, run onInput
 function fireOperator(op) {
