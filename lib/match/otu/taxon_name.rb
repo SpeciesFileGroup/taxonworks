@@ -178,9 +178,11 @@ module Match
       #
       #   3 words: ambiguous between "Genus Subgenus species" (species-terminal, middle word
       #   ignored) and "Genus species subspecies" (subspecies-terminal, no subgenus at all —
-      #   both words after the genus are real). Both are tried: species-terminal first, since a
-      #   subgenus on a determination label is far more common than a genuinely absent one,
-      #   then subspecies-terminal.
+      #   both words after the genus are real) — UNLESS the middle word is parenthesized, which
+      #   only ever denotes a subgenus and never a species epithet, in which case the shape is
+      #   certain and there's nothing to disambiguate. Otherwise both are tried: species-terminal
+      #   first, since a subgenus on a determination label is far more common than a genuinely
+      #   absent one, then subspecies-terminal.
       #
       #   4 words ("Genus (Subgenus) species subspecies"): unambiguous — the species (the
       #   second-to-last word) must match exactly, and it's the trailing subspecies epithet
@@ -197,8 +199,14 @@ module Match
         when 2
           find_via_genus_ancestor(words.first, words.last, rank_classes: SPECIES_RANK_CLASSES)
         when 3
-          find_via_genus_ancestor(words.first, words.last, rank_classes: SPECIES_RANK_CLASSES).presence ||
-            find_via_genus_and_species_ancestor(words.first, words[-2], words.last)
+          species_terminal = find_via_genus_ancestor(words.first, words.last, rank_classes: SPECIES_RANK_CLASSES)
+
+          if words[1].start_with?('(')
+            species_terminal
+          else
+            species_terminal.presence ||
+              find_via_genus_and_species_ancestor(words.first, words[-2], words.last)
+          end
         when 4
           find_via_genus_and_species_ancestor(words.first, words[-2], words.last)
         else

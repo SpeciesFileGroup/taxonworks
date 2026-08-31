@@ -152,6 +152,13 @@ describe Match::Otu::TaxonName, type: :model do
         result = match(names: ['Aus Bus maculata'], try_without_subgenus: true).first
         expect(result[:taxon_name_id]).to eq(species_under_subgenus.id)
       end
+
+      specify 'a parenthesized middle word is certain to be a subgenus, so the subspecies-terminal fallback is skipped' do
+        instance = Match::Otu::TaxonName.new(names: [], project_id: project_id)
+        expect(instance).not_to receive(:find_via_genus_and_species_ancestor)
+
+        instance.send(:find_taxon_names_ignoring_subgenus, 'Aus (Nonsense) maculata')
+      end
     end
 
     context '3 words (Genus species subspecies), no subgenus at all' do
