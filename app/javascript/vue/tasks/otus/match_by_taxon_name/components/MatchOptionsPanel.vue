@@ -47,7 +47,7 @@
 
       <!-- Try without subgenus -->
       <div class="field margin-medium-bottom">
-        <label class="middle" data-help="When a name fails to match, also tries matching by genus, ignoring any subgenus in between. The terminal epithet also matches any of its three predicted gender-agreeing spellings — masculine, feminine, or neuter (e.g. input 'Aus busus' or 'Aus busa' will match a stored name 'Aus (Bus) busus'), unless it's classified as a noun in apposition or in the genitive case, which never take a different gender-agreeing spelling.">
+        <label class="middle" data-help="When a name fails to match, retries against other spellings within the same species description complex: any subgenus (or section, series...) between genus and epithet is ignored; every species-group epithet present (species, subspecies, variety, form...) may match any of its three predicted gender-agreeing spellings — masculine, feminine, or neuter — instead of the exact spelling stored, unless it's classified as a noun in apposition or in the genitive case, which never takes a different gender-agreeing spelling; and the genus may be either the current one or the genus a name was originally described in, before any reclassification. None of these change which taxon is meant, except when genuinely different taxa happen to be homonyms of one another, in which case the match may be ambiguous.">
           <input
             type="checkbox"
             :checked="tryWithoutSubgenus"
@@ -56,8 +56,9 @@
           Try without subgenus
         </label>
         <span class="subtle">
-          When checked, retries a failed match ignoring subgenus and (in
-          some cases) epithet gender.
+          When checked, retries a failed match against other spellings of
+          the same taxon: subgenus, gender endings, and reclassification
+          into a different genus are all ignored.
         </span>
       </div>
 

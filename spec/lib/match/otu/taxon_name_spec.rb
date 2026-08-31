@@ -187,13 +187,16 @@ describe Match::Otu::TaxonName, type: :model do
         Protonym.create!(name: 'nigratus', rank_class: Ranks.lookup(:iczn, :subspecies), parent: species_under_subgenus)
       end
 
-      specify 'the species (second-to-last word) must match exactly, subspecies epithet gender-matches' do
+      specify 'the species (second-to-last word) is also gender-tolerant, same as the subspecies epithet' do
         result = match(names: ['Aus Bus maculatus nigrata'], try_without_subgenus: true).first
+        expect(result[:taxon_name_id]).to eq(subspecies_under_subgenus.id)
+
+        result = match(names: ['Aus Bus maculata nigrata'], try_without_subgenus: true).first
         expect(result[:taxon_name_id]).to eq(subspecies_under_subgenus.id)
       end
 
-      specify 'a species epithet that does not match exactly finds nothing' do
-        result = match(names: ['Aus Bus maculata nigrata'], try_without_subgenus: true).first
+      specify 'a species epithet that is a genuinely different word (not a gender variant) finds nothing' do
+        result = match(names: ['Aus Bus nonexistent nigrata'], try_without_subgenus: true).first
         expect(result[:matched]).to eq(false)
       end
     end
@@ -277,6 +280,33 @@ describe Match::Otu::TaxonName, type: :model do
     context 'word counts other than 2, 3, or 4 (with no recognized markers)' do
       specify 'gives up rather than guessing' do
         result = match(names: ['Aus Bus maculatus nigratus extra'], try_without_subgenus: true).first
+        expect(result[:matched]).to eq(false)
+      end
+    end
+
+    context 'original genus (a name reclassified into a different genus)' do
+      let(:original_genus) { Protonym.create!(name: 'Formica', rank_class: Ranks.lookup(:iczn, :genus), parent: root) }
+
+      let!(:reclassified_species) do
+        species = Protonym.create!(name: 'maculata', rank_class: Ranks.lookup(:iczn, :species), parent: genus)
+        TaxonNameRelationship::OriginalCombination::OriginalGenus.create!(
+          subject_taxon_name: original_genus, object_taxon_name: species
+        )
+        species
+      end
+
+      specify 'a search using the original genus (from an original description or AntCat) matches the current record' do
+        result = match(names: ['Formica maculata'], try_without_subgenus: true).first
+        expect(result[:taxon_name_id]).to eq(reclassified_species.id)
+      end
+
+      specify 'the current genus still matches too' do
+        result = match(names: ['Aus maculata'], try_without_subgenus: true).first
+        expect(result[:taxon_name_id]).to eq(reclassified_species.id)
+      end
+
+      specify 'an unrelated genus (neither current nor original) does not match' do
+        result = match(names: ['Xus maculata'], try_without_subgenus: true).first
         expect(result[:matched]).to eq(false)
       end
     end
