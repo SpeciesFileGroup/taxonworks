@@ -370,7 +370,7 @@
             />
             <span
               v-html="otu.object_tag"
-              class="ellipsis"
+              class="species-otu-tag"
             />
           </li>
         </ul>
@@ -1205,12 +1205,18 @@ function bootstrapFromOtus({ otuIds, otuQuery }) {
 
 .species-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 0.25rem 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(min(480px, 100%), 1fr));
+  gap: 0.5rem 1rem;
 }
 
 .species-row {
+  align-items: flex-start;
+}
+
+.species-otu-tag {
+  flex: 1;
   min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .tag-remove {
