@@ -331,13 +331,26 @@ class Lead < ApplicationRecord
   #   * false  -> excludes virtual roots (same as nil, explicit)
   #   * :all   -> includes both virtual and non-virtual roots
   def self.roots_with_data(project_id, load_root_otus = false, is_virtual: nil)
-    virtual_where =
+    scope =
       case is_virtual
-      when :all then ''
-      when true then 'AND leads.is_virtual = TRUE'
-      else 'AND (leads.is_virtual IS NOT TRUE)'
+      when true
+        virtual_roots_with_data(project_id).order('text')
+      when :all
+        nv = nonvirtual_roots_with_data(project_id).reorder(nil).to_sql
+        v = virtual_roots_with_data(project_id).reorder(nil).to_sql
+        Lead
+          .from("((#{nv}) UNION ALL (#{v})) AS leads")
+          .order('leads.text')
+      else
+        nonvirtual_roots_with_data(project_id).order('leads_updated_at.text')
       end
 
+    load_root_otus ? scope.includes(:otu) : scope
+  end
+
+  # Heavy path used for interactive/annotated keys. Walks lead_hierarchies +
+  # lead_items to compute otus_count and key_updated_at across the whole tree.
+  def self.nonvirtual_roots_with_data(project_id)
     # The updated_at subquery computes key_updated_at (and others), the second
     # query uses that to compute key_updated_by (by finding which node has the
     # corresponding key_updated_at).
@@ -351,7 +364,7 @@ class Lead < ApplicationRecord
       .where("
         leads.parent_id IS NULL
         AND leads.project_id = #{project_id}
-        #{virtual_where}
+        AND (leads.is_virtual IS NOT TRUE)
       ")
       .group(:id)
       .select("
@@ -371,7 +384,7 @@ class Lead < ApplicationRecord
         0 AS couplets_count" # count is now computed in views
       )
 
-    root_leads = Lead
+    Lead
       .joins("JOIN (#{updated_at.to_sql}) AS leads_updated_at
         ON leads_updated_at.key_updated_at = leads.updated_at")
       .joins('JOIN users
@@ -381,9 +394,29 @@ class Lead < ApplicationRecord
         leads.updated_by_id AS key_updated_by_id,
         users.name AS key_updated_by
       ')
-      .order('leads_updated_at.text')
+  end
 
-    return load_root_otus ? root_leads.includes(:otu) : root_leads
+  # Cheap path for simple/cite_key roots (is_virtual = TRUE). Simple keys are
+  # flat (root + direct children), so otus_count is a direct COUNT DISTINCT
+  # over children and key_updated_at is GREATEST(root, MAX(children)). Skips
+  # the lead_hierarchies + lead_items walk entirely.
+  def self.virtual_roots_with_data(project_id)
+    Lead
+      .joins('LEFT JOIN leads AS c ON c.parent_id = leads.id')
+      .joins('JOIN users ON users.id = leads.updated_by_id')
+      .where(
+        'leads.parent_id IS NULL AND leads.project_id = ? AND leads.is_virtual = TRUE',
+        project_id
+      )
+      .group('leads.id, users.name')
+      .select(
+        'leads.*,
+        COUNT(DISTINCT c.otu_id) FILTER (WHERE c.otu_id IS NOT NULL) AS otus_count,
+        GREATEST(leads.updated_at, COALESCE(MAX(c.updated_at), leads.updated_at)) AS key_updated_at,
+        0 AS couplets_count,
+        leads.updated_by_id AS key_updated_by_id,
+        users.name AS key_updated_by'
+      )
   end
 
   def redirect_options(project_id)

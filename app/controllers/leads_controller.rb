@@ -39,7 +39,7 @@ class LeadsController < ApplicationController
         )
 
         if params[:recent].present? && ActiveRecord::Type::Boolean.new.cast(params[:recent])
-          @leads = @leads.reorder('leads_updated_at.key_updated_at DESC NULLS LAST')
+          @leads = @leads.reorder('key_updated_at DESC NULLS LAST')
         end
 
         @leads = @leads.page(params[:page]).per(params[:per])
