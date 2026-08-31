@@ -24,9 +24,6 @@
 # When `candidates:` is provided each Hash also carries `candidates: [<TaxonName>, ...]`,
 # the ranked match set (best first) rather than only the single best match.
 #
-# All options added after the initial implementation are opt-in: with their defaults the
-# returned Hashes and the matches themselves are identical to the original behaviour.
-#
 # Claude (Anthropic) provided > 50% of the code for this class.
 module Match
   module Otu
@@ -39,49 +36,86 @@ module Match
       # Candidates gathered per name before ranking.
       FUZZY_LIMIT = 10
 
-      # Rank classes used by #find_taxon_names_ignoring_subgenus, which matches through the live
-      # classification hierarchy (taxon_name_hierarchies) rather than through a cached column, so
-      # it can't go stale the way a cached homonym column can. Covers every code with a Subgenus
-      # rank (see CODES_WITH_SUBGENUS).
-      GENUS_RANK_CLASSES = CODES_WITH_SUBGENUS.map { |code| Ranks.lookup(code, :genus) }.freeze
-      SPECIES_RANK_CLASSES = CODES_WITH_SUBGENUS.map { |code| Ranks.lookup(code, :species) }.freeze
-      SUBSPECIES_RANK_CLASSES = CODES_WITH_SUBGENUS.map { |code| Ranks.lookup(code, :subspecies) }.freeze
+      # Genus, species, and subspecies ranks for those codes that have a
+      # subgenus rank.
+      GENUS_RANK_CLASSES = CODES_WITH_SUBGENUS.map { |code|
+        Ranks.lookup(code, :genus)
+      }.freeze
+      SPECIES_RANK_CLASSES = CODES_WITH_SUBGENUS.map { |code|
+        Ranks.lookup(code, :species)
+      }.freeze
+      SUBSPECIES_RANK_CLASSES = CODES_WITH_SUBGENUS.map { |code|
+        Ranks.lookup(code, :subspecies)
+      }.freeze
 
-      # A candidate classified with one of these can never take a different gender-agreeing
-      # spelling — a noun (in apposition, or in the genitive case) doesn't change with the
-      # genus's gender the way an adjective or participle epithet does. Anything else, including
-      # no classification at all, is treated permissively: gender-form matching is attempted.
+      # Deeper ICN-only infraspecific ranks — ICZN/ICNP don't have these.
+      VARIETY_RANK_CLASSES = [Ranks.lookup(:icn, :variety)].freeze
+      SUBVARIETY_RANK_CLASSES = [Ranks.lookup(:icn, :subvariety)].freeze
+      FORM_RANK_CLASSES = [Ranks.lookup(:icn, :form)].freeze
+      SUBFORM_RANK_CLASSES = [Ranks.lookup(:icn, :subform)].freeze
+
+      # Species-group rank abbreviations TaxonWorks can print (see
+      # Combination#full_name_hash) mapped to the rank classes they mark. When
+      # present in a search string, everything marked except the last is an
+      # exact-match anchor; the last is the terminal, gender-tolerant match.
+      SPECIES_GROUP_MARKERS = [
+        ['subsp', SUBSPECIES_RANK_CLASSES],
+        ['subvar', SUBVARIETY_RANK_CLASSES],
+        ['var', VARIETY_RANK_CLASSES],
+        ['subf', SUBFORM_RANK_CLASSES],
+        ['f', FORM_RANK_CLASSES]
+      ].freeze
+      SPECIES_GROUP_MARKER_RANKS = SPECIES_GROUP_MARKERS.to_h.freeze
+
+      SPECIES_GROUP_MARKER_ALTERNATION = SPECIES_GROUP_MARKERS.map(&:first).join('|')
+      # Scans for markers, requiring something after them (the epithet); `\b` keeps `var`/`f`
+      # from matching inside `subvar.`/`subf.` (there's no word boundary between "sub" and the
+      # rest, so the shorter marker can never falsely match there).
+      SPECIES_GROUP_MARKER_SCAN_PATTERN = /\b(#{SPECIES_GROUP_MARKER_ALTERNATION})\.\s+\S/i
+      SPECIES_GROUP_SPLIT_PATTERN = /\s*\b(?:#{SPECIES_GROUP_MARKER_ALTERNATION})\.\s+/i
+
+      # Genus-group rank abbreviations (subgenus, section, series, and their sub- forms) — always
+      # ignorable, so they're stripped along with the word they mark, wherever they occur.
+      GENUS_GROUP_MARKER_PATTERN = /\s*\b(?:subg|sgen|subsect|sect|subser|ser)\.\s+\S+/i
+
       NON_GENDER_AGREEING_PART_OF_SPEECH_TYPES = [
         'TaxonNameClassification::Latinized::PartOfSpeech::NounInApposition',
         'TaxonNameClassification::Latinized::PartOfSpeech::NounInGenitiveCase'
       ].freeze
 
-      attr_reader :names, :project_id, :levenshtein_distance, :taxon_name_id, :taxon_name_query,
-        :resolve_synonyms, :try_without_subgenus, :candidates, :match_original_combination,
-        :use_author_year, :trigram_prefilter
+      attr_reader :names, :project_id, :levenshtein_distance, :taxon_name_id,
+        :taxon_name_query, :resolve_synonyms, :try_without_subgenus,
+        :candidates, :match_original_combination, :use_author_year,
+        :trigram_prefilter
 
       # @param names [Array<String>] array of name strings to match
       # @param project_id [Integer]
       # @param levenshtein_distance [Integer] 0 for exact, 1-8 for fuzzy
-      # @param taxon_name_id [Integer, nil] scope matches to descendants of this TaxonName
+      # @param taxon_name_id [Integer, nil] scope matches to descendants of this
+      #   TaxonName
       # @param taxon_name_query [Hash, nil] scope matches to the result of a
       #   Queries::TaxonName::Filter. Takes precedence over taxon_name_id.
-      # @param resolve_synonyms [Boolean] when true, resolve synonyms to valid names and return their OTUs
-      # @param try_without_subgenus [Boolean] when true and the plain match fails, retry by
-      #   joining directly through the current classification: the genus must match exactly,
-      #   any subgenus (or other rank) between it and the terminal epithet is ignored entirely,
-      #   and the terminal epithet is matched against its predicted gender forms rather than the
-      #   raw string. See #find_taxon_names_ignoring_subgenus.
-      # @param candidates [Integer, nil] when set, include the ranked match set, capped at this many
-      # @param match_original_combination [Boolean] when true, match cached_original_combination alongside cached
-      # @param use_author_year [Boolean] when true, strip a parseable author/year from the name before
-      #   matching and use it to differentiate when more than one candidate matches
-      # @param trigram_prefilter [Boolean] when true, narrow fuzzy candidates with the pg_trgm
-      #   similarity operator before computing levenshtein distance
-      def initialize(names:, project_id:, levenshtein_distance: 0, taxon_name_id: nil,
-                     taxon_name_query: nil, resolve_synonyms: false, try_without_subgenus: false,
-                     candidates: nil, match_original_combination: false, use_author_year: false,
-                     trigram_prefilter: false)
+      # @param resolve_synonyms [Boolean] when true, resolve synonyms to valid
+      #   names and return their OTUs
+      # @param try_without_subgenus [Boolean] when true and the plain match
+      #   fails, retry by ignoring subgenus
+      # @param candidates [Integer, nil] when set, include the ranked match set,
+      #   capped at this many
+      # @param match_original_combination [Boolean] when true, match
+      #   cached_original_combination alongside cached
+      # @param use_author_year [Boolean] when true, strip a parseable
+      #   author/year from the name before matching and use it to differentiate
+      #   when more than one candidate matches
+      # @param trigram_prefilter [Boolean] when true, narrow fuzzy candidates
+      #   with the pg_trgm similarity operator before computing levenshtein
+      #   distance
+      def initialize(
+        names:, project_id:, levenshtein_distance: 0, taxon_name_id: nil,
+        taxon_name_query: nil, resolve_synonyms: false,
+        try_without_subgenus: false, candidates: nil,
+        match_original_combination: false, use_author_year: false,
+        trigram_prefilter: false
+      )
         @names = names.first(NameBatchMatcher::MAX_NAMES)
         @project_id = project_id
         @levenshtein_distance = levenshtein_distance.to_i.clamp(0, 8)
@@ -121,7 +155,9 @@ module Match
         resolved = matched
 
         if resolve_synonyms && matched.cached_valid_taxon_name_id != matched.id
-          valid = ::TaxonName.where(project_id: project_id).find_by(id: matched.cached_valid_taxon_name_id)
+          valid = ::TaxonName
+            .where(project_id: project_id)
+            .find_by(id: matched.cached_valid_taxon_name_id)
           resolved = valid if valid
         end
 
@@ -141,7 +177,13 @@ module Match
 
       # @return [Hash]
       def no_match
-        result = { taxon_name_id: nil, taxon_name: nil, otus: [], ambiguous: false, matched: false }
+        result = {
+          taxon_name_id: nil,
+          taxon_name: nil,
+          otus: [],
+          ambiguous: false,
+          matched: false
+        }
         result[:candidates] = [] if candidates
         result
       end
@@ -161,97 +203,120 @@ module Match
         match_original_combination ? [:cached, :cached_original_combination] : [:cached]
       end
 
-      # Matches through the live classification (current genus, current epithet spelling)
-      # instead of any cached column, so staleness in a cached homonym field can't cause a
-      # false negative.
-      #
-      # A subgenus (or any other rank) between the genus and the terminal epithet is always
-      # ignored entirely — its value, if the search string even has one, is never inspected. The
-      # genus only needs to be SOME ancestor of the terminal node, not its direct parent — that
-      # check is hop-count agnostic, so "genus directly parents species" (no subgenus at all) is
-      # just its zero-intervening-ranks case, not a separate thing to handle.
-      #
-      #   2 words ("Genus species"): word 1 is the genus, word 2 is the species epithet,
-      #   matched against its predicted gender forms (masculine/feminine/neuter) rather than the
-      #   raw string — gender agreement is exactly what's usually out of sync between a
-      #   determination label and the stored combination.
-      #
-      #   3 words: ambiguous between "Genus Subgenus species" (species-terminal, middle word
-      #   ignored) and "Genus species subspecies" (subspecies-terminal, no subgenus at all —
-      #   both words after the genus are real) — UNLESS the middle word is parenthesized, which
-      #   only ever denotes a subgenus and never a species epithet, in which case the shape is
-      #   certain and there's nothing to disambiguate. Otherwise both are tried: species-terminal
-      #   first, since a subgenus on a determination label is far more common than a genuinely
-      #   absent one, then subspecies-terminal.
-      #
-      #   4 words ("Genus (Subgenus) species subspecies"): unambiguous — the species (the
-      #   second-to-last word) must match exactly, and it's the trailing subspecies epithet
-      #   that's matched against its predicted gender forms.
-      #
-      # Any other word count: there's no nomenclatural code traveling with a bare search string,
-      # so there's no reliable way to guess which word is the epithet — give up rather than guess.
+      # Genus-group content (subgenus, section, series...) is always stripped first — marked or
+      # not, it's never read. What's left is either explicitly marked with species-group rank
+      # abbreviations (subsp./var./f./...), in which case every rank present except the last is
+      # an exact anchor and the last is the terminal match; or it's bare, in which case word
+      # count (plus capitalization, to spot a bare subgenus) decides the shape:
+      #   2 words:            genus + species (terminal)
+      #   3 words, ( or Capitalized middle: genus + [ignored] + species (terminal)
+      #   3 words, lowercase middle:        genus + species (anchor) + subspecies (terminal)
+      #   4 words:                          genus + [ignored] + species (anchor) + subspecies (terminal)
+      #   anything else: no reliable way to guess — give up.
       # @param search_string [String]
       # @return [Array<TaxonName>]
       def find_taxon_names_ignoring_subgenus(search_string)
-        words = search_string.squish.split(' ')
+        stripped = search_string.gsub(GENUS_GROUP_MARKER_PATTERN, ' ').squish
+        markers = stripped.scan(SPECIES_GROUP_MARKER_SCAN_PATTERN).flatten.map(&:downcase)
+
+        return find_via_species_group_markers(stripped, markers) if markers.any?
+
+        words = stripped.split(' ')
 
         case words.length
         when 2
-          find_via_genus_ancestor(words.first, words.last, rank_classes: SPECIES_RANK_CLASSES)
+          find_via_species_group_chain(words.first, [], words.last, SPECIES_RANK_CLASSES)
         when 3
-          species_terminal = find_via_genus_ancestor(words.first, words.last, rank_classes: SPECIES_RANK_CLASSES)
-
-          if words[1].start_with?('(')
-            species_terminal
+          if words[1].start_with?('(') || words[1] =~ /\A[[:upper:]]/
+            find_via_species_group_chain(words.first, [], words.last, SPECIES_RANK_CLASSES)
           else
-            species_terminal.presence ||
-              find_via_genus_and_species_ancestor(words.first, words[-2], words.last)
+            find_via_species_group_chain(
+              words.first, [[words[1], SPECIES_RANK_CLASSES]], words.last, SUBSPECIES_RANK_CLASSES
+            )
           end
         when 4
-          find_via_genus_and_species_ancestor(words.first, words[-2], words.last)
+          find_via_species_group_chain(
+            words.first, [[words[-2], SPECIES_RANK_CLASSES]], words.last, SUBSPECIES_RANK_CLASSES
+          )
         else
           []
         end
       end
 
-      # @param genus_name [String] exact genus name expected as an ancestor
-      # @param epithet [String] the terminal word as typed
-      # @param rank_classes [Array<String>]
+      # @param stripped [String] the search string with genus-group markers already removed
+      # @param markers [Array<String>] the species-group markers found, in appearance order
       # @return [Array<TaxonName>]
-      def find_via_genus_ancestor(genus_name, epithet, rank_classes:)
-        downcased = epithet.downcase
-        forms = Utilities::Nomenclature.predict_three_forms(downcased).values.uniq
+      def find_via_species_group_markers(stripped, markers)
+        segments = stripped.split(SPECIES_GROUP_SPLIT_PATTERN)
+        return [] unless segments.size == markers.size + 1
+        return [] if segments[1..].any? { |segment| segment.include?(' ') }
 
-        base_scope
-          .where(rank_class: rank_classes)
-          .where(epithet_match_sql('taxon_names'), downcased, forms, NON_GENDER_AGREEING_PART_OF_SPEECH_TYPES)
-          .where(genus_ancestor_exists_sql('taxon_names.id'), genus_name, GENUS_RANK_CLASSES)
-          .to_a
+        first_words = segments.first.split(' ')
+        return [] if first_words.size < 2
+
+        anchors = [[first_words.last, SPECIES_RANK_CLASSES]]
+        anchors += segments[1..-2].each_with_index.map do |epithet, i|
+          [epithet, SPECIES_GROUP_MARKER_RANKS.fetch(markers[i])]
+        end
+
+        find_via_species_group_chain(
+          first_words.first, anchors, segments.last, SPECIES_GROUP_MARKER_RANKS.fetch(markers.last)
+        )
       end
 
-      # @param genus_name [String] exact genus name expected as an ancestor of the species
-      # @param species_name [String] the species epithet, matched exactly
-      # @param subspecies_epithet [String] the terminal word as typed
+      # @param genus_name [String] exact genus name expected as an ancestor of the shallowest
+      #   anchor (or of the terminal itself, when `anchors` is empty)
+      # @param anchors [Array<Array(String, Array<String>)>] ordered [epithet, rank_classes]
+      #   pairs, shallowest first — each an exact-match ancestor the terminal must descend
+      #   through
+      # @param terminal_epithet [String] the terminal word as typed; matched against its
+      #   predicted gender forms, not the raw string
+      # @param terminal_rank_classes [Array<String>]
       # @return [Array<TaxonName>]
-      def find_via_genus_and_species_ancestor(genus_name, species_name, subspecies_epithet)
-        downcased = subspecies_epithet.downcase
+      def find_via_species_group_chain(genus_name, anchors, terminal_epithet, terminal_rank_classes)
+        downcased = terminal_epithet.downcase
         forms = Utilities::Nomenclature.predict_three_forms(downcased).values.uniq
 
-        species_sql = <<~SQL.squish
-          taxon_names.parent_id IN (
-            SELECT species_tn.id FROM taxon_names species_tn
-            WHERE species_tn.project_id = taxon_names.project_id
-              AND species_tn.rank_class IN (?)
-              AND species_tn.name = ?
-              AND #{genus_ancestor_exists_sql('species_tn.id')}
-          )
-        SQL
-
-        base_scope
-          .where(rank_class: SUBSPECIES_RANK_CLASSES)
+        scope = base_scope
+          .where(rank_class: terminal_rank_classes)
           .where(epithet_match_sql('taxon_names'), downcased, forms, NON_GENDER_AGREEING_PART_OF_SPEECH_TYPES)
-          .where(species_sql, SPECIES_RANK_CLASSES, species_name, genus_name, GENUS_RANK_CLASSES)
-          .to_a
+
+        if anchors.empty?
+          scope.where(genus_ancestor_exists_sql('taxon_names.id'), genus_name, GENUS_RANK_CLASSES).to_a
+        else
+          sql, binds = anchor_chain_sql(genus_name, anchors)
+          scope.where("taxon_names.parent_id IN (#{sql})", *binds).to_a
+        end
+      end
+
+      # Builds a nested subquery (and matching binds, in the same left-to-right order they
+      # appear in the SQL) selecting the id of the deepest anchor: an exact-name chain through
+      # `anchors` (shallowest first), ultimately rooted so `genus_name` is some ancestor of the
+      # shallowest one.
+      # @param genus_name [String]
+      # @param anchors [Array<Array(String, Array<String>)>]
+      # @return [Array(String, Array)]
+      def anchor_chain_sql(genus_name, anchors)
+        sql = nil
+        binds = []
+
+        anchors.each_with_index do |(epithet, rank_classes), i|
+          alias_name = "anchor_#{i}"
+          parent_sql = i.zero? ? genus_ancestor_exists_sql("#{alias_name}.id") : "#{alias_name}.parent_id IN (#{sql})"
+          level_binds = i.zero? ? [rank_classes, epithet, genus_name, GENUS_RANK_CLASSES] : [rank_classes, epithet]
+
+          sql = <<~SQL.squish
+            SELECT #{alias_name}.id FROM taxon_names #{alias_name}
+            WHERE #{alias_name}.project_id = taxon_names.project_id
+              AND #{alias_name}.rank_class IN (?)
+              AND #{alias_name}.name = ?
+              AND #{parent_sql}
+          SQL
+
+          binds = i.zero? ? level_binds : level_binds + binds
+        end
+
+        [sql, binds]
       end
 
       # Raw SQL fragment (three `?` binds: the raw epithet, the array of predicted gender forms,
