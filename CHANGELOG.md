@@ -21,6 +21,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Rails initializer for the Autoselect component
 - `Browse sounds task`: Timeline under the waveform. Toggles to hide the regions and the spectrograms
 - `Radial navigator`: `filter collection object` slice for taxon names [#4963]
+- Sessions in open tabs are kept alive, and an expired session is now explained instead of failing requests with a generic error
 
 ### Changed
 

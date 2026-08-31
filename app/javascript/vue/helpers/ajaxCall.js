@@ -1,6 +1,7 @@
 import Axios from 'axios'
 import { capitalize } from './strings'
 import { getCSRFToken } from './user'
+import { requestCheck } from '@/utils/SessionStatus'
 
 const REQUEST_TYPE = {
   Get: 'get',
@@ -55,12 +56,15 @@ async function ajaxCall(type, url, data = {}, config = {}) {
       printDevelopmentResponse(response)
     })
     .catch((error) => {
-      if (!Axios.isCancel(error)) {
+      if (!Axios.isCancel(error) && error.response) {
         error.response = setDataProperty(error.response)
         printDevelopmentResponse(error.response)
 
         switch (error.response.status) {
           case 404:
+            break
+          case 401:
+            requestCheck(() => handleError(error.response.body))
             break
           default:
             handleError(error.response.body)
