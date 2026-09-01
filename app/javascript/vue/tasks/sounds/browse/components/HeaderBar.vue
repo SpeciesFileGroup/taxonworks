@@ -25,16 +25,14 @@
       >
         <VBtn
           v-if="!sound.metadata.error"
-          circle
+          icon
           color="primary"
+          variant="tonal"
           :href="sound.sound_file"
           download
           title="Download sound file"
         >
-          <VIcon
-            name="download"
-            x-small
-          />
+          <IconDownload class="w-4 h-4" />
         </VBtn>
         <RadialAnnotator :global-id="sound.global_id" />
         <RadialObject :global-id="sound.global_id" />
@@ -53,6 +51,7 @@ import VIcon from '@/components/ui/VIcon/index.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import RadialObject from '@/components/radials/object/radial.vue'
+import IconDownload from '@/components/Icon/IconDownload.vue'
 
 defineProps({
   sound: {

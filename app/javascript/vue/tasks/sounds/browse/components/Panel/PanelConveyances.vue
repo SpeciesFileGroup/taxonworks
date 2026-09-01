@@ -48,7 +48,8 @@
           <td>
             <VBtn
               v-if="fragmentFor(conveyance)"
-              circle
+              icon
+              variant="tonal"
               color="primary"
               title="Play this fragment"
               @click="
