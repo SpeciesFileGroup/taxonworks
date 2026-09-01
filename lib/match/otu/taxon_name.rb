@@ -336,7 +336,8 @@ module Match
           epithet_sql, epithet_binds = epithet_match_sql(alias_name, epithet)
 
           if i.zero?
-            parent_sql, parent_binds = genus_match_sql("#{alias_name}.id", genus_name)
+            parent_sql, parent_binds =
+              genus_match_sql("#{alias_name}.id", genus_name)
           else
             parent_sql = "#{alias_name}.parent_id IN (#{sql})"
             parent_binds = binds # the previous iteration's fully-nested binds
@@ -447,7 +448,9 @@ module Match
       # @param columns [Array<Symbol>]
       # @return [Array<TaxonName>]
       def find_taxon_names_exact(name, columns:)
-        clause = columns.collect { |column| "taxon_names.#{column} = ?" }.join(' OR ')
+        clause = columns.collect { |column|
+          "taxon_names.#{column} = ?"
+        }.join(' OR ')
         base_scope.where(clause, *Array.new(columns.size, name)).to_a
       end
 
@@ -458,12 +461,15 @@ module Match
         truncated_name = name[0..254]
         scope = base_scope
 
-        # levenshtein() can not be indexed, so without this every name in the batch scans
-        # taxon_names. The pg_trgm operator uses the GIN trigram indexes on these columns to
-        # narrow the set first. Very short strings can fall below the similarity threshold, so
-        # this trades some fuzzy recall for a query that is viable at page scale.
+        # levenshtein() can not be indexed, so without this every name in the
+        # batch scans taxon_names. The pg_trgm operator uses the GIN trigram
+        # indexes on these columns to narrow the set first. Very short strings
+        # can fall below the similarity threshold, so this trades some fuzzy
+        # recall for a query that is viable at page scale.
         if trigram_prefilter
-          similarity = columns.collect { |column| "taxon_names.#{column} % ?" }.join(' OR ')
+          similarity = columns.collect { |column|
+            "taxon_names.#{column} % ?"
+          }.join(' OR ')
           scope = scope.where(similarity, *Array.new(columns.size, truncated_name))
         end
 
@@ -478,7 +484,8 @@ module Match
 
       # @param columns [Array<Symbol>]
       # @param name [String]
-      # @return [String] sanitized SQL for the distance to the nearest of `columns`
+      # @return [String] sanitized SQL for the distance to the nearest of
+      #   `columns`
       def distance_sql(columns, name)
         parts = columns.collect do |column|
           ::TaxonName.sanitize_sql_array(
@@ -489,8 +496,8 @@ module Match
         parts.one? ? parts.first : "LEAST(#{parts.join(', ')})"
       end
 
-      # Build the base TaxonName scope, optionally constrained to a TaxonName query result or to
-      # descendants of taxon_name_id.
+      # Build the base TaxonName scope, optionally constrained to a TaxonName
+      # query result or to descendants of taxon_name_id.
       # @return [ActiveRecord::Relation]
       def base_scope
         scope = ::TaxonName.where(project_id: project_id)
@@ -517,11 +524,12 @@ module Match
       end
 
       # Parse an author/year off the name, when there is one to parse.
-      # Memoized per unique string — the parser is comparatively expensive and names repeat.
+      # Memoized per unique string — the parser is comparatively expensive and
+      # names repeat.
       # @param name [String]
       # @return [Hash, nil]
-      #   `{name: <name without the author/year>, author_year: <'Smith, 1920'>}`, or nil when
-      #   the string is unparseable or carries no author/year.
+      #   `{name: <name without the author/year>, author_year: <'Smith, 1920'>}`,
+      #   or nil when the string is unparseable or carries no author/year.
       def parsed_author_year(name)
         return nil unless use_author_year
 
@@ -529,23 +537,28 @@ module Match
         return @parsed_author_years[name] if @parsed_author_years.key?(name)
 
         @parsed_author_years[name] = begin
-          result = ::Vendor::Biodiversity::Result.new(query_string: name, project_id: project_id)
+          result = ::Vendor::Biodiversity::Result.new(
+            query_string: name, project_id: project_id
+          )
 
           if result.parseable && result.is_authored?
-            { name: result.name_without_author_year, author_year: result.author_year }
+            {
+              name: result.name_without_author_year,
+              author_year: result.author_year
+            }
           else
             nil
           end
         rescue StandardError
-          # Arbitrary curator-supplied strings reach the parser; an unparseable one simply
-          # matches with its author/year left in place.
+          # Arbitrary curator-supplied strings reach the parser; an unparseable
+          # one simply matches with its author/year left in place.
           nil
         end
       end
 
-      # Mirrors Vendor::Biodiversity::Result#scope_to_author_year: when the author/year matches
-      # candidates, use only those; when it matches none, ignore it rather than discarding every
-      # candidate.
+      # Mirrors Vendor::Biodiversity::Result#scope_to_author_year: when the
+      # author/year matches candidates, use only those; when it matches none,
+      # ignore it rather than discarding every candidate.
       # @param taxon_names [Array<TaxonName>]
       # @param parsed [Hash]
       # @return [Array<TaxonName>]
@@ -554,7 +567,9 @@ module Match
         return taxon_names if author_year.blank?
 
         alternate = author_year.gsub(' & ', ' and ')
-        matching = taxon_names.select { |tn| [author_year, alternate].include?(tn.cached_author_year) }
+        matching = taxon_names.select { |tn|
+          [author_year, alternate].include?(tn.cached_author_year)
+        }
 
         matching.presence || taxon_names
       end
@@ -566,7 +581,10 @@ module Match
       # @return [Array<TaxonName>] sorted best-first
       def rank_taxon_names(taxon_names)
         taxon_name_ids = taxon_names.map(&:id)
-        ids_with_otus = ::Otu.where(project_id: project_id, taxon_name_id: taxon_name_ids).distinct.pluck(:taxon_name_id).to_set
+        ids_with_otus = ::Otu.where(
+          project_id: project_id,
+          taxon_name_id: taxon_name_ids
+        ).distinct.pluck(:taxon_name_id).to_set
 
         taxon_names.sort_by do |tn|
           [
