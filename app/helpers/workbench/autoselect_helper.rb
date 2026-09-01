@@ -4,8 +4,10 @@ module Workbench::AutoselectHelper
   # (`app/javascript/vue/initializers/Autoselect/`).  The element is inert until
   # the initializer picks it up on `turbolinks:load`.
   #
-  # @param url [String]
-  #   the autoselect resource, e.g. `/taxon_names/autoselect`
+  # @param model [String]
+  #   the autoselect resource's model key, e.g. `'taxon_names'`; drives the
+  #   fetch url (`/<model>/autoselect`) and the `!n` create-component lookup
+  #   (see `AUTOSELECT_NEW_RECORD_COMPONENTS`)
   # @param param [String, Symbol]
   #   the key read from the selected item's `response_values`, e.g. `:taxon_name_id`
   # @param object [String, Symbol, nil]
@@ -25,7 +27,7 @@ module Workbench::AutoselectHelper
   # @param preferences_options_component [String, nil]
   #   key of the component rendered inside the `!p` modal, e.g. 'ColDatasetPicker'
   def autoselect_field(
-    url:,
+    model:,
     param:,
     method:,
     object: nil,
@@ -40,7 +42,7 @@ module Workbench::AutoselectHelper
   )
     content_tag(:div, '', data: {
       'autoselect' => true,
-      'autoselect-url' => url,
+      'autoselect-model' => model,
       'autoselect-param' => param,
       'autoselect-field-object' => object,
       'autoselect-field-property' => method,
