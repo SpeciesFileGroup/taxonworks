@@ -68,11 +68,6 @@ module Match
 
       GENUS_GROUP_MARKER_PATTERN = /\s*\b(?:subg|sgen|subsect|sect|subser|ser)\.\s+\S+/i
 
-      NON_GENDER_AGREEING_PART_OF_SPEECH_TYPES = [
-        'TaxonNameClassification::Latinized::PartOfSpeech::NounInApposition',
-        'TaxonNameClassification::Latinized::PartOfSpeech::NounInGenitiveCase'
-      ].freeze
-
       attr_reader :names, :project_id, :levenshtein_distance, :taxon_name_id,
         :taxon_name_query, :resolve_synonyms, :try_without_subgenus,
         :candidates, :match_original_combination, :use_author_year,
@@ -338,9 +333,7 @@ module Match
       end
 
       # A candidate matches either by being an exact hit, or by matching one of
-      # the predicted gender forms, PROVIDED it isn't classified as a noun
-      # (in apposition, or genitive case) — those never take a different
-      # gender-agreeing spelling regardless of what the genus's gender is.
+      # the predicted gender forms.
       # @param scope [ActiveRecord::Relation]
       # @param epithet [String] the raw epithet as typed
       # @param rank_classes [Array<String>] restricts `scope` to candidates of
@@ -349,36 +342,17 @@ module Match
       def epithet_scope(scope, epithet, rank_classes)
         downcased = epithet.downcase
         forms = Utilities::Nomenclature.predict_three_forms(downcased).values.uniq
+        scoped = scope.where(rank_class: rank_classes)
 
         if levenshtein_distance > 0
-          spelling_clause = 'levenshtein(left(taxon_names.name, 255), ?) <= ?'
-          spelling_binds = [downcased, levenshtein_distance]
-        else
-          spelling_clause = 'taxon_names.name = ?'
-          spelling_binds = [downcased]
-        end
-
-        # This is a correlated `NOT EXISTS`, not an AR
-        # `.where.not(id: subquery)` — each candidate's own classification is
-        # looked up directly by indexed id, rather than hashing every
-        # non-agreeing classification in the database (tens of thousands of
-        # rows) to check membership against.
-        scope.where(rank_class: rank_classes).where(
-          <<~SQL.squish,
-            (
-              #{spelling_clause}
-              OR (
-                taxon_names.name IN (?)
-                AND NOT EXISTS (
-                  SELECT 1 FROM taxon_name_classifications tnc
-                  WHERE tnc.taxon_name_id = taxon_names.id
-                    AND tnc.type IN (?)
-                )
-              )
+          scoped
+            .where('levenshtein(left(taxon_names.name, 255), ?) <= ?',
+              downcased, levenshtein_distance
             )
-          SQL
-          *spelling_binds, forms, NON_GENDER_AGREEING_PART_OF_SPEECH_TYPES
-        )
+            .or(scoped.where(name: forms))
+        else
+          scoped.where(name: ([downcased] + forms).uniq)
+        end
       end
 
       # Filters `scope` to rows associated with `genus_name`, either as the
@@ -398,10 +372,10 @@ module Match
 
         genus_ids_sql = genus_relation.select(:id).to_sql
 
-        # Correlated non-AR `EXISTS`, for the same reason as #epithet_scope —
-        # this can match against thousands of descendants of a common genus, and
-        # a correlated per-candidate lookup stays cheap where hashing that whole
-        # set would not.
+        # Correlated non-AR `EXISTS`, not an AR `.where.not(id: subquery)` or
+        # similar — this can match against thousands of descendants of a
+        # common genus, and a correlated per-candidate lookup stays cheap
+        # where hashing that whole set would not.
         scope.where(
           <<~SQL.squish,
             (

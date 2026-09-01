@@ -325,22 +325,23 @@ describe Match::Otu::TaxonName, type: :model do
       end
     end
 
-    context 'part of speech gates gender-form matching' do
-      specify 'a noun-in-genitive-case candidate only matches exactly, not other predicted forms' do
+    context 'gender-form matching applies regardless of part-of-speech classification' do
+      specify 'a noun-in-genitive-case candidate still matches a gender-varied spelling' do
+        # Nomenclaturally a genitive-case noun should never take a different
+        # gender-agreeing spelling, but real-world input (older literature,
+        # unjustified emendations, legacy/external data) often carries that
+        # variant anyway — see the comment on #epithet_scope.
         invariant_species = Protonym.create!(name: 'smithianus', rank_class: Ranks.lookup(:iczn, :species), parent: genus)
         TaxonNameClassification::Latinized::PartOfSpeech::NounInGenitiveCase.create!(taxon_name: invariant_species)
 
         exact_result = match(names: ['Aus smithianus'], try_without_subgenus: true).first
         expect(exact_result[:taxon_name_id]).to eq(invariant_species.id)
 
-        # predict_three_forms('smithiana') includes 'smithianus' (the -us/-a/-um adjectival
-        # pattern) — that would cross-match an Adjective-classified or unclassified candidate,
-        # but a noun in the genitive case never takes a different gender-agreeing spelling.
         varied_result = match(names: ['Aus smithiana'], try_without_subgenus: true).first
-        expect(varied_result[:matched]).to eq(false)
+        expect(varied_result[:taxon_name_id]).to eq(invariant_species.id)
       end
 
-      specify 'an unclassified candidate is still matched permissively' do
+      specify 'an unclassified candidate is matched the same way' do
         unclassified_species = Protonym.create!(name: 'smithianus', rank_class: Ranks.lookup(:iczn, :species), parent: genus)
 
         result = match(names: ['Aus smithiana'], try_without_subgenus: true).first
