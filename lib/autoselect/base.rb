@@ -162,6 +162,7 @@ class Autoselect::Base
     %i[recent recent_mine pinboard pinboard_top].include?(operator)
   end
 
+  # !! This is often overrode !!
   # Build response item hashes from an array of records.
   # Rendering is delegated to level_instance so external levels can supply their own.
   # Subclasses may override to handle extension data (e.g. CoL pseudo-records).

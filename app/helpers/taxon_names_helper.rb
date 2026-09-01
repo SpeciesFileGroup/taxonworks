@@ -6,9 +6,12 @@ module TaxonNamesHelper
 
   # HTML label for the autoselect dropdown (left-justified).
   # Uses cached_html for real records; falls back to cached for CoL pseudo-records.
-  def taxon_name_autoselect_tag(taxon_name)
+  def taxon_name_autoselect_tag(taxon_name, term = nil)
     return nil if taxon_name.nil?
-    tag.span( taxon_name.cached_html_name_and_author_year.html_safe, class: :klass)
+    tag.span(
+     mark_tag(
+      taxon_name.cached_html_name_and_author_year.html_safe, term
+     ), class: :klass)
   end
 
   # Disambiguation info Array for the autoselect dropdown (right-justified).
