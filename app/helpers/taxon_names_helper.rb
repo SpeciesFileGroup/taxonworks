@@ -27,7 +27,7 @@ module TaxonNamesHelper
   #   the taxon name without author year, with HTML
   def taxon_name_tag(taxon_name)
     return nil if taxon_name.nil?
-    return taxon_name.name if taxon_name.new_record?
+    return taxon_name.name if taxon_name.new_record? # likely not needed
     taxon_name.cached_html.try(:html_safe) || taxon_name.name
   end
 
