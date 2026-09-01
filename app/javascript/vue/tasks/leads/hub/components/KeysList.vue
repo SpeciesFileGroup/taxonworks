@@ -63,14 +63,6 @@
             >
               <td class="horizontal-left-content middle gap-small">
                 <b>{{ key.text }}</b>
-                <VBtn
-                  color="primary"
-                  @click="navigateTo(`${RouteNames.NewLead}?lead_id=${key.id}`)"
-                >Edit</VBtn>
-                <VBtn
-                  color="primary"
-                  @click="navigateTo(`${RouteNames.ShowLead}?lead_id=${key.id}`)"
-                >Use</VBtn>
               </td>
 
               <td>{{ key.couplets_count }}</td>
@@ -150,7 +142,6 @@ import KeyOtus from './KeyOtus.vue'
 import Pagination from '@/components/pagination.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
-import VBtn from '@/components/ui/VBtn/index.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 
 const PER_PAGE = 25
@@ -236,10 +227,6 @@ function changeIsPublicState(key) {
       addToArray(keys.value, updatedKey)
     })
     .catch(() => {})
-}
-
-function navigateTo(url) {
-  window.open(url, '_blank')
 }
 
 function loadOtusForKey(key) {
