@@ -73,9 +73,6 @@ module Match
         'TaxonNameClassification::Latinized::PartOfSpeech::NounInGenitiveCase'
       ].freeze
 
-      ORIGINAL_GENUS_RELATIONSHIP_TYPE =
-        'TaxonNameRelationship::OriginalCombination::OriginalGenus'.freeze
-
       attr_reader :names, :project_id, :levenshtein_distance, :taxon_name_id,
         :taxon_name_query, :resolve_synonyms, :try_without_subgenus,
         :candidates, :match_original_combination, :use_author_year,
@@ -295,7 +292,7 @@ module Match
       # @param anchors [Array<Array(String, Array<String>)>]
       #   ordered [epithet, rank_classes] pairs, shallowest first — each an
       #   ancestor the terminal must descend through, matched the same
-      #   gender-tolerant way as the terminal (see #epithet_match_sql)
+      #   gender-tolerant way as the terminal (see #epithet_scope)
       # @param terminal_epithet [String] the terminal word as typed; matched
       #   against its predicted gender forms, not the raw string
       # @param terminal_rank_classes [Array<String>]
@@ -303,130 +300,114 @@ module Match
       def find_via_species_group_chain(
         genus_name:, anchors:, terminal_epithet:, terminal_rank_classes:
       )
-        epithet_sql, epithet_binds =
-          epithet_match_sql('taxon_names', terminal_epithet)
-
-        scope = base_scope
-          .where(rank_class: terminal_rank_classes)
-          .where(epithet_sql, *epithet_binds)
+        scope = epithet_scope(
+          base_scope.where(rank_class: terminal_rank_classes), terminal_epithet
+        )
 
         if anchors.empty?
-          genus_sql, genus_binds = genus_match_sql('taxon_names.id', genus_name)
-          scope.where(genus_sql, *genus_binds).to_a
+          genus_match_scope(scope, genus_name).to_a
         else
-          sql, binds = anchor_chain_sql(genus_name, anchors)
-          scope.where("taxon_names.parent_id IN (#{sql})", *binds).to_a
+          scope.where(parent_id: anchor_chain_ids(genus_name, anchors)).to_a
         end
       end
 
-      # Builds a nested subquery (and matching binds, in the same left-to-right
-      # order they appear in the SQL) selecting the id of the deepest anchor: a
-      # chain through `anchors` (shallowest first, each matched the same
-      # gender-tolerant way as the terminal), ultimately rooted so `genus_name`
+      # A relation of ids for the deepest anchor: walks `anchors` (shallowest
+      # first), each matched the same gender-tolerant way as the terminal, each
+      # required to be the parent of the next, ultimately rooted so `genus_name`
       # is some match — current or original — for the shallowest one.
       # @param genus_name [String]
       # @param anchors [Array<Array(String, Array<String>)>]
-      # @return [Array(String, Array)]
-      def anchor_chain_sql(genus_name, anchors)
-        sql = nil
-        binds = []
+      # @return [ActiveRecord::Relation]
+      def anchor_chain_ids(genus_name, anchors)
+        ids = nil
 
         anchors.each_with_index do |(epithet, rank_classes), i|
-          alias_name = "anchor_#{i}"
-          epithet_sql, epithet_binds = epithet_match_sql(alias_name, epithet)
+          level = epithet_scope(
+            base_scope.where(rank_class: rank_classes), epithet
+          )
 
-          if i.zero?
-            parent_sql, parent_binds =
-              genus_match_sql("#{alias_name}.id", genus_name)
-          else
-            parent_sql = "#{alias_name}.parent_id IN (#{sql})"
-            parent_binds = binds # the previous iteration's fully-nested binds
-          end
+          level = i.zero? ? genus_match_scope(level, genus_name) : level.where(parent_id: ids)
 
-          sql = <<~SQL.squish
-            SELECT #{alias_name}.id FROM taxon_names #{alias_name}
-            WHERE #{alias_name}.project_id = taxon_names.project_id
-              AND #{alias_name}.rank_class IN (?)
-              AND #{epithet_sql}
-              AND #{parent_sql}
-          SQL
-
-          binds = [rank_classes] + epithet_binds + parent_binds
+          ids = level.select(:id)
         end
 
-        [sql, binds]
+        ids
       end
 
       # A candidate matches either by being an exact hit, or by matching one of
       # the predicted gender forms, PROVIDED it isn't classified as a noun
       # (in apposition, or genitive case) — those never take a different
       # gender-agreeing spelling regardless of what the genus's gender is.
-      # @param table_alias [String]
+      #
+      # This is a correlated `NOT EXISTS`, not `.where.not(id: subquery)` —
+      # each candidate's own classification is looked up directly by indexed
+      # id, rather than hashing every non-agreeing classification in the
+      # database (tens of thousands of rows) to check membership against.
+      # @param scope [ActiveRecord::Relation]
       # @param epithet [String] the raw epithet as typed
-      # @return [Array(String, Array)] the SQL fragment and its binds, in order
-      def epithet_match_sql(table_alias, epithet)
+      # @return [ActiveRecord::Relation]
+      def epithet_scope(scope, epithet)
         downcased = epithet.downcase
         forms = Utilities::Nomenclature.predict_three_forms(downcased).values.uniq
 
-        sql = <<~SQL.squish
-          (
-            #{table_alias}.name = ?
-            OR (
-              #{table_alias}.name IN (?)
-              AND NOT EXISTS (
-                SELECT 1 FROM taxon_name_classifications tnc
-                WHERE tnc.taxon_name_id = #{table_alias}.id
-                  AND tnc.type IN (?)
+        scope.where(
+          <<~SQL.squish,
+            (
+              taxon_names.name = ?
+              OR (
+                taxon_names.name IN (?)
+                AND NOT EXISTS (
+                  SELECT 1 FROM taxon_name_classifications tnc
+                  WHERE tnc.taxon_name_id = taxon_names.id
+                    AND tnc.type IN (?)
+                )
               )
             )
-          )
-        SQL
-
-        [sql, [downcased, forms, NON_GENDER_AGREEING_PART_OF_SPEECH_TYPES]]
+          SQL
+          downcased, forms, NON_GENDER_AGREEING_PART_OF_SPEECH_TYPES
+        )
       end
 
-      # True when `genus_name` is a match for the row identified by
-      # `descendant_id_sql`, either as its current classification — some
-      # ancestor, any number of generations, so any intervening
-      # subgenus/section/etc. is skipped over — or as the genus it was
-      # originally described in (before any reclassification), via a
-      # TaxonNameRelationship::OriginalCombination::OriginalGenus record.
-      # @param descendant_id_sql [String] a SQL expression for the descendant's
-      #   id, e.g. 'anchor_0.id'
+      # Filters `scope` to rows matched by `genus_name`, either as the current
+      # classification — some ancestor, any number of generations, so any
+      # intervening subgenus/section/etc. is skipped over — or as the genus it
+      # was originally described in (before any reclassification), via a
+      # TaxonNameRelationship::OriginalCombination::OriginalGenus record. A
+      # determination label and an original-description/AntCat citation can
+      # each carry either one.
+      #
+      # Correlated `EXISTS`, for the same reason as #epithet_scope — this can
+      # match against thousands of descendants of a common genus, and a
+      # correlated per-candidate lookup stays cheap where hashing that whole
+      # set would not.
+      # @param scope [ActiveRecord::Relation]
       # @param genus_name [String]
-      # @return [Array(String, Array)] the SQL fragment and its binds, in order
-      def genus_match_sql(descendant_id_sql, genus_name)
-        ancestor_sql = <<~SQL.squish
-          EXISTS (
-            SELECT 1 FROM taxon_name_hierarchies tnh
-            JOIN taxon_names genus_tn ON genus_tn.id = tnh.ancestor_id
-            WHERE tnh.descendant_id = #{descendant_id_sql}
-              AND tnh.generations > 0
-              AND genus_tn.project_id = taxon_names.project_id
-              AND genus_tn.name = ?
-              AND genus_tn.rank_class IN (?)
-          )
-        SQL
-        ancestor_binds = [genus_name, GENUS_RANK_CLASSES]
+      # @return [ActiveRecord::Relation]
+      def genus_match_scope(scope, genus_name)
+        genus_ids_sql = ::TaxonName
+          .where(project_id:, name: genus_name, rank_class: GENUS_RANK_CLASSES)
+          .select(:id)
+          .to_sql
 
-        original_genus_sql = <<~SQL.squish
-          EXISTS (
-            SELECT 1 FROM taxon_name_relationships tnr
-            JOIN taxon_names original_genus_tn ON original_genus_tn.id = tnr.subject_taxon_name_id
-            WHERE tnr.object_taxon_name_id = #{descendant_id_sql}
-              AND tnr.type = ?
-              AND original_genus_tn.project_id = taxon_names.project_id
-              AND original_genus_tn.name = ?
-              AND original_genus_tn.rank_class IN (?)
-        SQL
-        original_genus_binds = [
-          ORIGINAL_GENUS_RELATIONSHIP_TYPE, genus_name, GENUS_RANK_CLASSES
-        ]
-
-        [
-          "(#{ancestor_sql} OR #{original_genus_sql})",
-          ancestor_binds + original_genus_binds
-        ]
+        scope.where(
+          <<~SQL.squish,
+            (
+              EXISTS (
+                SELECT 1 FROM taxon_name_hierarchies tnh
+                WHERE tnh.descendant_id = taxon_names.id
+                  AND tnh.generations >= 1
+                  AND tnh.ancestor_id IN (#{genus_ids_sql})
+              )
+              OR EXISTS (
+                SELECT 1 FROM taxon_name_relationships tnr
+                WHERE tnr.object_taxon_name_id = taxon_names.id
+                  AND tnr.type = ?
+                  AND tnr.subject_taxon_name_id IN (#{genus_ids_sql})
+              )
+            )
+          SQL
+          'TaxonNameRelationship::OriginalCombination::OriginalGenus'
+        )
       end
 
       # @param name [String]
