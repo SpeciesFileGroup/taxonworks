@@ -85,7 +85,7 @@ class Lead < ApplicationRecord
   validate :node_parent_doesnt_have_redirect
   validate :root_has_no_redirect
   validate :redirect_isnt_ancestor_or_self
-  
+
   validates :text, uniqueness: { scope: [:otu_id, :parent_id], unless: -> { otu_id.nil? } }
 
   def future
@@ -325,7 +325,7 @@ class Lead < ApplicationRecord
   # or plucking, most of want you want is on the table joined to, which is
   # not the default table for ordering and plucking.
   # `is_virtual` (default: nil) scopes the returned roots:
-  #   * nil    -> excludes virtual roots (interactive/annotated keys only)
+  #   * nil    -> excludes virtual roots
   #   * true   -> only virtual roots (simple/cite_key keys)
   #   * false  -> excludes virtual roots (same as nil, explicit)
   #   * :all   -> includes both virtual and non-virtual roots
@@ -347,8 +347,8 @@ class Lead < ApplicationRecord
     load_root_otus ? scope.includes(:otu) : scope
   end
 
-  # Heavy path used for interactive/annotated keys. Walks lead_hierarchies +
-  # lead_items to compute otus_count and key_updated_at across the whole tree.
+  # Heavy path used for non-virtual. Walks lead_hierarchies + lead_items to
+  # compute otus_count and key_updated_at across the whole tree.
   def self.nonvirtual_roots_with_data(project_id)
     # The updated_at subquery computes key_updated_at (and others), the second
     # query uses that to compute key_updated_by (by finding which node has the
