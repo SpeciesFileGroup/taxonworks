@@ -37,6 +37,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - `Taxon name stats task`: Now uses the standard filter interface
 - `Field synchronize task`: Allow filling multiple columns by pasting from the clipboard [#4286]
 - `Browse sounds task`: Layout updated. Sound regions now use different colors to identify the associated conveyance object. Spectrogram now uses a linear frequency scale.
+- Quick Forms: biological associations slice now display all BAs where the current object is set [#1100]
 
 ### Fixed
 
@@ -64,6 +65,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Coordinate parsing from verbatim labels
 
 [#1060]: https://github.com/SpeciesFileGroup/taxonworks/issues/1060
+[#1100]: https://github.com/SpeciesFileGroup/taxonworks/issues/1100
 [#1130]: https://github.com/SpeciesFileGroup/taxonworks/issues/1130
 [#1394]: https://github.com/SpeciesFileGroup/taxonworks/issues/1394
 [#2261]: https://github.com/SpeciesFileGroup/taxonworks/issues/2261
