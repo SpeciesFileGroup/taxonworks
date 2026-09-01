@@ -53,8 +53,9 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
   - add ability to filter on columns #[5051]
   - changing options shouldn't be able to unselect an OTU the user has specifically chosen [#5051]
   - add 'ambiguous' count to summary [#5051]
-  - add mode for matching to OTUs in addition to Taxon Names - currently OTUs only match on names in the morphospecies format [genus] + [one-word-otu_name], e.g. `Tetramorium FHG_pumi` [#5039]
+  - add mode for matching to OTUs in addition to Taxon Names - OTUs only match on names in the morphospecies format [genus] + [one-word-otu_name], e.g. `Tetramorium FHG_pumi` [#5039]
   - uses autoselect instead of autocomplete for Taxon Name and OTU selection [#5051]
+  - 'Ignore subgenus' option now ignores all genusGroup ranks (other than genus), matches on any gender ending for all speciesGroup ranks, and matches on current or original genus [#5056]
 - Adding duplicate images to an observation now uses the image that was already created instead of returning an error stating that the image is already in use [#4146]
 - Sped up Person autocomplete [#5037]
 - The `pinboard` tab of smart selectors now lists items in the order they were arranged on the pinboard [#5058]
@@ -85,6 +86,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 [#5051]: https://github.com/SpeciesFileGroup/taxonworks/issues/5052
 [#5052]: https://github.com/SpeciesFileGroup/taxonworks/issues/5052
 [#5054]: https://github.com/SpeciesFileGroup/taxonworks/issues/5054
+[#5056]: https://github.com/SpeciesFileGroup/taxonworks/issues/5056
 [#5061]: https://github.com/SpeciesFileGroup/taxonworks/issues/5061
 
 ## [0.64.0] - 2026-08-04

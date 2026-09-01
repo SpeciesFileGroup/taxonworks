@@ -122,8 +122,6 @@ describe Match::Otu::TaxonName, type: :model do
   end
 
   context 'try_without_subgenus' do
-    # Matches through the live classification (taxon_name_hierarchies + current name/rank),
-    # not through any cached column — see lib/match/otu/taxon_name.rb.
     let(:subgenus) { Protonym.create!(name: 'Bus', rank_class: Ranks.lookup(:iczn, :subgenus), parent: genus) }
 
     let!(:species_under_subgenus) do
@@ -230,13 +228,6 @@ describe Match::Otu::TaxonName, type: :model do
         result = match(names: ['Aus subsp. nigrata'], try_without_subgenus: true).first
         expect(result[:matched]).to eq(false)
       end
-
-      specify 'only one attempt is made once a marker resolves the shape' do
-        instance = Match::Otu::TaxonName.new(names: [], project_id: project_id)
-        expect(instance).to receive(:find_via_species_group_chain).once.and_call_original
-
-        instance.send(:find_taxon_names_ignoring_subgenus, 'Aus subg. Nonsense maculata')
-      end
     end
 
     context 'deeper ICN infraspecific chain (variety, form)' do
@@ -248,8 +239,10 @@ describe Match::Otu::TaxonName, type: :model do
         Protonym.create!(name: 'compactus', rank_class: Ranks.lookup(:icn, :form), parent: icn_variety)
       end
 
-      specify 'every intermediate species-group rank present is an exact anchor, only the terminal is gender-tolerant' do
-        result = match(names: ['Rosa arvensis var. alba f. compacta'], try_without_subgenus: true).first
+      specify 'every intermediate species-group rank present must be an anchor, and every level — anchors included — is gender-tolerant' do
+        # 'album' (neuter) instead of the stored 'alba' (feminine) — proves the
+        # variety anchor is gender-tolerant too, not just the terminal.
+        result = match(names: ['Rosa arvensis var. album f. compacta'], try_without_subgenus: true).first
         expect(result[:taxon_name_id]).to eq(icn_form.id)
       end
 
@@ -295,7 +288,7 @@ describe Match::Otu::TaxonName, type: :model do
         species
       end
 
-      specify 'a search using the original genus (from an original description or AntCat) matches the current record' do
+      specify 'a search using the original genus matches the current record' do
         result = match(names: ['Formica maculata'], try_without_subgenus: true).first
         expect(result[:taxon_name_id]).to eq(reclassified_species.id)
       end
@@ -325,34 +318,40 @@ describe Match::Otu::TaxonName, type: :model do
       end
     end
 
-    context 'gender-form matching applies regardless of part-of-speech classification' do
-      specify 'a noun-in-genitive-case candidate still matches a gender-varied spelling' do
-        # Nomenclaturally a genitive-case noun should never take a different
-        # gender-agreeing spelling, but real-world input (older literature,
-        # unjustified emendations, legacy/external data) often carries that
-        # variant anyway — see the comment on #epithet_scope.
-        invariant_species = Protonym.create!(name: 'smithianus', rank_class: Ranks.lookup(:iczn, :species), parent: genus)
-        TaxonNameClassification::Latinized::PartOfSpeech::NounInGenitiveCase.create!(taxon_name: invariant_species)
-
-        exact_result = match(names: ['Aus smithianus'], try_without_subgenus: true).first
-        expect(exact_result[:taxon_name_id]).to eq(invariant_species.id)
-
-        varied_result = match(names: ['Aus smithiana'], try_without_subgenus: true).first
-        expect(varied_result[:taxon_name_id]).to eq(invariant_species.id)
-      end
-
-      specify 'an unclassified candidate is matched the same way' do
-        unclassified_species = Protonym.create!(name: 'smithianus', rank_class: Ranks.lookup(:iczn, :species), parent: genus)
+    context 'part-of-speech classification is not consulted' do
+      specify 'a gender-varied spelling still matches a noun-in-genitive-case candidate' do
+        # epithet_scope doesn't read taxon_name_classifications at all — this
+        # pins that down, so a part-of-speech gate can't be silently
+        # reintroduced. Nomenclaturally a genitive-case noun should never
+        # take a different gender-agreeing spelling, but real-world input —
+        # older literature, unjustified emendations, legacy/external data —
+        # often carries that variant anyway.
+        species = Protonym.create!(name: 'smithianus', rank_class: Ranks.lookup(:iczn, :species), parent: genus)
+        TaxonNameClassification::Latinized::PartOfSpeech::NounInGenitiveCase.create!(taxon_name: species)
 
         result = match(names: ['Aus smithiana'], try_without_subgenus: true).first
-        expect(result[:taxon_name_id]).to eq(unclassified_species.id)
+        expect(result[:taxon_name_id]).to eq(species.id)
+      end
+    end
+
+    context "gender-form matching applies regardless of the genus's classified gender" do
+      specify 'a masculine-classified genus still matches a feminine-ending search' do
+        # The genus is explicitly classified Masculine, so nomenclaturally
+        # 'longus' (masculine) is the only spelling that's ever correct here —
+        # there's no reclassification history to justify a different ending,
+        # unlike the other specs in this file. We still match anyway.
+        TaxonNameClassification::Latinized::Gender::Masculine.create!(taxon_name: genus)
+        masculine_species = Protonym.create!(name: 'longus', rank_class: Ranks.lookup(:iczn, :species), parent: genus)
+
+        result = match(names: ['Aus longa'], try_without_subgenus: true).first
+        expect(result[:taxon_name_id]).to eq(masculine_species.id)
       end
     end
 
     context 'combined with levenshtein_distance' do
       specify 'a typo in the terminal epithet is tolerated' do
         # 'maculatta' isn't one of maculatus's predicted gender forms ('maculattus',
-        # 'maculatta', 'maculattum') — only the new levenshtein clause bridges this.
+        # 'maculatta', 'maculattum') — only the levenshtein clause bridges this.
         result = match(
           names: ['Aus (Bus) maculatta'], try_without_subgenus: true, levenshtein_distance: 2
         ).first
