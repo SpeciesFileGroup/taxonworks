@@ -52,6 +52,7 @@ module TaxonNamesHelper
     ].compact.join('&nbsp;').html_safe
   end
 
+  # DEPRECATE!
   # @return [String]
   #   no HTML inside <input>
   def taxon_name_autocomplete_selected_tag(taxon_name)

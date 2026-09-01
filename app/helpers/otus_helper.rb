@@ -122,27 +122,11 @@ module OtusHelper
     mark_tag(otu_tag(otu), term)
   end
 
-
+  # TODO: alias proper
   # HTML label for the autoselect dropdown (left-justified).
   def otu_autoselect_tag(otu)
     return nil if otu.nil?
-    if otu.taxon_name&.is_combination?
-      if otu.name.present?
-        return [
-          otu.name,
-        '=',
-          tag.span( otu.taxon_name.cached_html_name_and_author_year.html_safe, class: :klass),
-          TaxonNamesHelper::COMBINATION_MARK
-        ].compact.join('&nbsp;')
-      else
-        return tag.span( otu.taxon_name.cached_html_name_and_author_year.html_safe, class: :klass)
-      end
-    else
-      return  [
-        otu.taxon_name&.cached_html_name_and_author_year,
-        otu.name
-      ].compact.join('&nbsp;')
-    end
+    otu_tag(otu)
   end
 
   def otu_autoselect_info(otu)
@@ -156,9 +140,9 @@ module OtusHelper
         r.push taxon_name_original_combination_tag(t)
       end
 
-      if !t.is_valid?
-        r.push taxon_name_now_tag(t.valid_taxon_name)
-      end
+    # if !t.is_valid?
+    #   r.push taxon_name_now_tag(t.valid_taxon_name)
+    # end
     else
       r.push t.type
     end
@@ -221,13 +205,15 @@ module OtusHelper
     (prefix_matches.sort + wildcard_matches.sort + non_matches.sort).join(', ')
   end
 
+  # DEPRECATE
   # @return [String]
   #    no HTML inside <input>
   def otu_autocomplete_selected_tag(otu)
-    return nil if otu.nil? || (otu.new_record? && !otu.changed?)
-    [otu.name,
-     Utilities::Strings.nil_wrap('[',taxon_name_autocomplete_selected_tag(otu.taxon_name), ']')&.html_safe
-    ].compact.join(' ')
+    return nil if otu.nil? || (otu.new_record? && !otu.changed?) # probably get rid of this
+    label_for_otu(otu)
+#   [otu.name,
+#    Utilities::Strings.nil_wrap('[',taxon_name_autocomplete_selected_tag(otu.taxon_name), ']')&.html_safe
+#   ].compact.join(' ')
   end
 
   def otu_link(otu)
