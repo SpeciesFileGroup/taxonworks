@@ -133,6 +133,8 @@ module Match
 
         taxon_names = find_taxon_names(search_string)
 
+        # TODO: there could be another match without_subgenus even if
+        # taxon_names.present?, which would signal ambiguity.
         if taxon_names.empty? && try_without_subgenus
           taxon_names = find_taxon_names_ignoring_subgenus(search_string)
         end
@@ -212,7 +214,8 @@ module Match
       # @param search_string [String]
       # @return [Array<TaxonName>]
       def find_taxon_names_ignoring_subgenus(search_string)
-        # Remove all name words marked by a genus group marker, like 'subg. Bus'
+        # Remove all name words explicitly marked by a genus group marker, like
+        # 'subg. Bus'
         stripped = search_string.gsub(GENUS_GROUP_MARKER_PATTERN, ' ').squish
         # markers are rank indicator words, like ['subsp', 'var'] e.g.
         markers = stripped.scan(SPECIES_GROUP_MARKER_SCAN_PATTERN).flatten.map(&:downcase)
@@ -300,9 +303,7 @@ module Match
       def find_via_species_group_chain(
         genus_name:, anchors:, terminal_epithet:, terminal_rank_classes:
       )
-        scope = epithet_scope(
-          base_scope.where(rank_class: terminal_rank_classes), terminal_epithet
-        )
+        scope = epithet_scope(base_scope, terminal_epithet, terminal_rank_classes)
 
         if anchors.empty?
           genus_match_scope(scope, genus_name).to_a
@@ -311,10 +312,10 @@ module Match
         end
       end
 
-      # A relation of ids for the deepest anchor: walks `anchors` (shallowest
+      # A relation of ids for the deepest anchor: walks `anchors` (highest rank
       # first), each matched the same gender-tolerant way as the terminal, each
       # required to be the parent of the next, ultimately rooted so `genus_name`
-      # is some match — current or original — for the shallowest one.
+      # is some match — current or original — for the highest rank one.
       # @param genus_name [String]
       # @param anchors [Array<Array(String, Array<String>)>]
       # @return [ActiveRecord::Relation]
@@ -322,11 +323,13 @@ module Match
         ids = nil
 
         anchors.each_with_index do |(epithet, rank_classes), i|
-          level = epithet_scope(
-            base_scope.where(rank_class: rank_classes), epithet
-          )
+          level = epithet_scope(base_scope, epithet, rank_classes)
 
-          level = i.zero? ? genus_match_scope(level, genus_name) : level.where(parent_id: ids)
+          level = if i.zero?
+              genus_match_scope(level, genus_name)
+            else
+              level.where(parent_id: ids)
+            end
 
           ids = level.select(:id)
         end
@@ -338,15 +341,12 @@ module Match
       # the predicted gender forms, PROVIDED it isn't classified as a noun
       # (in apposition, or genitive case) — those never take a different
       # gender-agreeing spelling regardless of what the genus's gender is.
-      #
-      # This is a correlated `NOT EXISTS`, not `.where.not(id: subquery)` —
-      # each candidate's own classification is looked up directly by indexed
-      # id, rather than hashing every non-agreeing classification in the
-      # database (tens of thousands of rows) to check membership against.
       # @param scope [ActiveRecord::Relation]
       # @param epithet [String] the raw epithet as typed
+      # @param rank_classes [Array<String>] restricts `scope` to candidates of
+      #   these ranks
       # @return [ActiveRecord::Relation]
-      def epithet_scope(scope, epithet)
+      def epithet_scope(scope, epithet, rank_classes)
         downcased = epithet.downcase
         forms = Utilities::Nomenclature.predict_three_forms(downcased).values.uniq
 
@@ -358,7 +358,12 @@ module Match
           spelling_binds = [downcased]
         end
 
-        scope.where(
+        # This is a correlated `NOT EXISTS`, not an AR
+        # `.where.not(id: subquery)` — each candidate's own classification is
+        # looked up directly by indexed id, rather than hashing every
+        # non-agreeing classification in the database (tens of thousands of
+        # rows) to check membership against.
+        scope.where(rank_class: rank_classes).where(
           <<~SQL.squish,
             (
               #{spelling_clause}
@@ -376,18 +381,8 @@ module Match
         )
       end
 
-      # Filters `scope` to rows matched by `genus_name`, either as the current
-      # classification — some ancestor, any number of generations, so any
-      # intervening subgenus/section/etc. is skipped over — or as the genus it
-      # was originally described in (before any reclassification), via a
-      # TaxonNameRelationship::OriginalCombination::OriginalGenus record. A
-      # determination label and an original-description/AntCat citation can
-      # each carry either one.
-      #
-      # Correlated `EXISTS`, for the same reason as #epithet_scope — this can
-      # match against thousands of descendants of a common genus, and a
-      # correlated per-candidate lookup stays cheap where hashing that whole
-      # set would not.
+      # Filters `scope` to rows associated with `genus_name`, either as the
+      # current classification or original combination.
       # @param scope [ActiveRecord::Relation]
       # @param genus_name [String]
       # @return [ActiveRecord::Relation]
@@ -403,6 +398,10 @@ module Match
 
         genus_ids_sql = genus_relation.select(:id).to_sql
 
+        # Correlated non-AR `EXISTS`, for the same reason as #epithet_scope —
+        # this can match against thousands of descendants of a common genus, and
+        # a correlated per-candidate lookup stays cheap where hashing that whole
+        # set would not.
         scope.where(
           <<~SQL.squish,
             (
