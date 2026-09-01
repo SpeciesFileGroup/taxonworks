@@ -29,6 +29,7 @@
               <RadialObject :global-id="item.global_id" />
               <CitationCount :citations="item.citations" />
               <VBtn
+                v-if="!isInverted(item)"
                 icon
                 variant="tonal"
                 color="primary"
@@ -86,9 +87,13 @@ function deleteItem(item) {
 }
 
 function isInverted(item) {
+  return isRadialObject(item, 'object') && !isRadialObject(item, 'subject')
+}
+
+function isRadialObject(item, side) {
   return (
-    item.biological_association_object_id === props.metadata.object_id &&
-    item.biological_association_subject_id !== props.metadata.object_id
+    item[`biological_association_${side}_id`] === props.metadata.object_id &&
+    item[`biological_association_${side}_type`] === props.metadata.object_type
   )
 }
 
