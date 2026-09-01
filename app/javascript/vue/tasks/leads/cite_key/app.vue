@@ -1247,9 +1247,9 @@ function bootstrapFromOtus({ otuIds, otuQuery }) {
 }
 
 .keyword-outline {
-  background-color: color-mix(in srgb, #b3b3b3 18%, transparent);
+  background-color: color-mix(in srgb, var(--text-muted-color) 18%, transparent);
   border: 1px solid currentColor;
-  color: #6b6b6b;
+  color: var(--text-muted-color);
 }
 
 .keyword-outline > span {
