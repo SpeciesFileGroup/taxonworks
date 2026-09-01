@@ -16,6 +16,12 @@ class Autoselect::Base
   # @return [String, nil] the raw search term including any operator prefix
   attr_reader :raw_term
 
+  # @return [String, nil] raw search term with operators removed (in theory)
+  attr_reader :effective_term
+
+  # @return [String, nil] the current operator raw search term with operators removed (in theory)
+  attr_reader :operator
+
   # @return [String, nil] the level key being queried (e.g. 'fast', 'smart')
   attr_reader :requested_level
 
@@ -86,8 +92,9 @@ class Autoselect::Base
 
   def term_response
     parsed = parse_operators(raw_term)
-    operator = parsed[:operator]
-    effective_term = parsed[:effective_term]
+
+    @operator = parsed[:operator]
+    @effective_term = parsed[:effective_term]
 
     level_instance = find_level(requested_level)
     results = execute_level(level_instance, effective_term, operator)

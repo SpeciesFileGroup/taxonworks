@@ -122,12 +122,14 @@ module OtusHelper
     mark_tag(otu_tag(otu), term)
   end
 
-  # TODO: alias proper
-  # HTML label for the autoselect dropdown (left-justified).
-  def otu_autoselect_tag(otu)
-    return nil if otu.nil?
-    otu_tag(otu)
-  end
+  alias_method :otu_autoselect_tag, :otu_autocomplete_tag
+
+  # # TODO: alias proper
+  # # HTML label for the autoselect dropdown (left-justified).
+  # def otu_autoselect_tag(otu, term = nil)
+  #   return nil if otu.nil?
+  #   mark_tag(otu_tag(otu), term)
+  # end
 
   def otu_autoselect_info(otu)
     return [] if otu.taxon_name_id.blank?
