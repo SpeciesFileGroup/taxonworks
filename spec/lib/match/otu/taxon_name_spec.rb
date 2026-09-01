@@ -347,6 +347,31 @@ describe Match::Otu::TaxonName, type: :model do
         expect(result[:taxon_name_id]).to eq(unclassified_species.id)
       end
     end
+
+    context 'combined with levenshtein_distance' do
+      specify 'a typo in the terminal epithet is tolerated' do
+        # 'maculatta' isn't one of maculatus's predicted gender forms ('maculattus',
+        # 'maculatta', 'maculattum') — only the new levenshtein clause bridges this.
+        result = match(
+          names: ['Aus (Bus) maculatta'], try_without_subgenus: true, levenshtein_distance: 2
+        ).first
+        expect(result[:taxon_name_id]).to eq(species_under_subgenus.id)
+      end
+
+      specify 'a typo in the genus name is tolerated' do
+        result = match(
+          names: ['Axs (Bus) maculata'], try_without_subgenus: true, levenshtein_distance: 1
+        ).first
+        expect(result[:taxon_name_id]).to eq(species_under_subgenus.id)
+      end
+
+      specify 'a typo beyond the levenshtein distance is not tolerated' do
+        result = match(
+          names: ['Axs (Bus) maculata'], try_without_subgenus: true, levenshtein_distance: 0
+        ).first
+        expect(result[:matched]).to eq(false)
+      end
+    end
   end
 
   context 'fuzzy matching' do

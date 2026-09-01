@@ -350,10 +350,18 @@ module Match
         downcased = epithet.downcase
         forms = Utilities::Nomenclature.predict_three_forms(downcased).values.uniq
 
+        if levenshtein_distance > 0
+          spelling_clause = 'levenshtein(left(taxon_names.name, 255), ?) <= ?'
+          spelling_binds = [downcased, levenshtein_distance]
+        else
+          spelling_clause = 'taxon_names.name = ?'
+          spelling_binds = [downcased]
+        end
+
         scope.where(
           <<~SQL.squish,
             (
-              taxon_names.name = ?
+              #{spelling_clause}
               OR (
                 taxon_names.name IN (?)
                 AND NOT EXISTS (
@@ -364,7 +372,7 @@ module Match
               )
             )
           SQL
-          downcased, forms, NON_GENDER_AGREEING_PART_OF_SPEECH_TYPES
+          *spelling_binds, forms, NON_GENDER_AGREEING_PART_OF_SPEECH_TYPES
         )
       end
 
@@ -384,10 +392,16 @@ module Match
       # @param genus_name [String]
       # @return [ActiveRecord::Relation]
       def genus_match_scope(scope, genus_name)
-        genus_ids_sql = ::TaxonName
-          .where(project_id:, name: genus_name, rank_class: GENUS_RANK_CLASSES)
-          .select(:id)
-          .to_sql
+        genus_relation = ::TaxonName.where(project_id:, rank_class: GENUS_RANK_CLASSES)
+        genus_relation = if levenshtein_distance > 0
+          genus_relation.where(
+            'levenshtein(left(taxon_names.name, 255), ?) <= ?', genus_name, levenshtein_distance
+          )
+        else
+          genus_relation.where(name: genus_name)
+        end
+
+        genus_ids_sql = genus_relation.select(:id).to_sql
 
         scope.where(
           <<~SQL.squish,
