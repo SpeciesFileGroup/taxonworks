@@ -1,7 +1,8 @@
 <template>
   <div>
     <div class="margin-small-bottom">
-      Re-use georeference efforts from past collecting events.
+      Re-use georeference efforts from past collecting events. Only collecting
+      events that have georeferences are listed.
     </div>
     <fieldset>
       <legend>Collecting event</legend>
@@ -10,6 +11,8 @@
         klass="CollectionObject"
         pin-section="CollectingEvents"
         pin-type="CollectingEvent"
+        :params="{ georeferences: true }"
+        :autocomplete-params="{ georeferences: true }"
         v-model="collectingEvent"
         @selected="setCollectingEvent"
       />

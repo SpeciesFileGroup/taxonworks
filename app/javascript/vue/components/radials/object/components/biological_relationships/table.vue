@@ -33,6 +33,7 @@
               <RadialAnnotator :global-id="item.global_id" />
               <RadialObject :global-id="item.global_id" />
               <VBtn
+                v-if="!isInverted(item)"
                 circle
                 color="primary"
                 @click="emit('edit', Object.assign({}, item))"
@@ -91,9 +92,13 @@ function deleteItem(item) {
 }
 
 function isInverted(item) {
+  return isRadialObject(item, 'object') && !isRadialObject(item, 'subject')
+}
+
+function isRadialObject(item, side) {
   return (
-    item.biological_association_object_id === props.metadata.object_id &&
-    item.biological_association_subject_id !== props.metadata.object_id
+    item[`biological_association_${side}_id`] === props.metadata.object_id &&
+    item[`biological_association_${side}_type`] === props.metadata.object_type
   )
 }
 
@@ -116,7 +121,9 @@ function getSubjectOrObject(item) {
 
 .list-complete-item {
   justify-content: space-between;
-  transition: all 0.5s, opacity 0.2s;
+  transition:
+    all 0.5s,
+    opacity 0.2s;
 }
 
 .list-complete-enter-active,

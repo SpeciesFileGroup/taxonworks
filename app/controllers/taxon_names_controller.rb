@@ -241,15 +241,25 @@ class TaxonNamesController < ApplicationController
 
   # POST /taxon_names/match.json
   def match
+    names = match_params[:names] || []
+    project_id = sessions_current_project_id
+    taxon_name_id = match_params[:taxon_name_id]
 
-    @result = Match::Otu::TaxonName.new(
-      names: match_params[:names] || [],
-      project_id: sessions_current_project_id,
+    tn_results = Match::Otu::TaxonName.new(
+      names:,
+      project_id:,
       levenshtein_distance: match_params[:levenshtein_distance] || 0,
-      taxon_name_id: match_params[:taxon_name_id],
+      taxon_name_id:,
       resolve_synonyms: match_params[:resolve_synonyms] == 'true',
       try_without_subgenus: match_params[:try_without_subgenus] == 'true'
     ).call
+
+    @result = if match_params[:match_otu_names] == 'true'
+      otu_results = Match::Otu::MorphospeciesName.new(names:, project_id:, taxon_name_id:).call
+      Match::Otu::MergeResults.new(tn_results:, otu_results:).call
+    else
+      tn_results.map { |r| r.merge(match_source: r[:matched] ? 'taxon_name' : nil) }
+    end
 
     render :match
   end
@@ -444,6 +454,7 @@ class TaxonNamesController < ApplicationController
       :taxon_name_id,
       :resolve_synonyms,
       :try_without_subgenus,
+      :match_otu_names,
       names: []
     )
   end

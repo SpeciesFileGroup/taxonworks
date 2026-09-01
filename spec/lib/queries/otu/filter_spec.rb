@@ -60,6 +60,38 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
     end
   end
 
+  context '#genus_name' do
+    let!(:root) { FactoryBot.create(:root_taxon_name) }
+    let!(:g) { Protonym.create!(name: 'Aus', parent: root, rank_class: Ranks.lookup(:iczn, :genus)) }
+    let!(:s) { Protonym.create!(name: 'bus', parent: g, rank_class: Ranks.lookup(:iczn, :species)) }
+
+    let!(:o1) { Otu.create!(taxon_name: g, name: 'code1') }
+    let!(:o2) { Otu.create!(name: 'code2') }
+
+    specify 'exact match' do
+      q.genus_name = 'Aus'
+      expect(q.all).to contain_exactly(o1)
+    end
+
+    specify 'no match' do
+      q.genus_name = 'Bus'
+      expect(q.all).to be_empty
+    end
+
+    specify 'restricted to genus rank' do
+      s.update_column(:cached, 'Aus') # fake a non-genus rank name colliding with the genus string
+      Otu.create!(taxon_name: s, name: 'code3')
+
+      q.genus_name = 'Aus'
+      expect(q.all).to contain_exactly(o1)
+    end
+
+    specify 'blank is a no-op' do
+      q.genus_name = nil
+      expect(q.all).to contain_exactly(o1, o2)
+    end
+  end
+
   # Confidences query concern specs have moved to spec/lib/queries/concerns/confidences_spec.rb
 
   context '#coordinatify' do

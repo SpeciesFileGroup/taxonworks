@@ -86,6 +86,14 @@ Rails.application.reloader.to_prepare do
   # All assignable ranks for genus groups, for ICN, ICNP, and ICZN
   GENUS_RANK_NAMES ||= ( GENUS_RANK_NAMES_ICZN + GENUS_RANK_NAMES_ICN + GENUS_RANK_NAMES_ICNP + GENUS_RANK_NAMES_ICVCN).freeze
 
+  # The literal Genus rank only (excludes Subgenus, Infragenus, Section, Series, etc.), for ICN, ICNP, ICVCN, and ICZN
+  GENUS_ONLY_RANK_NAMES ||= [
+    'NomenclaturalRank::Iczn::GenusGroup::Genus',
+    'NomenclaturalRank::Icn::GenusGroup::Genus',
+    'NomenclaturalRank::Icnp::GenusGroup::Genus',
+    'NomenclaturalRank::Icvcn::Genus'
+  ].freeze
+
   # Assignable ranks for species groups, for ICZN, ICN, ICNP
   SPECIES_RANK_NAMES_ICZN ||= NomenclaturalRank::Iczn::SpeciesGroup.descendants.map(&:to_s).freeze
   SPECIES_RANK_NAMES_ICN ||= NomenclaturalRank::Icn::SpeciesAndInfraspeciesGroup.descendants.map(&:to_s).freeze
