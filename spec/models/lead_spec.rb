@@ -345,6 +345,21 @@ RSpec.describe Lead, type: :model do
       expect(q.first.association(:otu).loaded?).to be(true)
     end
 
+    specify 'returns otus_count for a virtual root, scoped to the given ids' do
+      root = FactoryBot.create(:valid_lead, is_virtual: true)
+      other_root = FactoryBot.create(:valid_lead, is_virtual: true)
+
+      otu1 = FactoryBot.create(:valid_otu)
+      otu2 = FactoryBot.create(:valid_otu)
+      FactoryBot.create(:valid_lead, parent: root, is_virtual: true, otu: otu1, text: nil)
+      FactoryBot.create(:valid_lead, parent: root, is_virtual: true, otu: otu2, text: nil)
+      FactoryBot.create(:valid_lead, parent: other_root, is_virtual: true, otu: otu1, text: nil)
+
+      q = Lead.roots_with_data(project_id, false, is_virtual: true).where(id: [root.id])
+      expect(q.map(&:id)).to eq([root.id])
+      expect(q.first.otus_count).to eq(2)
+    end
+
   end
 
   context '::child_descendant_lead_item_flags' do

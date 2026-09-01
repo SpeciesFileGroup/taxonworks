@@ -38,6 +38,8 @@ class LeadsController < ApplicationController
           is_virtual:
         )
 
+        @leads = @leads.where(id: params[:id]) if params[:id].present?
+
         if params[:recent].present? && ActiveRecord::Type::Boolean.new.cast(params[:recent])
           @leads = @leads.reorder('key_updated_at DESC NULLS LAST')
         end

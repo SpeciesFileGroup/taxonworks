@@ -585,8 +585,8 @@ function lookupExistingKeys() {
       const rootsMap = new Map()
       citations.forEach((c) => {
         const obj = c.citation_object
-        if (!obj || !obj.is_virtual) return
-        if (obj.parent_id === null && !rootsMap.has(c.citation_object_id)) {
+        if (!obj || !obj.is_virtual || obj.parent_id !== null) return
+        if (!rootsMap.has(c.citation_object_id)) {
           rootsMap.set(c.citation_object_id, {
             id: c.citation_object_id,
             text: obj.text,
@@ -599,18 +599,31 @@ function lookupExistingKeys() {
           })
         }
       })
-      citations.forEach((c) => {
-        const obj = c.citation_object
-        if (!obj || !obj.is_virtual || obj.parent_id === null) return
-        const root = rootsMap.get(obj.parent_id)
-        if (root) root.count++
-      })
-      existingKeys.value = [...rootsMap.values()].sort((a, b) => {
-        if (!a.updated_at && !b.updated_at) return 0
-        if (!a.updated_at) return 1
-        if (!b.updated_at) return -1
-        return b.updated_at.localeCompare(a.updated_at)
-      })
+
+      const rootIds = [...rootsMap.keys()]
+      if (!rootIds.length) {
+        existingKeys.value = []
+        return
+      }
+
+      // Child (species leaf) Leads are never cited, only the root is, so the
+      // taxon count per key has to come from the root's own otus_count
+      // (the same aggregate the Keys hub uses), not from the citations above.
+      return Lead.all({ id: rootIds, is_virtual: true, per: rootIds.length }).then(
+        ({ body: leads }) => {
+          leads.forEach((lead) => {
+            const root = rootsMap.get(lead.id)
+            if (root) root.count = lead.otus_count ?? 0
+          })
+
+          existingKeys.value = [...rootsMap.values()].sort((a, b) => {
+            if (!a.updated_at && !b.updated_at) return 0
+            if (!a.updated_at) return 1
+            if (!b.updated_at) return -1
+            return b.updated_at.localeCompare(a.updated_at)
+          })
+        }
+      )
     })
     .catch(() => {
       existingKeys.value = []
