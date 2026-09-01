@@ -813,12 +813,9 @@ function cancelNewRecord() {
 
 // ── Preferences modal (!p) ─────────────────────────────────────────────────────
 function onPrefsSave(updatedPrefs) {
-  prefs.savePrefs(updatedPrefs)
-  currentPrefs.value = updatedPrefs
-  showPreferences.value = false
-
   // Resolve the levels the modal's checkboxes leave visible, from the same
-  // hide/is_default rule the modal itself uses.
+  // hide/is_default rule the modal itself uses. Read from the modal's emitted
+  // prefs (before the controlled-mode stripping below).
   const nextVisibleKeys = allFuseSegments.value
     .filter((s) => {
       const hide = updatedPrefs.levels?.[s.key]?.hide
@@ -826,9 +823,33 @@ function onPrefsSave(updatedPrefs) {
     })
     .map((s) => s.key)
 
+  // In controlled mode the parent owns level visibility, so the per-level `hide`
+  // flags must not be persisted (see lib/autoselect/ARCHITECTURE.md). Persisting
+  // them would freeze a copy of the controlled list onto this instance and stop
+  // it falling back to each level's is_default once the parent unbinds. Keep only
+  // what persists regardless: per-level `options`, plus show_info / auto_jump.
+  const prefsToPersist =
+    props.visibleLevels === null
+      ? updatedPrefs
+      : {
+          ...updatedPrefs,
+          levels: Object.fromEntries(
+            Object.entries(updatedPrefs.levels ?? {})
+              .map(([key, level]) => {
+                const persisted = { ...level }
+                delete persisted.hide
+                return [key, persisted]
+              })
+              .filter(([, persisted]) => Object.keys(persisted).length > 0)
+          )
+        }
+
+  prefs.savePrefs(prefsToPersist)
+  currentPrefs.value = prefsToPersist
+  showPreferences.value = false
+
   // In controlled mode the parent owns visibility — hand it the new list and let
-  // it flow back through the prop; the stored `hide` flags above are ignored while
-  // `visibleLevels` stays bound.
+  // it flow back through the prop.
   if (props.visibleLevels !== null) {
     emit('update:visibleLevels', nextVisibleKeys)
   }
