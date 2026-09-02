@@ -118,11 +118,10 @@ class PeopleController < ApplicationController
   def merge
     @person = Person.find(params[:id]) # the person to *keep*
     person_to_remove = Person.find(params[:person_to_destroy])
-    if @person.hard_merge(person_to_remove.id)
-      render 'show'
-    else
-      render json: { error: 'Failed. Check to see that both People are not linked to the same record, e.g. Authors on the same Source.' }, status: :conflict
-    end
+    @person.hard_merge(person_to_remove.id)
+    render 'show'
+  rescue TaxonWorks::Error => e
+    render json: { error: "Failed. #{e.message}" }, status: :conflict
   end
 
   # GET /people/author_match.json

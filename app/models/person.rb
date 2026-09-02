@@ -385,23 +385,34 @@ class Person < ApplicationRecord
     true
   end
 
+  # @return [true]
+  # @raise [TaxonWorks::Error] with a human-readable message if the merge can not be completed
   def hard_merge(person_id_to_destroy)
-    return false if id == person_id_to_destroy
+    if id == person_id_to_destroy
+      raise TaxonWorks::Error, 'A person can not be merged into itself.'
+    end
+
     begin
       person_to_destroy = Person.find(person_id_to_destroy)
+    rescue ActiveRecord::RecordNotFound
+      raise TaxonWorks::Error, 'The person to be removed could not be found.'
+    end
 
+    if person_to_destroy.user.present?
+      raise TaxonWorks::Error, 'The person to be removed is linked to a TaxonWorks user account and can not be destroyed. Merge in the other direction (keep that person), or reassign the user account first.'
+    end
+
+    begin
       Person.transaction do
         merge_with(person_to_destroy.id)
         person_to_destroy.destroy!
       end
-
     rescue ActiveRecord::RecordNotDestroyed
-      return false
+      raise TaxonWorks::Error, 'The person to be removed could not be destroyed. Check that both people are not linked to the same record, e.g. authors on the same Source.'
     rescue ActiveRecord::RecordInvalid
-      return false
-    rescue ActiveRecord::RecordNotFound
-      return false
+      raise TaxonWorks::Error, 'The merge could not be completed. Check that both people are not linked to the same record, e.g. authors on the same Source.'
     end
+
     true
   end
 
