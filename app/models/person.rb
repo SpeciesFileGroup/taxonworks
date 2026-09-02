@@ -393,7 +393,7 @@ class Person < ApplicationRecord
     end
 
     begin
-      person_to_destroy = Person.find(person_id_to_destroy)
+      person_to_destroy = Person.includes(:user).find(person_id_to_destroy)
     rescue ActiveRecord::RecordNotFound
       raise TaxonWorks::Error, 'The person to be removed could not be found.'
     end
@@ -409,7 +409,7 @@ class Person < ApplicationRecord
       end
     rescue ActiveRecord::RecordNotDestroyed
       raise TaxonWorks::Error, 'The person to be removed could not be destroyed. Check that both people are not linked to the same record, e.g. authors on the same Source.'
-    rescue ActiveRecord::RecordInvalid
+    rescue ActiveRecord::RecordInvalid # may be dead code
       raise TaxonWorks::Error, 'The merge could not be completed. Check that both people are not linked to the same record, e.g. authors on the same Source.'
     end
 

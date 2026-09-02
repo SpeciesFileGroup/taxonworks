@@ -64,6 +64,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - `Taxon name stats`: `Set to <parent>` is not displayed after selecting a taxon name
 - Biological associations linked to an anatomical part not showing on its origin field occurrence or collection object [#5061]
 - Coordinate parsing from verbatim labels
+- Improve the error message in People unify when the person to be destroyed is associated with a user [#5065]
 
 [#1060]: https://github.com/SpeciesFileGroup/taxonworks/issues/1060
 [#1100]: https://github.com/SpeciesFileGroup/taxonworks/issues/1100
@@ -88,6 +89,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 [#5054]: https://github.com/SpeciesFileGroup/taxonworks/issues/5054
 [#5056]: https://github.com/SpeciesFileGroup/taxonworks/issues/5056
 [#5061]: https://github.com/SpeciesFileGroup/taxonworks/issues/5061
+[#5065]: https://github.com/SpeciesFileGroup/taxonworks/issues/5065
 
 ## [0.64.0] - 2026-08-04
 
