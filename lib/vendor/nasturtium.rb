@@ -95,10 +95,48 @@ module Vendor
     # Used as determiner on TaxonDetermination and georeferencer on Georeference.
     #
     # @param result [Hash] a Nasturtium result
+    # @param person_cache [Hash, nil] per-import-run cache (see .dedupe_person)
     # @return [Person]
-    def self.stub_observer_person(result)
-      person_by_orcid(result) ||
+    def self.stub_observer_person(result, person_cache: nil)
+      person = person_by_orcid(result) ||
         person_from_display_name(result.dig('user', 'name').presence || result.dig('user', 'login'))
+
+      dedupe_person(person, person_cache, result)
+    end
+
+    # Reuse a single Person within one import run for an observer / copyright holder
+    # that would otherwise be built repeatedly (e.g. the same person as both
+    # georeferencer and copyright holder, or across multiple photos in the batch).
+    # Deduplication across separate import runs is intentionally not attempted.
+    #
+    # @param person [Person] a matched (persisted) or freshly built (new) Person
+    # @param cache [Hash, nil] the run cache; when nil no deduplication is done
+    # @param result [Hash, nil] the Nasturtium result `person` was built directly from
+    #   (i.e. `person` *is* that result's `user`), used for an exact cache key. Omit
+    #   when `person` has no such structured identity at all — e.g. a third-party
+    #   photo credit (see .stub_copyright_person) — falls back to name-based matching,
+    #   the only option left in that case.
+    # @return [Person]
+    def self.dedupe_person(person, cache, result = nil)
+      return person if cache.nil?
+
+      key = person_identity_key(person, result)
+      cached = cache[key]
+      return cached if cached && (cached.new_record? || Person.exists?(cached.id))
+
+      cache[key] = person
+    end
+
+    # @param person [Person]
+    # @param result [Hash, nil] the Nasturtium result `person` was built directly from
+    # @return [String] a within-run identity key
+    def self.person_identity_key(person, result)
+      return "id:#{person.id}" if person.persisted?
+
+      user_id = result&.dig('user', 'id')
+      return "inat_user:#{user_id}" if user_id.present?
+
+      "name:#{[person.first_name, person.last_name].filter_map { |s| s&.strip&.downcase&.presence }.join(' ')}"
     end
 
     # Attempt to find a Person in TW by the observer's ORCID.
@@ -270,12 +308,13 @@ module Vendor
     # @param obs_sound [Hash] the outer observation_sound object (carries uuid)
     # @param result [Hash] the full Nasturtium observation result (for ORCID matching)
     # @param observed_year [Integer, nil] year of observation, used as copyright year
+    # @param person_cache [Hash, nil] per-import-run cache (see .dedupe_person)
     # @return [Sound]
-    def self.build_sound!(obs_sound, result:, observed_year: nil)
+    def self.build_sound!(obs_sound, result:, observed_year: nil, person_cache: nil)
       sound_data  = obs_sound['sound']
       license_key = INAT_LICENSE_CODE_TO_TW_LICENSE[sound_data['license_code']]
 
-      copyright_person = stub_copyright_person(result, media: sound_data)
+      copyright_person = stub_copyright_person(result, media: sound_data, person_cache:)
       copyright_person.save! if copyright_person.new_record?
 
       attribution = Attribution.new(
@@ -317,27 +356,68 @@ module Vendor
 
     # Find or build the copyright holder Person for a photo or sound.
     #
-    # Strategy (in order):
-    #   1. ORCID match — if the observer has an ORCID and a matching Person exists in TW, use them.
-    #   2. Name fallback — parse the attribution string for a name and create a new Person::Unvetted.
+    # iNat auto-generates `attribution` from the uploader's account in every case we've
+    # observed against the live API — *except* for photos imported into iNat from an
+    # external source (e.g. Flickr), where iNat's own `attribution_name` uses that
+    # source's `native_realname`/`native_username` instead, crediting the original
+    # photographer rather than the iNat account that imported it. Those two fields are
+    # deliberately excluded from the public API's JSON output, so the rendered
+    # `attribution` string is the *only* way to recover that identity — there's no
+    # structured field we could use instead. So we check whether the parsed name
+    # actually is the observer rather than assuming it.
     #
-    # @param result [Hash] the full Nasturtium observation result (used for ORCID lookup)
+    # Strategy (in order):
+    #   1. If the attribution names the observer (or gives no name at all, e.g. CC0's
+    #      "no rights reserved") — ORCID match first, then key off the observer's exact
+    #      iNat identity.
+    #   2. Otherwise, the attribution names someone else Nasturtium has no ORCID/id
+    #      for (a native_realname/native_username credit) — build a Person::Unvetted
+    #      from that name, weakly deduped by name within this run since that's all we
+    #      have to go on.
+    #
+    # @param result [Hash] the full Nasturtium observation result (used for ORCID/user id lookup)
     # @param media [Hash] the photo or sound hash (used for attribution string fallback)
+    # @param person_cache [Hash, nil] per-import-run cache (see .dedupe_person)
     # @return [Person]
-    def self.stub_copyright_person(result, media:)
-      # 1. Try ORCID
-      matched = person_by_orcid(result)
-      return matched if matched
+    def self.stub_copyright_person(result, media:, person_cache: nil)
+      copyright_name = parse_attribution_name(media['attribution'])
+      observer_names = [result.dig('user', 'name'), result.dig('user', 'login')].map(&:presence).compact
 
-      # 2. Name fallback from attribution string, e.g.
-      #    "(c) username, some rights reserved (CC BY-NC)" → "username"
-      copyright_name = if media['attribution'] =~ /\(c\)\s+(.+?),/
-        $1.strip
-      else
-        media['attribution'].presence || 'Unknown'
+      names_someone_else = copyright_name.present? &&
+        observer_names.none? { |n| n.casecmp?(copyright_name) }
+
+      if names_someone_else
+        # Attribution names someone other than the observer (a native_realname/
+        # native_username credit) — no exact identity available, weak name dedup only.
+        return dedupe_person(person_from_display_name(copyright_name), person_cache)
       end
 
-      person_from_display_name(copyright_name)
+      matched = person_by_orcid(result)
+      return dedupe_person(matched, person_cache, result) if matched
+
+      # Neither the attribution nor the observer's own account gives us a name at
+      # all (e.g. CC0 with a blank user.name/login) - build the placeholder
+      # directly, bypassing BibTeX name-parsing, which would otherwise mangle it.
+      name = copyright_name || observer_names.first
+      person = name ? person_from_display_name(name) : Person::Unvetted.new(last_name: 'Undetermined iNaturalist user')
+
+      dedupe_person(person, person_cache, result)
+    end
+
+    # Parse the photographer's name out of an iNat-generated attribution string, e.g.
+    #   "(c) Kim, Hyun-tae, some rights reserved (CC BY-NC-SA)" => "Kim, Hyun-tae"
+    #   "(c) Jane Doe, all rights reserved" => "Jane Doe"
+    #   "no rights reserved" (CC0 - no name given) => nil
+    #
+    # @param attribution [String, nil]
+    # @return [String, nil]
+    def self.parse_attribution_name(attribution)
+      return nil if attribution.blank?
+
+      m = attribution.match(/\A\(c\)\s+(.+),\s*(?:some|all)\s+rights reserved/)
+      return nil unless m
+
+      m[1].squeeze(' ').strip
     end
 
     # Build and save an Image (with Attribution, copyright holder Person, and iNat identifier)
@@ -346,12 +426,13 @@ module Vendor
     # @param photo [Hash] the 'photo' object from an iNat observation_photo
     # @param result [Hash] the full Nasturtium observation result (for ORCID matching)
     # @param observed_year [Integer, nil] year of observation, used as copyright year
+    # @param person_cache [Hash, nil] per-import-run cache (see .dedupe_person)
     # @return [Image]
-    def self.build_image!(obs_photo, result:, observed_year: nil)
+    def self.build_image!(obs_photo, result:, observed_year: nil, person_cache: nil)
       photo = obs_photo['photo']
       license_key = INAT_LICENSE_CODE_TO_TW_LICENSE[photo['license_code']]
 
-      copyright_person = stub_copyright_person(result, media: photo)
+      copyright_person = stub_copyright_person(result, media: photo, person_cache:)
       copyright_person.save! if copyright_person.new_record?
 
       attribution = Attribution.new(

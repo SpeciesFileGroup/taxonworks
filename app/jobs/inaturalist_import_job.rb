@@ -12,12 +12,23 @@ class InaturalistImportJob < ApplicationJob
     Current.project_id = project_id
     Current.user_id = user_id
 
+    # Reuse one Person across this run for an observer/copyright holder/etc.
+    # that would otherwise be built repeatedly.
+    @person_cache = {}
+
     results.each do |result|
       import_observation(result, project_id:, match_otu_by_name:, use_community_taxon:, import_images:, import_sounds:)
     end
   end
 
   private
+
+  # The observation's observer as a saved Person, deduplicated across the run.
+  def observer_person(result)
+    person = ::Vendor::Nasturtium.stub_observer_person(result, person_cache: @person_cache)
+    person.save! if person.new_record?
+    person
+  end
 
   def import_observation(result, project_id:, match_otu_by_name:, use_community_taxon:, import_images:, import_sounds:)
     ApplicationRecord.transaction do
@@ -37,9 +48,7 @@ class InaturalistImportJob < ApplicationJob
       ce.save!
 
       if (georef = ce.georeferences.first)
-        georeferencer = ::Vendor::Nasturtium.stub_observer_person(result)
-        georeferencer.save! if georeferencer.new_record?
-        georef.georeferencer_roles.create!(person: georeferencer)
+        georef.georeferencer_roles.create!(person: observer_person(result))
       end
 
       d = result['observed_on_details']
@@ -61,10 +70,8 @@ class InaturalistImportJob < ApplicationJob
       end
 
       unless use_community_taxon
-        determiner = ::Vendor::Nasturtium.stub_observer_person(result)
-        determiner.save! if determiner.new_record?
         td = fo.taxon_determinations.first
-        td.determiner_roles.create!(person: determiner)
+        td.determiner_roles.create!(person: observer_person(result))
 
         if (ident_uuid = ::Vendor::Nasturtium.observer_identification_uuid(result))
           Identifier::Global::Uuid::InaturalistIdentification.create!(
@@ -96,7 +103,7 @@ class InaturalistImportJob < ApplicationJob
 
     ::Vendor::Nasturtium.permitted_sounds(result).each do |obs_sound|
       ApplicationRecord.transaction do
-        sound = ::Vendor::Nasturtium.build_sound!(obs_sound, result:, observed_year:)
+        sound = ::Vendor::Nasturtium.build_sound!(obs_sound, result:, observed_year:, person_cache: @person_cache)
         Conveyance.create!(sound:, conveyance_object: fo)
       end
     rescue => e
@@ -113,7 +120,7 @@ class InaturalistImportJob < ApplicationJob
 
     ::Vendor::Nasturtium.permitted_photos(result).each do |obs_photo|
       ApplicationRecord.transaction do
-        image = ::Vendor::Nasturtium.build_image!(obs_photo, result:, observed_year:)
+        image = ::Vendor::Nasturtium.build_image!(obs_photo, result:, observed_year:, person_cache: @person_cache)
         Depiction.create!(image:, depiction_object: fo)
       end
     rescue => e
