@@ -81,15 +81,13 @@ export const PANEL_COMPONENTS = {
     component: PanelCollectionObjects,
     title: 'Specimen records',
     status: 'prototype',
-    otu: true,
-    rankGroup: ['SpeciesGroup', 'SpeciesAndInfraspeciesGroup']
+    otu: true
   },
   PanelFieldOccurrences: {
     component: PanelFieldOccurrences,
     title: 'Field occurrences',
     status: 'prototype',
-    otu: true,
-    rankGroup: ['SpeciesGroup', 'SpeciesAndInfraspeciesGroup']
+    otu: true
   },
   PanelAssertedDistribution: {
     component: PanelAssertedDistribution,
