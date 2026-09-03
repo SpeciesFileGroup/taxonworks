@@ -53,8 +53,9 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
   - add ability to filter on columns #[5051]
   - changing options shouldn't be able to unselect an OTU the user has specifically chosen [#5051]
   - add 'ambiguous' count to summary [#5051]
-  - add mode for matching to OTUs in addition to Taxon Names - currently OTUs only match on names in the morphospecies format [genus] + [one-word-otu_name], e.g. `Tetramorium FHG_pumi` [#5039]
+  - add mode for matching to OTUs in addition to Taxon Names - OTUs only match on names in the morphospecies format [genus] + [one-word-otu_name], e.g. `Tetramorium FHG_pumi` [#5039]
   - uses autoselect instead of autocomplete for Taxon Name and OTU selection [#5051]
+  - 'Ignore subgenus' option now ignores all genusGroup ranks (other than genus), matches on any gender ending for all speciesGroup ranks, and matches on current or original genus [#5056]
 - Adding duplicate images to an observation now uses the image that was already created instead of returning an error stating that the image is already in use [#4146]
 - Sped up Person autocomplete [#5037]
 - The `pinboard` tab of smart selectors now lists items in the order they were arranged on the pinboard [#5058]
@@ -63,6 +64,12 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - `Taxon name stats`: `Set to <parent>` is not displayed after selecting a taxon name
 - Biological associations linked to an anatomical part not showing on its origin field occurrence or collection object [#5061]
 - Coordinate parsing from verbatim labels
+- Improve the error message in People unify when the person to be destroyed is associated with a user [#5065]
+- The iNaturalist importer can create multiple Person::Unvetted for a single user [#5065]
+- `Quick Forms`: Missing Flip button in biological associations slice [#5073]
+- Report instead of erroring when a Sound file is missing [#5075]
+- Click on 'All tasks' menu from the Navigator radial in the Anatomical Parts graph task not working [#5078]
+- Add Autoselect CoL dataset picker for !p preferences to all autoselects that didn't have it [#5040]
 
 [#1060]: https://github.com/SpeciesFileGroup/taxonworks/issues/1060
 [#1100]: https://github.com/SpeciesFileGroup/taxonworks/issues/1100
@@ -79,13 +86,19 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 [#4963]: https://github.com/SpeciesFileGroup/taxonworks/issues/4963
 [#5037]: https://github.com/SpeciesFileGroup/taxonworks/issues/5037
 [#5039]: https://github.com/SpeciesFileGroup/taxonworks/issues/5039
+[#5040]: https://github.com/SpeciesFileGroup/taxonworks/issues/5040
 [#5043]: https://github.com/SpeciesFileGroup/taxonworks/issues/5043
 [#5045]: https://github.com/SpeciesFileGroup/taxonworks/issues/5045
 [#5047]: https://github.com/SpeciesFileGroup/taxonworks/issues/5047
 [#5051]: https://github.com/SpeciesFileGroup/taxonworks/issues/5052
 [#5052]: https://github.com/SpeciesFileGroup/taxonworks/issues/5052
 [#5054]: https://github.com/SpeciesFileGroup/taxonworks/issues/5054
+[#5056]: https://github.com/SpeciesFileGroup/taxonworks/issues/5056
 [#5061]: https://github.com/SpeciesFileGroup/taxonworks/issues/5061
+[#5065]: https://github.com/SpeciesFileGroup/taxonworks/issues/5065
+[#5073]: https://github.com/SpeciesFileGroup/taxonworks/issues/5073
+[#5075]: https://github.com/SpeciesFileGroup/taxonworks/issues/5075
+[#5078]: https://github.com/SpeciesFileGroup/taxonworks/issues/5078
 
 ## [0.64.0] - 2026-08-04
 

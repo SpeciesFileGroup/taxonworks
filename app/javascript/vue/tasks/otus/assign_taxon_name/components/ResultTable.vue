@@ -154,6 +154,7 @@
             param="taxon_name_id"
             :id="`refine-${row.otuId}`"
             :new-record-component="TaxonNameNewModal"
+            :preferences-options-component="ColDatasetPicker"
             :disabled="row.set"
             placeholder="Refine..."
             @select="(item) => $emit('refine', row, item)"
@@ -199,6 +200,7 @@ import { RouteNames } from '@/routes/routes'
 import AutoselectField from '@/components/ui/AutoselectField.vue'
 import ButtonUnify from '@/components/ui/Button/ButtonUnify.vue'
 import TaxonNameNewModal from '@/components/ui/AutoselectField/TaxonNameNewModal.vue'
+import ColDatasetPicker from '@/components/ui/AutoselectField/ColDatasetPicker.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 

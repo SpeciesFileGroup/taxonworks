@@ -149,11 +149,24 @@ describe Person, type: :model, group: :people do
     end
 
     specify '#hard_merge 2' do
-      expect(p1.hard_merge(p1.id)).to be_falsey
+      expect { p1.hard_merge(p1.id) }.to raise_error TaxonWorks::Error
     end
 
     specify '#hard_merge 3' do
-      expect(p1.hard_merge(999)).to be_falsey
+      expect { p1.hard_merge(999) }.to raise_error TaxonWorks::Error
+    end
+
+    context 'person to remove is linked to a user account' do
+      let!(:user) { FactoryBot.create(:valid_user, person: p2) }
+
+      specify '#hard_merge raises' do
+        expect { p1.hard_merge(p2.id) }.to raise_error TaxonWorks::Error, /user account/
+      end
+
+      specify 'person to remove is not destroyed' do
+        p1.hard_merge(p2.id) rescue TaxonWorks::Error
+        expect { p2.reload }.not_to raise_error
+      end
     end
   end
 
