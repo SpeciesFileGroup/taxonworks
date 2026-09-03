@@ -39,6 +39,11 @@ namespace :tw do
       check = lambda do |src_klass, tgt_klass, association_name, fk_column, type_column: nil, type_value: nil|
         src_table = src_klass.table_name
         tgt_table = tgt_klass.table_name
+        src_cols = src_klass.column_names
+
+        select_optional = ->(col, alias_name) do
+          src_cols.include?(col) ? "src.#{conn.quote_column_name(col)} AS #{alias_name}" : "NULL AS #{alias_name}"
+        end
 
         where_extra = []
         where_extra << "src.#{conn.quote_column_name(type_column)} = #{conn.quote(type_value)}" if type_column
@@ -46,7 +51,11 @@ namespace :tw do
 
         sql = <<~SQL
           SELECT src.id AS src_id, src.project_id AS src_project,
-                 tgt.id AS tgt_id, tgt.project_id AS tgt_project
+                 tgt.id AS tgt_id, tgt.project_id AS tgt_project,
+                 #{select_optional.call('created_at', 'src_created_at')},
+                 #{select_optional.call('updated_at', 'src_updated_at')},
+                 #{select_optional.call('created_by_id', 'src_created_by_id')},
+                 #{select_optional.call('updated_by_id', 'src_updated_by_id')}
           FROM #{conn.quote_table_name(src_table)} src
           JOIN #{conn.quote_table_name(tgt_table)} tgt
             ON src.#{conn.quote_column_name(fk_column)} = tgt.id
@@ -64,11 +73,19 @@ namespace :tw do
         end
 
         result.each do |row|
-          violations << [
-            src_klass.name, row['src_id'], row['src_project'],
-            association_name.to_s,
-            tgt_klass.name, row['tgt_id'], row['tgt_project']
-          ]
+          violations << {
+            source_model: src_klass.name,
+            source_id: row['src_id'],
+            source_project: row['src_project'],
+            association: association_name.to_s,
+            target_model: tgt_klass.name,
+            target_id: row['tgt_id'],
+            target_project: row['tgt_project'],
+            source_created_at: row['src_created_at'],
+            source_updated_at: row['src_updated_at'],
+            source_created_by_id: row['src_created_by_id'],
+            source_updated_by_id: row['src_updated_by_id']
+          }
           summary[[src_klass.name, association_name.to_s]] += 1
         end
       end
@@ -119,10 +136,55 @@ namespace :tw do
         end
       end
 
-      headers = %w[source_model source_id source_project association target_model target_id target_project]
+      headers = %w[
+        source_model source_id source_project association
+        target_model target_id target_project
+        source_created_at source_updated_at
+        source_created_by_id source_updated_by_id
+      ]
       CSV.open(out_path, 'w', col_sep: "\t") do |csv|
         csv << headers
-        violations.each { |row| csv << row }
+        violations.each do |v|
+          csv << [
+            v[:source_model], v[:source_id], v[:source_project], v[:association],
+            v[:target_model], v[:target_id], v[:target_project],
+            v[:source_created_at], v[:source_updated_at],
+            v[:source_created_by_id], v[:source_updated_by_id]
+          ]
+        end
+
+        if violations.any?
+          csv << []
+          csv << ['--- SUMMARY: violations by project pair ---']
+          csv << %w[source_project target_project count]
+          violations
+            .group_by { |v| [v[:source_project], v[:target_project]] }
+            .transform_values(&:size)
+            .sort_by { |_, n| -n }
+            .each { |(sp, tp), n| csv << [sp, tp, n] }
+
+          csv << []
+          csv << ['--- SUMMARY: violations by source_project + source_model + association ---']
+          csv << %w[source_project source_model association count earliest_created_at latest_created_at]
+          violations
+            .group_by { |v| [v[:source_project], v[:source_model], v[:association]] }
+            .sort_by { |_, vs| -vs.size }
+            .each do |(sp, sm, assoc), vs|
+              ts = vs.map { |v| v[:source_created_at] }.compact
+              csv << [sp, sm, assoc, vs.size, ts.min, ts.max]
+            end
+
+          csv << []
+          csv << ['--- SUMMARY: per-project totals ---']
+          csv << %w[source_project total_violations earliest_created_at latest_created_at]
+          violations
+            .group_by { |v| v[:source_project] }
+            .sort_by { |_, vs| -vs.size }
+            .each do |sp, vs|
+              ts = vs.map { |v| v[:source_created_at] }.compact
+              csv << [sp, vs.size, ts.min, ts.max]
+            end
+        end
       end
 
       puts
