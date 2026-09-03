@@ -126,7 +126,11 @@ class LeadsController < ApplicationController
 
   # GET /leads/1/edit
   def edit
-    redirect_to new_lead_task_path lead_id: @lead.id
+    if @lead.is_virtual
+      redirect_to cite_key_task_path(lead_id: @lead.id)
+    else
+      redirect_to new_lead_task_path(lead_id: @lead.id)
+    end
   end
 
   # POST /leads
