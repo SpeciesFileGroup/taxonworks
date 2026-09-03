@@ -69,6 +69,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - `Quick Forms`: Missing Flip button in biological associations slice [#5073]
 - Report instead of erroring when a Sound file is missing [#5075]
 - Click on 'All tasks' menu from the Navigator radial in the Anatomical Parts graph task not working [#5078]
+- Add Autoselect CoL dataset picker for !p preferences to all autoselects that didn't have it [#5040]
 
 [#1060]: https://github.com/SpeciesFileGroup/taxonworks/issues/1060
 [#1100]: https://github.com/SpeciesFileGroup/taxonworks/issues/1100
@@ -85,6 +86,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 [#4963]: https://github.com/SpeciesFileGroup/taxonworks/issues/4963
 [#5037]: https://github.com/SpeciesFileGroup/taxonworks/issues/5037
 [#5039]: https://github.com/SpeciesFileGroup/taxonworks/issues/5039
+[#5040]: https://github.com/SpeciesFileGroup/taxonworks/issues/5040
 [#5043]: https://github.com/SpeciesFileGroup/taxonworks/issues/5043
 [#5045]: https://github.com/SpeciesFileGroup/taxonworks/issues/5045
 [#5047]: https://github.com/SpeciesFileGroup/taxonworks/issues/5047

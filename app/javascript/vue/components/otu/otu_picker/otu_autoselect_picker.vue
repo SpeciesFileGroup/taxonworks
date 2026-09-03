@@ -7,6 +7,7 @@
     placeholder="Select an OTU"
     :autofocus="autofocus"
     :new-record-component="OtuNewModal"
+    :preferences-options-component="ColDatasetPicker"
     reset-on-select
     @select="onSelect"
   />
@@ -16,6 +17,7 @@
 import { useTemplateRef } from 'vue'
 import AutoselectField from '@/components/ui/AutoselectField.vue'
 import OtuNewModal from '@/components/ui/AutoselectField/OtuNewModal.vue'
+import ColDatasetPicker from '@/components/ui/AutoselectField/ColDatasetPicker.vue'
 import { Otu } from '@/routes/endpoints'
 
 defineProps({
