@@ -1054,7 +1054,7 @@ function clearResults() {
   top: 100%;
   left: 0;
   right: 0;
-  z-index: 9999;
+  z-index: 999998;
   background: var(--panel-bg-color, #fff);
   border: 1px solid var(--border-color, #ccc);
   padding: var(--standard-padding, 8px);
