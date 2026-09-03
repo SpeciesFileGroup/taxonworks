@@ -303,16 +303,20 @@
     </BlockLayout>
 
     <BlockLayout
-      v-if="rootId"
+      v-if="rootId || species.length"
       expand
       class="margin-medium-bottom"
     >
       <template #header>
-        <h3>Taxa in key ({{ species.length }})</h3>
+        <h3 v-if="rootId">Taxa in key ({{ species.length }})</h3>
+        <h3 v-else>{{ species.length }} taxa staged — save to attach</h3>
       </template>
 
       <template #body>
-        <div class="d-flex gap-small middle margin-medium-bottom flex-wrap-row">
+        <div
+          v-if="rootId"
+          class="d-flex gap-small middle margin-medium-bottom flex-wrap-row"
+        >
           <VBtn
             color="destroy"
             :disabled="!publishedAfterCount"
@@ -341,7 +345,10 @@
           </VBtn>
         </div>
 
-        <div class="field label-above">
+        <div
+          v-if="rootId"
+          class="field label-above"
+        >
           <label>Add OTU</label>
           <Autocomplete
             class="full_width"
@@ -364,6 +371,7 @@
             class="d-flex middle gap-small padding-xsmall species-row"
           >
             <span
+              v-if="rootId"
               class="button button-circle btn-delete"
               title="Delete permanently from key"
               @click="deleteChildLead(otu)"
