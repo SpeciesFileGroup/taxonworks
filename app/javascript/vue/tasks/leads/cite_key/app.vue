@@ -406,13 +406,14 @@ import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import makeCitation from '@/factory/Citation'
+import platformKey from '@/helpers/getPlatformKey.js'
 import setParam from '@/helpers/setParam'
 import { LEAD } from '@/constants/index.js'
 import { URLParamsToJSON } from '@/helpers'
 import { addToArray } from '@/helpers/arrays'
 import { LinkerStorage } from '@/shared/Filter/utils'
 import { RouteNames } from '@/routes/routes'
-import { usePopstateListener } from '@/composables'
+import { useHotkey, usePopstateListener } from '@/composables'
 import { Citation, Lead, Otu, Source, Tag } from '@/routes/endpoints'
 import { computed, onBeforeMount, ref, watch } from 'vue'
 
@@ -1148,6 +1149,17 @@ usePopstateListener(() => {
   }
 })
 
+useHotkey([
+  {
+    keys: [platformKey(), 's'],
+    handler() {
+      if (!canSave.value) return
+      document.activeElement?.blur()
+      save()
+    }
+  }
+])
+
 onBeforeMount(() => {
   loadLeadKeywords()
 
@@ -1175,6 +1187,12 @@ onBeforeMount(() => {
       bootLoading.value = false
     })
   }
+
+  TW.workbench.keyboard.createLegend(
+    `${platformKey()}+s`,
+    'Save',
+    'Add simple key'
+  )
 })
 
 function bootstrapFromOtus({ otuIds, otuQuery }) {
