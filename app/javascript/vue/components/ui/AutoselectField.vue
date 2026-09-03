@@ -212,9 +212,13 @@ const props = defineProps({
   disabled: { type: Boolean, default: false },
   levelDelay: { type: Number, default: 500 },
   // Unique identifier for this autoselect instance.
-  // Used as the root div id and as the preferences storage key.
-  // When omitted a UUID is generated automatically.
+  // Used as the root div id and, unless preferencesKey is set, as the
+  // preferences storage key. When omitted a UUID is generated automatically.
   id: { type: String, default: null },
+  // Key the !p preferences are stored under. Set this when several instances
+  // should share preferences but must keep distinct DOM ids (e.g. two
+  // determination pickers on one page). Defaults to the effective id.
+  preferencesKey: { type: String, default: null },
   // Vue component to render when !n is triggered (null = disabled).
   newRecordComponent: { type: Object, default: null },
   // Vue component rendered inside PreferencesModal for model-specific options (null = none).
@@ -235,7 +239,7 @@ const { config, fetchConfig, getFirstLevelKey, getOperators } = useAutoselect(
   props.url
 )
 
-const prefs = usePreferences(props.url, effectiveId)
+const prefs = usePreferences(props.url, props.preferencesKey ?? effectiveId)
 
 // ── Reactive preferences state ─────────────────────────────────────────────────
 // A reactive snapshot of the current prefs so computed labels re-derive on save.

@@ -2,7 +2,10 @@
   <fieldset class="separate-bottom">
     <legend>OTU</legend>
     <div class="horizontal-left-content separate-bottom align-end">
-      <OtuAutoselectPicker @get-item="setOtu" />
+      <OtuAutoselectPicker
+        preferences-key="otu_for_taxon_determination"
+        @get-item="setOtu"
+      />
       <lock-component
         v-if="lock !== undefined"
         class="margin-small-left"

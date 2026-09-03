@@ -1,6 +1,7 @@
 <template>
   <AutoselectField
     :id="id"
+    :preferences-key="preferencesKey"
     ref="autoselectRef"
     url="/otus/autoselect"
     param="otu_id"
@@ -20,6 +21,10 @@ import { Otu } from '@/routes/endpoints'
 
 defineProps({
   id: {
+    type: String,
+    default: undefined
+  },
+  preferencesKey: {
     type: String,
     default: undefined
   },
