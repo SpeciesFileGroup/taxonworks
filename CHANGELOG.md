@@ -67,6 +67,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Improve the error message in People unify when the person to be destroyed is associated with a user [#5065]
 - The iNaturalist importer can create multiple Person::Unvetted for a single user [#5065]
 - `Quick Forms`: Missing Flip button in biological associations slice [#5073]
+- Report instead of erroring when a Sound file is missing [#5075]
 
 [#1060]: https://github.com/SpeciesFileGroup/taxonworks/issues/1060
 [#1100]: https://github.com/SpeciesFileGroup/taxonworks/issues/1100
@@ -93,6 +94,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 [#5061]: https://github.com/SpeciesFileGroup/taxonworks/issues/5061
 [#5065]: https://github.com/SpeciesFileGroup/taxonworks/issues/5065
 [#5073]: https://github.com/SpeciesFileGroup/taxonworks/issues/5073
+[#5075]: https://github.com/SpeciesFileGroup/taxonworks/issues/5075
 
 ## [0.64.0] - 2026-08-04
 
