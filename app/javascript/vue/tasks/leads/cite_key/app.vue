@@ -189,9 +189,10 @@
       </template>
     </BlockLayout>
 
-    <TagsSection
+    <QuickTagPicker
       v-if="rootId"
-      :lead-id="rootId"
+      object-type="Lead"
+      :object-id="rootId"
     />
 
     <BlockLayout
@@ -295,7 +296,7 @@ import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import Recent from './components/Recent.vue'
 import TableList from '@/components/table_list.vue'
-import TagsSection from './components/TagsSection.vue'
+import QuickTagPicker from '@/components/QuickTagPicker.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'

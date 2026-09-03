@@ -9,15 +9,15 @@
 
     <template #body>
       <div
-        v-if="!leadKeywords.length && !tags.length"
+        v-if="!availableKeywords.length && !tags.length"
         class="small_type padding-xsmall"
       >
-        No tags have been applied to any keys in this project yet. Add one via
-        the radial annotator above.
+        No tags have been applied to any {{ objectType }} records in this
+        project yet. Add one via the radial annotator.
       </div>
 
       <template v-else>
-        <label class="font-bold">Attached to this key</label>
+        <label class="font-bold">Attached</label>
         <div
           v-if="tags.length"
           class="d-flex flex-wrap-row gap-small margin-small-top margin-medium-bottom"
@@ -84,13 +84,18 @@ import { Tag } from '@/routes/endpoints'
 import { computed, ref, watch } from 'vue'
 
 const props = defineProps({
-  leadId: {
+  objectType: {
+    type: String,
+    required: true
+  },
+
+  objectId: {
     type: Number,
     required: true
   }
 })
 
-const leadKeywords = ref([])
+const availableKeywords = ref([])
 const tags = ref([])
 const busy = ref(false)
 
@@ -105,11 +110,11 @@ const attachedTags = computed(() =>
 )
 
 const unattachedKeywords = computed(() =>
-  leadKeywords.value.filter((k) => !tagsByKeywordId.value[k.id])
+  availableKeywords.value.filter((k) => !tagsByKeywordId.value[k.id])
 )
 
-function loadLeadKeywords() {
-  return Tag.all({ tag_object_type: 'Lead', per: 500 })
+function loadAvailableKeywords() {
+  return Tag.all({ tag_object_type: props.objectType, per: 500 })
     .then(({ body }) => {
       const seen = new Map()
       body.forEach((tag) => {
@@ -117,17 +122,17 @@ function loadLeadKeywords() {
           seen.set(tag.keyword.id, tag.keyword)
         }
       })
-      leadKeywords.value = [...seen.values()].sort((a, b) =>
+      availableKeywords.value = [...seen.values()].sort((a, b) =>
         (a.name ?? '').localeCompare(b.name ?? '')
       )
     })
     .catch(() => {})
 }
 
-function loadTagsForRoot(rootLeadId) {
+function loadTagsForObject(objectId) {
   return Tag.all({
-    tag_object_type: 'Lead',
-    tag_object_id: rootLeadId,
+    tag_object_type: props.objectType,
+    tag_object_id: objectId,
     per: 100
   })
     .then(({ body }) => {
@@ -158,13 +163,13 @@ function keywordOutlineStyle(keyword) {
 }
 
 function attachKeyword(keyword) {
-  if (!props.leadId || tagsByKeywordId.value[keyword.id]) return
+  if (!props.objectId || tagsByKeywordId.value[keyword.id]) return
   busy.value = true
   Tag.create({
     tag: {
       keyword_id: keyword.id,
-      tag_object_type: 'Lead',
-      tag_object_id: props.leadId
+      tag_object_type: props.objectType,
+      tag_object_id: props.objectId
     }
   })
     .then(({ body }) => {
@@ -189,12 +194,18 @@ function removeTag(tag) {
     })
 }
 
-loadLeadKeywords()
+watch(
+  () => props.objectType,
+  () => {
+    loadAvailableKeywords()
+  },
+  { immediate: true }
+)
 
 watch(
-  () => props.leadId,
+  () => props.objectId,
   (id) => {
-    if (id) loadTagsForRoot(id)
+    if (id) loadTagsForObject(id)
     else tags.value = []
   },
   { immediate: true }
