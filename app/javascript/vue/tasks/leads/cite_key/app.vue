@@ -578,52 +578,49 @@ function lookupExistingKeys() {
   Citation.all({
     citation_object_type: 'Lead',
     source_id: source.value.id,
-    extend: ['citation_object'],
     per: 500
   })
     .then(({ body: citations }) => {
-      const rootsMap = new Map()
+      const pagesByLeadId = new Map()
       citations.forEach((c) => {
-        const obj = c.citation_object
-        if (!obj || !obj.is_virtual || obj.parent_id !== null) return
-        if (!rootsMap.has(c.citation_object_id)) {
-          rootsMap.set(c.citation_object_id, {
-            id: c.citation_object_id,
-            text: obj.text,
-            pages: c.pages,
-            rootTaxonTag: obj.otu?.object_tag ?? null,
-            updated_at: obj.updated_at,
-            updated_at_in_words: obj.updated_at_in_words,
-            updated_by: obj.updated_by,
-            count: 0
-          })
+        if (!pagesByLeadId.has(c.citation_object_id)) {
+          pagesByLeadId.set(c.citation_object_id, c.pages)
         }
       })
 
-      const rootIds = [...rootsMap.keys()]
+      const rootIds = [...pagesByLeadId.keys()]
       if (!rootIds.length) {
         existingKeys.value = []
         return
       }
 
-      // Child (species leaf) Leads are never cited, only the root is, so the
-      // taxon count per key has to come from the root's own otus_count
-      // (the same aggregate the Keys hub uses), not from the citations above.
-      return Lead.all({ id: rootIds, is_virtual: true, per: rootIds.length }).then(
-        ({ body: leads }) => {
-          leads.forEach((lead) => {
-            const root = rootsMap.get(lead.id)
-            if (root) root.count = lead.otus_count ?? 0
-          })
-
-          existingKeys.value = [...rootsMap.values()].sort((a, b) => {
+      // Only the root Lead of a simple key is cited (children carry only otus).
+      // Look up the roots via leads#index so we get otus_count, root otu, and
+      // key_updated_* from the same aggregate the Keys hub uses.
+      return Lead.all({
+        id: rootIds,
+        is_virtual: true,
+        load_root_otus: true,
+        per: rootIds.length
+      }).then(({ body: leads }) => {
+        existingKeys.value = leads
+          .map((lead) => ({
+            id: lead.id,
+            text: lead.text,
+            pages: pagesByLeadId.get(lead.id) ?? null,
+            rootTaxonTag: lead.otu?.object_tag ?? null,
+            updated_at: lead.key_updated_at,
+            updated_at_in_words: lead.key_updated_at_in_words,
+            updated_by: lead.key_updated_by,
+            count: lead.otus_count ?? 0
+          }))
+          .sort((a, b) => {
             if (!a.updated_at && !b.updated_at) return 0
             if (!a.updated_at) return 1
             if (!b.updated_at) return -1
             return b.updated_at.localeCompare(a.updated_at)
           })
-        }
-      )
+      })
     })
     .catch(() => {
       existingKeys.value = []
@@ -714,7 +711,7 @@ function deleteAllChildren() {
   const leadIds = species.value
     .map((otu) => childLeads.value[otu.id]?.id)
     .filter(Boolean)
-  Promise.all(leadIds.map((id) => Lead.destroy(id)))
+  Promise.all(leadIds.map((id) => Lead.destroySimpleLead(id)))
     .then(() => {
       species.value = []
       childLeads.value = {}
@@ -757,7 +754,7 @@ function destroyMatchingChildren(matches, label) {
   loading.value = true
   const deletions = matches
     .filter((otu) => !!childLeads.value[otu.id])
-    .map((otu) => Lead.destroy(childLeads.value[otu.id].id).then(() => otu.id))
+    .map((otu) => Lead.destroySimpleLead(childLeads.value[otu.id].id).then(() => otu.id))
   Promise.all(deletions)
     .then((deletedOtuIds) => {
       const deletedIds = new Set(deletedOtuIds)
@@ -1070,7 +1067,7 @@ function deleteChildLead(otu) {
   if (!window.confirm(`Permanently delete ${clean} from this key?`)) return
 
   loading.value = true
-  Lead.destroy(child.id)
+  Lead.destroySimpleLead(child.id)
     .then(() => {
       species.value = species.value.filter((o) => o.id !== otu.id)
       const leadMap = { ...childLeads.value }
