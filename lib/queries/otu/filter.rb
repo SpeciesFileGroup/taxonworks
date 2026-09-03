@@ -704,7 +704,9 @@ module Queries
 
         ::Otu
           .joins(:origin_relationships)
+          .where(origin_relationships: { new_object_type: 'AnatomicalPart' })
           .where("origin_relationships.new_object_id IN (#{ anatomical_part_query.all.select(:id).to_sql })")
+          .distinct
       end
       def dwc_occurrences_facet
         return nil if @dwc_occurrences.nil?

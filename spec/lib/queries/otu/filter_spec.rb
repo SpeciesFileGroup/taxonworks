@@ -266,6 +266,21 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
     expect(q.all).to contain_exactly(o1)
   end
 
+  specify '#anatomical_part_query' do
+    ap = FactoryBot.create(:valid_anatomical_part, ancestor: o1)
+    q.anatomical_part_query = ::Queries::AnatomicalPart::Filter.new(anatomical_part_id: ap.id)
+    o2
+    expect(q.all).to contain_exactly(o1)
+  end
+
+  specify '#anatomical_part_query ignores a non-AnatomicalPart descendant with a colliding id' do
+    ap = FactoryBot.create(:valid_anatomical_part, ancestor: o1)
+    FactoryBot.create(:valid_extract, origin: o2, id: ap.id)
+
+    q.anatomical_part_query = ::Queries::AnatomicalPart::Filter.new(anatomical_part_id: ap.id)
+    expect(q.all).to contain_exactly(o1)
+  end
+
   specify '#collection_objects' do
     o2
     c = FactoryBot.create(:valid_collection_object)

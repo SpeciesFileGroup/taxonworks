@@ -560,7 +560,9 @@ module Queries
 
         ::FieldOccurrence
           .joins(:origin_relationships)
+          .where(origin_relationships: { new_object_type: 'AnatomicalPart' })
           .where("origin_relationships.new_object_id IN (#{ anatomical_part_query.all.select(:id).to_sql })")
+          .distinct
       end
 
       def and_clauses

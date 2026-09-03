@@ -24,6 +24,16 @@ describe Queries::Observation::Filter, type: :model, group: [:observation_matrix
     expect(q.all.map(&:id)).to contain_exactly(o.id)
   end
 
+  specify '#anatomical_part_query (an AnatomicalPart is an observation_object)' do
+    part = FactoryBot.create(:valid_anatomical_part, ancestor: FactoryBot.create(:valid_specimen))
+    o = FactoryBot.create(:valid_observation, observation_object: part)
+    FactoryBot.create(:valid_observation) # not this one
+
+    q.anatomical_part_query = ::Queries::AnatomicalPart::Filter.new(anatomical_part_id: part.id)
+
+    expect(q.all.map(&:id)).to contain_exactly(o.id)
+  end
+
   specify '#wkt' do
     p = RspecGeoHelpers.make_polygon( RSPEC_GEO_FACTORY.point(10, 10),0,0, 5.0, 5.0 )
 
