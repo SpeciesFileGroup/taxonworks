@@ -58,50 +58,16 @@
         >
           Checking for existing keys…
         </div>
-        <table
+        <TableList
           v-else-if="existingKeys.length"
-          class="full_width margin-small-top"
-        >
-          <thead>
-            <tr>
-              <th>Title</th>
-              <th>Root OTU</th>
-              <th>Taxa</th>
-              <th>Pages</th>
-              <th>Updated</th>
-              <th>By</th>
-              <th />
-            </tr>
-          </thead>
-          <tbody>
-            <tr
-              v-for="(key, index) in existingKeys"
-              :key="key.id"
-              class="contextMenuCells"
-              :class="{ even: index % 2 == 0 }"
-              @dblclick="() => loadKey(key.id)"
-            >
-              <td>{{ key.text }}</td>
-              <td v-html="key.rootTaxonTag ?? '—'" />
-              <td>{{ key.count }}</td>
-              <td>{{ key.pages || '—' }}</td>
-              <td>{{ key.updated_at_in_words ? `${key.updated_at_in_words} ago` : '—' }}</td>
-              <td>{{ key.updated_by ?? '—' }}</td>
-              <td>
-                <VBtn
-                  circle
-                  color="primary"
-                  @click="() => loadKey(key.id)"
-                >
-                  <VIcon
-                    name="pencil"
-                    x-small
-                  />
-                </VBtn>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+          :list="existingKeys"
+          :attributes="['text', 'rootTaxonTag', 'count', 'pages', 'updated_at_in_words', 'updated_by']"
+          :header="['Title', 'Root OTU', 'Taxa', 'Pages', 'Updated', 'By']"
+          edit
+          :destroy="false"
+          :annotator="false"
+          @edit="(row) => loadKey(row.id)"
+        />
         <div
           v-else
           class="small_type padding-xsmall"
@@ -223,84 +189,10 @@
       </template>
     </BlockLayout>
 
-    <BlockLayout
+    <TagsSection
       v-if="rootId"
-      expand
-      class="margin-medium-bottom"
-    >
-      <template #header>
-        <h3>Tags</h3>
-      </template>
-
-      <template #body>
-        <div
-          v-if="!leadKeywords.length && !tags.length"
-          class="small_type padding-xsmall"
-        >
-          No tags have been applied to any keys in this project yet. Add one via
-          the radial annotator above.
-        </div>
-
-        <template v-else>
-          <label class="font-bold">Attached to this key</label>
-          <div
-            v-if="tags.length"
-            class="d-flex flex-wrap-row gap-small margin-small-top margin-medium-bottom"
-          >
-            <span
-              v-for="tag in attachedTags"
-              :key="tag.id"
-              class="pill keyword keyword-clickable"
-              role="button"
-              tabindex="0"
-              :style="keywordPillStyle(tag.keyword)"
-              :title="`${tag.keyword?.name}${tag.keyword?.definition ? ' — ' + tag.keyword.definition : ''} (click to remove)`"
-              @click="!tagsBusy && removeTag(tag)"
-              @keydown.enter.prevent="!tagsBusy && removeTag(tag)"
-              @keydown.space.prevent="!tagsBusy && removeTag(tag)"
-            >
-              <span>{{ tag.keyword?.name }} <span
-                aria-hidden="true"
-                class="tag-remove"
-              >×</span></span>
-            </span>
-          </div>
-          <div
-            v-else
-            class="small_type padding-xsmall margin-medium-bottom"
-          >
-            None yet — click a tag below to attach it.
-          </div>
-
-          <label class="font-bold">Available tags</label>
-          <div
-            v-if="unattachedKeywords.length"
-            class="d-flex flex-wrap-row gap-small margin-small-top"
-          >
-            <span
-              v-for="keyword in unattachedKeywords"
-              :key="keyword.id"
-              class="pill keyword keyword-clickable keyword-outline"
-              role="button"
-              tabindex="0"
-              :style="keywordOutlineStyle(keyword)"
-              :title="`${keyword.name}${keyword.definition ? ' — ' + keyword.definition : ''} (click to attach)`"
-              @click="!tagsBusy && attachKeyword(keyword)"
-              @keydown.enter.prevent="!tagsBusy && attachKeyword(keyword)"
-              @keydown.space.prevent="!tagsBusy && attachKeyword(keyword)"
-            >
-              <span>{{ keyword.name }}</span>
-            </span>
-          </div>
-          <div
-            v-else
-            class="small_type padding-xsmall"
-          >
-            All existing tags are already attached.
-          </div>
-        </template>
-      </template>
-    </BlockLayout>
+      :lead-id="rootId"
+    />
 
     <BlockLayout
       v-if="rootId || species.length"
@@ -402,6 +294,8 @@ import OtuPicker from '@/components/otu/otu_picker/otu_picker.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import Recent from './components/Recent.vue'
+import TableList from '@/components/table_list.vue'
+import TagsSection from './components/TagsSection.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
@@ -414,7 +308,7 @@ import { addToArray } from '@/helpers/arrays'
 import { LinkerStorage } from '@/shared/Filter/utils'
 import { RouteNames } from '@/routes/routes'
 import { useHotkey, usePopstateListener } from '@/composables'
-import { Citation, Lead, Otu, Source, Tag } from '@/routes/endpoints'
+import { Citation, Lead, Otu, Source } from '@/routes/endpoints'
 import { computed, onBeforeMount, ref, watch } from 'vue'
 
 const DESCENDANTS_FILTERS = [
@@ -452,9 +346,6 @@ const existingKeysLoading = ref(false)
 const loading = ref(false)
 const descendantsFilter = ref('valid')
 const addDescendantsOnSave = ref(false)
-const leadKeywords = ref([])
-const tags = ref([])
-const tagsBusy = ref(false)
 
 const rootId = computed(() => root.value.id)
 const rootGlobalId = computed(() => root.value.global_id)
@@ -491,20 +382,6 @@ const misspellingMatches = computed(() =>
 
 const publishedAfterCount = computed(() => publishedAfterMatches.value.length)
 const misspellingCount = computed(() => misspellingMatches.value.length)
-
-const tagsByKeywordId = computed(() =>
-  Object.fromEntries(tags.value.map((tag) => [tag.keyword_id, tag]))
-)
-
-const attachedTags = computed(() =>
-  [...tags.value].sort((a, b) =>
-    (a.keyword?.name ?? '').localeCompare(b.keyword?.name ?? '')
-  )
-)
-
-const unattachedKeywords = computed(() =>
-  leadKeywords.value.filter((k) => !tagsByKeywordId.value[k.id])
-)
 
 const isMetadataDirty = computed(() => {
   if (!isAddMode.value || !originalMetadata.value) return false
@@ -620,7 +497,9 @@ function lookupExistingKeys() {
             pages: pagesByLeadId.get(lead.id) ?? null,
             rootTaxonTag: lead.otu?.object_tag ?? null,
             updated_at: lead.key_updated_at,
-            updated_at_in_words: lead.key_updated_at_in_words,
+            updated_at_in_words: lead.key_updated_at_in_words
+              ? `${lead.key_updated_at_in_words} ago`
+              : '—',
             updated_by: lead.key_updated_by,
             count: lead.otus_count ?? 0
           }))
@@ -793,89 +672,7 @@ function reset() {
   originalMetadata.value = null
   existingKeys.value = []
   addDescendantsOnSave.value = false
-  tags.value = []
   setParam(RouteNames.CiteKey, 'lead_id', null)
-}
-
-function loadLeadKeywords() {
-  return Tag.all({ tag_object_type: 'Lead', per: 500 })
-    .then(({ body }) => {
-      const seen = new Map()
-      body.forEach((tag) => {
-        if (tag.keyword && !seen.has(tag.keyword.id)) {
-          seen.set(tag.keyword.id, tag.keyword)
-        }
-      })
-      leadKeywords.value = [...seen.values()].sort((a, b) =>
-        (a.name ?? '').localeCompare(b.name ?? '')
-      )
-    })
-    .catch(() => {})
-}
-
-function loadTagsForRoot(rootLeadId) {
-  return Tag.all({
-    tag_object_type: 'Lead',
-    tag_object_id: rootLeadId,
-    per: 100
-  })
-    .then(({ body }) => {
-      tags.value = body
-    })
-    .catch(() => {
-      tags.value = []
-    })
-}
-
-function keywordPillStyle(keyword) {
-  const c = keyword?.css_color
-  if (!c) return null
-  return {
-    backgroundColor: c,
-    color: c
-  }
-}
-
-function keywordOutlineStyle(keyword) {
-  const c = keyword?.css_color
-  if (!c) return null
-  return {
-    backgroundColor: `color-mix(in srgb, ${c} 18%, transparent)`,
-    color: c,
-    borderColor: c
-  }
-}
-
-function attachKeyword(keyword) {
-  if (!root.value.id || tagsByKeywordId.value[keyword.id]) return
-  tagsBusy.value = true
-  Tag.create({
-    tag: {
-      keyword_id: keyword.id,
-      tag_object_type: 'Lead',
-      tag_object_id: root.value.id
-    }
-  })
-    .then(({ body }) => {
-      const created = body.keyword ? body : { ...body, keyword }
-      tags.value = [...tags.value, created]
-    })
-    .catch(() => {})
-    .finally(() => {
-      tagsBusy.value = false
-    })
-}
-
-function removeTag(tag) {
-  tagsBusy.value = true
-  Tag.destroy(tag.id)
-    .then(() => {
-      tags.value = tags.value.filter((t) => t.id !== tag.id)
-    })
-    .catch(() => {})
-    .finally(() => {
-      tagsBusy.value = false
-    })
 }
 
 function captureMetadataBaseline() {
@@ -937,31 +734,28 @@ function loadKey(rootLeadId) {
       species.value = speciesList
       childLeads.value = childMap
 
-      return Promise.all([
-        Citation.all({
-          citation_object_type: 'Lead',
-          citation_object_id: loadedRoot.id,
-          extend: ['source'],
-          per: 10
-        }).then(({ body: citations }) => {
-          const rootCitation = citations[0]
-          if (rootCitation) {
-            rootCitationId.value = rootCitation.id
-            citationData.value = {
-              ...emptyCitation(),
-              id: rootCitation.id,
-              source_id: rootCitation.source?.id ?? null,
-              pages: rootCitation.pages ?? null
-            }
-            if (rootCitation.source) {
-              return hydrateSource(rootCitation.source.id)
-            }
-          } else {
-            citationData.value = emptyCitation()
+      return Citation.all({
+        citation_object_type: 'Lead',
+        citation_object_id: loadedRoot.id,
+        extend: ['source'],
+        per: 10
+      }).then(({ body: citations }) => {
+        const rootCitation = citations[0]
+        if (rootCitation) {
+          rootCitationId.value = rootCitation.id
+          citationData.value = {
+            ...emptyCitation(),
+            id: rootCitation.id,
+            source_id: rootCitation.source?.id ?? null,
+            pages: rootCitation.pages ?? null
           }
-        }),
-        loadTagsForRoot(loadedRoot.id)
-      ])
+          if (rootCitation.source) {
+            return hydrateSource(rootCitation.source.id)
+          }
+        } else {
+          citationData.value = emptyCitation()
+        }
+      })
     })
     .then(() => {
       setParam(RouteNames.CiteKey, 'lead_id', rootLeadId)
@@ -1161,8 +955,6 @@ useHotkey([
 ])
 
 onBeforeMount(() => {
-  loadLeadKeywords()
-
   const parsed = URLParamsToJSON(location.href)
   const { lead_id } = parsed
   let otuIds = parsed.otu_ids
@@ -1255,29 +1047,5 @@ function bootstrapFromOtus({ otuIds, otuQuery }) {
   overflow-wrap: anywhere;
 }
 
-.tag-remove {
-  margin-left: 0.25em;
-  font-weight: bold;
-}
-
-.keyword-clickable {
-  cursor: pointer;
-  user-select: none;
-}
-
-.keyword-clickable:hover {
-  opacity: 0.85;
-}
-
-.keyword-outline {
-  background-color: color-mix(in srgb, var(--text-muted-color) 18%, transparent);
-  border: 1px solid currentColor;
-  color: var(--text-muted-color);
-}
-
-.keyword-outline > span {
-  color: inherit;
-  filter: none;
-}
 
 </style>
