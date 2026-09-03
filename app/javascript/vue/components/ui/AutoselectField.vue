@@ -5,9 +5,13 @@
   >
     <!-- Fuse bar — segmented, above input; hidden levels are not rendered -->
     <div class="autoselect__fuse-track">
-      <div
+      <VTooltip
         v-for="(seg, idx) in visibleFuseSegments"
         :key="seg.key"
+        tag="div"
+        placement="bottom"
+        :arrow="false"
+        tooltip-class="tw-tooltip--panel"
         class="autoselect__fuse-segment"
         :class="[
           seg.external
@@ -21,9 +25,19 @@
           }
         ]"
         @click="onFuseSegmentClick(seg, idx)"
-        @mouseenter="hoveredSegmentIdx = idx"
-        @mouseleave="hoveredSegmentIdx = null"
       >
+        <template #content>
+          <div class="autoselect__fuse-tooltip">
+            <span class="autoselect__fuse-tooltip-trigger">!{{ idx + 1 }}</span>
+            <span class="autoselect__fuse-tooltip-label">{{
+              seg.displayLabel
+            }}</span>
+            <span class="autoselect__fuse-tooltip-desc">{{
+              seg.description
+            }}</span>
+          </div>
+        </template>
+
         <!-- Orange ignition sweep -->
         <div
           v-if="ignitedSegmentKey === seg.key"
@@ -31,21 +45,7 @@
           :style="{ transitionDuration: currentFuseMs + 'ms' }"
           :class="{ 'autoselect__fuse-ignition--running': fuseRunning }"
         />
-
-        <!-- Hover tooltip -->
-        <div
-          v-if="hoveredSegmentIdx === idx"
-          class="autoselect__fuse-tooltip"
-        >
-          <span class="autoselect__fuse-tooltip-trigger">!{{ idx + 1 }}</span>
-          <span class="autoselect__fuse-tooltip-label">{{
-            seg.displayLabel
-          }}</span>
-          <span class="autoselect__fuse-tooltip-desc">{{
-            seg.description
-          }}</span>
-        </div>
-      </div>
+      </VTooltip>
     </div>
 
     <!-- Input with inline spinner -->
@@ -194,6 +194,7 @@ import AjaxCall from '@/helpers/ajaxCall'
 import { randomUUID } from '@/helpers'
 import { useAutoselect } from '@/components/ui/AutoselectField/useAutoselect'
 import { usePreferences } from '@/components/ui/AutoselectField/usePreferences'
+import VTooltip from '@/components/ui/VTooltip/VTooltip.vue'
 import ColConfirmModal from '@/components/ui/AutoselectField/ColConfirmModal.vue'
 import PreferencesModal from '@/components/ui/AutoselectField/PreferencesModal.vue'
 import CatalogueOfLifeSpinner from '@/components/ui/AutoselectField/CatalogueOfLifeSpinner.vue'
@@ -272,8 +273,6 @@ let fuseTimer = null
 // pinboard "None" flash state
 const pinboardNoneFlash = ref(false)
 let pinboardNoneTimer = null
-
-const hoveredSegmentIdx = ref(null)
 
 // overlays
 const showHelp = ref(false)
@@ -919,23 +918,11 @@ function clearResults() {
 }
 
 .autoselect__fuse-tooltip {
-  position: absolute;
-  top: calc(100% + 4px);
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 999998;
-  background: var(--panel-bg-color, #fff);
-  border: 1px solid var(--border-color, #ccc);
-  border-radius: 4px;
-  padding: 5px 10px;
-  white-space: nowrap;
-  font-size: 11px;
-  line-height: 1.5;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
   display: flex;
   flex-direction: column;
   gap: 1px;
-  pointer-events: none;
+  font-size: 11px;
+  line-height: 1.5;
 }
 
 .autoselect__fuse-tooltip-trigger {
