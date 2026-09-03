@@ -629,6 +629,7 @@ module OtusHelper
       leads: {
         scoped: otu.leads
           .where(parent_id: nil, is_public: true)
+          .where('leads.is_virtual IS NOT TRUE')
           .select(:id, :text)
           .map { |l| { id: l.id, text: l.text } },
 
