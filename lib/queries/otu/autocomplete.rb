@@ -43,7 +43,7 @@ module Queries
       # before requesting the query
       QUERIES = {
         # OTU
-        autocomplete_taxon_name_hybrid: {priority: 1},
+        autocomplete_taxon_name_and_otu_name: {priority: 1},
         otu_name_exact: {priority: 2}, # Was 1
         autocomplete_exact_id: {priority: 2},
         autocomplete_identifier_cached_exact: {priority: 3},
@@ -114,18 +114,18 @@ module Queries
 
       # For names like Tapinoma CASC_2231
       #
-      # Note this intentionally does not use `terms` (Queries::Query#terms) -
-      # that always returns a 2-element array of wildcarded copies of the
-      # *whole* query_string, not the query_string split into words.
-      def autocomplete_taxon_name_hybrid
-        parts = query_string.to_s.split(/\s+/)
-        return nil unless parts.length == 2
+      # The query is a prefix match on the taxon name (without authorship)
+      # followed by a prefix match on the otu name - in that order. Only
+      # exactly two terms are supported.
+      def autocomplete_taxon_name_and_otu_name
+        words = query_string.to_s.split(/\s+/)
+        return nil unless words.length == 2
 
-        genus_term, otu_term = parts
+        genus_term, otu_term = words
 
         base_query
           .joins(:taxon_name)
-          .where('taxon_names.cached % ? AND otus.name % ?', genus_term, otu_term)
+          .where('taxon_names.cached ILIKE ? AND otus.name ILIKE ?', "#{genus_term}%", "#{otu_term}%")
           .order('taxon_names.cached, otus.name, length(taxon_names.cached), length(otus.name)')
       end
 

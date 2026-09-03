@@ -15,3 +15,8 @@ export function sanitizeHtml(str) {
     USE_PROFILES: { html: false }
   })
 }
+
+export function stripMarkTags(str) {
+  if (typeof str !== 'string') return str
+  return str.replace(/<\/?mark>/g, '')
+}

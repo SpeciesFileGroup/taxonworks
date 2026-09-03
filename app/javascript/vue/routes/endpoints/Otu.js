@@ -49,5 +49,8 @@ export const Otu = {
   taxonomy: (otuId, params) =>
     AjaxCall('get', `/${controller}/${otuId}/inventory/taxonomy.json`, {
       params
-    })
+    }),
+
+  createMorphospeciesOtu: (params) =>
+    AjaxCall('post', `/${controller}/create_morphospecies_otu.json`, params)
 }

@@ -180,6 +180,7 @@
 <script setup>
 import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import AjaxCall from '@/helpers/ajaxCall'
+import { randomUUID } from '@/helpers'
 import { useAutoselect } from '@/components/ui/AutoselectField/useAutoselect'
 import { usePreferences } from '@/components/ui/AutoselectField/usePreferences'
 import ColConfirmModal from '@/components/ui/AutoselectField/ColConfirmModal.vue'
@@ -216,7 +217,7 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue', 'select'])
 
 // ── Effective id (prop or UUID) ────────────────────────────────────────────────
-const effectiveId = props.id ?? `autoselect_${crypto.randomUUID()}`
+const effectiveId = props.id ?? `autoselect_${randomUUID()}`
 
 // ── Composables ────────────────────────────────────────────────────────────────
 const { config, fetchConfig, getFirstLevelKey, getOperators } =

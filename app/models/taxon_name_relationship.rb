@@ -565,7 +565,7 @@ class TaxonNameRelationship < ApplicationRecord
     object_relationships = TaxonNameRelationship.where_object_is_taxon_name(self.object_taxon_name).not_self(self).collect{|r| r.type}
     required = self.type_class.required_taxon_name_relationships - object_relationships
     required.each do |r|
-      soft_validations.add(:type, " Presence of #{self.subject_status} requires selection of #{r.demodulize.underscore.humanize.downcase}")
+      soft_validations.add(:type, " Presence of '#{self.subject_status}' requires selection of #{r.demodulize.underscore.humanize.downcase}")
     end
   end
 
@@ -575,7 +575,7 @@ class TaxonNameRelationship < ApplicationRecord
       subject_relationships = TaxonNameRelationship.where_subject_is_taxon_name(self.subject_taxon_name).not_self(self)
       subject_relationships.each  do |i|
         if self.type_class.disjoint_taxon_name_relationships.include?(i.type_name)
-          soft_validations.add(:type, "#{self.subject_status.capitalize} relationship is conflicting with another relationship: '#{i.subject_status}'")
+          soft_validations.add(:type, "'#{self.subject_status.capitalize}' relationship is conflicting with another relationship: '#{i.subject_status}'")
         end
       end
     end
@@ -587,7 +587,7 @@ class TaxonNameRelationship < ApplicationRecord
     compare = disjoint_object_classes & classifications
     compare.each do |i|
       c = i.demodulize.underscore.humanize.downcase
-      soft_validations.add(:type, "#{self.subject_status.capitalize} relationship is conflicting with the taxon status: '#{c}'")
+      soft_validations.add(:type, "'#{self.subject_status.capitalize}' relationship is conflicting with the taxon status: '#{c}'")
       soft_validations.add(:object_taxon_name_id, "#{self.object_taxon_name.cached_html} has a conflicting status: '#{c}'")
     end
   end
@@ -598,7 +598,7 @@ class TaxonNameRelationship < ApplicationRecord
     compare = disjoint_subject_classes & classifications
     compare.each do |i|
       c = i.demodulize.underscore.humanize.downcase
-      soft_validations.add(:type, "#{self.subject_status.capitalize} conflicting with the status: '#{c}'")
+      soft_validations.add(:type, "'#{self.subject_status.capitalize}' conflicting with the status: '#{c}'")
       soft_validations.add(:subject_taxon_name_id, "#{self.subject_taxon_name.cached_html} has a conflicting status: '#{c}'")
     end
   end
@@ -676,7 +676,7 @@ class TaxonNameRelationship < ApplicationRecord
     o = object_taxon_name
     s_new = s.lowest_rank_coordinated_taxon
     if s != s_new
-      soft_validations.add(:subject_taxon_name_id, "Relationship should move from #{s.rank_class.rank_name} #{s.cached_html} to #{s_new.rank_class.rank_name} #{s_new.cached_html}",
+      soft_validations.add(:subject_taxon_name_id, "'#{self.subject_status.capitalize}' relationship should move from #{s.rank_class.rank_name} #{s.cached_html} to #{s_new.rank_class.rank_name} #{s_new.cached_html}",
                            success_message: "Relationship moved to  #{s_new.rank_class.rank_name}", failure_message:  'Failed to update relationship')
     end
   end
@@ -686,7 +686,7 @@ class TaxonNameRelationship < ApplicationRecord
     o = object_taxon_name
     o_new = o.lowest_rank_coordinated_taxon
     if o != o_new
-      soft_validations.add(:object_taxon_name_id, "Relationship should move from #{o.rank_class.rank_name} #{o.cached_html} to #{o_new.rank_class.rank_name} #{o_new.cached_html}",
+      soft_validations.add(:object_taxon_name_id, "'#{self.object_status.capitalize}' relationship should move from #{o.rank_class.rank_name} #{o.cached_html} to #{o_new.rank_class.rank_name} #{o_new.cached_html}",
                            success_message: "Relationship moved to  #{o_new.rank_class.rank_name}", failure_message:  'Failed to update relationship')
     end
   end
