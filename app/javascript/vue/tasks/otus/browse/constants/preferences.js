@@ -18,6 +18,9 @@ export const DEFAULT_PREFERENCES = {
   timeline: {
     alwaysShowAllCitations: false
   },
+  biologicalAssociations: {
+    showRanks: false
+  },
   filterSections: {
     and: {
       current: [
@@ -119,6 +122,9 @@ export function migrateTaskPreferences(stored) {
     ...structuredClone(DEFAULT_PREFERENCES),
     ...(stored.filterSections ? { filterSections: stored.filterSections } : {}),
     ...(stored.timeline ? { timeline: stored.timeline } : {}),
+    ...(stored.biologicalAssociations
+      ? { biologicalAssociations: stored.biologicalAssociations }
+      : {}),
     ...(typeof stored.hideEmptyPanels === 'boolean'
       ? { hideEmptyPanels: stored.hideEmptyPanels }
       : {}),

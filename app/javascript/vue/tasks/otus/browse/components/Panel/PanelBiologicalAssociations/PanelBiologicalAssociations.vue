@@ -16,6 +16,7 @@
         <div class="overflow-x-auto">
           <PanelBiologicalAssociationsTable
             :list="filteredList"
+            :show-ranks="showRanks"
             @open-detail="push"
           />
         </div>
@@ -41,6 +42,20 @@
         <h3>Filter</h3>
       </template>
       <template #body>
+        <div class="full_width separate-bottom">
+          <h4>Columns</h4>
+          <ul class="no_bullets">
+            <li>
+              <label>
+                <input
+                  v-model="showRanks"
+                  type="checkbox"
+                />
+                Show subject and object ranks (order, family, genus)
+              </label>
+            </li>
+          </ul>
+        </div>
         <div class="horizontal-left-content align-start">
           <div class="full_width margin-small-right">
             <h4>Relations</h4>
@@ -76,6 +91,8 @@
 import { ref, computed, watch } from 'vue'
 import { BiologicalAssociation } from '@/routes/endpoints'
 import { getUnique, sortArray } from '@/helpers/arrays.js'
+import { useUserPreferences } from '@/composables'
+import { copyObject } from '@/helpers'
 import PanelLayout from '../PanelLayout.vue'
 import VModal from '@/components/ui/Modal'
 import SlidingStack from '@/components/ui/SlidingStack.vue'
@@ -106,12 +123,35 @@ const props = defineProps({
   }
 })
 
+const KEY_STORAGE = 'task::BrowseOtus'
+
+const userPref = useUserPreferences()
+
+const preferences = computed(
+  () => userPref.preferences.value.layout?.[KEY_STORAGE]
+)
+
 const biologicalAssociations = ref([])
 const isLoading = ref(false)
 const showModal = ref(false)
 const otusFilter = ref([])
 const relationsFilter = ref([])
 const sourcesFilter = ref([])
+
+const showRanks = computed({
+  get: () => preferences.value?.biologicalAssociations?.showRanks ?? false,
+
+  set(value) {
+    if (!preferences.value) return
+
+    preferences.value.biologicalAssociations = {
+      ...preferences.value.biologicalAssociations,
+      showRanks: value
+    }
+
+    userPref.setPreference(KEY_STORAGE, copyObject(preferences.value))
+  }
+})
 
 const filteredList = computed(() =>
   biologicalAssociations.value.filter(

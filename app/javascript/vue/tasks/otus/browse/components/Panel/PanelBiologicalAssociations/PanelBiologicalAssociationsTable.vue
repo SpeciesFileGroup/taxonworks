@@ -4,10 +4,10 @@
       <tr>
         <th class="w-2" />
         <th class="table-cell-border-left-thick">Subject</th>
-        <th :colspan="1" />
+        <th :colspan="showRanks ? 4 : 1" />
         <th class="table-cell-border-left-thick" />
         <th class="table-cell-border-left-thick">Object</th>
-        <th :colspan="1" />
+        <th :colspan="showRanks ? 4 : 1" />
         <th
           :colspan="2"
           class="table-cell-border-left-thick"
@@ -15,12 +15,22 @@
       </tr>
       <tr class="table-header-border table-header-bold">
         <th class="w-2" />
+        <template v-if="showRanks">
+          <th>Order</th>
+          <th>Family</th>
+          <th>Genus</th>
+        </template>
         <th>Label</th>
         <th>Biological properties</th>
 
         <th class="table-cell-border-left-thick">Biological relationship</th>
 
         <th class="table-cell-border-left-thick">Biological properties</th>
+        <template v-if="showRanks">
+          <th>Order</th>
+          <th>Family</th>
+          <th>Genus</th>
+        </template>
         <th>Label</th>
         <th class="table-cell-border-left-thick">Citations</th>
         <th>Tags</th>
@@ -31,6 +41,7 @@
         v-for="row in list"
         :key="row.id"
         :row="row"
+        :show-ranks="showRanks"
         @open-detail="emit('open-detail', $event)"
       />
     </tbody>
@@ -44,6 +55,11 @@ defineProps({
   list: {
     type: Array,
     default: () => []
+  },
+
+  showRanks: {
+    type: Boolean,
+    default: false
   }
 })
 

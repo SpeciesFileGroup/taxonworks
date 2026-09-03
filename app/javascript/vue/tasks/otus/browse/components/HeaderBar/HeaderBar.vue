@@ -117,6 +117,7 @@
             <a
               data-turbolinks="false"
               :href="`#${item}`"
+              @click.prevent="scrollToPanel(item)"
             >
               {{ item }}
             </a>
@@ -271,6 +272,18 @@ function switchComprehensive() {
     `${RouteNames.DigitizeTask}?taxon_name_id=${props.otu.taxon_name_id}`,
     '_self'
   )
+}
+
+function scrollToPanel(anchorName) {
+  const anchorElement = [
+    ...document.querySelectorAll('#browse-otu .anchor')
+  ].find((element) => element.getAttribute('name') === anchorName)
+
+  if (!anchorElement) return
+
+  anchorElement.scrollIntoView({ behavior: 'smooth', block: 'start' })
+
+  history.replaceState(null, '', `#${encodeURIComponent(anchorName)}`)
 }
 
 function showForRanks(title) {

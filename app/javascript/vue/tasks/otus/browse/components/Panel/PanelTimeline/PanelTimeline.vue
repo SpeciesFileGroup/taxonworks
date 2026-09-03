@@ -31,6 +31,7 @@
             :is-collapsible="isCollapsible"
           />
           <PanelTimelineReferences
+            v-if="timeline.sources.list.length"
             v-model="selectedReferenceIds"
             :sources="timeline.sources.list"
             :topics-list="timeline.topics.list"

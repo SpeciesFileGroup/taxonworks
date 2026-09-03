@@ -19,6 +19,11 @@
       </div>
     </td>
 
+    <template v-if="showRanks">
+      <td v-html="row.subjectOrder" />
+      <td v-html="row.subjectFamily" />
+      <td v-html="row.subjectGenus" />
+    </template>
     <td>
       <a
         :href="makeBrowseUrl({ id: row.subjectId, type: row.subjectType })"
@@ -45,6 +50,11 @@
       />
     </td>
 
+    <template v-if="showRanks">
+      <td v-html="row.objectOrder" />
+      <td v-html="row.objectFamily" />
+      <td v-html="row.objectGenus" />
+    </template>
     <td>
       <a
         :href="makeBrowseUrl({ id: row.objectId, type: row.objectType })"
@@ -97,6 +107,11 @@ defineProps({
   row: {
     type: Object,
     required: true
+  },
+
+  showRanks: {
+    type: Boolean,
+    default: false
   }
 })
 
