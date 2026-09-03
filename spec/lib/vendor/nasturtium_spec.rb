@@ -99,6 +99,17 @@ describe Vendor::Nasturtium, type: :model, group: [:field_occurrences] do
       expect(ce.start_date_day).to eq(15)
     end
 
+    specify 'sets verbatim_collectors from user name' do
+      ce = Vendor::Nasturtium.stub_collecting_event(result)
+      expect(ce.verbatim_collectors).to eq('Jane Doe')
+    end
+
+    specify 'falls back to login for verbatim_collectors when name is blank' do
+      r = result.merge('user' => result['user'].merge('name' => nil))
+      ce = Vendor::Nasturtium.stub_collecting_event(r)
+      expect(ce.verbatim_collectors).to eq('janedoe')
+    end
+
     context 'when time_observed_at is present' do
       let(:result_with_time) { result.merge('time_observed_at' => '2023-06-15T14:32:45+00:00') }
 
@@ -139,6 +150,18 @@ describe Vendor::Nasturtium, type: :model, group: [:field_occurrences] do
         ce = Vendor::Nasturtium.stub_collecting_event(r)
         expect(ce.time_start_hour).to be_nil
       end
+    end
+
+    specify 'builds a collector role from the observer, same as stub_collector' do
+      ce = Vendor::Nasturtium.stub_collecting_event(result)
+      expect(ce.collector_roles.first.person.last_name).to eq('Doe')
+    end
+
+    specify 'shares the person_cache with the collector role' do
+      cache = {}
+      ce = Vendor::Nasturtium.stub_collecting_event(result, person_cache: cache)
+      observer = Vendor::Nasturtium.stub_observer_person(result, person_cache: cache)
+      expect(ce.collector_roles.first.person).to equal(observer)
     end
   end
 
@@ -203,6 +226,38 @@ describe Vendor::Nasturtium, type: :model, group: [:field_occurrences] do
     specify 'returns nil when blank' do
       expect(Vendor::Nasturtium.parse_attribution_name(nil)).to be_nil
       expect(Vendor::Nasturtium.parse_attribution_name('')).to be_nil
+    end
+  end
+
+  describe '.stub_collector' do
+    specify 'returns Person::Unvetted with first/last split from user name when no ORCID' do
+      p = Vendor::Nasturtium.stub_collector(result)
+      expect(p).to be_a(Person::Unvetted)
+      expect(p.first_name).to eq('Jane')
+      expect(p.last_name).to eq('Doe')
+    end
+
+    context 'when ORCID matches an existing Person' do
+      let(:person) { FactoryBot.create(:valid_person) }
+
+      before do
+        Identifier::Global::Orcid.create!(
+          identifier_object: person,
+          identifier: 'https://orcid.org/0000-0002-1825-0097',
+        )
+      end
+
+      specify 'returns the matched Person' do
+        r = result.merge('user' => result['user'].merge('orcid' => '0000-0002-1825-0097'))
+        expect(Vendor::Nasturtium.stub_collector(r)&.id).to eq(person.id)
+      end
+    end
+
+    specify 'shares a person_cache with stub_observer_person for the same result' do
+      cache = {}
+      collector = Vendor::Nasturtium.stub_collector(result, person_cache: cache)
+      observer  = Vendor::Nasturtium.stub_observer_person(result, person_cache: cache)
+      expect(collector).to equal(observer)
     end
   end
 

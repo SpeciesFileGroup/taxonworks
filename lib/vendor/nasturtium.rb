@@ -45,13 +45,13 @@ module Vendor
       end
     end
 
-    def self.stub_collecting_event(result, guess_as_locality: true)
+    def self.stub_collecting_event(result, guess_as_locality: true, person_cache: nil)
       return nil if result.blank?
 
       d = result['observed_on_details']
 
       p = {
-        verbatim_collectors: result.dig('user', 'name').presence,
+        verbatim_collectors: result.dig('user', 'name').presence || result.dig('user', 'login').presence,
         verbatim_date: result['observed_on_string'].presence,
         start_date_day: d['day'],
         start_date_month: d['month'],
@@ -75,24 +75,26 @@ module Vendor
         )
       )
 
-      collector = stub_collector(result)
+      collector = stub_collector(result, person_cache:)
       ce.collector_roles.build(person: collector) if collector
 
       ce
     end
 
-    # Attempt to find a Person in TW by ORCID. Returns nil if iNat provides no ORCID,
-    # or if no matching Person exists.
+    # iNat has no notion of a "collector" distinct from the observer — the
+    # observation's own user is the collector.
     #
     # @param result [Hash] a Nasturtium result
-    # @return [Person, nil]
-    def self.stub_collector(result)
-      person_by_orcid(result)
+    # @param person_cache [Hash, nil] per-import-run cache (see .dedupe_person)
+    # @return [Person]
+    def self.stub_collector(result, person_cache: nil)
+      stub_observer_person(result, person_cache:)
     end
 
     # Find or build the observer as a Person.
     # Strategy: ORCID match first, then Person::Unvetted from user.name or user.login.
-    # Used as determiner on TaxonDetermination and georeferencer on Georeference.
+    # Used as collector on CollectingEvent, determiner on TaxonDetermination, and
+    # georeferencer on Georeference.
     #
     # @param result [Hash] a Nasturtium result
     # @param person_cache [Hash, nil] per-import-run cache (see .dedupe_person)

@@ -44,7 +44,7 @@ class InaturalistImportJob < ApplicationJob
 
       # Save the CE (and its nested georeference) before the FO so that
       # collecting_event_id is set when the FO is created.
-      ce = ::Vendor::Nasturtium.stub_collecting_event(result)
+      ce = ::Vendor::Nasturtium.stub_collecting_event(result, person_cache: @person_cache)
       ce.save!
 
       if (georef = ce.georeferences.first)
