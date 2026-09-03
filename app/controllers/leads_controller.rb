@@ -5,7 +5,7 @@ class LeadsController < ApplicationController
     edit add_children update destroy show
     redirect_option_texts destroy_children insert_couplet delete_children
     duplicate otus destroy_subtree reorder_children insert_key
-    set_observation_matrix reset_lead_items depictions
+    set_observation_matrix reset_lead_items depictions destroy_simple_lead
   ]
 
   # GET /leads
@@ -256,6 +256,27 @@ class LeadsController < ApplicationController
           render json: @lead.errors, status: :unprocessable_content
         }
       end
+    end
+  end
+
+  # DELETE /leads/1/destroy_simple_lead.json
+  # Simple (virtual) keys are flat by construction and are managed by the
+  # cite_key task. This action lets that task destroy either a species-child
+  # leaf or the entire simple key from the same endpoint. It refuses anything
+  # that isn't virtual so it can't be repurposed to remove a lead from an
+  # ordinary dichotomous couplet (which #destroy still guards against).
+  def destroy_simple_lead
+    unless @lead.is_virtual
+      render json: { errors: { base: ['Only virtual (simple key) leads can be destroyed here.'] } },
+        status: :unprocessable_content
+      return
+    end
+
+    begin
+      @lead.destroy!
+      head :no_content
+    rescue ActiveRecord::RecordNotDestroyed, ActiveRecord::RecordInvalid
+      render json: @lead.errors, status: :unprocessable_content
     end
   end
 

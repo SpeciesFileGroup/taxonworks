@@ -39,6 +39,9 @@ export const Lead = {
   delete_children: (id) =>
     AjaxCall('post', `/${controller}/${id}/delete_children.json`),
 
+  destroySimpleLead: (id) =>
+    AjaxCall('delete', `/${controller}/${id}/destroy_simple_lead.json`),
+
   otus: (id) => AjaxCall('get', `/${controller}/${id}/otus.json`),
 
   destroy_subtree: (id, params = null) =>
