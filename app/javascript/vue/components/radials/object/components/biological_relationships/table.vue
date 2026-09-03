@@ -33,7 +33,6 @@
               <RadialAnnotator :global-id="item.global_id" />
               <RadialObject :global-id="item.global_id" />
               <VBtn
-                v-if="!isInverted(item)"
                 circle
                 color="primary"
                 @click="emit('edit', Object.assign({}, item))"
