@@ -50,16 +50,20 @@ class LeadsController < ApplicationController
   end
 
   def api_index
-    @leads = Lead
-      .roots_with_data(sessions_current_project_id, true)
-      .where(is_public: true)
+    # Default excludes virtual (simple) keys so existing API consumers keep
+    # the shape they expect. Callers that want simple keys pass is_virtual=true;
+    # is_virtual=all returns both.
+    is_virtual =
+      if params[:is_virtual].to_s == 'all'
+        :all
+      elsif params[:is_virtual].present?
+        ActiveRecord::Type::Boolean.new.cast(params[:is_virtual])
+      else
+        false
+      end
 
-    render '/leads/api/v1/index'
-  end
-
-  def api_index_simple
     @leads = Lead
-      .roots_with_data(sessions_current_project_id, true, is_virtual: true)
+      .roots_with_data(sessions_current_project_id, true, is_virtual:)
       .where(is_public: true)
 
     render '/leads/api/v1/index'

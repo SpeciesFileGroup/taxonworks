@@ -183,7 +183,6 @@ namespace :api, defaults: {format: :json} do
       get '/sounds/:id', to: '/sounds#api_show'
 
       get '/leads', to: '/leads#api_index'
-      get '/leads/simple', to: '/leads#api_index_simple'
       get '/leads/key/:id', to: '/leads#api_key'
 
       get '/leads/:id/eliminated_otus', to: '/leads#api_eliminated_otus'
