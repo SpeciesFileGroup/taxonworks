@@ -65,6 +65,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Biological associations linked to an anatomical part not showing on its origin field occurrence or collection object [#5061]
 - Coordinate parsing from verbatim labels
 - Improve the error message in People unify when the person to be destroyed is associated with a user [#5065]
+- The iNaturalist importer can create multiple Person::Unvetted for a single user [#5065]
 
 [#1060]: https://github.com/SpeciesFileGroup/taxonworks/issues/1060
 [#1100]: https://github.com/SpeciesFileGroup/taxonworks/issues/1100

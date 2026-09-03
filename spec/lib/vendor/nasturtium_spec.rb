@@ -229,6 +229,32 @@ describe Vendor::Nasturtium, type: :model, group: [:field_occurrences] do
     end
   end
 
+  describe '.person_from_display_name' do
+    specify 'splits a multi-word name via BibTeX' do
+      p = Vendor::Nasturtium.person_from_display_name('Jane Doe')
+      expect(p.first_name).to eq('Jane')
+      expect(p.last_name).to eq('Doe')
+    end
+
+    specify 'puts a single-word name directly into last_name' do
+      p = Vendor::Nasturtium.person_from_display_name('janedoe')
+      expect(p.first_name).to be_nil
+      expect(p.last_name).to eq('janedoe')
+    end
+
+    specify 'builds an "Undetermined iNaturalist user" placeholder when nil' do
+      p = Vendor::Nasturtium.person_from_display_name(nil)
+      expect(p.first_name).to be_nil
+      expect(p.last_name).to eq('Undetermined iNaturalist user')
+    end
+
+    specify 'builds an "Undetermined iNaturalist user" placeholder when blank' do
+      p = Vendor::Nasturtium.person_from_display_name('')
+      expect(p.first_name).to be_nil
+      expect(p.last_name).to eq('Undetermined iNaturalist user')
+    end
+  end
+
   describe '.stub_collector' do
     specify 'returns Person::Unvetted with first/last split from user name when no ORCID' do
       p = Vendor::Nasturtium.stub_collector(result)
@@ -274,6 +300,13 @@ describe Vendor::Nasturtium, type: :model, group: [:field_occurrences] do
       p = Vendor::Nasturtium.stub_observer_person(r)
       expect(p.first_name).to be_nil
       expect(p.last_name).to eq('janedoe')
+    end
+
+    specify 'builds an "Undetermined iNaturalist user" placeholder when both name and login are blank' do
+      r = result.merge('user' => result['user'].merge('name' => nil, 'login' => nil))
+      p = Vendor::Nasturtium.stub_observer_person(r)
+      expect(p.first_name).to be_nil
+      expect(p.last_name).to eq('Undetermined iNaturalist user')
     end
 
     context 'when ORCID matches an existing Person' do

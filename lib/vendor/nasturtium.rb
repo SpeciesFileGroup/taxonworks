@@ -398,10 +398,9 @@ module Vendor
       return dedupe_person(matched, person_cache, result) if matched
 
       # Neither the attribution nor the observer's own account gives us a name at
-      # all (e.g. CC0 with a blank user.name/login) - build the placeholder
-      # directly, bypassing BibTeX name-parsing, which would otherwise mangle it.
-      name = copyright_name || observer_names.first
-      person = name ? person_from_display_name(name) : Person::Unvetted.new(last_name: 'Undetermined iNaturalist user')
+      # all (e.g. CC0 with a blank user.name/login) - person_from_display_name
+      # falls back to a placeholder in that case.
+      person = person_from_display_name(copyright_name || observer_names.first)
 
       dedupe_person(person, person_cache, result)
     end
@@ -470,13 +469,10 @@ module Vendor
     end
 
     # Build a Person::Unvetted from a display name string.
-    # Multi-word names (e.g. "Greg Lasley") are parsed via BibTeX so that
-    # first/last are split correctly.  Single-word strings (login slugs or
-    # single-name users) go directly into last_name unchanged.
-    #
-    # @param name [String]
+    # @param name [String, nil]
     # @return [Person::Unvetted]
     def self.person_from_display_name(name)
+      return Person::Unvetted.new(last_name: 'Undetermined iNaturalist user') if name.blank?
       return Person::Unvetted.new(last_name: name) unless name.include?(' ')
 
       Person.parse_to_people(name).first || Person::Unvetted.new(last_name: name)
