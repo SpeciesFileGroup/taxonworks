@@ -68,6 +68,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - The iNaturalist importer can create multiple Person::Unvetted for a single user [#5065]
 - `Quick Forms`: Missing Flip button in biological associations slice [#5073]
 - Report instead of erroring when a Sound file is missing [#5075]
+- Click on 'All tasks' menu from the Navigator radial in the Anatomical Parts graph task not working [#5078]
 
 [#1060]: https://github.com/SpeciesFileGroup/taxonworks/issues/1060
 [#1100]: https://github.com/SpeciesFileGroup/taxonworks/issues/1100
@@ -95,6 +96,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 [#5065]: https://github.com/SpeciesFileGroup/taxonworks/issues/5065
 [#5073]: https://github.com/SpeciesFileGroup/taxonworks/issues/5073
 [#5075]: https://github.com/SpeciesFileGroup/taxonworks/issues/5075
+[#5078]: https://github.com/SpeciesFileGroup/taxonworks/issues/5078
 
 ## [0.64.0] - 2026-08-04
 
