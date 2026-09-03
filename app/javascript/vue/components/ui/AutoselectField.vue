@@ -923,7 +923,7 @@ function clearResults() {
   top: calc(100% + 4px);
   left: 50%;
   transform: translateX(-50%);
-  z-index: 10001;
+  z-index: 999998;
   background: var(--panel-bg-color, #fff);
   border: 1px solid var(--border-color, #ccc);
   border-radius: 4px;
@@ -985,7 +985,7 @@ function clearResults() {
   max-height: 500px;
   overflow-y: auto;
   overflow-x: hidden;
-  z-index: 9998;
+  z-index: 999998;
   background-color: var(--panel-bg-color);
   margin: 0;
   padding: 0;
