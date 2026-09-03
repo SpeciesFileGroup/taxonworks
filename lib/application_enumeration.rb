@@ -165,6 +165,16 @@ module ApplicationEnumeration
     h
   end
 
+  # Relations that never hold user data worth preserving before a destructive
+  # operation: PaperTrail history, denormalized caches, and annotation
+  # infrastructure that is always cascade-deleted anyway. Anything that can
+  # block a `destroy` (`dependent: :restrict_with_*` or a NO ACTION/RESTRICT
+  # DB foreign key) must NOT be listed here - the point of these methods is to
+  # surface exactly that. Reverse cache-column lookups (e.g.
+  # TaxonName#historical_taxon_names) are also deliberately *not* listed: they
+  # have no `dependent:` and often no DB FK, so a bulk delete leaves stale
+  # pointers behind - a caller doing bulk deletes should have to acknowledge
+  # that explicitly via `ignore:` rather than have it hidden here.
   # TODO: DRY with Unify::EXCLUDE_RELATIONS
   EXCLUDE_RELATIONS_FOR_RELATED_DATA = [
     :versions,
@@ -178,15 +188,15 @@ module ApplicationEnumeration
   # @param object [ApplicationRecord]
   # @param ignore [Array<Symbol>] additional relation names to ignore
   # @return [Boolean]
-  #   true if object has no data in any has_many or has_one associations
-  #   Excludes `through` associations and cached/computed relations.
+  #   true if object has no data in any has_many or has_one associations.
+  #   Excludes `through` associations and the relations named in
+  #   EXCLUDE_RELATIONS_FOR_RELATED_DATA (+ `ignore:`).
   def self.no_related_data?(object, ignore: [])
     excluded = EXCLUDE_RELATIONS_FOR_RELATED_DATA + ignore
 
     (klass_reflections(object.class, :has_many) + klass_reflections(object.class, :has_one)).each do |relation|
       next if relation.options[:through].present?
       next if excluded.include?(relation.name)
-      next if relation.options[:foreign_key]&.match?(/cache/)
 
       related = object.send(relation.name)
 
@@ -229,6 +239,13 @@ module ApplicationEnumeration
   #   relation name => row count, for every non-excluded has_many/has_one
   #   relation (excluding `through`) with at least one row referencing `ids`.
   #   Empty hash means clean.
+  #
+  #   !! The counts answer "is there related data, and roughly how much" — they
+  #   are not exact and must not be summed for a per-record total: the same
+  #   underlying row is reported under every relation name that points at it
+  #   (e.g. citations / origin_citation / subsequent_citations on Otu). See the
+  #   scope note in the body for the one case where a count can also be too
+  #   high in absolute terms.
   def self.related_data_counts(klass, ids, ignore: [])
     excluded = EXCLUDE_RELATIONS_FOR_RELATED_DATA + ignore
 
@@ -237,7 +254,6 @@ module ApplicationEnumeration
     (klass_reflections(klass, :has_many) + klass_reflections(klass, :has_one)).each do |relation|
       next if relation.options[:through].present?
       next if excluded.include?(relation.name)
-      next if relation.options[:foreign_key]&.match?(/cache/)
 
       child_klass = relation.klass
       foreign_key = relation.foreign_key
@@ -246,6 +262,16 @@ module ApplicationEnumeration
       scope = type_column ?
         child_klass.where(type_column => klass.base_class.name, foreign_key => ids) :
         child_klass.where(foreign_key => ids)
+
+      # Apply the association's own scope lambda (e.g. `-> { where(position: 1) }`
+      # on Otu#current_taxon_determinations) so a fully-scoped relation reports
+      # its scoped count rather than every row sharing the foreign key.
+      # Owner-dependent scopes (`->(owner) { ... }`, arity > 0) can't be
+      # evaluated against a *set* of ids, so they are left unapplied — that only
+      # ever inflates a count, it can't hide a non-empty relation.
+      if relation.scope && relation.scope.arity.zero?
+        scope = scope.instance_exec(&relation.scope)
+      end
 
       count = scope.count
       counts[relation.name] = count if count > 0

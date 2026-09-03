@@ -128,6 +128,13 @@ describe 'ApplicationEnumeration' do
 
       expect(ae.no_related_data?(geographic_item)).to be true
     end
+
+    specify 'returns false for a restrict_with_error relation whose foreign key is a cache column' do
+      # Otu#anatomical_parts uses foreign_key: :cached_otu_id but is
+      # dependent: :restrict_with_error — it blocks a destroy, so it must count.
+      FactoryBot.create(:valid_anatomical_part, ancestor: otu)
+      expect(ae.no_related_data?(otu, ignore: [:identifiers, :uuids])).to be false
+    end
   end
 
   context '.related_data_counts', type: :model do
@@ -146,10 +153,19 @@ describe 'ApplicationEnumeration' do
     specify 'counts has_many data (citations)' do
       otu.citations.create!(source: FactoryBot.create(:valid_source))
       counts = ae.related_data_counts(Otu, [otu.id], ignore: otu_ignore)
-      # origin_citation/subsequent_citations are separate reflections scoped
-      # onto the same underlying citations rows (by is_original) — a single
-      # citation can legitimately show up under more than one relation name.
-      expect(counts).to eq(citations: 1, origin_citation: 1, subsequent_citations: 1)
+      expect(counts[:citations]).to eq(1)
+    end
+
+    specify 'applies association scope lambdas (origin vs subsequent citation)' do
+      # citations is unscoped; origin_citation is `-> { where(is_original: true) }`
+      # and subsequent_citations is `-> { where(is_original: nil) }`. A single
+      # non-original citation must not be counted under origin_citation.
+      otu.citations.create!(source: FactoryBot.create(:valid_source)) # is_original nil
+      otu.citations.create!(source: FactoryBot.create(:valid_source), is_original: true)
+      counts = ae.related_data_counts(Otu, [otu.id], ignore: otu_ignore)
+      expect(counts[:citations]).to eq(2)
+      expect(counts[:origin_citation]).to eq(1)
+      expect(counts[:subsequent_citations]).to eq(1)
     end
 
     specify 'counts has_one data (attribution)' do
@@ -189,6 +205,27 @@ describe 'ApplicationEnumeration' do
       otu.citations.create!(source: FactoryBot.create(:valid_source))
       counts = ae.related_data_counts(Otu, Otu.where(id: otu.id), ignore: otu_ignore)
       expect(counts[:citations]).to eq(1)
+    end
+
+    specify 'surfaces a restrict_with_error relation whose foreign key is a cache column' do
+      # Otu#anatomical_parts uses foreign_key: :cached_otu_id but is
+      # dependent: :restrict_with_error, so it must not be silently skipped.
+      FactoryBot.create(:valid_anatomical_part, ancestor: otu)
+      counts = ae.related_data_counts(Otu, [otu.id], ignore: otu_ignore)
+      expect(counts[:anatomical_parts]).to eq(1)
+    end
+
+    specify 'surfaces historical_taxon_names (cache foreign key, no dependent:, no DB FK)' do
+      # A bulk delete leaves this dangling, so the caller must acknowledge it
+      # via `ignore:` — it is not hidden by EXCLUDE_RELATIONS_FOR_RELATED_DATA.
+      valid_name = FactoryBot.create(:valid_protonym)
+      synonym = FactoryBot.create(:valid_protonym, name: 'Bbidae')
+      synonym.update_column(:cached_valid_taxon_name_id, valid_name.id)
+
+      counts = ae.related_data_counts(TaxonName, [valid_name.id])
+      expect(counts).to have_key(:historical_taxon_names)
+      expect(ae.related_data_counts(TaxonName, [valid_name.id], ignore: [:historical_taxon_names]))
+        .not_to have_key(:historical_taxon_names)
     end
 
     context 'STI: base class reflections do not cover subclass-only associations' do
