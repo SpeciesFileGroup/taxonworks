@@ -271,130 +271,129 @@ module OtusHelper
   # @return [Array]
   #   of OTUs
   # Some OTUs don't have TaxonName, skip along
-            # until we hit one.
-          def previous_records(otu)
-            if otu.taxon_name_id
-              o = []
-              t = otu.taxon_name.previous_sibling
-              unless t.nil?
-                while o.empty?
-                  break if t.nil?
-                  o = t.otus.to_a
-                  t = t.previous_sibling
-                end
-              end
-              o
-            else
-              super
-            end
-          end
-
-          def parent_records(otu)
-            otu.taxon_name&.parent&.otus&.all || []
-          end
-
-          # See also otus#ancestor_otu_ids ?
-          def parents_by_nomenclature(otu)
-            above = [ ]
-            if otu.taxon_name_id
-              TaxonName.ancestors_of(otu.taxon_name)
-                .select('taxon_names.*, taxon_name_hierarchies.generations')
-                .that_is_valid.joins(:otus)
-                .distinct
-                .reorder('taxon_name_hierarchies.generations DESC, taxon_names.cached_valid_taxon_name_id').each do |t|
-                  above.push [t.cached, t.otus.to_a] # TODO: to_a vs. pluck
-                end
-            end
-            above
-          end
-
-
-          def ranked_otu_table(otus)
-            d = TaxonName.ranked_otus(otu_scope: otus, project_id: sessions_current_project_id)
-
-            tbl = %w{otu_id order family genus species otu_name taxon_name taxon_name_author_year}
-            output = StringIO.new
-            output.puts ::CSV.generate_line(tbl, col_sep: "\t", encoding: Encoding::UTF_8)
-
-            d.each do |o|
-              output.puts ::CSV.generate_line(
-                [
-                  o.id,
-                  o['order'],
-                  o['family'],
-                  o['genus'],
-                  o['species'],
-                  o.name,
-                  o.cached,
-                  o.cached_author_year
-                ],
-                col_sep: "\t", encoding: Encoding::UTF_8)
-            end
-
-            output.string
-          end
-
-          # @return Hash
-          #   { dwc_occurrence_id: [ image1, image2 ... ], ... }
-          def dwc_gallery_data(otu, dwc_occurrence_id: [], pagination_headers: true)
-            a = DwcOccurrence.scoped_by_otu(otu)
-              .select(:id, :dwc_occurrence_object_id, :dwc_occurrence_object_type)
-
-            dwc_ids = [dwc_occurrence_id].flatten.compact.uniq
-
-            if dwc_ids.any?
-              a = a.where(id: dwc_ids)
-            end
-
-            a = a.page(params[:page]).per(params[:per])
-
-            # Somehwhat of a janky pattern, probably needs to be
-            # moved into Controller.
-            assign_pagination(a) if pagination_headers
-
-            b = Image.with(dwc_scope: a)
-              .joins('JOIN depictions d on d.image_id = images.id' )
-              .joins("JOIN dwc_scope on d.depiction_object_id = dwc_scope.dwc_occurrence_object_id AND d.depiction_object_type = 'CollectionObject' AND dwc_scope.dwc_occurrence_object_type = 'CollectionObject'")
-              .select('images.*, dwc_scope.id dwc_id')
-              .distinct
-
-            r = {}
-            b.find_each do |o|
-              r[o.dwc_id] ||= []
-              r[o.dwc_id].push o
-            end
-            r
-          end
-
-          def serialize_matrices(scope)
-            scope
-              .where(is_public: true)
-              .map do |m|
-                {
-                  id: m.id,
-                  name: m.name,
-                  is_media: m.is_media_matrix?
-                }
-              end
-          end
-
-          def otu_key_inventory(otu)
-            return {
-              observation_matrices: {
-                scoped: serialize_matrices(otu.in_scope_observation_matrices),
-                in: serialize_matrices(otu.observation_matrices)
-              },
-              leads: {
-                scoped: otu.leads
-                  .where(parent_id: nil, is_public: true)
-                  .where('leads.is_virtual IS NOT TRUE')
-                  .select(:id, :text)
-                  .map { |l| { id: l.id, text: l.text } },
-
-                in: Lead.public_root_leads_for_leaf_otus(otu)
-                  .select(:id, :text)
-                  .map { |l| { id: l.id, text: l.text } }
-              }
-            }
-          end
+  # until we hit one.
+  def previous_records(otu)
+    if otu.taxon_name_id
+      o = []
+      t = otu.taxon_name.previous_sibling
+      unless t.nil?
+        while o.empty?
+          break if t.nil?
+          o = t.otus.to_a
+          t = t.previous_sibling
         end
+      end
+      o
+    else
+      super
+    end
+  end
+
+  def parent_records(otu)
+    otu.taxon_name&.parent&.otus&.all || []
+  end
+
+  # See also otus#ancestor_otu_ids ?
+  def parents_by_nomenclature(otu)
+    above = [ ]
+    if otu.taxon_name_id
+      TaxonName.ancestors_of(otu.taxon_name)
+        .select('taxon_names.*, taxon_name_hierarchies.generations')
+        .that_is_valid.joins(:otus)
+        .distinct
+        .reorder('taxon_name_hierarchies.generations DESC, taxon_names.cached_valid_taxon_name_id').each do |t|
+          above.push [t.cached, t.otus.to_a] # TODO: to_a vs. pluck
+        end
+    end
+    above
+  end
+
+  def ranked_otu_table(otus)
+    d = TaxonName.ranked_otus(otu_scope: otus, project_id: sessions_current_project_id)
+
+    tbl = %w{otu_id order family genus species otu_name taxon_name taxon_name_author_year}
+    output = StringIO.new
+    output.puts ::CSV.generate_line(tbl, col_sep: "\t", encoding: Encoding::UTF_8)
+
+    d.each do |o|
+      output.puts ::CSV.generate_line(
+        [
+          o.id,
+          o['order'],
+          o['family'],
+          o['genus'],
+          o['species'],
+          o.name,
+          o.cached,
+          o.cached_author_year
+        ],
+        col_sep: "\t", encoding: Encoding::UTF_8)
+    end
+
+    output.string
+  end
+
+  # @return Hash
+  #   { dwc_occurrence_id: [ image1, image2 ... ], ... }
+  def dwc_gallery_data(otu, dwc_occurrence_id: [], pagination_headers: true)
+    a = DwcOccurrence.scoped_by_otu(otu)
+      .select(:id, :dwc_occurrence_object_id, :dwc_occurrence_object_type)
+
+    dwc_ids = [dwc_occurrence_id].flatten.compact.uniq
+
+    if dwc_ids.any?
+      a = a.where(id: dwc_ids)
+    end
+
+    a = a.page(params[:page]).per(params[:per])
+
+    # Somehwhat of a janky pattern, probably needs to be
+    # moved into Controller.
+    assign_pagination(a) if pagination_headers
+
+    b = Image.with(dwc_scope: a)
+      .joins('JOIN depictions d on d.image_id = images.id' )
+      .joins("JOIN dwc_scope on d.depiction_object_id = dwc_scope.dwc_occurrence_object_id AND d.depiction_object_type = 'CollectionObject' AND dwc_scope.dwc_occurrence_object_type = 'CollectionObject'")
+      .select('images.*, dwc_scope.id dwc_id')
+      .distinct
+
+    r = {}
+    b.find_each do |o|
+      r[o.dwc_id] ||= []
+      r[o.dwc_id].push o
+    end
+    r
+  end
+
+  def serialize_matrices(scope)
+    scope
+      .where(is_public: true)
+      .map do |m|
+        {
+          id: m.id,
+          name: m.name,
+          is_media: m.is_media_matrix?
+        }
+      end
+  end
+
+  def otu_key_inventory(otu)
+    return {
+      observation_matrices: {
+        scoped: serialize_matrices(otu.in_scope_observation_matrices),
+        in: serialize_matrices(otu.observation_matrices)
+      },
+      leads: {
+        scoped: otu.leads
+          .where(parent_id: nil, is_public: true)
+          .where('leads.is_virtual IS NOT TRUE')
+          .select(:id, :text)
+          .map { |l| { id: l.id, text: l.text } },
+
+        in: Lead.public_root_leads_for_leaf_otus(otu)
+          .select(:id, :text)
+          .map { |l| { id: l.id, text: l.text } }
+      }
+    }
+  end
+end
