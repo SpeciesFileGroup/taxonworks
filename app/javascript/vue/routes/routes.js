@@ -32,6 +32,7 @@ const RouteNames = {
   BrowseNomenclature: '/tasks/nomenclature/browse',
   BrowseOtu: '/tasks/otus/browse',
   BrowseSound: '/tasks/sounds/browse',
+  CiteKey: '/tasks/leads/cite_key',
   ContentEditor: '/tasks/content/editor',
   DichotomousKey: '/tasks/leads/dichotomous_key',
   DigitizeTask: '/tasks/accessions/comprehensive',
@@ -103,8 +104,7 @@ const RouteNames = {
   SourceHub: '/tasks/sources/hub',
   TypeMaterial: '/tasks/type_material/edit_type_material',
   UnifyObjects: '/tasks/unify/objects',
-  UnifyPeople: '/tasks/unify/people',
-  CiteKey: '/tasks/leads/cite_key'
+  UnifyPeople: '/tasks/unify/people'
 }
 
 const FILTER_ROUTES = {

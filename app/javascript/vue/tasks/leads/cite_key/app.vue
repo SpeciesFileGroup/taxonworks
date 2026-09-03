@@ -133,93 +133,93 @@
     </template>
 
     <template #body>
-        <div class="field label-above">
-          <label>Title</label>
-          <textarea
-            class="full_width"
-            v-model="root.text"
-            rows="2"
-            placeholder="e.g. Key to Ceroplastes of Iran (Moghaddam 2013)"
-          />
-        </div>
+      <div class="field label-above">
+        <label>Title</label>
+        <textarea
+          class="full_width"
+          v-model="root.text"
+          rows="2"
+          placeholder="e.g. Key to Ceroplastes of Iran (Moghaddam 2013)"
+        />
+      </div>
 
-        <div class="field label-above">
-          <label>Description</label>
-          <textarea
-            class="full_width"
-            v-model="root.description"
-            rows="2"
-          />
-        </div>
+      <div class="field label-above">
+        <label>Description</label>
+        <textarea
+          class="full_width"
+          v-model="root.description"
+          rows="2"
+        />
+      </div>
 
-        <div class="field label-above margin-medium-top">
-          <label>Parent OTU</label>
-          <div
-            v-if="parentOtu"
-            class="d-flex middle gap-small flex-wrap-row"
+      <div class="field label-above margin-medium-top">
+        <label>Parent OTU</label>
+        <div
+          v-if="parentOtu"
+          class="d-flex middle gap-small flex-wrap-row"
+        >
+          <span
+            v-html="parentOtu.object_tag"
+            class="margin-small-right"
+          />
+          <span
+            class="button button-circle btn-undo button-default"
+            title="Clear parent OTU"
+            @click="clearParent"
+          />
+          <label
+            class="d-flex middle gap-small margin-medium-left"
+            :title="parentOtu?.taxon_name_id
+              ? 'Fetch and add all descendant taxa on save'
+              : 'Parent OTU has no taxon name; cannot add descendants'"
           >
-            <span
-              v-html="parentOtu.object_tag"
-              class="margin-small-right"
-            />
-            <span
-              class="button button-circle btn-undo button-default"
-              title="Clear parent OTU"
-              @click="clearParent"
-            />
-            <label
-              class="d-flex middle gap-small margin-medium-left"
-              :title="parentOtu?.taxon_name_id
-                ? 'Fetch and add all descendant taxa on save'
-                : 'Parent OTU has no taxon name; cannot add descendants'"
-            >
-              <input
-                type="checkbox"
-                v-model="addDescendantsOnSave"
-                :disabled="!parentOtu?.taxon_name_id"
-              />
-              Add descendants on save
-            </label>
-            <label
-              v-if="addDescendantsOnSave"
-              class="d-flex middle gap-medium"
-            >
-              <span class="margin-small-right">Filter</span>
-              <select v-model="descendantsFilter">
-                <option
-                  v-for="opt in DESCENDANTS_FILTERS"
-                  :key="opt.value"
-                  :value="opt.value"
-                >
-                  {{ opt.label }}
-                </option>
-              </select>
-            </label>
-          </div>
-          <OtuPicker
-            v-else
-            :clear-after="true"
-            @get-item="selectParent"
-          />
-        </div>
-
-        <div class="field">
-          <label>
             <input
               type="checkbox"
-              v-model="root.is_public"
+              v-model="addDescendantsOnSave"
+              :disabled="!parentOtu?.taxon_name_id"
             />
-            Is publicly accessible?
+            Add descendants on save
+          </label>
+          <label
+            v-if="addDescendantsOnSave"
+            class="d-flex middle gap-medium"
+          >
+            <span class="margin-small-right">Filter</span>
+            <select v-model="descendantsFilter">
+              <option
+                v-for="opt in DESCENDANTS_FILTERS"
+                :key="opt.value"
+                :value="opt.value"
+              >
+                {{ opt.label }}
+              </option>
+            </select>
           </label>
         </div>
+        <OtuPicker
+          v-else
+          :clear-after="true"
+          @get-item="selectParent"
+        />
+      </div>
 
-        <p
-          v-if="rootGlobalId"
-          class="small_type margin-small-top"
-        >
-          Use the radial annotator above to record attributes that apply to the
-          whole key (sex, life stage, etc.).
-        </p>
+      <div class="field">
+        <label>
+          <input
+            type="checkbox"
+            v-model="root.is_public"
+          />
+          Is publicly accessible?
+        </label>
+      </div>
+
+      <p
+        v-if="rootGlobalId"
+        class="small_type margin-small-top"
+      >
+        Use the radial annotator above to record attributes that apply to the
+        whole key (sex, life stage, etc.).
+      </p>
       </template>
     </BlockLayout>
 
@@ -409,6 +409,7 @@ import makeCitation from '@/factory/Citation'
 import setParam from '@/helpers/setParam'
 import { LEAD } from '@/constants/index.js'
 import { URLParamsToJSON } from '@/helpers'
+import { addToArray } from '@/helpers/arrays'
 import { LinkerStorage } from '@/shared/Filter/utils'
 import { RouteNames } from '@/routes/routes'
 import { usePopstateListener } from '@/composables'
@@ -639,8 +640,7 @@ function lookupExistingKeys() {
 }
 
 function addSpecies(otu) {
-  if (species.value.some((o) => o.id === otu.id)) return
-  species.value.push(otu)
+  addToArray(species.value, otu)
 }
 
 function addAndPersistSpecies(otu) {
@@ -659,7 +659,7 @@ function addAndPersistSpecies(otu) {
   ])
     .then(([leadResponse, otuResponse]) => {
       const createdChild = leadResponse.body.lead
-      species.value.push(otuResponse.body)
+      addToArray(species.value, otuResponse.body)
       childLeads.value = {
         ...childLeads.value,
         [otu.id]: {
