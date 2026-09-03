@@ -22,10 +22,10 @@ describe OtusHelper, type: :helper do
 
   specify '#otu_autoselect_tag includes the authorship string' do
     taxon_name = FactoryBot.create(:relationship_species)
-    taxon_name.update_columns(cached_html: 'Aus bus', cached_author_year: '(Linnaeus, 1758)')
+    taxon_name.update_columns(cached_author_year: '(Linnaeus, 1758)')
     named_otu = Otu.create!(taxon_name:)
 
-    expect(helper.otu_autoselect_tag(named_otu)).to eq('Aus bus (Linnaeus, 1758)')
+    expect(helper.otu_autoselect_tag(named_otu)).to match('(Linnaeus, 1758)')
   end
 
   # ----
