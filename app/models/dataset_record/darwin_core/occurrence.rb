@@ -793,7 +793,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     # type: [Check it is 'PhysicalObject' for physical occurrences]
     type = get_field_value(:type)
     if human_observation?
-      raise DarwinCore::InvalidData.new({ 'type' => ['Must be empty for HumanObservation'] }) if type.present?
+      raise DarwinCore::InvalidData.new({ 'type' => ["Only 'Event' or empty allowed for HumanObservation"] }) if type.present? && type != 'Event'
     else
       type ||= 'PhysicalObject'
       raise DarwinCore::InvalidData.new({ 'type' => ["Only 'PhysicalObject' or empty allowed"] }) if type != 'PhysicalObject'

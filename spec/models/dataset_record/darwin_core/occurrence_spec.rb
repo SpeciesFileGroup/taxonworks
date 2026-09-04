@@ -36,6 +36,10 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
       expect(@results.map(&:status)).to eq(%w[Imported Imported])
     end
 
+    it 'allows Event as the type for a HumanObservation' do
+      expect(@results.first.status).to eq('Imported')
+    end
+
     it 'creates FieldOccurrences instead of CollectionObjects' do
       expect(FieldOccurrence.count).to eq(2)
       expect(CollectionObject.count).to eq(0)
