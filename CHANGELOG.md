@@ -38,6 +38,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - `Field synchronize task`: Allow filling multiple columns by pasting from the clipboard [#4286]
 - `Browse sounds task`: Layout updated. Sound regions now use different colors to identify the associated conveyance object. Spectrogram now uses a linear frequency scale.
 - Quick Forms: biological associations slice now display all BAs where the current object is set [#1100]
+- Georeferences with an error radius now show a point marker while the zoom is too far out for the circle to be visible
 
 ### Fixed
 
