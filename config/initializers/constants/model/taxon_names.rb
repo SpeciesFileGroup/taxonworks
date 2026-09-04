@@ -4,13 +4,11 @@ Rails.application.config.after_initialize do
 
 # a dictionary used to build three forms of adjectives
   LATIN_ADJECTIVES = {
-      'acer' => {masculine_name: 'acer', feminine_name: 'acris', neuter_name: 'acre'},
       'acris' => {masculine_name: 'acer', feminine_name: 'acris', neuter_name: 'acre'},
       'acre' => {masculine_name: 'acer', feminine_name: 'acris', neuter_name: 'acre'},
       'acutius' => {masculine_name: 'acutior', feminine_name: 'acutior', neuter_name: 'acutius'},
       'aequalius' => {masculine_name: 'aequalior', feminine_name: 'aequalior', neuter_name: 'aequalius'},
       'afer' => {masculine_name: 'afer', feminine_name: 'afra', neuter_name: 'afrum'},
-      'alacer' => {masculine_name: 'alacer', feminine_name: 'alacris', neuter_name: 'alacre'},
       'alacris' => {masculine_name: 'alacer', feminine_name: 'alacris', neuter_name: 'alacre'},
       'alacre' => {masculine_name: 'alacer', feminine_name: 'alacris', neuter_name: 'alacre'},
       'alboater' => {masculine_name: 'alboater', feminine_name: 'alboatra', neuter_name: 'alboatrum'},
@@ -95,9 +93,6 @@ Rails.application.config.after_initialize do
       'octobre' => {masculine_name: 'october', feminine_name: 'octobris', neuter_name: 'octobre'},
       'orientalius' => {masculine_name: 'orientalior', feminine_name: 'orientalior', neuter_name: 'orientalius'},
       'pallidius' => {masculine_name: 'pallidior', feminine_name: 'pallidior', neuter_name: 'pallidius'},
-      'paluster' => {masculine_name: 'paluster', feminine_name: 'palustris', neuter_name: 'palustre'},
-      'palustris' => {masculine_name: 'paluster', feminine_name: 'palustris', neuter_name: 'palustre'},
-      'palustre' => {masculine_name: 'paluster', feminine_name: 'palustris', neuter_name: 'palustre'},
       'perpulcher' => {masculine_name: 'perpulcher', feminine_name: 'perpulchra', neuter_name: 'perpulchrum'},
       'perpulchra' => {masculine_name: 'perpulcher', feminine_name: 'perpulchra', neuter_name: 'perpulchrum'},
       'perpulchrum' => {masculine_name: 'perpulcher', feminine_name: 'perpulchra', neuter_name: 'perpulchrum'},
