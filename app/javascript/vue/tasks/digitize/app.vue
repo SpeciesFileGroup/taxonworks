@@ -138,7 +138,7 @@ function setLockAll() {
 
   .left-section {
     max-width: 25%;
-    min-width: 420px;
+    min-width: 520px;
   }
 
   .ce-section {

@@ -29,9 +29,7 @@
               <RadialObject :global-id="item.global_id" />
               <CitationCount :citations="item.citations" />
               <VBtn
-                v-if="!isInverted(item)"
-                icon
-                variant="tonal"
+                circle
                 color="primary"
                 title="Edit record"
                 @click="emit('edit', Object.assign({}, item))"

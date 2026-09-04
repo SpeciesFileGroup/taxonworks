@@ -541,6 +541,7 @@ resources :leads do
     post :insert_couplet, defaults: {format: :json}
     post :destroy_children, defaults: {format: :json}
     post :delete_children, defaults: {format: :json}
+    delete :destroy_simple_lead, defaults: {format: :json}
     post :duplicate
     get :redirect_option_texts, defaults: {format: :json}
     get :otus, defaults: {format: :json}
@@ -554,6 +555,7 @@ resources :leads do
   end
   collection do
     post :batch_create_lead_items, defaults: {format: :json}
+    get :cite_key_bootstrap, defaults: {format: :json}
   end
 end
 

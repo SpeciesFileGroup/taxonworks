@@ -13,14 +13,4 @@
     -webkit-box-decoration-break: clone;
     box-decoration-break: clone;
   }
-
-  .otu_tag_taxon_name_invalid {
-    border-color: var(--otu-tag-invalid-border-color);
-    color: var(--otu-tag-invalid-color);
-    background: var(--otu-tag-invalid-bg);
-  }
-
-  .otu_tag_taxon_name_combination {
-    border-style: dashed;
-  }
 }

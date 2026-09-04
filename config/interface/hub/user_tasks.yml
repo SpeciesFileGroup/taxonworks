@@ -1272,6 +1272,14 @@ collection_visualization_task:
     - occurrences
   status: prototype
   description: 'Visualize a collection hierarchy using treemap and other views.'
+cite_key_task:
+  hub: true
+  name: 'Add simple key'
+  related:
+  categories:
+    - new
+  status: prototype
+  description: 'Record a citation for a dichotomous key in the literature and attach OTUs, without adding a description to every lead.'
 assign_taxon_name_task:
   hub: true
   name: 'Assign taxon name to OTU'

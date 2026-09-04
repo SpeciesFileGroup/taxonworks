@@ -14,8 +14,8 @@
     </Teleport>
 
     <EditingBanner
-      v-if="createdBiologicalAssociation"
-      :label="createdBiologicalAssociation.object_tag"
+      v-if="activeBiologicalAssociation"
+      :label="activeBiologicalAssociation.object_tag"
       @close="reset"
     />
 
@@ -28,11 +28,11 @@
     />
 
     <DisplayList
-      v-if="createdBiologicalAssociation"
+      v-if="activeBiologicalAssociation"
       edit
       class="margin-medium-top"
       label="citation_source_body"
-      :list="createdBiologicalAssociation.citations"
+      :list="activeBiologicalAssociation.citations"
       @edit="setCitation"
       @delete="removeCitation"
     />
@@ -171,7 +171,7 @@
         @click="saveAssociation()"
         class="normal-input button button-submit"
       >
-        {{ createdBiologicalAssociation ? 'Update' : 'Create' }}
+        {{ activeBiologicalAssociation ? 'Update' : 'Create' }}
       </button>
     </div>
 
@@ -302,6 +302,7 @@ const relatedRef = useTemplateRef('related')
 
 const relatedObject = ref()
 const biologicalRelationship = ref()
+const editingBiologicalAssociation = ref()
 const citation = ref(makeEmptyCitation())
 const flip = ref(false)
 const pagination = ref({})
@@ -383,6 +384,10 @@ const {
   objectType: props.objectType,
   extendParams: EXTEND_PARAMS
 })
+
+const activeBiologicalAssociation = computed(
+  () => editingBiologicalAssociation.value || createdBiologicalAssociation.value
+)
 
 watch(
   () => lock.relationship,
@@ -475,6 +480,7 @@ function reset() {
     biologicalRelationship.value = undefined
   }
   relatedObject.value = undefined
+  editingBiologicalAssociation.value = undefined
   flip.value = false
 
   resetAnatomicalPartState()
@@ -494,7 +500,12 @@ async function saveAssociation() {
   // When deduplicating to an existing BA, omit subject/object id/type: those are
   // already set correctly on the matched record (possibly as AnatomicalPart) and
   // re-sending the form values (OTU/CO) would overwrite them incorrectly.
-  const subjectObjectIds = createdBiologicalAssociation.value
+  const matchedBiologicalAssociation = createdBiologicalAssociation.value
+  const preserveMatchedAssociationSides =
+    matchedBiologicalAssociation &&
+    (!editingBiologicalAssociation.value ||
+      matchedBiologicalAssociation.id === editingBiologicalAssociation.value.id)
+  const subjectObjectIds = preserveMatchedAssociationSides
     ? {}
     : flip.value
       ? {
@@ -520,7 +531,9 @@ async function saveAssociation() {
     extend: EXTEND_PARAMS
   }
 
-  let targetId = createdBiologicalAssociation.value?.id
+  let targetId =
+    editingBiologicalAssociation.value?.id ||
+    createdBiologicalAssociation.value?.id
 
   if (!targetId && !withAnatomicalPartCreation.value) {
     const { body } = await BiologicalAssociation.where({
@@ -590,7 +603,7 @@ function removeCitation(item) {
   }
 
   BiologicalAssociation.update(
-    createdBiologicalAssociation.value.id,
+    activeBiologicalAssociation.value.id,
     payload
   ).then(({ body }) => {
     removeFromList(body)
@@ -598,16 +611,26 @@ function removeCitation(item) {
 }
 
 function editBiologicalRelationship(bioRelation) {
+  editingBiologicalAssociation.value = bioRelation
+
   biologicalRelationship.value = {
     id: bioRelation.biological_relationship_id,
     ...bioRelation.biological_relationship
   }
 
+  const isRadialObject = (side) =>
+    bioRelation[`biological_association_${side}_id`] ===
+      props.metadata.object_id &&
+    bioRelation[`biological_association_${side}_type`] ===
+      props.metadata.object_type
+  const isFlipped = isRadialObject('object') && !isRadialObject('subject')
+  const relatedSide = isFlipped ? 'subject' : 'object'
+
   relatedObject.value = {
-    id: bioRelation.biological_association_object_id,
-    ...bioRelation.object
+    id: bioRelation[`biological_association_${relatedSide}_id`],
+    ...bioRelation[relatedSide]
   }
-  flip.value = bioRelation.object.id === props.objectId
+  flip.value = isFlipped
 }
 
 function setBiologicalRelationship(item) {

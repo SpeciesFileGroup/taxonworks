@@ -15,7 +15,7 @@ describe Vendor::Nasturtium, type: :model, group: [:field_occurrences] do
       'positional_accuracy' => 50,
       'taxon'            => { 'name' => 'Aus bus' },
       'community_taxon'  => { 'name' => 'Aus bus' },
-      'user'             => { 'name' => 'Jane Doe', 'login' => 'janedoe', 'orcid' => nil },
+      'user'             => { 'id' => 42, 'name' => 'Jane Doe', 'login' => 'janedoe', 'orcid' => nil },
       'annotations'      => [],
       'observation_photos' => [],
       'observation_sounds' => [],
@@ -99,6 +99,17 @@ describe Vendor::Nasturtium, type: :model, group: [:field_occurrences] do
       expect(ce.start_date_day).to eq(15)
     end
 
+    specify 'sets verbatim_collectors from user name' do
+      ce = Vendor::Nasturtium.stub_collecting_event(result)
+      expect(ce.verbatim_collectors).to eq('Jane Doe')
+    end
+
+    specify 'falls back to login for verbatim_collectors when name is blank' do
+      r = result.merge('user' => result['user'].merge('name' => nil))
+      ce = Vendor::Nasturtium.stub_collecting_event(r)
+      expect(ce.verbatim_collectors).to eq('janedoe')
+    end
+
     context 'when time_observed_at is present' do
       let(:result_with_time) { result.merge('time_observed_at' => '2023-06-15T14:32:45+00:00') }
 
@@ -140,6 +151,18 @@ describe Vendor::Nasturtium, type: :model, group: [:field_occurrences] do
         expect(ce.time_start_hour).to be_nil
       end
     end
+
+    specify 'builds a collector role from the observer, same as stub_collector' do
+      ce = Vendor::Nasturtium.stub_collecting_event(result)
+      expect(ce.collector_roles.first.person.last_name).to eq('Doe')
+    end
+
+    specify 'shares the person_cache with the collector role' do
+      cache = {}
+      ce = Vendor::Nasturtium.stub_collecting_event(result, person_cache: cache)
+      observer = Vendor::Nasturtium.stub_observer_person(result, person_cache: cache)
+      expect(ce.collector_roles.first.person).to equal(observer)
+    end
   end
 
   describe '.person_by_orcid' do
@@ -175,6 +198,95 @@ describe Vendor::Nasturtium, type: :model, group: [:field_occurrences] do
     end
   end
 
+  describe '.parse_attribution_name' do
+    specify 'extracts the name from a licensed attribution string' do
+      a = '(c) Jane Doe, some rights reserved (CC BY-NC)'
+      expect(Vendor::Nasturtium.parse_attribution_name(a)).to eq('Jane Doe')
+    end
+
+    specify 'extracts the name from an all-rights-reserved attribution string' do
+      a = '(c) Jane Doe, all rights reserved'
+      expect(Vendor::Nasturtium.parse_attribution_name(a)).to eq('Jane Doe')
+    end
+
+    specify 'does not truncate at a comma within the name itself' do
+      a = '(c) Kim, Hyun-tae, some rights reserved (CC BY-NC-SA)'
+      expect(Vendor::Nasturtium.parse_attribution_name(a)).to eq('Kim, Hyun-tae')
+    end
+
+    specify 'collapses stray double spaces' do
+      a = '(c) Galen  Stewart, all rights reserved'
+      expect(Vendor::Nasturtium.parse_attribution_name(a)).to eq('Galen Stewart')
+    end
+
+    specify 'returns nil for a CC0 attribution with no name' do
+      expect(Vendor::Nasturtium.parse_attribution_name('no rights reserved')).to be_nil
+    end
+
+    specify 'returns nil when blank' do
+      expect(Vendor::Nasturtium.parse_attribution_name(nil)).to be_nil
+      expect(Vendor::Nasturtium.parse_attribution_name('')).to be_nil
+    end
+  end
+
+  describe '.person_from_display_name' do
+    specify 'splits a multi-word name via BibTeX' do
+      p = Vendor::Nasturtium.person_from_display_name('Jane Doe')
+      expect(p.first_name).to eq('Jane')
+      expect(p.last_name).to eq('Doe')
+    end
+
+    specify 'puts a single-word name directly into last_name' do
+      p = Vendor::Nasturtium.person_from_display_name('janedoe')
+      expect(p.first_name).to be_nil
+      expect(p.last_name).to eq('janedoe')
+    end
+
+    specify 'builds an "Undetermined iNaturalist user" placeholder when nil' do
+      p = Vendor::Nasturtium.person_from_display_name(nil)
+      expect(p.first_name).to be_nil
+      expect(p.last_name).to eq('Undetermined iNaturalist user')
+    end
+
+    specify 'builds an "Undetermined iNaturalist user" placeholder when blank' do
+      p = Vendor::Nasturtium.person_from_display_name('')
+      expect(p.first_name).to be_nil
+      expect(p.last_name).to eq('Undetermined iNaturalist user')
+    end
+  end
+
+  describe '.stub_collector' do
+    specify 'returns Person::Unvetted with first/last split from user name when no ORCID' do
+      p = Vendor::Nasturtium.stub_collector(result)
+      expect(p).to be_a(Person::Unvetted)
+      expect(p.first_name).to eq('Jane')
+      expect(p.last_name).to eq('Doe')
+    end
+
+    context 'when ORCID matches an existing Person' do
+      let(:person) { FactoryBot.create(:valid_person) }
+
+      before do
+        Identifier::Global::Orcid.create!(
+          identifier_object: person,
+          identifier: 'https://orcid.org/0000-0002-1825-0097',
+        )
+      end
+
+      specify 'returns the matched Person' do
+        r = result.merge('user' => result['user'].merge('orcid' => '0000-0002-1825-0097'))
+        expect(Vendor::Nasturtium.stub_collector(r)&.id).to eq(person.id)
+      end
+    end
+
+    specify 'shares a person_cache with stub_observer_person for the same result' do
+      cache = {}
+      collector = Vendor::Nasturtium.stub_collector(result, person_cache: cache)
+      observer  = Vendor::Nasturtium.stub_observer_person(result, person_cache: cache)
+      expect(collector).to equal(observer)
+    end
+  end
+
   describe '.stub_observer_person' do
     specify 'returns Person::Unvetted with first/last split from user name when no ORCID' do
       p = Vendor::Nasturtium.stub_observer_person(result)
@@ -190,6 +302,13 @@ describe Vendor::Nasturtium, type: :model, group: [:field_occurrences] do
       expect(p.last_name).to eq('janedoe')
     end
 
+    specify 'builds an "Undetermined iNaturalist user" placeholder when both name and login are blank' do
+      r = result.merge('user' => result['user'].merge('name' => nil, 'login' => nil))
+      p = Vendor::Nasturtium.stub_observer_person(r)
+      expect(p.first_name).to be_nil
+      expect(p.last_name).to eq('Undetermined iNaturalist user')
+    end
+
     context 'when ORCID matches an existing Person' do
       let(:person) { FactoryBot.create(:valid_person) }
 
@@ -203,6 +322,80 @@ describe Vendor::Nasturtium, type: :model, group: [:field_occurrences] do
       specify 'returns the matched Person' do
         r = result.merge('user' => result['user'].merge('orcid' => '0000-0002-1825-0097'))
         expect(Vendor::Nasturtium.stub_observer_person(r)&.id).to eq(person.id)
+      end
+    end
+
+    context 'with a person_cache' do
+      let(:cache) { {} }
+
+      specify 'returns the same built Person instance on repeated calls for the same name' do
+        first  = Vendor::Nasturtium.stub_observer_person(result, person_cache: cache)
+        second = Vendor::Nasturtium.stub_observer_person(result, person_cache: cache)
+        expect(second).to equal(first)
+      end
+
+      specify 'shares the cache with the copyright holder when the attribution names the observer' do
+        r = result.merge('user' => result['user'].merge('id' => 42))
+        observer = Vendor::Nasturtium.stub_observer_person(r, person_cache: cache)
+        media = { 'attribution' => '(c) Jane Doe, some rights reserved (CC BY)' }
+        copyright = Vendor::Nasturtium.stub_copyright_person(r, media:, person_cache: cache)
+        expect(copyright).to equal(observer)
+      end
+
+      specify 'treats a nameless attribution (e.g. CC0) as the observer' do
+        r = result.merge('user' => result['user'].merge('id' => 42))
+        observer = Vendor::Nasturtium.stub_observer_person(r, person_cache: cache)
+        media = { 'attribution' => 'no rights reserved' }
+        copyright = Vendor::Nasturtium.stub_copyright_person(r, media:, person_cache: cache)
+        expect(copyright).to equal(observer)
+      end
+
+      specify 'builds an "Undetermined iNaturalist user" placeholder when neither attribution nor the observer gives a name' do
+        r = result.merge('user' => result['user'].merge('id' => 42, 'name' => nil, 'login' => nil))
+        media = { 'attribution' => 'no rights reserved' }
+        copyright = Vendor::Nasturtium.stub_copyright_person(r, media:, person_cache: cache)
+        expect(copyright.first_name).to be_nil
+        expect(copyright.last_name).to eq('Undetermined iNaturalist user')
+      end
+
+      specify 'rebuilds when the cached Person is no longer in the database' do
+        first = Vendor::Nasturtium.stub_observer_person(result, person_cache: cache)
+        first.save!
+        first.destroy!
+        second = Vendor::Nasturtium.stub_observer_person(result, person_cache: cache)
+        expect(second).not_to equal(first)
+        expect(second).to be_new_record
+      end
+
+      specify 'does not merge two different users who happen to share a display name' do
+        a = result.merge('user' => result['user'].merge('id' => 1, 'name' => 'Jane Doe'))
+        b = result.merge('user' => result['user'].merge('id' => 2, 'name' => 'Jane Doe'))
+        first  = Vendor::Nasturtium.stub_observer_person(a, person_cache: cache)
+        second = Vendor::Nasturtium.stub_observer_person(b, person_cache: cache)
+        expect(second).not_to equal(first)
+      end
+
+      specify 'reuses the same Person across results for the same user id even if name differs' do
+        a = result.merge('user' => result['user'].merge('id' => 1, 'name' => 'Jane Doe'))
+        b = result.merge('user' => result['user'].merge('id' => 1, 'name' => 'J. Doe'))
+        first  = Vendor::Nasturtium.stub_observer_person(a, person_cache: cache)
+        second = Vendor::Nasturtium.stub_observer_person(b, person_cache: cache)
+        expect(second).to equal(first)
+      end
+
+      specify 'does not merge into the observer when the attribution names someone else, even with an iNat user id' do
+        r = result.merge('user' => result['user'].merge('id' => 42))
+        observer = Vendor::Nasturtium.stub_observer_person(r, person_cache: cache)
+        media = { 'attribution' => '(c) Someone Else, some rights reserved (CC BY)' }
+        copyright = Vendor::Nasturtium.stub_copyright_person(r, media:, person_cache: cache)
+        expect(copyright).not_to equal(observer)
+      end
+
+      specify 'reuses the same Person for repeated credits to the same non-observer name in one run' do
+        media = { 'attribution' => '(c) Someone Else, some rights reserved (CC BY)' }
+        first  = Vendor::Nasturtium.stub_copyright_person(result, media:, person_cache: cache)
+        second = Vendor::Nasturtium.stub_copyright_person(result, media:, person_cache: cache)
+        expect(second).to equal(first)
       end
     end
   end
