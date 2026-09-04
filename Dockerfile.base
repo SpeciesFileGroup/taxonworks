@@ -8,6 +8,7 @@ ADD config/docker/nginx/gzip_max.conf /etc/nginx/conf.d/gzip_max.conf
 
 # TaxonWorks dependencies
 COPY exe/install-imagemagick7.sh /usr/local/bin
+COPY exe/install-source-han-sans.sh /usr/local/bin
 RUN echo "deb https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list && \
       curl -sL https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - && \
       echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_24.x nodistro main" > /etc/apt/sources.list.d/nodesource.list && \
@@ -21,9 +22,11 @@ RUN echo "deb https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg m
                          tesseract-ocr \
                          cmake \
                          zip \
+                         p7zip-full \
                          nodejs \
                          redis-server libhiredis-dev && \
       /usr/local/bin/install-imagemagick7.sh && \
+      /usr/local/bin/install-source-han-sans.sh && \
       apt-get autoremove -y && apt clean && \
       rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/src/*
 
