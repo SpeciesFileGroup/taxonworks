@@ -5,9 +5,13 @@
   >
     <!-- Fuse bar — segmented, above input; hidden levels are not rendered -->
     <div class="autoselect__fuse-track">
-      <div
+      <VTooltip
         v-for="(seg, idx) in visibleFuseSegments"
         :key="seg.key"
+        tag="div"
+        placement="bottom"
+        :arrow="false"
+        tooltip-class="tw-tooltip--panel"
         class="autoselect__fuse-segment"
         :class="[
           seg.external
@@ -21,9 +25,19 @@
           }
         ]"
         @click="onFuseSegmentClick(seg, idx)"
-        @mouseenter="hoveredSegmentIdx = idx"
-        @mouseleave="hoveredSegmentIdx = null"
       >
+        <template #content>
+          <div class="autoselect__fuse-tooltip">
+            <span class="autoselect__fuse-tooltip-trigger">!{{ idx + 1 }}</span>
+            <span class="autoselect__fuse-tooltip-label">{{
+              seg.displayLabel
+            }}</span>
+            <span class="autoselect__fuse-tooltip-desc">{{
+              seg.description
+            }}</span>
+          </div>
+        </template>
+
         <!-- Orange ignition sweep -->
         <div
           v-if="ignitedSegmentKey === seg.key"
@@ -31,17 +45,7 @@
           :style="{ transitionDuration: currentFuseMs + 'ms' }"
           :class="{ 'autoselect__fuse-ignition--running': fuseRunning }"
         />
-
-        <!-- Hover tooltip -->
-        <div
-          v-if="hoveredSegmentIdx === idx"
-          class="autoselect__fuse-tooltip"
-        >
-          <span class="autoselect__fuse-tooltip-trigger">!{{ idx + 1 }}</span>
-          <span class="autoselect__fuse-tooltip-label">{{ seg.displayLabel }}</span>
-          <span class="autoselect__fuse-tooltip-desc">{{ seg.description }}</span>
-        </div>
-      </div>
+      </VTooltip>
     </div>
 
     <!-- Input with inline spinner -->
@@ -90,7 +94,10 @@
             @mouseover="current = idx"
             @click.prevent="itemClicked(idx)"
           >
-            <span v-html="item.label_html || item.label" />
+            <span
+              class="autoselect__item-label"
+              v-html="item.label_html || item.label"
+            />
             <span
               v-if="item.info_html && showInfo"
               class="autoselect__item-info"
@@ -117,7 +124,9 @@
         class="autoselect__help-close"
         title='Use "Esc" to close'
         @click="closeHelp"
-      >&#x2715;</button>
+      >
+        &#x2715;
+      </button>
       <h4>Available operators</h4>
       <ul class="autoselect__help-list">
         <li
@@ -134,7 +143,9 @@
               @keydown.down.prevent="moveHelpFocus(1)"
               @keydown.enter.prevent="fireOperator(op)"
               @keydown.escape.prevent="closeHelp"
-            ><code>{{ op.trigger }}</code></button>
+            >
+              <code>{{ op.trigger }}</code>
+            </button>
           </template>
           <code v-else>{{ op.trigger }}</code>
           <span class="autoselect__help-desc"> — {{ op.description }}</span>
@@ -183,6 +194,7 @@ import AjaxCall from '@/helpers/ajaxCall'
 import { randomUUID } from '@/helpers'
 import { useAutoselect } from '@/components/ui/AutoselectField/useAutoselect'
 import { usePreferences } from '@/components/ui/AutoselectField/usePreferences'
+import VTooltip from '@/components/ui/VTooltip/VTooltip.vue'
 import ColConfirmModal from '@/components/ui/AutoselectField/ColConfirmModal.vue'
 import PreferencesModal from '@/components/ui/AutoselectField/PreferencesModal.vue'
 import CatalogueOfLifeSpinner from '@/components/ui/AutoselectField/CatalogueOfLifeSpinner.vue'
@@ -201,9 +213,13 @@ const props = defineProps({
   disabled: { type: Boolean, default: false },
   levelDelay: { type: Number, default: 500 },
   // Unique identifier for this autoselect instance.
-  // Used as the root div id and as the preferences storage key.
-  // When omitted a UUID is generated automatically.
+  // Used as the root div id and, unless preferencesKey is set, as the
+  // preferences storage key. When omitted a UUID is generated automatically.
   id: { type: String, default: null },
+  // Key the !p preferences are stored under. Set this when several instances
+  // should share preferences but must keep distinct DOM ids (e.g. two
+  // determination pickers on one page). Defaults to the effective id.
+  preferencesKey: { type: String, default: null },
   // Vue component to render when !n is triggered (null = disabled).
   newRecordComponent: { type: Object, default: null },
   // Vue component rendered inside PreferencesModal for model-specific options (null = none).
@@ -220,10 +236,11 @@ const emit = defineEmits(['update:modelValue', 'select'])
 const effectiveId = props.id ?? `autoselect_${randomUUID()}`
 
 // ── Composables ────────────────────────────────────────────────────────────────
-const { config, fetchConfig, getFirstLevelKey, getOperators } =
-  useAutoselect(props.url)
+const { config, fetchConfig, getFirstLevelKey, getOperators } = useAutoselect(
+  props.url
+)
 
-const prefs = usePreferences(props.url, effectiveId)
+const prefs = usePreferences(props.url, props.preferencesKey ?? effectiveId)
 
 // ── Reactive preferences state ─────────────────────────────────────────────────
 // A reactive snapshot of the current prefs so computed labels re-derive on save.
@@ -250,14 +267,12 @@ const fuseActive = ref(false)
 const fuseRunning = ref(false)
 const currentFuseMs = ref(600)
 const nextLevel = ref(null)
-const ignitedSegmentKey = ref(null)  // keyed by level key, not index
+const ignitedSegmentKey = ref(null) // keyed by level key, not index
 let fuseTimer = null
 
 // pinboard "None" flash state
 const pinboardNoneFlash = ref(false)
 let pinboardNoneTimer = null
-
-const hoveredSegmentIdx = ref(null)
 
 // overlays
 const showHelp = ref(false)
@@ -381,7 +396,9 @@ function onInput() {
   // !? — help overlay (may appear anywhere in the string, like other operators)
   const helpMatch = text.match(/^(.*?)\s*!\?\s*(.*)$/)
   if (helpMatch !== null) {
-    inputText.value = (helpMatch[1] + ' ' + helpMatch[2]).replace(/\s+/g, ' ').trim()
+    inputText.value = (helpMatch[1] + ' ' + helpMatch[2])
+      .replace(/\s+/g, ' ')
+      .trim()
     showHelp.value = true
     return
   }
@@ -389,7 +406,9 @@ function onInput() {
   // !p — preferences modal
   const prefMatch = text.match(/^(.*?)\s*!p\s*(.*)$/i)
   if (prefMatch !== null) {
-    preInputText = (prefMatch[1] + ' ' + prefMatch[2]).replace(/\s+/g, ' ').trim()
+    preInputText = (prefMatch[1] + ' ' + prefMatch[2])
+      .replace(/\s+/g, ' ')
+      .trim()
     inputText.value = preInputText
     cancelFuse()
     if (getRequest) clearTimeout(getRequest)
@@ -401,7 +420,9 @@ function onInput() {
   // !i — toggle info display
   const infoMatch = text.match(/^(.*?)\s*!i\s*(.*)$/i)
   if (infoMatch !== null) {
-    const cleanTerm = (infoMatch[1] + ' ' + infoMatch[2]).replace(/\s+/g, ' ').trim()
+    const cleanTerm = (infoMatch[1] + ' ' + infoMatch[2])
+      .replace(/\s+/g, ' ')
+      .trim()
     inputText.value = cleanTerm
     prefs.toggleShowInfo()
     currentPrefs.value = prefs.getPrefs()
@@ -411,7 +432,9 @@ function onInput() {
   // !n — new record modal
   const newRecordMatch = text.match(/^(.*?)\s*!n\s*(.*)$/i)
   if (newRecordMatch !== null && props.newRecordComponent !== null) {
-    const cleanName = (newRecordMatch[1] + ' ' + newRecordMatch[2]).replace(/\s+/g, ' ').trim()
+    const cleanName = (newRecordMatch[1] + ' ' + newRecordMatch[2])
+      .replace(/\s+/g, ' ')
+      .trim()
     inputText.value = cleanName
     cancelFuse()
     if (getRequest) clearTimeout(getRequest)
@@ -425,7 +448,9 @@ function onInput() {
   if (externalMatch !== null) {
     const externalKey = firstExternalLevelKey()
     if (externalKey !== null) {
-      const cleanTerm = (externalMatch[1] + ' ' + externalMatch[2]).replace(/\s+/g, ' ').trim()
+      const cleanTerm = (externalMatch[1] + ' ' + externalMatch[2])
+        .replace(/\s+/g, ' ')
+        .trim()
       inputText.value = cleanTerm
       currentLevel.value = externalKey
       cancelFuse()
@@ -478,7 +503,12 @@ function triggerSearch(term) {
   const levelOptions = prefs.getLevelOptions(currentLevel.value)
 
   AjaxCall('get', props.url, {
-    params: { term, level: currentLevel.value, ...levelOptions, show_info: prefs.getShowInfo() },
+    params: {
+      term,
+      level: currentLevel.value,
+      ...levelOptions,
+      show_info: prefs.getShowInfo()
+    },
     signal: controller.value.signal
   })
     .then(({ body }) => {
@@ -499,7 +529,11 @@ function triggerSearch(term) {
       nextTick(updateDropdownPosition)
 
       // !b / !! with no results: brief "None" flash then clear
-      if ((responseOperator === 'pinboard' || responseOperator === 'pinboard_top') && results.length === 0) {
+      if (
+        (responseOperator === 'pinboard' ||
+          responseOperator === 'pinboard_top') &&
+        results.length === 0
+      ) {
         pinboardNoneFlash.value = true
         pinboardNoneTimer = setTimeout(() => {
           pinboardNoneFlash.value = false
@@ -541,15 +575,14 @@ function updateDropdownPosition() {
       500
     )
 
+    dropdown.style.removeProperty('width')
+    dropdown.style.minWidth = '0'
     dropdown.style.maxHeight = maxHeight + 'px'
-    dropdown.style.minWidth = rect.width + 'px'
     dropdown.style.maxWidth = maxWidth + 'px'
 
-    const items = dropdown.querySelectorAll('li')
-    const contentWidth = Array.from(items).reduce(
-      (acc, li) => Math.max(acc, li.scrollWidth),
-      0
-    )
+    const contentWidth = dropdown.scrollWidth
+    dropdown.style.minWidth = rect.width + 'px'
+
     const finalWidth = Math.min(contentWidth + 20, maxWidth)
     const dropdownH = dropdown.offsetHeight || maxHeight
     const top = showAbove
@@ -567,18 +600,26 @@ function updateDropdownPosition() {
   })
 }
 
+watch([dropdownItems, showList, showInfo], () => {
+  if (showList.value) updateDropdownPosition()
+})
+
 // ── Fuse mechanic ──────────────────────────────────────────────────────────────
 function lightFuse(targetLevel) {
   if (!targetLevel) return
 
-  const seg = visibleFuseSegments.value.find((s) => s.key === String(currentLevel.value))
+  const seg = visibleFuseSegments.value.find(
+    (s) => s.key === String(currentLevel.value)
+  )
 
   nextLevel.value = targetLevel
   currentFuseMs.value = seg?.fuse_ms ?? 600
   ignitedSegmentKey.value = String(currentLevel.value)
   fuseActive.value = true
 
-  nextTick(() => { fuseRunning.value = true })
+  nextTick(() => {
+    fuseRunning.value = true
+  })
 
   fuseTimer = setTimeout(() => {
     escalateToLevel(targetLevel)
@@ -646,7 +687,8 @@ function cancelExtension() {
 }
 
 function onColConfirm({ id: createdId, global_id: createdGlobalId }) {
-  const yieldsKey = pendingExtensionItem.value.extension?.hook?.yields ?? 'taxon_name_id'
+  const yieldsKey =
+    pendingExtensionItem.value.extension?.hook?.yields ?? 'taxon_name_id'
   completeSelection({
     id: createdId,
     global_id: createdGlobalId,
@@ -761,7 +803,8 @@ function scrollToActive() {
     if (!activeEl) return
     const dRect = dropdown.getBoundingClientRect()
     const iRect = activeEl.getBoundingClientRect()
-    if (iRect.bottom > dRect.bottom) dropdown.scrollTop += iRect.bottom - dRect.bottom
+    if (iRect.bottom > dRect.bottom)
+      dropdown.scrollTop += iRect.bottom - dRect.bottom
     else if (iRect.top < dRect.top) dropdown.scrollTop -= dRect.top - iRect.top
   })
 }
@@ -801,7 +844,10 @@ function onDropdownMousedown() {
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
 function cancelPinboardNoneFlash() {
-  if (pinboardNoneTimer) { clearTimeout(pinboardNoneTimer); pinboardNoneTimer = null }
+  if (pinboardNoneTimer) {
+    clearTimeout(pinboardNoneTimer)
+    pinboardNoneTimer = null
+  }
   pinboardNoneFlash.value = false
 }
 
@@ -836,7 +882,9 @@ function clearResults() {
   border-radius: 3px;
   cursor: pointer;
   overflow: visible;
-  transition: flex 0.25s ease, height 0.25s ease;
+  transition:
+    flex 0.25s ease,
+    height 0.25s ease;
 }
 
 .autoselect__fuse-segment:hover {
@@ -870,23 +918,11 @@ function clearResults() {
 }
 
 .autoselect__fuse-tooltip {
-  position: absolute;
-  top: calc(100% + 4px);
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 10001;
-  background: var(--panel-bg-color, #fff);
-  border: 1px solid var(--border-color, #ccc);
-  border-radius: 4px;
-  padding: 5px 10px;
-  white-space: nowrap;
-  font-size: 11px;
-  line-height: 1.5;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
   display: flex;
   flex-direction: column;
   gap: 1px;
-  pointer-events: none;
+  font-size: 11px;
+  line-height: 1.5;
 }
 
 .autoselect__fuse-tooltip-trigger {
@@ -936,7 +972,7 @@ function clearResults() {
   max-height: 500px;
   overflow-y: auto;
   overflow-x: hidden;
-  z-index: 9998;
+  z-index: 999998;
   background-color: var(--panel-bg-color);
   margin: 0;
   padding: 0;
@@ -946,7 +982,9 @@ function clearResults() {
   border-bottom: 4px solid var(--border-color);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   box-sizing: border-box;
+  width: auto;
   min-width: 100%;
+  max-width: calc(100vw - 32px);
 }
 
 .autoselect__dropdown-item {
@@ -964,7 +1002,13 @@ function clearResults() {
   background-color: var(--border-color);
 }
 
+.autoselect__item-label {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
 .autoselect__item-info {
+  flex: 0 0 auto;
   font-size: 10px;
   opacity: 0.7;
   white-space: nowrap;
@@ -978,8 +1022,13 @@ function clearResults() {
 }
 
 @keyframes autoselect-none-fade {
-  0%, 40% { opacity: 1; }
-  100%     { opacity: 0; }
+  0%,
+  40% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
 }
 
 .autoselect__dropdown-none--flash {
@@ -992,7 +1041,7 @@ function clearResults() {
   top: 100%;
   left: 0;
   right: 0;
-  z-index: 9999;
+  z-index: 999998;
   background: var(--panel-bg-color, #fff);
   border: 1px solid var(--border-color, #ccc);
   padding: var(--standard-padding, 8px);
