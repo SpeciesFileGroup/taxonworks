@@ -73,9 +73,19 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
   OTU_ID_INCOMPATIBLE_FIELDS = DWC_CLASSIFICATION_TERMS + %w{higherClassification identificationQualifier nomenclaturalCode scientificName scientificNameAuthorship taxonRank typeStatus}.freeze
 
+  HUMAN_OBSERVATION_UNSUPPORTED_FIELDS = {
+    preparations: 'is not supported for HumanObservation',
+    typeStatus: 'requires a physical CollectionObject'
+  }.freeze
+
   ACCEPTED_ATTRIBUTES = {
     CollectionObject: %I(
       buffered_collecting_event buffered_determinations buffered_other_labels
+      total
+    ).to_set.freeze,
+
+    FieldOccurrence: %I(
+      is_absent
       total
     ).to_set.freeze,
 
@@ -238,11 +248,14 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     tw_data = (
       get_tw_biocuration_groups +
       get_tw_data_attribute_fields_for('CollectionObject') +
+      get_tw_data_attribute_fields_for('FieldOccurrence') +
       get_tw_data_attribute_fields_for('CollectingEvent') +
       get_tw_fields_for('CollectionObject') +
+      get_tw_fields_for('FieldOccurrence') +
       get_tw_fields_for('CollectingEvent') +
       get_tw_fields_for('TaxonDetermination') +
       get_tw_tag_fields_for('CollectionObject') +
+      get_tw_tag_fields_for('FieldOccurrence') +
       get_tw_tag_fields_for('CollectingEvent')
     ).map { |f| get_field_mapping(f[:field]) }.compact
 
@@ -250,13 +263,31 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
   end
 
   def ignored_fields
-    if get_otu_id
-      OTU_ID_INCOMPATIBLE_FIELDS.map { |f| get_field_mapping(f) }.compact
-    end
+    fields = []
+    fields += OTU_ID_INCOMPATIBLE_FIELDS if get_otu_id
+    fields << 'institutionCode' if human_observation?
+
+    ignored_model = human_observation? ? 'CollectionObject' : 'FieldOccurrence'
+    model_fields = (
+      get_tw_data_attribute_fields_for(ignored_model) +
+      get_tw_fields_for(ignored_model) +
+      get_tw_tag_fields_for(ignored_model)
+    ).map { |f| f[:field] }
+
+    (fields + model_fields).map { |f| get_field_mapping(f) }.compact
   end
 
   def get_otu_id
     get_field_value('TW:TaxonDetermination:otu_id')
+  end
+
+  def normalized_basis_of_record
+    basis = get_field_value(:basisOfRecord)
+    basis&.include?('_') ? basis.downcase.camelize : basis
+  end
+
+  def human_observation?
+    'HumanObservation'.casecmp?(normalized_basis_of_record)
   end
 
   def import(dwc_data_attributes = {})
@@ -298,9 +329,11 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         attributes.deep_merge!(parse_identification_class(innermost_protonym))
 
         attributes.deep_merge!(parse_tw_collection_object_data_attributes)
+        attributes.deep_merge!(parse_tw_field_occurrence_data_attributes)
         attributes.deep_merge!(parse_tw_collecting_event_data_attributes)
 
         attributes.deep_merge!(parse_tw_collection_object_attributes)
+        attributes.deep_merge!(parse_tw_field_occurrence_attributes)
         attributes.deep_merge!(parse_tw_collecting_event_attributes)
 
         parse_tw_taxon_determination_attributes # Just for verification.
@@ -314,16 +347,27 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
           (attributes.dig(:specimen, :biocuration_classifications) || [])
         )
 
-        collection_object = (attributes.dig(:specimen, :total) == '1' ? Specimen : Lot).create!({
-          no_dwc_occurrence: true
-        }.merge!(attributes[:specimen]))
+        otu = innermost_otu || innermost_protonym.otus.then { |o| o.find_by(name: nil) || o.first || o.create! }
+        taxon_determination_attributes = {otu:}.merge(attributes[:taxon_determination])
 
-        if attributes[:type_material] && (innermost_otu&.name).nil?
+        if human_observation?
+          occurrence_object = FieldOccurrence.new({
+            no_dwc_occurrence: true
+          }.merge!(attributes[:specimen]))
+          occurrence_object.taxon_determinations.build(taxon_determination_attributes)
+        else
+          occurrence_object = (attributes.dig(:specimen, :total) == '1' ? Specimen : Lot).create!({
+            no_dwc_occurrence: true
+          }.merge!(attributes[:specimen]))
+          occurrence_object.taxon_determinations.create!(taxon_determination_attributes)
+        end
+
+        if !human_observation? && attributes[:type_material] && (innermost_otu&.name).nil?
 
           type_material = TypeMaterial.new(
             {
               protonym: innermost_protonym,
-              collection_object: collection_object,
+              collection_object: occurrence_object,
             }.merge!(attributes[:type_material])) # protoynm can be overwritten in type_materials hash if OC did not match scientific name / innermost_protonym
 
           if self.import_dataset.require_type_material_success? # raise error if validations fail and it cannot be imported
@@ -333,66 +377,6 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
             type_material.save
           end
         end
-
-        if record_number = get_field_value(:recordNumber)
-          record_number_namespace = get_field_value('TW:Namespace:recordNumber')
-
-          record_number_namespace = Namespace.find_by(Namespace.arel_table[:short_name].matches(record_number_namespace)) # Case insensitive match
-          raise DarwinCore::InvalidData.new({ 'TW:Namespace:recordNumber' => ['Namespace not found'] }) unless record_number_namespace
-
-          identifier = Identifier::Local::RecordNumber.create!(
-            identifier: record_number,
-            identifier_object: collection_object,
-            namespace: record_number_namespace,
-            annotator_batch_mode: true
-          )
-        end
-
-        if attributes.dig(:catalog_number, :identifier)
-          namespace = attributes.dig(:catalog_number, :namespace)
-          delete_namespace_prefix!(attributes.dig(:catalog_number, :identifier), namespace)
-
-          identifier = Identifier::Local::CatalogNumber
-            .create_with(identifier_object: collection_object, annotator_batch_mode: true)
-            .find_or_create_by!(attributes[:catalog_number])
-
-          # if desired, ensure that cached CO identifier will match verbatim catalogNumber
-          # this ensures that DwC exported records will have identical catalogNumbers as when they were imported
-          if self.import_dataset.require_catalog_number_match_verbatim? &&
-            identifier.cached != get_field_value(:catalogNumber)
-
-            error_message = "Computed catalog number #{identifier.cached} will not match verbatim #{get_field_value(:catalogNumber)}. "\
-                            'Verify the mapped namespace and namespace delimiter are correct.'
-            raise DarwinCore::InvalidData.new({'catalogNumber' => [error_message]})
-          end
-
-          object = identifier.identifier_object
-
-          unless object == collection_object
-            unless record_number || self.import_dataset.containerize_dup_cat_no?
-              raise DarwinCore::InvalidData.new({ 'catalogNumber' => ['Is already in use'] })
-            end
-            if object.is_a?(Container)
-              object.add_container_items([collection_object])
-            else
-              identifier.update!(
-                identifier_object: Container::Virtual.containerize([object, collection_object])
-              )
-            end
-          end
-        end
-
-        Identifier::Local::Import::Dwc.create!(
-          namespace: import_dataset.get_core_record_identifier_namespace,
-          identifier_object: collection_object,
-          identifier: get_field_value(:occurrenceID),
-          annotator_batch_mode: true
-        ) unless get_field_value(:occurrenceID).nil? || import_dataset.get_core_record_identifier_namespace.nil?
-
-        collection_object.taxon_determinations.create!({
-          otu: innermost_otu || innermost_protonym.otus.then { |o| o.find_by(name: nil) || o.first || o.create! }
-        }.merge(attributes[:taxon_determination]))
-
 
         #   There are 3 possible CE identifiers, each needs individual mapping
         #     eventID -> Identifier::Local::Event (with TW:Namespace:eventID)
@@ -486,10 +470,8 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
             end
           end
 
-          collection_object.update!(collecting_event:)
         else
           collecting_event = CollectingEvent.create!({
-            collection_objects: [collection_object],
             no_dwc_occurrence: true,
             no_cached: true
           }.merge!(attributes[:collecting_event]))
@@ -555,9 +537,15 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
           collecting_event.save!
         end
 
-        DwcOccurrenceUpsertJob.perform_later(collection_object)
+        occurrence_object.collecting_event = collecting_event
+        human_observation? ? occurrence_object.save! : occurrence_object.update!(collecting_event:)
 
-        self.metadata['imported_objects'] = { collection_object: { id: collection_object.id } }
+        attach_occurrence_identifiers(occurrence_object, attributes[:catalog_number])
+
+        DwcOccurrenceUpsertJob.perform_later(occurrence_object)
+
+        imported_object_type = human_observation? ? :field_occurrence : :collection_object
+        self.metadata['imported_objects'] = { imported_object_type => { id: occurrence_object.id } }
         self.status = 'Imported'
       end
     rescue DarwinCore::InvalidData => invalid
@@ -597,6 +585,65 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
   #rubocop:enable Metrics/MethodLength
 
   private
+
+  def attach_occurrence_identifiers(occurrence_object, catalog_number_attributes)
+    catalog_number_attributes ||= {}
+    record_number = get_field_value(:recordNumber)
+
+    if record_number
+      record_number_namespace = get_field_value('TW:Namespace:recordNumber')
+      record_number_namespace = Namespace.find_by(Namespace.arel_table[:short_name].matches(record_number_namespace))
+      raise DarwinCore::InvalidData.new({ 'TW:Namespace:recordNumber' => ['Namespace not found'] }) unless record_number_namespace
+
+      Identifier::Local::RecordNumber.create!(
+        identifier: record_number,
+        identifier_object: occurrence_object,
+        namespace: record_number_namespace,
+        annotator_batch_mode: true
+      )
+    end
+
+    if catalog_number_attributes[:identifier]
+      namespace = catalog_number_attributes[:namespace]
+      delete_namespace_prefix!(catalog_number_attributes[:identifier], namespace)
+
+      identifier = Identifier::Local::CatalogNumber
+        .create_with(identifier_object: occurrence_object, annotator_batch_mode: true)
+        .find_or_create_by!(catalog_number_attributes)
+
+      if import_dataset.require_catalog_number_match_verbatim? && identifier.cached != get_field_value(:catalogNumber)
+        error_message = "Computed catalog number #{identifier.cached} will not match verbatim #{get_field_value(:catalogNumber)}. " \
+          'Verify the mapped namespace and namespace delimiter are correct.'
+        raise DarwinCore::InvalidData.new({'catalogNumber' => [error_message]})
+      end
+
+      object = identifier.identifier_object
+      unless object == occurrence_object
+        if human_observation?
+          raise DarwinCore::InvalidData.new({ 'catalogNumber' => ['Is already in use; FieldOccurrences can not be containerized'] })
+        end
+
+        unless record_number || import_dataset.containerize_dup_cat_no?
+          raise DarwinCore::InvalidData.new({ 'catalogNumber' => ['Is already in use'] })
+        end
+
+        if object.is_a?(Container)
+          object.add_container_items([occurrence_object])
+        else
+          identifier.update!(
+            identifier_object: Container::Virtual.containerize([object, occurrence_object])
+          )
+        end
+      end
+    end
+
+    Identifier::Local::Import::Dwc.create!(
+      namespace: import_dataset.get_core_record_identifier_namespace,
+      identifier_object: occurrence_object,
+      identifier: get_field_value(:occurrenceID),
+      annotator_batch_mode: true
+    ) unless get_field_value(:occurrenceID).nil? || import_dataset.get_core_record_identifier_namespace.nil?
+  end
 
   def term_value_changed(name, value)
     if ['institutioncode', 'collectioncode', 'catalognumber', 'basisofrecord'].include?(name.downcase) and self.status != 'Imported'
@@ -743,9 +790,14 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
       specimen: {},
       catalog_number: {}
     }
-    # type: [Check it is 'PhysicalObject']
-    type = get_field_value(:type) || 'PhysicalObject'
-    raise DarwinCore::InvalidData.new({ 'type' => ["Only 'PhysicalObject' or empty allowed"] }) if type != 'PhysicalObject'
+    # type: [Check it is 'PhysicalObject' for physical occurrences]
+    type = get_field_value(:type)
+    if human_observation?
+      raise DarwinCore::InvalidData.new({ 'type' => ["Only 'Event' or empty allowed for HumanObservation"] }) if type.present? && type != 'Event'
+    else
+      type ||= 'PhysicalObject'
+      raise DarwinCore::InvalidData.new({ 'type' => ["Only 'PhysicalObject' or empty allowed"] }) if type != 'PhysicalObject'
+    end
 
     # modified: [Not mapped]
 
@@ -769,7 +821,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
     # institutionCode: [repository.acronym] # TODO: Use mappings like with namespaces here as well? (Although probably attempt guessing)
     institution_code = get_field_value(:institutionCode)
-    if institution_code
+    if institution_code && !human_observation?
       repository = nil
       error_messages = []
 
@@ -841,8 +893,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     # ownerInstitutionCode: [Not mapped]
 
     # basisOfRecord: [Check it is 'PreservedSpecimen', 'FossilSpecimen']
-    basis = get_field_value(:basisOfRecord)
-    basis = basis.downcase.camelize if basis&.include? '_' # Reformat GBIF occurrence download basis of records (e.g., PRESERVED_SPECIMEN to PreservedSpecimen)
+    basis = normalized_basis_of_record
     if 'FossilSpecimen'.casecmp(basis) == 0
       fossil_biocuration = BiocurationClass.where(project:).find_by(uri: DWC_FOSSIL_URI)
 
@@ -851,9 +902,9 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
       ) if fossil_biocuration.nil?
 
       Utilities::Hashes::set_unless_nil(res[:specimen], :biocuration_classifications, [BiocurationClassification.new(biocuration_class: fossil_biocuration)])
-    else
+    elsif !human_observation?
       raise DarwinCore::InvalidData.new(
-        { 'basisOfRecord' => ["Only 'PreservedSpecimen', 'FossilSpecimen' or blank is allowed."] }
+        { 'basisOfRecord' => ["Only 'PreservedSpecimen', 'FossilSpecimen', 'HumanObservation' or blank is allowed."] }
       ) unless basis.nil? || 'PreservedSpecimen'.casecmp(basis) == 0
     end
 
@@ -932,6 +983,9 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
     # preparations: [Match PreparationType by name (case insensitive)]
     preparation_name = get_field_value(:preparations)
+    if human_observation? && preparation_name
+      raise DarwinCore::InvalidData.new({ 'preparations' => [HUMAN_OBSERVATION_UNSUPPORTED_FIELDS[:preparations]] })
+    end
     if preparation_name
       preparation_type = PreparationType.find_by(PreparationType.arel_table[:name].matches(preparation_name))
 
@@ -1374,6 +1428,9 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     # typeStatus: [Type material only if scientific name matches scientificName and type term is recognized by TW vocabulary]
     unless get_otu_id.present?
       if (type_status = get_field_value(:typeStatus))
+        if human_observation?
+          raise DarwinCore::InvalidData.new({ 'typeStatus' => [HUMAN_OBSERVATION_UNSUPPORTED_FIELDS[:typeStatus]] })
+        end
         type_material = parse_typestatus(type_status, taxon_protonym)
         if type_material.nil? && self.import_dataset.require_type_material_success?
           # generic error message, nothing more specific provided
@@ -1637,14 +1694,26 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
   # rubocop:disable Metric/MethodLength
 
   def parse_tw_collection_object_data_attributes
+    return {specimen: {}} if human_observation?
+
+    parse_tw_occurrence_data_attributes('CollectionObject')
+  end
+
+  def parse_tw_field_occurrence_data_attributes
+    return {specimen: {}} unless human_observation?
+
+    parse_tw_occurrence_data_attributes('FieldOccurrence')
+  end
+
+  def parse_tw_occurrence_data_attributes(subject_class)
     attributes = []
     tags = []
 
-    get_tw_data_attribute_fields_for('CollectionObject').each do |attribute|
+    get_tw_data_attribute_fields_for(subject_class).each do |attribute|
       append_data_attribute(attributes, attribute)
     end
 
-    get_tw_tag_fields_for('CollectionObject').each do |tag|
+    get_tw_tag_fields_for(subject_class).each do |tag|
       append_tag_attribute(tags, tag)
     end
 
@@ -1753,6 +1822,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
   end
 
   def parse_tw_collection_object_attributes
+    return {specimen: {}} if human_observation?
 
     attributes = {}
 
@@ -1761,6 +1831,29 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
       if value
         if !ACCEPTED_ATTRIBUTES[:CollectionObject].include?(attribute[:name])
           raise DarwinCore::InvalidData.new({ attribute[:field] => ["#{attribute[:name]} is not a valid CollectionObject attribute"] })
+        end
+
+        attributes[attribute[:name]] = value
+      end
+    end
+
+    {
+      specimen: attributes
+    }
+  end
+
+  def parse_tw_field_occurrence_attributes
+    return {specimen: {}} unless human_observation?
+
+    attributes = {}
+
+    get_tw_fields_for('FieldOccurrence').each do |attribute|
+      value = get_field_value(attribute[:field])
+      if value
+        unless ACCEPTED_ATTRIBUTES[:FieldOccurrence].include?(attribute[:name])
+          raise DarwinCore::InvalidData.new({
+            attribute[:field] => ["#{attribute[:name]} is not a valid FieldOccurrence attribute"]
+          })
         end
         attributes[attribute[:name]] = value
       end
