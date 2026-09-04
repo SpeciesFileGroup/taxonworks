@@ -9,7 +9,8 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 ### Added
 
-- raw id search for Biological Association autocompletes
+- Autoselect replaces OTU smart selector in Comprehensive Specimen Management. 
+- Raw id search for Biological Association autocompletes
 - `New Collection Object`: Added a CO Total field to the CO form. Added a `identifier end` field that automatically increments based on the Identifier and the total number of specimens/lots being created. [#4873]
 - `New asserted distribution`: Added preferences modal, moved autosave there, and added option to hide Confidence panel
 - Smart selector for preparation type [#1130]
@@ -25,6 +26,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 ### Changed
 
+- OTU labels and tags now display more intuitively, and relations to TaxonNames are locked down [#1998]
 - `Simple new specimen` task is now `New collection object`
 - Support partial dates (year only, year-month only) for `startDate` and `endDate` from the api
 - Sort people by uses in Match Authors to People
@@ -72,6 +74,8 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Click on 'All tasks' menu from the Navigator radial in the Anatomical Parts graph task not working [#5078]
 - Add Autoselect CoL dataset picker for !p preferences to all autoselects that didn't have it [#5040]
 
+
+[#1998]: https://github.com/SpeciesFileGroup/taxonworks/issues/1998
 [#1060]: https://github.com/SpeciesFileGroup/taxonworks/issues/1060
 [#1100]: https://github.com/SpeciesFileGroup/taxonworks/issues/1100
 [#1130]: https://github.com/SpeciesFileGroup/taxonworks/issues/1130
