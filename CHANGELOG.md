@@ -50,7 +50,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Don't include highlights with text chosen in autocompletes [#5052]
 - New OTU task keeps existing OTUs selected after Find [#5054]
 - In the Match Taxon Name to OTU task:
-  - add ability to filter on columns #[5051]
+  - add ability to filter on columns [#5051]
   - changing options shouldn't be able to unselect an OTU the user has specifically chosen [#5051]
   - add 'ambiguous' count to summary [#5051]
   - add mode for matching to OTUs in addition to Taxon Names - OTUs only match on names in the morphospecies format [genus] + [one-word-otu_name], e.g. `Tetramorium FHG_pumi` [#5039]
@@ -93,6 +93,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 [#5051]: https://github.com/SpeciesFileGroup/taxonworks/issues/5052
 [#5052]: https://github.com/SpeciesFileGroup/taxonworks/issues/5052
 [#5054]: https://github.com/SpeciesFileGroup/taxonworks/issues/5054
+[#5058]: https://github.com/SpeciesFileGroup/taxonworks/issues/5058
 [#5056]: https://github.com/SpeciesFileGroup/taxonworks/issues/5056
 [#5061]: https://github.com/SpeciesFileGroup/taxonworks/issues/5061
 [#5065]: https://github.com/SpeciesFileGroup/taxonworks/issues/5065
