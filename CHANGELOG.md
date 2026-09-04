@@ -9,6 +9,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 ### Added
 
+- `Add simple key` task for recording the OTUs and associated data like sex, life stage, locality covered by the key without needing to enter the entire key [#4965]
 - Autoselect replaces OTU smart selector in Comprehensive Specimen Management. 
 - Raw id search for Biological Association autocompletes
 - `New Collection Object`: Added a CO Total field to the CO form. Added a `identifier end` field that automatically increments based on the Identifier and the total number of specimens/lots being created. [#4873]
@@ -90,6 +91,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 [#4797]: https://github.com/SpeciesFileGroup/taxonworks/issues/4797
 [#4873]: https://github.com/SpeciesFileGroup/taxonworks/issues/4873
 [#4963]: https://github.com/SpeciesFileGroup/taxonworks/issues/4963
+[#4965]: https://github.com/SpeciesFileGroup/taxonworks/issues/4965
 [#5037]: https://github.com/SpeciesFileGroup/taxonworks/issues/5037
 [#5039]: https://github.com/SpeciesFileGroup/taxonworks/issues/5039
 [#5040]: https://github.com/SpeciesFileGroup/taxonworks/issues/5040
