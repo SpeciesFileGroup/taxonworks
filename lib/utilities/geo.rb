@@ -620,6 +620,15 @@ To add a new (discovered) symbol:
 
 
 
+    # An optional 'Lat', 'Lat.', 'Latitude', 'Latitud' prefix, with an optional ':' or '='.
+    VERBATIM_LATITUDE_LABEL = /(?:lat(?:itude|itud)?\.?\s*[:=]?\s*)?/i
+
+    # An optional 'Lon', 'Long', 'Long.', 'Longitude', 'Longitud' prefix, with an optional ':' or '='.
+    VERBATIM_LONGITUDE_LABEL = /(?:lon(?:g(?:itude|itud)?)?\.?\s*[:=]?\s*)?/i
+
+    # Hyphen, minus sign and en-dash, all of which appear as negative signs on transcribed labels.
+    VERBATIM_NEGATIVE_SIGN = /[-\u2212\u2013]/
+
     # @return [Hash]
     # coordinates from the label parsed to elements
     def self.coordinates_regex_from_verbatim_label(text)
@@ -670,8 +679,8 @@ To add a new (discovered) symbol:
         coordinates[:long_deg] = matchdata4[4]
         coordinates[:long_min] = matchdata4[5]
         coordinates[:long_we]  = matchdata4[6]
-        # pattern: 42.18°S88.43°W
-      elsif matchdata6 = text.match(/\D(\d+[\.|,]\d+|\d+) ?[\*°º⁰ᵒ∘º◦od˚ ] ?([nN]|[sS])[\.,;]? ?(\d+[\.|,]\d+|\d+) ?[\*°º⁰ᵒº∘◦od˚ ] ?([wW]|[eE])\W/)
+        # pattern: 42.18°S88.43°W, also 'Lat: 4.604134 N, Long: -74.065800 W'
+      elsif matchdata6 = text.match(/\D#{VERBATIM_LATITUDE_LABEL}(#{VERBATIM_NEGATIVE_SIGN}?\d+[\.|,]\d+|#{VERBATIM_NEGATIVE_SIGN}?\d+) ?[\*°º⁰ᵒ∘º◦od˚ ] ?([nN]|[sS])[\.,;]?\s*#{VERBATIM_LONGITUDE_LABEL}(#{VERBATIM_NEGATIVE_SIGN}?\d+[\.|,]\d+|#{VERBATIM_NEGATIVE_SIGN}?\d+) ?[\*°º⁰ᵒº∘◦od˚ ] ?([wW]|[eE])\W/)
         coordinates[:lat_deg] = matchdata6[1]
         coordinates[:lat_ns]  = matchdata6[2]
         coordinates[:long_deg] = matchdata6[3]
@@ -683,10 +692,19 @@ To add a new (discovered) symbol:
         coordinates[:long_deg] = matchdata5[4]
         coordinates[:long_we]  = matchdata5[3]
         # pattern: -12.263, 49.398
-      elsif matchdata7 = text.match(/\D(-?\d+[\.|,]\d+|\-?\d+),.*?(-?\d+[\.|,]\d+|\-?\d+)\D/)
-        coordinates[:lat_deg] = matchdata7[1]
-        coordinates[:long_deg] = matchdata7[2]
+        # No hemisphere letters here, so the pair must be adjacent and at least one of the two
+        # values must carry a sign or a decimal point. A bare integer pair is indistinguishable
+        # from a date, a count or an elevation ('Sept 19-20, 2023').
+      elsif matchdata7 = text.scan(/\D(-?\d+[\.|,]\d+|\-?\d+)[,;\/]\s*#{VERBATIM_LONGITUDE_LABEL}(-?\d+[\.|,]\d+|\-?\d+)\D/)
+          .detect { |lat, long| [lat, long].any? { |v| v.match?(/[-\.,]/) } }
+        coordinates[:lat_deg] = matchdata7[0]
+        coordinates[:long_deg] = matchdata7[1]
       end
+
+      # A label may carry both a sign and a hemisphere letter ('Long: -74.065800 W'). The letter
+      # is authoritative, the redundant sign is dropped so the value is not negated twice.
+      coordinates[:lat_deg] = coordinates[:lat_deg].sub(/\A#{VERBATIM_NEGATIVE_SIGN}/, '') if coordinates[:lat_ns] && coordinates[:lat_deg]
+      coordinates[:long_deg] = coordinates[:long_deg].sub(/\A#{VERBATIM_NEGATIVE_SIGN}/, '') if coordinates[:long_we] && coordinates[:long_deg]
       coordinates[:lat_deg] = coordinates[:lat_deg].gsub(',', '.') if coordinates[:lat_deg]
       coordinates[:lat_min] = coordinates[:lat_min].gsub(',', '.') if coordinates[:lat_min]
       coordinates[:lat_sec] = coordinates[:lat_sec].gsub(',', '.') if coordinates[:lat_sec]
@@ -694,7 +712,7 @@ To add a new (discovered) symbol:
       coordinates[:long_deg] = coordinates[:long_deg].gsub(',', '.') if coordinates[:long_deg]
       coordinates[:long_min] = coordinates[:long_min].gsub(',', '.') if coordinates[:long_min]
       coordinates[:long_sec] = coordinates[:long_sec].gsub(',', '.') if coordinates[:long_sec]
-      coordinates[:lat_we] = coordinates[:lat_we].capitalize if coordinates[:lat_we]
+      coordinates[:long_we] = coordinates[:long_we].capitalize if coordinates[:long_we]
 
       return {} if !coordinates[:lat_deg] || !coordinates[:long_deg]
       return {} if coordinates[:lat_deg].to_f > 90 || coordinates[:lat_deg].to_f < -90

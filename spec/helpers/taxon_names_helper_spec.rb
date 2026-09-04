@@ -34,6 +34,17 @@ describe TaxonNamesHelper, type: :helper do
     expect(helper.taxon_name_rank_select_tag(taxon_name: taxon_name, code: :iczn)).to have_select('taxon_name_rank_class')
   end
 
+  specify '#taxon_name_original_combination_tag marks a matching term, since cached_original_combination is itself searched by the autocomplete query' do
+    n = Struct.new(:cached_original_combination).new('Empoascanara arooni')
+    expect(helper.taxon_name_original_combination_tag(n, term: 'aro').to_s)
+      .to include('Empoascanara <mark>aro</mark>oni')
+  end
+
+  specify '#taxon_name_original_combination_tag does not mark anything when no term is given' do
+    n = Struct.new(:cached_original_combination).new('Empoascanara arooni')
+    expect(helper.taxon_name_original_combination_tag(n).to_s).to_not include('<mark>')
+  end
+
   context 'taxon_name_inventory_stats' do
     let!(:root) { FactoryBot.create(:root_taxon_name) }
     let!(:family) { Protonym.create!(name: 'Cicadellidae', rank_class: Ranks.lookup(:iczn, :family), parent: root) }

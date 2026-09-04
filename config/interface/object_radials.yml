@@ -176,6 +176,7 @@ Lead:
     - leads_hub_task
     - print_key_task
     - dichotomous_key_task
+    - cite_key_task
   new: new_lead_task
   edit: new_lead_task
 Loan:
@@ -255,6 +256,7 @@ TaxonName:
     - new_taxon_name_task
     - new_combination_task
     - filter_taxon_names_task
+    - filter_collection_objects_task
     - edit_type_material_task
     - comprehensive_collection_object_task
     - browse_otus_task

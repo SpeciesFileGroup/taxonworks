@@ -100,6 +100,35 @@ RSpec.describe InaturalistImportJob, type: :model, group: :field_occurrences do
     end
   end
 
+  context 'observer Person deduplication' do
+    let(:georeferenced_result) {
+      base_result.merge(
+        'geojson' => { 'coordinates' => [-88.0, 41.0], 'type' => 'Point' },
+        'positional_accuracy' => 10
+      )
+    }
+
+    specify 'builds one Person for georeferencer and determiner of the same observation' do
+      expect { perform(results: [georeferenced_result], use_community_taxon: false) }
+        .to change { Person.where(last_name: 'Doe').count }.by(1)
+    end
+
+    specify 'the georeferencer and determiner are the same Person' do
+      perform(results: [georeferenced_result], use_community_taxon: false)
+      fo = FieldOccurrence.last
+      georeferencer = fo.collecting_event.georeferences.first.georeference_authors.first
+      determiner = fo.taxon_determinations.first.determiners.first
+      expect(determiner.id).to eq(georeferencer.id)
+    end
+
+    specify 'reuses one Person across observations by the same user in a single run' do
+      r1 = georeferenced_result.merge('uuid' => '00000000-0000-0000-0000-0000000000a1')
+      r2 = georeferenced_result.merge('uuid' => '00000000-0000-0000-0000-0000000000a2')
+      expect { perform(results: [r1, r2]) }
+        .to change { Person.where(last_name: 'Doe').count }.by(1)
+    end
+  end
+
   specify 'skips results with no taxon name and continues remaining imports' do
     no_taxon = base_result.merge('taxon' => nil, 'community_taxon' => nil, 'uuid' => '00000000-0000-0000-0000-000000000001')
     with_taxon = base_result.merge('uuid' => '00000000-0000-0000-0000-000000000002')

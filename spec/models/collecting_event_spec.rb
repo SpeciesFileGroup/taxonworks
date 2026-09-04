@@ -645,6 +645,34 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_events] do
     end
   end
 
+  context '.select_optimized' do
+    let!(:georeferenced) { FactoryBot.create(:valid_collecting_event) }
+    let!(:not_georeferenced) { FactoryBot.create(:valid_collecting_event) }
+    let!(:georeference) { FactoryBot.create(:valid_georeference, collecting_event: georeferenced) }
+
+    specify 'is unrestricted by default' do
+      expect(CollectingEvent.select_optimized(Current.user_id, Current.project_id)[:recent].map(&:id))
+        .to contain_exactly(georeferenced.id, not_georeferenced.id)
+    end
+
+    specify 'georeferences: true' do
+      expect(CollectingEvent.select_optimized(Current.user_id, Current.project_id, georeferences: true)[:recent].map(&:id))
+        .to contain_exactly(georeferenced.id)
+    end
+
+    specify 'georeferences: false' do
+      expect(CollectingEvent.select_optimized(Current.user_id, Current.project_id, georeferences: false)[:recent].map(&:id))
+        .to contain_exactly(not_georeferenced.id)
+    end
+
+    # `params[:georeferences] == 'true'` would read an absent param as false,
+    # i.e. as a restriction, for every other consumer of `select_options`.
+    specify 'an absent request param casts to nil, not false' do
+      expect(ActiveModel::Type::Boolean.new.cast(nil)).to eq(nil)
+      expect(ActiveModel::Type::Boolean.new.cast('')).to eq(nil)
+    end
+  end
+
   context 'concerns' do
     it_behaves_like 'citations'
     it_behaves_like 'data_attributes'

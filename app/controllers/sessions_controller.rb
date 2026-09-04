@@ -1,5 +1,8 @@
 class SessionsController < ApplicationController
 
+  # Heartbeats must not count as user activity, see Tracking::UserTime.
+  skip_before_action :notice_user, only: [:status]
+
   # GET /signin
   def new
   end
@@ -27,6 +30,14 @@ class SessionsController < ApplicationController
   def destroy
     sessions_sign_out
     redirect_to root_url
+  end
+
+  # GET /session_status.json
+  def status
+    render json: {
+      signed_in: sessions_signed_in?,
+      project_selected: sessions_project_selected?
+    }
   end
 
 end

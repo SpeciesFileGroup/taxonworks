@@ -1,8 +1,9 @@
 <template>
   <div class="panel content">
     <h3>Annotations</h3>
+    <VSpinner v-if="isLoading" />
     <div
-      v-if="hasAnnotations || isLoading"
+      v-else-if="hasAnnotations"
       class="flex-col gap-small"
     >
       <template
@@ -10,7 +11,7 @@
         :key="key"
       >
         <div v-if="list.length">
-          <h4 class="capitalize">{{ ANNOTATIONS[key].title }}</h4>
+          <h4>{{ ANNOTATIONS[key].title }} ({{ list.length }})</h4>
           <ul>
             <li
               v-for="item in list"
@@ -23,7 +24,7 @@
     </div>
     <p
       v-else
-      class=""
+      class="text-muted-color"
     >
       No annotations found
     </p>
@@ -32,6 +33,7 @@
 
 <script setup>
 import { computed, ref, watch } from 'vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
 import {
   Citation,
   Tag,
@@ -60,19 +62,19 @@ const ANNOTATIONS = {
     label: 'object_tag',
     prefix: 'citation',
     service: Citation,
-    title: 'citations'
+    title: 'Citations'
   },
   Tag: {
     label: 'object_tag',
     prefix: 'tag',
     service: Tag,
-    title: 'tags'
+    title: 'Tags'
   },
   Note: {
     label: 'text',
     prefix: 'note',
     service: Note,
-    title: 'notes'
+    title: 'Notes'
   },
   Identifier: {
     label: 'object_tag',
@@ -103,7 +105,7 @@ const ANNOTATIONS = {
     label: 'object_tag',
     prefix: 'attribution',
     service: Attribution,
-    title: 'Attribution'
+    title: 'Attributions'
   }
 }
 
@@ -138,7 +140,7 @@ watch(
   () => props.objectId,
   (newVal) => {
     if (newVal) {
-      loadAnnotations(newVal)
+      loadAnnotations()
     }
   },
   { immediate: true }

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_26_165536) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_20_221034) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -1396,6 +1396,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_26_165536) do
     t.integer "created_by_id", null: false
     t.text "description"
     t.boolean "is_public"
+    t.boolean "is_virtual"
     t.text "link_out"
     t.string "link_out_text"
     t.bigint "observation_matrix_id"
@@ -2304,6 +2305,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_26_165536) do
     t.index ["cached_is_valid"], name: "index_taxon_names_on_cached_is_valid"
     t.index ["cached_original_combination"], name: "index_taxon_names_on_cached_original_combination"
     t.index ["cached_original_combination"], name: "tn_cached_original_gin_trgm", opclass: :gin_trgm_ops, using: :gin
+    t.index ["cached_primary_homonym"], name: "index_taxon_names_on_cached_primary_homonym"
+    t.index ["cached_primary_homonym"], name: "tn_cached_primary_homonym_gin_trgm", opclass: :gin_trgm_ops, using: :gin
+    t.index ["cached_secondary_homonym"], name: "index_taxon_names_on_cached_secondary_homonym"
+    t.index ["cached_secondary_homonym"], name: "tn_cached_secondary_homonym_gin_trgm", opclass: :gin_trgm_ops, using: :gin
     t.index ["cached_valid_taxon_name_id"], name: "index_taxon_names_on_cached_valid_taxon_name_id"
     t.index ["created_at"], name: "index_taxon_names_on_created_at"
     t.index ["created_by_id"], name: "index_taxon_names_on_created_by_id"
@@ -2420,6 +2425,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_26_165536) do
   add_foreign_key "attributions", "projects"
   add_foreign_key "attributions", "users", column: "created_by_id"
   add_foreign_key "attributions", "users", column: "updated_by_id"
+  add_foreign_key "biocuration_classifications", "controlled_vocabulary_terms", column: "biocuration_class_id", name: "biocuration_classifications_biocuration_class_id_fkey"
   add_foreign_key "biocuration_classifications", "projects", name: "biocuration_classifications_project_id_fkey"
   add_foreign_key "biocuration_classifications", "users", column: "created_by_id", name: "biocuration_classifications_created_by_id_fkey"
   add_foreign_key "biocuration_classifications", "users", column: "updated_by_id", name: "biocuration_classifications_updated_by_id_fkey"
@@ -2655,6 +2661,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_26_165536) do
   add_foreign_key "otu_relationships", "users", column: "created_by_id"
   add_foreign_key "otu_relationships", "users", column: "updated_by_id"
   add_foreign_key "otus", "projects", name: "otus_project_id_fkey"
+  add_foreign_key "otus", "taxon_names", name: "otus_taxon_name_id_fkey"
   add_foreign_key "otus", "users", column: "created_by_id", name: "otus_created_by_id_fkey"
   add_foreign_key "otus", "users", column: "updated_by_id", name: "otus_updated_by_id_fkey"
   add_foreign_key "people", "users", column: "created_by_id", name: "people_created_by_id_fkey"
@@ -2737,6 +2744,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_26_165536) do
   add_foreign_key "tagged_section_keywords", "projects", name: "tagged_section_keywords_project_id_fkey"
   add_foreign_key "tagged_section_keywords", "users", column: "created_by_id", name: "tagged_section_keywords_created_by_id_fkey"
   add_foreign_key "tagged_section_keywords", "users", column: "updated_by_id", name: "tagged_section_keywords_updated_by_id_fkey"
+  add_foreign_key "tags", "controlled_vocabulary_terms", column: "keyword_id", name: "tags_keyword_id_fkey"
   add_foreign_key "tags", "projects", name: "tags_project_id_fkey"
   add_foreign_key "tags", "users", column: "created_by_id", name: "tags_created_by_id_fkey"
   add_foreign_key "tags", "users", column: "updated_by_id", name: "tags_updated_by_id_fkey"
@@ -2745,6 +2753,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_26_165536) do
   add_foreign_key "taxon_determinations", "users", column: "created_by_id", name: "taxon_determinations_created_by_id_fkey"
   add_foreign_key "taxon_determinations", "users", column: "updated_by_id", name: "taxon_determinations_updated_by_id_fkey"
   add_foreign_key "taxon_name_classifications", "projects", name: "taxon_name_classifications_project_id_fkey"
+  add_foreign_key "taxon_name_classifications", "taxon_names", name: "taxon_name_classifications_taxon_name_id_fkey"
   add_foreign_key "taxon_name_classifications", "users", column: "created_by_id", name: "taxon_name_classifications_created_by_id_fkey"
   add_foreign_key "taxon_name_classifications", "users", column: "updated_by_id", name: "taxon_name_classifications_updated_by_id_fkey"
   add_foreign_key "taxon_name_relationships", "projects", name: "taxon_name_relationships_project_id_fkey"

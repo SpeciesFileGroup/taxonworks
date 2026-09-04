@@ -143,4 +143,29 @@ describe Queries::CollectingEvent::Autocomplete, type: :model do
     expect(query.autocomplete_verbatim_habitat.map(&:id)).to contain_exactly(ce2.id)
   end
 
+
+  context 'georeferences' do
+    let!(:georeference) { FactoryBot.create(:valid_georeference, collecting_event: ce2) }
+
+    specify 'unrestricted by default' do
+      q = Queries::CollectingEvent::Autocomplete.new('there')
+      expect(q.autocomplete.map(&:id)).to contain_exactly(ce1.id, ce2.id)
+    end
+
+    specify 'true restricts to collecting events with a georeference' do
+      q = Queries::CollectingEvent::Autocomplete.new('there', georeferences: true)
+      expect(q.autocomplete.map(&:id)).to contain_exactly(ce2.id)
+    end
+
+    specify 'false restricts to collecting events without a georeference' do
+      q = Queries::CollectingEvent::Autocomplete.new('there', georeferences: false)
+      expect(q.autocomplete.map(&:id)).to contain_exactly(ce1.id)
+    end
+
+    specify 'a string param is cast' do
+      q = Queries::CollectingEvent::Autocomplete.new('there', georeferences: 'true')
+      expect(q.autocomplete.map(&:id)).to contain_exactly(ce2.id)
+    end
+  end
+
 end

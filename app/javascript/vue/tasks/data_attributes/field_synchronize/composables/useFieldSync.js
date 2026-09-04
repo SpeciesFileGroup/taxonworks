@@ -212,6 +212,18 @@ export function useFieldSync() {
     handleRequestsFromColumnUpdate(requests)
   }
 
+  function savePastedCells({
+    attributeRecords = [],
+    dataAttributeRecords = []
+  }) {
+    const requests = [
+      ...attributeRecords.map((item) => saveFieldAttribute(item)),
+      ...dataAttributeRecords.map((item) => saveDataAttribute(item))
+    ]
+
+    handleRequestsFromColumnUpdate(requests)
+  }
+
   function handleRequestsFromColumnUpdate(requests) {
     totalUpdate.value = requests.length
     updatedCount.value = 0
@@ -302,7 +314,7 @@ export function useFieldSync() {
 
         da.id = body.id
         da.value = body.value
-        currentDa.value = body.id
+        currentDa.id = body.id
         currentDa.value = body.value
       })
       .catch(() => {})
@@ -344,7 +356,8 @@ export function useFieldSync() {
     )
 
     request.then((response) => {
-      const ids = queryValue.value[ID_PARAM_FOR[currentModel.value]]
+      const ids =
+        queryValue.value[ID_PARAM_FOR[currentModel.value]]?.map(Number)
       const items = Array.isArray(ids)
         ? sortArrayByReference({
             list: response.body,
@@ -477,6 +490,7 @@ export function useFieldSync() {
     saveColumnPredicate,
     saveDataAttribute,
     saveFieldAttribute,
+    savePastedCells,
     selectedAttributes,
     selectedPredicates,
     sortListByEmpty,

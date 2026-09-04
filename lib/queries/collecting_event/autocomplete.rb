@@ -2,13 +2,21 @@ module Queries
   module CollectingEvent
     class Autocomplete < Query::Autocomplete
 
+      include ::Queries::Helpers
       include ::Queries::Concerns::DateRanges
       include ::Queries::Concerns::Roles
 
+      # @return [Boolean, nil]
+      #   true - only collecting events with a georeference
+      #   false - only collecting events without a georeference
+      #   nil - no restriction
+      attr_accessor :georeferences
+
       # @params string [String]
       # @params [Hash] args
-      def initialize(string, project_id: nil)
-        super
+      def initialize(string, project_id: nil, georeferences: nil)
+        @georeferences = boolean_param({georeferences:}, :georeferences)
+        super(string, project_id:)
       end
 
       def autocomplete_verbatim_label_md5
@@ -104,6 +112,7 @@ module Queries
         queries.each_with_index do |q ,i|
           a = q.where(project_id:) if project_id.present?
           a ||= q
+          a = a.merge(georeference_restriction) unless georeferences.nil?
           updated_queries[i] = a
         end
 
@@ -114,6 +123,11 @@ module Queries
           break if result.count > 29
         end
         result[0..39]
+      end
+
+      # @return [Scope]
+      def georeference_restriction
+        georeferences ? ::CollectingEvent.with_georeferences : ::CollectingEvent.without_georeferences
       end
 
     end

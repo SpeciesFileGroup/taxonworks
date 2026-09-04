@@ -32,6 +32,7 @@ const RouteNames = {
   BrowseNomenclature: '/tasks/nomenclature/browse',
   BrowseOtu: '/tasks/otus/browse',
   BrowseSound: '/tasks/sounds/browse',
+  CiteKey: '/tasks/leads/cite_key',
   ContentEditor: '/tasks/content/editor',
   DichotomousKey: '/tasks/leads/dichotomous_key',
   DigitizeTask: '/tasks/accessions/comprehensive',

@@ -6,9 +6,12 @@ module TaxonNamesHelper
 
   # HTML label for the autoselect dropdown (left-justified).
   # Uses cached_html for real records; falls back to cached for CoL pseudo-records.
-  def taxon_name_autoselect_tag(taxon_name)
+  def taxon_name_autoselect_tag(taxon_name, term = nil)
     return nil if taxon_name.nil?
-    tag.span( taxon_name.cached_html_name_and_author_year.html_safe, class: :klass)
+    tag.span(
+     mark_tag(
+      taxon_name.cached_html_name_and_author_year.html_safe, term
+     ), class: :klass)
   end
 
   # Disambiguation info Array for the autoselect dropdown (right-justified).
@@ -27,7 +30,7 @@ module TaxonNamesHelper
   #   the taxon name without author year, with HTML
   def taxon_name_tag(taxon_name)
     return nil if taxon_name.nil?
-    return taxon_name.name if taxon_name.new_record?
+    return taxon_name.name if taxon_name.new_record? # likely not needed
     taxon_name.cached_html.try(:html_safe) || taxon_name.name
   end
 
@@ -46,12 +49,13 @@ module TaxonNamesHelper
       content_tag(:span, mark_tag(taxon_name.cached_html_name_and_author_year, term),  class: :klass),
       taxon_name_rank_tag(taxon_name),
       taxon_name_parent_tag(taxon_name),
-      taxon_name_original_combination_tag(taxon_name),
+      taxon_name_original_combination_tag(taxon_name, term:),
       taxon_name_type_short_tag(taxon_name)
       # " [#{taxon_name.sml_t}]"
     ].compact.join('&nbsp;').html_safe
   end
 
+  # DEPRECATE!
   # @return [String]
   #   no HTML inside <input>
   def taxon_name_autocomplete_selected_tag(taxon_name)
@@ -68,9 +72,11 @@ module TaxonNamesHelper
     content_tag(:span, taxon_name_tag(taxon_name.parent).html_safe, class: css_class)
   end
 
-  def taxon_name_original_combination_tag(taxon_name, css_class = [:feedback, 'feedback-notice', 'feedback-thin'] )
+  # @param term [String, nil]
+  #   the autocomplete search term, if any; matches are wrapped in `<mark>`
+  def taxon_name_original_combination_tag(taxon_name, css_class = [:feedback, 'feedback-notice', 'feedback-thin'], term: nil)
     return nil if taxon_name.nil? || taxon_name.cached_original_combination.blank?
-    content_tag(:span, taxon_name.cached_original_combination, class: css_class)
+    content_tag(:span, mark_tag(h(taxon_name.cached_original_combination), term), class: css_class)
   end
 
   # Styling indicating the current valid name

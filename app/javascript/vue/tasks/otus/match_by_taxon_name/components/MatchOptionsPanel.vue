@@ -47,7 +47,7 @@
 
       <!-- Try without subgenus -->
       <div class="field margin-medium-bottom">
-        <label class="middle" data-help="When a name fails to match, also tries matching against stored names stripped of their subgenus (e.g. input 'Aus cus' will match a stored name 'Aus (Bus) cus').">
+        <label class="middle" data-help="When checked, any subgenus (or section, series...) between genus and epithet is ignored; every species-group epithet present (species, subspecies, variety, form...) may match any of its three predicted gender-agreeing spellings — masculine, feminine, or neuter — instead of the exact spelling stored; and the genus may be either the current one or the genus a name was originally described in.">
           <input
             type="checkbox"
             :checked="tryWithoutSubgenus"
@@ -56,8 +56,7 @@
           Try without subgenus
         </label>
         <span class="subtle">
-          When checked and cached match fails, tries cached_secondary_homonym
-          then cached_primary_homonym.
+          Ignore subgenus; match against different gender endings and current/original genus.
         </span>
       </div>
 

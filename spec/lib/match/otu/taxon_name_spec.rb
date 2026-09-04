@@ -121,6 +121,259 @@ describe Match::Otu::TaxonName, type: :model do
     end
   end
 
+  context 'try_without_subgenus' do
+    let(:subgenus) { Protonym.create!(name: 'Bus', rank_class: Ranks.lookup(:iczn, :subgenus), parent: genus) }
+
+    let!(:species_under_subgenus) do
+      Protonym.create!(name: 'maculatus', rank_class: Ranks.lookup(:iczn, :species), parent: subgenus)
+    end
+
+    specify 'is not matched when try_without_subgenus is disabled' do
+      result = match(names: ['Aus maculata'], try_without_subgenus: false).first
+      expect(result[:matched]).to eq(false)
+    end
+
+    context '2 words (Genus species), subgenus omitted from the search string' do
+      specify 'a feminine-ending search matches the stored masculine species' do
+        result = match(names: ['Aus maculata'], try_without_subgenus: true).first
+        expect(result[:taxon_name_id]).to eq(species_under_subgenus.id)
+      end
+    end
+
+    context '3 words, capitalized or parenthesized middle word: certainly species-terminal' do
+      specify 'a capitalized bare middle word is treated as an ignored subgenus' do
+        result = match(names: ['Aus Nonsense maculata'], try_without_subgenus: true).first
+        expect(result[:taxon_name_id]).to eq(species_under_subgenus.id)
+      end
+
+      specify 'the real subgenus name (also capitalized) works too' do
+        result = match(names: ['Aus Bus maculata'], try_without_subgenus: true).first
+        expect(result[:taxon_name_id]).to eq(species_under_subgenus.id)
+      end
+
+      specify 'a parenthesized middle word works the same way' do
+        result = match(names: ['Aus (Nonsense) maculata'], try_without_subgenus: true).first
+        expect(result[:taxon_name_id]).to eq(species_under_subgenus.id)
+      end
+    end
+
+    context '3 words, lowercase middle word: certainly subspecies-terminal' do
+      let!(:species_no_subgenus) do
+        Protonym.create!(name: 'dus', rank_class: Ranks.lookup(:iczn, :species), parent: genus)
+      end
+
+      let!(:subspecies_no_subgenus) do
+        Protonym.create!(name: 'radiatus', rank_class: Ranks.lookup(:iczn, :subspecies), parent: species_no_subgenus)
+      end
+
+      specify 'the species is an exact anchor, the subspecies epithet gender-matches' do
+        result = match(names: ['Aus dus radiata'], try_without_subgenus: true).first
+        expect(result[:taxon_name_id]).to eq(subspecies_no_subgenus.id)
+      end
+
+      specify 'a lowercase middle word is never treated as an ignorable subgenus' do
+        # If 'dus' were (wrongly) treated as ignorable instead of an anchor, this would
+        # resolve to species_under_subgenus instead of correctly finding nothing.
+        result = match(names: ['Aus dus maculata'], try_without_subgenus: true).first
+        expect(result[:taxon_name_id]).not_to eq(species_under_subgenus.id)
+        expect(result[:matched]).to eq(false)
+      end
+    end
+
+    context '4 words (Genus Subgenus species subspecies)' do
+      let!(:subspecies_under_subgenus) do
+        Protonym.create!(name: 'nigratus', rank_class: Ranks.lookup(:iczn, :subspecies), parent: species_under_subgenus)
+      end
+
+      specify 'the species (second-to-last word) is also gender-tolerant, same as the subspecies epithet' do
+        result = match(names: ['Aus Bus maculatus nigrata'], try_without_subgenus: true).first
+        expect(result[:taxon_name_id]).to eq(subspecies_under_subgenus.id)
+
+        result = match(names: ['Aus Bus maculata nigrata'], try_without_subgenus: true).first
+        expect(result[:taxon_name_id]).to eq(subspecies_under_subgenus.id)
+      end
+
+      specify 'a species epithet that is a genuinely different word (not a gender variant) finds nothing' do
+        result = match(names: ['Aus Bus nonexistent nigrata'], try_without_subgenus: true).first
+        expect(result[:matched]).to eq(false)
+      end
+    end
+
+    context 'ICN/ICNP-style rank abbreviations, independent of word count' do
+      let!(:subspecies_under_subgenus) do
+        Protonym.create!(name: 'nigratus', rank_class: Ranks.lookup(:iczn, :subspecies), parent: species_under_subgenus)
+      end
+
+      specify 'a subg. marker is certainly species-terminal, whatever it says' do
+        result = match(names: ['Aus subg. Nonsense maculata'], try_without_subgenus: true).first
+        expect(result[:taxon_name_id]).to eq(species_under_subgenus.id)
+      end
+
+      specify 'sgen./sect./ser. markers (and their sub- forms) are ignored the same way' do
+        result = match(names: ['Aus sgen. Bus sect. Foo maculata'], try_without_subgenus: true).first
+        expect(result[:taxon_name_id]).to eq(species_under_subgenus.id)
+      end
+
+      specify 'a subsp. marker resolves the species/subspecies split regardless of a bare subgenus in between' do
+        result = match(names: ['Aus Bus maculatus subsp. nigrata'], try_without_subgenus: true).first
+        expect(result[:taxon_name_id]).to eq(subspecies_under_subgenus.id)
+      end
+
+      specify 'genus-group and species-group markers together (the full ICN form) resolve correctly' do
+        result = match(names: ['Aus subg. Bus maculatus subsp. nigrata'], try_without_subgenus: true).first
+        expect(result[:taxon_name_id]).to eq(subspecies_under_subgenus.id)
+      end
+
+      specify 'a subsp. marker with no species word before it gives up rather than guessing' do
+        result = match(names: ['Aus subsp. nigrata'], try_without_subgenus: true).first
+        expect(result[:matched]).to eq(false)
+      end
+    end
+
+    context 'deeper ICN infraspecific chain (variety, form)' do
+      let(:icn_genus) { Protonym.create!(name: 'Rosa', rank_class: Ranks.lookup(:icn, :genus), parent: root) }
+      let(:icn_species) { Protonym.create!(name: 'arvensis', rank_class: Ranks.lookup(:icn, :species), parent: icn_genus) }
+      let(:icn_variety) { Protonym.create!(name: 'alba', rank_class: Ranks.lookup(:icn, :variety), parent: icn_species) }
+
+      let!(:icn_form) do
+        Protonym.create!(name: 'compactus', rank_class: Ranks.lookup(:icn, :form), parent: icn_variety)
+      end
+
+      specify 'every intermediate species-group rank present must be an anchor, and every level — anchors included — is gender-tolerant' do
+        # 'album' (neuter) instead of the stored 'alba' (feminine) — proves the
+        # variety anchor is gender-tolerant too, not just the terminal.
+        result = match(names: ['Rosa arvensis var. album f. compacta'], try_without_subgenus: true).first
+        expect(result[:taxon_name_id]).to eq(icn_form.id)
+      end
+
+      specify 'skipping an intermediate rank (variety) does not match, even though genus/species/terminal all agree' do
+        result = match(names: ['Rosa arvensis f. compacta'], try_without_subgenus: true).first
+        expect(result[:matched]).to eq(false)
+      end
+
+      specify 'a wrong intermediate anchor (variety) does not match' do
+        result = match(names: ['Rosa arvensis var. nonexistent f. compacta'], try_without_subgenus: true).first
+        expect(result[:matched]).to eq(false)
+      end
+    end
+
+    context 'genus-group content is ignored inside a marked species-group chain' do
+      specify 'a section between genus and species does not break an otherwise-valid var./f. chain' do
+        icn_genus = Protonym.create!(name: 'Viola', rank_class: Ranks.lookup(:icn, :genus), parent: root)
+        icn_section = Protonym.create!(name: 'Nomimium', rank_class: Ranks.lookup(:icn, :section), parent: icn_genus)
+        icn_species = Protonym.create!(name: 'arvensis', rank_class: Ranks.lookup(:icn, :species), parent: icn_section)
+        icn_variety = Protonym.create!(name: 'alba', rank_class: Ranks.lookup(:icn, :variety), parent: icn_species)
+        icn_form = Protonym.create!(name: 'compactus', rank_class: Ranks.lookup(:icn, :form), parent: icn_variety)
+
+        result = match(names: ['Viola sect. Nomimium arvensis var. alba f. compacta'], try_without_subgenus: true).first
+        expect(result[:taxon_name_id]).to eq(icn_form.id)
+      end
+    end
+
+    context 'word counts other than 2, 3, or 4 (with no recognized markers)' do
+      specify 'gives up rather than guessing' do
+        result = match(names: ['Aus Bus maculatus nigratus extra'], try_without_subgenus: true).first
+        expect(result[:matched]).to eq(false)
+      end
+    end
+
+    context 'original genus (a name reclassified into a different genus)' do
+      let(:original_genus) { Protonym.create!(name: 'Formica', rank_class: Ranks.lookup(:iczn, :genus), parent: root) }
+
+      let!(:reclassified_species) do
+        species = Protonym.create!(name: 'maculata', rank_class: Ranks.lookup(:iczn, :species), parent: genus)
+        TaxonNameRelationship::OriginalCombination::OriginalGenus.create!(
+          subject_taxon_name: original_genus, object_taxon_name: species
+        )
+        species
+      end
+
+      specify 'a search using the original genus matches the current record' do
+        result = match(names: ['Formica maculata'], try_without_subgenus: true).first
+        expect(result[:taxon_name_id]).to eq(reclassified_species.id)
+      end
+
+      specify 'the current genus still matches too' do
+        result = match(names: ['Aus maculata'], try_without_subgenus: true).first
+        expect(result[:taxon_name_id]).to eq(reclassified_species.id)
+      end
+
+      specify 'an unrelated genus (neither current nor original) does not match' do
+        result = match(names: ['Xus maculata'], try_without_subgenus: true).first
+        expect(result[:matched]).to eq(false)
+      end
+    end
+
+    context 'ICN data (not just ICZN)' do
+      let(:icn_genus) { Protonym.create!(name: 'Icnaus', rank_class: Ranks.lookup(:icn, :genus), parent: root) }
+      let(:icn_subgenus) { Protonym.create!(name: 'Icnbus', rank_class: Ranks.lookup(:icn, :subgenus), parent: icn_genus) }
+
+      let!(:icn_species) do
+        Protonym.create!(name: 'maculatus', rank_class: Ranks.lookup(:icn, :species), parent: icn_subgenus)
+      end
+
+      specify 'a feminine-ending search matches the stored masculine species, subgenus ignored' do
+        result = match(names: ['Icnaus maculata'], try_without_subgenus: true).first
+        expect(result[:taxon_name_id]).to eq(icn_species.id)
+      end
+    end
+
+    context 'part-of-speech classification is not consulted' do
+      specify 'a gender-varied spelling still matches a noun-in-genitive-case candidate' do
+        # epithet_scope doesn't read taxon_name_classifications at all — this
+        # pins that down, so a part-of-speech gate can't be silently
+        # reintroduced. Nomenclaturally a genitive-case noun should never
+        # take a different gender-agreeing spelling, but real-world input —
+        # older literature, unjustified emendations, legacy/external data —
+        # often carries that variant anyway.
+        species = Protonym.create!(name: 'smithianus', rank_class: Ranks.lookup(:iczn, :species), parent: genus)
+        TaxonNameClassification::Latinized::PartOfSpeech::NounInGenitiveCase.create!(taxon_name: species)
+
+        result = match(names: ['Aus smithiana'], try_without_subgenus: true).first
+        expect(result[:taxon_name_id]).to eq(species.id)
+      end
+    end
+
+    context "gender-form matching applies regardless of the genus's classified gender" do
+      specify 'a masculine-classified genus still matches a feminine-ending search' do
+        # The genus is explicitly classified Masculine, so nomenclaturally
+        # 'longus' (masculine) is the only spelling that's ever correct here —
+        # there's no reclassification history to justify a different ending,
+        # unlike the other specs in this file. We still match anyway.
+        TaxonNameClassification::Latinized::Gender::Masculine.create!(taxon_name: genus)
+        masculine_species = Protonym.create!(name: 'longus', rank_class: Ranks.lookup(:iczn, :species), parent: genus)
+
+        result = match(names: ['Aus longa'], try_without_subgenus: true).first
+        expect(result[:taxon_name_id]).to eq(masculine_species.id)
+      end
+    end
+
+    context 'combined with levenshtein_distance' do
+      specify 'a typo in the terminal epithet is tolerated' do
+        # 'maculatta' isn't one of maculatus's predicted gender forms ('maculattus',
+        # 'maculatta', 'maculattum') — only the levenshtein clause bridges this.
+        result = match(
+          names: ['Aus (Bus) maculatta'], try_without_subgenus: true, levenshtein_distance: 2
+        ).first
+        expect(result[:taxon_name_id]).to eq(species_under_subgenus.id)
+      end
+
+      specify 'a typo in the genus name is tolerated' do
+        result = match(
+          names: ['Axs (Bus) maculata'], try_without_subgenus: true, levenshtein_distance: 1
+        ).first
+        expect(result[:taxon_name_id]).to eq(species_under_subgenus.id)
+      end
+
+      specify 'a typo beyond the levenshtein distance is not tolerated' do
+        result = match(
+          names: ['Axs (Bus) maculata'], try_without_subgenus: true, levenshtein_distance: 0
+        ).first
+        expect(result[:matched]).to eq(false)
+      end
+    end
+  end
+
   context 'fuzzy matching' do
     specify 'matches within the levenshtein distance' do
       result = match(names: ['Aus bux'], levenshtein_distance: 2).first

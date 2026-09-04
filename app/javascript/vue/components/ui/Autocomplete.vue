@@ -85,7 +85,7 @@ headers to be used in the call. Using it will override the common headers
 </template>
 
 <script>
-import { sanitizeHtml } from '@/helpers'
+import { sanitizeHtml, stripMarkTags } from '@/helpers'
 import AjaxCall from '@/helpers/ajaxCall'
 import AutocompleteSpinner from './Autocomplete/AutocompleteSpinner.vue'
 import { AUTOCOMPLETE_HELP } from './Autocomplete/autocompleteHelp'
@@ -324,9 +324,17 @@ export default {
     },
 
     sendItem(item) {
-      this.$emit('update:modelValue', item)
-      this.$emit('getItem', item)
-      this.$emit('select', item)
+      // label_html is only meant to carry the <mark>-highlighted search term
+      // while rendering the dropdown; consumers that persist/display the
+      // selected item from this event should never see that highlight.
+      const cleanItem =
+        item && typeof item.label_html === 'string'
+          ? { ...item, label_html: stripMarkTags(item.label_html) }
+          : item
+
+      this.$emit('update:modelValue', cleanItem)
+      this.$emit('getItem', cleanItem)
+      this.$emit('select', cleanItem)
     },
 
     sendKeyEvent(e) {
