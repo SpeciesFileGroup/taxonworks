@@ -397,7 +397,7 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
         'ater'       => 'ater|atra|atrum',
         'atra'       => 'ater|atra|atrum',
         'atrum'      => 'ater|atra|atrum',
-        'pedestris'  => 'pedester|pedestris|pedestre',
+        'pedestris'  => 'pedestris|pedestris|pedestre',
         'mirus'      => 'mirus|mira|mirum',
         'mira'       => 'mirus|mira|mirum',
         'mirum'      => 'mirus|mira|mirum',
