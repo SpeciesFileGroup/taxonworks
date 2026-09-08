@@ -1,8 +1,5 @@
 <template>
-  <NavBar
-    :class="{ 'feedback-warning': isInvalid }"
-    navbar-class="panel content rounded-tl-none rounded-tr-none"
-  >
+  <NavBar navbar-class="panel content rounded-tl-none rounded-tr-none">
     <div
       id="browse-otu-header"
       class="container-2xl w-full mx-auto"
@@ -67,19 +64,49 @@
         />
       </div>
       <div class="flex-separate middle">
-        <div class="padding-medium-top padding-medium-bottom">
-          <h3 v-html="otu.object_tag" />
+        <div class="padding-large-top padding-large-bottom">
+          <div class="flex-row middle gap-small">
+            <h3
+              class="text-lg"
+              v-html="otu.object_tag"
+            />
+            <VBadge
+              v-if="isInvalid"
+              color="yellow"
+              size="sm"
+            >
+              Invalid
+            </VBadge>
+            <VBadge
+              v-else
+              class="d-inline"
+              color="green"
+              size="sm"
+            >
+              Valid
+            </VBadge>
+            <span
+              v-if="isInvalid"
+              v-help.section.header.validButton
+              class="horizontal-left-content middle gap-xsmall"
+            >
+              <span class="subtle">&middot; valid:</span>
+              <a
+                v-if="validTaxonName"
+                :href="validOtuUrl"
+                v-html="validTaxonName.cached_html"
+              />
+              <a
+                v-else
+                :href="validOtuUrl"
+              >
+                go to valid name
+              </a>
+            </span>
+          </div>
           <CoordinateOtus />
         </div>
         <div class="horizontal-left-content middle gap-small">
-          <button
-            v-if="isInvalid"
-            v-help.section.header.validButton
-            class="button button-default normal-input"
-            @click="openValid"
-          >
-            Browse current OTU
-          </button>
           <QuickForms :global-id="otu.global_id" />
           <RadialAnnotator
             :global-id="otu.global_id"
@@ -135,6 +162,7 @@ import { Otu } from '@/routes/endpoints'
 import { useHotkey } from '@/composables'
 import { useOtuStore } from '../../store'
 import { PANEL_COMPONENTS } from '../../constants'
+import VBadge from '@/components/ui/VBadge/VBadge.vue'
 import VAutocomplete from '@/components/ui/Autocomplete.vue'
 import CoordinateOtus from '../CoordinateOtus.vue'
 import platformKey from '@/helpers/getPlatformKey.js'
@@ -179,6 +207,13 @@ const isLoading = ref(true)
 const taxonName = computed(() => otuStore.taxonName)
 const isInvalid = computed(
   () => taxonName.value && !taxonName.value.cached_is_valid
+)
+const validTaxonName = computed(() =>
+  taxonName.value?.valid_name?.id ? taxonName.value.valid_name : undefined
+)
+const validOtuUrl = computed(
+  () =>
+    `${RouteNames.BrowseOtu}?taxon_name_id=${taxonName.value?.cached_valid_taxon_name_id}`
 )
 
 const shortcuts = ref([
@@ -300,12 +335,6 @@ function showForRanks(title) {
       ? ShowForThisGroup(rankGroup, taxonName.value)
       : componentSection.otu
     : true
-}
-
-function openValid() {
-  window.open(
-    `${RouteNames.BrowseOtu}?taxon_name_id=${taxonName.value.cached_valid_taxon_name_id}`
-  )
 }
 </script>
 

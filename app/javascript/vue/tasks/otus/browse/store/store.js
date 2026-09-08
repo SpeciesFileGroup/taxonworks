@@ -110,7 +110,9 @@ export const useOtuStore = defineStore('browse-otu', {
       settings.isLoading = true
 
       try {
-        const { body } = await TaxonName.find(taxonNameId)
+        const { body } = await TaxonName.find(taxonNameId, {
+          extend: ['valid_name']
+        })
         this.taxonName = body
       } finally {
         settings.isLoading = false

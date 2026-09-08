@@ -283,7 +283,7 @@ function showForRanks(section) {
   }
   .autocomplete-search-bar {
     input {
-      width: 500px;
+      width: 400px;
     }
   }
   .container {

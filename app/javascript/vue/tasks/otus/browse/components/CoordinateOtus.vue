@@ -13,7 +13,7 @@
       <template #content>
         <ul class="no_bullets">
           <li
-            v-for="otu in store.coordinateOtus"
+            v-for="otu in previewCoordinateOtus"
             :key="otu.id"
             class="horizontal-left-content gap-small"
           >
@@ -27,6 +27,9 @@
               v-else
               v-html="otu.object_label"
             />
+          </li>
+          <li v-if="hiddenCoordinateOtusCount">
+            ... and {{ hiddenCoordinateOtusCount }} more
           </li>
         </ul>
       </template>
@@ -121,9 +124,19 @@ import VTooltip from '@/components/ui/VTooltip/VTooltip.vue'
 import { useOtuStore } from '../store'
 import { OTU } from '@/constants'
 
+const MAX_TOOLTIP_OTUS = 10
+
 const otus = ref([])
 const isModalVisible = ref(false)
 const store = useOtuStore()
+
+const previewCoordinateOtus = computed(() =>
+  store.coordinateOtus.slice(0, MAX_TOOLTIP_OTUS)
+)
+
+const hiddenCoordinateOtusCount = computed(() =>
+  Math.max(store.coordinateOtus.length - MAX_TOOLTIP_OTUS, 0)
+)
 
 const selectableOtus = computed(() =>
   store.coordinateOtus.filter((otu) => otu.id !== store.otu?.id)
