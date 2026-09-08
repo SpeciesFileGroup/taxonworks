@@ -572,6 +572,28 @@ class TaxonName < ApplicationRecord
     taxon_names.sort!{|a, b| RANKS.index(a.rank_string) <=> RANKS.index(b.rank_string)}
   end
 
+  # @param taxon_name_ids [Array<Integer>]
+  # @return [TaxonName, nil]
+  #   The most recent (deepest) common ancestor among the given taxon names,
+  #   computed via `taxon_name_hierarchies`. Returns nil when the set is
+  #   empty or the names have no shared ancestor.
+  def self.mrca(taxon_name_ids)
+    ids = Array(taxon_name_ids).flatten.compact.uniq
+    return nil if ids.empty?
+    return ::TaxonName.find_by(id: ids.first) if ids.size == 1
+
+    ancestor_id = ::TaxonNameHierarchy
+      .where(descendant_id: ids)
+      .group(:ancestor_id)
+      .having('COUNT(DISTINCT descendant_id) = ?', ids.size)
+      .order(Arel.sql('MAX(generations) ASC'))
+      .limit(1)
+      .pluck(:ancestor_id)
+      .first
+
+    ::TaxonName.find_by(id: ancestor_id)
+  end
+
   # TODO: what is this:!? :)
   # def self.foo(rank_classes)
   #   from <<-SQL.strip_heredoc

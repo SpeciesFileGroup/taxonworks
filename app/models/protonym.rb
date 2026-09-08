@@ -567,7 +567,8 @@ class Protonym < TaxonName
 
   # @return Boolean
   def is_original_name?
-    cached_author_year =~ /\(/ ? false : true
+    cached_author_year[0] == '(' ? false : true
+    # cached_author_year =~ /\(/ ? false : true
   end
 
   # @return Boolean

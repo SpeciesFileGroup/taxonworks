@@ -86,7 +86,7 @@ module Queries
 
       def base_query
         q = ::Otu.all
-        q = q.where(project_id:) if project_id.any? # TODO: this needs to be a wrapping layer check, not here
+        q = q.where(project_id:) if project_id.any? # TODO: this needs to be a wrapping layer check, definitely not here
         q
       end
 
@@ -320,6 +320,8 @@ module Queries
 
             a = scope_autocomplete(a)
 
+            # This is probably messing with the eager load
+            # Need to refine all auto auto complete/select to include taxon name, parent, and valid name within the query
             a = a.select("otus.*, #{y} as priority") unless y.nil?
 
             queries.push a

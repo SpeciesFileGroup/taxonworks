@@ -8,6 +8,38 @@ RSpec.describe Lead, type: :model do
 
   let(:lead) { FactoryBot.create(:valid_lead) }
 
+  specify '#is_virtual true means text is not required' do
+    l = Lead.new(
+      parent: lead,
+      text: nil,
+      is_virtual: true,
+      otu: FactoryBot.create(:valid_otu)
+    )
+    expect(l.valid?).to be_truthy
+  end
+
+  specify '#is_virtual root Lead is valid without text' do
+    l = Lead.new(
+      text: 'Virtual key root',
+      is_virtual: true,
+      otu: FactoryBot.create(:valid_otu)
+    )
+    expect(l.valid?).to be_truthy
+  end
+
+  specify '#is_virtual and many OTUs on lead' do
+    %w{A B C D E}.each do |n|
+      l = Lead.create!(
+        parent: lead,
+        text: nil,
+        is_virtual: true,
+        otu: FactoryBot.create(:valid_otu, name: n)
+      )
+    end
+
+    expect(lead.reload.children.size).to eq(5)
+  end
+
   specify '#destroy_children destroys when one child' do
     FactoryBot.create(:valid_lead, parent: lead)
     lead.reload.destroy_children
@@ -311,6 +343,21 @@ RSpec.describe Lead, type: :model do
 
       q = Lead.roots_with_data(project_id, true)
       expect(q.first.association(:otu).loaded?).to be(true)
+    end
+
+    specify 'returns otus_count for a virtual root, scoped to the given ids' do
+      root = FactoryBot.create(:valid_lead, is_virtual: true)
+      other_root = FactoryBot.create(:valid_lead, is_virtual: true)
+
+      otu1 = FactoryBot.create(:valid_otu)
+      otu2 = FactoryBot.create(:valid_otu)
+      FactoryBot.create(:valid_lead, parent: root, is_virtual: true, otu: otu1, text: nil)
+      FactoryBot.create(:valid_lead, parent: root, is_virtual: true, otu: otu2, text: nil)
+      FactoryBot.create(:valid_lead, parent: other_root, is_virtual: true, otu: otu1, text: nil)
+
+      q = Lead.roots_with_data(project_id, false, is_virtual: true).where(id: [root.id])
+      expect(q.map(&:id)).to eq([root.id])
+      expect(q.first.otus_count).to eq(2)
     end
 
   end

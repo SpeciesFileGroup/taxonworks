@@ -110,6 +110,10 @@ scope :tasks do
   end
 
   scope :leads do
+    scope :cite_key, controller: 'tasks/leads/cite_key' do
+      get '/', action: :index, as: 'cite_key_task'
+    end
+
     scope :dichotomous_key, controller: 'tasks/leads/dichotomous_key' do
       get '/', action: :index, as: 'dichotomous_key_task'
     end

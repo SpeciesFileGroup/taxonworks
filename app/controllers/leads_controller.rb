@@ -1,10 +1,11 @@
 class LeadsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
+  after_action -> { set_pagination_headers(:leads) }, only: [:index], if: :json_request?
   before_action :set_lead, only: %i[
     edit add_children update destroy show
     redirect_option_texts destroy_children insert_couplet delete_children
     duplicate otus destroy_subtree reorder_children insert_key
-    set_observation_matrix reset_lead_items depictions
+    set_observation_matrix reset_lead_items depictions destroy_simple_lead
   ]
 
   # GET /leads
@@ -14,7 +15,7 @@ class LeadsController < ApplicationController
       format.html {
         one_week_ago = Time.now.utc.to_date - 7
         @recent_objects = Lead
-          .roots_with_data(sessions_current_project_id)
+          .roots_with_data(sessions_current_project_id, false, is_virtual: :all)
           .where('key_updated_at > ?', one_week_ago)
           .reorder(key_updated_at: :desc)
           .limit(10)
@@ -22,24 +23,89 @@ class LeadsController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        if params[:load_root_otus]
-          @leads = Lead.roots_with_data(sessions_current_project_id, true)
-        else
-          @leads = Lead.roots_with_data(sessions_current_project_id)
+        is_virtual =
+          if params[:is_virtual].to_s == 'all'
+            :all
+          elsif params[:is_virtual].present?
+            ActiveRecord::Type::Boolean.new.cast(params[:is_virtual])
+          else
+            nil
+          end
+
+        @leads = Lead.roots_with_data(
+          sessions_current_project_id,
+          !!params[:load_root_otus],
+          is_virtual:
+        )
+
+        @leads = @leads.where(id: params[:id]) if params[:id].present?
+
+        if params[:recent].present? && ActiveRecord::Type::Boolean.new.cast(params[:recent])
+          @leads = @leads.reorder('key_updated_at DESC NULLS LAST')
         end
+
+        @leads = @leads.page(params[:page]).per(params[:per])
       }
     end
   end
 
   def api_index
-    @leads = Lead.roots_with_data(sessions_current_project_id, true).where(is_public: true)
+    # Default excludes virtual (simple) keys so existing API consumers keep
+    # the shape they expect. Callers that want simple keys pass is_virtual=true;
+    # is_virtual=all returns both.
+    is_virtual =
+      if params[:is_virtual].to_s == 'all'
+        :all
+      elsif params[:is_virtual].present?
+        ActiveRecord::Type::Boolean.new.cast(params[:is_virtual])
+      else
+        false
+      end
+
+    @leads = Lead
+      .roots_with_data(sessions_current_project_id, true, is_virtual:)
+      .where(is_public: true)
 
     render '/leads/api/v1/index'
   end
 
+  # GET /leads/cite_key_bootstrap.json
+  # Accepts either an explicit `otu_ids[]` list or a nested `otu_query`
+  # (a Queries::Otu::Filter param hash). Returns the MRCA OTU (parent
+  # taxon) for the resulting OTU set and the embedded OTU details so
+  # the cite_key task can prefill Step 1.
+  def cite_key_bootstrap
+    if params[:otu_ids].present?
+      otu_ids = Array(params[:otu_ids]).flatten.compact.map(&:to_i).uniq
+      scope = ::Otu.where(project_id: sessions_current_project_id, id: otu_ids)
+    elsif params[:otu_query].present?
+      scope = ::Queries::Otu::Filter.new(params[:otu_query]).all
+        .where(project_id: sessions_current_project_id)
+    else
+      scope = ::Otu.none
+    end
+
+    cap = 2000
+    total = scope.count
+    otus = scope.includes(:taxon_name).limit(cap).to_a
+    taxon_name_ids = otus.map(&:taxon_name_id).compact.uniq
+
+    mrca_taxon = ::TaxonName.mrca(taxon_name_ids)
+    parent_otu = mrca_taxon &&
+      ::Otu.where(project_id: sessions_current_project_id, taxon_name_id: mrca_taxon.id).first
+
+    render json: {
+      parent_otu: parent_otu && otu_payload(parent_otu),
+      otus: otus.map { |o| otu_payload(o) },
+      total: total,
+      truncated: total > cap
+    }
+  end
+
   def list
-    @leads = Lead.
-      roots_with_data(sessions_current_project_id).page(params[:page])
+    @leads = Lead
+      .roots_with_data(sessions_current_project_id, false, is_virtual: :all)
+      .page(params[:page])
   end
 
   # GET /leads/1/redirect_option_texts.json
@@ -65,7 +131,11 @@ class LeadsController < ApplicationController
 
   # GET /leads/1/edit
   def edit
-    redirect_to new_lead_task_path lead_id: @lead.id
+    if @lead.is_virtual
+      redirect_to cite_key_task_path(lead_id: @lead.id)
+    else
+      redirect_to new_lead_task_path(lead_id: @lead.id)
+    end
   end
 
   # POST /leads
@@ -74,7 +144,7 @@ class LeadsController < ApplicationController
     @lead = Lead.new(lead_params)
     respond_to do |format|
       if @lead.save
-        new_couplet # we make a blank couplet so we can show the key
+        new_couplet unless @lead.is_virtual
         expand_lead
         format.json { render action: :show, status: :created, location: @lead }
       else
@@ -195,6 +265,27 @@ class LeadsController < ApplicationController
           render json: @lead.errors, status: :unprocessable_content
         }
       end
+    end
+  end
+
+  # DELETE /leads/1/destroy_simple_lead.json
+  # Simple (virtual) keys are flat by construction and are managed by the
+  # cite_key task. This action lets that task destroy either a species-child
+  # leaf or the entire simple key from the same endpoint. It refuses anything
+  # that isn't virtual so it can't be repurposed to remove a lead from an
+  # ordinary dichotomous couplet (which #destroy still guards against).
+  def destroy_simple_lead
+    unless @lead.is_virtual
+      render json: { errors: { base: ['Only virtual (simple key) leads can be destroyed here.'] } },
+        status: :unprocessable_content
+      return
+    end
+
+    begin
+      @lead.destroy!
+      head :no_content
+    rescue ActiveRecord::RecordNotDestroyed, ActiveRecord::RecordInvalid
+      render json: @lead.errors, status: :unprocessable_content
     end
   end
 
@@ -370,6 +461,23 @@ class LeadsController < ApplicationController
 
   private
 
+  # @return [Hash] the OTU + taxon_name shape the cite_key task expects
+  def otu_payload(otu)
+    tn = otu.taxon_name
+    {
+      id: otu.id,
+      object_tag: helpers.object_tag(otu),
+      taxon_name: tn && {
+        id: tn.id,
+        cached_html: tn.cached_html,
+        cached_author_year: tn.cached_author_year,
+        cached_nomenclature_date: tn.cached_nomenclature_date,
+        cached_is_valid: tn.cached_is_valid,
+        cached_misspelling: tn.cached_misspelling
+      }
+    }
+  end
+
   def set_lead
     @lead = Lead.find(params[:id])
   end
@@ -378,7 +486,7 @@ class LeadsController < ApplicationController
     params.require(:lead).permit(
       :parent_id,
       :otu_id, :text, :origin_label, :description, :redirect_id,
-      :link_out, :link_out_text, :is_public, :position
+      :link_out, :link_out_text, :is_public, :is_virtual, :position
     )
   end
 

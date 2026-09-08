@@ -290,7 +290,9 @@ module LeadsHelper
   def couplets_count(lead)
     # Couplets - which can have more than two options - are in 1-1
     # correspondence with nodes that have children (via 'couplet' <--> 'parent
-    # of that couplet').
+    # of that couplet'). Simple (virtual) keys are flat and don't use couplets.
+    return 0 if lead.is_virtual
+
     lead.self_and_descendants.count - lead.leaves.count
   end
 

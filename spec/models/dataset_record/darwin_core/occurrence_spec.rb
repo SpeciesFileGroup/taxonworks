@@ -11,6 +11,209 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
 
   after(:all) { DatabaseCleaner.clean }
 
+  context 'when importing HumanObservation occurrences' do
+    before :all do
+      DatabaseCleaner.start
+      init_housekeeping
+
+      FactoryBot.create(:valid_namespace, short_name: 'INAT-RECORD')
+      FactoryBot.create(:valid_namespace, short_name: 'INAT-CATALOG')
+
+      @import_dataset = ImportDataset::DarwinCore::Occurrences.create!(
+        source: fixture_file_upload(
+          Rails.root + 'spec/files/import_datasets/occurrences/human_observation.tsv',
+          'text/plain'
+        ),
+        description: 'Human observations'
+      ).tap(&:stage)
+
+      @results = @import_dataset.import(5000, 100)
+    end
+
+    after(:all) { DatabaseCleaner.clean }
+
+    it 'imports canonical and GBIF-style basisOfRecord values' do
+      expect(@results.map(&:status)).to eq(%w[Imported Imported])
+    end
+
+    it 'allows Event as the type for a HumanObservation' do
+      expect(@results.first.status).to eq('Imported')
+    end
+
+    it 'creates FieldOccurrences instead of CollectionObjects' do
+      expect(FieldOccurrence.count).to eq(2)
+      expect(CollectionObject.count).to eq(0)
+    end
+
+    it 'uses individualCount as the FieldOccurrence total without creating a Lot' do
+      expect(FieldOccurrence.order(:id).pluck(:total)).to eq([3, 1])
+      expect(Lot.count).to eq(0)
+    end
+
+    it 'attaches the collecting event and taxon determination' do
+      field_occurrence = FieldOccurrence.order(:id).first
+
+      expect(field_occurrence.collecting_event.start_date_year).to eq(2024)
+      expect(field_occurrence.collecting_event.verbatim_collectors).to eq('Jane Observer')
+      expect(field_occurrence.collecting_event.collectors.count).to eq(1)
+      expect(field_occurrence.current_otu.taxon_name.cached).to eq('Orotettix andeanus')
+    end
+
+    it 'attaches occurrence, catalog, and record identifiers to the FieldOccurrence' do
+      field_occurrence = FieldOccurrence.order(:id).first
+
+      expect(field_occurrence.identifiers.find_by(type: 'Identifier::Local::Import::Dwc').identifier).to eq('inat-observation-1')
+      expect(field_occurrence.identifiers.find_by(type: 'Identifier::Local::CatalogNumber').identifier).to eq('catalog-1')
+      expect(field_occurrence.identifiers.find_by(type: 'Identifier::Local::RecordNumber').identifier).to eq('record-1')
+    end
+
+    it 'maps occurrence remarks to a FieldOccurrence note' do
+      expect(FieldOccurrence.order(:id).first.notes.pluck(:text)).to contain_exactly('Observed alive')
+    end
+
+    it 'ignores institutionCode rather than resolving a repository' do
+      expect(@results.first.send(:ignored_fields)).to include(
+        @results.first.send(:get_field_mapping, 'institutionCode')
+      )
+    end
+
+    it 'retains institutionCode for catalog number namespace mapping' do
+      expect(@import_dataset.metadata['catalog_numbers_namespaces']).to include(
+        [['iNaturalist', nil], nil]
+      )
+    end
+
+    it 'records the imported FieldOccurrence in row metadata' do
+      expect(@results.first.metadata.dig('imported_objects', 'field_occurrence', 'id')).to eq(FieldOccurrence.order(:id).first.id)
+    end
+
+    it 'indexes the FieldOccurrence as a HumanObservation' do
+      dwc_occurrence = FieldOccurrence.order(:id).first.set_dwc_occurrence
+
+      expect(dwc_occurrence.basisOfRecord).to eq('HumanObservation')
+      expect(dwc_occurrence.dwc_occurrence_object_type).to eq('FieldOccurrence')
+    end
+  end
+
+  context 'when HumanObservation input contains unsupported physical-object data' do
+    before :all do
+      DatabaseCleaner.start
+      init_housekeeping
+
+      @import_dataset = ImportDataset::DarwinCore::Occurrences.create!(
+        source: fixture_file_upload(
+          Rails.root + 'spec/files/import_datasets/occurrences/human_observation_errors.tsv',
+          'text/plain'
+        ),
+        description: 'Unsupported observation data'
+      ).tap(&:stage)
+
+      @results = @import_dataset.import(5000, 100)
+    end
+
+    after(:all) { DatabaseCleaner.clean }
+
+    it 'continues to reject MachineObservation' do
+      expect(@results.first.status).to eq('Errored')
+      expect(@results.first.metadata.dig('error_data', 'messages', 'basisOfRecord')).to be_present
+    end
+
+    it 'reports preparations as an importer error' do
+      expect(@results.second.status).to eq('Errored')
+      expect(@results.second.metadata.dig('error_data', 'messages', 'preparations')).to include(
+        'is not supported for HumanObservation'
+      )
+    end
+
+    it 'reports typeStatus as an importer error' do
+      expect(@results.third.status).to eq('Errored')
+      expect(@results.third.metadata.dig('error_data', 'messages', 'typeStatus')).to include(
+        'requires a physical CollectionObject'
+      )
+    end
+  end
+
+  context 'when HumanObservations have duplicate catalog numbers' do
+    before :all do
+      DatabaseCleaner.start
+      init_housekeeping
+      FactoryBot.create(:valid_namespace, short_name: 'INAT-CATALOG')
+
+      @import_dataset = ImportDataset::DarwinCore::Occurrences.create!(
+        source: fixture_file_upload(
+          Rails.root + 'spec/files/import_datasets/occurrences/human_observation_duplicate_catalog_number.tsv',
+          'text/plain'
+        ),
+        description: 'Duplicate observation catalog numbers'
+      ).tap(&:stage)
+
+      @results = @import_dataset.import(5000, 100)
+    end
+
+    after(:all) { DatabaseCleaner.clean }
+
+    it 'errors instead of containerizing the second FieldOccurrence' do
+      expect(@results.map(&:status)).to eq(%w[Imported Errored])
+      expect(@results.second.metadata.dig('error_data', 'messages', 'catalogNumber')).to include(
+        'Is already in use; FieldOccurrences can not be containerized'
+      )
+      expect(FieldOccurrence.count).to eq(1)
+    end
+  end
+
+  context 'when importing model-specific custom fields' do
+    before :all do
+      DatabaseCleaner.start
+      init_housekeeping
+      FactoryBot.create(:valid_predicate, name: 'Custom attribute')
+      FactoryBot.create(:valid_keyword, name: 'Custom tag')
+
+      @import_dataset = ImportDataset::DarwinCore::Occurrences.create!(
+        source: fixture_file_upload(
+          Rails.root + 'spec/files/import_datasets/occurrences/model_specific_custom_fields.tsv',
+          'text/plain'
+        ),
+        description: 'Model-specific custom fields'
+      ).tap(&:stage)
+
+      @results = @import_dataset.import(5000, 100)
+    end
+
+    after(:all) { DatabaseCleaner.clean }
+
+    it 'imports both occurrence types' do
+      expect(@results.map(&:status)).to eq(%w[Imported Imported])
+    end
+
+    it 'maps TW:FieldOccurrence attributes, data attributes, and tags only to HumanObservation' do
+      field_occurrence = FieldOccurrence.first
+
+      expect(field_occurrence.total).to eq(4)
+      expect(field_occurrence.internal_attributes.pluck(:value)).to contain_exactly('observation value')
+      expect(field_occurrence.keywords.pluck(:name)).to contain_exactly('Custom tag')
+    end
+
+    it 'maps TW:CollectionObject attributes, data attributes, and tags only to physical occurrences' do
+      specimen = Specimen.first
+
+      expect(specimen.total).to eq(1)
+      expect(specimen.buffered_determinations).to eq('physical label')
+      expect(specimen.internal_attributes.pluck(:value)).to contain_exactly('specimen value')
+      expect(specimen.keywords.pluck(:name)).to contain_exactly('Custom tag')
+    end
+
+    it 'marks the opposite model field groups ignored for each row' do
+      human_row, specimen_row = @results
+      collection_object_field = human_row.send(:get_field_mapping, 'TW:CollectionObject:buffered_determinations')
+      field_occurrence_field = specimen_row.send(:get_field_mapping, 'TW:FieldOccurrence:total')
+
+      expect(human_row.send(:ignored_fields)).to include(collection_object_field)
+      expect(human_row.send(:ignored_fields)).not_to include(field_occurrence_field)
+      expect(specimen_row.send(:ignored_fields)).to include(field_occurrence_field)
+      expect(specimen_row.send(:ignored_fields)).not_to include(collection_object_field)
+    end
+  end
+
   context 'when working with date fields' do
     before :all do
       DatabaseCleaner.start

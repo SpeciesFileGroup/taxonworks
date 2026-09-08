@@ -1,4 +1,5 @@
 import { ICONS, SHAPES_CONFIG } from '../constants'
+import { CircleWithCenterMarker } from './CircleWithCenterMarker'
 import {
   TYPE_MATERIAL,
   COLLECTION_OBJECT,
@@ -42,14 +43,16 @@ export default ({ L }) => ({
     const type = base ? getRelevantType(feature.properties.base) : null
     const radius = feature.properties.radius
     const markerStyle = ICONS[type] || ICONS[GEOREFERENCE]
+    const icon = L.divIcon({
+      ...markerStyle,
+      ...feature.properties.style
+    })
     const marker = radius
-      ? L.circle(latLng, Number(radius))
-      : L.marker(latLng, {
-          icon: L.divIcon({
-            ...markerStyle,
-            ...feature.properties.style
-          })
+      ? new CircleWithCenterMarker(latLng, {
+          radius: Number(radius),
+          centerMarkerIcon: icon
         })
+      : L.marker(latLng, { icon })
 
     return marker
   },
@@ -58,10 +61,11 @@ export default ({ L }) => ({
     const base = feature.properties.base
     const type = base ? getRelevantType(base) : feature.properties?.shape?.type
     const isAbsent = feature.properties.is_absent
+    const isPoint = feature.geometry?.type === 'Point'
     const style =
       feature.properties.style ||
       SHAPES_CONFIG[type]?.style ||
-      SHAPES_CONFIG.Default
+      (isPoint ? SHAPES_CONFIG[GEOREFERENCE].style : SHAPES_CONFIG.Default)
 
     return isAbsent ? { ...style, ...SHAPES_CONFIG.Absent } : style
   }

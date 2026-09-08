@@ -33,12 +33,11 @@ module SoundsHelper
         ActiveStorage::Blob.service.path_for(sound.sound_file.attachment.key)
       )
     rescue Errno::ENOENT
-      if Rails.env.production?
-        raise TaxonWorks::Error,
-          "Sound '#{sound.id}' missing its sound file at '#{sound.sound_file}'"
-      else
-        return { error: 'Missing sound file' }
-      end
+      Rails.logger.error(
+        "Sound '#{sound.id}' missing its sound file " \
+        "(blob key '#{sound.sound_file.attachment&.key}')"
+      )
+      return { error: 'Missing sound file' }
     end
     begin
       w = ::WahWah.open(t)

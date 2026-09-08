@@ -59,7 +59,7 @@ export const SHAPES_CONFIG = {
 
   [GEOREFERENCE]: {
     style: {
-      color: `var(--color-map-collection-object)`,
+      color: `var(--color-map-georeference)`,
       ...DEFAULT_SHAPE_STYLE
     }
   },
