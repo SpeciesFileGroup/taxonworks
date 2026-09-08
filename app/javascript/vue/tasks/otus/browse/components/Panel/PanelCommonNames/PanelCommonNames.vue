@@ -1,39 +1,49 @@
 <template>
   <PanelLayout
     :status="status"
-    :title="title"
     :spinner="isLoading"
     :empty="!commonNames.length"
+    :name="title"
+    :title="`${title} ${pagination ? '(' + pagination.total + ')' : ''}`"
   >
-    <TableDisplay
-      v-if="commonNames.length"
-      :list="commonNames"
-      :header="[
-        'Name',
-        'Geographic area',
-        'Language',
-        'Start year',
-        'End year',
-        ''
-      ]"
-      :destroy="false"
-      :attributes="[
-        'object_tag',
-        ['geographic_area', 'object_tag'],
-        'language_tag',
-        'start_year',
-        'end_year'
-      ]"
-    />
+    <template v-if="commonNames.length">
+      <VPagination
+        v-if="pagination"
+        class="margin-small-top margin-small-bottom"
+        :pagination="pagination"
+        @next-page="(e) => loadCommonNames(e.page)"
+      />
+      <TableDisplay
+        :list="commonNames"
+        :header="[
+          'Name',
+          'Geographic area',
+          'Language',
+          'Start year',
+          'End year',
+          ''
+        ]"
+        :destroy="false"
+        :attributes="[
+          'object_tag',
+          ['geographic_area', 'object_tag'],
+          'language_tag',
+          'start_year',
+          'end_year'
+        ]"
+      />
+    </template>
     <div v-else>No common names available</div>
   </PanelLayout>
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { CommonName } from '@/routes/endpoints'
+import { getPagination } from '@/helpers'
 import PanelLayout from '../PanelLayout.vue'
 import TableDisplay from '@/components/table_list'
+import VPagination from '@/components/pagination.vue'
 
 const props = defineProps({
   otu: {
@@ -57,17 +67,26 @@ const props = defineProps({
   }
 })
 
+const PER_PAGE = 50
+
 const commonNames = ref([])
 const isLoading = ref(false)
+const pagination = ref()
 
-async function loadCommonNames(otus) {
+const otuIds = computed(() => props.otus.map((o) => o.id))
+
+async function loadCommonNames(page = 1) {
   isLoading.value = true
 
   try {
-    const otuIds = otus.map((o) => o.id)
-    const { body } = await CommonName.all({ otu_id: otuIds })
+    const response = await CommonName.filter({
+      otu_id: otuIds.value,
+      page,
+      per: PER_PAGE
+    })
 
-    commonNames.value = body
+    pagination.value = getPagination(response)
+    commonNames.value = response.body
   } catch {
   } finally {
     isLoading.value = false
@@ -78,7 +97,7 @@ watch(
   () => props.otus,
   (newVal) => {
     if (newVal.length > 0) {
-      loadCommonNames(newVal)
+      loadCommonNames()
     }
   },
   { immediate: true }

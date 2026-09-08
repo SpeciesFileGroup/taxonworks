@@ -222,6 +222,9 @@ end
 
 resources :common_names do
   concerns [:data_routes]
+  collection do
+    match :filter, to: 'common_names#index', via: [:get, :post]
+  end
 end
 
 get 'confidences/exists', to: 'confidences#exists', defaults: {format: :json}
@@ -284,6 +287,7 @@ resources :conveyances do
     get :navigation, defaults: {format: :json}
   end
   collection do
+    match :filter, to: 'conveyances#index', via: [:get, :post]
     get :autocomplete, defaults: {format: :json}
     get :select_options, defaults: {format: :json}
   end

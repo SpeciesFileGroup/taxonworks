@@ -1,5 +1,7 @@
 import baseCRUD from './base'
+import AjaxCall from '@/helpers/ajaxCall'
 
+const controller = 'common_names'
 const permitParams = {
   common_name: {
     name: String,
@@ -12,5 +14,7 @@ const permitParams = {
 }
 
 export const CommonName = {
-  ...baseCRUD('common_names', permitParams),
+  ...baseCRUD(controller, permitParams),
+
+  filter: (params) => AjaxCall('post', `/${controller}/filter.json`, params)
 }

@@ -57,7 +57,7 @@ async function loadConveyances(otus) {
 
   try {
     const otuIds = otus.map((o) => o.id)
-    const { body } = await Conveyance.where({
+    const { body } = await Conveyance.filter({
       otu_id: otuIds,
       otu_scope: ['all'],
       per: 500
