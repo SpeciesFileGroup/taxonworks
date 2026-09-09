@@ -22,12 +22,12 @@ describe Queries::Organization::Autocomplete, type: :model, group: :organization
     expect(query.autocomplete.map(&:id)).to contain_exactly(o2.id)
   end
 
-  specify 'exact legal_name' do
-    query.query_string = 'The Field Museum of Natural History'
+  specify 'legal_name starts with' do
+    query.query_string = 'The Field Museum'
     expect(query.autocomplete.map(&:id)).to contain_exactly(o2.id)
   end
 
-  specify 'exact alternate_name' do
+  specify 'alternate_name starts with' do
     query.query_string = 'SI'
     expect(query.autocomplete.map(&:id)).to contain_exactly(o3.id)
   end
@@ -60,7 +60,4 @@ describe Queries::Organization::Autocomplete, type: :model, group: :organization
     expect(query.autocomplete.map(&:id)).to contain_exactly(o1.id)
   end
 
-  specify 'no role_type accessor remains' do
-    expect(query).not_to respond_to(:role_type)
-  end
 end

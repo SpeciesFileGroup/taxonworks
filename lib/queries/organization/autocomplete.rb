@@ -1,31 +1,26 @@
 module Queries
   module Organization
-
-    # Autocomplete for Organization.
-    #
-    # Organizations are shared across projects and are not referenced through
-    # Roles here (Role-scoped lookups belong in a Role/Person context), so this
-    # matches directly on the Organization name columns and on any attached
-    # Identifier.
     class Autocomplete < Query::Autocomplete
-
-      # @return [ActiveRecord::Relation]
-      #   legal_name matches the query string exactly
-      def autocomplete_exact_legal_name
-        base_query.where(table[:legal_name].eq(query_string).to_sql).limit(20)
-      end
-
-      # @return [ActiveRecord::Relation]
-      #   alternate_name matches the query string exactly
-      def autocomplete_exact_alternate_name
-        base_query.where(table[:alternate_name].eq(query_string).to_sql).limit(20)
-      end
 
       # @return [ActiveRecord::Relation, nil]
       #   name starts with the query string
       def autocomplete_name_wildcard_end
         return nil if query_string.length < 2
         base_query.where(table[:name].matches(end_wildcard).to_sql).limit(20)
+      end
+
+      # @return [ActiveRecord::Relation, nil]
+      #   legal_name starts with the query string
+      def autocomplete_legal_name_wildcard_end
+        return nil if query_string.length < 2
+        base_query.where(table[:legal_name].matches(end_wildcard).to_sql).limit(20)
+      end
+
+      # @return [ActiveRecord::Relation, nil]
+      #   alternate_name starts with the query string
+      def autocomplete_alternate_name_wildcard_end
+        return nil if query_string.length < 2
+        base_query.where(table[:alternate_name].matches(end_wildcard).to_sql).limit(20)
       end
 
       # @return [ActiveRecord::Relation]
@@ -66,11 +61,11 @@ module Queries
         queries = [
           autocomplete_exact_id,
           autocomplete_exactly_named,
-          autocomplete_exact_legal_name,
-          autocomplete_exact_alternate_name,
           autocomplete_identifier_identifier_exact,
           autocomplete_identifier_cached_exact,
           autocomplete_name_wildcard_end,
+          autocomplete_legal_name_wildcard_end,
+          autocomplete_alternate_name_wildcard_end,
           autocomplete_ordered_wildcard_pieces_in_name,
           autocomplete_wildcard_in_name,
           autocomplete_geographic_area_name,

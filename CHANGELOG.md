@@ -7,7 +7,9 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 ## [unreleased]
 
-\-
+### Added
+
+- Autocomplete for Organization
 
 ## [0.65.0] - 2026-09-04
 
