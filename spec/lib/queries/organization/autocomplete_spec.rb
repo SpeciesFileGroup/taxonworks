@@ -47,6 +47,13 @@ describe Queries::Organization::Autocomplete, type: :model, group: :organization
     expect(query.autocomplete.map(&:id)).to contain_exactly(o1.id)
   end
 
+  specify 'geographic area name' do
+    ga = FactoryBot.create(:valid_geographic_area, name: 'Freedonia')
+    o2.update!(geographic_area: ga)
+    query.query_string = 'freedonia'
+    expect(query.autocomplete.map(&:id)).to contain_exactly(o2.id)
+  end
+
   specify 'exact identifier (cached)' do
     Identifier::Global::Uri.create!(identifier_object: o1, identifier: 'https://ror.org/example123')
     query.query_string = 'https://ror.org/example123'

@@ -49,6 +49,16 @@ module Queries
         base_query.where(table[:name].matches_all(b).to_sql).limit(20)
       end
 
+      # @return [ActiveRecord::Relation, nil]
+      #   the Organization is in a geographic area whose name matches all query
+      #   pieces in order, e.g. an Organization in "Illinois" matched by "illin"
+      def autocomplete_geographic_area_name
+        return nil if query_string.length < 3
+        base_query.joins(:geographic_area).where(
+          ::GeographicArea.arel_table[:name].matches(wildcard_pieces).to_sql
+        ).limit(20)
+      end
+
       # @return [Array]
       def autocomplete
         return [] if query_string.blank?
@@ -63,6 +73,7 @@ module Queries
           autocomplete_name_wildcard_end,
           autocomplete_ordered_wildcard_pieces_in_name,
           autocomplete_wildcard_in_name,
+          autocomplete_geographic_area_name,
           autocomplete_identifier_cached_like.limit(20)
         ]
 
