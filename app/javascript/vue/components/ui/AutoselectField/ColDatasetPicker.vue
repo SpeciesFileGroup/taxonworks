@@ -66,11 +66,11 @@
                 <span
                     v-if="dataset.alias"
                     class="col-dataset-picker__result-alias"
-                    >{{ dataset.alias }}</span
+                    >({{ dataset.alias }})</span
                 >
-                <span class="col-dataset-picker__result-id">{{
-                    dataset.id
-                }}</span>
+                <span class="col-dataset-picker__result-id"
+                    >#{{ dataset.id }}</span
+                >
             </li>
         </ul>
         <p
@@ -251,11 +251,12 @@ function emitOptions(datasetId, datasetTitle) {
 
 .col-dataset-picker__result {
     display: flex;
-    align-items: baseline;
-    gap: 6px;
-    padding: 5px 8px;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
     border-top: 1px solid var(--border-color, #eee);
     cursor: pointer;
+    flex-wrap: wrap;
 }
 
 .col-dataset-picker__result:first-child {
@@ -266,11 +267,17 @@ function emitOptions(datasetId, datasetTitle) {
     background: var(--border-color, #f0f0f0);
 }
 
+.col-dataset-picker__result-title {
+    flex: 1;
+    min-width: 150px;
+}
+
 .col-dataset-picker__result-alias,
 .col-dataset-picker__result-id {
     font-size: 10px;
     color: var(--text-color-muted, #888);
     white-space: nowrap;
+    flex-shrink: 0;
 }
 
 .col-dataset-picker__none {
