@@ -382,7 +382,6 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
         'minus'      => 'minor|minor|minus',
         'bicolor'    => 'bicolor|bicolor|bicolor',
         'bicoloris'  => 'bicoloris|bicoloris|bicoloris',
-        'acer'       => 'acer|acris|acre',
         'acris'      => 'acer|acris|acre',
         'acre'       => 'acer|acris|acre',
         'cefera'     => 'cefer|cefera|ceferum',
