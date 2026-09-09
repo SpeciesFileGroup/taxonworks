@@ -11,6 +11,10 @@ RUN /usr/bin/firefox/firefox --version
 
 ENV PATH /usr/bin/firefox/:$PATH
 
+# BrowserUp Proxy 2.0.1 uses an old Guice/CGLIB stack that requires
+# reflective access to java.lang on modern Java runtimes.
+ENV JAVA_TOOL_OPTIONS="--add-opens=java.base/java.lang=ALL-UNNAMED"
+
 RUN mkdir /app
 
 WORKDIR /app
