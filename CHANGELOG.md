@@ -11,12 +11,16 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 - Autocomplete for Organization
 
+### Changed
+
+- Updated attribution label in `/api/v1/leads/key/<id>`
+
 ## [0.65.0] - 2026-09-04
 
 ### Added
 
 - `Add simple key` task for recording the OTUs and associated data like sex, life stage, locality covered by the key without needing to enter the entire key [#4965]
-- Autoselect replaces OTU smart selector in Comprehensive Specimen Management. 
+- Autoselect replaces OTU smart selector in Comprehensive Specimen Management.
 - Raw id search for Biological Association autocompletes
 - `New Collection Object`: Added a CO Total field to the CO form. Added a `identifier end` field that automatically increments based on the Identifier and the total number of specimens/lots being created. [#4873]
 - `New asserted distribution`: Added preferences modal, moved autosave there, and added option to hide Confidence panel
@@ -81,7 +85,6 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Report instead of erroring when a Sound file is missing [#5075]
 - Click on 'All tasks' menu from the Navigator radial in the Anatomical Parts graph task not working [#5078]
 - Add Autoselect CoL dataset picker for !p preferences to all autoselects that didn't have it [#5040]
-
 
 [#1998]: https://github.com/SpeciesFileGroup/taxonworks/issues/1998
 [#1060]: https://github.com/SpeciesFileGroup/taxonworks/issues/1060

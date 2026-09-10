@@ -227,7 +227,7 @@ module LeadsHelper
         key_version: '0.0.1',
         title: lead.text,
         origin_citation: lead.source&.cached,
-        attribution: attribution_to_json(lead.attribution),
+        attribution: label_for_attribution(lead.attribution),
         taxonomic_scope: label_for_otu(lead.otu) # perhaps extend with identifiers, probably ultimately nested, with IDs
       },
       data: {
