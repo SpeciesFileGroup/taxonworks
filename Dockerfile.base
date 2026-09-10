@@ -7,7 +7,6 @@ RUN rm /etc/nginx/sites-enabled/default
 ADD config/docker/nginx/gzip_max.conf /etc/nginx/conf.d/gzip_max.conf
 
 # TaxonWorks dependencies
-COPY exe/install-imagemagick7.sh /usr/local/bin
 RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates curl gnupg && \
       install -d -m 0755 /usr/share/postgresql-common/pgdg /usr/share/keyrings && \
       curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc \
@@ -29,8 +28,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates
                          cmake \
                          zip \
                          nodejs \
-                         redis-server libhiredis-dev && \
-      /usr/local/bin/install-imagemagick7.sh && \
+                         redis-server libhiredis-dev \
+                         imagemagick && \
       apt-get autoremove -y && apt clean && \
       rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/src/*
 
@@ -51,7 +50,7 @@ FROM base
 COPY --from=imagemagick /etc/ImageMagick-6 /usr/local/etc/ImageMagick-7
 
 # Set up ImageMagick
-RUN sed -i 's/name="disk" value="2GiB"/name="disk" value="8GiB"/' /usr/local/etc/ImageMagick-7/policy.xml && \
+RUN sed -i 's/name="disk" value="2GiB"/name="disk" value="8GiB"/' /etc/ImageMagick-7/policy.xml && \
 identify -list resource && \
       identify -list resource | grep Disk | grep 8GiB && magick -list format | grep "HEIC      rw+" # Confirm HEIC support and that 8GB disk setting is active
 
