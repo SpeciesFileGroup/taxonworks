@@ -16,6 +16,7 @@ import Group from '../components/parsed/Group.vue'
 import Time from '../components/parsed/Time.vue'
 import TripCode from '../components/parsed/TripCode.vue'
 import Predicates from '../components/parsed/Predicates.vue'
+import AssertedEnvironments from '../components/parsed/AssertedEnvironments.vue'
 import Georeferences from '../components/parsed/georeferences/georeferences.vue'
 import VerbatimElevation from '../components/verbatim/Elevation'
 import Datum from '../components/verbatim/Datum'
@@ -50,7 +51,8 @@ const ComponentParse = {
   CollectorsComponent: 'CollectorsComponent',
   TripCode: 'TripCode',
   Group: 'Group',
-  Predicates: 'Predicates'
+  Predicates: 'Predicates',
+  AssertedEnvironments: 'AssertedEnvironments'
 }
 
 const ComponentMap = {
@@ -84,6 +86,7 @@ const VueComponents = {
   [ComponentParse.Time]: Time,
   [ComponentParse.TripCode]: TripCode,
   [ComponentParse.Predicates]: Predicates,
+  [ComponentParse.AssertedEnvironments]: AssertedEnvironments,
   [ComponentMap.PrintLabel]: PrintLabel,
   [ComponentMap.Map]: MapComponent,
   [ComponentMap.SoftValidations]: SoftValidations,
