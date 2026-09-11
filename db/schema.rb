@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_20_221034) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_11_180000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -111,6 +111,25 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_20_221034) do
     t.index ["created_by_id"], name: "index_asserted_distributions_on_created_by_id"
     t.index ["project_id"], name: "index_asserted_distributions_on_project_id"
     t.index ["updated_by_id"], name: "index_asserted_distributions_on_updated_by_id"
+  end
+
+  create_table "asserted_environments", force: :cascade do |t|
+    t.bigint "asserted_environment_object_id", null: false
+    t.string "asserted_environment_object_type", null: false
+    t.text "cached"
+    t.datetime "created_at", null: false
+    t.integer "created_by_id", null: false
+    t.integer "position"
+    t.bigint "project_id", null: false
+    t.datetime "updated_at", null: false
+    t.integer "updated_by_id", null: false
+    t.text "uri", null: false
+    t.text "uri_label", null: false
+    t.index ["asserted_environment_object_id", "asserted_environment_object_type"], name: "asserted_environment_polymorphic_object_index"
+    t.index ["created_by_id"], name: "index_asserted_environments_on_created_by_id"
+    t.index ["project_id"], name: "index_asserted_environments_on_project_id"
+    t.index ["updated_by_id"], name: "index_asserted_environments_on_updated_by_id"
+    t.index ["uri"], name: "index_asserted_environments_on_uri"
   end
 
   create_table "attributions", force: :cascade do |t|
@@ -2422,6 +2441,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_20_221034) do
   add_foreign_key "asserted_distributions", "projects", name: "asserted_distributions_project_id_fkey"
   add_foreign_key "asserted_distributions", "users", column: "created_by_id", name: "asserted_distributions_created_by_id_fkey"
   add_foreign_key "asserted_distributions", "users", column: "updated_by_id", name: "asserted_distributions_updated_by_id_fkey"
+  add_foreign_key "asserted_environments", "projects"
+  add_foreign_key "asserted_environments", "users", column: "created_by_id"
+  add_foreign_key "asserted_environments", "users", column: "updated_by_id"
   add_foreign_key "attributions", "projects"
   add_foreign_key "attributions", "users", column: "created_by_id"
   add_foreign_key "attributions", "users", column: "updated_by_id"

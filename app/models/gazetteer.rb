@@ -29,6 +29,7 @@ class Gazetteer < ApplicationRecord
   include Shared::Notes
   include Shared::DataAttributes
   include Shared::AlternateValues
+  include Shared::AssertedEnvironments
   include Shared::IsData
 
   attr_accessor :geographic_item_id_for_cleanup

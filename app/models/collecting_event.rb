@@ -195,6 +195,7 @@ class CollectingEvent < ApplicationRecord
   include Shared::Documentation
   include Shared::ProtocolRelationships
   include Shared::HasPapertrail
+  include Shared::AssertedEnvironments
   include SoftValidation
   include Shared::Labels
   include Shared::DwcOccurrenceHooks
