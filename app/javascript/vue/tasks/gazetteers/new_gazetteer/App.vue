@@ -20,6 +20,10 @@
         class="horizontal-left-content gap-small"
       >
         <RadialAnnotator :global-id="gz.global_id" />
+        <RadialObject
+          :global-id="gz.global_id"
+          type="graph"
+        />
         <RadialNavigation :global-id="gz.global_id" />
       </div>
     </template>
@@ -62,6 +66,7 @@ import NavBar from './components/NavBar.vue'
 import NonGeoData from './components/NonGeoData.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialNavigation from '@/components/radials/navigation/radial.vue'
+import RadialObject from '@/components/radials/object/radial.vue'
 import SetParam from '@/helpers/setParam'
 import ShapeListAndPreview from './components/ShapeListAndPreview.vue'
 import ShapeChoosers from './components/ShapeChoosers.vue'

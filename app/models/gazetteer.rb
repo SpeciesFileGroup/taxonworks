@@ -36,6 +36,8 @@ class Gazetteer < ApplicationRecord
 
   ALTERNATE_VALUES_FOR = [:name].freeze
 
+  GRAPH_ENTRY_POINTS = [:asserted_environments].freeze
+
   GZ_DATA_ORIGIN = 'TaxonWorks Gazetteer'.freeze
 
   # Buffer applied after union (+) and intersection (-) to absorb ~1e-14°

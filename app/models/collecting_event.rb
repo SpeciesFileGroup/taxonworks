@@ -212,6 +212,8 @@ class CollectingEvent < ApplicationRecord
 
   is_origin_for 'Sound'
 
+  GRAPH_ENTRY_POINTS = [:asserted_environments].freeze
+
   NEARBY_DISTANCE = 5000
   MINIMUM_ELEVATION = -11000
   MAXIMUM_ELEVATION = 8500
