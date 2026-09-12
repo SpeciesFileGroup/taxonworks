@@ -4,6 +4,15 @@ describe Otu, type: :model, group: :otu do
 
   let(:otu) { Otu.new }
 
+  specify '#GRAPH_ENTRY_POINTS includes asserted_environments (radial/graph metadata badge)' do
+    expect(Otu::GRAPH_ENTRY_POINTS).to include(:asserted_environments)
+  end
+
+  specify '#asserted_environments is queryable via a GRAPH_ENTRY_POINTS-listed association' do
+    o = FactoryBot.create(:valid_otu)
+    expect(o.asserted_environments.count).to eq(0)
+  end
+
   after(:all) do
     TaxonNameRelationship.delete_all
     TaxonNameHierarchy.delete_all
