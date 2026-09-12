@@ -1,4 +1,5 @@
 import baseCRUD from './base'
+import AjaxCall from '@/helpers/ajaxCall'
 
 const controller = 'asserted_environments'
 const permitParams = {
@@ -13,5 +14,7 @@ const permitParams = {
 }
 
 export const AssertedEnvironment = {
-  ...baseCRUD(controller, permitParams)
+  ...baseCRUD(controller, permitParams),
+
+  filter: (params) => AjaxCall('post', `/${controller}/filter.json`, params)
 }

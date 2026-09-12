@@ -1135,6 +1135,14 @@ filter_anatomical_parts_task:
     - biology
   status: prototype
   description: 'Filter anatomical parts by many different facets, download or visualize results.'
+filter_asserted_environments_task:
+  hub: true
+  name: 'Filter asserted environments'
+  related:
+  categories:
+    - filters
+  status: prototype
+  description: 'Filter asserted environments (ENVO terms characterizing OTUs, collecting events, and gazetteers) by many different facets, download results.'
 anatomical_parts_graph_task:
   hub: true
   name: 'New/graph anatomical part'

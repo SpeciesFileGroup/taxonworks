@@ -73,6 +73,7 @@ resources :asserted_environments, except: [:new, :edit], defaults: {format: :jso
   collection do
     get :autocomplete, defaults: {format: :json}
     get :autoselect, defaults: {format: :json}
+    match :filter, to: 'asserted_environments#index', via: [:get, :post]
   end
 end
 

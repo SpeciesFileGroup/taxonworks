@@ -55,4 +55,10 @@ describe Queries::AssertedEnvironment::Filter, type: :model do
     expect(q.all.pluck(:id)).to be_empty
   end
 
+  specify '#notes facet (via Queries::Concerns::Notes)' do
+    FactoryBot.create(:valid_note, note_object: otu_environment)
+    q.notes = true
+    expect(q.all.pluck(:id)).to contain_exactly(otu_environment.id)
+  end
+
 end

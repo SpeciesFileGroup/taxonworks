@@ -3,6 +3,7 @@ module Queries
     class Filter < Query::Filter
 
       include Queries::Concerns::Tags
+      include Queries::Concerns::Notes
       include Queries::Concerns::Citations
       include Queries::Concerns::DataAttributes
 
@@ -55,6 +56,7 @@ module Queries
 
         set_citations_params(params)
         set_data_attributes_params(params)
+        set_notes_params(params)
         set_tags_params(params)
       end
 
