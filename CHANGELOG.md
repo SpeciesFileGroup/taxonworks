@@ -15,6 +15,10 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 - Updated attribution label in `/api/v1/leads/key/<id>`
 
+### Fixed
+
+- `controlled_vocabulary_term_id` param is not working on the controlled vocabulary terms endpoint
+
 ## [0.65.0] - 2026-09-04
 
 ### Added

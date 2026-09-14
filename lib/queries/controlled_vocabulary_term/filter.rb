@@ -18,6 +18,7 @@ module Queries
       def initialize(query_params)
         super
 
+        @controlled_vocabulary_term_id = params[:controlled_vocabulary_term_id]
         @type = params[:type]
       end
 
