@@ -10,6 +10,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 ### Added
 
 - Autocomplete for Organization
+- `/api/v1/alternate_values` and `/api/v1/alternate_values/<id>` endpoints
 
 ### Changed
 
