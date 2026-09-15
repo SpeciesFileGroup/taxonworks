@@ -71,6 +71,7 @@ module ObservationsHelper
       end
     when 'Observation::Media'
       # do nothing, the label comes from the image matrix
+      ''
     else
       '!! display not done !!'
     end
