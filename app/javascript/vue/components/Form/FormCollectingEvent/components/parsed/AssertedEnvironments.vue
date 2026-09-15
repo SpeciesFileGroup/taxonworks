@@ -3,23 +3,14 @@
     <fieldset>
       <legend>Asserted environments</legend>
 
-      <DisplayList
-        v-if="list.length"
-        :list="list"
-        label="uri_label"
-        @delete="removeItem"
-      />
-
       <template v-if="collectingEvent.id">
-        <div class="margin-medium-top">
-          <AutoselectField
-            url="/asserted_environments/autoselect"
-            param="uri"
-            placeholder="Search ENVO, or terms already used in this project"
-            reset-on-select
-            @select="addFromSelection"
-          />
-        </div>
+        <AutoselectField
+          url="/asserted_environments/autoselect"
+          param="uri"
+          placeholder="Search ENVO, or terms already used in this project"
+          reset-on-select
+          @select="addFromSelection"
+        />
       </template>
       <span
         v-else
@@ -27,6 +18,14 @@
       >
         Save the collecting event first to add environments.
       </span>
+
+      <DisplayList
+        v-if="list.length"
+        class="margin-medium-top"
+        :list="list"
+        label="uri_label"
+        @delete="removeItem"
+      />
     </fieldset>
   </div>
 </template>

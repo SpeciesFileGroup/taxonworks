@@ -70,3 +70,11 @@ AssertedEnvironment.where({
   list.value = body
 })
 </script>
+
+<style lang="scss">
+.radial-annotator {
+  .asserted_environments_annotator {
+    padding-right: 1em;
+  }
+}
+</style>

@@ -2324,10 +2324,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_11_180000) do
     t.index ["cached_is_valid"], name: "index_taxon_names_on_cached_is_valid"
     t.index ["cached_original_combination"], name: "index_taxon_names_on_cached_original_combination"
     t.index ["cached_original_combination"], name: "tn_cached_original_gin_trgm", opclass: :gin_trgm_ops, using: :gin
-    t.index ["cached_primary_homonym"], name: "index_taxon_names_on_cached_primary_homonym"
-    t.index ["cached_primary_homonym"], name: "tn_cached_primary_homonym_gin_trgm", opclass: :gin_trgm_ops, using: :gin
-    t.index ["cached_secondary_homonym"], name: "index_taxon_names_on_cached_secondary_homonym"
-    t.index ["cached_secondary_homonym"], name: "tn_cached_secondary_homonym_gin_trgm", opclass: :gin_trgm_ops, using: :gin
     t.index ["cached_valid_taxon_name_id"], name: "index_taxon_names_on_cached_valid_taxon_name_id"
     t.index ["created_at"], name: "index_taxon_names_on_created_at"
     t.index ["created_by_id"], name: "index_taxon_names_on_created_by_id"
