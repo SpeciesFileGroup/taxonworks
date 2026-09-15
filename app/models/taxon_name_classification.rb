@@ -23,11 +23,6 @@ class TaxonNameClassification < ApplicationRecord
   include Shared::IsData
   include SoftValidation
 
-  FOSSIL_TYPE_FOR = {
-    iczn: 'TaxonNameClassification::Iczn::Fossil',
-    icn:  'TaxonNameClassification::Icn::Fossil'
-  }.freeze
-
   belongs_to :taxon_name, inverse_of: :taxon_name_classifications
 
   before_validation :validate_taxon_name_classification
@@ -312,8 +307,11 @@ class TaxonNameClassification < ApplicationRecord
   # @param batch_response [BatchResponse]
   # @param query [ActiveRecord::Relation] TaxonName scope from the filter
   # @param hash_query [Hash] serialized filter params, used to re-run the query in async jobs
-  # @param mode [Symbol, String] :add, :remove (fossil); :set, :remove_gender (gender)
-  # @param params [Hash] unused for fossil modes; :type required for :change
+  # @param mode [Symbol, String] :set, :remove_gender (gender); :add_status, :remove_status (arbitrary status)
+  # @param params [Hash] :type required for :set, :add_status, :remove_status;
+  #   :citation (optional, :add_status only) a Hash with :source_id (required to attach), :pages, :is_original -
+  #   attached to the status whether it was just created or already existed; tolerates (does not duplicate or
+  #   error on) a citation with the same source and pages already present on that status
   # @param async [Boolean]
   # @param project_id [Integer]
   # @param user_id [Integer]
@@ -328,62 +326,6 @@ class TaxonNameClassification < ApplicationRecord
     r = batch_response
 
     case mode.to_sym
-    when :add # fossil
-      if async && !called_from_async
-        BatchByFilterScopeJob.perform_later(
-          klass: self.name,
-          hash_query:,
-          mode:,
-          params:,
-          project_id:,
-          user_id:
-        )
-      else
-        existing_fossil_classifications = TaxonNameClassification
-          .with_type_array(TAXON_NAME_CLASSIFICATIONS_FOR_FOSSILS)
-          .where(taxon_name: query)
-          .pluck(:taxon_name_id)
-          .to_set
-
-        query.find_each do |taxon_name|
-          fossil_type = FOSSIL_TYPE_FOR[taxon_name.rank_class&.nomenclatural_code]
-          if fossil_type.nil? || existing_fossil_classifications.include?(taxon_name.id)
-            r.not_updated.push taxon_name.id
-            next
-          end
-          classification = TaxonNameClassification.create(taxon_name: taxon_name, type: fossil_type)
-          if classification.persisted?
-            r.updated.push classification.id
-          else
-            r.not_updated.push taxon_name.id
-          end
-        end
-      end
-
-    when :remove # fossil
-      if async && !called_from_async
-        BatchByFilterScopeJob.perform_later(
-          klass: self.name,
-          hash_query:,
-          mode:,
-          params:,
-          project_id:,
-          user_id:
-        )
-      else
-        TaxonNameClassification
-          .with_type_array(TAXON_NAME_CLASSIFICATIONS_FOR_FOSSILS)
-          .where(taxon_name: query)
-          .find_each do |c|
-            c.destroy # destroy is necessary for cached processing
-            if c.destroyed?
-              r.updated.push nil
-            else
-              r.not_updated.push c.taxon_name_id
-            end
-          end
-      end
-
     when :set # gender
       gender_type = params[:type]
       return r unless TAXON_NAME_CLASSIFICATIONS_FOR_GENDER.include?(gender_type)
@@ -437,6 +379,79 @@ class TaxonNameClassification < ApplicationRecord
           .where(taxon_name: query)
           .find_each do |c|
             c.destroy # destroy is necessary to updated cached values
+            if c.destroyed?
+              r.updated.push nil
+            else
+              r.not_updated.push c.taxon_name_id
+            end
+          end
+      end
+
+    when :add_status
+      status_type = params[:type]
+      return r unless TAXON_NAME_CLASSIFICATION_NAMES.include?(status_type)
+
+      citation_params = params[:citation]&.symbolize_keys
+      citation_source_id = citation_params && citation_params[:source_id]
+
+      if async && !called_from_async
+        BatchByFilterScopeJob.perform_later(
+          klass: self.name,
+          hash_query:,
+          mode:,
+          params:,
+          project_id:,
+          user_id:
+        )
+      else
+        existing_by_taxon_name_id = TaxonNameClassification
+          .where(type: status_type)
+          .where(taxon_name: query)
+          .index_by(&:taxon_name_id)
+
+        query.find_each do |taxon_name|
+          classification = existing_by_taxon_name_id[taxon_name.id] ||
+            TaxonNameClassification.create(taxon_name: taxon_name, type: status_type)
+
+          unless classification.persisted?
+            r.not_updated.push taxon_name.id
+            next
+          end
+
+          # Citation is attached regardless of whether the status is new or
+          # already existed; Citation's own uniqueness validation (source +
+          # pages, scoped to this classification) silently no-ops a repeat.
+          if citation_source_id
+            classification.citations.create(
+              source_id: citation_source_id,
+              pages: citation_params[:pages],
+              is_original: citation_params[:is_original]
+            )
+          end
+
+          r.updated.push classification.id
+        end
+      end
+
+    when :remove_status
+      status_type = params[:type]
+      return r unless TAXON_NAME_CLASSIFICATION_NAMES.include?(status_type)
+
+      if async && !called_from_async
+        BatchByFilterScopeJob.perform_later(
+          klass: self.name,
+          hash_query:,
+          mode:,
+          params:,
+          project_id:,
+          user_id:
+        )
+      else
+        TaxonNameClassification
+          .where(type: status_type)
+          .where(taxon_name: query)
+          .find_each do |c|
+            c.destroy # destroy is necessary for cached processing
             if c.destroyed?
               r.updated.push nil
             else
