@@ -65,6 +65,11 @@ class AssertedEnvironmentsController < ApplicationController
     ).response
   end
 
+  # GET /asserted_environments/object_types
+  def object_types
+    render json: ENVIRONMENT_ASSERTABLE_TYPES.sort
+  end
+
   private
 
   def set_asserted_environment

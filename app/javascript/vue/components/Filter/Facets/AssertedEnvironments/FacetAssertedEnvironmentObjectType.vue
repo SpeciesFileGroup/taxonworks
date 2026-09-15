@@ -3,7 +3,7 @@
     <h3>Asserted environment object type</h3>
     <ul class="no_bullets">
       <li
-        v-for="type in OBJECT_TYPES"
+        v-for="type in objectTypes"
         :key="type"
       >
         <label>
@@ -20,14 +20,15 @@
 </template>
 
 <script setup>
-import { watch } from 'vue'
+import { ref, watch } from 'vue'
 import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
-import { OTU, COLLECTING_EVENT, GAZETTEER } from '@/constants'
+import { AssertedEnvironment } from '@/routes/endpoints'
 
-// AssertedEnvironment's object types (see ENVIRONMENT_ASSERTABLE_TYPES on the
-// server) - kept in sync by hand, there being no server-driven facet options
-// list to read this from at build time.
-const OBJECT_TYPES = [OTU, COLLECTING_EVENT, GAZETTEER]
+const objectTypes = ref([])
+
+AssertedEnvironment.objectTypes().then(({ body }) => {
+  objectTypes.value = body
+})
 
 const params = defineModel({ type: Object, required: true })
 

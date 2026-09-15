@@ -16,5 +16,6 @@ const permitParams = {
 export const AssertedEnvironment = {
   ...baseCRUD(controller, permitParams),
 
-  filter: (params) => AjaxCall('post', `/${controller}/filter.json`, params)
+  filter: (params) => AjaxCall('post', `/${controller}/filter.json`, params),
+  objectTypes: () => AjaxCall('get', `/${controller}/object_types.json`)
 }

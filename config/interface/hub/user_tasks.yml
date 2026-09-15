@@ -1141,6 +1141,8 @@ filter_asserted_environments_task:
   related:
   categories:
     - filters
+    - collecting
+    - biology
   status: prototype
   description: 'Filter asserted environments (ENVO terms characterizing OTUs, collecting events, and gazetteers) by many different facets, download results.'
 anatomical_parts_graph_task:
