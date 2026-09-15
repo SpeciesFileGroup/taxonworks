@@ -13,6 +13,6 @@ end
 
 if extend_response_with('language') && alternate_value.language
   json.language do
-    json.extract! alternate_value.language, :id, :english_name, :alpha_3_bibliographic
+    json.extract! alternate_value.language, :id, :english_name, :alpha_2, :alpha_3_bibliographic
   end
 end
