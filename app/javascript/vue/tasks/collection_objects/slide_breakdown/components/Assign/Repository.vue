@@ -30,7 +30,7 @@
 <script>
 import { MutationNames } from '../../store/mutations/mutations'
 import { GetterNames } from '../../store/getters/getters'
-import { GetRepository } from '../../request/resource'
+import { Repository } from '@/routes/endpoints'
 import SmartSelector from '@/components/ui/SmartSelector'
 import SharedComponent from '../shared/lock.js'
 
@@ -58,7 +58,7 @@ export default {
 
   mounted() {
     if (this.collectionObject.repository_id) {
-      GetRepository(this.collectionObject.repository_id).then((response) => {
+      Repository.find(this.collectionObject.repository_id).then((response) => {
         this.setRepository(response.body)
       })
     }

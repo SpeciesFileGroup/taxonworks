@@ -71,6 +71,7 @@
         @update:predicate-column="saveColumnPredicate"
         @update:data-attribute="saveDataAttribute"
         @update:preview="processPreview"
+        @paste:columns="savePastedCells"
         @refresh="() => loadPage(1)"
         @sort:preview="sortListByMatched"
         @sort:property="sortListByEmpty"
@@ -125,6 +126,7 @@ const {
   saveColumnPredicate,
   saveDataAttribute,
   saveFieldAttribute,
+  savePastedCells,
   selectedAttributes,
   selectedPredicates,
   sortListByEmpty,

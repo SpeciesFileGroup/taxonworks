@@ -62,7 +62,7 @@ class TaxonNameRelationship::Iczn::Invalidating::Synonym::Objective < TaxonNameR
     unless tnr2.nil?
       tnr = t2.related_taxon_name_relationships.build(type: tnr2.type, subject_taxon_name_id: tnr2.subject_taxon_name_id)
       c2 = tnr2.citations.where(is_original: true).first
-      tnr.citations.build(source_id: c2.source_id, pages: c2.pages) unless c2.nil?
+      tnr.citations.build(source_id: c2.source_id, pages: c2.pages, is_original: true) unless c2.nil?
       fixed = true
     end
 

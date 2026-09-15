@@ -62,6 +62,10 @@ export default ({ state, commit }) => {
           createdCount++
           Depiction.create({ depiction }).then((response) => {
             commit(MutationNames.AddDepiction, response.body)
+            commit(MutationNames.MarkApplied, {
+              imageIds: [item.id],
+              key: 'depiction'
+            })
           })
         })
       )
@@ -97,6 +101,10 @@ export default ({ state, commit }) => {
             Depiction.create({ depiction }).then((response) => {
               createdCount++
               commit(MutationNames.AddDepiction, response.body)
+              commit(MutationNames.MarkApplied, {
+                imageIds: [item.id],
+                key: 'depiction'
+              })
             })
           )
         } else {
@@ -111,6 +119,10 @@ export default ({ state, commit }) => {
           promises.push(
             Depiction.update(depiction.id, { depiction }).then((response) => {
               commit(MutationNames.AddDepiction, response.body)
+              commit(MutationNames.MarkApplied, {
+                imageIds: [item.id],
+                key: 'depiction'
+              })
             })
           )
         }
@@ -118,10 +130,9 @@ export default ({ state, commit }) => {
     })
   }
 
-  Promise.all(promises).then(() => {
+  return Promise.all(promises).then(() => {
     state.settings.saving = false
     if (createdCount > 0) {
-      state.settings.applied.depiction = true
       TW.workbench.alert.create(
         'Depiction(s) was successfully created.',
         'notice'

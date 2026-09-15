@@ -10,8 +10,8 @@ module PreparationTypesHelper
     preparation_type.name
   end
 
-  def preparation_type_autocomplete_tag(preparation_type)
-    preparation_type_tag(preparation_type)
+  def preparation_type_autocomplete_tag(preparation_type, term = nil)
+    mark_tag(preparation_type_tag(preparation_type), term)
   end
 
   def preparation_type_link(preparation_type)

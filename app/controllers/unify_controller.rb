@@ -19,6 +19,11 @@ class UnifyController < ApplicationController
     # something params[:klass]  
   end
 
+  # GET /unify/types
+  def types
+    render json: UNIFIABLE_MODELS
+  end
+
   # GET /unify/metadata
   def metadata
     object = GlobalID::Locator.locate(params.require(:global_id))

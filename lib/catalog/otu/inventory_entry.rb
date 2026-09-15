@@ -1,5 +1,6 @@
-# A Catalog::Entry that contains the biological history of an otu via associated
-# data of that otu (images, asserted distributions, observations, etc.).
+# A Catalog::Entry that contains the biological history of an otu via citations
+# on the otu and its coordinate otus, and on their associated data (images,
+# asserted distributions, observations, etc.).
 class Catalog::Otu::InventoryEntry < ::Catalog::Entry
 
   attr_accessor :include_belongs_to
@@ -51,6 +52,8 @@ class Catalog::Otu::InventoryEntry < ::Catalog::Entry
         has_many_relations << relation_name
       end
     end
+
+    process_otu_citations(coordinate_otu_ids, coordinate_otus)
 
     if include_belongs_to
       process_belongs_to_relations(belongs_to_relations, coordinate_otus)
@@ -172,6 +175,24 @@ class Catalog::Otu::InventoryEntry < ::Catalog::Entry
           end
         end
       end
+    end
+  end
+
+  def process_otu_citations(coordinate_otu_ids, coordinate_otus)
+    citations = Citation
+      .where(citation_object_type: 'Otu', citation_object_id: coordinate_otu_ids)
+      .includes(:source, :notes, :topics)
+      .sort_by { |c| c.citation_object_id == object.id ? 0 : 1 }
+
+    citations.each do |citation|
+      otu = coordinate_otus[citation.citation_object_id]
+      @items << Catalog::Otu::InventoryEntryItem.new(
+        object: otu,
+        base_object: otu,
+        citation: citation,
+        nomenclature_date: citation.source&.cached_nomenclature_date,
+        current_target: entry_item_matches_target?(otu, object)
+      )
     end
   end
 

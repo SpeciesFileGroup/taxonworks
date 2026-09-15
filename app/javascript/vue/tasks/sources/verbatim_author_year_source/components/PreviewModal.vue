@@ -31,11 +31,16 @@
             :key="taxonName.id"
           >
             <td>
-              {{
-                taxonName.cached ||
-                taxonName.name ||
-                `TaxonName #${taxonName.id}`
-              }}
+              <a
+                :href="`${RouteNames.BrowseNomenclature}?taxon_name_id=${taxonName.id}`"
+                target="_blank"
+              >
+                {{
+                  taxonName.cached ||
+                  taxonName.name ||
+                  `TaxonName #${taxonName.id}`
+                }}
+              </a>
             </td>
             <td>{{ taxonName.verbatim_author || '' }}</td>
             <td>{{ taxonName.year_of_publication || '' }}</td>
@@ -48,6 +53,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { RouteNames } from '@/routes/routes'
 import useStore from '../store/store'
 import VModal from '@/components/ui/Modal.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'

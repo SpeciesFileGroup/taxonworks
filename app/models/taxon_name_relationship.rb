@@ -60,6 +60,11 @@ class TaxonNameRelationship < ApplicationRecord
   # After commit only fires if there are changes to the record.
   after_commit :set_cached_names_for_taxon_names, unless: -> {self.no_cached }
 
+  # See #set_cached_names_for_taxon_names: latches once per instance so a
+  # later save that leaves subject/object_taxon_name_id unchanged can't hide
+  # an earlier reassignment from that deferred after_commit.
+  before_save :flag_taxon_name_reassignment, if: -> { subject_taxon_name_id_changed? || object_taxon_name_id_changed? }
+
   # TODO: remove, it's required by STI
   validates_presence_of :type, message: 'Relationship type should be specified'
 
@@ -471,53 +476,75 @@ class TaxonNameRelationship < ApplicationRecord
 
   # OriginalCombination has a replacement method.
   def set_cached_names_for_taxon_names
-    return true unless subject_taxon_name_id_previously_changed? || destroyed?
+    return true unless @taxon_name_id_reassigned || destroyed?
+
+    return true unless is_invalidating?
 
     # TODO: this should completely be replaced with Taxonname logic.
     TaxonName.transaction do # Why?
-      if is_invalidating?
-        t = subject_taxon_name
+      t = subject_taxon_name
+      return true unless t
 
-        if TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_ONLY.include?(type_name)
-          t.update_columns(
-            cached_misspelling: t.get_cached_misspelling,
-            cached_author_year: t.get_author_and_year,
-            cached_nomenclature_date: t.nomenclature_date,
-            cached_original_combination: t.get_original_combination,
-            cached_original_combination_html: t.get_original_combination_html)
-        end
+      # t may have been destroyed elsewhere in the same unify chain (e.g. as
+      # the duplicate being merged away) by the time this deferred
+      # after_commit fires. If t was already memoized before that happened,
+      # the belongs_to reader above returns a stale, no-longer-persisted
+      # instance rather than nil - reload to force a fresh check (see the
+      # identical fix/rationale on
+      # TaxonNameRelationship::OriginalCombination#set_cached_names_for_taxon_names).
+      # If the row is actually gone, reload raises RecordNotFound - there's
+      # nothing left to update.
+      begin
+        t.reload
+      rescue ActiveRecord::RecordNotFound
+        return true
+      end
 
-        if type_name =~/Misapplication/
-          t.update_columns(
-            cached_author_year: t.get_author_and_year,
-            cached_nomenclature_date: t.nomenclature_date)
-        end
-
-        vn = t.get_valid_taxon_name
-
-        # !! NO set cached should do this from TN side of things,
-        # !! Not here
-
-        n = t.get_full_name
-
+      if TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING_ONLY.include?(type_name)
         t.update_columns(
-          cached: n,
-          cached_html: t.get_full_name_html(n), # OK to force reload here, otherwise we need an exception in #set_cached
+          cached_misspelling: t.get_cached_misspelling,
+          cached_author_year: t.get_author_and_year,
+          cached_nomenclature_date: t.nomenclature_date,
+          cached_original_combination: t.get_original_combination,
+          cached_original_combination_html: t.get_original_combination_html)
+      end
+
+      if type_name =~/Misapplication/
+        t.update_columns(
+          cached_author_year: t.get_author_and_year,
+          cached_nomenclature_date: t.nomenclature_date)
+      end
+
+      vn = t.get_valid_taxon_name
+
+      # !! NO set cached should do this from TN side of things,
+      # !! Not here
+
+      n = t.get_full_name
+
+      t.update_columns(
+        cached: n,
+        cached_html: t.get_full_name_html(n), # OK to force reload here, otherwise we need an exception in #set_cached
+        cached_valid_taxon_name_id: vn.id,
+        cached_is_valid: !t.unavailable_or_invalid?)
+
+      t.combination_list_self.each do |c|
+        c.update_column(:cached_valid_taxon_name_id, vn.id)
+      end
+
+      # TODO: this fires per-relationship via after_commit, and each firing
+      # redoes this full pass over every synonym of vn, not just the one
+      # relationship that changed. Merging a TaxonName with N synonym
+      # relationships triggers N callbacks, each doing O(N) work here -
+      # O(N^2) total for the whole merge. Would need batching/debouncing the
+      # cache rebuild to a single pass after all relationship moves land.
+      vn.list_of_invalid_taxon_names.each do |s|
+        s.update_columns(
           cached_valid_taxon_name_id: vn.id,
-          cached_is_valid: !t.unavailable_or_invalid?)
+          cached_is_valid: !s.unavailable_or_invalid?)
 
-        t.combination_list_self.each do |c|
+        s.combination_list_self.each do |c|
           c.update_column(:cached_valid_taxon_name_id, vn.id)
-        end
-
-        vn.list_of_invalid_taxon_names.each do |s|
-          s.update_columns(
-            cached_valid_taxon_name_id: vn.id,
-            cached_is_valid: !s.unavailable_or_invalid?)
-
-          s.combination_list_self.each do |c|
-            c.update_column(:cached_valid_taxon_name_id, vn.id)
-          end
         end
       end
     end
@@ -529,12 +556,16 @@ class TaxonNameRelationship < ApplicationRecord
     TAXON_NAME_RELATIONSHIP_NAMES_INVALID.include?(type_name)
   end
 
+  def flag_taxon_name_reassignment
+    @taxon_name_id_reassigned = true
+  end
+
   def sv_validate_required_relationships
     return true if self.subject_taxon_name.not_binominal?
     object_relationships = TaxonNameRelationship.where_object_is_taxon_name(self.object_taxon_name).not_self(self).collect{|r| r.type}
     required = self.type_class.required_taxon_name_relationships - object_relationships
     required.each do |r|
-      soft_validations.add(:type, " Presence of #{self.subject_status} requires selection of #{r.demodulize.underscore.humanize.downcase}")
+      soft_validations.add(:type, " Presence of '#{self.subject_status}' requires selection of #{r.demodulize.underscore.humanize.downcase}")
     end
   end
 
@@ -544,7 +575,7 @@ class TaxonNameRelationship < ApplicationRecord
       subject_relationships = TaxonNameRelationship.where_subject_is_taxon_name(self.subject_taxon_name).not_self(self)
       subject_relationships.each  do |i|
         if self.type_class.disjoint_taxon_name_relationships.include?(i.type_name)
-          soft_validations.add(:type, "#{self.subject_status.capitalize} relationship is conflicting with another relationship: '#{i.subject_status}'")
+          soft_validations.add(:type, "'#{self.subject_status.capitalize}' relationship is conflicting with another relationship: '#{i.subject_status}'")
         end
       end
     end
@@ -556,7 +587,7 @@ class TaxonNameRelationship < ApplicationRecord
     compare = disjoint_object_classes & classifications
     compare.each do |i|
       c = i.demodulize.underscore.humanize.downcase
-      soft_validations.add(:type, "#{self.subject_status.capitalize} relationship is conflicting with the taxon status: '#{c}'")
+      soft_validations.add(:type, "'#{self.subject_status.capitalize}' relationship is conflicting with the taxon status: '#{c}'")
       soft_validations.add(:object_taxon_name_id, "#{self.object_taxon_name.cached_html} has a conflicting status: '#{c}'")
     end
   end
@@ -567,7 +598,7 @@ class TaxonNameRelationship < ApplicationRecord
     compare = disjoint_subject_classes & classifications
     compare.each do |i|
       c = i.demodulize.underscore.humanize.downcase
-      soft_validations.add(:type, "#{self.subject_status.capitalize} conflicting with the status: '#{c}'")
+      soft_validations.add(:type, "'#{self.subject_status.capitalize}' conflicting with the status: '#{c}'")
       soft_validations.add(:subject_taxon_name_id, "#{self.subject_taxon_name.cached_html} has a conflicting status: '#{c}'")
     end
   end
@@ -645,7 +676,7 @@ class TaxonNameRelationship < ApplicationRecord
     o = object_taxon_name
     s_new = s.lowest_rank_coordinated_taxon
     if s != s_new
-      soft_validations.add(:subject_taxon_name_id, "Relationship should move from #{s.rank_class.rank_name} #{s.cached_html} to #{s_new.rank_class.rank_name} #{s_new.cached_html}",
+      soft_validations.add(:subject_taxon_name_id, "'#{self.subject_status.capitalize}' relationship should move from #{s.rank_class.rank_name} #{s.cached_html} to #{s_new.rank_class.rank_name} #{s_new.cached_html}",
                            success_message: "Relationship moved to  #{s_new.rank_class.rank_name}", failure_message:  'Failed to update relationship')
     end
   end
@@ -655,7 +686,7 @@ class TaxonNameRelationship < ApplicationRecord
     o = object_taxon_name
     o_new = o.lowest_rank_coordinated_taxon
     if o != o_new
-      soft_validations.add(:object_taxon_name_id, "Relationship should move from #{o.rank_class.rank_name} #{o.cached_html} to #{o_new.rank_class.rank_name} #{o_new.cached_html}",
+      soft_validations.add(:object_taxon_name_id, "'#{self.object_status.capitalize}' relationship should move from #{o.rank_class.rank_name} #{o.cached_html} to #{o_new.rank_class.rank_name} #{o_new.cached_html}",
                            success_message: "Relationship moved to  #{o_new.rank_class.rank_name}", failure_message:  'Failed to update relationship')
     end
   end

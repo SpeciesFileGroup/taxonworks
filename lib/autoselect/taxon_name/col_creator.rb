@@ -13,6 +13,9 @@ module Autoselect
     #   taxonworks_id [Integer, nil] — existing TaxonName ID; if present, no creation occurs for this row
     #   col_authorship [String, nil] — combined author+year string from CoL (e.g. 'Linnaeus, 1758')
     #   col_year      [String, nil]  — year string extracted from CoL combinationAuthorship (target row only)
+    #   col_status    [String, nil]  — CoL nomenclatural status (e.g. 'accepted', 'synonym'); present on
+    #     the target row only. A non-'accepted' status tags the created name with the nearest
+    #     synonym TaxonNameClassification for its code (see NOMENCLATURE_CODE_TO_SYNONYM_CLASSIFICATION).
     # @param col_code [String, nil] CoL nomenclatural code string: 'zoological', 'botanical',
     #   'bacterial', 'viral'. When present, rank resolution uses the corresponding lookup first.
     #   Falls back to trying all codes when nil or unrecognised.
@@ -93,6 +96,9 @@ module Autoselect
               )
             end
 
+            # Tag non-accepted names (synonym, misapplied, …) with a status classification.
+            assign_synonym_classification(tn, row)
+
             if row[:col_id].present?
               begin
                 ::Identifier::Global::Uri::ChecklistBank.create!(
@@ -124,6 +130,34 @@ module Autoselect
       # Returns the TaxonName id of the project's Root node.
       def project_root_id
         ::Project.find(@project_id).root_taxon_name.id
+      end
+
+      # Assigns a "not the accepted name" TaxonNameClassification to a freshly-created name when
+      # CoL reports a non-'accepted' status. The class is chosen by the created name's own
+      # nomenclatural code (see NOMENCLATURE_CODE_TO_SYNONYM_CLASSIFICATION), which is guaranteed to
+      # satisfy TaxonNameClassification's code-match validation.
+      #
+      # Only the target row carries a col_status; accepted names and ancestor rows are left untagged.
+      def assign_synonym_classification(taxon_name, row)
+        status = row[:col_status].to_s
+        return if status.blank? || status.casecmp?('accepted')
+
+        code = taxon_name.rank_class.nomenclatural_code
+        classification_type = ::NOMENCLATURE_CODE_TO_SYNONYM_CLASSIFICATION[code]
+        return if classification_type.nil?
+
+        ::TaxonNameClassification.create!(
+          taxon_name: taxon_name,
+          type:       classification_type,
+          project_id: @project_id,
+          by:         @user_id
+        )
+      rescue ::ActiveRecord::RecordInvalid => e
+        raise CreationError.new(
+          "Status for #{row[:col_name]}: #{e.record.errors.full_messages.join(', ')}",
+          col_name: row[:col_name],
+          col_id:   row[:col_id]
+        )
       end
 
 

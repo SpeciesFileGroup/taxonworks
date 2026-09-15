@@ -12,7 +12,7 @@
           }"
         />
         <slot name="tabs-left" />
-        <switch-components
+        <VSwitch
           class="capitalize"
           v-model="view"
           ref="tabselectorRef"
@@ -21,7 +21,7 @@
         />
       </div>
       <div class="horizontal-left-content gap-small">
-        <default-pin
+        <DefaultPin
           v-if="pinSection"
           :section="pinSection"
           :type="pinType"
@@ -33,7 +33,7 @@
     <slot name="header" />
     <template v-if="!addTabs.includes(view)">
       <div class="margin-medium-bottom">
-        <autocomplete
+        <VAutocomplete
           ref="autocompleteRef"
           v-if="autocomplete && !otuPicker"
           :id="`smart-selector-${model}-autocomplete`"
@@ -50,14 +50,23 @@
           @key-event="changeTab"
           @get-item="getObject($event.id)"
         />
-        <otu-picker
-          v-if="otuPicker"
-          ref="otuPickerRef"
-          :input-id="inputId"
-          clear-after
-          :autofocus="autofocus"
-          @get-item="sendObject"
-        />
+        <template v-if="otuPicker">
+          <OtuAutoselectPicker
+            v-if="otuAutoselect"
+            ref="otuAutoselectPickerRef"
+            :id="otuAutoselectId"
+            :autofocus="autofocus"
+            @get-item="sendObject"
+          />
+          <OtuPicker
+            v-else
+            ref="otuPickerRef"
+            :input-id="inputId"
+            clear-after
+            :autofocus="autofocus"
+            @get-item="sendObject"
+          />
+        </template>
       </div>
       <slot name="body" />
       <slot :name="`${view}-top`" />
@@ -133,17 +142,18 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onUnmounted } from 'vue'
+import { ref, computed, watch, onUnmounted, useTemplateRef } from 'vue'
 import { useOnResize } from '@/composables/index'
 import { isMac } from '@/helpers/os'
 import { useBroadcastChannel } from '@/composables'
-import SwitchComponents from '@/components/ui/VSwitch.vue'
+import VSwitch from '@/components/ui/VSwitch.vue'
 import AjaxCall from '@/helpers/ajaxCall'
-import Autocomplete from '@/components/ui/Autocomplete.vue'
+import VAutocomplete from '@/components/ui/Autocomplete.vue'
 import OrderSmart from '@/helpers/smartSelector/orderSmartSelector'
 import SelectFirst from '@/helpers/smartSelector/selectFirstSmartOption'
 import DefaultPin from '@/components/ui/Button/ButtonPinned.vue'
 import OtuPicker from '@/components/otu/otu_picker/otu_picker.vue'
+import OtuAutoselectPicker from '@/components/otu/otu_picker/otu_autoselect_picker.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 
 const props = defineProps({
@@ -185,6 +195,16 @@ const props = defineProps({
   otuPicker: {
     type: Boolean,
     default: false
+  },
+
+  otuAutoselect: {
+    type: Boolean,
+    default: false
+  },
+
+  otuAutoselectId: {
+    type: String,
+    default: undefined
   },
 
   autocompleteParams: {
@@ -327,10 +347,11 @@ const { post } = useBroadcastChannel({
 
 const actionKey = isMac() ? 'Control' : 'Alt'
 
-const autocompleteRef = ref(null)
-const otuPickerRef = ref(null)
-const tabselectorRef = ref(null)
-const rootRef = ref(null)
+const autocompleteRef = useTemplateRef('autocompleteRef')
+const otuPickerRef = useTemplateRef('otuPickerRef')
+const otuAutoselectPickerRef = useTemplateRef('otuAutoselectPickerRef')
+const tabselectorRef = useTemplateRef('tabselectorRef')
+const rootRef = useTemplateRef('rootRef')
 
 const lists = ref([])
 const view = ref()
@@ -472,6 +493,7 @@ const alreadyOnLists = () => {
 const setFocus = () => {
   autocompleteRef.value?.setFocus()
   otuPickerRef.value?.setFocus()
+  otuAutoselectPickerRef.value?.setFocus()
 }
 
 const changeTab = (e) => {

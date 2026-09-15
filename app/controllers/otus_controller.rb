@@ -527,6 +527,31 @@ class OtusController < ApplicationController
     }, status: :unprocessable_entity
   end
 
+  # POST /otus/create_morphospecies_otu
+  # TODO: sort out what morpho_<rank> ("anchored OTU"?) looks like in general,
+  # across nomenclatural codes, add a view.
+  def create_morphospecies_otu
+    otu = ::Otu.create_morphospecies_otu(
+      name: create_morphospecies_otu_params[:name],
+      project_id: sessions_current_project_id,
+      user_id: sessions_current_user_id
+    )
+
+    render json: {
+      otu_id: otu.id,
+      otu_name: otu.name,
+      otu_object_label: helpers.label_for_otu(otu),
+      otu_global_id: otu.to_global_id.to_s,
+      taxon_name_id: otu.taxon_name.id,
+      taxon_name_cached: otu.taxon_name.cached,
+      taxon_name_cached_html: otu.taxon_name.cached_html,
+      taxon_name_object_label: helpers.label_for_taxon_name(otu.taxon_name),
+      taxon_name_global_id: otu.taxon_name.to_global_id.to_s
+    }
+  rescue ::ArgumentError => e
+    render json: { error: e.message }, status: :unprocessable_entity
+  end
+
   # GET /otus/:id/inventory/distribution_is_absent.geojson
   def distribution_is_absent
     @descendants = params[:descendants] == 'true'
@@ -553,9 +578,13 @@ class OtusController < ApplicationController
   end
 
   def autoselect_col_create_params
-    params.permit(rows: [:col_name, :col_rank, :col_id, :dataset_id, :taxonworks_id, :col_authorship, :col_year])
+    params.permit(rows: [:col_name, :col_rank, :col_id, :dataset_id, :taxonworks_id, :col_authorship, :col_year, :col_status])
           .fetch(:rows, [])
           .map(&:to_h)
+  end
+
+  def create_morphospecies_otu_params
+    params.permit(:name)
   end
 
   def set_otu

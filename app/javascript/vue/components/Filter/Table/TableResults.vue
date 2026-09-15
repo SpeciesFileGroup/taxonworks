@@ -457,6 +457,11 @@ function clearFilterValues() {
   filterValues.value = {}
 }
 
+function resetSort() {
+  sortedColumn.value = null
+  ascending.value = true
+}
+
 const selectIds = computed({
   get: () =>
     filteredIds.value.length === props.modelValue.length &&
@@ -569,10 +574,12 @@ watch(
 
       if (!hasSameIds) {
         clearFilterValues()
+        resetSort()
         scrollToTop()
       }
     } else {
       clearFilterValues()
+      resetSort()
     }
   },
   { immediate: true }

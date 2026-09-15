@@ -49,6 +49,7 @@ module Queries
         :type_metadata,
         :validify,
         :validity,
+        :verbatim_author,
         :verbatim_name,
         :year,
         :year_end,
@@ -172,6 +173,10 @@ module Queries
       # name is returned
       # !! This param is not like the others. !!
       attr_accessor :validify
+
+      # @param verbatim_author [String]
+      #   Exact match against verbatim_author.
+      attr_accessor :verbatim_author
 
       # @oparams verbatim_name  ['true', True, nil]
       # @return Boolean
@@ -402,6 +407,7 @@ module Queries
         @type_metadata = boolean_param(params, :type_metadata)
         @validify = boolean_param(params, :validify)
         @validity = boolean_param(params, :validity)
+        @verbatim_author = params[:verbatim_author]
         @verbatim_name = boolean_param(params, :verbatim_name)
 
         @year = params[:year]
@@ -869,6 +875,11 @@ module Queries
         end
       end
 
+      def verbatim_author_facet
+        return nil if verbatim_author.blank?
+        table[:verbatim_author].eq(verbatim_author)
+      end
+
       def verbatim_name_facet
         return nil if verbatim_name.nil?
         if verbatim_name
@@ -1013,6 +1024,7 @@ module Queries
           taxon_name_type_facet,
           validity_facet,
           availability_facet,
+          verbatim_author_facet,
           verbatim_name_facet,
           with_nomenclature_code,
           with_nomenclature_group,

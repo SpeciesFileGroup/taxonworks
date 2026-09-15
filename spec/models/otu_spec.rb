@@ -342,6 +342,73 @@ describe Otu, type: :model, group: :otu do
 
   end
 
+  context '.split_morphospecies_name' do
+    specify 'two words' do
+      expect(Otu.split_morphospecies_name('Aus bus')).to eq(['Aus', 'bus'])
+    end
+
+    specify 'extra whitespace' do
+      expect(Otu.split_morphospecies_name('  Aus   bus  ')).to eq(['Aus', 'bus'])
+    end
+
+    specify 'one word' do
+      expect(Otu.split_morphospecies_name('Aus')).to be_nil
+    end
+
+    specify 'three words' do
+      expect(Otu.split_morphospecies_name('Aus bus cus')).to be_nil
+    end
+  end
+
+  context '.create_morphospecies_otu' do
+    let!(:root) { FactoryBot.create(:root_taxon_name) }
+    let!(:genus) { Protonym.create!(name: 'Aus', parent: root, rank_class: Ranks.lookup(:iczn, :genus)) }
+
+    specify 'creates a new Otu under the resolved genus' do
+      o = Otu.create_morphospecies_otu(name: 'Aus bus', project_id: Current.project_id, user_id: Current.user_id)
+      expect(o).to be_persisted
+      expect(o.taxon_name_id).to eq(genus.id)
+      expect(o.name).to eq('bus')
+    end
+
+    specify 'returns an already-existing Otu instead of duplicating it' do
+      existing = Otu.create!(project_id: Current.project_id, taxon_name_id: genus.id, name: 'bus')
+
+      expect {
+        result = Otu.create_morphospecies_otu(name: 'Aus bus', project_id: Current.project_id, user_id: Current.user_id)
+        expect(result).to eq(existing)
+      }.not_to change(Otu, :count)
+    end
+
+    specify 'raises when no genus matches' do
+      expect {
+        Otu.create_morphospecies_otu(name: 'Bus cus', project_id: Current.project_id, user_id: Current.user_id)
+      }.to raise_error(ArgumentError, /No genus named/)
+    end
+
+    specify 'raises when the genus is ambiguous' do
+      other_family = Protonym.create!(name: 'Busidae', parent: root, rank_class: Ranks.lookup(:iczn, :family))
+      Protonym.create!(name: 'Aus', parent: other_family, rank_class: Ranks.lookup(:iczn, :genus))
+
+      expect {
+        Otu.create_morphospecies_otu(name: 'Aus bus', project_id: Current.project_id, user_id: Current.user_id)
+      }.to raise_error(ArgumentError, /ambiguous/)
+    end
+
+    specify 'raises when name is not two words' do
+      expect {
+        Otu.create_morphospecies_otu(name: 'Aus', project_id: Current.project_id, user_id: Current.user_id)
+      }.to raise_error(ArgumentError, /two-word/)
+    end
+
+    specify 'a same-named Subgenus (e.g. the nominotypical subgenus) is not treated as a genus match' do
+      Protonym.create!(name: 'Aus', parent: genus, rank_class: Ranks.lookup(:iczn, :subgenus))
+
+      o = Otu.create_morphospecies_otu(name: 'Aus bus', project_id: Current.project_id, user_id: Current.user_id)
+      expect(o.taxon_name_id).to eq(genus.id)
+    end
+  end
+
   context '#unused?' do
     let(:otu) { FactoryBot.create(:valid_otu) }
 

@@ -21,8 +21,8 @@ module GazetteersHelper
     end
   end
 
-  def gazetteer_autocomplete_tag(gazetteer)
-    gazetteer_tag(gazetteer)
+  def gazetteer_autocomplete_tag(gazetteer, term = nil)
+    mark_tag(gazetteer_tag(gazetteer), term)
   end
 
   def gazetteers_search_form

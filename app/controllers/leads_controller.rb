@@ -1,10 +1,11 @@
 class LeadsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
+  after_action -> { set_pagination_headers(:leads) }, only: [:index], if: :json_request?
   before_action :set_lead, only: %i[
     edit add_children update destroy show
     redirect_option_texts destroy_children insert_couplet delete_children
     duplicate otus destroy_subtree reorder_children insert_key
-    set_observation_matrix reset_lead_items depictions
+    set_observation_matrix reset_lead_items depictions destroy_simple_lead
   ]
 
   # GET /leads
@@ -14,7 +15,7 @@ class LeadsController < ApplicationController
       format.html {
         one_week_ago = Time.now.utc.to_date - 7
         @recent_objects = Lead
-          .roots_with_data(sessions_current_project_id)
+          .roots_with_data(sessions_current_project_id, false, is_virtual: :all)
           .where('key_updated_at > ?', one_week_ago)
           .reorder(key_updated_at: :desc)
           .limit(10)
@@ -22,17 +23,48 @@ class LeadsController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        if params[:load_root_otus]
-          @leads = Lead.roots_with_data(sessions_current_project_id, true)
-        else
-          @leads = Lead.roots_with_data(sessions_current_project_id)
+        is_virtual =
+          if params[:is_virtual].to_s == 'all'
+            :all
+          elsif params[:is_virtual].present?
+            ActiveRecord::Type::Boolean.new.cast(params[:is_virtual])
+          else
+            nil
+          end
+
+        @leads = Lead.roots_with_data(
+          sessions_current_project_id,
+          !!params[:load_root_otus],
+          is_virtual:
+        )
+
+        @leads = @leads.where(id: params[:id]) if params[:id].present?
+
+        if params[:recent].present? && ActiveRecord::Type::Boolean.new.cast(params[:recent])
+          @leads = @leads.reorder('key_updated_at DESC NULLS LAST')
         end
+
+        @leads = @leads.page(params[:page]).per(params[:per])
       }
     end
   end
 
   def api_index
-    @leads = Lead.roots_with_data(sessions_current_project_id, true).where(is_public: true)
+    # Default excludes virtual (simple) keys so existing API consumers keep
+    # the shape they expect. Callers that want simple keys pass is_virtual=true;
+    # is_virtual=all returns both.
+    is_virtual =
+      if params[:is_virtual].to_s == 'all'
+        :all
+      elsif params[:is_virtual].present?
+        ActiveRecord::Type::Boolean.new.cast(params[:is_virtual])
+      else
+        false
+      end
+
+    @leads = Lead
+      .roots_with_data(sessions_current_project_id, true, is_virtual:)
+      .where(is_public: true)
 
     render '/leads/api/v1/index'
   end
@@ -70,38 +102,10 @@ class LeadsController < ApplicationController
     }
   end
 
-  # GET /leads/cite_key_column_cvts.json
-  # Returns distinct Keyword and Predicate CVTs that are already applied to
-  # any virtual child Lead in the project, so the cite_key task can
-  # auto-populate columns.
-  def cite_key_column_cvts
-    virtual_child_leads = Lead
-      .where(is_virtual: true)
-      .where.not(parent_id: nil)
-      .where(project_id: sessions_current_project_id)
-
-    predicate_ids = DataAttribute
-      .where(attribute_subject_type: 'Lead', attribute_subject_id: virtual_child_leads)
-      .distinct
-      .pluck(:controlled_vocabulary_term_id)
-
-    keyword_ids = Tag
-      .where(tag_object_type: 'Lead', tag_object_id: virtual_child_leads)
-      .distinct
-      .pluck(:keyword_id)
-
-    @cvts = ControlledVocabularyTerm
-      .where(project_id: sessions_current_project_id)
-      .where(id: (predicate_ids + keyword_ids).uniq)
-      .where(type: %w[Keyword Predicate])
-      .order(:type, :name)
-
-    render json: @cvts.map { |c| { id: c.id, type: c.type, name: c.name } }
-  end
-
   def list
-    @leads = Lead.
-      roots_with_data(sessions_current_project_id).page(params[:page])
+    @leads = Lead
+      .roots_with_data(sessions_current_project_id, false, is_virtual: :all)
+      .page(params[:page])
   end
 
   # GET /leads/1/redirect_option_texts.json
@@ -127,7 +131,11 @@ class LeadsController < ApplicationController
 
   # GET /leads/1/edit
   def edit
-    redirect_to new_lead_task_path lead_id: @lead.id
+    if @lead.is_virtual
+      redirect_to cite_key_task_path(lead_id: @lead.id)
+    else
+      redirect_to new_lead_task_path(lead_id: @lead.id)
+    end
   end
 
   # POST /leads
@@ -257,6 +265,27 @@ class LeadsController < ApplicationController
           render json: @lead.errors, status: :unprocessable_content
         }
       end
+    end
+  end
+
+  # DELETE /leads/1/destroy_simple_lead.json
+  # Simple (virtual) keys are flat by construction and are managed by the
+  # cite_key task. This action lets that task destroy either a species-child
+  # leaf or the entire simple key from the same endpoint. It refuses anything
+  # that isn't virtual so it can't be repurposed to remove a lead from an
+  # ordinary dichotomous couplet (which #destroy still guards against).
+  def destroy_simple_lead
+    unless @lead.is_virtual
+      render json: { errors: { base: ['Only virtual (simple key) leads can be destroyed here.'] } },
+        status: :unprocessable_content
+      return
+    end
+
+    begin
+      @lead.destroy!
+      head :no_content
+    rescue ActiveRecord::RecordNotDestroyed, ActiveRecord::RecordInvalid
+      render json: @lead.errors, status: :unprocessable_content
     end
   end
 

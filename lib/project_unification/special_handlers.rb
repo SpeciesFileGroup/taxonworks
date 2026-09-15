@@ -148,6 +148,53 @@ module ProjectUnification
       end
     end
 
+    # Handler for ProjectOrganization with duplicate detection.
+    #
+    # ProjectOrganization is an index of "organizations associated with this
+    # project".  When an organization_id already exists in the target project's
+    # project_organizations the source record is redundant, delete it and bulk
+    # update the rest.
+    class ProjectOrganizationHandler
+      attr_reader :source_project_id, :target_project_id
+
+      def initialize(source_project_id:, target_project_id:, options: {})
+        @source_project_id = source_project_id
+        @target_project_id = target_project_id
+      end
+
+      def migrate
+        conflict_ids = find_conflict_ids
+
+        ProjectOrganization.where(id: conflict_ids).delete_all if conflict_ids.any?
+
+        migrated = ProjectOrganization.where(project_id: source_project_id)
+                                      .update_all(project_id: target_project_id)
+
+        {
+          track: :special,
+          model: 'ProjectOrganization',
+          migrated: migrated,
+          duplicates_deleted: conflict_ids.size,
+          errors: []
+        }
+      rescue => e
+        {
+          track: :special,
+          model: 'ProjectOrganization',
+          migrated: 0,
+          errors: [{ error: e.message, backtrace: e.backtrace.first(3) }]
+        }
+      end
+
+      private
+
+      def find_conflict_ids
+        ProjectOrganization.where(project_id: source_project_id)
+                           .where(organization_id: ProjectOrganization.where(project_id: target_project_id).select(:organization_id))
+                           .pluck(:id)
+      end
+    end
+
     # Handler for RangedLotCategory with name-based duplicate detection.
     #
     # Phase 1 (migrate): source categories whose name collides with a target

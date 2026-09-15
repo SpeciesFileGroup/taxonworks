@@ -1,5 +1,5 @@
 json.array! @extracts do |s|
-  v = extract_autocomplete_tag(s)
+  v = extract_autocomplete_tag(s, params[:term])
   json.id s.id
   json.label  label_for_extract(s)
   json.gid s.to_global_id.to_s

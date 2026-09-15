@@ -12,7 +12,9 @@ if extend_response_with('notes')
 end
 
 if extend_response_with('taxon_name')
-  json.taxon_name do |n|
-    json.partial! '/taxon_names/api/v1/attributes', taxon_name: otu.taxon_name
+  if otu.taxon_name
+    json.taxon_name do
+      json.partial! '/taxon_names/api/v1/attributes', taxon_name: otu.taxon_name
+    end
   end
 end

@@ -37,11 +37,12 @@ module ExtractsHelper
     ].compact.join('; ')
   end
 
-  def extract_autocomplete_tag(extract)
+  def extract_autocomplete_tag(extract, term = nil)
     return nil if extract.nil?
-    [simple_identifier_list_tag(extract),
+    s = [simple_identifier_list_tag(extract),
      extract_origin_tags(extract),
-    ].join(' ').html_safe
+    ].join(' ')
+    mark_tag(s, term)
   end
 
   # @return [String, nil\

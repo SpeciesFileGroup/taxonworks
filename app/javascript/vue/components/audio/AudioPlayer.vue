@@ -6,6 +6,7 @@
 import { onMounted, useTemplateRef, onBeforeUnmount, watch } from 'vue'
 import WaveSurfer from 'wavesurfer.js'
 import Spectrogram from 'wavesurfer.js/dist/plugins/spectrogram.esm.js'
+import Timeline from 'wavesurfer.js/dist/plugins/timeline.esm.js'
 import RegionsPlugin from 'wavesurfer.js/dist/plugins/regions.esm.js'
 
 const props = defineProps({
@@ -35,7 +36,7 @@ const props = defineProps({
   },
 
   timeline: {
-    type: Boolean,
+    type: [Boolean, Object],
     default: false
   },
 
@@ -80,6 +81,36 @@ const emit = defineEmits([
 const audioPlayerRef = useTemplateRef('player')
 let audioPlayer
 let regionsPlugin
+let spectrogramPlugin
+let isDecoded = false
+
+function renderSpectrogram() {
+  if (!audioPlayer) return
+
+  if (spectrogramPlugin) {
+    audioPlayer.unregisterPlugin(spectrogramPlugin)
+    spectrogramPlugin = undefined
+  }
+
+  if (!props.spectrogram) return
+
+  spectrogramPlugin = audioPlayer.registerPlugin(
+    Spectrogram.create({
+      labels: true,
+      height: 400,
+      scale: 'mel',
+      labelsBackground: 'rgba(0, 0, 0, 0.1)',
+      ...props.spectrogram
+    })
+  )
+}
+
+function renderRegions() {
+  if (!regionsPlugin || !isDecoded) return
+
+  regionsPlugin.clearRegions()
+  props.regions.forEach((region) => regionsPlugin.addRegion(makeRegion(region)))
+}
 
 onMounted(() => {
   if (props.error) {
@@ -87,24 +118,20 @@ onMounted(() => {
     return
   }
 
-  const plugins = []
+  regionsPlugin = RegionsPlugin.create()
 
-  if (props.regions.length) {
-    regionsPlugin = RegionsPlugin.create()
+  regionsPlugin.on('region-clicked', (r, e) =>
+    emit('region:click', { region: r, event: e })
+  )
+  regionsPlugin.on('region-created', (e) => emit('region:created', e))
+  regionsPlugin.on('region-double-click', (e) => emit('region:dblclick', e))
+  regionsPlugin.on('region-in', (e) => emit('region:in', e))
+  regionsPlugin.on('region-out', (e) => emit('region:out', e))
+  regionsPlugin.on('region-removed', (e) => emit('region:removed', e))
+  regionsPlugin.on('region-update', (e) => emit('region:update', e))
+  regionsPlugin.on('region-updated', (e) => emit('region:updated', e))
 
-    regionsPlugin.on('region-clicked', (r, e) =>
-      emit('region:click', { region: r, event: e })
-    )
-    regionsPlugin.on('region-created', (e) => emit('region:created', e))
-    regionsPlugin.on('region-double-click', (e) => emit('region:dblclick', e))
-    regionsPlugin.on('region-in', (e) => emit('region:in', e))
-    regionsPlugin.on('region-out', (e) => emit('region:out', e))
-    regionsPlugin.on('region-removed', (e) => emit('region:removed', e))
-    regionsPlugin.on('region-update', (e) => emit('region:update', e))
-    regionsPlugin.on('region-updated', (e) => emit('region:updated', e))
-
-    plugins.push(regionsPlugin)
-  }
+  const plugins = [regionsPlugin]
 
   audioPlayer = WaveSurfer.create({
     container: audioPlayerRef.value,
@@ -112,30 +139,29 @@ onMounted(() => {
     ...props
   })
 
-  if (props.spectrogram) {
+  if (props.timeline) {
     audioPlayer.registerPlugin(
-      Spectrogram.create({
-        labels: true,
-        height: 400,
-        scale: 'mel',
-        labelsBackground: 'rgba(0, 0, 0, 0.1)',
-        ...props.spectrogram
+      Timeline.create({
+        height: 24,
+        ...props.timeline
       })
     )
   }
 
-  if (props.regions.length) {
-    audioPlayer.on('decode', () => {
-      props.regions.forEach((region) =>
-        regionsPlugin.addRegion(makeRegion(region))
-      )
-    })
-  }
+  renderSpectrogram()
+
+  audioPlayer.on('decode', () => {
+    isDecoded = true
+    renderRegions()
+  })
 
   audioPlayer.on('play', () => emit('play'))
   audioPlayer.on('stop', () => emit('stop'))
   audioPlayer.on('pause', () => emit('pause'))
-  audioPlayer.on('load', (url) => emit('load', url))
+  audioPlayer.on('load', (url) => {
+    isDecoded = false
+    emit('load', url)
+  })
   audioPlayer.on('finish', () => emit('finish'))
   audioPlayer.on('ready', (duration) => emit('ready', duration))
 })
@@ -164,8 +190,8 @@ function load(url) {
   audioPlayer.load(url)
 }
 
-function play() {
-  audioPlayer.play()
+function play(start, end) {
+  audioPlayer.play(start, end)
 }
 
 function stop() {
@@ -193,15 +219,11 @@ watch(
   (url) => load(url)
 )
 
-watch(
-  () => props.regions,
-  (newVal) => {
-    regionsPlugin.clearRegions()
+watch(() => props.regions, renderRegions)
 
-    newVal.forEach((region) => {
-      regionsPlugin.addRegion(makeRegion(region))
-    })
-  }
+watch(
+  () => (props.spectrogram ? JSON.stringify(props.spectrogram) : ''),
+  renderSpectrogram
 )
 
 defineExpose({

@@ -47,6 +47,9 @@ const isLoading = ref(true)
 const pdfContainer = ref(null)
 
 let pdfViewPage = null
+let visibilityObserver = null
+let isVisible = false
+let renderedScale = null
 
 const emit = defineEmits(['numpages', 'loading'])
 
@@ -55,18 +58,8 @@ watch(pdf, (val) => {
   emit('numpages', pdfInfo.numPages)
 })
 
-watch(
-  () => props.page,
-  (val) => {
-    pdf.value.getPage(val).then((pdfPage) => {
-      pdfViewPage.setPdfPage(pdfPage)
-      pdfViewPage.draw()
-    })
-  }
-)
-
-watch([() => props.scale, () => props.rotate], (val) => {
-  updatePage(val)
+watch([() => props.scale, () => props.rotate], () => {
+  renderVisiblePage()
 })
 
 watch(
@@ -76,15 +69,19 @@ watch(
   }
 )
 
-const updatePage = () => {
-  if (pdfViewPage) {
+const renderVisiblePage = () => {
+  if (!pdfViewPage || !isVisible) return
+  if (renderedScale === props.scale) return
+
+  if (renderedScale !== null) {
     pdfViewPage.update({
       scale: props.scale,
       rotate: props.rotate
     })
-
-    pdfViewPage.draw()
   }
+
+  renderedScale = props.scale
+  pdfViewPage.draw()
 }
 
 const loadPdf = async (pdfInstance) => {
@@ -102,10 +99,27 @@ const loadPdf = async (pdfInstance) => {
     eventBus
   })
 
-  isLoading.value = false
-
   pdfViewPage.setPdfPage(pdfPage)
-  return pdfViewPage.draw()
+  isLoading.value = false
+  observeVisibility()
+}
+
+const observeVisibility = () => {
+  visibilityObserver?.disconnect()
+
+  const scrollRoot = pdfContainer.value?.closest('#pdfViewerContainer')
+
+  visibilityObserver = new IntersectionObserver(
+    (entries) => {
+      isVisible = entries.some((entry) => entry.isIntersecting)
+      if (isVisible) {
+        renderVisiblePage()
+      }
+    },
+    { root: scrollRoot, rootMargin: '600px 0px' }
+  )
+
+  visibilityObserver.observe(pdfContainer.value)
 }
 
 onMounted(() => {
@@ -117,6 +131,7 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
+  visibilityObserver?.disconnect()
   pdfViewPage?.destroy()
 })
 </script>

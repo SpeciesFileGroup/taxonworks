@@ -195,6 +195,11 @@ export const useStore = defineStore('NewAssertedDistribution', {
       }
     },
 
+    clearConfidences() {
+      this.confidences = []
+      this.lock.confidences = false
+    },
+
     removeAssertedDistribution(item) {
       AssertedDistribution.destroy(item.id).then(() => {
         removeFromArray(this.assertedDistributions, item)

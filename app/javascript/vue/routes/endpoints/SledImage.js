@@ -1,32 +1,52 @@
 import baseCRUD from './base'
+import AjaxCall from '@/helpers/ajaxCall'
 
 const controller = 'sled_images'
+
+// Mirrors `SledImagesController#sled_image_params`
 const permitParams = {
   sled_image: {
+    image_id: Number,
+    step_identifier_on: String,
+    horizontal_step_direction: String,
+    vertical_step_direction: String,
+    object_layout: {},
     metadata: {
       index: Number,
-      column: Object,
-      metadata: Object,
-      lowerCorner: [],
-      upperCorner: [],
-      object_layout: {}
+      row: Number,
+      column: Number,
+      metadata: String,
+      lowerCorner: {
+        x: Number,
+        y: Number
+      },
+      upperCorner: {
+        x: Number,
+        y: Number
+      }
     }
+  },
+  depiction: {
+    is_metadata_depiction: Boolean
   },
   collection_object: {
     total: Number,
-    preparation_type_id: Number,
-    repository_id: Number,
-    current_repository_id: Number,
-    ranged_lot_category_id: Number,
     collecting_event_id: Number,
-    buffered_collecting_event: String,
-    buffered_determinations: String,
-    buffered_other_labels: String,
-    accessioned_at: String,
-    deaccessioned_at: String,
-    deaccession_reason: String,
-    contained_in: String,
-    collecting_event_attributes: [],
+    repository_id: Number,
+    preparation_type_id: Number,
+    identifiers_attributes: {
+      namespace_id: Number,
+      identifier: String,
+      type: String
+    },
+    notes_attributes: {
+      text: String
+    },
+    tags_attributes: {
+      id: Number,
+      _destroy: Boolean,
+      keyword_id: Number
+    },
     data_attributes_attributes: {
       id: Number,
       _destroy: Boolean,
@@ -34,27 +54,35 @@ const permitParams = {
       type: String,
       value: String
     },
-    tags_attributes: {
+    taxon_determinations_attributes: {
       id: Number,
       _destroy: Boolean,
-      keyword_id: Number
-    },
-    identifiers_attributes: {
-      id: Number,
-      _destroy: Boolean,
-      identifier: String,
-      namespace_id: Number,
-      type: String,
-      labels_attributes: {
-        text: String,
+      otu_id: Number,
+      year_made: Number,
+      month_made: Number,
+      day_made: Number,
+      roles_attributes: {
+        id: Number,
+        _destroy: Boolean,
         type: String,
-        text_method: String,
-        total: Number
+        person_id: Number,
+        position: Number,
+        person_attributes: {
+          last_name: String,
+          first_name: String,
+          suffix: String,
+          prefix: String
+        }
       }
     }
   }
 }
 
 export const SledImage = {
-  ...baseCRUD(controller, permitParams)
+  ...baseCRUD(controller, permitParams),
+
+  nuke: (id) =>
+    AjaxCall('delete', `/${controller}/${id}.json`, {
+      params: { nuke: 'nuke' }
+    })
 }

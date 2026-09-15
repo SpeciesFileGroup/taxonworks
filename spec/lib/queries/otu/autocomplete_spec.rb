@@ -231,8 +231,20 @@ describe Queries::Otu::Autocomplete, type: :model do
       expect(query.autocomplete.first).to eq(otu2)
     end
 
+    context '#autocomplete_taxon_name_and_otu_name' do
+      let!(:tapinoma) { Protonym.create!(name: 'Tapinoma', rank_class: Ranks.lookup(:iczn, 'genus'), parent: root) }
+      let!(:target) { Otu.create!(taxon_name: tapinoma, name: 'CASC_2231', project_id: project_id) }
 
+      specify 'matches an exact single-word taxon name and otu name' do
+        q = Queries::Otu::Autocomplete.new('Tapinoma CASC_2231', project_id: project_id)
+        expect(q.autocomplete_taxon_name_and_otu_name.to_a).to include(target)
+      end
 
+      specify 'matches on prefixes of both terms' do
+        q = Queries::Otu::Autocomplete.new('Tapino CASC', project_id: project_id)
+        expect(q.autocomplete_taxon_name_and_otu_name.to_a).to include(target)
+      end
+    end
 
   end
 

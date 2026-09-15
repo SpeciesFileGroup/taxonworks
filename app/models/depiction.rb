@@ -167,16 +167,16 @@ class Depiction < ApplicationRecord
     r = used_recently(user_id, project_id, klass)
     h = {
       quick: [],
-      pinboard: Conveyance.pinned_by(user_id).where(project_id: project_id).to_a,
+      pinboard: Depiction.pinned_by(user_id).where(project_id: project_id).pinboard_ordered.to_a,
       recent: []
     }
 
     if r.empty?
-      h[:quick] = Conveyance.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a
+      h[:quick] = Depiction.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a
     else
-      h[:recent] = Conveyance.where('"conveyances"."id" IN (?)', r.first(10) ).order(updated_at: :desc).to_a
-      h[:quick] = (Conveyance.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a +
-                   Conveyance.where('"conveyances"."id" IN (?)', r.first(4) ).order(updated_at: :desc).to_a).uniq
+      h[:recent] = Depiction.where('"depictions"."id" IN (?)', r.first(10) ).order(updated_at: :desc).to_a
+      h[:quick] = (Depiction.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a +
+                   Depiction.where('"depictions"."id" IN (?)', r.first(4) ).order(updated_at: :desc).to_a).uniq
     end
 
     h

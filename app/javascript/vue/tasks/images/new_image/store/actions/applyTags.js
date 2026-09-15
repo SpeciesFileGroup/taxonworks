@@ -1,6 +1,7 @@
 import { Tag } from '@/routes/endpoints'
+import { MutationNames } from '../mutations/mutations'
 
-export default ({ state }, payload) => {
+export default ({ state, commit }, payload) => {
   const { objectType, objectIds } = payload
 
   const requests = state.tagsForImage.map((tag) =>
@@ -11,8 +12,8 @@ export default ({ state }, payload) => {
     })
   )
 
-  Promise.all(requests).then((_) => {
-    state.settings.applied.tags = true
+  return Promise.all(requests).then((_) => {
+    commit(MutationNames.MarkApplied, { imageIds: objectIds, key: 'tags' })
     TW.workbench.alert.create('All tag(s) was successfully created.', 'notice')
   })
 }

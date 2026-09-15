@@ -30,10 +30,7 @@
             @getItem="taxonRelation = $event"
             event-send="autocompleteTaxonRelationshipSelected"
             placeholder="Search taxon name for the new classification..."
-            :add-params="{
-              type: 'Protonym',
-              'nomenclature_group[]': ['Family', 'HigherClassification']
-            }"
+            :add-params="{ 'type[]': 'Protonym' }"
             param="term"
           />
           <button

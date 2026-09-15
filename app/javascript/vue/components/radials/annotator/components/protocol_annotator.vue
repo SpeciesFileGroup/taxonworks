@@ -1,13 +1,9 @@
 <template>
   <div class="protocols_annotator">
-    <Autocomplete
-      url="/protocols/autocomplete"
-      label="label"
-      min="2"
-      placeholder="Select a protocol"
-      class="separate-bottom"
-      param="term"
-      @get-item="({ id }) => createNew(id)"
+    <SmartSelector
+      model="protocols"
+      :klass="objectType"
+      @selected="({ id }) => createNew(id)"
     />
     <ListItems
       target="protocols"
@@ -22,10 +18,10 @@
 </template>
 
 <script setup>
-import Autocomplete from '@/components/ui/Autocomplete.vue'
-import ListItems from './shared/listItems'
 import { ProtocolRelationship } from '@/routes/endpoints'
 import { useSlice } from '@/components/radials/composables'
+import ListItems from './shared/listItems'
+import SmartSelector from '@/components/ui/SmartSelector.vue'
 
 const props = defineProps({
   objectId: {

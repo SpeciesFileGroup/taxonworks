@@ -245,6 +245,62 @@ RSpec.describe SledImage, type: :model, group: :image do
       sled_image.collection_object_params[:identifiers_attributes][0][:identifier] = '997'
       expect(sled_image.send(:_identifier_matrix)).to contain_exactly(['997','998','999'], ['1000','1001','1002'], ['1003','1004','1005'])
     end
+
+    specify 'default #horizontal_step_direction' do
+      expect(sled_image.horizontal_step_direction).to eq('left_to_right')
+    end
+
+    specify 'default #vertical_step_direction' do
+      expect(sled_image.vertical_step_direction).to eq('top_to_bottom')
+    end
+
+    # Up -> across
+    specify 'by column, bottom to top' do
+      sled_image.step_identifier_on = 'column'
+      sled_image.vertical_step_direction = 'bottom_to_top'
+      expect(sled_image.send(:_identifier_matrix)).to eq([['2','5','8'], ['1','4','7'], ['0','3','6']])
+    end
+
+    # Across -> up
+    specify 'by row, bottom to top' do
+      sled_image.step_identifier_on = 'row'
+      sled_image.vertical_step_direction = 'bottom_to_top'
+      expect(sled_image.send(:_identifier_matrix)).to eq([['6','7','8'], ['3','4','5'], ['0','1','2']])
+    end
+
+    specify 'by row, right to left' do
+      sled_image.step_identifier_on = 'row'
+      sled_image.horizontal_step_direction = 'right_to_left'
+      expect(sled_image.send(:_identifier_matrix)).to eq([['2','1','0'], ['5','4','3'], ['8','7','6']])
+    end
+
+    specify 'by column, right to left' do
+      sled_image.step_identifier_on = 'column'
+      sled_image.horizontal_step_direction = 'right_to_left'
+      expect(sled_image.send(:_identifier_matrix)).to eq([['6','3','0'], ['7','4','1'], ['8','5','2']])
+    end
+
+    specify 'by column, right to left, bottom to top' do
+      sled_image.step_identifier_on = 'column'
+      sled_image.horizontal_step_direction = 'right_to_left'
+      sled_image.vertical_step_direction = 'bottom_to_top'
+      expect(sled_image.send(:_identifier_matrix)).to eq([['8','5','2'], ['7','4','1'], ['6','3','0']])
+    end
+
+    specify 'by row, right to left, bottom to top' do
+      sled_image.step_identifier_on = 'row'
+      sled_image.horizontal_step_direction = 'right_to_left'
+      sled_image.vertical_step_direction = 'bottom_to_top'
+      expect(sled_image.send(:_identifier_matrix)).to eq([['8','7','6'], ['5','4','3'], ['2','1','0']])
+    end
+
+    specify 'by column, bottom to top, gaps' do
+      sled_image.step_identifier_on = 'column'
+      sled_image.vertical_step_direction = 'bottom_to_top'
+      sled_image.metadata[0]['metadata'] = 'foo'
+      sled_image.metadata[8]['metadata'] = 'foo'
+      expect(sled_image.send(:_identifier_matrix)).to eq([[nil,'4','6'], ['1','3','5'], ['0','2',nil]])
+    end
   end
 
   specify '#depiction_params / #is_metadata_depiction?' do

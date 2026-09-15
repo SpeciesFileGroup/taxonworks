@@ -9,6 +9,7 @@ module Shared::IsData::Pinnable
     scope :pinned_by, -> (user_id) { joins(:pinboard_items).where(pinboard_items: {user_id:}) }
     scope :pinboard_inserted, -> { joins(:pinboard_items).where(pinboard_items: {is_inserted: true}) }
     scope :pinned_in_project, -> (project_id) { joins(:pinboard_items).where(pinboard_items: {project_id:})}
+    scope :pinboard_ordered, -> { order(pinboard_items: {position: :asc}) }
   end
 
   # @return [Boolean]

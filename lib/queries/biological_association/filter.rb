@@ -661,7 +661,7 @@ module Queries
 
         return nil if a_query.nil? && b_query.nil? && c_query.nil?
 
-        d, e, f = nil, nil, nil
+        d, e, f, g = nil, nil, nil, nil
 
         if a_query
           d = ::BiologicalAssociation
@@ -681,7 +681,14 @@ module Queries
             .joins("JOIN c ON c.id = biological_associations.biological_association_#{target}_id AND biological_associations.biological_association_#{target}_type = 'FieldOccurrence'")
         end
 
-        referenced_klass_union([d,e,f])
+        if a_query
+          g = ::BiologicalAssociation
+            .with(ap: a_query)
+            .joins("JOIN anatomical_parts ON anatomical_parts.id = biological_associations.biological_association_#{target}_id AND biological_associations.biological_association_#{target}_type = 'AnatomicalPart'")
+            .joins('JOIN ap ON ap.id = anatomical_parts.cached_otu_id')
+        end
+
+        referenced_klass_union([d,e,f,g])
       end
 
       # Merges results from Otu and CollectionObject filters
@@ -1003,7 +1010,7 @@ module Queries
           biological_association_object_id_facet,
           biological_association_object_type_facet,
           biological_association_subject_id_facet,
-          biological_association_subject_id_facet
+          biological_association_subject_type_facet
         ]
       end
 

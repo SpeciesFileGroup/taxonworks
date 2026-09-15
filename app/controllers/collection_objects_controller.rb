@@ -475,6 +475,9 @@ class CollectionObjectsController < ApplicationController
         roles_attributes: [:id, :_destroy, :type, :organization_id, :person_id, :position, person_attributes: [:last_name, :first_name, :suffix, :prefix]],
         otu_attributes: [:id, :_destroy, :name, :taxon_name_id]
       ],
+      type_materials_attributes: [
+        :id, :type_type, :protonym_id
+      ],
       biocuration_classifications_attributes: [
         :id, :_destroy, :biocuration_class_id
       ]

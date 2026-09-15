@@ -184,7 +184,6 @@ const extendDownload = computed(() => [
 ])
 
 function removeCOFromList(ids) {
-  L
   list.value = list.value.filter((item) => !ids.includes(item.id))
   selectedIds.value = selectedIds.value.filter((id) => !ids.includes(id))
 }

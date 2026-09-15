@@ -4,16 +4,17 @@
       <h3>Match options</h3>
       <VBtn
         color="primary"
-        @click="emit('clear-all')"
+        title="Reset all options and match strings to defaults and re-run matching"
+        @click="handleClearAll"
       >
-        Clear all matches
+        Restart
       </VBtn>
     </div>
 
     <!-- Scope to TaxonName -->
     <div class="flex-col gap-medium">
       <div class="field margin-medium-bottom">
-        <label>Scope to TaxonName</label>
+        <label>Restrict matches to children of</label>
 
         <Autocomplete
           url="/taxon_names/autocomplete"
@@ -46,7 +47,7 @@
 
       <!-- Try without subgenus -->
       <div class="field margin-medium-bottom">
-        <label class="middle">
+        <label class="middle" data-help="When checked, any subgenus (or section, series...) between genus and epithet is ignored; every species-group epithet present (species, subspecies, variety, form...) may match any of its three predicted gender-agreeing spellings — masculine, feminine, or neuter — instead of the exact spelling stored; and the genus may be either the current one or the genus a name was originally described in.">
           <input
             type="checkbox"
             :checked="tryWithoutSubgenus"
@@ -55,8 +56,7 @@
           Try without subgenus
         </label>
         <span class="subtle">
-          When checked and cached match fails, tries cached_secondary_homonym
-          then cached_primary_homonym.
+          Ignore subgenus; match against different gender endings and current/original genus.
         </span>
       </div>
 
@@ -97,7 +97,7 @@
 
       <!-- Modifiers -->
       <div class="field">
-        <label>Modifiers</label>
+        <label data-help="Regex find-and-replace rules applied to the match string before searching. Each active row is applied in sequence.">Modifiers</label>
         <div class="modifier-header">
           <span />
           <span class="subtle">Replace this</span>
@@ -210,6 +210,11 @@ function debouncedUpdate() {
   debounceTimer = setTimeout(() => {
     emit('update-options')
   }, 500)
+}
+
+function handleClearAll() {
+  clearTimeout(debounceTimer)
+  emit('clear-all')
 }
 
 function handleScopeSelect(item) {

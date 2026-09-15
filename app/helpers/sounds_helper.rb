@@ -16,6 +16,11 @@ module SoundsHelper
     render('/sounds/quick_search_form')
   end
 
+  def sound_autocomplete_tag(sound, term = nil)
+    return nil if sound.nil?
+    mark_tag(sound_tag(sound), term)
+  end
+
   def sound_link(sound)
     return nil if sound.nil?
     link_to(sound_tag(sound), sound.metamorphosize).html_safe
@@ -28,12 +33,11 @@ module SoundsHelper
         ActiveStorage::Blob.service.path_for(sound.sound_file.attachment.key)
       )
     rescue Errno::ENOENT
-      if Rails.env.production?
-        raise TaxonWorks::Error,
-          "Sound '#{sound.id}' missing its sound file at '#{sound.sound_file}'"
-      else
-        return { error: 'Missing sound file' }
-      end
+      Rails.logger.error(
+        "Sound '#{sound.id}' missing its sound file " \
+        "(blob key '#{sound.sound_file.attachment&.key}')"
+      )
+      return { error: 'Missing sound file' }
     end
     begin
       w = ::WahWah.open(t)

@@ -9,6 +9,10 @@ class ApiController < ActionController::API
   include Api::AuthenticateProjectToken
   include RequestType
   include PaginationHeaders
+
+  # Unlike ActionController::Base only the matching helper (ApiHelper) is
+  # included, `extend[]`, `embed[]` and `exclude[]` are used in these views.
+  helper RestHelper
   # include Api::RescueFrom
 
 end

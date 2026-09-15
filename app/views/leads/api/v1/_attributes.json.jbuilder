@@ -3,7 +3,7 @@ if lead.nil?
 else
   json.extract! lead, :id, :parent_id, :otu_id, :text, :origin_label,
     :description, :redirect_id, :link_out, :link_out_text, :position,
-    :project_id, :created_at,
+    :is_virtual, :project_id, :created_at,
     :updated_at, :observation_matrix_id
 
   if lead[:otus_count]

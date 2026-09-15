@@ -7,6 +7,12 @@
     />
     <h3 class="title-section">Keys</h3>
     <div class="keys_list">
+      <Pagination
+        v-if="pagination && pagination.totalPages > 1"
+        :pagination="pagination"
+        class="margin-small-bottom"
+        @next-page="({ page }) => loadPage(page)"
+      />
       <table
         v-if="keys.length"
         class="vue-table"
@@ -33,6 +39,12 @@
             </th>
             <th class="width_shrink"/> <!-- radials -->
             <th
+              @click="() => sortTable('is_virtual')"
+              class="width_shrink"
+            >
+              Is Simple
+            </th>
+            <th
               @click="() => sortTable('is_public')"
               class="width_shrink"
             >
@@ -51,14 +63,6 @@
             >
               <td class="horizontal-left-content middle gap-small">
                 <b>{{ key.text }}</b>
-                <VBtn
-                  color="primary"
-                  @click="navigateTo(`${RouteNames.NewLead}?lead_id=${key.id}`)"
-                >Edit</VBtn>
-                <VBtn
-                  color="primary"
-                  @click="navigateTo(`${RouteNames.ShowLead}?lead_id=${key.id}`)"
-                >Use</VBtn>
               </td>
 
               <td>{{ key.couplets_count }}</td>
@@ -72,6 +76,14 @@
                   <RadialAnnotator :global-id="key.global_id" />
                   <RadialNavigator :global-id="key.global_id" />
                 </div>
+              </td>
+
+              <td>
+                <input
+                  type="checkbox"
+                  :checked="!!key.is_virtual"
+                  disabled
+                />
               </td>
 
               <td>
@@ -94,7 +106,7 @@
                 />
               </td>
               <td
-                colspan="4"
+                colspan="5"
                 class="extension_data"
               >
                 <KeyCitations :citations="key.citations" />
@@ -124,38 +136,50 @@ import { Citation, Lead } from '@/routes/endpoints'
 import { LEAD } from '@/constants/index.js'
 import { onBeforeMount, ref } from 'vue'
 import { RouteNames } from '@/routes/routes'
-import { sortArray } from '@/helpers'
+import { sortArray, getPagination } from '@/helpers'
 import KeyCitations from './KeyCitations.vue'
 import KeyOtus from './KeyOtus.vue'
+import Pagination from '@/components/pagination.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
-import VBtn from '@/components/ui/VBtn/index.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
+
+const PER_PAGE = 25
 
 const keys = ref([])
 const loading = ref(true)
 const ascending = ref(false)
+const pagination = ref()
 
-onBeforeMount(async () => {
-  const loadKeys = Lead.where({ load_root_otus: true })
-    .then(({ body }) => {
-      keys.value = body
-    })
-
-  const loadCitations = Citation.where({
-    citation_object_type: LEAD,
-    extend: ['source']
+function loadPage(page = 1) {
+  loading.value = true
+  Lead.where({
+    load_root_otus: true,
+    is_virtual: 'all',
+    page,
+    per: PER_PAGE
   })
-
-  Promise.allSettled([loadKeys, loadCitations])
-    .then(([_, { value }]) => {
-      addCitationsToKeysList(value.body)
+    .then((response) => {
+      keys.value = response.body
+      pagination.value = getPagination(response)
+      const leadIds = response.body.map((k) => k.id)
+      if (leadIds.length) {
+        return Citation.where({
+          citation_object_type: LEAD,
+          citation_object_id: leadIds,
+          extend: ['source']
+        }).then(({ body }) => {
+          addCitationsToKeysList(body)
+        })
+      }
     })
     .catch(() => {})
     .finally(() => {
       loading.value = false
     })
-})
+}
+
+onBeforeMount(() => loadPage())
 
 function addCitationsToKeysList(citations) {
   citations.forEach((citation) => {
@@ -203,10 +227,6 @@ function changeIsPublicState(key) {
       addToArray(keys.value, updatedKey)
     })
     .catch(() => {})
-}
-
-function navigateTo(url) {
-  window.open(url, '_blank')
 }
 
 function loadOtusForKey(key) {

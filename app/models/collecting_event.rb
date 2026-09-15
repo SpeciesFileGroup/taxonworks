@@ -353,26 +353,54 @@ class CollectingEvent < ApplicationRecord
   scope :used_recently, -> { joins(:collection_objects).includes(:collection_objects).where(collection_objects: { updated_at: 1.week.ago..Time.now } ).order('"collection_objects"."updated_at" DESC') }
   scope :used_in_project, -> (project_id) { joins(:collection_objects).where( collection_objects: { project_id: } ) }
 
+  def self.georeferences_exist_arel
+    ::Georeference.where(
+      ::Georeference.arel_table[:collecting_event_id].eq(arel_table[:id])
+    ).arel.exists
+  end
+
+  scope :with_georeferences, -> { where(georeferences_exist_arel) }
+  scope :without_georeferences, -> { where(georeferences_exist_arel.not) }
+
   class << self
 
     #
     # Scopes
     #
 
-    def select_optimized(user_id, project_id)
+    # @param georeferences [Boolean, nil]
+    #   true - only collecting events with a georeference
+    #   false - only collecting events without a georeference
+    #   nil - no restriction
+    # Same semantics as the `georeferences` facet of
+    # `Queries::CollectingEvent::Filter`. Callers must pass nil, not false, to
+    # mean 'no restriction'.
+    # The restriction is merged into each scope *before* its limit, so that a
+    # list is not silently emptied by the limit landing on excluded records.
+    def select_optimized(user_id, project_id, georeferences: nil)
+      georeference_restriction = case georeferences
+                                 when true then CollectingEvent.with_georeferences
+                                 when false then CollectingEvent.without_georeferences
+                                 else CollectingEvent.all
+                                 end
+
       h = {
         recent: (CollectingEvent.used_in_project(project_id)
           .where(collection_objects: {updated_by_id: user_id})
           .used_recently
+          .merge(georeference_restriction)
           .distinct
           .limit(5)
           .order(:cached)
           .to_a +
-        CollectingEvent.where(project_id:, updated_by_id: user_id, created_at: 3.hours.ago..Time.now).limit(5).to_a).uniq,
-        pinboard: CollectingEvent.pinned_by(user_id).pinned_in_project(project_id).to_a
+        CollectingEvent.where(project_id:, updated_by_id: user_id, created_at: 3.hours.ago..Time.now)
+          .merge(georeference_restriction).limit(5).to_a).uniq,
+        pinboard: CollectingEvent.pinned_by(user_id).pinned_in_project(project_id)
+          .merge(georeference_restriction).pinboard_ordered.to_a
       }
 
-      h[:quick] = (CollectingEvent.pinned_by(user_id).pinboard_inserted.pinned_in_project(project_id).to_a  +
+      h[:quick] = (CollectingEvent.pinned_by(user_id).pinboard_inserted.pinned_in_project(project_id)
+                   .merge(georeference_restriction).to_a +
                    h[:recent]).uniq
       h
     end
@@ -747,7 +775,7 @@ class CollectingEvent < ApplicationRecord
       .where(geographic_area_types: {name: types})
 
     source_geographic_item_ids = if self.georeferences.any?
-      geographic_items.pluck(:id)
+                                   geographic_items.pluck(:id)
     elsif self.geographic_area
       self.geographic_area.geographic_items.pluck(:id)
     else
@@ -1181,13 +1209,13 @@ class CollectingEvent < ApplicationRecord
   def sv_missing_georeference
     if !georeferences.any?
       text = 'Georeference is missing'
-      if !verbatim_longitude.blank? && !verbatim_latitude.blank?
+      if verbatim_longitude.present? && verbatim_latitude.present?
         text = 'Georeference is missing. Verbatim latitude and longitude are available.'
       end
       unless geographic_area_id.nil?
-        if !verbatim_label.blank? && !Utilities::Geo.coordinates_regex_from_verbatim_label(verbatim_label.to_s).blank?
+        if verbatim_label.present? && Utilities::Geo.coordinates_regex_from_verbatim_label(verbatim_label.to_s).present?
           text = 'Georeference is missing. Label has verbatim latitude and longitude.'
-        elsif !verbatim_locality.blank?
+        elsif verbatim_locality.present?
           with_geo = ::Georeference
                        .joins(:collecting_event)
                        .where(collecting_events: { project_id: project_id, verbatim_locality: verbatim_locality, geographic_area_id: geographic_area_id })
@@ -1213,7 +1241,7 @@ class CollectingEvent < ApplicationRecord
 
   def sv_fix_missing_georeference
     if !georeferences.any? && !geographic_area_id.nil? &&
-       verbatim_longitude.blank? && verbatim_latitude.blank? && !verbatim_locality.blank? &&
+       verbatim_longitude.blank? && verbatim_latitude.blank? && verbatim_locality.present? &&
        Utilities::Geo.coordinates_regex_from_verbatim_label(verbatim_label.to_s).blank?
       with_geo = ::Georeference
                    .joins(:collecting_event)
@@ -1232,7 +1260,7 @@ class CollectingEvent < ApplicationRecord
           ::Georeference.transaction do
             gr = georeferences.create(geographic_item_id: with_geo.geographic_item_id,
                                       collecting_event_id: id,
-                                      type: "Georeference::Point")
+                                      type: 'Georeference::Point')
             gr.data_attributes.create(type: 'ImportAttribute', import_predicate: 'georeferenceProtocol', value: 'Copied from another collecting event.') unless gr.id.nil?
           end
         rescue ActiveRecord::RecordInvalid

@@ -1,18 +1,48 @@
 module AnatomicalPartsHelper
-  def anatomical_part_tag(anatomical_part)
+  def anatomical_part_tag(anatomical_part, depth: 0)
     return nil if anatomical_part.nil?
+    raise "AnatomicalPart origin chain exceeded maximum depth, possible cycle at id #{anatomical_part.id}" if depth > 100
 
-    content_tag(:span, safe_join([anatomical_part.cached, ': ', otu_tag(anatomical_part.origin_otu)]))
+    origin = anatomical_part.inbound_origin_relationship&.old_object
+    origin_content = case origin&.class&.base_class&.name
+    when 'Otu'
+      otu_tag(origin)
+    when 'CollectionObject'
+      collection_object_tag(origin)
+    when 'FieldOccurrence'
+      field_occurrence_tag(origin)
+    when 'AnatomicalPart'
+      anatomical_part_tag(origin, depth: depth + 1)
+    else
+      otu_tag(anatomical_part.origin_otu)
+    end
+
+    content_tag(:span, safe_join([anatomical_part.cached, ': ', origin_content || '']))
   end
 
-  def anatomical_part_autocomplete_tag(anatomical_part)
-    anatomical_part_tag(anatomical_part)
+  def anatomical_part_autocomplete_tag(anatomical_part, term = nil)
+    mark_tag(anatomical_part_tag(anatomical_part), term)
   end
 
-  def label_for_anatomical_part(anatomical_part)
+  def label_for_anatomical_part(anatomical_part, depth: 0)
     return nil if anatomical_part.nil?
+    raise "AnatomicalPart origin chain exceeded maximum depth, possible cycle at id #{anatomical_part.id}" if depth > 100
 
-    "#{anatomical_part.cached}: #{label_for_otu(anatomical_part.origin_otu)}"
+    origin = anatomical_part.inbound_origin_relationship&.old_object
+    origin_label = case origin&.class&.base_class&.name
+    when 'Otu'
+      label_for_otu(origin)
+    when 'CollectionObject'
+      "#{label_for_collection_object(origin)} (#{label_for_otu(anatomical_part.origin_otu)})"
+    when 'FieldOccurrence'
+      "#{label_for_field_occurrence(origin)} (#{label_for_otu(anatomical_part.origin_otu)})"
+    when 'AnatomicalPart'
+      label_for_anatomical_part(origin, depth: depth + 1)
+    else
+      label_for_otu(anatomical_part.origin_otu)
+    end
+
+    "#{anatomical_part.cached}: #{origin_label}"
   end
 
   def short_label_for_anatomical_part(anatomical_part)

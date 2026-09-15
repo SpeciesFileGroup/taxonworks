@@ -85,8 +85,7 @@
         <li v-if="absentField">
           <label>
             <input
-              v-model="isAbsent"
-              :value="isAbsent"
+              :checked="isAbsent"
               type="checkbox"
               @change="setIsAbsent"
             />
@@ -266,7 +265,7 @@ function setPage(e) {
 }
 
 function setIsOriginal(e) {
-  const isOriginal = convertType(e.target.value)
+  const isOriginal = convertType(e.target.checked)
 
   setValues({ is_original: isOriginal })
 
@@ -276,8 +275,10 @@ function setIsOriginal(e) {
 }
 
 function setIsAbsent(e) {
+  isAbsent.value = e.target.checked
+
   if (props.useSession) {
-    sessionStorage.setItem(STORAGE.isAbsent, e.target.value)
+    sessionStorage.setItem(STORAGE.isAbsent, e.target.checked)
   }
 }
 

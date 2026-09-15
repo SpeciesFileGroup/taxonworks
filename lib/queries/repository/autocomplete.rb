@@ -75,10 +75,14 @@ module Queries
       queries.each do |q, scope|
         a = q
         if project_id && scope && query_string.length > 2
-          a = a.select("repositories.*, COUNT(collection_objects.id) AS use_count, CASE WHEN collection_objects.project_id IN (#{pr_id}) THEN collection_objects.project_id ELSE NULL END AS in_project")
-                .joins('LEFT OUTER JOIN collection_objects ON (repositories.id = collection_objects.repository_id OR repositories.id = collection_objects.current_repository_id)')
-                .group('repositories.id, collection_objects.project_id')
-                .order('in_project, use_count DESC')
+          a = a.select(
+                "repositories.*, " \
+                "COUNT(collection_objects.id) AS use_count, " \
+                "COUNT(collection_objects.id) FILTER (WHERE collection_objects.project_id IN (#{pr_id})) AS in_project_use_count"
+              )
+              .joins('LEFT OUTER JOIN collection_objects ON (repositories.id = collection_objects.repository_id OR repositories.id = collection_objects.current_repository_id)')
+              .group('repositories.id')
+              .order('in_project_use_count DESC, use_count DESC')
         end
         a ||= q
 

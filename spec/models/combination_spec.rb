@@ -378,6 +378,27 @@ describe Combination, type: :model, group: :nomenclature do
       combination.soft_validate(only_sets: :incomplete_combination)
       expect(combination.soft_validations.messages_on(:base).count).to eq(2)
     end
+
+    context 'sv_fix_combination_parent_update' do
+      specify 'corrects a parent_id that no longer matches the genus protonym' do
+        basic_combination.save!
+        basic_combination.update_column(:parent_id, subgenus.id)
+
+        basic_combination.soft_validate(only_sets: :combination_linked_to_valid_name, include_flagged: true)
+        basic_combination.fix_soft_validations
+
+        expect(basic_combination.reload.parent_id).to eq(genus.parent_id)
+      end
+
+      specify 'returns false and leaves parent_id unchanged when the save fails' do
+        basic_combination.save!
+        basic_combination.update_column(:parent_id, subgenus.id)
+        allow(basic_combination).to receive(:save).and_return(false)
+
+        expect(basic_combination.send(:sv_fix_combination_parent_update)).to be_falsey
+        expect(basic_combination.reload.parent_id).to eq(subgenus.id)
+      end
+    end
   end
 
     specify '#cached combination' do

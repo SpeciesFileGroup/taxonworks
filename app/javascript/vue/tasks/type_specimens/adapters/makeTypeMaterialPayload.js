@@ -12,7 +12,8 @@ function makeCollectionObjectPayload(collectionObject = {}) {
 }
 
 export function makeTypeMaterialPayload(typeMaterial = {}) {
-  return {
+  const dataAttributes = typeMaterial.dataAttributes || []
+  const payload = {
     id: typeMaterial.id,
     protonym_id: typeMaterial.protonymId,
     collection_object_id: typeMaterial.collectionObjectId,
@@ -31,4 +32,10 @@ export function makeTypeMaterialPayload(typeMaterial = {}) {
         }
       : null
   }
+
+  if (dataAttributes.length) {
+    payload.data_attributes_attributes = dataAttributes
+  }
+
+  return payload
 }

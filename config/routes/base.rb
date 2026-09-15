@@ -6,6 +6,8 @@ match '/signin', to: 'sessions#new', via: :get
 match '/signout', to: 'sessions#destroy', via: :delete
 resources :sessions, only: :create
 
+match '/session_status', to: 'sessions#status', via: :get, defaults: {format: :json}
+
 get 'soft_validations/validate' => 'soft_validations#validate', defaults: {format: :json}
 post 'soft_validations/fix' => 'soft_validations#fix', defaults: {format: :json}
 
@@ -95,6 +97,7 @@ end
 scope :unify, controller: :unify do
   match '/', action: :unify, via: :post
   get :metadata, defaults: {format: :json}
+  get :types, defaults: {format: :json}
 end
 
 resources :users, except: :new do

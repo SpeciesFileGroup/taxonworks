@@ -236,4 +236,42 @@ describe Queries::Source::Autocomplete, type: :model, group: [:sources] do
     end
   end
 
+  context '#autocomplete project-scoped ranking' do
+    let!(:popular) { FactoryBot.create(:valid_source_bibtex, title: 'Zibznork common title', year: 2000) }
+    let!(:unused) { FactoryBot.create(:valid_source_bibtex, title: 'Zibznork rare title', year: 2001) }
+
+    let(:query) { Queries::Source::Autocomplete.new('Zibznork', project_id: [project_id]) }
+
+    specify 'a source cited across many other projects does not crowd out a matching, uncited source' do
+      10.times do
+        p = FactoryBot.create(:valid_project)
+        otu = FactoryBot.create(:valid_otu, project_id: p.id)
+        Citation.create!(source: popular, citation_object: otu, project_id: p.id)
+      end
+
+      expect(query.autocomplete.map(&:id)).to include(unused.id)
+    end
+
+    specify 'a source is only returned once, regardless of how many projects it is cited in' do
+      3.times do
+        p = FactoryBot.create(:valid_project)
+        otu = FactoryBot.create(:valid_otu, project_id: p.id)
+        Citation.create!(source: popular, citation_object: otu, project_id: p.id)
+      end
+
+      expect(query.autocomplete.map(&:id).count { |id| id == popular.id }).to eq(1)
+    end
+
+    specify 'use_count is not inflated by unrelated project_sources rows' do
+      otu = FactoryBot.create(:valid_otu, project_id: project_id)
+      Citation.create!(source: popular, citation_object: otu, project_id: project_id)
+
+      other_project = FactoryBot.create(:valid_project)
+      ProjectSource.find_or_create_by(project: other_project, source: popular)
+
+      result = query.autocomplete.detect { |r| r.id == popular.id }
+      expect(result.use_count).to eq(1)
+    end
+  end
+
 end

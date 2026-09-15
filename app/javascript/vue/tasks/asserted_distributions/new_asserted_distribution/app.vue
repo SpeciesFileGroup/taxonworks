@@ -11,8 +11,10 @@
       full-screen
       legend="Saving..."
     />
-    <h1>Task - New asserted distribution</h1>
-    <NavBar class="margin-medium-bottom">
+    <NavBar
+      class="margin-medium-bottom"
+      navbar-class="panel content rounded-tl-none rounded-tr-none"
+    >
       <div class="flex-separate middle">
         <div>
           <span
@@ -22,13 +24,6 @@
           <span v-else>New record</span>
         </div>
         <div class="horizontal-center-content middle gap-small">
-          <label class="middle">
-            <input
-              v-model="autosave"
-              type="checkbox"
-            />
-            Autosave
-          </label>
           <VBtn
             medium
             color="create"
@@ -45,6 +40,11 @@
           >
             New
           </VBtn>
+          <TaskPreferences
+            v-model:autosave="autosave"
+            :show-confidence="showConfidencePanel"
+            @update:show-confidence="setConfidencePanelVisibility"
+          />
         </div>
       </div>
     </NavBar>
@@ -53,7 +53,7 @@
       <PanelCitation />
       <PanelObject />
       <PanelGeo />
-      <PanelConfidence />
+      <PanelConfidence v-if="showConfidencePanel" />
     </div>
 
     <TableComponent class="full_width" />
@@ -66,6 +66,7 @@ import PanelGeo from './components/Panel/PanelGeo.vue'
 import PanelCitation from './components/Panel/PanelCitation.vue'
 import PanelConfidence from './components/Panel/PanelConfidence.vue'
 import TableComponent from './components/table'
+import TaskPreferences from './components/TaskPreferences.vue'
 import VSpinner from '@/components/ui/VSpinner'
 import NavBar from '@/components/layout/NavBar'
 import platformKey from '@/helpers/getPlatformKey'
@@ -77,6 +78,8 @@ import { useStore } from './store/store.js'
 import VBtn from '@/components/ui/VBtn/index.vue'
 
 const KEY_STORAGE_AUTOSAVE = 'Task::NewAssertedDistribution::Autosave'
+const KEY_STORAGE_SHOW_CONFIDENCE =
+  'Task::NewAssertedDistribution::ShowConfidencePanel'
 
 defineOptions({
   name: 'NewAssertedDistribution'
@@ -95,6 +98,15 @@ useHotkey(shortcuts.value)
 
 const store = useStore()
 const autosave = useUserPreference(KEY_STORAGE_AUTOSAVE, false)
+const showConfidencePanel = useUserPreference(KEY_STORAGE_SHOW_CONFIDENCE, true)
+
+function setConfidencePanelVisibility(isVisible) {
+  showConfidencePanel.value = isVisible
+
+  if (!isVisible) {
+    store.clearConfidences()
+  }
+}
 
 const currentAssertedDistribution = computed(() =>
   store.assertedDistributions.find(

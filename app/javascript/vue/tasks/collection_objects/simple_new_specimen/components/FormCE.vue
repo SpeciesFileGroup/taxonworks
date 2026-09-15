@@ -1,10 +1,5 @@
 <template>
   <div>
-    <hr class="divisor" />
-    <div class="flex-separate middle">
-      <h3>Collecting event</h3>
-      <VLock v-model="store.settings.lock.collectingEvent" />
-    </div>
     <div class="field label-above">
       <label>Verbatim label</label>
       <textarea
@@ -31,7 +26,6 @@
 import { watch } from 'vue'
 import { useStore } from '../store/useStore'
 import GeographicArea from './GeographicArea.vue'
-import VLock from '@/components/ui/VLock/index.vue'
 
 const store = useStore()
 

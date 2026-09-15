@@ -153,6 +153,17 @@ module CollectingEvent::Georeference
     nil
   end
 
+  # The primary :georeferences association carries class_name: '::Georeference' (required
+  # for the full namespace reference), which causes inferred_relations to exclude it from
+  # unify — the same rule that drops convenience subtype aliases like geo_locate_georeferences.
+  # Force it back in explicitly so georeferences are moved to the target CE during unify
+  # rather than being silently dropped when the removed CE is destroyed.
+  def unify_relations
+    ApplicationEnumeration.klass_reflections(self.class, :has_many).select { |r|
+      r.name == :georeferences
+    }
+  end
+
   # @return [Symbol, nil]
   #   Prioritizes and identifies the source of the latitude/longitude values that
   #   will be calculated for DWCA and primary display

@@ -38,7 +38,7 @@
     </fieldset>
     <display-list
       :list="editors"
-      label="object_tag"
+      label="cached"
       :delete-warning="false"
       soft-delete
       @delete-index="removeEditor"

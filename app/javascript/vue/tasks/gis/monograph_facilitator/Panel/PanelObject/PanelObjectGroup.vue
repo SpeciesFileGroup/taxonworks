@@ -207,10 +207,6 @@ watch(
     text-overflow: ellipsis;
     padding-left: 0;
     padding-right: 0;
-
-    svg {
-      min-width: max-content;
-    }
   }
 
   .group-header {

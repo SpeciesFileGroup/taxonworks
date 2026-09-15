@@ -82,10 +82,10 @@ class Autoselect::Level
   # HTML label shown left-justified in the dropdown row.
   # Delegates to <model>_autoselect_tag in app/helpers by default.
   # External levels must override this.
-  def record_label_html(record)
+  def record_label_html(record, term = nil)
     h = ApplicationController.helpers
     helper = "#{model_key}_autoselect_tag"
-    return h.send(helper, record).to_s if h.respond_to?(helper)
+    return h.send(helper, record, term).to_s if h.respond_to?(helper)
     record_label(record)
   end
 

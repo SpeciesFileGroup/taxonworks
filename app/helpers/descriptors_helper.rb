@@ -22,11 +22,7 @@ module DescriptorsHelper
   def descriptors_autocomplete_tag(descriptor, term = nil)
     return nil if descriptor.nil?
 
-    if term
-      s = descriptor.name.gsub(/#{Regexp.escape(term)}/i, "<mark>#{term}</mark>")
-    else
-      s = descriptor.name
-    end
+    s = mark_tag(descriptor.name, term, html_safe: false)
 
     s += ' ' + content_tag(:span, descriptor.type.split('::').last, class: [:feedback, 'feedback-secondary', 'feedback-thin'])
 

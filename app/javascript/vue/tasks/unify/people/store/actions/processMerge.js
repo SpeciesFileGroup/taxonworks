@@ -32,6 +32,7 @@ export default ({ state, commit }) => {
           foundPeople[personIndex] = selectedPerson
         }
       })
+      .catch(() => {})
       .finally(() => {
         if (mergeList.length) {
           processMerge(mergeList)

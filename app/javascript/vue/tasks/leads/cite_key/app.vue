@@ -1,296 +1,247 @@
 <template>
   <VSpinner
-    v-if="loading"
+    v-if="loading || bootLoading"
     full-screen
   />
 
-  <h1>{{ currentStep === 1 ? (isAddMode ? 'Edit cited key' : 'Cite a key') : 'Annotate cited key' }}</h1>
-
   <NavBar navbar-class="panel content cite-key-navbar">
     <div class="flex-separate middle">
-      <ol class="step-nav no-style-list d-flex gap-medium middle">
-        <li
-          v-for="step in STEPS"
-          :key="step.n"
-          :class="['step-item d-flex middle gap-small',
-            { 'step-active': currentStep === step.n, 'step-done': currentStep > step.n }]"
-          :aria-current="currentStep === step.n ? 'step' : undefined"
-        >
-          <span
-            class="step-number d-flex middle justify-center"
-            @click="goToStep(step.n)"
-          >{{ step.n }}</span>
-          <span
-            class="step-label"
-            @click="goToStep(step.n)"
-          >{{ step.label }}</span>
-        </li>
-      </ol>
+      <div />
       <div class="d-flex middle gap-small">
+        <Recent @selected="(item) => loadKey(item.id)" />
         <VBtn
-          v-if="currentStep === 1 && (!isAddMode || canSave)"
+          v-if="rootId"
+          medium
+          color="primary"
+          @click="reset"
+        >
+          Add a new simple key
+        </VBtn>
+        <VBtn
+          medium
           color="create"
           :disabled="!canSave"
           @click="save"
         >
-          {{ saveButtonText }}
-        </VBtn>
-        <VBtn
-          v-if="rootId"
-          color="primary"
-          @click="reset"
-        >
-          Cite a new key
+          Save
         </VBtn>
       </div>
     </div>
   </NavBar>
 
-  <!-- Step 1: Create key + species list -->
-  <template v-if="!bootLoading && currentStep === 1">
-    <BlockLayout
-      expand
-      class="margin-medium-bottom"
-    >
-      <template #header>
-        <h3>Citation</h3>
-      </template>
+  <BlockLayout
+    expand
+    class="margin-medium-bottom"
+  >
+    <template #header>
+      <h3>Citation</h3>
+    </template>
 
-      <template #body>
-        <div class="field label-above">
-          <label>Source</label>
-          <div
-            v-if="source"
-            class="d-flex middle gap-small"
-          >
-            <span
-              v-html="source.label_html || source.object_tag"
-              class="margin-small-right"
-            />
-            <span
-              class="button button-circle btn-undo button-default"
-              title="Clear source"
-              @click="clearSource"
-            />
-          </div>
-          <div
-            v-else
-            class="horizontal-left-content gap-small"
-          >
-            <Autocomplete
-              class="full_width"
-              url="/sources/autocomplete"
-              placeholder="Search for a source (citation)"
-              param="term"
-              min="2"
-              clear-after
-              label="label_html"
-              @get-item="selectSource"
-            />
-            <ButtonPinned
-              type="Source"
-              section="Sources"
-              @get-id="selectSourceById"
-            />
-          </div>
-        </div>
+    <template #body>
+      <FormCitation
+        :fieldset="false"
+        :new-button="false"
+        :original="false"
+        v-model="citationData"
+        :klass="LEAD"
+        @source="onSourceSelected"
+      />
 
+      <div
+        v-if="source"
+        class="separate-top margin-medium-top"
+      >
+        <label class="font-bold">Existing simple keys for this source</label>
         <div
-          v-if="source"
-          class="field label-above"
+          v-if="existingKeysLoading"
+          class="small_type padding-xsmall"
         >
-          <label>Page range</label>
-          <input
-            type="text"
-            class="full_width"
-            v-model="pages"
-            placeholder="Optional; can also be edited per taxon in Step 2"
-          />
+          Checking for existing keys…
         </div>
-
+        <TableList
+          v-else-if="existingKeys.length"
+          :list="existingKeys"
+          :attributes="['text', 'rootTaxonTag', 'count', 'pages', 'updated_at_in_words', 'updated_by']"
+          :header="['Title', 'Root OTU', 'Taxa', 'Pages', 'Updated', 'By']"
+          edit
+          :destroy="false"
+          :annotator="false"
+          @edit="(row) => loadKey(row.id)"
+        />
         <div
-          v-if="source"
-          class="separate-top margin-medium-top"
+          v-else
+          class="small_type padding-xsmall"
         >
-          <label class="font-bold">Existing cited keys for this source</label>
-          <div
-            v-if="existingKeysLoading"
-            class="small_type padding-xsmall"
-          >
-            Checking for existing keys…
-          </div>
-          <div
-            v-else-if="existingKeys.length"
-            class="taxa-grid margin-small-top"
-            role="table"
-            aria-label="Existing cited keys for this source"
-            :style="{ gridTemplateColumns: 'max-content max-content max-content max-content max-content 1fr' }"
-          >
-            <div
-              class="taxa-grid-row taxa-grid-header"
-              role="row"
-            >
-              <div role="columnheader">Title</div>
-              <div role="columnheader">Root taxon</div>
-              <div role="columnheader">Pages</div>
-              <div role="columnheader">Taxa</div>
-              <div role="columnheader" />
-              <div
-                role="columnheader"
-                aria-hidden="true"
-                class="taxa-grid-spacer"
-              />
-            </div>
-            <div
-              v-for="key in existingKeys"
-              :key="key.id"
-              class="taxa-grid-row"
-              role="row"
-            >
-              <div role="cell">{{ key.text }}</div>
-              <div
-                role="cell"
-                v-html="key.rootTaxonTag ?? '—'"
-              />
-              <div role="cell">{{ key.pages || '—' }}</div>
-              <div role="cell">{{ key.count }}</div>
-              <div role="cell">
-                <VBtn
-                  color="primary"
-                  @click="loadKey(key.id)"
-                >
-                  Open
-                </VBtn>
-              </div>
-              <div
-                role="cell"
-                aria-hidden="true"
-                class="taxa-grid-spacer"
-              />
-            </div>
-          </div>
-          <div
-            v-else
-            class="small_type padding-xsmall"
-          >
-            No existing cited keys for this source. Fill out the fields below to record a new one.
-          </div>
+          No existing simple keys for this source. Fill out the fields below to record a new one.
         </div>
-      </template>
-    </BlockLayout>
+      </div>
+    </template>
+  </BlockLayout>
 
-    <BlockLayout
-      expand
-      class="margin-medium-bottom"
-    >
-      <template #header>
+  <BlockLayout
+    expand
+    class="margin-medium-bottom"
+  >
+    <template #header>
+      <div class="flex-separate middle full_width">
         <h3>Key metadata</h3>
-      </template>
-
-      <template #body>
-        <div class="field label-above">
-          <label>Title</label>
-          <textarea
-            class="full_width"
-            v-model="root.text"
-            rows="2"
-            placeholder="e.g. Key to Ceroplastes of Iran (Moghaddam 2013)"
+        <div
+          v-if="rootGlobalId"
+          class="horizontal-right-content gap-small header-radials"
+        >
+          <RadialAnnotator :global-id="rootGlobalId" />
+          <RadialNavigator
+            :global-id="rootGlobalId"
+            exclude="Edit"
           />
         </div>
+      </div>
+    </template>
 
-        <div class="field label-above">
-          <label>Parent OTU</label>
-          <div
-            v-if="parentOtu"
-            class="d-flex middle gap-small"
-          >
-            <span
-              v-html="parentOtu.object_tag"
-              class="margin-small-right"
-            />
-            <span
-              class="button button-circle btn-undo button-default"
-              title="Clear parent OTU"
-              @click="clearParent"
-            />
-          </div>
-          <OtuPicker
-            v-else
-            :clear-after="true"
-            @get-item="selectParent"
-          />
-        </div>
-      </template>
-    </BlockLayout>
+    <template #body>
+      <div class="field label-above">
+        <label>Title</label>
+        <textarea
+          class="full_width"
+          v-model="root.text"
+          rows="2"
+          placeholder="e.g. Key to Ceroplastes of Iran (Moghaddam 2013)"
+        />
+      </div>
 
-    <BlockLayout
-      expand
-      class="margin-medium-bottom"
-      :set-expanded="!!parentOtu || species.length > 0"
-    >
-      <template #header>
-        <h3>Taxa in key ({{ species.length }})</h3>
-      </template>
+      <div class="field label-above">
+        <label>Description</label>
+        <textarea
+          class="full_width"
+          v-model="root.description"
+          rows="2"
+        />
+      </div>
 
-      <template #body>
-        <div class="d-flex gap-small middle margin-medium-bottom flex-wrap-row">
-          <label
-            for="descendants_filter"
+      <div class="field label-above margin-medium-top">
+        <label>Parent OTU</label>
+        <div
+          v-if="parentOtu"
+          class="d-flex middle gap-small flex-wrap-row"
+        >
+          <span
+            v-html="parentOtu.object_tag"
             class="margin-small-right"
-          >Descendants filter</label>
-          <select
-            id="descendants_filter"
-            v-model="descendantsFilter"
-          >
-            <option
-              v-for="opt in DESCENDANTS_FILTERS"
-              :key="opt.value"
-              :value="opt.value"
-            >
-              {{ opt.label }}
-            </option>
-          </select>
-          <VBtn
-            color="primary"
-            :disabled="!parentOtu || descendantsLoading"
-            @click="loadDescendants"
-          >
-            {{ descendantsLoading ? 'Loading...' : 'Add descendants' }}
-          </VBtn>
+          />
+          <span
+            class="button button-circle btn-undo button-default"
+            title="Clear parent OTU"
+            @click="clearParent"
+          />
           <label
             class="d-flex middle gap-small margin-medium-left"
-            :title="source?.cached_nomenclature_date
-              ? `Skip taxa published after ${source.cached_nomenclature_date}`
-              : 'Pick a source to enable pruning by publication date'"
+            :title="parentOtu?.taxon_name_id
+              ? 'Fetch and add all descendant taxa on save'
+              : 'Parent OTU has no taxon name; cannot add descendants'"
           >
             <input
               type="checkbox"
-              v-model="autoPruneAfterPublication"
-              :disabled="!source?.cached_nomenclature_date"
+              v-model="addDescendantsOnSave"
+              :disabled="!parentOtu?.taxon_name_id"
             />
-            Auto-prune taxa published after the key
+            Add descendants on save
           </label>
           <label
-            class="d-flex middle gap-small"
-            title="Skip taxa marked as misspellings (cached_misspelling or [sic] in the name)"
+            v-if="addDescendantsOnSave"
+            class="d-flex middle gap-medium"
           >
-            <input
-              type="checkbox"
-              v-model="pruneMisspellings"
-            />
-            Prune misspellings
+            <span class="margin-small-right">Filter</span>
+            <select v-model="descendantsFilter">
+              <option
+                v-for="opt in DESCENDANTS_FILTERS"
+                :key="opt.value"
+                :value="opt.value"
+              >
+                {{ opt.label }}
+              </option>
+            </select>
           </label>
+        </div>
+        <OtuPicker
+          v-else
+          :clear-after="true"
+          @get-item="selectParent"
+        />
+      </div>
+
+      <div class="field">
+        <label>
+          <input
+            type="checkbox"
+            v-model="root.is_public"
+          />
+          Is publicly accessible?
+        </label>
+      </div>
+
+      <p
+        v-if="rootGlobalId"
+        class="small_type margin-small-top"
+      >
+        Use the radial annotator above to record attributes that apply to the
+        whole key (sex, life stage, etc.).
+      </p>
+      </template>
+    </BlockLayout>
+
+    <QuickTagPicker
+      v-if="rootId"
+      object-type="Lead"
+      :object-id="rootId"
+    />
+
+    <BlockLayout
+      v-if="rootId || species.length"
+      expand
+      class="margin-medium-bottom"
+    >
+      <template #header>
+        <h3 v-if="rootId">Taxa in key ({{ species.length }})</h3>
+        <h3 v-else>{{ species.length }} taxa staged — save to attach</h3>
+      </template>
+
+      <template #body>
+        <div
+          v-if="rootId"
+          class="d-flex gap-small middle margin-medium-bottom flex-wrap-row"
+        >
           <VBtn
-            color="primary"
-            :disabled="!newSpecies.length"
-            title="Discards taxa that haven't been saved yet; already-saved taxa stay in the key"
-            @click="clearPendingSpecies"
+            color="destroy"
+            :disabled="!publishedAfterCount"
+            :title="source?.cached_nomenclature_date
+              ? `Remove taxa published after ${source.cached_nomenclature_date}`
+              : 'Pick a source with a publication date to enable'"
+            @click="removePublishedAfter"
           >
-            Clear pending
+            Remove taxa published after the key ({{ publishedAfterCount }})
+          </VBtn>
+          <VBtn
+            color="destroy"
+            :disabled="!misspellingCount"
+            title="Remove taxa flagged as misspellings (cached_misspelling or [sic] in the name)"
+            @click="removeMisspellings"
+          >
+            Remove misspellings ({{ misspellingCount }})
+          </VBtn>
+          <VBtn
+            color="destroy"
+            :disabled="!species.length"
+            title="Delete every taxon from this key so you can start over"
+            @click="deleteAllChildren"
+          >
+            Delete all taxa ({{ species.length }})
           </VBtn>
         </div>
 
-        <div class="field label-above">
+        <div
+          v-if="rootId"
+          class="field label-above"
+        >
           <label>Add OTU</label>
           <Autocomplete
             class="full_width"
@@ -299,7 +250,7 @@
             param="term"
             clear-after
             label="label_html"
-            @get-item="addSpecies"
+            @get-item="addAndPersistSpecies"
           />
         </div>
 
@@ -310,24 +261,17 @@
           <li
             v-for="otu in sortedSpecies"
             :key="otu.id"
-            :class="['d-flex middle gap-small padding-xsmall species-row',
-              { 'species-row-saved': !!childLeads[otu.id] }]"
+            class="d-flex middle gap-small padding-xsmall species-row"
           >
             <span
-              v-if="childLeads[otu.id]"
+              v-if="rootId"
               class="button button-circle btn-delete"
               title="Delete permanently from key"
               @click="deleteChildLead(otu)"
             />
             <span
-              v-else
-              class="button button-circle btn-undo button-default"
-              title="Remove from list"
-              @click="removeSpecies(otu.id)"
-            />
-            <span
-              class="ellipsis"
-              v-html="taxonDisplay(otu)"
+              v-html="otu.object_tag"
+              class="species-otu-tag"
             />
           </li>
         </ul>
@@ -335,323 +279,38 @@
           v-else
           class="feedback feedback-info padding-small text-center"
         >
-          No taxa added. Pick a parent OTU and click
-          <em>Add descendants</em>, or add OTUs individually above.
+          No taxa in this key yet. Add OTUs above, or check
+          <em>Add descendants on save</em> in the metadata block and save again.
         </div>
       </template>
     </BlockLayout>
-
-  </template>
-
-  <!-- Step 2: Annotate species -->
-  <template v-else-if="!bootLoading">
-    <BlockLayout
-      class="margin-medium-bottom"
-    >
-      <template #header>
-        <div class="flex-separate middle full_width">
-          <h3>Key metadata</h3>
-          <div class="horizontal-right-content gap-small header-radials">
-            <RadialAnnotator :global-id="rootGlobalId" />
-            <RadialNavigator
-              :global-id="rootGlobalId"
-              exclude="Edit"
-            />
-          </div>
-        </div>
-      </template>
-
-      <template #body>
-        <div class="field label-above">
-          <label>Title</label>
-          <div>{{ root.text }}</div>
-        </div>
-        <div class="field label-above">
-          <label>Parent OTU</label>
-          <div v-if="parentOtu" v-html="parentOtu.object_tag" />
-        </div>
-        <div class="field label-above">
-          <label>Source (citation)</label>
-          <div v-if="source" v-html="source.label_html || source.object_tag" />
-        </div>
-        <div
-          v-if="pages"
-          class="field label-above"
-        >
-          <label>Page range</label>
-          <div>{{ pages }}</div>
-        </div>
-      </template>
-    </BlockLayout>
-
-    <BlockLayout
-      :class="['margin-medium-bottom', { 'taxa-fullscreen': taxaFullScreen }]"
-    >
-      <template #header>
-        <div class="flex-separate middle full_width">
-          <h3>Taxa in key ({{ sortedSavedSpecies.length }})</h3>
-          <span
-            :data-icon="taxaFullScreen ? 'contract' : 'expand'"
-            :title="taxaFullScreen ? 'Exit full-screen (Esc)' : 'Full-screen data view'"
-            class="fullscreen-toggle"
-            @click="taxaFullScreen = !taxaFullScreen"
-          />
-        </div>
-      </template>
-
-      <template #body>
-        <div
-          v-if="species.length"
-          class="taxa-grid"
-          role="table"
-          aria-label="Taxa in this cited key"
-          :style="{ gridTemplateColumns }"
-        >
-          <div
-            class="taxa-grid-row taxa-grid-header"
-            role="row"
-          >
-            <div role="columnheader" />
-            <div role="columnheader">Taxon</div>
-            <div role="columnheader">
-              <div class="d-flex flex-col gap-small">
-                <span>Page</span>
-                <div class="d-flex gap-small middle">
-                  <input
-                    v-model="bulkPagesValue"
-                    type="text"
-                    class="input-small-width"
-                    placeholder="Apply to all"
-                  />
-                  <VBtn
-                    v-if="bulkPagesValue"
-                    color="primary"
-                    small
-                    @click="applyBulkPages"
-                  >
-                    Apply
-                  </VBtn>
-                </div>
-              </div>
-            </div>
-            <div
-              v-for="col in columns"
-              :key="col.cvtId"
-              role="columnheader"
-              class="taxa-grid-cvcol"
-            >
-              <div class="d-flex flex-col gap-small">
-                <div class="d-flex middle gap-small">
-                  <span v-html="col.cvtName" />
-                  <span
-                    class="button button-circle btn-undo button-default"
-                    title="Remove column from view (does not delete data)"
-                    @click="removeColumn(col.cvtId)"
-                  />
-                </div>
-                <div class="d-flex middle gap-small">
-                  <input
-                    v-if="col.type === 'keyword'"
-                    type="checkbox"
-                    v-model="bulkColumnValues[col.cvtId]"
-                    title="Check all rows on Apply"
-                  />
-                  <input
-                    v-else
-                    type="text"
-                    class="predicate-cell-input"
-                    v-model="bulkColumnValues[col.cvtId]"
-                    placeholder="Apply to all"
-                  />
-                  <VBtn
-                    v-if="col.type === 'keyword' ? bulkColumnValues[col.cvtId] : bulkColumnValues[col.cvtId]"
-                    color="primary"
-                    small
-                    @click="applyBulkColumn(col)"
-                  >
-                    Apply
-                  </VBtn>
-                </div>
-              </div>
-            </div>
-            <div
-              role="columnheader"
-              class="taxa-grid-addcol"
-            >
-              <div
-                v-if="showAddColumn"
-                class="d-flex flex-col gap-small add-column-picker"
-              >
-                <Autocomplete
-                  class="add-column-autocomplete"
-                  url="/controlled_vocabulary_terms/autocomplete"
-                  :add-params="{ type: ['Keyword', 'Predicate'] }"
-                  placeholder="Search vocabulary"
-                  param="term"
-                  min="1"
-                  clear-after
-                  label="label_html"
-                  @get-item="pickColumnCvt"
-                />
-                <div
-                  v-if="newColumnCvt"
-                  class="small_type"
-                >
-                  Selected:
-                  <span v-html="newColumnCvt.label_html || newColumnCvt.label" />
-                </div>
-                <div class="d-flex middle gap-small">
-                  <VBtn
-                    color="primary"
-                    small
-                    :disabled="!newColumnCvt"
-                    @click="addColumn"
-                  >
-                    Add
-                  </VBtn>
-                  <VBtn
-                    color="primary"
-                    small
-                    @click="cancelAddColumn"
-                  >
-                    Cancel
-                  </VBtn>
-                  <a
-                    href="/tasks/controlled_vocabularies/manage"
-                    target="_blank"
-                    rel="noopener"
-                    class="small_type margin-small-left"
-                  >
-                    New term
-                  </a>
-                </div>
-              </div>
-              <VBtn
-                v-else
-                color="primary"
-                circle
-                small
-                title="Add a controlled vocabulary column"
-                @click="openAddColumn"
-              >
-                +
-              </VBtn>
-            </div>
-            <div
-              role="columnheader"
-              aria-hidden="true"
-              class="taxa-grid-spacer"
-            />
-          </div>
-          <div
-            v-for="otu in sortedSavedSpecies"
-            :key="otu.id"
-            class="taxa-grid-row"
-            role="row"
-          >
-            <div role="cell">
-              <div class="d-flex middle gap-small">
-                <RadialAnnotator
-                  v-if="childLeads[otu.id]"
-                  :global-id="childLeads[otu.id].global_id"
-                />
-                <span
-                  v-if="childLeads[otu.id]"
-                  class="button button-circle btn-delete"
-                  title="Delete permanently from key"
-                  @click="deleteChildLead(otu)"
-                />
-              </div>
-            </div>
-            <div role="cell">
-              <span v-html="taxonDisplay(otu)" />
-            </div>
-            <div role="cell">
-              <input
-                v-if="childCitations[otu.id]"
-                v-model="childCitations[otu.id].pages"
-                type="text"
-                class="input-small-width"
-                :data-cell="`page:${otu.id}`"
-                @blur="autoSavePage(otu.id)"
-                @keydown.enter.prevent="autoSavePage(otu.id); focusNextRowSameColumn('page', otu.id)"
-              />
-            </div>
-            <div
-              v-for="col in columns"
-              :key="col.cvtId"
-              role="cell"
-              class="taxa-grid-cvcol"
-            >
-              <input
-                v-if="col.type === 'keyword'"
-                type="checkbox"
-                :data-cell="`cv:${col.cvtId}:${otu.id}`"
-                :checked="!!cellData[col.cvtId]?.[otu.id]?.value"
-                @change="toggleKeywordCell(col.cvtId, otu.id, $event.target.checked)"
-                @keydown.enter.prevent="focusNextRowSameColumn(`cv:${col.cvtId}`, otu.id)"
-              />
-              <input
-                v-else
-                type="text"
-                class="predicate-cell-input"
-                :data-cell="`cv:${col.cvtId}:${otu.id}`"
-                :value="cellData[col.cvtId]?.[otu.id]?.value ?? ''"
-                @input="setPredicateCell(col.cvtId, otu.id, $event.target.value)"
-                @blur="commitPredicateCell(col.cvtId, otu.id)"
-                @keydown.enter.prevent="commitPredicateCell(col.cvtId, otu.id); focusNextRowSameColumn(`cv:${col.cvtId}`, otu.id)"
-              />
-            </div>
-            <div
-              role="cell"
-              class="taxa-grid-addcol"
-            />
-            <div
-              role="cell"
-              aria-hidden="true"
-              class="taxa-grid-spacer"
-            />
-          </div>
-        </div>
-        <div
-          v-else
-          class="feedback feedback-info padding-small text-center"
-        >
-          No child taxa are attached to this key. It only cites the
-          parent taxon<template v-if="parentOtu">
-            <span v-html="' ' + parentOtu.object_tag" />
-          </template>. Use
-          <a href="#" @click.prevent="goToStep(1)">Step 1</a>
-          to add child taxa, or edit the parent citation via the radial
-          annotator above.
-        </div>
-      </template>
-    </BlockLayout>
-  </template>
 </template>
 
 <script setup>
 import Autocomplete from '@/components/ui/Autocomplete.vue'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
+import FormCitation from '@/components/Form/FormCitation.vue'
 import NavBar from '@/components/layout/NavBar.vue'
-import ButtonPinned from '@/components/ui/Button/ButtonPinned.vue'
 import OtuPicker from '@/components/otu/otu_picker/otu_picker.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
+import Recent from './components/Recent.vue'
+import TableList from '@/components/table_list.vue'
+import QuickTagPicker from '@/components/QuickTagPicker.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
+import makeCitation from '@/factory/Citation'
+import platformKey from '@/helpers/getPlatformKey.js'
 import setParam from '@/helpers/setParam'
+import { LEAD } from '@/constants/index.js'
 import { URLParamsToJSON } from '@/helpers'
+import { addToArray } from '@/helpers/arrays'
 import { LinkerStorage } from '@/shared/Filter/utils'
 import { RouteNames } from '@/routes/routes'
-import { usePopstateListener } from '@/composables'
-import { Citation, DataAttribute, Lead, Otu, Source, Tag } from '@/routes/endpoints'
-import { computed, onBeforeMount, onBeforeUnmount, ref, watch } from 'vue'
-
-const STEPS = [
-  { n: 1, label: 'Cite key' },
-  { n: 2, label: 'Annotate taxa' }
-]
+import { useHotkey, usePopstateListener } from '@/composables'
+import { Citation, Lead, Otu, Source } from '@/routes/endpoints'
+import { computed, onBeforeMount, ref, watch } from 'vue'
 
 const DESCENDANTS_FILTERS = [
   { value: 'all', label: 'All descendants' },
@@ -661,100 +320,77 @@ const DESCENDANTS_FILTERS = [
 const emptyRoot = () => ({
   id: null,
   text: '',
+  description: '',
   otu_id: null,
+  is_public: false,
   is_virtual: false,
   global_id: null
 })
 
-const currentStep = ref(1)
+const emptyCitation = () => ({
+  ...makeCitation(LEAD),
+  source_id: null,
+  pages: null
+})
+
 const bootLoading = ref(false)
-const taxaFullScreen = ref(false)
 const root = ref(emptyRoot())
 const parentOtu = ref(null)
 const source = ref(null)
-const pages = ref('')
+const citationData = ref(emptyCitation())
 const species = ref([])
 const childLeads = ref({})
-const childCitations = ref({})
-const originalChildPages = ref({})
-const bulkPagesValue = ref('')
-const bulkColumnValues = ref({})
-const columns = ref([])
-const showAddColumn = ref(false)
-const newColumnCvt = ref(null)
-const cellData = ref({})
-const originalCellData = ref({})
 const rootCitationId = ref(null)
 const originalMetadata = ref(null)
 const existingKeys = ref([])
 const existingKeysLoading = ref(false)
 const loading = ref(false)
-const descendantsLoading = ref(false)
 const descendantsFilter = ref('valid')
-const autoPruneAfterPublication = ref(true)
-const pruneMisspellings = ref(true)
+const addDescendantsOnSave = ref(false)
 
 const rootId = computed(() => root.value.id)
 const rootGlobalId = computed(() => root.value.global_id)
 
-const isAddMode = computed(() => !!rootId.value)
-
-const newSpecies = computed(() =>
-  species.value.filter((o) => !childLeads.value[o.id])
-)
-
-const gridTemplateColumns = computed(() => {
-  const cvCount = columns.value.length
-  return ['max-content', 'max-content', 'max-content',
-    ...Array(cvCount).fill('max-content'),
-    'max-content',
-    '1fr'
-  ].join(' ')
+const pages = computed({
+  get: () => citationData.value.pages ?? '',
+  set: (value) => {
+    citationData.value.pages = value
+  }
 })
+
+const isAddMode = computed(() => !!rootId.value)
 
 const sortedSpecies = computed(() =>
   [...species.value].sort((a, b) => {
-    const aSaved = !!childLeads.value[a.id]
-    const bSaved = !!childLeads.value[b.id]
-    if (aSaved !== bSaved) return aSaved ? 1 : -1
-    const aName = stripHtml(a.object_tag || a.label_html || '')
-    const bName = stripHtml(b.object_tag || b.label_html || '')
+    const aName = stripHtml(a.taxon_name?.cached_html || a.object_tag || a.label_html || '')
+    const bName = stripHtml(b.taxon_name?.cached_html || b.object_tag || b.label_html || '')
     return aName.localeCompare(bName)
   })
 )
 
-const sortedSavedSpecies = computed(() =>
-  sortedSpecies.value.filter((otu) => !!childLeads.value[otu.id])
-)
-
-const dirtyPageOtuIds = computed(() =>
-  Object.keys(childCitations.value).filter((otuId) => {
-    const cur = childCitations.value[otuId]?.pages ?? ''
-    const orig = originalChildPages.value[otuId] ?? ''
-    return cur !== orig
+const publishedAfterMatches = computed(() => {
+  const sourceDate = source.value?.cached_nomenclature_date
+  if (!sourceDate) return []
+  return species.value.filter((otu) => {
+    const taxonDate = otu.taxon_name?.cached_nomenclature_date
+    return taxonDate && taxonDate > sourceDate
   })
-)
-
-const dirtyCells = computed(() => {
-  const out = []
-  Object.entries(cellData.value).forEach(([cvtId, otus]) => {
-    Object.entries(otus).forEach(([otuId, cur]) => {
-      const orig = originalCellData.value[cvtId]?.[otuId]
-      const curVal = cur?.value ?? null
-      const origVal = orig?.value ?? null
-      if (curVal !== origVal) {
-        out.push({ cvtId: Number(cvtId), otuId: Number(otuId), cur, orig })
-      }
-    })
-  })
-  return out
 })
+
+const misspellingMatches = computed(() =>
+  species.value.filter((otu) => looksLikeMisspelling(otu.taxon_name))
+)
+
+const publishedAfterCount = computed(() => publishedAfterMatches.value.length)
+const misspellingCount = computed(() => misspellingMatches.value.length)
 
 const isMetadataDirty = computed(() => {
   if (!isAddMode.value || !originalMetadata.value) return false
   return (
     root.value.text.trim() !== originalMetadata.value.text ||
+    (root.value.description ?? '') !== originalMetadata.value.description ||
     root.value.otu_id !== originalMetadata.value.otu_id ||
+    !!root.value.is_public !== originalMetadata.value.is_public ||
     (source.value?.id ?? null) !== originalMetadata.value.source_id ||
     pages.value !== originalMetadata.value.pages
   )
@@ -763,12 +399,7 @@ const isMetadataDirty = computed(() => {
 const canSave = computed(() => {
   if (loading.value) return false
   if (isAddMode.value) {
-    return (
-      newSpecies.value.length > 0 ||
-      isMetadataDirty.value ||
-      dirtyPageOtuIds.value.length > 0 ||
-      dirtyCells.value.length > 0
-    )
+    return isMetadataDirty.value || addDescendantsOnSave.value
   }
   return (
     !!root.value.text.trim() &&
@@ -776,34 +407,6 @@ const canSave = computed(() => {
     !!source.value
   )
 })
-
-const saveButtonText = computed(() => {
-  if (isAddMode.value) {
-    const parts = []
-    if (isMetadataDirty.value) parts.push('Save metadata changes')
-    if (newSpecies.value.length) parts.push(`add ${newSpecies.value.length} taxa`)
-    if (dirtyPageOtuIds.value.length) {
-      parts.push(`update ${dirtyPageOtuIds.value.length} page(s)`)
-    }
-    if (dirtyCells.value.length) {
-      parts.push(`update ${dirtyCells.value.length} cell(s)`)
-    }
-    if (parts.length) {
-      return parts[0].charAt(0).toUpperCase() + parts[0].slice(1) +
-        (parts.length > 1 ? ' and ' + parts.slice(1).join(' and ') : '')
-    }
-    return ''
-  }
-  if (!source.value) return 'Pick a source (citation) to enable save'
-  if (!root.value.text.trim()) return 'Enter a title to enable save'
-  if (!parentOtu.value) return 'Pick a parent OTU to enable save'
-  return 'Cite this key'
-})
-
-function goToStep(n) {
-  if (n === 2 && !rootId.value) return
-  currentStep.value = n
-}
 
 function selectParent(otu) {
   root.value.otu_id = otu.id
@@ -818,31 +421,37 @@ function clearParent() {
   species.value = []
 }
 
-function selectSource(pickedSource) {
-  hydrateSource(pickedSource.id)
-}
-
-function selectSourceById(id) {
-  hydrateSource(id)
+function onSourceSelected(pickedSource) {
+  if (pickedSource?.id) {
+    setSourceMetadata(pickedSource)
+  } else {
+    source.value = null
+  }
 }
 
 function hydrateSource(id) {
   return Source.find(id).then(({ body }) => {
-    source.value = {
-      id: body.id,
-      label_html: body.object_tag,
-      object_tag: body.object_tag,
-      cached_nomenclature_date: body.cached_nomenclature_date,
-      year: body.year
-    }
+    setSourceMetadata(body)
+    citationData.value.source_id = body.id
   })
 }
 
-function clearSource() {
-  source.value = null
-  pages.value = ''
-  existingKeys.value = []
+function setSourceMetadata(body) {
+  source.value = {
+    id: body.id,
+    label_html: body.object_tag,
+    object_tag: body.object_tag,
+    cached_nomenclature_date: body.cached_nomenclature_date,
+    year: body.year
+  }
 }
+
+watch(() => citationData.value.source_id, (newId) => {
+  if (!newId) {
+    source.value = null
+    existingKeys.value = []
+  }
+})
 
 watch(source, (newSource) => {
   if (newSource) {
@@ -857,31 +466,51 @@ function lookupExistingKeys() {
   Citation.all({
     citation_object_type: 'Lead',
     source_id: source.value.id,
-    extend: ['citation_object'],
     per: 500
   })
     .then(({ body: citations }) => {
-      const rootsMap = new Map()
+      const pagesByLeadId = new Map()
       citations.forEach((c) => {
-        const obj = c.citation_object
-        if (!obj || !obj.is_virtual) return
-        if (obj.parent_id === null && !rootsMap.has(c.citation_object_id)) {
-          rootsMap.set(c.citation_object_id, {
-            id: c.citation_object_id,
-            text: obj.text,
-            pages: c.pages,
-            rootTaxonTag: obj.otu?.object_tag ?? null,
-            count: 0
-          })
+        if (!pagesByLeadId.has(c.citation_object_id)) {
+          pagesByLeadId.set(c.citation_object_id, c.pages)
         }
       })
-      citations.forEach((c) => {
-        const obj = c.citation_object
-        if (!obj || !obj.is_virtual || obj.parent_id === null) return
-        const root = rootsMap.get(obj.parent_id)
-        if (root) root.count++
+
+      const rootIds = [...pagesByLeadId.keys()]
+      if (!rootIds.length) {
+        existingKeys.value = []
+        return
+      }
+
+      // Only the root Lead of a simple key is cited (children carry only otus).
+      // Look up the roots via leads#index so we get otus_count, root otu, and
+      // key_updated_* from the same aggregate the Keys hub uses.
+      return Lead.all({
+        id: rootIds,
+        is_virtual: true,
+        load_root_otus: true,
+        per: rootIds.length
+      }).then(({ body: leads }) => {
+        existingKeys.value = leads
+          .map((lead) => ({
+            id: lead.id,
+            text: lead.text,
+            pages: pagesByLeadId.get(lead.id) ?? null,
+            rootTaxonTag: lead.otu?.object_tag ?? null,
+            updated_at: lead.key_updated_at,
+            updated_at_in_words: lead.key_updated_at_in_words
+              ? `${lead.key_updated_at_in_words} ago`
+              : '—',
+            updated_by: lead.key_updated_by,
+            count: lead.otus_count ?? 0
+          }))
+          .sort((a, b) => {
+            if (!a.updated_at && !b.updated_at) return 0
+            if (!a.updated_at) return 1
+            if (!b.updated_at) return -1
+            return b.updated_at.localeCompare(a.updated_at)
+          })
       })
-      existingKeys.value = [...rootsMap.values()]
     })
     .catch(() => {
       existingKeys.value = []
@@ -892,8 +521,38 @@ function lookupExistingKeys() {
 }
 
 function addSpecies(otu) {
+  addToArray(species.value, otu)
+}
+
+function addAndPersistSpecies(otu) {
   if (species.value.some((o) => o.id === otu.id)) return
-  species.value.push(otu)
+  loading.value = true
+  Promise.all([
+    Lead.create({
+      lead: {
+        parent_id: root.value.id,
+        otu_id: otu.id,
+        text: null,
+        is_virtual: true
+      }
+    }),
+    Otu.find(otu.id, { extend: ['taxon_name'] })
+  ])
+    .then(([leadResponse, otuResponse]) => {
+      const createdChild = leadResponse.body.lead
+      addToArray(species.value, otuResponse.body)
+      childLeads.value = {
+        ...childLeads.value,
+        [otu.id]: {
+          id: createdChild.id,
+          global_id: createdChild.global_id
+        }
+      }
+    })
+    .catch(() => {})
+    .finally(() => {
+      loading.value = false
+    })
 }
 
 function stripHtml(str) {
@@ -903,44 +562,8 @@ function stripHtml(str) {
   return el.textContent ?? ''
 }
 
-function looksLikeMisspelling(taxonName) {
-  if (!taxonName) return false
-  if (taxonName.cached_misspelling) return true
-  return /\[sic\]/i.test(taxonName.cached_html ?? '')
-}
-
-function taxonDisplay(otu) {
-  const tn = otu.taxon_name
-  const parts = []
-  if (tn?.cached_html) parts.push(tn.cached_html)
-  else if (otu.object_tag) parts.push(otu.object_tag)
-  else if (otu.label_html) parts.push(otu.label_html)
-  else parts.push(`OTU #${otu.id}`)
-  if (tn?.cached_author_year) parts.push(tn.cached_author_year)
-  if (tn?.cached_is_valid === true) {
-    parts.push('<span class="green">&#10004;</span>')
-  } else if (tn?.cached_is_valid === false) {
-    parts.push('<span class="red">&#10060;</span>')
-  }
-  return parts.join(' ')
-}
-
-function removeSpecies(otuId) {
-  species.value = species.value.filter((o) => o.id !== otuId)
-}
-
-function clearPendingSpecies() {
-  species.value = species.value.filter((o) => !!childLeads.value[o.id])
-}
-
-function loadDescendants() {
-  if (!parentOtu.value?.taxon_name_id) {
-    TW.workbench.alert.create(
-      'Parent OTU has no taxon name; cannot load descendants.',
-      'error'
-    )
-    return
-  }
+function fetchDescendants() {
+  if (!parentOtu.value?.taxon_name_id) return Promise.resolve()
 
   const params = {
     per: 500,
@@ -955,37 +578,87 @@ function loadDescendants() {
     params.taxon_name_query.validity = true
   }
 
-  descendantsLoading.value = true
-  Otu.where(params)
-    .then(({ body }) => {
-      const sourceDate = source.value?.cached_nomenclature_date
-      let prunedByDate = 0
-      let prunedByMisspelling = 0
-      body.forEach((otu) => {
-        if (otu.id === parentOtu.value.id) return
-        if (autoPruneAfterPublication.value && sourceDate) {
-          const taxonDate = otu.taxon_name?.cached_nomenclature_date
-          if (taxonDate && taxonDate > sourceDate) {
-            prunedByDate++
-            return
-          }
-        }
-        if (pruneMisspellings.value && looksLikeMisspelling(otu.taxon_name)) {
-          prunedByMisspelling++
-          return
-        }
-        addSpecies(otu)
-      })
-      const notes = []
-      if (prunedByDate) notes.push(`${prunedByDate} published after the key`)
-      if (prunedByMisspelling) notes.push(`${prunedByMisspelling} misspelling(s)`)
-      if (notes.length) {
-        TW.workbench.alert.create(`Skipped ${notes.join(', ')}.`, 'notice')
-      }
+  return Otu.where(params).then(({ body }) => {
+    body.forEach((otu) => {
+      if (otu.id === parentOtu.value.id) return
+      addSpecies(otu)
+    })
+  })
+}
+
+function deleteAllChildren() {
+  if (!species.value.length) return
+  if (
+    !window.confirm(
+      `Permanently delete all ${species.value.length} taxa from this key?`
+    )
+  ) {
+    return
+  }
+
+  loading.value = true
+  const leadIds = species.value
+    .map((otu) => childLeads.value[otu.id]?.id)
+    .filter(Boolean)
+  Promise.all(leadIds.map((id) => Lead.destroySimpleLead(id)))
+    .then(() => {
+      species.value = []
+      childLeads.value = {}
+      TW.workbench.alert.create(
+        `Deleted ${leadIds.length} taxa from the key.`,
+        'notice'
+      )
     })
     .catch(() => {})
     .finally(() => {
-      descendantsLoading.value = false
+      loading.value = false
+    })
+}
+
+function looksLikeMisspelling(taxonName) {
+  if (!taxonName) return false
+  if (taxonName.cached_misspelling) return true
+  return /\[sic\]/i.test(taxonName.cached_html ?? '')
+}
+
+function removePublishedAfter() {
+  destroyMatchingChildren(publishedAfterMatches.value, 'published after the key')
+}
+
+function removeMisspellings() {
+  destroyMatchingChildren(misspellingMatches.value, 'misspellings')
+}
+
+function destroyMatchingChildren(matches, label) {
+  if (!matches.length) return
+
+  if (
+    !window.confirm(
+      `Permanently delete ${matches.length} ${label} from this key?`
+    )
+  ) {
+    return
+  }
+
+  loading.value = true
+  const deletions = matches
+    .filter((otu) => !!childLeads.value[otu.id])
+    .map((otu) => Lead.destroySimpleLead(childLeads.value[otu.id].id).then(() => otu.id))
+  Promise.all(deletions)
+    .then((deletedOtuIds) => {
+      const deletedIds = new Set(deletedOtuIds)
+      species.value = species.value.filter((o) => !deletedIds.has(o.id))
+      const leadMap = { ...childLeads.value }
+      deletedOtuIds.forEach((id) => delete leadMap[id])
+      childLeads.value = leadMap
+      TW.workbench.alert.create(
+        `Deleted ${deletedOtuIds.length} ${label}.`,
+        'notice'
+      )
+    })
+    .catch(() => {})
+    .finally(() => {
+      loading.value = false
     })
 }
 
@@ -993,69 +666,22 @@ function reset() {
   root.value = emptyRoot()
   parentOtu.value = null
   source.value = null
-  pages.value = ''
+  citationData.value = emptyCitation()
   species.value = []
   childLeads.value = {}
-  childCitations.value = {}
-  originalChildPages.value = {}
-  bulkPagesValue.value = ''
-  bulkColumnValues.value = {}
-  columns.value = []
-  cellData.value = {}
-  originalCellData.value = {}
-  cancelAddColumn()
   rootCitationId.value = null
   originalMetadata.value = null
   existingKeys.value = []
-  currentStep.value = 1
+  addDescendantsOnSave.value = false
   setParam(RouteNames.CiteKey, 'lead_id', null)
-}
-
-function openAddColumn() {
-  showAddColumn.value = true
-  newColumnCvt.value = null
-}
-
-function cancelAddColumn() {
-  showAddColumn.value = false
-  newColumnCvt.value = null
-}
-
-function pickColumnCvt(item) {
-  const type = item?.type
-  if (type !== 'Keyword' && type !== 'Predicate') {
-    TW.workbench.alert.create(
-      `Only Keyword and Predicate vocabulary terms can be used as columns (this is a ${type || 'unknown type'}).`,
-      'error'
-    )
-    newColumnCvt.value = null
-    return
-  }
-  newColumnCvt.value = item
-}
-
-function addColumn() {
-  if (!newColumnCvt.value) return
-  if (columns.value.some((c) => c.cvtId === newColumnCvt.value.id)) {
-    cancelAddColumn()
-    return
-  }
-  columns.value.push({
-    type: newColumnCvt.value.type === 'Keyword' ? 'keyword' : 'predicate',
-    cvtId: newColumnCvt.value.id,
-    cvtName: newColumnCvt.value.label || newColumnCvt.value.name
-  })
-  cancelAddColumn()
-}
-
-function removeColumn(cvtId) {
-  columns.value = columns.value.filter((c) => c.cvtId !== cvtId)
 }
 
 function captureMetadataBaseline() {
   originalMetadata.value = {
     text: root.value.text.trim(),
+    description: root.value.description ?? '',
     otu_id: root.value.otu_id,
+    is_public: !!root.value.is_public,
     source_id: source.value?.id ?? null,
     pages: pages.value
   }
@@ -1076,7 +702,9 @@ function loadKey(rootLeadId) {
       root.value = {
         id: loadedRoot.id,
         text: loadedRoot.text,
+        description: loadedRoot.description ?? '',
         otu_id: loadedRoot.otu_id,
+        is_public: !!loadedRoot.is_public,
         is_virtual: true,
         global_id: loadedRoot.global_id
       }
@@ -1107,53 +735,36 @@ function loadKey(rootLeadId) {
       species.value = speciesList
       childLeads.value = childMap
 
-      const allLeadIds = [loadedRoot.id, ...loadedChildren.map((c) => c.id)]
-      const otuIdByChildLeadId = {}
-      loadedChildren.forEach((c) => {
-        otuIdByChildLeadId[c.id] = c.otu_id
-      })
-
       return Citation.all({
         citation_object_type: 'Lead',
-        citation_object_id: allLeadIds,
+        citation_object_id: loadedRoot.id,
         extend: ['source'],
-        per: 500
+        per: 10
       }).then(({ body: citations }) => {
-        const rootCitation = citations.find(
-          (c) => c.citation_object_id === root.value.id
-        )
+        const rootCitation = citations[0]
         if (rootCitation) {
           rootCitationId.value = rootCitation.id
-          pages.value = rootCitation.pages || ''
-        }
-
-        const childCitationMap = {}
-        const pageBaseline = {}
-        citations.forEach((c) => {
-          if (c.citation_object_id === root.value.id) return
-          const otuId = otuIdByChildLeadId[c.citation_object_id]
-          if (!otuId) return
-          childCitationMap[otuId] = { id: c.id, pages: c.pages || '' }
-          pageBaseline[otuId] = c.pages || ''
-        })
-        childCitations.value = childCitationMap
-        originalChildPages.value = pageBaseline
-
-        if (rootCitation?.source) {
-          return hydrateSource(rootCitation.source.id)
+          citationData.value = {
+            ...emptyCitation(),
+            id: rootCitation.id,
+            source_id: rootCitation.source?.id ?? null,
+            pages: rootCitation.pages ?? null
+          }
+          if (rootCitation.source) {
+            return hydrateSource(rootCitation.source.id)
+          }
+        } else {
+          citationData.value = emptyCitation()
         }
       })
     })
-    .then(() => loadCellData())
-    .then(() => autoPopulateColumns())
     .then(() => {
-      currentStep.value = 2
       setParam(RouteNames.CiteKey, 'lead_id', rootLeadId)
       captureMetadataBaseline()
     })
     .catch((err) => {
       if (err?.message !== 'redirect') {
-        TW.workbench.alert.create('Failed to load cited key.', 'error')
+        TW.workbench.alert.create('Failed to load simple key.', 'error')
       }
     })
     .finally(() => {
@@ -1162,39 +773,15 @@ function loadKey(rootLeadId) {
 }
 
 function save() {
-  if (isAddMode.value) {
-    saveChangesToLoadedKey()
-  } else {
-    createNewKey()
-  }
-}
-
-function saveChangesToLoadedKey() {
   loading.value = true
-  const tasks = []
+  const prep = addDescendantsOnSave.value
+    ? fetchDescendants()
+    : Promise.resolve()
 
-  if (isMetadataDirty.value) {
-    tasks.push(persistMetadataChanges())
-  }
-
-  if (newSpecies.value.length) {
-    tasks.push(persistNewTaxa())
-  }
-
-  if (dirtyPageOtuIds.value.length) {
-    tasks.push(persistDirtyPages())
-  }
-
-  if (dirtyCells.value.length) {
-    tasks.push(persistDirtyCells())
-  }
-
-  Promise.all(tasks)
-    .then((results) => {
-      const messages = results.filter(Boolean)
-      if (messages.length) {
-        TW.workbench.alert.create(messages.join(' '), 'notice')
-      }
+  prep
+    .then(() => {
+      addDescendantsOnSave.value = false
+      return isAddMode.value ? saveChangesToLoadedKey() : createNewKey()
     })
     .catch(() => {})
     .finally(() => {
@@ -1202,11 +789,36 @@ function saveChangesToLoadedKey() {
     })
 }
 
+function saveChangesToLoadedKey() {
+  const tasks = []
+
+  if (isMetadataDirty.value) {
+    tasks.push(persistMetadataChanges())
+  }
+
+  const unpersisted = species.value.filter((o) => !childLeads.value[o.id])
+  if (unpersisted.length) {
+    tasks.push(persistNewTaxa(unpersisted))
+  }
+
+  return Promise.all(tasks)
+    .then((results) => {
+      const messages = results.filter(Boolean)
+      if (messages.length) {
+        TW.workbench.alert.create(messages.join(' '), 'notice')
+      }
+      return loadKey(root.value.id)
+    })
+    .catch(() => {})
+}
+
 function persistMetadataChanges() {
   const leadUpdate = Lead.update(root.value.id, {
     lead: {
       text: root.value.text.trim(),
+      description: (root.value.description ?? '').trim() || null,
       otu_id: root.value.otu_id,
+      is_public: !!root.value.is_public,
       is_virtual: true
     }
   })
@@ -1226,9 +838,7 @@ function persistMetadataChanges() {
   })
 }
 
-function persistNewTaxa() {
-  const toAdd = newSpecies.value.slice()
-
+function persistNewTaxa(toAdd) {
   const childRequests = toAdd.map((otu) =>
     Lead.create({
       lead: {
@@ -1240,401 +850,16 @@ function persistNewTaxa() {
     }).then(({ body: childBody }) => ({ otu, createdChild: childBody.lead }))
   )
 
-  return Promise.all(childRequests)
-    .then((results) => {
-      const newLeadIds = results.map(({ createdChild }) => createdChild.id)
-      return Citation.createBatch({
-        citation: {
-          citation_object_type: 'Lead',
-          citation_object_id: newLeadIds,
-          source_id: source.value.id,
-          pages: null
-        }
-      }).then(({ body: createdCitations }) => ({ results, createdCitations }))
-    })
-    .then(({ results, createdCitations }) => {
-      const otuByChildLeadId = {}
-      results.forEach(({ otu, createdChild }) => {
-        otuByChildLeadId[createdChild.id] = otu.id
-      })
-
-      const leadMap = { ...childLeads.value }
-      results.forEach(({ otu, createdChild }) => {
-        leadMap[otu.id] = {
-          id: createdChild.id,
-          global_id: createdChild.global_id
-        }
-      })
-      childLeads.value = leadMap
-
-      const citationMap = { ...childCitations.value }
-      const pageBaseline = { ...originalChildPages.value }
-      createdCitations.forEach((citation) => {
-        const otuId = otuByChildLeadId[citation.citation_object_id]
-        if (!otuId) return
-        citationMap[otuId] = { id: citation.id, pages: citation.pages || '' }
-        pageBaseline[otuId] = citation.pages || ''
-      })
-      childCitations.value = citationMap
-      originalChildPages.value = pageBaseline
-
-      currentStep.value = 2
-      return `${results.length} taxa added.`
-    })
-}
-
-const savingPages = new Map()
-
-function autoSavePage(otuId) {
-  const cell = childCitations.value[otuId]
-  if (!cell) return
-  const orig = originalChildPages.value[otuId] ?? ''
-  const cur = cell.pages ?? ''
-  if (cur === orig) return
-  if (savingPages.get(otuId)) return
-
-  savingPages.set(otuId, true)
-  Citation.update(cell.id, {
-    citation: { pages: cur.trim() || null }
-  })
-    .then(() => {
-      originalChildPages.value = {
-        ...originalChildPages.value,
-        [otuId]: cur
+  return Promise.all(childRequests).then((results) => {
+    const leadMap = { ...childLeads.value }
+    results.forEach(({ otu, createdChild }) => {
+      leadMap[otu.id] = {
+        id: createdChild.id,
+        global_id: createdChild.global_id
       }
     })
-    .catch(() => {
-      childCitations.value = {
-        ...childCitations.value,
-        [otuId]: { ...cell, pages: orig }
-      }
-    })
-    .finally(() => {
-      savingPages.delete(otuId)
-      const newCur = childCitations.value[otuId]?.pages ?? ''
-      const newOrig = originalChildPages.value[otuId] ?? ''
-      if (newCur !== newOrig) autoSavePage(otuId)
-    })
-}
-
-function persistDirtyPages() {
-  const dirtyIds = dirtyPageOtuIds.value.slice()
-
-  const requests = dirtyIds.map((otuId) => {
-    const cell = childCitations.value[otuId]
-    return Citation.update(cell.id, {
-      citation: { pages: cell.pages.trim() || null }
-    })
-  })
-
-  return Promise.all(requests).then(() => {
-    const baseline = { ...originalChildPages.value }
-    dirtyIds.forEach((otuId) => {
-      baseline[otuId] = childCitations.value[otuId].pages
-    })
-    originalChildPages.value = baseline
-    return `${dirtyIds.length} page(s) updated.`
-  })
-}
-
-function applyBulkColumn(col) {
-  const cvtId = col.cvtId
-  const target = bulkColumnValues.value[cvtId]
-  if (col.type === 'predicate' && (target ?? '') === '') return
-  if (col.type === 'keyword' && !target) return
-
-  species.value.forEach((otu) => {
-    if (!childLeads.value[otu.id]) return
-    if (col.type === 'keyword') {
-      toggleKeywordCell(cvtId, otu.id, true)
-    } else {
-      setPredicateCell(cvtId, otu.id, target)
-      autoSaveCell(cvtId, otu.id)
-    }
-  })
-
-  bulkColumnValues.value = {
-    ...bulkColumnValues.value,
-    [cvtId]: col.type === 'keyword' ? false : ''
-  }
-}
-
-function applyBulkPages() {
-  const value = bulkPagesValue.value
-  const map = { ...childCitations.value }
-  species.value.forEach((otu) => {
-    const cell = map[otu.id]
-    if (cell) map[otu.id] = { ...cell, pages: value }
-  })
-  childCitations.value = map
-}
-
-function autoPopulateColumns() {
-  return Lead.citeKeyColumnCvts()
-    .then(({ body }) => {
-      const existing = new Set(columns.value.map((c) => c.cvtId))
-      body.forEach((cvt) => {
-        if (existing.has(cvt.id)) return
-        columns.value.push({
-          type: cvt.type === 'Keyword' ? 'keyword' : 'predicate',
-          cvtId: cvt.id,
-          cvtName: cvt.name
-        })
-      })
-    })
-    .catch(() => {})
-}
-
-function loadCellData() {
-  const leadIds = Object.values(childLeads.value).map((c) => c.id)
-  if (!leadIds.length) {
-    cellData.value = {}
-    originalCellData.value = {}
-    return Promise.resolve()
-  }
-
-  const otuByLeadId = {}
-  Object.entries(childLeads.value).forEach(([otuId, { id }]) => {
-    otuByLeadId[id] = Number(otuId)
-  })
-
-  const daPromise = DataAttribute.all({
-    attribute_subject_id: leadIds,
-    attribute_subject_type: 'Lead',
-    per: 500
-  })
-  const tagPromise = Tag.all({
-    tag_object_id: leadIds,
-    tag_object_type: 'Lead',
-    per: 500
-  })
-
-  return Promise.all([daPromise, tagPromise]).then(
-    ([{ body: das }, { body: tags }]) => {
-      const cd = {}
-      das.forEach((da) => {
-        const otuId = otuByLeadId[da.attribute_subject_id]
-        if (!otuId) return
-        const cvtId = da.controlled_vocabulary_term_id
-        if (!cd[cvtId]) cd[cvtId] = {}
-        cd[cvtId][otuId] = { id: da.id, value: da.value ?? '' }
-      })
-      tags.forEach((tag) => {
-        const otuId = otuByLeadId[tag.tag_object_id]
-        if (!otuId) return
-        const cvtId = tag.keyword_id
-        if (!cd[cvtId]) cd[cvtId] = {}
-        cd[cvtId][otuId] = { id: tag.id, value: true }
-      })
-      cellData.value = cd
-      originalCellData.value = deepClone(cd)
-    }
-  ).catch(() => {})
-}
-
-function deepClone(obj) {
-  return JSON.parse(JSON.stringify(obj))
-}
-
-function setPredicateCell(cvtId, otuId, value) {
-  if (!cellData.value[cvtId]) cellData.value[cvtId] = {}
-  const cur = cellData.value[cvtId][otuId] ?? { id: null, value: '' }
-  cellData.value[cvtId] = {
-    ...cellData.value[cvtId],
-    [otuId]: { ...cur, value }
-  }
-}
-
-function toggleKeywordCell(cvtId, otuId, checked) {
-  if (!cellData.value[cvtId]) cellData.value[cvtId] = {}
-  const cur = cellData.value[cvtId][otuId] ?? { id: null, value: false }
-  cellData.value[cvtId] = {
-    ...cellData.value[cvtId],
-    [otuId]: { ...cur, value: !!checked }
-  }
-  autoSaveCell(cvtId, otuId)
-}
-
-function commitPredicateCell(cvtId, otuId) {
-  autoSaveCell(cvtId, otuId)
-}
-
-function focusNextRowSameColumn(colKey, currentOtuId) {
-  const sorted = sortedSpecies.value
-  const idx = sorted.findIndex((o) => o.id === currentOtuId)
-  if (idx < 0 || idx >= sorted.length - 1) return
-  const nextOtuId = sorted[idx + 1].id
-  const selector = `[data-cell="${colKey}:${nextOtuId}"]`
-  const next = document.querySelector(selector)
-  if (next) {
-    next.focus()
-    if (typeof next.select === 'function') next.select()
-  }
-}
-
-const savingCells = new Map()
-
-function autoSaveCell(cvtId, otuId) {
-  const cellKey = `${cvtId}:${otuId}`
-  if (savingCells.get(cellKey)) return
-
-  const col = columns.value.find((c) => c.cvtId === cvtId)
-  const childLead = childLeads.value[otuId]
-  if (!col || !childLead) return
-
-  const cur = cellData.value[cvtId]?.[otuId]
-  const orig = originalCellData.value[cvtId]?.[otuId]
-  const curVal = cur?.value ?? null
-  const origVal = orig?.value ?? null
-  if (curVal === origVal) return
-
-  savingCells.set(cellKey, true)
-  const releaseAndRecheck = () => {
-    savingCells.delete(cellKey)
-    const newCur = cellData.value[cvtId]?.[otuId]
-    const newOrig = originalCellData.value[cvtId]?.[otuId]
-    if ((newCur?.value ?? null) !== (newOrig?.value ?? null)) {
-      autoSaveCell(cvtId, otuId)
-    }
-  }
-
-  const rebaseline = (updated) => {
-    const map = { ...(originalCellData.value[cvtId] ?? {}) }
-    if (updated === null) {
-      delete map[otuId]
-    } else {
-      map[otuId] = updated
-    }
-    originalCellData.value = {
-      ...originalCellData.value,
-      [cvtId]: map
-    }
-    if (updated) {
-      cellData.value[cvtId] = {
-        ...cellData.value[cvtId],
-        [otuId]: updated
-      }
-    } else if (cellData.value[cvtId]) {
-      const cd = { ...cellData.value[cvtId] }
-      delete cd[otuId]
-      cellData.value[cvtId] = cd
-    }
-    releaseAndRecheck()
-  }
-
-  const revert = () => {
-    if (orig) {
-      cellData.value[cvtId] = {
-        ...cellData.value[cvtId],
-        [otuId]: { ...orig }
-      }
-    } else if (cellData.value[cvtId]) {
-      const cd = { ...cellData.value[cvtId] }
-      delete cd[otuId]
-      cellData.value[cvtId] = cd
-    }
-    savingCells.delete(cellKey)
-  }
-
-  if (col.type === 'predicate') {
-    const value = (cur?.value ?? '').toString()
-    if (cur?.id) {
-      if (value === '') {
-        DataAttribute.destroy(cur.id)
-          .then(() => rebaseline(null))
-          .catch(revert)
-      } else {
-        DataAttribute.update(cur.id, { data_attribute: { value } })
-          .then(({ body }) => rebaseline({ id: body.id ?? cur.id, value }))
-          .catch(revert)
-      }
-    } else if (value !== '') {
-      DataAttribute.create({
-        data_attribute: {
-          attribute_subject_type: 'Lead',
-          attribute_subject_id: childLead.id,
-          controlled_vocabulary_term_id: cvtId,
-          type: 'InternalAttribute',
-          value
-        }
-      })
-        .then(({ body }) => rebaseline({ id: body.id, value }))
-        .catch(revert)
-    } else {
-      rebaseline(null)
-    }
-    return
-  }
-
-  // Keyword
-  const wantTag = !!cur?.value
-  if (wantTag && !orig?.id) {
-    Tag.create({
-      tag: {
-        keyword_id: cvtId,
-        tag_object_type: 'Lead',
-        tag_object_id: childLead.id
-      }
-    })
-      .then(({ body }) => rebaseline({ id: body.id, value: true }))
-      .catch(revert)
-  } else if (!wantTag && orig?.id) {
-    Tag.destroy(orig.id)
-      .then(() => rebaseline(null))
-      .catch(revert)
-  }
-}
-
-function persistDirtyCells() {
-  const dirty = dirtyCells.value.slice()
-  if (!dirty.length) return Promise.resolve(null)
-
-  const requests = dirty.map(({ cvtId, otuId, cur, orig }) => {
-    const col = columns.value.find((c) => c.cvtId === cvtId)
-    const childLead = childLeads.value[otuId]
-    if (!col || !childLead) return Promise.resolve()
-
-    if (col.type === 'predicate') {
-      const value = cur?.value ?? ''
-      if (cur?.id) {
-        if (value === '') {
-          return DataAttribute.destroy(cur.id)
-        }
-        return DataAttribute.update(cur.id, {
-          data_attribute: { value }
-        })
-      }
-      if (value === '') return Promise.resolve()
-      return DataAttribute.create({
-        data_attribute: {
-          attribute_subject_type: 'Lead',
-          attribute_subject_id: childLead.id,
-          controlled_vocabulary_term_id: cvtId,
-          type: 'InternalAttribute',
-          value
-        }
-      })
-    }
-
-    // Keyword
-    const wantTag = !!cur?.value
-    if (wantTag && !orig?.id) {
-      return Tag.create({
-        tag: {
-          keyword_id: cvtId,
-          tag_object_type: 'Lead',
-          tag_object_id: childLead.id
-        }
-      })
-    }
-    if (!wantTag && orig?.id) {
-      return Tag.destroy(orig.id)
-    }
-    return Promise.resolve()
-  })
-
-  return Promise.all(requests).then(() => {
-    return loadCellData().then(() => `${dirty.length} cell(s) updated.`)
+    childLeads.value = leadMap
+    return `${results.length} taxa added.`
   })
 }
 
@@ -1646,18 +871,12 @@ function deleteChildLead(otu) {
   if (!window.confirm(`Permanently delete ${clean} from this key?`)) return
 
   loading.value = true
-  Lead.destroy(child.id)
+  Lead.destroySimpleLead(child.id)
     .then(() => {
       species.value = species.value.filter((o) => o.id !== otu.id)
       const leadMap = { ...childLeads.value }
       delete leadMap[otu.id]
       childLeads.value = leadMap
-      const citationMap = { ...childCitations.value }
-      delete citationMap[otu.id]
-      childCitations.value = citationMap
-      const baseline = { ...originalChildPages.value }
-      delete baseline[otu.id]
-      originalChildPages.value = baseline
       TW.workbench.alert.create(`${clean} removed from key.`, 'notice')
     })
     .catch(() => {})
@@ -1667,17 +886,17 @@ function deleteChildLead(otu) {
 }
 
 function createNewKey() {
-  loading.value = true
-
   const rootPayload = {
     lead: {
       text: root.value.text.trim(),
+      description: (root.value.description ?? '').trim() || null,
       otu_id: root.value.otu_id,
+      is_public: !!root.value.is_public,
       is_virtual: true
     }
   }
 
-  Lead.create(rootPayload)
+  return Lead.create(rootPayload)
     .then(({ body }) => {
       const createdRoot = body.lead
       const childRequests = species.value.map((otu) =>
@@ -1697,28 +916,14 @@ function createNewKey() {
       }))
     })
     .then(({ createdRoot, results }) => {
-      const rootCitation = Citation.create({
+      return Citation.create({
         citation: {
           citation_object_type: 'Lead',
           citation_object_id: createdRoot.id,
           source_id: source.value.id,
           pages: pages.value.trim() || null
         }
-      })
-      const childCitationBatch = results.length
-        ? Citation.createBatch({
-            citation: {
-              citation_object_type: 'Lead',
-              citation_object_id: results.map(({ createdChild }) => createdChild.id),
-              source_id: source.value.id,
-              pages: null
-            }
-          })
-        : Promise.resolve({ body: [] })
-      return Promise.all([rootCitation, childCitationBatch]).then(() => ({
-        createdRoot,
-        results
-      }))
+      }).then(() => ({ createdRoot, results }))
     })
     .then(({ createdRoot, results }) => {
       TW.workbench.alert.create(
@@ -1728,9 +933,6 @@ function createNewKey() {
       return loadKey(createdRoot.id)
     })
     .catch(() => {})
-    .finally(() => {
-      loading.value = false
-    })
 }
 
 usePopstateListener(() => {
@@ -1741,6 +943,17 @@ usePopstateListener(() => {
     reset()
   }
 })
+
+useHotkey([
+  {
+    keys: [platformKey(), 's'],
+    handler() {
+      if (!canSave.value) return
+      document.activeElement?.blur()
+      save()
+    }
+  }
+])
 
 onBeforeMount(() => {
   const parsed = URLParamsToJSON(location.href)
@@ -1767,7 +980,12 @@ onBeforeMount(() => {
       bootLoading.value = false
     })
   }
-  document.addEventListener('keydown', handleFullScreenEscape)
+
+  TW.workbench.keyboard.createLegend(
+    `${platformKey()}+s`,
+    'Save',
+    'Add simple key'
+  )
 })
 
 function bootstrapFromOtus({ otuIds, otuQuery }) {
@@ -1782,31 +1000,21 @@ function bootstrapFromOtus({ otuIds, otuQuery }) {
         root.value.otu_id = body.parent_otu.id
       }
       body.otus.forEach((otu) => addSpecies(otu))
-      currentStep.value = 1
-      const truncationNote = body.truncated
-        ? ` (capped at ${body.otus.length} of ${body.total}; refine the filter or split the key)`
-        : ''
       const parentNote = body.parent_otu
         ? 'parent inferred as ' + stripHtml(body.parent_otu.object_tag)
         : 'no shared parent inferred'
+      const truncationNote = body.truncated
+        ? ` Only the first ${body.otus.length} of ${body.total} filtered taxa were loaded.`
+        : ''
       TW.workbench.alert.create(
-        `Prefilled ${body.otus.length} taxa from Filter OTUs${truncationNote}; ` +
+        `Prefilled ${body.otus.length} taxa from Filter OTUs; ` +
           parentNote +
-          '. Pick a source and title, then Cite this key.',
-        body.truncated ? 'warning' : 'notice'
+          '. Pick a source and title, then save the simple key.' +
+          truncationNote,
+        'notice'
       )
     })
     .catch(() => {})
-}
-
-onBeforeUnmount(() => {
-  document.removeEventListener('keydown', handleFullScreenEscape)
-})
-
-function handleFullScreenEscape(e) {
-  if (e.key === 'Escape' && taxaFullScreen.value) {
-    taxaFullScreen.value = false
-  }
 }
 </script>
 
@@ -1820,129 +1028,25 @@ function handleFullScreenEscape(e) {
   padding-left: 0;
 }
 
-.step-nav {
-  padding-left: 0;
-  margin: 0;
-}
-
 .cite-key-navbar {
   margin-bottom: 1rem;
 }
 
-.step-item {
-  color: var(--text-muted-color, #666);
-  cursor: default;
-}
-
-.step-item.step-active,
-.step-item.step-done {
-  color: inherit;
-  cursor: pointer;
-}
-
-.step-number {
-  width: 1.75rem;
-  height: 1.75rem;
-  border-radius: 50%;
-  border: 1px solid currentColor;
-  font-weight: bold;
-}
-
-.step-item.step-active .step-number {
-  background-color: var(--color-primary);
-  color: var(--color-on-primary, white);
-  border-color: var(--color-primary);
-}
-
-.step-item.step-done .step-number {
-  background-color: var(--text-muted-color);
-  color: white;
-  border-color: var(--text-muted-color);
-}
-
 .species-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 0.25rem 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(min(480px, 100%), 1fr));
+  gap: 0.5rem 1rem;
 }
 
 .species-row {
-  min-width: 0;
-}
-
-.species-row-saved {
-  color: var(--text-muted-color);
-}
-
-.taxa-grid {
-  display: grid;
-  width: 100%;
-  max-height: 70vh;
-  overflow: auto;
-}
-
-.fullscreen-toggle {
-  cursor: pointer;
-}
-
-.taxa-fullscreen {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 1000;
-  margin: 0 !important;
-  border-radius: 0;
-  max-width: none;
-  overflow: auto;
-}
-
-.taxa-fullscreen .taxa-grid {
-  max-height: calc(100vh - 6rem);
-}
-
-.taxa-grid-row {
-  display: grid;
-  grid-template-columns: subgrid;
-  grid-column: 1 / -1;
-}
-
-.taxa-grid-row > * {
-  padding: 0.35rem 0.75rem;
-  display: flex;
-  align-items: center;
-  min-width: 0;
-  white-space: nowrap;
-}
-
-.taxa-grid > .taxa-grid-row:not(.taxa-grid-header):nth-child(even) {
-  background: var(--table-row-bg-odd);
-}
-
-.taxa-grid-header {
-  position: sticky;
-  top: 0;
-  z-index: 1;
-  background: var(--bg-action);
-}
-
-.taxa-grid-header > * {
   align-items: flex-start;
-  padding-top: 0.5rem;
-  padding-bottom: 0.5rem;
-  font-weight: bold;
 }
 
-.add-column-picker {
-  min-width: 16rem;
+.species-otu-tag {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
-.predicate-cell-input {
-  width: 18rem;
-}
 
-.add-column-picker .add-column-autocomplete {
-  width: 100%;
-}
 </style>

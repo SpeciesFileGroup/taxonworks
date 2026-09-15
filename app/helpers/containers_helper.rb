@@ -38,8 +38,8 @@ module ContainersHelper
     container.name || container.print_label || label_for_identifier(container.identifiers.first) || container.id.to_s
   end
 
-  def container_autocomplete_tag(container)
-    container_tag(container)
+  def container_autocomplete_tag(container, term = nil)
+    mark_tag(container_tag(container), term)
   end
 
   def container_parent_tag(container)

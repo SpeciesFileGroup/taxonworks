@@ -770,4 +770,37 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
     end
 
   end
+
+  context '#container_id' do
+    let!(:vial) { FactoryBot.create(:valid_container_vial) }
+    let!(:other_vial) { FactoryBot.create(:valid_container_vial) }
+    let!(:rack) { FactoryBot.create(:valid_container_vial_rack) }
+
+    let!(:s) { Specimen.create!(contained_in: vial) }
+    let!(:s1) { Specimen.create!(contained_in: other_vial) }
+    let!(:s2) { Specimen.create! } # not contained
+
+    specify 'matches collection objects directly contained' do
+      query.container_id = vial.id
+      expect(query.all).to contain_exactly(s)
+    end
+
+    specify 'matches collection objects in nested containers' do
+      vial.update!(contained_in: rack)
+
+      query.container_id = rack.id
+      expect(query.all).to contain_exactly(s)
+    end
+
+    specify 'matches the union of multiple containers' do
+      query.container_id = [vial.id, other_vial.id]
+      expect(query.all).to contain_exactly(s, s1)
+    end
+
+    specify 'is not applied when empty' do
+      query.container_id = []
+      expect(query.all).to contain_exactly(s, s1, s2)
+    end
+  end
+
 end

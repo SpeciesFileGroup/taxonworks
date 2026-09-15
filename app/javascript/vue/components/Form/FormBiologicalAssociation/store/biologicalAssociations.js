@@ -1,17 +1,48 @@
 import { defineStore } from 'pinia'
 import { BiologicalAssociation } from '@/routes/endpoints'
+import { COLLECTION_OBJECT, FIELD_OCCURRENCE } from '@/constants'
 import { addToArray, removeFromArray, randomUUID } from '@/helpers'
 
 const extend = ['subject', 'object', 'biological_relationship', 'citations']
+
+const ORIGIN_QUERY_PARAM = {
+  [COLLECTION_OBJECT]: 'collection_object_id',
+  [FIELD_OCCURRENCE]: 'field_occurrence_id'
+}
 
 function makeCitation(data) {
   return {
     uuid: randomUUID(),
     source_id: data.source_id,
-    label: data.object_label,
+    label: data.citation_source_body,
     pages: data.pages,
     isUnsaved: false
   }
+}
+
+function makeItem(item, anatomicalPart = null) {
+  const citation = makeCitation(item.citations[0] || {})
+
+  return {
+    id: item.id,
+    uuid: randomUUID(),
+    globalId: item.global_id,
+    related: item.object,
+    relationship: {
+      id: item.biological_relationship_id,
+      ...item.biological_relationship
+    },
+    citation,
+    anatomicalPart,
+    isUnsaved: false
+  }
+}
+
+function originatesFrom(anatomicalPart, { objectId, objectType }) {
+  return (
+    anatomicalPart?.origin_object_type === objectType &&
+    Number(anatomicalPart?.origin_object_id) === Number(objectId)
+  )
 }
 
 export default defineStore('biologicalAssociations', {
@@ -31,27 +62,35 @@ export default defineStore('biologicalAssociations', {
 
   actions: {
     load({ objectId, objectType }) {
-      return BiologicalAssociation.where({
-        biological_association_subject_id: [objectId],
-        biological_association_subject_type: [objectType],
-        extend
-      }).then(({ body }) => {
-        this.biologicalAssociations = body.map((item) => {
-          const citation = makeCitation(item.citations[0] || {})
+      const originParam = ORIGIN_QUERY_PARAM[objectType]
 
-          return {
-            id: item.id,
-            uuid: randomUUID(),
-            globalId: item.global_id,
-            related: item.object,
-            relationship: {
-              id: item.biological_relationship_id,
-              ...item.biological_relationship
-            },
-            citation,
-            isUnsaved: false
-          }
-        })
+      const requests = [
+        BiologicalAssociation.where({
+          biological_association_subject_id: [objectId],
+          biological_association_subject_type: [objectType],
+          extend
+        }),
+        originParam
+          ? BiologicalAssociation.where({
+              biological_association_subject_type: ['AnatomicalPart'],
+              anatomical_part_query: { [originParam]: objectId },
+              extend
+            })
+          : Promise.resolve({ body: [] })
+      ]
+
+      return Promise.all(requests).then(([{ body: own }, { body: parts }]) => {
+        this.biologicalAssociations = [
+          ...own.map((item) => makeItem(item)),
+          ...parts
+            .filter((item) =>
+              originatesFrom(item.subject_anatomical_part, {
+                objectId,
+                objectType
+              })
+            )
+            .map((item) => makeItem(item, item.subject_anatomical_part))
+        ]
       })
     },
 
@@ -122,6 +161,10 @@ export default defineStore('biologicalAssociations', {
 
     reset({ keepRecords }) {
       if (keepRecords) {
+        this.biologicalAssociations = this.biologicalAssociations.filter(
+          (item) => !item.anatomicalPart
+        )
+
         this.biologicalAssociations.forEach((item) => {
           Object.assign(item, {
             id: null,

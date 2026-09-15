@@ -5,7 +5,7 @@ module Workbench::NavigationHelper
 
   NO_NEW_FORMS = %w{Confidence Attribution ObservationMatrixRowItem ObservationMatrixColumnItem ObservationMatrixRow ObservationMatrixColumn Note Tag
   Citation Identifier DataAttribute AlternateValue TaxonNameClassification
-  GeographicArea ContainerItem ProtocolRelationship Download}.freeze
+  GeographicArea ContainerItem ProtocolRelationship Download ProjectOrganization}.freeze
 
   NOT_DATA_PATHS = %w{/project /administration /user}.freeze
 
@@ -60,6 +60,7 @@ module Workbench::NavigationHelper
   end
 
   # @return [Boolean]
+  # TODO:  Should be IsData controller check, we don't want to maintain NOT_DATA_PATHS
   def on_workbench?
     !(request.path =~ /#{NOT_DATA_PATHS.join('|')}/)
   end
@@ -121,9 +122,9 @@ module Workbench::NavigationHelper
   def new_for_model_link(model)
     content = safe_join([
       content_tag(:span, '', class: 'icon', data: { icon: 'new' }),
-      'New'], 
+      'New'],
     '')
-    
+
     if NO_NEW_FORMS.include?(model.name)
       nil
     elsif model.name == 'ProjectSource'
@@ -136,7 +137,7 @@ module Workbench::NavigationHelper
   def list_for_model_link(model)
     content = safe_join([
       content_tag(:span, '', class: 'icon', data: { icon: 'list'}),
-      'List'], 
+      'List'],
     '')
 
     has_records = model.has_attribute?(:project_id) ? model.where(project_id: sessions_current_project_id).exists?  : model.any?
@@ -150,11 +151,10 @@ module Workbench::NavigationHelper
       ], ''), class: :disabled)
     end
   end
-
   def download_for_model_link(model)
     content = safe_join([
       content_tag(:span, '', class: 'icon', data: { icon: :download }),
-      'Download'], 
+      'Download'],
     '')
 
     if self.controller.respond_to?(:download)
@@ -240,7 +240,7 @@ module Workbench::NavigationHelper
   def batch_load_link
     content = safe_join([
       content_tag(:span, '', class: 'icon', data: { icon: 'batch' }),
-      'Batch load'], 
+      'Batch load'],
     '')
 
     if self.controller.respond_to?(:batch_load)
