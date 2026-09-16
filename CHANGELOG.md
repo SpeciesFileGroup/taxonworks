@@ -18,6 +18,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 ### Fixed
 
+- DwC importer incorrectly applied `CollectionObject` project predicates with DwC URIs to `HumanObservation` records, missed `FieldOccurrence` DwC predicate mappings, and failed to flag unused model-specific columns as ignored
 - `controlled_vocabulary_term_id` param is not working on the controlled vocabulary terms endpoint
 
 ## [0.65.0] - 2026-09-04
