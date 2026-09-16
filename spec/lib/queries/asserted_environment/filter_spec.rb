@@ -61,4 +61,20 @@ describe Queries::AssertedEnvironment::Filter, type: :model do
     expect(q.all.pluck(:id)).to contain_exactly(otu_environment.id)
   end
 
+  specify '#otu_query_facet' do
+    q = Queries::AssertedEnvironment::Filter.new(
+      otu_query: {otu_id: otu_environment.asserted_environment_object_id}
+    )
+    expect(q.all.pluck(:id)).to contain_exactly(otu_environment.id)
+  end
+
+  specify '#collecting_event_query_facet' do
+    q = Queries::AssertedEnvironment::Filter.new(
+      collecting_event_query: {
+        collecting_event_id: collecting_event_environment.asserted_environment_object_id
+      }
+    )
+    expect(q.all.pluck(:id)).to contain_exactly(collecting_event_environment.id)
+  end
+
 end

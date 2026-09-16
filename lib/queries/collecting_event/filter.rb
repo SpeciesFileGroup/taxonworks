@@ -452,6 +452,16 @@ module Queries
         ::CollectingEvent.from('(' + s + ') as collecting_events').distinct
       end
 
+      def asserted_environment_query_facet
+        return nil if asserted_environment_query.nil?
+        s = 'WITH query_ae_ce AS (' + asserted_environment_query.all.to_sql + ') ' +
+          ::CollectingEvent
+          .joins("JOIN query_ae_ce as query_ae_ce1 on query_ae_ce1.asserted_environment_object_id = collecting_events.id AND query_ae_ce1.asserted_environment_object_type = 'CollectingEvent'")
+          .to_sql
+
+        ::CollectingEvent.from('(' + s + ') as collecting_events').distinct
+      end
+
       def otu_query_facet
         return nil if otu_query.nil?
 
@@ -535,6 +545,7 @@ module Queries
 
       def merge_clauses
         [
+          asserted_environment_query_facet,
           biological_association_query_facet,
           collection_object_query_facet,
           field_occurrence_query_facet,

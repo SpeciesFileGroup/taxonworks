@@ -25,6 +25,16 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
     expect(q.all).to contain_exactly(d.otu)
   end
 
+  specify '#asserted_environment_query_facet' do
+    FactoryBot.create(:asserted_environment, uri_label: 'temperate forest biome', asserted_environment_object: o1)
+    o2
+
+    q = Queries::Otu::Filter.new(
+      asserted_environment_query: {uri_label: 'temperate forest biome'}
+    )
+    expect(q.all).to contain_exactly(o1)
+  end
+
   context '#dwc_occurrences' do
     specify 'true via CollectionObject' do
       s = Specimen.create!

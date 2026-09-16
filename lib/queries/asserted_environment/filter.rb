@@ -113,6 +113,28 @@ module Queries
         end
       end
 
+      def collecting_event_query_facet
+        return nil if collecting_event_query.nil?
+        s = 'WITH query_ce_ae AS (' + collecting_event_query.all.to_sql + ') ' +
+          ::AssertedEnvironment
+          .where(asserted_environment_object_type: 'CollectingEvent')
+          .joins('JOIN query_ce_ae as query_ce_ae1 on query_ce_ae1.id = asserted_environments.asserted_environment_object_id')
+          .to_sql
+
+        ::AssertedEnvironment.from('(' + s + ') as asserted_environments').distinct
+      end
+
+      def otu_query_facet
+        return nil if otu_query.nil?
+        s = 'WITH query_otu_ae AS (' + otu_query.all.to_sql + ') ' +
+          ::AssertedEnvironment
+          .where(asserted_environment_object_type: 'Otu')
+          .joins('JOIN query_otu_ae as query_otu_ae1 on query_otu_ae1.id = asserted_environments.asserted_environment_object_id')
+          .to_sql
+
+        ::AssertedEnvironment.from('(' + s + ') as asserted_environments').distinct
+      end
+
       def and_clauses
         [
           asserted_environment_id_facet,
@@ -120,6 +142,13 @@ module Queries
           asserted_environment_object_facet,
           uri_facet,
           uri_label_facet
+        ]
+      end
+
+      def merge_clauses
+        [
+          collecting_event_query_facet,
+          otu_query_facet
         ]
       end
 
