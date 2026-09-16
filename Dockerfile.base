@@ -29,7 +29,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates
                          zip \
                          nodejs \
                          redis-server libhiredis-dev \
-                         imagemagick && \
+                         imagemagick libmagickwand-dev && \
       apt-get autoremove -y && apt clean && \
       rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/src/*
 
@@ -43,14 +43,7 @@ RUN echo 'gem: --no-rdoc --no-ri >> "$HOME/.gemrc"'
 RUN gem update --system
 RUN gem install bundler
 
-FROM ubuntu:24.04 AS imagemagick
-RUN apt-get update && apt-get install -y imagemagick
-
-FROM base
-COPY --from=imagemagick /etc/ImageMagick-6 /usr/local/etc/ImageMagick-7
-
 # Set up ImageMagick
 RUN sed -i 's/name="disk" value="2GiB"/name="disk" value="8GiB"/' /etc/ImageMagick-7/policy.xml && \
 identify -list resource && \
       identify -list resource | grep Disk | grep 8GiB && magick -list format | grep "HEIC      rw+" # Confirm HEIC support and that 8GB disk setting is active
-
