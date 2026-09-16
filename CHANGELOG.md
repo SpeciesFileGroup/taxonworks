@@ -15,6 +15,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 ### Changed
 
 - Updated attribution label in `/api/v1/leads/key/<id>`
+- Update Rubygems
 
 ### Fixed
 
