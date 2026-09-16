@@ -159,10 +159,16 @@ module Queries
 
         ::AnatomicalPart
           .joins(:related_origin_relationships)
-          .where(related_origin_relationships: { old_object_type: origin_object_type })
+          .where(origin_relationships: { old_object_type: origin_object_type })
           .distinct # remove if model adds validations to make this unnecessary
       end
 
+      # TODO: only matches AnatomicalParts that are a direct child of the
+      # CollectionObject; AP descendants of that AP (e.g. a punch taken from a
+      # feather removed from this CO) are not included. Unlike otu_query_facet,
+      # there is no cached top-origin id to check against, so this would need a
+      # recursive walk (or a new cached column) to cover the full depth. See
+      # taxonomic_origin_object in AnatomicalPart.
       def collection_object_id_facet
         return nil if collection_object_id.empty?
 
@@ -172,6 +178,7 @@ module Queries
           .distinct
       end
 
+      # TODO: same direct-child-only limitation as collection_object_id_facet.
       def field_occurrence_id_facet
         return nil if field_occurrence_id.empty?
 
@@ -187,6 +194,7 @@ module Queries
         table[:cached_otu_id].in(otu_id)
       end
 
+      # TODO: same direct-child-only limitation as collection_object_id_facet.
       def collection_object_query_facet
         return nil if collection_object_query.nil?
 
@@ -196,6 +204,7 @@ module Queries
           .where("origin_relationships.old_object_id IN (#{collection_object_query.all.select(:id).to_sql })")
       end
 
+      # TODO: same direct-child-only limitation as collection_object_id_facet.
       def field_occurrence_query_facet
         return nil if field_occurrence_query.nil?
 
