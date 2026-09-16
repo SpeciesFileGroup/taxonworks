@@ -4,13 +4,29 @@
       <legend>Asserted environments</legend>
 
       <template v-if="collectingEvent.id">
-        <AutoselectField
-          url="/asserted_environments/autoselect"
-          param="uri"
-          placeholder="Search ENVO, or terms already used in this project"
-          reset-on-select
-          @select="addFromSelection"
-        />
+        <div class="horizontal-left-content gap-small">
+          <VBtn
+            circle
+            color="primary"
+            :disabled="!collectingEvent.verbatim_habitat"
+            title="Copy Verbatim Habitat value"
+            @click="copyVerbatimHabitat"
+          >
+            <VIcon
+              name="zoomIn"
+              x-small
+            />
+          </VBtn>
+          <AutoselectField
+            ref="autoselectRef"
+            class="full_width"
+            url="/asserted_environments/autoselect"
+            param="uri"
+            placeholder="Search ENVO, or terms already used in this project"
+            reset-on-select
+            @select="addFromSelection"
+          />
+        </div>
       </template>
       <span
         v-else
@@ -31,11 +47,13 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, useTemplateRef, watch } from 'vue'
 import { AssertedEnvironment } from '@/routes/endpoints'
 import { COLLECTING_EVENT } from '@/constants'
 import DisplayList from '@/components/displayList.vue'
 import AutoselectField from '@/components/ui/AutoselectField.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 
 const collectingEvent = defineModel({
   type: Object,
@@ -43,6 +61,11 @@ const collectingEvent = defineModel({
 })
 
 const list = ref([])
+const autoselectRef = useTemplateRef('autoselectRef')
+
+function copyVerbatimHabitat() {
+  autoselectRef.value?.prefill(collectingEvent.value.verbatim_habitat)
+}
 
 function load() {
   if (!collectingEvent.value.id) {
@@ -66,9 +89,11 @@ function addFromSelection(item) {
       uri: item.response_values.uri,
       uri_label: item.response_values.uri_label
     }
-  }).then(({ body }) => {
-    list.value.push(body)
   })
+    .then(({ body }) => {
+      list.value.push(body)
+    })
+    .catch(() => {})
 }
 
 function removeItem(item) {

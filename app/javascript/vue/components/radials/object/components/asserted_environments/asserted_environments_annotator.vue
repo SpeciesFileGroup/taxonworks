@@ -52,9 +52,11 @@ function addFromSelection(item) {
       uri: item.response_values.uri,
       uri_label: item.response_values.uri_label
     }
-  }).then(({ body }) => {
-    addToList(body)
   })
+    .then(({ body }) => {
+      addToList(body)
+    })
+    .catch(() => {})
 }
 
 function removeItem(item) {
