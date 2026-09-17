@@ -4,7 +4,7 @@ module Shared::AssertedEnvironments
   extend ActiveSupport::Concern
 
   included do
-    has_many :asserted_environments, as: :asserted_environment_object, inverse_of: :asserted_environment_object, dependent: :restrict_with_error
+    has_many :asserted_environments, as: :asserted_environment_object, inverse_of: :asserted_environment_object, dependent: :destroy
   end
 
   module ClassMethods

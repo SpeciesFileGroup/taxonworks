@@ -1,7 +1,6 @@
 import baseCRUD from './base'
 import AjaxCall from '@/helpers/ajaxCall'
 
-const controller = 'asserted_environments'
 const permitParams = {
   asserted_environment: {
     id: Number,
@@ -13,6 +12,7 @@ const permitParams = {
   }
 }
 
+const controller = 'asserted_environments'
 export const AssertedEnvironment = {
   ...baseCRUD(controller, permitParams),
 

@@ -46,7 +46,6 @@ class AssertedEnvironmentsController < ApplicationController
     end
   end
 
-  # Local reuse - clone an ENVO term already used in the project.
   # GET /asserted_environments/autocomplete.json
   def autocomplete
     @asserted_environments = ::Queries::AssertedEnvironment::Autocomplete.new(
@@ -74,7 +73,9 @@ class AssertedEnvironmentsController < ApplicationController
   private
 
   def set_asserted_environment
-    @asserted_environment = AssertedEnvironment.where(project_id: sessions_current_project_id).find(params[:id])
+    @asserted_environment = AssertedEnvironment
+      .where(project_id: sessions_current_project_id)
+      .find(params[:id])
   end
 
   def asserted_environment_params

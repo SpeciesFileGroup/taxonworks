@@ -46,7 +46,8 @@ class AssertedEnvironment < ApplicationRecord
   include Shared::DataAttributes
   include Shared::Identifiers
   # Override the :uri defined by Identifiers, which otherwise shadows the
-  # asserted_environment's own `uri` column/validations.
+  # asserted_environment's own `uri` column/validations. Bad, same as
+  # AnatomicalPart.
   def uri
     self[:uri]
   end
