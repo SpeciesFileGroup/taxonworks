@@ -8,7 +8,8 @@ class AssertedEnvironmentsController < ApplicationController
   def index
     @asserted_environments = ::Queries::AssertedEnvironment::Filter.new(params).all
       .where(project_id: sessions_current_project_id)
-      .order(:position)
+      .includes(:asserted_environment_object)
+      .order(:cached, :id)
       .page(params[:page]).per(params[:per] || 500)
   end
 
