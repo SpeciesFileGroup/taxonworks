@@ -58,6 +58,8 @@ class ImagesController < ApplicationController
 
     render plain: 'Not found. You may need to add a &project_token= param to the URL currently in your address bar to access these data. See https://api.taxonworks.org/ for more.', status: :not_found and return if @image.nil?
 
+    render_unattributed_image and return unless @image.attributed?
+
     render '/images/api/v1/show'
   end
 
@@ -67,6 +69,8 @@ class ImagesController < ApplicationController
       .find_by(image_file_fingerprint: params[:sha])
 
     if @image.present?
+      render_unattributed_image and return unless @image.attributed?
+
       file_path = @image.image_file.path
       send_file(
         file_path,
@@ -85,6 +89,8 @@ class ImagesController < ApplicationController
       .find_by(image_file_fingerprint: params[:sha])
 
     if @image.present?
+      render_unattributed_image and return unless @image.attributed?
+
       render '/images/api/v1/show'
     else
       render plain: 'Image not found.', status: :not_found
@@ -192,7 +198,17 @@ class ImagesController < ApplicationController
 
   # GET 'api/v1/images/:id/scale_to_box/:x/:y/:width/:height/:box_width/:box_height'
   def api_scale_to_box
-    send_data Image.scaled_to_box_blob(params), type: 'image/jpg', disposition: 'inline'
+    @image = Image
+      .where(project_id: sessions_current_project_id)
+      .find_by(id: params[:id])
+
+    if @image.present?
+      render_unattributed_image and return unless @image.attributed?
+
+      send_data Image.scaled_to_box_blob(params), type: 'image/jpg', disposition: 'inline'
+    else
+      render plain: 'Image not found.', status: :not_found
+    end
   end
 
   # GET 'api/v1/images/file/sha/:sha/scale_to_box/:x/:y/:width/:height/:box_width/:box_height'
@@ -202,6 +218,8 @@ class ImagesController < ApplicationController
       .find_by(image_file_fingerprint: params[:sha])
 
     if @image.present?
+      render_unattributed_image and return unless @image.attributed?
+
       # Replace :sha with :id in params so scaled_to_box_blob works
       modified_params = params.merge(id: @image.id)
       send_data Image.scaled_to_box_blob(modified_params), type: 'image/jpg', disposition: 'inline'
@@ -217,6 +235,8 @@ class ImagesController < ApplicationController
 
   # GET 'api/v1/images/:id/as_png'
   def api_as_png
+    render_unattributed_image and return unless @image.attributed?
+
     send_data @image.original_as_png, type: 'image/png', disposition: 'inline'
   end
 
@@ -258,6 +278,10 @@ class ImagesController < ApplicationController
   end
 
   private
+
+  def render_unattributed_image
+    render plain: 'Image is not accessible via the API because it lacks attribution. See https://api.taxonworks.org/ for more.', status: :forbidden
+  end
 
   def set_image
     @image = Image.with_project_id(sessions_current_project_id).find(params[:id])
