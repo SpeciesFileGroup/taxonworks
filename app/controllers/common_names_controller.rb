@@ -87,12 +87,16 @@ class CommonNamesController < ApplicationController
     q = ::Queries::CommonName::Filter.new(params.merge!(api: true)).all
       .where(project_id: sessions_current_project_id)
       .order('common_names.id')
-      .page(params[:page])
-      .per(params[:per])
+
+    if helpers.extend_response_with('citations')
+      q = q.includes(citations: [:source, :topics, { citation_topics: :topic }])
+    end
+
+    q = q.page(params[:page]).per(params[:per])
 
     respond_to do |format|
       format.json {
-        @common_names = q.page(params[:page]).per(params[:per])
+        @common_names = q
         render '/common_names/api/v1/index'
       }
       format.csv {
