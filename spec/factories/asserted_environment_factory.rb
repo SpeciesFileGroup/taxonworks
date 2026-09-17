@@ -9,6 +9,12 @@ FactoryBot.define do
       end
     end
 
+    factory :valid_otu_asserted_environment do
+      after(:build) do |asserted_environment|
+        FactoryProjectHelpers.assign_project_scoped(asserted_environment, :asserted_environment_object, :valid_otu)
+      end
+    end
+
     factory :valid_collecting_event_asserted_environment do
       after(:build) do |asserted_environment|
         FactoryProjectHelpers.assign_project_scoped(asserted_environment, :asserted_environment_object, :valid_collecting_event)

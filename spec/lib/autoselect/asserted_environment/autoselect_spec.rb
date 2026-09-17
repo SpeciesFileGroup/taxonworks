@@ -181,7 +181,7 @@ RSpec.describe Autoselect::AssertedEnvironment::Levels::Envo, type: :model do
   end
 
   it 'has the external fuse_ms' do
-    expect(level.fuse_ms).to eq(2000)
+    expect(level.fuse_ms).to eq(Autoselect::Level::EXTERNAL_FUSE_MS)
   end
 
   it 'returns [] for a blank term' do

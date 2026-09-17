@@ -15,6 +15,9 @@ module Vendor
     # @return [Hash] { results:, page:, per:, total: }
     def self.search(term, per: 25, page: 1)
       ::Hookkaido.search(term, ontologies: [ONTOLOGY], per:, page:)
+    rescue => e
+      Rails.logger.warn "Vendor::Envo.search error: #{e.message}"
+      { results: [], page:, per:, total: 0 }
     end
 
     # @param uri [String, nil]

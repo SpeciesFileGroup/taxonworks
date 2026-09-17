@@ -42,6 +42,16 @@ describe Vendor::Envo, type: :model do
       described_class.search('forest')
       expect(::Hookkaido).not_to have_received(:search).with('forest', ontologies: ['uberon'], per: 25, page: 1)
     end
+
+    it 'returns an empty result instead of raising when Hookkaido times out' do
+      allow(::Hookkaido).to receive(:search)
+        .with('forest', ontologies: ['envo'], per: 25, page: 1)
+        .and_raise(Faraday::TimeoutError)
+
+      result = nil
+      expect { result = described_class.search('forest') }.not_to raise_error
+      expect(result).to eq({results: [], page: 1, per: 25, total: 0})
+    end
   end
 
   # ── valid_uri? ────────────────────────────────────────────────────────────────
