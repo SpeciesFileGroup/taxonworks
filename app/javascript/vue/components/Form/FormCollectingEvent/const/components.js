@@ -51,8 +51,8 @@ const ComponentParse = {
   CollectorsComponent: 'CollectorsComponent',
   TripCode: 'TripCode',
   Group: 'Group',
-  Predicates: 'Predicates',
-  AssertedEnvironments: 'AssertedEnvironments'
+  AssertedEnvironments: 'AssertedEnvironments',
+  Predicates: 'Predicates'
 }
 
 const ComponentMap = {

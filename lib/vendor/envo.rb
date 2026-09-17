@@ -14,7 +14,13 @@ module Vendor
     # @param term [String] search string to match against ENVO labels/synonyms
     # @return [Hash] { results:, page:, per:, total: }
     def self.search(term, per: 25, page: 1)
-      ::Hookkaido.search(term, ontologies: [ONTOLOGY], per:, page:)
+      payload = ::Hookkaido.search(term, ontologies: [ONTOLOGY], per:, page:)
+
+      # OLS's `ontology: envo` scope includes terms merely referenced inside
+      # ENVO's OWL graph (e.g. imported CHEBI/PATO classes), not only terms
+      # minted under the ENVO_ namespace - filter to real ENVO PURLs so we
+      # never offer a result AssertedEnvironment's own validation would reject.
+      payload.merge(results: payload[:results].select { |r| valid_uri?(r[:iri]) })
     rescue => e
       Rails.logger.warn "Vendor::Envo.search error: #{e.message}"
       { results: [], page:, per:, total: 0 }

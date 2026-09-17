@@ -43,6 +43,23 @@ describe Vendor::Envo, type: :model do
       expect(::Hookkaido).not_to have_received(:search).with('forest', ontologies: ['uberon'], per: 25, page: 1)
     end
 
+    it 'filters out results from imported non-ENVO ontologies (e.g. CHEBI)' do
+      allow(::Hookkaido).to receive(:search)
+        .with('sticks', ontologies: ['envo'], per: 25, page: 1)
+        .and_return({
+          results: [
+            { iri: 'http://purl.obolibrary.org/obo/ENVO_03000122', label: 'planned burn', ontology_prefix: 'ENVO', description: nil },
+            { iri: 'http://purl.obolibrary.org/obo/CHEBI_25555', label: 'nitrogen atom', ontology_prefix: 'ENVO', description: nil }
+          ],
+          page: 1,
+          per: 25,
+          total: 2
+        })
+
+      result = described_class.search('sticks')
+      expect(result[:results].map { |r| r[:iri] }).to eq(['http://purl.obolibrary.org/obo/ENVO_03000122'])
+    end
+
     it 'returns an empty result instead of raising when Hookkaido times out' do
       allow(::Hookkaido).to receive(:search)
         .with('forest', ontologies: ['envo'], per: 25, page: 1)
