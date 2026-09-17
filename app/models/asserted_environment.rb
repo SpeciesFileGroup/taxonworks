@@ -53,6 +53,7 @@ class AssertedEnvironment < ApplicationRecord
   include Shared::Notes
   include Shared::Tags
   include Shared::HasPapertrail
+  include Shared::DwcOccurrenceHooks
   include Shared::IsData
 
   acts_as_list scope: [:project_id, :asserted_environment_object_type, :asserted_environment_object_id]
@@ -69,6 +70,25 @@ class AssertedEnvironment < ApplicationRecord
   validates_uniqueness_of :uri, scope: [
     :project_id, :asserted_environment_object_type, :asserted_environment_object_id
   ]
+
+  # @return [Scope]
+  #   DwcOccurrence records potentially affected by this asserted environment;
+  #   only CollectingEvent assertions feed dwc:habitat (see
+  #   Shared::Dwc::CollectingEventExtensions#dwc_habitat), so other object
+  #   types have no corresponding DwcOccurrence records to rebuild.
+  def dwc_occurrences
+    return DwcOccurrence.none unless asserted_environment_object_type == 'CollectingEvent'
+
+    a = DwcOccurrence
+      .joins("JOIN collection_objects co on dwc_occurrence_object_id = co.id AND dwc_occurrence_object_type = 'CollectionObject'")
+      .where(co: {collecting_event_id: asserted_environment_object_id})
+
+    b = DwcOccurrence
+      .joins("JOIN field_occurrences fo on dwc_occurrence_object_id = fo.id AND dwc_occurrence_object_type = 'FieldOccurrence'")
+      .where(fo: {collecting_event_id: asserted_environment_object_id})
+
+    ::Queries.union(DwcOccurrence, [a, b])
+  end
 
   protected
 
