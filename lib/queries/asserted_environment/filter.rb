@@ -115,24 +115,20 @@ module Queries
 
       def collecting_event_query_facet
         return nil if collecting_event_query.nil?
-        s = 'WITH query_ce_ae AS (' + collecting_event_query.all.to_sql + ') ' +
-          ::AssertedEnvironment
+        ::AssertedEnvironment
+          .with(query_ce_ae: collecting_event_query.all)
           .where(asserted_environment_object_type: 'CollectingEvent')
-          .joins('JOIN query_ce_ae as query_ce_ae1 on query_ce_ae1.id = asserted_environments.asserted_environment_object_id')
-          .to_sql
-
-        ::AssertedEnvironment.from('(' + s + ') as asserted_environments').distinct
+          .joins('JOIN query_ce_ae ON query_ce_ae.id = asserted_environments.asserted_environment_object_id')
+          .distinct
       end
 
       def otu_query_facet
         return nil if otu_query.nil?
-        s = 'WITH query_otu_ae AS (' + otu_query.all.to_sql + ') ' +
-          ::AssertedEnvironment
+        ::AssertedEnvironment
+          .with(query_otu_ae: otu_query.all)
           .where(asserted_environment_object_type: 'Otu')
-          .joins('JOIN query_otu_ae as query_otu_ae1 on query_otu_ae1.id = asserted_environments.asserted_environment_object_id')
-          .to_sql
-
-        ::AssertedEnvironment.from('(' + s + ') as asserted_environments').distinct
+          .joins('JOIN query_otu_ae ON query_otu_ae.id = asserted_environments.asserted_environment_object_id')
+          .distinct
       end
 
       def and_clauses
