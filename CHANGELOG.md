@@ -11,6 +11,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 - Autocomplete for Organization
 - `/api/v1/alternate_values` and `/api/v1/alternate_values/<id>` endpoints
+- Adds extend[]=citations to /api/v1/common_names endpoint
 
 ### Changed
 
