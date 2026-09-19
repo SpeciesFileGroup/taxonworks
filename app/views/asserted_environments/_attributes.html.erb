@@ -1,0 +1,24 @@
+<p>
+  <strong>ENVO term:</strong>
+  <%= @asserted_environment.uri_label %>
+</p>
+
+<p>
+  <strong>Uri:</strong>
+  <%= link_to(@asserted_environment.uri, @asserted_environment.uri, data: {icon: 'link'}, class: 'margin-xsmall-left') %>
+</p>
+
+<p>
+  <strong>Position:</strong>
+  <%= @asserted_environment.position %>
+</p>
+
+<p>
+  <strong>Object type:</strong>
+  <%= @asserted_environment.asserted_environment_object_type %>
+</p>
+
+<p>
+  <strong>Object:</strong>
+  <%= object_tag(@asserted_environment.asserted_environment_object) %>
+</p>

@@ -1,0 +1,20 @@
+<h1>New asserted environment</h1>
+
+<em class="notice">
+  Asserted environments can not be created here - there is no standalone
+  form, because their ENVO term must come from an autoselect/autocomplete and
+  they must belong to an object. Find or create one of the objects below,
+  then use its radial menu (its "Asserted environments" panel) to add the
+  assertion.
+</em>
+
+<ul>
+  <% ENVIRONMENT_ASSERTABLE_TYPES.sort.each do |type| -%>
+    <li>
+      <%= type.underscore.humanize %>:
+      <%= link_to 'Find', url_for(controller: type.tableize, action: :index) %>
+      |
+      <%= link_to 'Create new', url_for(controller: type.tableize, action: :new) %>
+    </li>
+  <% end -%>
+</ul>

@@ -111,6 +111,15 @@ Supporting:
     status: :prototype
     categories:
       - source
+  AssertedEnvironment:
+    status: :prototype
+    related_models:
+      - CollectingEvent
+      - Otu
+      - Gazetteer
+    categories:
+      - biology
+      - collecting
   BiologicalAssociationsGraph:
     status: :prototype
     related_models:

@@ -1,20 +1,54 @@
 class AssertedEnvironmentsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_asserted_environment, only: [:show, :update, :destroy]
+  before_action :set_asserted_environment, only: [:show, :edit, :update, :destroy]
   after_action -> { set_pagination_headers(:asserted_environments) }, only: [:index], if: :json_request?
 
-  # GET /asserted_environments.json
+  # GET /asserted_environments or /asserted_environments.json
   def index
-    @asserted_environments = ::Queries::AssertedEnvironment::Filter.new(params).all
-      .where(project_id: sessions_current_project_id)
-      .includes(:asserted_environment_object)
-      .order(:cached, :id)
-      .page(params[:page]).per(params[:per] || 500)
+    respond_to do |format|
+      format.html {
+        @recent_objects = AssertedEnvironment
+          .where(project_id: sessions_current_project_id)
+          .order(updated_at: :desc).limit(10)
+
+        render '/shared/data/all/index'
+      }
+      format.json {
+        @asserted_environments = ::Queries::AssertedEnvironment::Filter.new(params).all
+          .where(project_id: sessions_current_project_id)
+          .includes(:asserted_environment_object)
+          .order(:cached, :id)
+          .page(params[:page]).per(params[:per] || 500)
+      }
+    end
   end
 
-  # GET /asserted_environments/1.json
+  # GET /asserted_environments/1 or /asserted_environments/1.json
   def show
+  end
+
+  # GET /asserted_environments/list
+  #   The Filter task (see the "asserted_environments/filter" task) covers
+  #   faceted browsing and download - this is the plain sortable-table list
+  #   every Data model gets.
+  def list
+    @asserted_environments = AssertedEnvironment
+      .where(project_id: sessions_current_project_id)
+      .order(:cached, :id)
+      .page(params[:page])
+  end
+
+  # GET /asserted_environments/new
+  #   There is no standalone create form - see new.html.erb.
+  def new
+  end
+
+  # GET /asserted_environments/1/edit
+  #   AssertedEnvironment can only be updated from its object's own radial
+  #   menu (its ENVO term must come from an autoselect/autocomplete, and its
+  #   object can not be changed) - see edit.html.erb.
+  def edit
   end
 
   # POST /asserted_environments.json
@@ -43,6 +77,17 @@ class AssertedEnvironmentsController < ApplicationController
       head :no_content
     else
       render json: @asserted_environment.errors, status: :unprocessable_content
+    end
+  end
+
+  # GET /asserted_environments/search
+  #   TODO: deprecate, see other *_controller#search
+  def search
+    if params[:id].blank?
+      redirect_to asserted_environments_path,
+        alert: 'You must select an item from the list with a click or tab press before clicking show.'
+    else
+      redirect_to asserted_environment_path(params[:id])
     end
   end
 

@@ -69,8 +69,10 @@ resources :asserted_distributions do
   resources :origin_relationships, shallow: true, only: [:index], defaults: {format: :json}
 end
 
-resources :asserted_environments, except: [:new, :edit], defaults: {format: :json} do
+resources :asserted_environments do
   collection do
+    get :list
+    get :search
     get :autocomplete, defaults: {format: :json}
     get :autoselect, defaults: {format: :json}
     get :object_types, defaults: {format: :json}
