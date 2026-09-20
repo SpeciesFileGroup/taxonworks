@@ -1,19 +1,11 @@
 <h1>Asserted environment</h1>
 
-<%= render partial: 'attributes' %>
-
 <em class="notice">
-  Asserted environments can not be edited here - their ENVO term must come
-  from an autoselect/autocomplete, and their object can not be changed. Use
-  the radial menu on the object below (its "Asserted environments" panel) to
-  add, edit, reorder, or remove its environment assertions.
+  Asserted environments can only be created and destroyed, not edited. You can
+  do so on the existing object using the quick forms radial below.
 </em>
 
-<p>
-  <strong>Object:</strong>
-  <%= object_link(@asserted_environment.asserted_environment_object) %>
-  <%= otus_radial(@asserted_environment.asserted_environment_object) %>
-</p>
+<%= render partial: 'attributes', locals: {show_object_radial: true} %>
 
 <p>
   <%= link_to 'Back', @asserted_environment %>
