@@ -116,3 +116,15 @@ test('linkifyUrls keeps a trailing parenthesis that disambiguates the url', () =
       'https://en.wikipedia.org/wiki/Curculionidae_(beetle)</a>'
   )
 })
+
+test('linkifyUrls re-encodes < and > in the href of a SICI DOI', () => {
+  // Wiley SICI DOIs carry angle brackets, which reach `cached` as entities.
+  const doi =
+    'https://doi.org/10.1002/(SICI)1097-0258(19980815)17:15' +
+    '&lt;1623::AID-SIM969&gt;3.0.CO;2-S'
+
+  assert.equal(
+    linkifyUrls(doi),
+    `<a href="${doi}" target="_blank" rel="noopener noreferrer">${doi}</a>`
+  )
+})

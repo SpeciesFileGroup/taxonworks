@@ -56,9 +56,14 @@ export function linkifyUrls(html) {
     return text.replace(URL_IN_TEXT, (url) => {
       // `html` is html, so an `&` in a query string arrives as `&amp;`. Decode
       // it before building the href, then re-encode for the attribute, or the
-      // link resolves to a url still carrying `&amp;`.
+      // link resolves to a url still carrying `&amp;`. `&` must be re-encoded
+      // first so the entities introduced after it are not encoded twice. The
+      // angle brackets matter for SICI DOIs, e.g.
+      // `10.1002/(SICI)1097-0258(19980815)17:15<1623::AID-SIM969>3.0.CO;2-S`.
       const href = decodeBasicEntities(url)
         .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;')
 
       return `<a href="${href}" target="_blank" rel="noopener noreferrer">${url}</a>`
