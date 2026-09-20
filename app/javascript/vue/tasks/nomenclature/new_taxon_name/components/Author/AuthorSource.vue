@@ -24,7 +24,7 @@
         :disabled="isSaving"
         @clone="(c) => setSource({ id: c.source_id, pages: c.pages })"
       />
-      <a :href="RouteNames.NewSource">Add new source</a>
+      <a :href="RouteNames.NewSource" target="_blank">Add new source</a>
     </div>
     <hr class="divisor" />
     <div v-if="citation">
