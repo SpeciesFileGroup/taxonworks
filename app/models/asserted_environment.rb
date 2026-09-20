@@ -53,7 +53,6 @@ class AssertedEnvironment < ApplicationRecord
   end
   include Shared::Notes
   include Shared::Tags
-  include Shared::HasPapertrail
   include Shared::DwcOccurrenceHooks
   include Shared::IsData
 

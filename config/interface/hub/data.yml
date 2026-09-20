@@ -115,8 +115,8 @@ Supporting:
     status: :prototype
     related_models:
       - CollectingEvent
-      - Otu
       - Gazetteer
+      - Otu
     categories:
       - biology
       - collecting

@@ -124,3 +124,9 @@ Our general approach to AR based models uses the pattern below.  Please use it.
   * `find_or_create_by!`
   * `find_or_initialize_by`
 so that the current `project_id` is injected into their parameters when any of them is called on a model that has a project id (see [`Housekeeping::Projects`](../../lib/housekeeping/projects.rb)).
+
+# The "Object graph" task
+* Unlike most cross-cutting behavior, this is *not* wired up automatically by including a concern - a new model is invisible to it unless explicitly added.
+* `GraphHelper#object_graph` (`app/helpers/graph_helper.rb`) dispatches on `object.class.base_class.name` in a hardcoded `case` statement to a per-model `*_graph` builder method (e.g. `otu_graph`, `collecting_event_graph`). A model with no case just falls through to a lone node (plus citations/identifiers) - no edges to its associations.
+* `GRAPH_ENTRY_POINTS` (declared on some models, e.g. `Otu::GRAPH_ENTRY_POINTS`) is unrelated - it only feeds the "Quick forms" radial's annotator slice counts (`/graph/:global_id/metadata`), not the Object graph visualization.
+* When adding a model whose records should appear connected in the Object graph, add a `case` branch and a `<model>_graph` method in `GraphHelper`.

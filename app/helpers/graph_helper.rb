@@ -64,6 +64,8 @@ module GraphHelper
       image_graph(object, citations: true, depictions: true).to_json
     when 'BiologicalAssociation'
       biological_association_graph(object).to_json
+    when 'AssertedEnvironment'
+      asserted_environment_graph(object).to_json
     else
       g = Export::Graph.new( object: )
       g.to_json
@@ -163,6 +165,17 @@ module GraphHelper
     g
   end
 
+  def asserted_environment_graph(asserted_environment, graph: nil, target: nil)
+    a = asserted_environment
+    return nil if a.nil?
+
+    g = initialize_graph(graph, a, target)
+
+    g.add(a.asserted_environment_object, a)
+
+    g
+  end
+
 
   def citation_graph(citation, graph: nil, target: nil, source: false, citation_object: false, topics: true)
     c = citation
@@ -209,7 +222,7 @@ module GraphHelper
     g
   end
 
-  def collecting_event_graph(collecting_event, graph: nil, target: nil, collection_objects: false)
+  def collecting_event_graph(collecting_event, graph: nil, target: nil, collection_objects: false, asserted_environments: true)
     c = collecting_event
     return nil if c.nil?
 
@@ -232,6 +245,12 @@ module GraphHelper
       end
     end
 
+    if asserted_environments
+      c.asserted_environments.each do |a|
+        g.add(a, c)
+      end
+    end
+
     g
   end
 
@@ -248,7 +267,7 @@ module GraphHelper
     g
   end
 
-  def otu_graph(otu, graph: nil, target: nil, collection_objects: false, taxon_name: true, synonymy: false, biological_associations: true, asserted_distributions: true )
+  def otu_graph(otu, graph: nil, target: nil, collection_objects: false, taxon_name: true, synonymy: false, biological_associations: true, asserted_distributions: true, asserted_environments: true )
     o = otu
     return nil if o.nil?
     g = initialize_graph(graph, o, target)
@@ -281,6 +300,12 @@ module GraphHelper
         g.add_node(a.asserted_distribution_shape)
 
         g.add_edge(a, a.asserted_distribution_shape)
+      end
+    end
+
+    if asserted_environments
+      o.asserted_environments.each do |a|
+        g.add(a, o)
       end
     end
 
