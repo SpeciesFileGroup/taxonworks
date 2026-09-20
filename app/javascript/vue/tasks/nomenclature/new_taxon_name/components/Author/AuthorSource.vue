@@ -32,7 +32,7 @@
         <p>
           <span
             class="break_words"
-            v-html="citation.source.cached"
+            v-html="linkifyUrls(citation.source.cached)"
           />
           <span class="padding-xsmall">
             <SoftValidation
@@ -84,6 +84,7 @@ import SoftValidation from '@/components/soft_validations/objectValidation.vue'
 import FormCitationClone from '@/components/Form/FormCitation/FormCitationClone.vue'
 
 import { RouteNames } from '@/routes/routes.js'
+import { linkifyUrls } from '@/helpers'
 
 const autocomplete = ref(null)
 
