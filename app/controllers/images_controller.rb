@@ -3,7 +3,8 @@ class ImagesController < ApplicationController
   after_action -> { set_pagination_headers(:images) }, only: [:index, :api_index, :api_image_inventory], if: :json_request?
 
   before_action :set_image, only: [:show, :edit, :update, :destroy, :rotate, :regenerate_derivative, :as_png]
-  before_action :require_attributed_image, if: -> {
+  # !! ALL images returned via the API must include some attribution !!
+  before_action :set_required_attributed_image, if: -> {
     action_name.start_with?('api_') && (params[:id].present? || params[:sha].present?)
   }
 
@@ -228,7 +229,7 @@ class ImagesController < ApplicationController
 
   private
 
-  def require_attributed_image
+  def set_required_attributed_image
     @image = find_api_image
 
     return render plain: 'Not found. You may need to add a &project_token= param to the URL currently in your address bar to access these data. See https://api.taxonworks.org/ for more.', status: :not_found if @image.nil?
@@ -243,6 +244,7 @@ class ImagesController < ApplicationController
 
     return scope.find_by(image_file_fingerprint: params[:sha]) if params[:sha].present?
 
+    # TODO: extend fingerprint lookup support to all image api actions?
     if action_name == 'api_show'
       if params[:id].to_s.length < 32 && params[:id] =~ (/\A\d+\z/)
         scope.find_by(id: params[:id])
