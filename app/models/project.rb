@@ -63,6 +63,7 @@ class Project < ApplicationRecord
      PinboardItem
      AnatomicalPart
      AssertedDistribution
+     AssertedEnvironment
      BiocurationClassification
      BiologicalRelationshipType
      BiologicalAssociationsBiologicalAssociationsGraph
