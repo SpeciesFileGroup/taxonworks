@@ -21,6 +21,8 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 - DwC importer incorrectly applied `CollectionObject` project predicates with DwC URIs to `HumanObservation` records, missed `FieldOccurrence` DwC predicate mappings, and failed to flag unused model-specific columns as ignored
 - `controlled_vocabulary_term_id` param is not working on the controlled vocabulary terms endpoint
+- `New taxon name`: browser back/forward buttons left the form out of sync with the URL
+- `New taxon name`: returning with the browser back button from "Add new source" left the task with no taxon loaded
 
 ## [0.65.0] - 2026-09-04
 

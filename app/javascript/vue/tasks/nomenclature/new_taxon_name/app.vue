@@ -68,7 +68,7 @@ import NavHeader from './components/navHeader.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import platformKey from '@/helpers/getPlatformKey'
 import ColumnRight from './components/ColumnRight.vue'
-import { useHotkey, useUserPreference } from '@/composables'
+import { useHotkey, usePopstateListener, useUserPreference } from '@/composables'
 import { SectionComponents } from './const/components.js'
 import { GetterNames } from './store/getters/getters'
 import { MutationNames } from './store/mutations/mutations'
@@ -109,33 +109,37 @@ watch(
 )
 
 onMounted(() => {
-  const urlParams = new URLSearchParams(window.location.search)
-  let taxonId = urlParams.get('taxon_name_id')
-
-  if (!taxonId) {
-    taxonId = location.pathname.split('/')[4]
-  }
-
-  initLoad().then(() => {
-    if (/^\d+$/.test(taxonId)) {
-      isLoading.value = true
-      store
-        .dispatch(ActionNames.LoadTaxonName, taxonId)
-        .then((taxon) => {
-          store.dispatch(ActionNames.LoadTaxonStatus, taxonId)
-          store.dispatch(ActionNames.LoadTaxonRelationships, taxonId)
-          store.dispatch(ActionNames.LoadOriginalCombination, taxonId)
-          store.dispatch(ActionNames.LoadCombinations, taxon.id)
-        })
-        .catch(() => {})
-        .finally(() => {
-          isLoading.value = false
-        })
-    }
-  })
+  initLoad().then(loadTaxonFromParams)
 
   addShortcutsDescription()
 })
+
+usePopstateListener(loadTaxonFromParams)
+
+function loadTaxonFromParams() {
+  const urlParams = new URLSearchParams(window.location.search)
+  const taxonId =
+    urlParams.get('taxon_name_id') || location.pathname.split('/')[4]
+
+  if (!/^\d+$/.test(taxonId)) {
+    store.commit(MutationNames.ResetTaxon)
+    return
+  }
+
+  isLoading.value = true
+  store
+    .dispatch(ActionNames.LoadTaxonName, taxonId)
+    .then((taxon) => {
+      store.dispatch(ActionNames.LoadTaxonStatus, taxonId)
+      store.dispatch(ActionNames.LoadTaxonRelationships, taxonId)
+      store.dispatch(ActionNames.LoadOriginalCombination, taxonId)
+      store.dispatch(ActionNames.LoadCombinations, taxon.id)
+    })
+    .catch(() => {})
+    .finally(() => {
+      isLoading.value = false
+    })
+}
 
 function addShortcutsDescription() {
   const TASK = 'New taxon name'
