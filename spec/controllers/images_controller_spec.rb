@@ -287,6 +287,8 @@ describe ImagesController, type: :controller do
     end
 
     describe 'GET api_show' do
+      render_views
+
       let(:image) { Image.create! valid_attributes }
 
       context 'with attribution' do
@@ -294,15 +296,28 @@ describe ImagesController, type: :controller do
 
         it 'renders the image data' do
           get :api_show, params: {id: image.to_param, format: :json}, session: valid_session
+          json = JSON.parse(response.body)
+
           expect(response).to have_http_status(:success)
+          expect(json['attributed']).to eq(true)
         end
       end
 
       context 'without attribution' do
-        it 'returns 403 forbidden' do
-          get :api_show, params: {id: image.to_param}, session: valid_session
-          expect(response).to have_http_status(:forbidden)
-          expect(response.body).to include('lacks attribution')
+        it 'renders metadata with links redacted' do
+          get :api_show, params: {id: image.to_param, format: :json}, session: valid_session
+          json = JSON.parse(response.body)
+
+          expect(response).to have_http_status(:success)
+          expect(json['id']).to eq(image.id)
+          expect(json['attributed']).to eq(false)
+          expect(json['message']).to include('lacks attribution')
+          expect(json).not_to have_key('image_file_file_name')
+          expect(json).not_to have_key('original')
+          expect(json).not_to have_key('thumb')
+          expect(json).not_to have_key('medium')
+          expect(json).not_to have_key('original_png')
+          expect(json).not_to have_key('as_png')
         end
       end
 
@@ -345,6 +360,8 @@ describe ImagesController, type: :controller do
     end
 
     describe 'GET api_image_show_sha' do
+      render_views
+
       let(:image) { Image.create! valid_attributes }
       let(:fingerprint) { image.image_file_fingerprint }
 
@@ -353,15 +370,25 @@ describe ImagesController, type: :controller do
 
         it 'renders the image data' do
           get :api_image_show_sha, params: {sha: fingerprint, format: :json}, session: valid_session
+          json = JSON.parse(response.body)
+
           expect(response).to have_http_status(:success)
+          expect(json['attributed']).to eq(true)
         end
       end
 
       context 'without attribution' do
-        it 'returns 403 forbidden' do
-          get :api_image_show_sha, params: {sha: fingerprint}, session: valid_session
-          expect(response).to have_http_status(:forbidden)
-          expect(response.body).to include('lacks attribution')
+        it 'renders metadata with links redacted' do
+          get :api_image_show_sha, params: {sha: fingerprint, format: :json}, session: valid_session
+          json = JSON.parse(response.body)
+
+          expect(response).to have_http_status(:success)
+          expect(json['id']).to eq(image.id)
+          expect(json['attributed']).to eq(false)
+          expect(json['message']).to include('lacks attribution')
+          expect(json).not_to have_key('original')
+          expect(json).not_to have_key('thumb')
+          expect(json).not_to have_key('medium')
         end
       end
 

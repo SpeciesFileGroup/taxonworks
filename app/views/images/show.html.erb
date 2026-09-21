@@ -25,7 +25,7 @@
 <%= content_for :additional_navigation do %>
 
   <div class="content">
-    <em> Rotate derivatives, relative or *original* orientation.  Original image is untouched. </em>
+    <em> Rotate derivatives, relative to *original* orientation.  Original image is untouched. </em>
     <%= form_for(@image, url: rotate_image_path(@image)) do |f| %>
       <%= f.collection_radio_buttons :rotate, %w{0 90 180 270}, :to_s, :to_i %>
       <%= f.submit :Rotate, data: {type: :submit}, class: [:actions, 'button-submit', :button] -%>

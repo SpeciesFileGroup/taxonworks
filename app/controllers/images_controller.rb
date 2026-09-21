@@ -3,10 +3,16 @@ class ImagesController < ApplicationController
   after_action -> { set_pagination_headers(:images) }, only: [:index, :api_index, :api_image_inventory], if: :json_request?
 
   before_action :set_image, only: [:show, :edit, :update, :destroy, :rotate, :regenerate_derivative, :as_png]
-  # !! ALL images returned via the API must include some attribution !!
-  before_action :set_required_attributed_image, if: -> {
+
+  # Looks up @image for any api_ action keyed by :id/:sha; 404s if it can't be found.
+  before_action :set_api_image, if: -> {
     action_name.start_with?('api_') && (params[:id].present? || params[:sha].present?)
   }
+
+  # !! Image bytes returned via the API must include some attribution !!
+  # (api_show/api_image_show_sha describe the image without this block; they redact
+  # links instead, see /images/api/v1/_attributes.json.jbuilder)
+  before_action :require_attributed_image, only: [:api_image_file_sha, :api_scale_to_box, :api_scale_to_box_sha, :api_as_png]
 
   # GET /images
   # GET /images.json
@@ -47,6 +53,7 @@ class ImagesController < ApplicationController
   def api_index
     @images = Queries::Image::Filter.new(params.merge!(api: true)).all
       .where(project_id: sessions_current_project_id)
+      .includes(:attribution)
       .page(params[:page]).per(params[:per])
     render '/images/api/v1/index'
   end
@@ -229,11 +236,13 @@ class ImagesController < ApplicationController
 
   private
 
-  def set_required_attributed_image
+  def set_api_image
     @image = find_api_image
 
-    return render plain: 'Not found. You may need to add a &project_token= param to the URL currently in your address bar to access these data. See https://api.taxonworks.org/ for more.', status: :not_found if @image.nil?
+    render plain: 'Not found. You may need to add a &project_token= param to the URL currently in your address bar to access these data. See https://api.taxonworks.org/ for more.', status: :not_found if @image.nil?
+  end
 
+  def require_attributed_image
     render_unattributed_image unless @image.attributed?
   end
 
@@ -257,7 +266,7 @@ class ImagesController < ApplicationController
   end
 
   def render_unattributed_image
-    render plain: 'Image is not accessible via the API because it lacks attribution. See https://api.taxonworks.org/ for more.', status: :forbidden
+    render plain: 'Image is not accessible via the API because it lacks attribution.', status: :forbidden
   end
 
   def set_image
