@@ -471,7 +471,7 @@ describe ImagesController, type: :controller do
           }, session: valid_session
 
           expect(response).to have_http_status(:not_found)
-          expect(response.body).to include('Image not found')
+          expect(response.body).to include('project_token')
         end
       end
     end
@@ -558,6 +558,13 @@ describe ImagesController, type: :controller do
           get :api_as_png, params: {id: image.to_param}, session: valid_session
           expect(response).to have_http_status(:forbidden)
           expect(response.body).to include('lacks attribution')
+        end
+      end
+
+      context 'with invalid id' do
+        it 'returns 404 not found' do
+          get :api_as_png, params: {id: -1}, session: valid_session
+          expect(response).to have_http_status(:not_found)
         end
       end
     end
