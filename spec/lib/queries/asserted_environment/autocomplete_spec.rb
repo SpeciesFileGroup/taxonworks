@@ -45,4 +45,41 @@ describe Queries::AssertedEnvironment::Autocomplete, type: :model do
     query = Queries::AssertedEnvironment::Autocomplete.new('forest', project_id: a.project_id)
     expect(query.autocomplete.map(&:id)).to contain_exactly(a.id)
   end
+
+  # Matching through the object's own label - delegates to that object's own
+  # Autocomplete class (Queries::CollectingEvent::Autocomplete,
+  # Queries::Otu::Autocomplete, Queries::Gazetteer::Autocomplete), so this
+  # picks up whatever those already match on, not a hand-rolled subset.
+  specify 'matches by Otu#name, via Queries::Otu::Autocomplete' do
+    otu = FactoryBot.create(:valid_otu, name: 'Uniquotu name Foo')
+    ae = FactoryBot.create(:asserted_environment, uri_label: 'planned burn', asserted_environment_object: otu)
+
+    r = described_class.new('Uniquotu', project_id: ae.project_id).autocomplete
+    expect(r).to include(ae)
+  end
+
+  specify 'matches by Otu taxon_name, via Queries::Otu::Autocomplete' do
+    tn = FactoryBot.create(:relationship_species, name: 'uniquespecialis')
+    otu = FactoryBot.create(:valid_otu, taxon_name: tn, name: nil)
+    ae = FactoryBot.create(:asserted_environment, uri_label: 'planned burn', asserted_environment_object: otu)
+
+    r = described_class.new('uniquespecialis', project_id: ae.project_id).autocomplete
+    expect(r).to include(ae)
+  end
+
+  specify 'matches by Gazetteer#name, via Queries::Gazetteer::Autocomplete' do
+    gaz = FactoryBot.create(:valid_gazetteer, name: 'Uniquegaz Land')
+    ae = FactoryBot.create(:asserted_environment, uri_label: 'planned burn', asserted_environment_object: gaz)
+
+    r = described_class.new('Uniquegaz', project_id: ae.project_id).autocomplete
+    expect(r).to include(ae)
+  end
+
+  specify 'matches by CollectingEvent, via Queries::CollectingEvent::Autocomplete' do
+    ce = FactoryBot.create(:valid_collecting_event, verbatim_locality: 'Zzyzx Preserve')
+    ae = FactoryBot.create(:asserted_environment, uri_label: 'planned burn', asserted_environment_object: ce)
+
+    r = described_class.new('Zzyzx', project_id: ae.project_id).autocomplete
+    expect(r).to include(ae)
+  end
 end

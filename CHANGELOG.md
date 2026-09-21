@@ -12,6 +12,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Autocomplete for Organization
 - `/api/v1/alternate_values` and `/api/v1/alternate_values/<id>` endpoints
 - Adds extend[]=citations to /api/v1/common_names endpoint
+- Asserted Environments (with terms from the ENVO ontology) for Collecting Events, Gazetteers, and OTUs [#114]
 
 ### Changed
 
@@ -23,6 +24,8 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - `controlled_vocabulary_term_id` param is not working on the controlled vocabulary terms endpoint
 - `New taxon name`: browser back/forward buttons left the form out of sync with the URL
 - `New taxon name`: returning with the browser back button from "Add new source" left the task with no taxon loaded
+
+[#114]: https://github.com/SpeciesFileGroup/taxonworks/issues/114
 
 ## [0.65.0] - 2026-09-04
 
