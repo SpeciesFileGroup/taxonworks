@@ -19,8 +19,8 @@ RSpec.describe Autoselect::AssertedEnvironment::Autoselect, type: :model do
       expect(config[:response]).to be_nil
     end
 
-    it 'includes fast, envo as level keys in map' do
-      expect(config[:map]).to eq(%w[fast envo])
+    it 'includes fast, smart, envo as level keys in map' do
+      expect(config[:map]).to eq(%w[fast smart envo])
     end
 
     describe 'level metadata' do
@@ -41,9 +41,14 @@ RSpec.describe Autoselect::AssertedEnvironment::Autoselect, type: :model do
       end
     end
 
-    it 'excludes record-list and new-record operators' do
+    it 'excludes only the new-record operator (no standalone create form)' do
       keys = config[:operators].map { |o| o[:key] }
-      expect(keys).not_to include('recent_mine', 'recent', 'pinboard', 'pinboard_top', 'new_record')
+      expect(keys).not_to include('new_record')
+    end
+
+    it 'keeps the record-list operators (Levels::Smart backs them via Queries::AssertedEnvironment::Filter)' do
+      keys = config[:operators].map { |o| o[:key] }
+      expect(keys).to include('recent_mine', 'recent', 'pinboard', 'pinboard_top')
     end
 
     it 'keeps the generically-useful operators' do
@@ -82,6 +87,11 @@ RSpec.describe Autoselect::AssertedEnvironment::Autoselect, type: :model do
       expect(item[:response_values]).to eq(uri: asserted_environment.uri, uri_label: asserted_environment.uri_label)
     end
 
+    it 'info_html shows the ENVO local id, not the full PURL' do
+      item = result[:response].first
+      expect(item[:info_html]).to eq('ENVO_00002007')
+    end
+
     it 'extension is empty' do
       expect(result[:response].first[:extension]).to eq({})
     end
@@ -100,8 +110,8 @@ RSpec.describe Autoselect::AssertedEnvironment::Autoselect, type: :model do
         expect(result[:response]).to eq([])
       end
 
-      it 'next_level is envo' do
-        expect(result[:next_level]).to eq('envo')
+      it 'next_level is smart' do
+        expect(result[:next_level]).to eq('smart')
       end
     end
   end
@@ -130,15 +140,19 @@ RSpec.describe Autoselect::AssertedEnvironment::Autoselect, type: :model do
       expect(result[:response].first[:extension]).to eq({})
     end
 
+    it 'info_html shows the ENVO local id, not the full PURL' do
+      expect(result[:response].first[:info_html]).to eq('ENVO_00002007')
+    end
+
     it 'label_html includes the description' do
       expect(result[:response].first[:label_html]).to include('A forest biome.')
     end
   end
 
   describe 'level stack' do
-    it 'has fast then envo, in that order' do
+    it 'has fast, then smart, then envo, in that order' do
       keys = autoselect.levels.map(&:key)
-      expect(keys).to eq(%i[fast envo])
+      expect(keys).to eq(%i[fast smart envo])
     end
   end
 end
@@ -170,6 +184,43 @@ RSpec.describe Autoselect::AssertedEnvironment::Levels::Fast, type: :model do
 
     results = level.call(term: 'temperate', project_id: a.project_id)
     expect(results.map(&:uri).uniq.length).to eq(results.length)
+  end
+end
+
+RSpec.describe Autoselect::AssertedEnvironment::Levels::Smart, type: :model do
+  let(:level) { described_class.new }
+
+  it 'is not external' do
+    expect(level.external?).to be false
+  end
+
+  it 'delegates to Queries::AssertedEnvironment::Autocomplete' do
+    expect(level.query_class).to eq(Queries::AssertedEnvironment::Autocomplete)
+  end
+
+  it 'matches uri_label anywhere, not just as a prefix (unlike Fast)' do
+    a = FactoryBot.create(:valid_asserted_environment, uri_label: 'planned burn')
+
+    results = level.call(term: 'burn', project_id: a.project_id)
+    expect(results.map(&:id)).to include(a.id)
+  end
+
+  it 'matches via the asserted object\'s own label' do
+    ce = FactoryBot.create(:valid_collecting_event, verbatim_locality: 'Zzyzx Preserve')
+    a = FactoryBot.create(:asserted_environment, uri_label: 'planned burn', asserted_environment_object: ce)
+
+    results = level.call(term: 'Zzyzx', project_id: a.project_id)
+    expect(results.map(&:id)).to include(a.id)
+  end
+
+  it 'the :recent operator is scoped to the last week (Queries::Concerns::Users, via the Filter base)' do
+    recent = FactoryBot.create(:valid_asserted_environment)
+    old = FactoryBot.create(:valid_asserted_environment, project: recent.project)
+    old.update_column(:updated_at, 2.weeks.ago)
+
+    results = level.call(term: '', operator: :recent, project_id: recent.project_id, user_id: 1)
+    expect(results).to include(recent)
+    expect(results).not_to include(old)
   end
 end
 

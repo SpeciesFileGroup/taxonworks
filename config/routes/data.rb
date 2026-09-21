@@ -72,6 +72,7 @@ end
 resources :asserted_environments do
   collection do
     get :list
+    get :download
     get :search
     get :autocomplete, defaults: {format: :json}
     get :autoselect, defaults: {format: :json}

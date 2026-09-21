@@ -94,4 +94,16 @@ describe Vendor::Envo, type: :model do
       expect(described_class.valid_uri?('')).to be_falsey
     end
   end
+
+  # ── local_id ──────────────────────────────────────────────────────────────────
+
+  describe '.local_id' do
+    it 'returns the local id portion of a well-formed ENVO OBO Library PURL' do
+      expect(described_class.local_id('http://purl.obolibrary.org/obo/ENVO_00002007')).to eq('ENVO_00002007')
+    end
+
+    it 'is nil for nil' do
+      expect(described_class.local_id(nil)).to be_nil
+    end
+  end
 end

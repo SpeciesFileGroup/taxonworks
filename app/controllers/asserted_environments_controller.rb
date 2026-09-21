@@ -39,6 +39,14 @@ class AssertedEnvironmentsController < ApplicationController
       .page(params[:page])
   end
 
+  # GET /asserted_environments/download
+  def download
+    send_data(
+      Export::CSV.generate_csv(AssertedEnvironment.where(project_id: sessions_current_project_id)),
+      type: 'text',
+      filename: "asserted_environments_#{DateTime.now}.tsv")
+  end
+
   # GET /asserted_environments/new
   #   There is no standalone create form - see new.html.erb.
   def new

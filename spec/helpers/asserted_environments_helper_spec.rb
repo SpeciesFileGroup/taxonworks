@@ -21,7 +21,7 @@ describe AssertedEnvironmentsHelper, type: :helper do
   end
 
   specify '#asserted_environment_autoselect_info' do
-    expect(helper.asserted_environment_autoselect_info(asserted_environment)).to eq(['http://purl.obolibrary.org/obo/ENVO_00002007'])
+    expect(helper.asserted_environment_autoselect_info(asserted_environment)).to eq(['ENVO_00002007'])
   end
 
 end

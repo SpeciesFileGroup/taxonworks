@@ -20,7 +20,7 @@ module AssertedEnvironmentsHelper
   end
 
   def asserted_environment_autoselect_info(asserted_environment)
-    [asserted_environment.uri]
+    [Vendor::Envo.local_id(asserted_environment.uri)]
   end
 
   def asserted_environments_search_form

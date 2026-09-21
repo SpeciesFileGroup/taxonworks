@@ -48,7 +48,7 @@ module Autoselect
         end
 
         def record_info(record)
-          [record.uri]
+          [::Vendor::Envo.local_id(record.uri)]
         end
 
       end

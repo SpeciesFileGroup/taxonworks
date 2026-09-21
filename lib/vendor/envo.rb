@@ -31,5 +31,14 @@ module Vendor
     def self.valid_uri?(uri)
       uri.present? && URI_PATTERN.match?(uri)
     end
+
+    # PURL_PREFIX is fixed by URI_PATTERN (and enforced by valid_uri? on every
+    # AssertedEnvironment#uri), so the local id is always the final path
+    # segment - safe to display in place of the full PURL.
+    # @param uri [String, nil] a well-formed ENVO OBO Library PURL
+    # @return [String, nil] the local id, e.g. "ENVO_00002007"
+    def self.local_id(uri)
+      uri&.split('/')&.last
+    end
   end
 end
