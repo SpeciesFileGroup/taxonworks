@@ -244,7 +244,11 @@ class ImagesController < ApplicationController
     return scope.find_by(image_file_fingerprint: params[:sha]) if params[:sha].present?
 
     if action_name == 'api_show'
-      params[:id] =~ (/\A\d+\z/) ? scope.find_by(id: params[:id]) : scope.find_by(image_file_fingerprint: params[:id])
+      if params[:id].to_s.length < 32 && params[:id] =~ (/\A\d+\z/)
+        scope.find_by(id: params[:id])
+      elsif params[:id].to_s.length == 32
+        scope.find_by(image_file_fingerprint: params[:id])
+      end
     else
       scope.find_by(id: params[:id])
     end
