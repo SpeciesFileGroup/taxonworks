@@ -8,6 +8,7 @@ const ActionNames = {
   LoadFieldOccurrences: 'loadFieldOccurrences',
   LoadPreferences: 'loadPreferences',
   LoadAssertedDistributions: 'loadAssertedDistributions',
+  LoadAssertedEnvironments: 'loadAssertedEnvironments',
   LoadDescendants: 'loadDescendants',
   LoadTaxonName: 'loadTaxonName',
   LoadObservationDepictions: 'loadObservationDepictions',

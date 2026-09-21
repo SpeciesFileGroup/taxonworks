@@ -41,9 +41,10 @@ module Queries
     SUBQUERIES = {
       anatomical_part: [:collection_object, :field_occurrence, :otu, :observation, :extract, :sound, :biological_association],
       asserted_distribution: [:source, :otu, :biological_association, :taxon_name, :dwc_occurrence, :observation],
+      asserted_environment: [:collecting_event, :otu],
       biological_association: [:source, :collecting_event, :otu, :collection_object, :field_occurrence, :taxon_name, :asserted_distribution, :anatomical_part],
       biological_associations_graph: [:biological_association, :source],
-      collecting_event: [:source, :collection_object, :field_occurrence, :biological_association, :otu, :image, :taxon_name, :dwc_occurrence],
+      collecting_event: [:source, :collection_object, :field_occurrence, :biological_association, :otu, :image, :taxon_name, :dwc_occurrence, :asserted_environment],
       collection_object: [:source, :loan, :otu, :taxon_name, :collecting_event, :biological_association, :extract, :image, :observation, :dwc_occurrence, :anatomical_part],
       content: [:source, :otu, :taxon_name, :image],
       conveyance: [:sound],
@@ -57,7 +58,7 @@ module Queries
       image: [:content, :collection_object, :collecting_event, :field_occurrence, :otu, :observation, :source, :taxon_name ],
       loan: [:collection_object, :otu],
       observation: [:asserted_distribution, :collection_object, :descriptor, :extract, :field_occurrence, :image, :otu, :sound, :source, :taxon_name, :anatomical_part],
-      otu: [:asserted_distribution, :biological_association, :collection_object, :dwc_occurrence, :field_occurrence, :collecting_event, :content, :descriptor, :extract, :image, :loan, :observation, :source, :taxon_name, :anatomical_part, :sound ],
+      otu: [:asserted_distribution, :biological_association, :collection_object, :dwc_occurrence, :field_occurrence, :collecting_event, :content, :descriptor, :extract, :image, :loan, :observation, :source, :taxon_name, :anatomical_part, :sound, :asserted_environment ],
       person: [],
       source: [:asserted_distribution,  :biological_association, :collecting_event, :collection_object, :content, :descriptor, :extract, :image, :observation, :otu, :taxon_name, :taxon_name_relationship],
       sound: [:observation, :anatomical_part, :otu, :taxon_name],
@@ -93,6 +94,7 @@ module Queries
     FILTER_QUERIES = {
       anatomical_part_query: '::Queries::AnatomicalPart::Filter',
       asserted_distribution_query: '::Queries::AssertedDistribution::Filter',
+      asserted_environment_query: '::Queries::AssertedEnvironment::Filter',
       biological_association_query: '::Queries::BiologicalAssociation::Filter',
       biological_associations_graph_query: '::Queries::BiologicalAssociationsGraph::Filter',
       collecting_event_query: '::Queries::CollectingEvent::Filter',
@@ -158,6 +160,9 @@ module Queries
 
     # @return [Query::AssertedDistribution::Filter, nil]
     attr_accessor :asserted_distribution_query
+
+    # @return [Query::AssertedEnvironment::Filter, nil]
+    attr_accessor :asserted_environment_query
 
     # @return [Query::BiologicalAssociation::Filter, nil]
     attr_accessor :biological_association_query

@@ -29,11 +29,14 @@ class Gazetteer < ApplicationRecord
   include Shared::Notes
   include Shared::DataAttributes
   include Shared::AlternateValues
+  include Shared::AssertedEnvironments
   include Shared::IsData
 
   attr_accessor :geographic_item_id_for_cleanup
 
   ALTERNATE_VALUES_FOR = [:name].freeze
+
+  GRAPH_ENTRY_POINTS = [:asserted_environments].freeze
 
   GZ_DATA_ORIGIN = 'TaxonWorks Gazetteer'.freeze
 

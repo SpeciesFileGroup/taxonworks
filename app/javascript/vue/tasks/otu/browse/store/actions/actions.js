@@ -8,6 +8,7 @@ import loadDistribution from './loadDistribution'
 import loadFieldOccurrences from './loadFieldOccurrences'
 import loadPreferences from './loadPreferences'
 import loadAssertedDistributions from './loadAssertedDistributions'
+import loadAssertedEnvironments from './loadAssertedEnvironments'
 import loadDescendants from './loadDescendants'
 import loadTaxonName from './loadTaxonName'
 import loadObservationDepictions from './loadObservationDepictions'
@@ -16,6 +17,7 @@ import resetStore from './resetStore'
 
 const ActionFunctions = {
   [ActionNames.LoadAssertedDistributions]: loadAssertedDistributions,
+  [ActionNames.LoadAssertedEnvironments]: loadAssertedEnvironments,
   [ActionNames.LoadBiologicalAssociations]: loadBiologicalAssociations,
   [ActionNames.LoadConveyances]: loadConveyances,
   [ActionNames.LoadCommonNames]: loadCommonNames,

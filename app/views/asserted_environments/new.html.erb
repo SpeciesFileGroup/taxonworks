@@ -1,0 +1,17 @@
+<h1>New asserted environment</h1>
+
+<em class="notice">
+  Asserted environments can only be created from the object the environment is
+  to be associated with.
+</em>
+
+<ul>
+  <% ENVIRONMENT_ASSERTABLE_TYPES.sort.each do |type| -%>
+    <li>
+      <%= type.underscore.humanize %>:
+      <%= link_to 'Find', url_for(controller: type.tableize, action: :index) %>
+      |
+      <%= link_to 'Create new', url_for(controller: type.tableize, action: :new) %>
+    </li>
+  <% end -%>
+</ul>

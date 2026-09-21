@@ -3,6 +3,15 @@ require 'rails_helper'
 RSpec.describe Gazetteer, type: :model, group: [:geo, :shared_geo] do
   let(:gz) { FactoryBot.build(:valid_gazetteer) }
 
+  specify '#GRAPH_ENTRY_POINTS includes asserted_environments (radial/graph metadata badge)' do
+    expect(Gazetteer::GRAPH_ENTRY_POINTS).to include(:asserted_environments)
+  end
+
+  specify '#asserted_environments is queryable via a GRAPH_ENTRY_POINTS-listed association' do
+    g = FactoryBot.create(:valid_gazetteer)
+    expect(g.asserted_environments.count).to eq(0)
+  end
+
   context 'creation' do
     context 'validation' do
       let!(:gz) { Gazetteer.new}

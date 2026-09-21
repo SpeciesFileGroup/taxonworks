@@ -33,7 +33,7 @@ module FieldOccurrence::DwcExtensions
       maximumElevationInMeters: :dwc_maximum_elevation_in_meters,
       minimumElevationInMeters: :dwc_minimum_elevation_in_meters,
       samplingProtocol: :dwc_sampling_protocol,
-      habitat: :dwc_verbatim_habitat,
+      habitat: :dwc_habitat,
       verbatimElevation: :dwc_verbatim_elevation,
       verbatimEventDate: :dwc_verbatim_event_date,
       verbatimLocality: :dwc_verbatim_locality,
