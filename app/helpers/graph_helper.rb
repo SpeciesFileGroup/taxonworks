@@ -66,6 +66,8 @@ module GraphHelper
       biological_association_graph(object).to_json
     when 'AssertedEnvironment'
       asserted_environment_graph(object).to_json
+    when 'Gazetteer'
+      gazetteer_graph(object).to_json
     else
       g = Export::Graph.new( object: )
       g.to_json
@@ -172,6 +174,21 @@ module GraphHelper
     g = initialize_graph(graph, a, target)
 
     g.add(a.asserted_environment_object, a)
+
+    g
+  end
+
+  def gazetteer_graph(gazetteer, graph: nil, target: nil, asserted_environments: true)
+    z = gazetteer
+    return nil if z.nil?
+
+    g = initialize_graph(graph, z, target)
+
+    if asserted_environments
+      z.asserted_environments.each do |a|
+        g.add(a, z)
+      end
+    end
 
     g
   end

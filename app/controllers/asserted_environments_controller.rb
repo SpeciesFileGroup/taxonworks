@@ -1,7 +1,9 @@
 class AssertedEnvironmentsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_asserted_environment, only: [:show, :edit, :update, :destroy]
+  # No update - AssertedEnvironments are only ever created or destroyed, never
+  # edited in place.
+  before_action :set_asserted_environment, only: [:show, :edit, :destroy]
   after_action -> { set_pagination_headers(:asserted_environments) }, only: [:index], if: :json_request?
 
   # GET /asserted_environments or /asserted_environments.json
@@ -29,33 +31,28 @@ class AssertedEnvironmentsController < ApplicationController
   end
 
   # GET /asserted_environments/list
-  #   The Filter task (see the "asserted_environments/filter" task) covers
-  #   faceted browsing and download - this is the plain sortable-table list
-  #   every Data model gets.
   def list
     @asserted_environments = AssertedEnvironment
       .where(project_id: sessions_current_project_id)
-      .order(:cached, :id)
+      .order(:id)
       .page(params[:page])
   end
 
   # GET /asserted_environments/download
   def download
     send_data(
-      Export::CSV.generate_csv(AssertedEnvironment.where(project_id: sessions_current_project_id)),
+      Export::CSV.generate_csv(
+        AssertedEnvironment.where(project_id: sessions_current_project_id)
+      ),
       type: 'text',
       filename: "asserted_environments_#{DateTime.now}.tsv")
   end
 
   # GET /asserted_environments/new
-  #   There is no standalone create form - see new.html.erb.
   def new
   end
 
   # GET /asserted_environments/1/edit
-  #   AssertedEnvironment can only be updated from its object's own radial
-  #   menu (its ENVO term must come from an autoselect/autocomplete, and its
-  #   object can not be changed) - see edit.html.erb.
   def edit
   end
 
@@ -65,15 +62,6 @@ class AssertedEnvironmentsController < ApplicationController
 
     if @asserted_environment.save
       render :show, status: :created, location: @asserted_environment
-    else
-      render json: @asserted_environment.errors, status: :unprocessable_content
-    end
-  end
-
-  # PATCH/PUT /asserted_environments/1.json
-  def update
-    if @asserted_environment.update(asserted_environment_params)
-      render :show, status: :ok, location: @asserted_environment
     else
       render json: @asserted_environment.errors, status: :unprocessable_content
     end
@@ -89,7 +77,7 @@ class AssertedEnvironmentsController < ApplicationController
   end
 
   # GET /asserted_environments/search
-  #   TODO: deprecate, see other *_controller#search
+  #   Target of the quick search form (see _quick_search_form.html.erb).
   def search
     if params[:id].blank?
       redirect_to asserted_environments_path,

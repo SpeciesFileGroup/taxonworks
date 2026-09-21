@@ -15,8 +15,12 @@ module AssertedEnvironmentsHelper
     ]))
   end
 
-  def asserted_environment_autoselect_tag(asserted_environment, term = nil)
+  def asserted_environment_autocomplete_tag(asserted_environment, term = nil)
     mark_tag(asserted_environment_tag(asserted_environment), term)
+  end
+
+  def asserted_environment_autoselect_tag(asserted_environment, term = nil)
+    asserted_environment_autocomplete_tag(asserted_environment, term)
   end
 
   def asserted_environment_autoselect_info(asserted_environment)

@@ -6,7 +6,7 @@
     <table-display
       v-if="assertedEnvironments.length"
       :list="assertedEnvironments"
-      :header="['Environment']"
+      :header="['Environment', '']"
       :destroy="false"
       :attributes="['uri_label']"
     />

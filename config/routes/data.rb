@@ -69,7 +69,7 @@ resources :asserted_distributions do
   resources :origin_relationships, shallow: true, only: [:index], defaults: {format: :json}
 end
 
-resources :asserted_environments do
+resources :asserted_environments, except: [:update] do
   collection do
     get :list
     get :download
