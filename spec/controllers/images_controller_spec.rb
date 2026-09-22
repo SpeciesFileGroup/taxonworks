@@ -607,3 +607,24 @@ describe ImagesController, type: :controller do
   end
   # rubocop:enable Style/StringHashKeys
 end
+
+describe 'ImagesController api_ action coverage for set_api_image' do
+  # Every `api_` action defined on ImagesController must be accounted for here: either it
+  # looks up a single Image via `set_api_image` (belongs in
+  # ImagesController::API_SINGLE_IMAGE_ACTIONS) or it's a listing/batch action that
+  # legitimately has no single Image to look up (belongs in BATCH_API_ACTIONS below).
+  #
+  # This spec fails on any new `api_` action until it's been deliberately added to one of
+  # those two lists - see the comment above ImagesController::API_SINGLE_IMAGE_ACTIONS.
+  BATCH_API_ACTIONS = %i[
+    api_index
+    api_image_inventory
+  ].freeze
+
+  it 'accounts for every api_ action with either single-image or batch handling' do
+    all_api_actions = ImagesController.instance_methods(false).grep(/\Aapi_/)
+    accounted_for_actions = ImagesController::API_SINGLE_IMAGE_ACTIONS + BATCH_API_ACTIONS
+
+    expect(all_api_actions.sort).to eq(accounted_for_actions.sort)
+  end
+end

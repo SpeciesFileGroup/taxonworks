@@ -4,10 +4,21 @@ class ImagesController < ApplicationController
 
   before_action :set_image, only: [:show, :edit, :update, :destroy, :rotate, :regenerate_derivative, :as_png]
 
-  # Looks up @image for any api_ action keyed by :id/:sha; 404s if it can't be found.
-  before_action :set_api_image, if: -> {
-    action_name.start_with?('api_') && (params[:id].present? || params[:sha].present?)
-  }
+  # `api_` actions that look up a single Image by :id/:sha via `set_api_image`.
+  # !! spec/controllers/images_controller_spec.rb asserts every api_ action on this
+  # controller is either listed here or in that spec's exception list; a new api_
+  # action fails that spec until it's deliberately added to one or the other. !!
+  API_SINGLE_IMAGE_ACTIONS = %i[
+    api_show
+    api_image_file_sha
+    api_image_show_sha
+    api_scale_to_box
+    api_scale_to_box_sha
+    api_as_png
+  ].freeze
+
+  # Looks up @image for the actions above; 404s if it can't be found.
+  before_action :set_api_image, only: API_SINGLE_IMAGE_ACTIONS
 
   # !! Image bytes returned via the API must include some attribution !!
   # (api_show/api_image_show_sha describe the image without this block; they redact
