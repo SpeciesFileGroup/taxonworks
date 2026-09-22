@@ -24,8 +24,10 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - `controlled_vocabulary_term_id` param is not working on the controlled vocabulary terms endpoint
 - `New taxon name`: browser back/forward buttons left the form out of sync with the URL
 - `New taxon name`: returning with the browser back button from "Add new source" left the task with no taxon loaded
+- Fix error when searching Catalogue of Life level of OTU and Taxon Name autoselects [#5097]
 
 [#114]: https://github.com/SpeciesFileGroup/taxonworks/issues/114
+[#5097]: https://github.com/SpeciesFileGroup/taxonworks/issues/5097
 
 ## [0.65.0] - 2026-09-04
 
