@@ -88,21 +88,21 @@ module ImagesHelper
   UNATTRIBUTED_IMAGE_MESSAGE =
     'Image is not accessible via the API because it lacks attribution.'
 
-  # The single source of truth for what an Image looks like in an API response:
-  # real file URLs when attributed, a redaction message when not. Used everywhere
-  # an Image (or a Depiction's image) is serialized for the API - merge the result
-  # in and add whatever context-specific fields the caller needs on top.
+  # The single source of truth for what an Image looks like when serialized.
   #
+  # @param api [Boolean] true (default) if this is served through the actual
+  #   /api/v1/ surface: gates on attribution (real URLs when attributed, a
+  #   redaction message when not) and uses /api/v1/ URL prefixes.
   # @return Hash
-  def image_api_attributes(image, api: true)
+  def image_attributes(image, api: true)
     return {
       attributed: false,
       content_type: image.image_file_content_type,
       message: UNATTRIBUTED_IMAGE_MESSAGE
-    } unless image.attributed?
+    } if api && !image.attributed?
 
     {
-      attributed: true,
+      attributed: image.attributed?,
       content_type: image.image_file_content_type,
       image_file_file_name: image.image_file_file_name,
       original: short_url(image.image_file),
@@ -144,7 +144,7 @@ module ImagesHelper
     r = {}
 
     images.values.each do |i|
-      p = image_api_attributes(i, api:).merge(depictions: [])
+      p = image_attributes(i, api:).merge(depictions: [])
 
       if i.source
         p[:source] = {

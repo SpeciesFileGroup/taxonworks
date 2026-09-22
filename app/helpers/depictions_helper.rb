@@ -66,7 +66,7 @@ module DepictionsHelper
       caption: depiction.caption,
       figure_label: depiction.figure_label,
       position: depiction.position
-    }.merge(image_api_attributes(depiction.image, api:))
+    }.merge(image_attributes(depiction.image, api:))
   end
 
   # @return !!Array!!
