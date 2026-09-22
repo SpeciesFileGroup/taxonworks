@@ -52,10 +52,13 @@ class DepictionsController < ApplicationController
     @depictions = Queries::Depiction::Filter.new(params.merge!(api: true)).all
       .where(project_id: sessions_current_project_id)
       .eager_load(image: [:attribution])
-      .where.not(attributions: { id: nil }) # Images without attribution are not exposed via the API.
       .order('depictions.depiction_object_type, depictions.depiction_object_id, depictions.position')
-      .page(params[:page])
-      .per(params[:per])
+
+    # Unattributed images are always redacted (see _gallery_item.json.jbuilder); this additionally
+    # drops them from the response entirely, for clients that can't handle a missing image gracefully.
+    @depictions = @depictions.where.not(attributions: { id: nil }) if params[:only_attributed_images] == 'true'
+
+    @depictions = @depictions.page(params[:page]).per(params[:per])
     render '/depictions/api/v1/gallery'
   end
 

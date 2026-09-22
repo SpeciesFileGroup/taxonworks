@@ -117,12 +117,18 @@ module ImagesHelper
 
     images.values.each do |i|
       p = {
-        original_png: original_as_scaled_png_via_api(i, api:),
+        attributed: i.attributed?,
         content_type: i.image_file_content_type,
-        thumb: short_url(i.image_file.url(:thumb)),
-        medium: short_url(i.image_file.url(:medium)),
         depictions: []
       }
+
+      if i.attributed?
+        p[:original_png] = original_as_scaled_png_via_api(i, api:)
+        p[:thumb] = short_url(i.image_file.url(:thumb))
+        p[:medium] = short_url(i.image_file.url(:medium))
+      else
+        p[:message] = 'Image is not accessible via the API because it lacks attribution. See https://api.taxonworks.org/ for more.'
+      end
 
       if i.source
         p[:source] = {

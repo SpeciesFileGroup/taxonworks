@@ -54,7 +54,13 @@ class ImagesController < ApplicationController
     @images = Queries::Image::Filter.new(params.merge!(api: true)).all
       .where(project_id: sessions_current_project_id)
       .includes(:attribution)
-      .page(params[:page]).per(params[:per])
+
+    # Unattributed images are always redacted (see /images/api/v1/_attributes.json.jbuilder); this
+    # additionally drops them from the response entirely, for clients that can't handle a missing
+    # image gracefully.
+    @images = @images.with_attribution if params[:only_attributed_images] == 'true'
+
+    @images = @images.page(params[:page]).per(params[:per])
     render '/images/api/v1/index'
   end
 
