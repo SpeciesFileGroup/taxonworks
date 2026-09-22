@@ -155,7 +155,11 @@ module LeadsHelper
   # @param api [Boolean] defaults false (most callers are in-app, non-/api/
   #   contexts); threaded through to depiction_to_json. #key_to_json is the
   #   one /api/v1/ caller and passes true explicitly.
-  def key_data(lead, metadata, api: false, lead_items: false, back_couplets: false)
+  # @param with_figures [Boolean] defaults false - building :figures calls
+  #   depiction_to_json per depiction, which shortens URLs (a DB write) per
+  #   image. Callers that don't read :figures (print_key_body,
+  #   print_key_table_body, print_key_markdown) shouldn't pay for it.
+  def key_data(lead, metadata, api: false, with_figures: false, lead_items: false, back_couplets: false)
     data = {}
     data[:back_couplets] = {} if back_couplets
     lead.self_and_descendants.find_each do |l|
@@ -201,7 +205,7 @@ module LeadsHelper
           )
       end
 
-      if l.depictions.load.any?
+      if with_figures && l.depictions.load.any?
         d.merge!( figures: l.depictions.order(:position).collect{|d| depiction_to_json(d, api:)}  )
       end
 
@@ -224,7 +228,7 @@ module LeadsHelper
   # front end at https://github.com/SpeciesFileGroup/pinpoint
   def key_to_json(lead)
     m = key_metadata(lead)
-    d = key_data(lead, m, api: true)
+    d = key_data(lead, m, api: true, with_figures: true)
     return {
       metadata: {
         server: root_url,
