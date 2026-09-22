@@ -51,7 +51,7 @@ class ImagesController < ApplicationController
         :otu_scope,
         otu_id: [],
         otu_scope: [])
-    ).all.page(params[:page]).per(params[:per])
+    ).all.includes(:attribution).page(params[:page]).per(params[:per])
     render '/images/api/v1/index'
   end
 

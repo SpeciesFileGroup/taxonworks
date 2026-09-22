@@ -16,8 +16,8 @@ json.attribution do
   end
 end
 
-json.figures do
-  if depiction.image.attributed?
+if depiction.image.attributed?
+  json.figures do
     json.medium depiction_tag(depiction, size: :medium)
     json.thumb depiction_tag(depiction, size: :thumb)
   end

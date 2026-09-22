@@ -42,6 +42,7 @@ class DepictionsController < ApplicationController
   def api_index
     @depictions = Queries::Depiction::Filter.new(params.merge!(api: true)).all
       .where(project_id: sessions_current_project_id)
+      .eager_load(image: [:attribution])
       .order('depictions.depiction_object_type, depictions.depiction_object_id, depictions.position')
       .page(params[:page])
       .per(params[:per])
