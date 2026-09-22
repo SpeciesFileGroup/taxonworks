@@ -286,6 +286,38 @@ describe ImagesController, type: :controller do
       end
     end
 
+    describe 'GET api_index' do
+      render_views
+
+      let(:attributed_image) { Image.create! valid_attributes }
+      let(:unattributed_image) { FactoryBot.create(:tiny_random_image) }
+
+      before do
+        FactoryBot.create(:valid_attribution, attribution_object: attributed_image)
+        unattributed_image
+      end
+
+      context 'without attributed_images_only' do
+        it 'includes both images, redacting the unattributed one' do
+          get :api_index, params: {format: :json}, session: valid_session
+          json = JSON.parse(response.body)
+          ids = json.map { |i| i['id'] }
+
+          expect(ids).to contain_exactly(attributed_image.id, unattributed_image.id)
+          expect(json.find { |i| i['id'] == unattributed_image.id }['message']).to include('lacks attribution')
+        end
+      end
+
+      context 'with attributed_images_only=true' do
+        it 'drops the unattributed image from the response entirely' do
+          get :api_index, params: {format: :json, attributed_images_only: 'true'}, session: valid_session
+          json = JSON.parse(response.body)
+
+          expect(json.map { |i| i['id'] }).to contain_exactly(attributed_image.id)
+        end
+      end
+    end
+
     describe 'GET api_show' do
       render_views
 

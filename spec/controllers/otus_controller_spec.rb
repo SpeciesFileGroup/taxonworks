@@ -70,6 +70,36 @@ describe OtusController, type: :controller do
     end
   end
 
+  describe 'GET api_image_inventory' do
+    render_views
+
+    let(:otu) { Otu.create! valid_attributes }
+    let!(:attributed_depiction) { FactoryBot.create(:valid_depiction, depiction_object: otu) }
+    let!(:unattributed_depiction) { FactoryBot.create(:valid_depiction, depiction_object: otu) }
+
+    before { FactoryBot.create(:valid_attribution, attribution_object: attributed_depiction.image) }
+
+    context 'without attributed_images_only' do
+      it 'includes both images, redacting the unattributed one' do
+        get :api_image_inventory, params: {otu_id: otu.id, format: :json}, session: valid_session
+        json = JSON.parse(response.body)
+        ids = json['images'].keys.map(&:to_i)
+
+        expect(ids).to contain_exactly(attributed_depiction.image_id, unattributed_depiction.image_id)
+      end
+    end
+
+    context 'with attributed_images_only=true' do
+      it 'drops the unattributed image from the response entirely' do
+        get :api_image_inventory, params: {otu_id: otu.id, format: :json, attributed_images_only: 'true'}, session: valid_session
+        json = JSON.parse(response.body)
+        ids = json['images'].keys.map(&:to_i)
+
+        expect(ids).to contain_exactly(attributed_depiction.image_id)
+      end
+    end
+  end
+
   describe 'GET edit' do
     it 'assigns the requested otu as @otu' do
       otu = Otu.create! valid_attributes

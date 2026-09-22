@@ -68,7 +68,7 @@ class ImagesController < ApplicationController
       .where(project_id: sessions_current_project_id)
       .includes(:attribution)
 
-    @images = @images.with_attribution if params[:only_attributed_images] == 'true'
+    @images = @images.with_attribution if params[:attributed_images_only] == 'true'
 
     @images = @images.page(params[:page]).per(params[:per])
     render '/images/api/v1/index'

@@ -55,7 +55,7 @@ class DepictionsController < ApplicationController
       .eager_load(image: [:attribution])
       .order('depictions.depiction_object_type, depictions.depiction_object_id, depictions.position')
 
-    if params[:only_attributed_images] == 'true'
+    if params[:attributed_images_only] == 'true'
       @depictions = @depictions.where.not(attributions: { id: nil })
     end
 
