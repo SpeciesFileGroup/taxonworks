@@ -58,25 +58,11 @@ module DepictionsHelper
   def depiction_to_json(depiction)
     return nil if depiction.nil?
 
-    image = depiction.image
-
-    a = {
+    {
       caption: depiction.caption,
       figure_label: depiction.figure_label,
-      position: depiction.position,
-      content_type: image.image_file_content_type,
-      attributed: image.attributed?
-    }
-
-    if image.attributed?
-      a[:thumb] = short_url(image.image_file.url(:thumb))
-      a[:medium] = short_url(image.image_file.url(:medium))
-      a[:original_png] = original_as_scaled_png_via_api(image)
-    else
-      a[:message] = 'Image is not accessible via the API because it lacks attribution. See https://api.taxonworks.org/ for more.'
-    end
-
-    a
+      position: depiction.position
+    }.merge(image_api_attributes(depiction.image))
   end
 
   # @return !!Array!!

@@ -85,6 +85,34 @@ module ImagesHelper
     end
   end
 
+  UNATTRIBUTED_IMAGE_MESSAGE =
+    'Image is not accessible via the API because it lacks attribution.'
+
+  # The single source of truth for what an Image looks like in an API response:
+  # real file URLs when attributed, a redaction message when not. Used everywhere
+  # an Image (or a Depiction's image) is serialized for the API - merge the result
+  # in and add whatever context-specific fields the caller needs on top.
+  #
+  # @return Hash
+  def image_api_attributes(image, api: true)
+    return {
+      attributed: false,
+      content_type: image.image_file_content_type,
+      message: UNATTRIBUTED_IMAGE_MESSAGE
+    } unless image.attributed?
+
+    {
+      attributed: true,
+      content_type: image.image_file_content_type,
+      image_file_file_name: image.image_file_file_name,
+      original: short_url(image.image_file),
+      thumb: short_url(image.image_file.url(:thumb)),
+      medium: short_url(image.image_file.url(:medium)),
+      original_png: original_as_scaled_png_via_api(image, api:),
+      as_png: original_as_png_via_api(image, api:)
+    }
+  end
+
   # Integrate images and Depictions for concise, Otu-based responses
   # that are sortable by depiction type context. Somewhat convoluted.
   #
@@ -116,19 +144,7 @@ module ImagesHelper
     r = {}
 
     images.values.each do |i|
-      p = {
-        attributed: i.attributed?,
-        content_type: i.image_file_content_type,
-        depictions: []
-      }
-
-      if i.attributed?
-        p[:original_png] = original_as_scaled_png_via_api(i, api:)
-        p[:thumb] = short_url(i.image_file.url(:thumb))
-        p[:medium] = short_url(i.image_file.url(:medium))
-      else
-        p[:message] = 'Image is not accessible via the API because it lacks attribution. See https://api.taxonworks.org/ for more.'
-      end
+      p = image_api_attributes(i, api:).merge(depictions: [])
 
       if i.source
         p[:source] = {
