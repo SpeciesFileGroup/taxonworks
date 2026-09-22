@@ -17,13 +17,15 @@ class ImagesController < ApplicationController
     api_as_png
   ].freeze
 
-  # Looks up @image for the actions above; 404s if it can't be found.
   before_action :set_api_image, only: API_SINGLE_IMAGE_ACTIONS
 
-  # !! Image bytes returned via the API must include some attribution !!
-  # (api_show/api_image_show_sha describe the image without this block; they redact
-  # links instead, see /images/api/v1/_attributes.json.jbuilder)
-  before_action :require_attributed_image, only: [:api_image_file_sha, :api_scale_to_box, :api_scale_to_box_sha, :api_as_png]
+  # !! Actual image bytes returned via the API must include some attribution !!
+  before_action :require_attributed_image, only: [
+    :api_image_file_sha,
+    :api_scale_to_box,
+    :api_scale_to_box_sha,
+    :api_as_png
+  ]
 
   # GET /images
   # GET /images.json
@@ -66,9 +68,6 @@ class ImagesController < ApplicationController
       .where(project_id: sessions_current_project_id)
       .includes(:attribution)
 
-    # Unattributed images are always redacted (see /images/api/v1/_attributes.json.jbuilder); this
-    # additionally drops them from the response entirely, for clients that can't handle a missing
-    # image gracefully.
     @images = @images.with_attribution if params[:only_attributed_images] == 'true'
 
     @images = @images.page(params[:page]).per(params[:per])
@@ -256,21 +255,23 @@ class ImagesController < ApplicationController
   def set_api_image
     @image = find_api_image
 
-    render plain: 'Not found. You may need to add a &project_token= param to the URL currently in your address bar to access these data. See https://api.taxonworks.org/ for more.', status: :not_found if @image.nil?
+    if @image.nil?
+      render plain: 'Not found. You may need to add a &project_token= param to the URL currently in your address bar to access these data. See https://api.taxonworks.org/ for more.', status: :not_found
+    end
   end
 
   def require_attributed_image
     render_unattributed_image unless @image.attributed?
   end
 
-  # `api_show` alone accepts either a numeric id or an image_file_fingerprint
-  # in its :id param; a legacy convenience predating the dedicated sha routes.
+
   def find_api_image
     scope = Image.where(project_id: sessions_current_project_id)
 
     return scope.find_by(image_file_fingerprint: params[:sha]) if params[:sha].present?
 
-    # TODO: extend fingerprint lookup support to all image api actions?
+    # `api_show` alone accepts either a numeric id or an image_file_fingerprint
+    # in its :id param; a legacy convenience predating the dedicated sha routes.
     if action_name == 'api_show'
       if params[:id].to_s.length < 32 && params[:id] =~ (/\A\d+\z/)
         scope.find_by(id: params[:id])

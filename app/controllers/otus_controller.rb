@@ -357,9 +357,9 @@ class OtusController < ApplicationController
       .joins('LEFT OUTER JOIN observation_matrix_column_items ON descriptors.id = observation_matrix_column_items.descriptor_id')
       .eager_load(image: [:attribution])
 
-    # Unattributed images are always redacted (see ImagesHelper#image_inventory); this additionally
-    # drops them from the response entirely, for clients that can't handle a missing image gracefully.
-    @depictions = @depictions.where.not(attributions: { id: nil }) if params[:only_attributed_images] == 'true'
+    if params[:only_attributed_images] == 'true'
+      @depictions = @depictions.where.not(attributions: { id: nil })
+    end
 
     if params[:sort_order]
       @depictions = @depictions.order( Arel.sql( conditional_sort('depictions.depiction_object_type', params[:sort_order]) + ', observation_matrix_column_items.position, depictions.depiction_object_id, depictions.position' ))

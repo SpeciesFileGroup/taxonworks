@@ -55,9 +55,9 @@ class DepictionsController < ApplicationController
       .eager_load(image: [:attribution])
       .order('depictions.depiction_object_type, depictions.depiction_object_id, depictions.position')
 
-    # Unattributed images are always redacted (see _gallery_item.json.jbuilder); this additionally
-    # drops them from the response entirely, for clients that can't handle a missing image gracefully.
-    @depictions = @depictions.where.not(attributions: { id: nil }) if params[:only_attributed_images] == 'true'
+    if params[:only_attributed_images] == 'true'
+      @depictions = @depictions.where.not(attributions: { id: nil })
+    end
 
     @depictions = @depictions.page(params[:page]).per(params[:per])
     render '/depictions/api/v1/gallery'
