@@ -151,7 +151,11 @@ module LeadsHelper
 
   # An index of lead.id pointing to its content.
   # lead_items is for internal use only.
-  def key_data(lead, metadata, lead_items: false, back_couplets: false)
+  #
+  # @param api [Boolean] defaults false (most callers are in-app, non-/api/
+  #   contexts); threaded through to depiction_to_json. #key_to_json is the
+  #   one /api/v1/ caller and passes true explicitly.
+  def key_data(lead, metadata, api: false, lead_items: false, back_couplets: false)
     data = {}
     data[:back_couplets] = {} if back_couplets
     lead.self_and_descendants.find_each do |l|
@@ -198,7 +202,7 @@ module LeadsHelper
       end
 
       if l.depictions.load.any?
-        d.merge!( figures: l.depictions.order(:position).collect{|d| depiction_to_json(d)}  )
+        d.merge!( figures: l.depictions.order(:position).collect{|d| depiction_to_json(d, api:)}  )
       end
 
       data[l.id] = d
@@ -220,7 +224,7 @@ module LeadsHelper
   # front end at https://github.com/SpeciesFileGroup/pinpoint
   def key_to_json(lead)
     m = key_metadata(lead)
-    d = key_data(lead, m)
+    d = key_data(lead, m, api: true)
     return {
       metadata: {
         server: root_url,

@@ -5,7 +5,7 @@ RSpec.describe DepictionsHelper, type: :helper do
     depiction = FactoryBot.create(:valid_depiction)
     FactoryBot.create(:valid_attribution, attribution_object: depiction.image)
 
-    json = helper.depiction_to_json(depiction)
+    json = helper.depiction_to_json(depiction, api: true)
 
     expect(json[:attributed]).to be true
     expect(json[:thumb]).to be_present
@@ -17,7 +17,7 @@ RSpec.describe DepictionsHelper, type: :helper do
   specify '#depiction_to_json without attribution redacts image links' do
     depiction = FactoryBot.create(:valid_depiction)
 
-    json = helper.depiction_to_json(depiction)
+    json = helper.depiction_to_json(depiction, api: true)
 
     expect(json[:attributed]).to be false
     expect(json[:thumb]).to be_nil
