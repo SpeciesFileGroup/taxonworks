@@ -152,9 +152,7 @@ module LeadsHelper
   # An index of lead.id pointing to its content.
   # lead_items is for internal use only.
   #
-  # @param api [Boolean] defaults false (most callers are in-app, non-/api/
-  #   contexts); threaded through to depiction_to_json. #key_to_json is the
-  #   one /api/v1/ caller and passes true explicitly.
+  # @param api [Boolean] defaults false
   # @param with_figures [Boolean] defaults false - building :figures calls
   #   depiction_to_json per depiction, which shortens URLs (a DB write) per
   #   image. Callers that don't read :figures (print_key_body,
@@ -166,7 +164,10 @@ module LeadsHelper
   #   ImagesHelper#image_attributes); this additionally excludes them, for
   #   clients that can't handle a figure without image links. #key_to_json,
   #   the one /api/v1/ caller, defaults it to true instead.
-  def key_data(lead, metadata, api: false, with_figures: false, attributed_images_only: false, lead_items: false, back_couplets: false)
+  def key_data(
+    lead, metadata, api: false, with_figures: false,
+    attributed_images_only: false, lead_items: false, back_couplets: false
+  )
     data = {}
     data[:back_couplets] = {} if back_couplets
     lead.self_and_descendants.find_each do |l|
@@ -213,10 +214,20 @@ module LeadsHelper
       end
 
       if with_figures && l.depictions.load.any?
-        figure_depictions = l.depictions.order(:position)
-        figure_depictions = figure_depictions.select { |dep| dep.image.attributed? } if attributed_images_only
+        figure_depictions = l.depictions.includes(image: :attribution).order(:position)
+        if attributed_images_only
+          figure_depictions = figure_depictions.select { |dep|
+            dep.image.attributed?
+          }
+        end
 
-        d.merge!( figures: figure_depictions.collect{|dep| depiction_to_json(dep, api:)} ) unless figure_depictions.empty?
+        unless figure_depictions.empty?
+          d.merge!(
+            figures: figure_depictions.collect{ |dep|
+              depiction_to_json(dep, api:)
+            }
+          )
+        end
       end
 
       data[l.id] = d

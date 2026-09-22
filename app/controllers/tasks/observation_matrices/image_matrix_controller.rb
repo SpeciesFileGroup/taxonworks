@@ -1,20 +1,21 @@
 class Tasks::ObservationMatrices::ImageMatrixController < ApplicationController
   include TaskControllerConfiguration
-  
+
   # GET /tasks/observation_matrices/image_matrix
   def index
   end
 
   # GET /tasks/observation_matrices/image_matrix/37/key
   def key
-    # In-app, signed-in view: show everything, regardless of attribution.
     @key = Tools::ImageMatrix.new(**image_key_params, attributed_images_only: false)
   end
 
   # GET /api/v1/observation_matrices/123/image_matrix.json
   def api_key
-    # Attributed-only by default; pass attributed_images_only=false to opt out.
-    @key = Tools::ImageMatrix.new(**image_key_params, attributed_images_only: params[:attributed_images_only] != 'false')
+    @key = Tools::ImageMatrix.new(
+      **image_key_params,
+      attributed_images_only: params[:attributed_images_only] != 'false'
+    )
     render '/observation_matrices/api/v1/image_matrix'
   end
 

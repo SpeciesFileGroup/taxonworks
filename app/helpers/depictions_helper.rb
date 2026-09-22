@@ -55,10 +55,6 @@ module DepictionsHelper
 
   # TODO: this should evolve, maybe, into an IIIF response
   # with the context being the depictied object.
-  #
-  # @param api [Boolean] defaults false (most callers are in-app, non-/api/
-  #   contexts); LeadsHelper#key_to_json is the one /api/v1/ caller and
-  #   passes true explicitly.
   def depiction_to_json(depiction, api: false)
     return nil if depiction.nil?
 
