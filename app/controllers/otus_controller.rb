@@ -357,7 +357,8 @@ class OtusController < ApplicationController
       .joins('LEFT OUTER JOIN observation_matrix_column_items ON descriptors.id = observation_matrix_column_items.descriptor_id')
       .eager_load(image: [:attribution])
 
-    if params[:attributed_images_only] == 'true'
+    # Attributed-only by default; pass attributed_images_only=false to opt out.
+    unless params[:attributed_images_only] == 'false'
       @depictions = @depictions.where.not(attributions: { id: nil })
     end
 

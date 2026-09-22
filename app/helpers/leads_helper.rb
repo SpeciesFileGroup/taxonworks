@@ -159,7 +159,14 @@ module LeadsHelper
   #   depiction_to_json per depiction, which shortens URLs (a DB write) per
   #   image. Callers that don't read :figures (print_key_body,
   #   print_key_table_body, print_key_markdown) shouldn't pay for it.
-  def key_data(lead, metadata, api: false, with_figures: false, lead_items: false, back_couplets: false)
+  # @param attributed_images_only [Boolean] defaults false here (in-app
+  #   callers should see everything); when true, drops unattributed images
+  #   from :figures entirely instead of including a redacted placeholder.
+  #   Unattributed images are always redacted either way (see
+  #   ImagesHelper#image_attributes); this additionally excludes them, for
+  #   clients that can't handle a figure without image links. #key_to_json,
+  #   the one /api/v1/ caller, defaults it to true instead.
+  def key_data(lead, metadata, api: false, with_figures: false, attributed_images_only: false, lead_items: false, back_couplets: false)
     data = {}
     data[:back_couplets] = {} if back_couplets
     lead.self_and_descendants.find_each do |l|
@@ -206,7 +213,10 @@ module LeadsHelper
       end
 
       if with_figures && l.depictions.load.any?
-        d.merge!( figures: l.depictions.order(:position).collect{|d| depiction_to_json(d, api:)}  )
+        figure_depictions = l.depictions.order(:position)
+        figure_depictions = figure_depictions.select { |dep| dep.image.attributed? } if attributed_images_only
+
+        d.merge!( figures: figure_depictions.collect{|dep| depiction_to_json(dep, api:)} ) unless figure_depictions.empty?
       end
 
       data[l.id] = d
@@ -226,9 +236,13 @@ module LeadsHelper
   # Used to serve Keys to the API.
   # Targeting a "standard" for exchanging keys to be used in the
   # front end at https://github.com/SpeciesFileGroup/pinpoint
-  def key_to_json(lead)
+  #
+  # @param attributed_images_only [Boolean] defaults true - this is the one
+  #   real /api/v1/ caller of #key_data, so unattributed images are excluded
+  #   by default; pass false to opt out and include redacted placeholders.
+  def key_to_json(lead, attributed_images_only: true)
     m = key_metadata(lead)
-    d = key_data(lead, m, api: true, with_figures: true)
+    d = key_data(lead, m, api: true, with_figures: true, attributed_images_only:)
     return {
       metadata: {
         server: root_url,

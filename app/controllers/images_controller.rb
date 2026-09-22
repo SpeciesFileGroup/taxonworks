@@ -68,7 +68,8 @@ class ImagesController < ApplicationController
       .where(project_id: sessions_current_project_id)
       .includes(:attribution)
 
-    @images = @images.with_attribution if params[:attributed_images_only] == 'true'
+    # Attributed-only by default; pass attributed_images_only=false to opt out.
+    @images = @images.with_attribution unless params[:attributed_images_only] == 'false'
 
     @images = @images.page(params[:page]).per(params[:per])
     render '/images/api/v1/index'

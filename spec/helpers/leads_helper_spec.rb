@@ -49,4 +49,47 @@ RSpec.describe LeadsHelper, type: :helper do
     expect(without_figures[child.id]).not_to have_key(:figures)
     expect(with_figures[child.id][:figures]).to be_present
   end
+
+  specify 'key_data with attributed_images_only: true drops unattributed figures, keeps attributed ones' do
+    root = FactoryBot.create(:valid_lead, text: 'root')
+    child = root.children.create!(text: 'child')
+
+    attributed_image = FactoryBot.create(:tiny_random_image)
+    FactoryBot.create(:valid_attribution, attribution_object: attributed_image)
+    unattributed_image = FactoryBot.create(:tiny_random_image)
+
+    FactoryBot.create(:valid_depiction, depiction_object: child, image: attributed_image)
+    FactoryBot.create(:valid_depiction, depiction_object: child, image: unattributed_image)
+
+    meta = helper.key_metadata(root)
+
+    data = helper.key_data(root, meta, with_figures: true, attributed_images_only: true)
+
+    expect(data[child.id][:figures].size).to eq(1)
+    expect(data[child.id][:figures].first[:attributed]).to be true
+  end
+
+  specify 'key_data with attributed_images_only: true omits :figures entirely when nothing remains' do
+    root = FactoryBot.create(:valid_lead, text: 'root')
+    child = root.children.create!(text: 'child')
+    unattributed_image = FactoryBot.create(:tiny_random_image)
+    FactoryBot.create(:valid_depiction, depiction_object: child, image: unattributed_image)
+
+    meta = helper.key_metadata(root)
+
+    data = helper.key_data(root, meta, with_figures: true, attributed_images_only: true)
+
+    expect(data[child.id]).not_to have_key(:figures)
+  end
+
+  specify 'key_to_json defaults attributed_images_only to true' do
+    root = FactoryBot.create(:valid_lead, text: 'root')
+    child = root.children.create!(text: 'child')
+    unattributed_image = FactoryBot.create(:tiny_random_image)
+    FactoryBot.create(:valid_depiction, depiction_object: child, image: unattributed_image)
+
+    result = helper.key_to_json(root)
+
+    expect(result[:data][:leads][child.id]).not_to have_key(:figures)
+  end
 end

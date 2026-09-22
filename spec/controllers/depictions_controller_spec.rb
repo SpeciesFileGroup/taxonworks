@@ -81,22 +81,22 @@ RSpec.describe DepictionsController, type: :controller, group: :images do
 
     before { FactoryBot.create(:valid_attribution, attribution_object: attributed_depiction.image) }
 
-    context 'without attributed_images_only' do
-      it 'includes both depictions, redacting the unattributed image' do
+    context 'without attributed_images_only (default)' do
+      it 'drops the unattributed depiction from the response entirely' do
         get :api_gallery, params: {format: :json}, session: valid_session
+        json = JSON.parse(response.body)
+
+        expect(json.map { |d| d['id'] }).to contain_exactly(attributed_depiction.id)
+      end
+    end
+
+    context 'with attributed_images_only=false' do
+      it 'includes both depictions, redacting the unattributed image' do
+        get :api_gallery, params: {format: :json, attributed_images_only: 'false'}, session: valid_session
         json = JSON.parse(response.body)
         ids = json.map { |d| d['id'] }
 
         expect(ids).to contain_exactly(attributed_depiction.id, unattributed_depiction.id)
-      end
-    end
-
-    context 'with attributed_images_only=true' do
-      it 'drops the unattributed depiction from the response entirely' do
-        get :api_gallery, params: {format: :json, attributed_images_only: 'true'}, session: valid_session
-        json = JSON.parse(response.body)
-
-        expect(json.map { |d| d['id'] }).to contain_exactly(attributed_depiction.id)
       end
     end
   end

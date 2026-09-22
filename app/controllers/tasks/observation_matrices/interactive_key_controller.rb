@@ -7,12 +7,14 @@ class Tasks::ObservationMatrices::InteractiveKeyController < ApplicationControll
 
   # GET /tasks/observation_matrices/interactive_key/37/key
   def key
-    @key = Tools::InteractiveKey.new(**key_params)
+    # In-app, signed-in view: show everything, regardless of attribution.
+    @key = Tools::InteractiveKey.new(**key_params, attributed_images_only: false)
   end
 
   # GET /api/v1/observation_matrices/123/key.json
   def api_key
-    @key = Tools::InteractiveKey.new(**key_params)
+    # Attributed-only by default; pass attributed_images_only=false to opt out.
+    @key = Tools::InteractiveKey.new(**key_params, attributed_images_only: params[:attributed_images_only] != 'false')
     render '/tasks/observation_matrices/interactive_key/key'
   end
 

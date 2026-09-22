@@ -48,6 +48,14 @@ class Tools::ImageMatrix
   # Optional attribute to limit identification to OTU or a particular nomenclatural rank. Valid values are 'otu', 'species', 'genus', etc.
   attr_accessor :identified_to_rank
 
+  # @!attributed_images_only
+  #   @return [Boolean]
+  # Optional attribute: when true (the default), depiction_matrix and
+  # image_hash only reference images with an Attribution. Callers that
+  # already gate on attribution themselves (e.g. in-app, signed-in views)
+  # should pass false to see everything.
+  attr_accessor :attributed_images_only
+
   # @!per
   #   @return [Integer or null]
   # Optional attribute. Number of rows displayed per page
@@ -182,7 +190,8 @@ class Tools::ImageMatrix
     pagination_previous_page: nil,
     pagination_per_page: nil,
     pagination_total: nil,
-    pagination_total_pages: nil)
+    pagination_total_pages: nil,
+    attributed_images_only: true)
 
     @observation_matrix_id = observation_matrix_id
     @project_id = project_id
@@ -202,6 +211,7 @@ class Tools::ImageMatrix
     # @rows_with_filter = get_rows_with_filter
 
     @identified_to_rank = identified_to_rank
+    @attributed_images_only = attributed_images_only
     @row_hash = row_hash_initiate
 
     @descriptors_with_filter = descriptors_with_keywords
@@ -378,6 +388,12 @@ class Tools::ImageMatrix
       return h if observation_matrix.nil?
       depictions = observation_matrix.observation_depictions
     end
+
+    # Filtering here, rather than after the fact on @image_hash, keeps
+    # depiction_matrix and image_hash consistent - an unattributed image
+    # never enters either structure, instead of leaving a depiction_matrix
+    # entry that dangles a reference to nothing in image_hash.
+    depictions = depictions.joins(image: :attribution) if attributed_images_only
 
     descriptors_count = list_of_descriptors.count
 
