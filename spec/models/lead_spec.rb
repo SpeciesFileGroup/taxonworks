@@ -373,6 +373,21 @@ RSpec.describe Lead, type: :model do
       expect(q.first.otus_count).to eq(2)
     end
 
+    specify 'returns correct key_updated_by_id for a virtual root' do
+      # The update we'll do on a child later will be as Current.user_id, so
+      # create a root with a different updated_by_id so we can differentiate.
+      user2 = FactoryBot.create(:valid_user)
+      root = FactoryBot.create(:valid_lead, is_virtual: true, updated_by_id: user2.id)
+      child = FactoryBot.create(:valid_lead, parent: root, is_virtual: true, text: nil)
+
+      # Updates as Current.user_id (not as user2)
+      child.update!(text: 'new text')
+
+      q = Lead.roots_with_data(project_id, false, is_virtual: true).where(id: [root.id])
+      expect(root.updated_by_id).to eq(user2.id)
+      expect(q.first.key_updated_by_id).to eq(Current.user_id)
+    end
+
   end
 
   context '::child_descendant_lead_item_flags' do

@@ -407,23 +407,47 @@ class Lead < ApplicationRecord
   # flat (root + direct children), so otus_count is a direct COUNT DISTINCT
   # over children and key_updated_at is GREATEST(root, MAX(children)). Skips
   # the lead_hierarchies + lead_items walk entirely.
+  #
+  # key_updated_by_id/key_updated_by are attributed to whichever of the root
+  # or its children was updated most recently, not just the root itself (a
+  # child edited by someone else than the root's own last editor must still
+  # be reflected).
   def self.virtual_roots_with_data(project_id)
-    Lead
+    # Same shape as nonvirtual_roots_with_data above: the data subquery
+    # computes key_updated_by_id per root (root or child, whichever was
+    # updated most recently), the outer query just joins users on it.
+    data = Lead
       .joins('LEFT JOIN leads AS c ON c.parent_id = leads.id')
-      .joins('JOIN users ON users.id = leads.updated_by_id')
       .where(
         'leads.parent_id IS NULL AND leads.project_id = ? AND leads.is_virtual = TRUE',
         project_id
       )
-      .group('leads.id, users.name')
-      .select(
-        'leads.*,
+      .group(:id)
+      .select("
+        leads.id,
         COUNT(DISTINCT c.otu_id) FILTER (WHERE c.otu_id IS NOT NULL) AS otus_count,
         GREATEST(leads.updated_at, COALESCE(MAX(c.updated_at), leads.updated_at)) AS key_updated_at,
         0 AS couplets_count,
-        leads.updated_by_id AS key_updated_by_id,
-        users.name AS key_updated_by'
-      )
+        CASE
+          WHEN MAX(c.updated_at) IS NOT NULL AND MAX(c.updated_at) > leads.updated_at
+          THEN (ARRAY_AGG(c.updated_by_id ORDER BY c.updated_at DESC))[1]
+          ELSE leads.updated_by_id
+        END AS key_updated_by_id
+      ")
+
+    Lead
+      .joins("JOIN (#{data.to_sql}) AS leads_data
+        ON leads_data.id = leads.id")
+      .joins('JOIN users
+        ON users.id = leads_data.key_updated_by_id')
+      .select('
+        leads.*,
+        leads_data.otus_count,
+        leads_data.key_updated_at,
+        leads_data.couplets_count,
+        leads_data.key_updated_by_id,
+        users.name AS key_updated_by
+      ')
   end
 
   def redirect_options(project_id)
