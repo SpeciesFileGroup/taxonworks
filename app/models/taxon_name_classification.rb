@@ -391,6 +391,11 @@ class TaxonNameClassification < ApplicationRecord
       status_type = params[:type]
       return r unless TAXON_NAME_CLASSIFICATION_NAMES.include?(status_type)
 
+      # Disjoint types (e.g. Iczn::Fossil::Ichnotaxon is disjoint with its own
+      # parent Iczn::Fossil) already satisfy this status; skip creating a
+      # conflicting sibling rather than let the two coexist.
+      disjoint_types = status_type.constantize.disjoint_taxon_name_classes
+
       citation_params = params[:citation]&.symbolize_keys
       citation_source_id = citation_params && citation_params[:source_id]
 
@@ -409,7 +414,19 @@ class TaxonNameClassification < ApplicationRecord
           .where(taxon_name: query)
           .index_by(&:taxon_name_id)
 
+        conflicting_taxon_name_ids = disjoint_types.empty? ? Set.new : TaxonNameClassification
+          .where(type: disjoint_types)
+          .where(taxon_name: query)
+          .distinct
+          .pluck(:taxon_name_id)
+          .to_set
+
         query.find_each do |taxon_name|
+          if !existing_by_taxon_name_id.key?(taxon_name.id) && conflicting_taxon_name_ids.include?(taxon_name.id)
+            r.not_updated.push taxon_name.id
+            next
+          end
+
           classification = existing_by_taxon_name_id[taxon_name.id] ||
             TaxonNameClassification.create(taxon_name: taxon_name, type: status_type)
 
@@ -437,6 +454,8 @@ class TaxonNameClassification < ApplicationRecord
       status_type = params[:type]
       return r unless TAXON_NAME_CLASSIFICATION_NAMES.include?(status_type)
 
+      disjoint_types = status_type.constantize.disjoint_taxon_name_classes
+
       if async && !called_from_async
         BatchByFilterScopeJob.perform_later(
           klass: self.name,
@@ -448,7 +467,7 @@ class TaxonNameClassification < ApplicationRecord
         )
       else
         TaxonNameClassification
-          .where(type: status_type)
+          .where(type: [status_type, *disjoint_types])
           .where(taxon_name: query)
           .find_each do |c|
             c.destroy # destroy is necessary for cached processing

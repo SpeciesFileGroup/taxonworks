@@ -316,6 +316,33 @@ describe TaxonNameClassification, type: :model, group: [:nomenclature] do
     context ':add_status and :remove_status' do
       let(:invalid_type) { 'TaxonNameClassification::Iczn::Available::Invalid' }
       let(:nomen_dubium) { 'TaxonNameClassification::Iczn::Available::Valid::NomenDubium' }
+      let(:fossil_type) { 'TaxonNameClassification::Iczn::Fossil' }
+      let(:ichnotaxon_type) { 'TaxonNameClassification::Iczn::Fossil::Ichnotaxon' }
+
+      specify ':add_status does not create a conflicting classification when a disjoint classification already exists' do
+        existing = TaxonNameClassification.create!(taxon_name: iczn_name, type: ichnotaxon_type)
+        q = Queries::TaxonName::Filter.new(taxon_name_id: iczn_name.id)
+        r = TaxonNameClassification.batch_by_filter_scope(
+          filter_query: { 'taxon_name_query' => q.params },
+          mode: :add_status,
+          params: { type: fossil_type }
+        )
+        expect(r[:not_updated]).to include(iczn_name.id)
+        expect(TaxonNameClassification.where(taxon_name: iczn_name, type: fossil_type).count).to eq(0)
+        expect(TaxonNameClassification.where(taxon_name: iczn_name, type: ichnotaxon_type).count).to eq(1)
+        expect(existing.reload).to be_persisted
+      end
+
+      specify ':remove_status also removes disjoint classifications of the same taxon name' do
+        TaxonNameClassification.create!(taxon_name: iczn_name, type: ichnotaxon_type)
+        q = Queries::TaxonName::Filter.new(taxon_name_id: iczn_name.id)
+        TaxonNameClassification.batch_by_filter_scope(
+          filter_query: { 'taxon_name_query' => q.params },
+          mode: :remove_status,
+          params: { type: fossil_type }
+        )
+        expect(TaxonNameClassification.where(taxon_name: iczn_name, type: ichnotaxon_type).count).to eq(0)
+      end
 
       specify ':add_status creates a classification of the given type' do
         q = Queries::TaxonName::Filter.new(taxon_name_id: iczn_name.id)
