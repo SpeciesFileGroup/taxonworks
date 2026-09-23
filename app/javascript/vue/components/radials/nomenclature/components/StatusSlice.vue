@@ -193,6 +193,11 @@ function merge() {
   const newList = { all: {}, common: {}, tree: {} }
 
   Object.keys(statusList.value).forEach((key) => {
+    // Gender and part-of-speech classifications have their own dedicated
+    // handling (single-value-per-name semantics, cached spelling side
+    // effects) and are deliberately excluded here, same as ClassificationMain.vue.
+    if (key === 'latinized') return
+
     const group = statusList.value[key]
     newList.all = { ...newList.all, ...group.all }
     newList.tree = { ...newList.tree, ...group.tree }
