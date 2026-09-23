@@ -129,6 +129,7 @@ import FormCitation from '@/components/Form/FormCitation.vue'
 import TreeDisplay from '@/tasks/nomenclature/filter/components/treeDisplay.vue'
 import UpdateBatch from '@/components/radials/shared/UpdateBatch.vue'
 import makeCitation from '@/factory/Citation'
+import { mergeStatusList } from '@/helpers/taxonNameClassificationStatusList'
 import { TaxonNameClassification } from '@/routes/endpoints'
 import { QUERY_PARAM } from '@/components/radials/filter/constants/queryParam'
 import { TAXON_NAME, TAXON_NAME_CLASSIFICATION } from '@/constants'
@@ -201,59 +202,12 @@ onMounted(() => {
 })
 
 function merge() {
-  const newList = { all: {}, common: {}, tree: {} }
+  // Gender and part-of-speech classifications have their own dedicated
+  // handling (single-value-per-name semantics, cached spelling side
+  // effects) and are deliberately excluded here, same as ClassificationMain.vue.
+  const codes = Object.keys(statusList.value).filter((key) => key !== 'latinized')
 
-  Object.keys(statusList.value).forEach((key) => {
-    // Gender and part-of-speech classifications have their own dedicated
-    // handling (single-value-per-name semantics, cached spelling side
-    // effects) and are deliberately excluded here, same as ClassificationMain.vue.
-    if (key === 'latinized') return
-
-    const group = statusList.value[key]
-
-    // getTreeList (below) stamps each tree node's display name from
-    // group.all; do that per group before qualifying names, since the tree
-    // view (recursiveList.vue) already appends its own code suffix from
-    // item.type - qualifying first would double it up ("Fossil (iczn) (Iczn)").
-    getTreeList(group.tree, group.all)
-    newList.tree = { ...newList.tree, ...group.tree }
-
-    // "All"/"common" entries have no disambiguation of their own (unlike the
-    // tree view), so qualify each label with the code (e.g. "Fossil (iczn)")
-    // to tell identically named statuses from different codes apart (see
-    // FacetStatus.vue's merge()).
-    Object.keys(group.all).forEach((type) => {
-      newList.all[type] = {
-        ...group.all[type],
-        name: `${group.all[type].name} (${key})`
-      }
-    })
-
-    Object.keys(group.common).forEach((type) => {
-      newList.common[type] = {
-        ...group.common[type],
-        name: `${group.common[type].name} (${key})`
-      }
-    })
-  })
-
-  mergeLists.value = newList
-}
-
-function getTreeList(list, ranksList) {
-  for (const key in list) {
-    if (key in ranksList) {
-      Object.defineProperty(list[key], 'type', {
-        writable: true,
-        value: key
-      })
-      Object.defineProperty(list[key], 'name', {
-        writable: true,
-        value: ranksList[key].name
-      })
-    }
-    getTreeList(list[key], ranksList)
-  }
+  mergeLists.value = mergeStatusList(statusList.value, { codes, qualifyAll: true })
 }
 
 function selectType(item) {

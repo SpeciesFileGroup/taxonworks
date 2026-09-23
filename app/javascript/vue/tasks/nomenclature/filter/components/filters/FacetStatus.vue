@@ -69,6 +69,7 @@ import TreeDisplay from '../treeDisplay'
 import Autocomplete from '@/components/ui/Autocomplete'
 import DisplayList from '@/components/displayList.vue'
 import { URLParamsToJSON } from '@/helpers/url/parse.js'
+import { mergeStatusList } from '@/helpers/taxonNameClassificationStatusList'
 import { TaxonNameClassification } from '@/routes/endpoints'
 
 const OPTIONS = {
@@ -159,73 +160,30 @@ export default {
   },
 
   created() {
-    TaxonNameClassification.types().then((response) => {
-      this.statusList = response.body
-      this.merge()
+    TaxonNameClassification.types()
+      .then((response) => {
+        this.statusList = response.body
+        this.merge()
 
-      const params = URLParamsToJSON(location.href)
-      if (params.taxon_name_classification) {
-        params.taxon_name_classification.forEach((classification) => {
-          this.addStatus(this.mergeLists.all[classification])
-        })
-      }
-    })
+        const params = URLParamsToJSON(location.href)
+        if (params.taxon_name_classification) {
+          params.taxon_name_classification.forEach((classification) => {
+            this.addStatus(this.mergeLists.all[classification])
+          })
+        }
+      })
+      .catch(() => {})
   },
 
   methods: {
     merge() {
-      const statusList = JSON.parse(JSON.stringify(this.statusList))
-      const newList = {
-        all: {},
-        common: {},
-        tree: {}
-      }
-      const nomenclatureCodes = this.nomenclatureCode
-        ? [this.nomenclatureCode.toLowerCase()]
-        : Object.keys(statusList)
+      // latinized (gender/part-of-speech) is always folded in alongside
+      // whichever nomenclatural code(s) are selected.
+      const codes = this.nomenclatureCode
+        ? [this.nomenclatureCode.toLowerCase(), 'latinized']
+        : Object.keys(this.statusList)
 
-      nomenclatureCodes.forEach((key) => {
-        if (statusList[key]) {
-          newList.all = {
-            ...newList.all,
-            ...statusList[key].all,
-            ...statusList?.latinized?.all
-          }
-          newList.tree = {
-            ...newList.tree,
-            ...statusList[key].tree,
-            ...statusList?.latinized?.tree
-          }
-          for (const keyType in statusList[key].common) {
-            statusList[key].common[
-              keyType
-            ].name = `${statusList[key].common[keyType].name} (${key})`
-          }
-          newList.common = {
-            ...newList.common,
-            ...statusList[key].common,
-            ...statusList?.latinized?.common
-          }
-        }
-      })
-      this.getTreeList(newList.tree, newList.all)
-      this.mergeLists = newList
-    },
-
-    getTreeList(list, ranksList) {
-      for (const key in list) {
-        if (key in ranksList) {
-          Object.defineProperty(list[key], 'type', {
-            writable: true,
-            value: key
-          })
-          Object.defineProperty(list[key], 'name', {
-            writable: true,
-            value: ranksList[key].name
-          })
-        }
-        this.getTreeList(list[key], ranksList)
-      }
+      this.mergeLists = mergeStatusList(this.statusList, { codes })
     },
 
     removeItem(status) {

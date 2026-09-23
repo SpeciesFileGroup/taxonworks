@@ -17,15 +17,13 @@ import SliceParent from './components/ParentSlice.vue'
 import StatusSlice from './components/StatusSlice.vue'
 import VerbatimSlice from './components/VerbatimSlice.vue'
 
-const SLICES = {
+const QUERY_SLICES = {
   Gender: GenderSlice,
   Parent: SliceParent,
   Verbatim: VerbatimSlice
 }
 
-// Status is only offered on the checkboxed (ids-based) radial, not the
-// whole-filter-result one, since a fixed citation is attached per selection.
-const SLICES_WITH_STATUS = {
+const ID_SLICES = {
   Gender: GenderSlice,
   Parent: SliceParent,
   Status: StatusSlice,
@@ -49,5 +47,5 @@ const props = defineProps({
 
 const attrs = useAttrs()
 const hasIds = computed(() => props.ids !== undefined)
-const slices = computed(() => (hasIds.value ? SLICES_WITH_STATUS : SLICES))
+const slices = computed(() => (hasIds.value ? ID_SLICES : QUERY_SLICES))
 </script>
