@@ -1,10 +1,5 @@
 <template>
   <div>
-    <VSpinner
-      v-if="isProcessing"
-      legend="Updating..."
-    />
-
     <fieldset>
       <legend>Action</legend>
       <ul class="no_bullets">
@@ -112,37 +107,32 @@
     <div
       class="horizontal-left-content gap-small margin-large-top margin-large-bottom"
     >
-      <VBtn
-        color="primary"
+      <UpdateBatch
+        :batch-service="TaxonNameClassification.batchByFilter"
+        :payload="payload"
         :disabled="!canSubmit"
-        @click="openModal"
-      >
-        {{ buttonLabel }}
-      </VBtn>
+        :button-label="buttonLabel"
+        :confirmation-word="confirmationWord"
+        @update="handleUpdateResult"
+        @close="emit('close')"
+      />
     </div>
-
-    <ConfirmationModal
-      ref="confirmationModalRef"
-      :container-style="{ 'min-width': 'auto', width: '300px' }"
-    />
   </div>
 </template>
 
 <script setup>
-import ConfirmationModal from '@/components/ConfirmationModal.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
-import VSpinner from '@/components/ui/VSpinner.vue'
 import SmartSelector from '@/components/ui/VSwitch'
 import Autocomplete from '@/components/ui/Autocomplete'
 import FormCitation from '@/components/Form/FormCitation.vue'
 import TreeDisplay from '@/tasks/nomenclature/filter/components/treeDisplay.vue'
+import UpdateBatch from '@/components/radials/shared/UpdateBatch.vue'
 import makeCitation from '@/factory/Citation'
 import { TaxonNameClassification } from '@/routes/endpoints'
 import { QUERY_PARAM } from '@/components/radials/filter/constants/queryParam'
 import { TAXON_NAME, TAXON_NAME_CLASSIFICATION } from '@/constants'
 import { ref, computed, onMounted } from 'vue'
-import { capitalize } from '@/helpers/strings'
 
 const OPTIONS = {
   common: 'common',
@@ -159,8 +149,6 @@ const props = defineProps({
 
 const emit = defineEmits(['close'])
 
-const confirmationModalRef = ref(null)
-const isProcessing = ref(false)
 const selectedMode = ref(null)
 const selectedType = ref(undefined)
 const statusList = ref({})
@@ -170,15 +158,37 @@ const citation = ref(makeCitation(TAXON_NAME_CLASSIFICATION))
 
 const options = computed(() => Object.values(OPTIONS))
 
+const isRemove = computed(() => selectedMode.value === 'remove')
+
 const canSubmit = computed(() => !!selectedMode.value && !!selectedType.value)
 
 const buttonLabel = computed(() => {
   if (!selectedType.value) {
-    return selectedMode.value === 'remove' ? 'Remove status' : 'Add status'
+    return isRemove.value ? 'Remove status' : 'Add status'
   }
-  return selectedMode.value === 'remove'
+  return isRemove.value
     ? `Remove ${selectedType.value.name}`
     : `Add ${selectedType.value.name}`
+})
+
+const confirmationWord = computed(() => (isRemove.value ? 'REMOVE' : 'ADD'))
+
+const payload = computed(() => {
+  const params = { type: selectedType.value?.type }
+
+  if (!isRemove.value && citation.value.source_id) {
+    params.citation = {
+      source_id: citation.value.source_id,
+      pages: citation.value.pages,
+      is_original: citation.value.is_original
+    }
+  }
+
+  return {
+    filter_query: { [QUERY_PARAM[TAXON_NAME]]: props.parameters },
+    mode: isRemove.value ? 'remove_status' : 'add_status',
+    params
+  }
 })
 
 onMounted(() => {
@@ -237,53 +247,34 @@ function selectType(item) {
   view.value = OPTIONS.common
 }
 
-async function openModal() {
-  const isRemove = selectedMode.value === 'remove'
-  const ok = await confirmationModalRef.value.show({
-    title: 'Status',
-    message: `Are you sure you want to ${isRemove ? 'remove' : 'add'} the status "${selectedType.value.name}" ${isRemove ? 'from' : 'to'} all taxon names in the filter result?`,
-    confirmationWord: isRemove ? 'REMOVE' : 'ADD',
-    okButton: capitalize(buttonLabel.value),
-    cancelButton: 'Cancel',
-    typeButton: 'submit'
-  })
-
-  if (!ok) return
-
-  const params = { type: selectedType.value.type }
-
-  if (!isRemove && citation.value.source_id) {
-    params.citation = {
-      source_id: citation.value.source_id,
-      pages: citation.value.pages,
-      is_original: citation.value.is_original
-    }
+function handleUpdateResult(data) {
+  if (data.async) {
+    TW.workbench.alert.create(
+      `${data.total_attempted} taxon names queued for status update.`,
+      'notice'
+    )
+    return
   }
 
-  const payload = {
-    filter_query: { [QUERY_PARAM[TAXON_NAME]]: props.parameters },
-    mode: isRemove ? 'remove_status' : 'add_status',
-    params
+  const updatedCount = data.updated.length
+  const notUpdatedCount = data.not_updated.length
+  const action = isRemove.value ? 'removed from' : 'added to'
+
+  if (updatedCount > 0 && notUpdatedCount === 0) {
+    TW.workbench.alert.create(
+      `Status ${action} ${updatedCount} taxon names.`,
+      'notice'
+    )
+  } else if (updatedCount > 0 && notUpdatedCount > 0) {
+    TW.workbench.alert.create(
+      `Status ${action} ${updatedCount} taxon names, ${notUpdatedCount} not updated - see details below.`,
+      'notice'
+    )
+  } else {
+    TW.workbench.alert.create(
+      `No taxon names updated (${notUpdatedCount} not updated) - see details below.`,
+      'error'
+    )
   }
-
-  isProcessing.value = true
-
-  TaxonNameClassification.batchByFilter(payload)
-    .then(({ body }) => {
-      const count = body.async ? body.total_attempted : body.updated.length
-
-      const message = body.async
-        ? `${count} taxon names queued for status update.`
-        : isRemove
-          ? `Status removed from ${count} taxon names.`
-          : `Status added to ${count} taxon names.`
-
-      TW.workbench.alert.create(message, 'notice')
-      emit('close')
-    })
-    .catch(() => {})
-    .finally(() => {
-      isProcessing.value = false
-    })
 }
 </script>
