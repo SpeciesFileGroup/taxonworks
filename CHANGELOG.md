@@ -13,6 +13,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - `/api/v1/alternate_values` and `/api/v1/alternate_values/<id>` endpoints
 - Adds extend[]=citations to /api/v1/common_names endpoint
 - Asserted Environments (with terms from the ENVO ontology) for Collecting Events, Gazetteers, and OTUs [#114]
+- Taxon Determination facet to Filter Field Occurrences [#5090]
 
 ### Changed
 
@@ -27,6 +28,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Fix error when searching Catalogue of Life level of OTU and Taxon Name autoselects [#5097]
 
 [#114]: https://github.com/SpeciesFileGroup/taxonworks/issues/114
+[#5090]: https://github.com/SpeciesFileGroup/taxonworks/issues/5090
 [#5097]: https://github.com/SpeciesFileGroup/taxonworks/issues/5097
 
 ## [0.65.0] - 2026-09-04

@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe Queries::FieldOccurrence::Filter, type: :model, group: [:field_occurrence, :collecting_event, :filter] do
+describe Queries::FieldOccurrence::Filter, type: :model, group: [:field_occurrences, :collecting_event, :filter] do
 
   let(:query) { Queries::FieldOccurrence::Filter.new({}) }
 

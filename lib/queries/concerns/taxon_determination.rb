@@ -79,14 +79,6 @@ module Queries::Concerns::TaxonDetermination
     @validity = boolean_param(params, :validity)
   end
 
-  def otu_id
-    [@otu_id].flatten.compact.uniq
-  end
-
-  def taxon_name_id
-    [@taxon_name_id].flatten.compact.uniq
-  end
-
   # @return [Arel::Table]
   def taxon_determination_table
     ::TaxonDetermination.arel_table
