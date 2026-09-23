@@ -1,10 +1,5 @@
 <template>
   <div>
-    <VSpinner
-      v-if="isProcessing"
-      legend="Updating..."
-    />
-
     <fieldset>
       <legend>Action</legend>
       <ul class="no_bullets">
@@ -56,26 +51,21 @@
     <div
       class="horizontal-left-content gap-small margin-large-top margin-large-bottom"
     >
-      <VBtn
-        color="primary"
+      <UpdateBatch
+        :batch-service="TaxonNameClassification.batchByFilter"
+        :payload="payload"
         :disabled="!canSubmit"
-        @click="openModal"
-      >
-        {{ buttonLabel }}
-      </VBtn>
+        :button-label="buttonLabel"
+        :confirmation-word="confirmationWord"
+        @update="handleUpdateResult"
+        @close="emit('close')"
+      />
     </div>
-
-    <ConfirmationModal
-      ref="confirmationModalRef"
-      :container-style="{ 'min-width': 'auto', width: '300px' }"
-    />
   </div>
 </template>
 
 <script setup>
-import ConfirmationModal from '@/components/ConfirmationModal.vue'
-import VBtn from '@/components/ui/VBtn/index.vue'
-import VSpinner from '@/components/ui/VSpinner.vue'
+import UpdateBatch from '@/components/radials/shared/UpdateBatch.vue'
 import { TaxonNameClassification } from '@/routes/endpoints'
 import { QUERY_PARAM } from '@/components/radials/filter/constants/queryParam'
 import { TAXON_NAME } from '@/constants'
@@ -92,11 +82,11 @@ const props = defineProps({
 
 const emit = defineEmits(['close'])
 
-const confirmationModalRef = ref(null)
 const selectedMode = ref(null)
 const selectedGender = ref(null)
 const genderList = ref([])
-const isProcessing = ref(false)
+
+const isRemove = computed(() => selectedMode.value === 'remove_gender')
 
 const canSubmit = computed(() => {
   if (!selectedMode.value) return false
@@ -105,12 +95,20 @@ const canSubmit = computed(() => {
 })
 
 const buttonLabel = computed(() => {
-  if (selectedMode.value === 'remove_gender') return 'Remove gender'
-  if (selectedMode.value === 'set' && selectedGender.value) {
+  if (isRemove.value) return 'Remove gender'
+  if (selectedGender.value) {
     return `Set ${genderList.value.find((item) => item.type === selectedGender.value).name}`
   }
   return 'Set gender'
 })
+
+const confirmationWord = computed(() => (isRemove.value ? 'REMOVE' : 'SET'))
+
+const payload = computed(() => ({
+  filter_query: { [QUERY_PARAM[TAXON_NAME]]: props.parameters },
+  mode: selectedMode.value,
+  params: selectedMode.value === 'set' ? { type: selectedGender.value } : {}
+}))
 
 onMounted(() => {
   TaxonNameClassification.types().then(({ body }) => {
@@ -123,42 +121,35 @@ onMounted(() => {
   })
 })
 
-async function openModal() {
-  const isRemove = selectedMode.value === 'remove_gender'
-  const ok = await confirmationModalRef.value.show({
-    title: 'Gender',
-    message: `Are you sure you want to ${isRemove ? 'remove gender from' : 'set gender for'} all taxon names in the filter result?`,
-    confirmationWord: isRemove ? 'REMOVE' : 'SET',
-    okButton: buttonLabel.value,
-    cancelButton: 'Cancel',
-    typeButton: 'submit'
-  })
-
-  if (!ok) return
-
-  const payload = {
-    filter_query: { [QUERY_PARAM[TAXON_NAME]]: props.parameters },
-    mode: selectedMode.value,
-    params: selectedMode.value === 'set' ? { type: selectedGender.value } : {}
+function handleUpdateResult(data) {
+  if (data.async) {
+    TW.workbench.alert.create(
+      `${data.total_attempted} taxon names queued for gender update.`,
+      'notice'
+    )
+    return
   }
 
-  isProcessing.value = true
-  TaxonNameClassification.batchByFilter(payload)
-    .then(({ body }) => {
-      const count = body.async ? body.total_attempted : body.updated.length
-      const message = body.async
-        ? `${count} taxon names queued for gender update.`
-        : isRemove
-          ? `Gender removed from ${count} taxon names.`
-          : `Gender set for ${count} taxon names.`
+  const updatedCount = data.updated.length
+  const notUpdatedCount = data.not_updated.length
+  const action = isRemove.value ? 'removed from' : 'set for'
 
-      TW.workbench.alert.create(message, 'notice')
-      emit('close')
-    })
-    .catch(() => {})
-    .finally(() => {
-      isProcessing.value = false
-    })
+  if (updatedCount > 0 && notUpdatedCount === 0) {
+    TW.workbench.alert.create(
+      `Gender ${action} ${updatedCount} taxon names.`,
+      'notice'
+    )
+  } else if (updatedCount > 0 && notUpdatedCount > 0) {
+    TW.workbench.alert.create(
+      `Gender ${action} ${updatedCount} taxon names, ${notUpdatedCount} not updated - see details below.`,
+      'notice'
+    )
+  } else {
+    TW.workbench.alert.create(
+      `No taxon names updated (${notUpdatedCount} not updated) - see details below.`,
+      'error'
+    )
+  }
 }
 </script>
 
