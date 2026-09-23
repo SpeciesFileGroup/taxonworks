@@ -562,6 +562,38 @@ describe TaxonNameClassification, type: :model, group: [:nomenclature] do
           expect(r[:validation_errors]).to be_empty
         end
 
+        specify 'reports not_updated, rather than silently no-op, when only is_original differs from an existing citation with the same source and pages' do
+          existing = TaxonNameClassification.create!(taxon_name: iczn_name, type: invalid_type)
+          existing.citations.create!(source_id: source.id, pages: '12')
+          q = Queries::TaxonName::Filter.new(taxon_name_id: iczn_name.id)
+          r = TaxonNameClassification.batch_by_filter_scope(
+            filter_query: { 'taxon_name_query' => q.params },
+            mode: :add_status,
+            params: { type: invalid_type, citation: { source_id: source.id, pages: '12', is_original: true } }
+          )
+          expect(r[:updated]).to be_empty
+          expect(r[:not_updated]).to include(iczn_name.id)
+          expect(existing.citations.reload.count).to eq(1)
+          expect(existing.citations.first.is_original).to be_falsey
+          expect(r[:validation_errors].keys).to include(a_string_matching(/different 'original' flag for taxon name id #{iczn_name.id}\b/))
+        end
+
+        specify 'reports not_updated, rather than silently no-op, when requesting is_original: false against an existing original citation with the same source and pages' do
+          existing = TaxonNameClassification.create!(taxon_name: iczn_name, type: invalid_type)
+          existing.citations.create!(source_id: source.id, pages: '12', is_original: true)
+          q = Queries::TaxonName::Filter.new(taxon_name_id: iczn_name.id)
+          r = TaxonNameClassification.batch_by_filter_scope(
+            filter_query: { 'taxon_name_query' => q.params },
+            mode: :add_status,
+            params: { type: invalid_type, citation: { source_id: source.id, pages: '12', is_original: false } }
+          )
+          expect(r[:updated]).to be_empty
+          expect(r[:not_updated]).to include(iczn_name.id)
+          expect(existing.citations.reload.count).to eq(1)
+          expect(existing.citations.first.is_original).to be true
+          expect(r[:validation_errors].keys).to include(a_string_matching(/different 'original' flag for taxon name id #{iczn_name.id}\b/))
+        end
+
         specify 'reports not_updated (and why) when the citation fails for a reason other than the tolerated duplicate, leaving the classification in place' do
           existing = TaxonNameClassification.create!(taxon_name: iczn_name, type: invalid_type)
           other_source = FactoryBot.create(:valid_source)

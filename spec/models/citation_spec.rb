@@ -179,6 +179,28 @@ describe Citation, type: :model, group: [:annotators, :citations] do
       expect(c2.errors.messages[:source_id]).to include('has already been taken')
     end
 
+    specify 'a different is_original does not exempt a citation from the source-and-pages uniqueness check' do
+      c1.update!(pages: '12')
+      c2.pages = '12'
+      c2.is_original = true
+
+      expect(c2.valid?).to be_falsey
+      expect(c2.errors.messages[:source_id]).to include('has already been taken')
+    end
+
+    specify 'a citation with different pages does not conflict' do
+      c1.update!(pages: '12')
+      c2.pages = '34'
+
+      expect(c2.valid?).to be_truthy
+    end
+
+    specify 'updating an existing citation does not conflict with itself' do
+      c1.update!(pages: '12')
+
+      expect(c1.update(pages: '12')).to be_truthy
+    end
+
     specify 'empty pages are null, and therefor not unique' do
       expect(Citation.create(citation_object: otu, source: source, pages: '').id).to be_falsey
     end

@@ -102,6 +102,11 @@
         :klass="TAXON_NAME_CLASSIFICATION"
         :target="TAXON_NAME_CLASSIFICATION"
       />
+      <p class="text-muted-color margin-small-top">
+        A taxon name that already has a citation with the same source and
+        pages will not update the "original" flag, and will be reported as
+        not updated.
+      </p>
     </fieldset>
 
     <div
