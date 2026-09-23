@@ -196,7 +196,16 @@ function merge() {
     const group = statusList.value[key]
     newList.all = { ...newList.all, ...group.all }
     newList.tree = { ...newList.tree, ...group.tree }
-    newList.common = { ...newList.common, ...group.common }
+
+    // Common entries are merged across nomenclatural codes, so qualify the
+    // label with the code (e.g. "Fossil (iczn)") to disambiguate identically
+    // named statuses from different codes (see FacetStatus.vue's merge()).
+    Object.keys(group.common).forEach((type) => {
+      newList.common[type] = {
+        ...group.common[type],
+        name: `${group.common[type].name} (${key})`
+      }
+    })
   })
 
   getTreeList(newList.tree, newList.all)
