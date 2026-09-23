@@ -22,6 +22,27 @@ describe TaxonNameClassification, type: :model, group: [:nomenclature] do
         nomen_uris.push uri
       end
     end
+
+    specify 'single-value/side-effect overrides stay confined to Latinized' do
+      # Gender and PartOfSpeech are the only classifications with hard
+      # single-value-per-name uniqueness (validate_uniqueness_of_latinized)
+      # and cached-name cascade side effects (set_cached /
+      # set_cached_names_for_taxon_names) - which is why they're excluded
+      # from the generic status picker in StatusSlice.vue's merge(). If a
+      # future classification outside Latinized needs the same, that
+      # exclusion needs to be revisited too.
+      guarded_methods = %i[validate_uniqueness_of_latinized set_cached set_cached_names_for_taxon_names]
+
+      TaxonNameClassification.descendants.each do |klass|
+        next if klass.name.start_with?('TaxonNameClassification::Latinized')
+
+        overridden = guarded_methods.select { |m|
+          klass.instance_methods(false).include?(m) || klass.private_instance_methods(false).include?(m)
+        }
+
+        expect(overridden).to be_empty, "#{klass.name} overrides #{overridden.join(', ')} outside Latinized - decide whether it needs the same generic-status-picker exclusion Gender/PartOfSpeech get in StatusSlice.vue's merge()"
+      end
+    end
   end
 
   context 'validation' do
