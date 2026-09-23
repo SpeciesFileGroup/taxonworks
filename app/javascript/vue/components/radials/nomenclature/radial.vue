@@ -3,6 +3,7 @@
     v-bind="attrs"
     title="Radial taxon name"
     :slices="slices"
+    :ids="ids"
     :object-type="TAXON_NAME"
   />
 </template>
@@ -35,6 +36,18 @@ defineOptions({
   name: 'RadialNomenclature'
 })
 
+const props = defineProps({
+  ids: {
+    type: Array,
+    // No default array here - this distinguishes "ids was never passed" (the
+    // whole-filter-result radial) from "ids was passed, currently empty"
+    // (the checkboxed radial, before anything is checked); an explicitly
+    // bound undefined falls back to RadialBatch's own ids default below.
+    default: undefined
+  }
+})
+
 const attrs = useAttrs()
-const slices = computed(() => ('ids' in attrs ? SLICES_WITH_STATUS : SLICES))
+const hasIds = computed(() => props.ids !== undefined)
+const slices = computed(() => (hasIds.value ? SLICES_WITH_STATUS : SLICES))
 </script>

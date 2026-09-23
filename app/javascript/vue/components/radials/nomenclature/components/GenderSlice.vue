@@ -111,14 +111,16 @@ const payload = computed(() => ({
 }))
 
 onMounted(() => {
-  TaxonNameClassification.types().then(({ body }) => {
-    const allTypes = body.latinized.all
-    genderList.value = Object.values(allTypes)
-      .filter((item) => GENDER_NAMES.includes(item.name))
-      .sort(
-        (a, b) => GENDER_NAMES.indexOf(a.name) - GENDER_NAMES.indexOf(b.name)
-      )
-  })
+  TaxonNameClassification.types()
+    .then(({ body }) => {
+      const allTypes = body.latinized.all
+      genderList.value = Object.values(allTypes)
+        .filter((item) => GENDER_NAMES.includes(item.name))
+        .sort(
+          (a, b) => GENDER_NAMES.indexOf(a.name) - GENDER_NAMES.indexOf(b.name)
+        )
+    })
+    .catch(() => {})
 })
 
 function handleUpdateResult(data) {

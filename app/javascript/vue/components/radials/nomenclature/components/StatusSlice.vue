@@ -30,12 +30,12 @@
 
     <fieldset v-if="selectedMode">
       <legend>Status</legend>
-      <smart-selector
+      <SmartSelector
         class="separate-bottom"
         :options="options"
         v-model="view"
       />
-      <tree-display
+      <TreeDisplay
         v-if="view === OPTIONS.all"
         @close="view = OPTIONS.common"
         :object-lists="mergeLists"
@@ -62,7 +62,7 @@
           </label>
         </li>
       </ul>
-      <autocomplete
+      <Autocomplete
         v-if="view === OPTIONS.advanced"
         url=""
         :array-list="
@@ -192,10 +192,12 @@ const payload = computed(() => {
 })
 
 onMounted(() => {
-  TaxonNameClassification.types().then(({ body }) => {
-    statusList.value = body
-    merge()
-  })
+  TaxonNameClassification.types()
+    .then(({ body }) => {
+      statusList.value = body
+      merge()
+    })
+    .catch(() => {})
 })
 
 function merge() {
