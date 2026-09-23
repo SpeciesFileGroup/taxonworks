@@ -803,4 +803,22 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
     end
   end
 
+  context 'anatomical_part_query' do
+    let!(:specimen) { FactoryBot.create(:valid_specimen) }
+    let!(:anatomical_part) { FactoryBot.create(:valid_anatomical_part, ancestor: specimen) }
+
+    specify 'matches the origin CollectionObject' do
+      query.anatomical_part_query = ::Queries::AnatomicalPart::Filter.new(anatomical_part_id: anatomical_part.id)
+      expect(query.all).to contain_exactly(specimen)
+    end
+
+    specify 'ignores a non-AnatomicalPart descendant whose id collides with the anatomical part id' do
+      other_specimen = FactoryBot.create(:valid_specimen)
+      FactoryBot.create(:valid_extract, origin: other_specimen, id: anatomical_part.id)
+
+      query.anatomical_part_query = ::Queries::AnatomicalPart::Filter.new(anatomical_part_id: anatomical_part.id)
+      expect(query.all).to contain_exactly(specimen)
+    end
+  end
+
 end

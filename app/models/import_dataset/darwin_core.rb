@@ -240,6 +240,18 @@ class ImportDataset::DarwinCore < ImportDataset
     self.metadata.dig('import_settings', 'nomenclatural_code')&.downcase&.to_sym || :iczn
   end
 
+  def dwc_data_attributes
+    project.preferences['model_predicate_sets'].map do |model, predicate_ids|
+      [model, Hash[
+        *Predicate.where(id: predicate_ids)
+          .select { |p| /^http:\/\/rs\.tdwg\.org\/dwc\/terms\/.*/ =~ p.uri }
+          .map {|p| [p.uri.split('/').last, p]}
+          .flatten
+        ]
+      ]
+    end.to_h
+  end
+
   protected
 
   def get_records(path)
@@ -382,17 +394,5 @@ class ImportDataset::DarwinCore < ImportDataset
         errors.add(:source, "dataset does not have any of the minimum field sets required: #{allowed_sets}")
       end
     end
-  end
-
-  def dwc_data_attributes
-    project.preferences['model_predicate_sets'].map do |model, predicate_ids|
-      [model, Hash[
-        *Predicate.where(id: predicate_ids)
-          .select { |p| /^http:\/\/rs\.tdwg\.org\/dwc\/terms\/.*/ =~ p.uri }
-          .map {|p| [p.uri.split('/').last, p]}
-          .flatten
-        ]
-      ]
-    end.to_h
   end
 end

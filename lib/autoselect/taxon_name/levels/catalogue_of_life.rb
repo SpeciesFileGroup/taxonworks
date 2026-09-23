@@ -25,7 +25,7 @@ module Autoselect
           [record.cached.to_s.presence, col_author_year(record)].compact.join(' ')
         end
 
-        def record_label_html(record)
+        def record_label_html(record, term = nil)
           [record.cached.to_s.presence, col_author_year(record)]
             .compact
             .map { |part| ERB::Util.html_escape(part) }

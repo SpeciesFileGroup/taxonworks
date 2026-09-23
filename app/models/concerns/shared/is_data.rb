@@ -42,6 +42,10 @@ module Shared::IsData
       self < Shared::AssertedDistributions
     end
 
+    def is_environment_assertable?
+      self < Shared::AssertedEnvironments
+    end
+
     def is_biologically_relatable?
       self < Shared::BiologicalAssociations
     end

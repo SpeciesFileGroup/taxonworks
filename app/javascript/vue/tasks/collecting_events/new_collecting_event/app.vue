@@ -32,6 +32,7 @@
               />
               <RadialAnnotator :global-id="store.collectingEvent.global_id" />
               <RadialObject :global-id="store.collectingEvent.global_id" />
+              <RadialNavigation :global-id="store.collectingEvent.global_id" />
             </div>
           </div>
         </div>
@@ -135,7 +136,8 @@ import useStore from '@/components/Form/FormCollectingEvent/store/collectingEven
 import RecentComponent from './components/Recent'
 
 import RadialAnnotator from '@/components/radials/annotator/annotator'
-import RadialObject from '@/components/radials/navigation/radial'
+import RadialObject from '@/components/radials/object/radial.vue'
+import RadialNavigation from '@/components/radials/navigation/radial'
 import platformKey from '@/helpers/getPlatformKey'
 import SetParam from '@/helpers/setParam'
 

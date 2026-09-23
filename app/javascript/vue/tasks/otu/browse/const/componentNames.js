@@ -57,6 +57,10 @@ export default {
     title: 'Asserted distribution',
     status: 'prototype'
   },
+  AssertedEnvironments: {
+    title: 'Asserted environments',
+    status: 'prototype'
+  },
   BiologicalAssociations: {
     title: 'Biological associations',
     status: 'prototype'

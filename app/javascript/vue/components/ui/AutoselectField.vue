@@ -2,6 +2,7 @@
   <div
     :id="effectiveId"
     class="autoselect"
+    data-help='An autoselect. Type "!?" to get help on using it.'
   >
     <!-- Fuse bar — segmented, above input; hidden levels are not rendered -->
     <div class="autoselect__fuse-track">

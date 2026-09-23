@@ -9,7 +9,35 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 ### Added
 
-- raw id search for Biological Association autocompletes
+- Autocomplete for Organization
+- `/api/v1/alternate_values` and `/api/v1/alternate_values/<id>` endpoints
+- Adds extend[]=citations to /api/v1/common_names endpoint
+- Asserted Environments (with terms from the ENVO ontology) for Collecting Events, Gazetteers, and OTUs [#114]
+- Taxon Determination facet to Filter Field Occurrences [#5090]
+
+### Changed
+
+- Updated attribution label in `/api/v1/leads/key/<id>`
+
+### Fixed
+
+- DwC importer incorrectly applied `CollectionObject` project predicates with DwC URIs to `HumanObservation` records, missed `FieldOccurrence` DwC predicate mappings, and failed to flag unused model-specific columns as ignored
+- `controlled_vocabulary_term_id` param is not working on the controlled vocabulary terms endpoint
+- `New taxon name`: browser back/forward buttons left the form out of sync with the URL
+- `New taxon name`: returning with the browser back button from "Add new source" left the task with no taxon loaded
+- Fix error when searching Catalogue of Life level of OTU and Taxon Name autoselects [#5097]
+
+[#114]: https://github.com/SpeciesFileGroup/taxonworks/issues/114
+[#5090]: https://github.com/SpeciesFileGroup/taxonworks/issues/5090
+[#5097]: https://github.com/SpeciesFileGroup/taxonworks/issues/5097
+
+## [0.65.0] - 2026-09-04
+
+### Added
+
+- `Add simple key` task for recording the OTUs and associated data like sex, life stage, locality covered by the key without needing to enter the entire key [#4965]
+- Autoselect replaces OTU smart selector in Comprehensive Specimen Management.
+- Raw id search for Biological Association autocompletes
 - `New Collection Object`: Added a CO Total field to the CO form. Added a `identifier end` field that automatically increments based on the Identifier and the total number of specimens/lots being created. [#4873]
 - `New asserted distribution`: Added preferences modal, moved autosave there, and added option to hide Confidence panel
 - Smart selector for preparation type [#1130]
@@ -22,9 +50,11 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - `Browse sounds task`: Timeline under the waveform. Toggles to hide the regions and the spectrograms
 - `Radial navigator`: `filter collection object` slice for taxon names [#4963]
 - Sessions in open tabs are kept alive, and an expired session is now explained instead of failing requests with a generic error
+- Support for `HumanObservation` in DwC importer
 
 ### Changed
 
+- OTU labels and tags now display more intuitively, and relations to TaxonNames are locked down [#1998]
 - `Simple new specimen` task is now `New collection object`
 - Support partial dates (year only, year-month only) for `startDate` and `endDate` from the api
 - Sort people by uses in Match Authors to People
@@ -38,6 +68,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - `Field synchronize task`: Allow filling multiple columns by pasting from the clipboard [#4286]
 - `Browse sounds task`: Layout updated. Sound regions now use different colors to identify the associated conveyance object. Spectrogram now uses a linear frequency scale.
 - Quick Forms: biological associations slice now display all BAs where the current object is set [#1100]
+- Georeferences with an error radius now show a point marker while the zoom is too far out for the circle to be visible
 
 ### Fixed
 
@@ -50,7 +81,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Don't include highlights with text chosen in autocompletes [#5052]
 - New OTU task keeps existing OTUs selected after Find [#5054]
 - In the Match Taxon Name to OTU task:
-  - add ability to filter on columns #[5051]
+  - add ability to filter on columns [#5051]
   - changing options shouldn't be able to unselect an OTU the user has specifically chosen [#5051]
   - add 'ambiguous' count to summary [#5051]
   - add mode for matching to OTUs in addition to Taxon Names - OTUs only match on names in the morphospecies format [genus] + [one-word-otu_name], e.g. `Tetramorium FHG_pumi` [#5039]
@@ -71,6 +102,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Click on 'All tasks' menu from the Navigator radial in the Anatomical Parts graph task not working [#5078]
 - Add Autoselect CoL dataset picker for !p preferences to all autoselects that didn't have it [#5040]
 
+[#1998]: https://github.com/SpeciesFileGroup/taxonworks/issues/1998
 [#1060]: https://github.com/SpeciesFileGroup/taxonworks/issues/1060
 [#1100]: https://github.com/SpeciesFileGroup/taxonworks/issues/1100
 [#1130]: https://github.com/SpeciesFileGroup/taxonworks/issues/1130
@@ -84,6 +116,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 [#4797]: https://github.com/SpeciesFileGroup/taxonworks/issues/4797
 [#4873]: https://github.com/SpeciesFileGroup/taxonworks/issues/4873
 [#4963]: https://github.com/SpeciesFileGroup/taxonworks/issues/4963
+[#4965]: https://github.com/SpeciesFileGroup/taxonworks/issues/4965
 [#5037]: https://github.com/SpeciesFileGroup/taxonworks/issues/5037
 [#5039]: https://github.com/SpeciesFileGroup/taxonworks/issues/5039
 [#5040]: https://github.com/SpeciesFileGroup/taxonworks/issues/5040
@@ -93,6 +126,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 [#5051]: https://github.com/SpeciesFileGroup/taxonworks/issues/5052
 [#5052]: https://github.com/SpeciesFileGroup/taxonworks/issues/5052
 [#5054]: https://github.com/SpeciesFileGroup/taxonworks/issues/5054
+[#5058]: https://github.com/SpeciesFileGroup/taxonworks/issues/5058
 [#5056]: https://github.com/SpeciesFileGroup/taxonworks/issues/5056
 [#5061]: https://github.com/SpeciesFileGroup/taxonworks/issues/5061
 [#5065]: https://github.com/SpeciesFileGroup/taxonworks/issues/5065
@@ -6520,7 +6554,8 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.64.0...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.65.0...development
+[0.65.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.64.0...v0.65.0
 [0.64.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.63.1...v0.64.0
 [0.63.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.63.0...v0.63.1
 [0.63.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.62.0...v0.63.0

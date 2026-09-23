@@ -1,7 +1,7 @@
 <template>
   <RadialBatch
     v-bind="attrs"
-    title="Radial nomenclature"
+    title="Radial taxon name"
     :slices="SLICES"
     :object-type="TAXON_NAME"
   />

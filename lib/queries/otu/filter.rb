@@ -578,6 +578,13 @@ module Queries
           .joins("JOIN ad ON ad.asserted_distribution_object_id = otus.id AND ad.asserted_distribution_object_type = 'Otu'").distinct
       end
 
+      def asserted_environment_query_facet
+        return nil if asserted_environment_query.nil?
+        ::Otu
+          .with(ae: asserted_environment_query.all)
+          .joins("JOIN ae ON ae.asserted_environment_object_id = otus.id AND ae.asserted_environment_object_type = 'Otu'").distinct
+      end
+
       def content_query_facet
         return nil if content_query.nil?
         s = 'WITH query_con_otus AS (' + content_query.all.to_sql + ') ' +
@@ -704,7 +711,9 @@ module Queries
 
         ::Otu
           .joins(:origin_relationships)
+          .where(origin_relationships: { new_object_type: 'AnatomicalPart' })
           .where("origin_relationships.new_object_id IN (#{ anatomical_part_query.all.select(:id).to_sql })")
+          .distinct
       end
       def dwc_occurrences_facet
         return nil if @dwc_occurrences.nil?
@@ -801,6 +810,7 @@ module Queries
           anatomical_part_query_facet,
           asserted_distribution_query_facet,
           asserted_distributions_facet,
+          asserted_environment_query_facet,
           biological_association_query_facet,
           collecting_event_query_facet,
           collection_object_query_facet,

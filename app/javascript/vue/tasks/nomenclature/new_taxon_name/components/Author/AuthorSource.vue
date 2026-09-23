@@ -29,6 +29,7 @@
         variant="tonal"
         icon
         medium
+        data-turbolinks="false"
         :href="RouteNames.NewSource"
         title="Add new source"
       >

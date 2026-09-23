@@ -168,8 +168,8 @@ RSpec.describe Autoselect::TaxonName::Levels::CatalogueOfLife do
     expect(level.external?).to be true
   end
 
-  it 'has fuse_ms of 2000' do
-    expect(level.fuse_ms).to eq(2000)
+  it 'has the external fuse_ms' do
+    expect(level.fuse_ms).to eq(Autoselect::Level::EXTERNAL_FUSE_MS)
   end
 
   context 'when CoL is unavailable' do

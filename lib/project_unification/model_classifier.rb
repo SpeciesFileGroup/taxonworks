@@ -41,6 +41,7 @@ module ProjectUnification
       CollectionObjectObservation
       AnatomicalPart
       AssertedDistribution
+      AssertedEnvironment
       BiologicalRelationshipType
       BiologicalAssociation
       BiologicalRelationship

@@ -89,7 +89,7 @@ module Queries
         @exact_verbatim_anatomical_origin = params[:exact_verbatim_anatomical_origin]
         @extract_end_date_range = params[:extract_end_date_range]
         @extract_origin = params[:extract_origin]
-        @extact_id = params[:extract_id]
+        @extract_id = params[:extract_id]
         @extract_start_date_range = params[:extract_start_date_range]
         @otu_id = params[:otu_id]
         @repository_id = params[:repository_id]
@@ -268,7 +268,9 @@ module Queries
 
         ::Extract
           .joins(:related_origin_relationships)
+          .where(origin_relationships: { old_object_type: 'AnatomicalPart' })
           .where("origin_relationships.old_object_id IN (#{ anatomical_part_query.all.select(:id).to_sql })")
+          .distinct
       end
 
       # @return [Array]

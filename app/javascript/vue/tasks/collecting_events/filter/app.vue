@@ -73,7 +73,7 @@
           :list="list"
           :hide-unfrozen="hideFrozen"
           :preference-key="`tasks::filters::${COLLECTING_EVENT}`"
-          :radial-object="false"
+          :radial-object="true"
           @mouseover:row="setRowHover"
           @mouseout:body="() => (rowHover = null)"
           @on-sort="($event) => (list = $event)"

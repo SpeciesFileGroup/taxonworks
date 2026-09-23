@@ -60,6 +60,7 @@
               >
                 <RadialAnnotator :global-id="collectingEvent.global_id" />
                 <RadialObject :global-id="collectingEvent.global_id" />
+                <RadialNavigation :global-id="collectingEvent.global_id" />
                 <VPin
                   :object-id="collectingEvent.id"
                   type="CollectingEvent"
@@ -109,7 +110,8 @@ import VLock from '@/components/ui/VLock/index.vue'
 import IconWarning from '@/components/Icon/IconWarning.vue'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
-import RadialObject from '@/components/radials/navigation/radial.vue'
+import RadialObject from '@/components/radials/object/radial.vue'
+import RadialNavigation from '@/components/radials/navigation/radial.vue'
 import VPin from '@/components/ui/Button/ButtonPin.vue'
 import platformKey from '@/helpers/getPlatformKey'
 import useCollectingEventStore from '@/components/Form/FormCollectingEvent/store/collectingEvent.js'

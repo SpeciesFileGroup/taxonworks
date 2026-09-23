@@ -25,6 +25,16 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
     expect(q.all).to contain_exactly(d.otu)
   end
 
+  specify '#asserted_environment_query_facet' do
+    FactoryBot.create(:asserted_environment, uri_label: 'temperate forest biome', asserted_environment_object: o1)
+    o2
+
+    q = Queries::Otu::Filter.new(
+      asserted_environment_query: {uri_label: 'temperate forest biome'}
+    )
+    expect(q.all).to contain_exactly(o1)
+  end
+
   context '#dwc_occurrences' do
     specify 'true via CollectionObject' do
       s = Specimen.create!
@@ -263,6 +273,21 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
     e = FactoryBot.create(:valid_extract, origin: o1)
     q.extract_query = ::Queries::Extract::Filter.new(extract_id: e.id)
     o2
+    expect(q.all).to contain_exactly(o1)
+  end
+
+  specify '#anatomical_part_query' do
+    ap = FactoryBot.create(:valid_anatomical_part, ancestor: o1)
+    q.anatomical_part_query = ::Queries::AnatomicalPart::Filter.new(anatomical_part_id: ap.id)
+    o2
+    expect(q.all).to contain_exactly(o1)
+  end
+
+  specify '#anatomical_part_query ignores a non-AnatomicalPart descendant with a colliding id' do
+    ap = FactoryBot.create(:valid_anatomical_part, ancestor: o1)
+    FactoryBot.create(:valid_extract, origin: o2, id: ap.id)
+
+    q.anatomical_part_query = ::Queries::AnatomicalPart::Filter.new(anatomical_part_id: ap.id)
     expect(q.all).to contain_exactly(o1)
   end
 
