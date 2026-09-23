@@ -81,7 +81,7 @@
         v-if="selectedType"
         class="flex-separate middle margin-small-top"
       >
-        Selected: <b>{{ selectedType.name }}</b>
+        <b>{{ selectedType.name }}</b>
         <VBtn
           circle
           color="destroy"
