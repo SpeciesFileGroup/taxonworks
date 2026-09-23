@@ -340,10 +340,17 @@ class TaxonNameClassification < ApplicationRecord
 
         query.find_each do |taxon_name|
           if existing = existing_by_taxon_name_id[taxon_name.id]
-            if existing.update(type: gender_type)
+            # Already the requested gender - skip the update entirely rather
+            # than trigger the expensive after_commit cascade (walks every
+            # descendant taxon name to recompute cached spellings) for
+            # nothing.
+            if existing.type == gender_type
+              r.updated.push existing.id
+            elsif existing.update(type: gender_type)
               r.updated.push existing.id
             else
               r.not_updated.push taxon_name.id
+              existing.errors.full_messages.each { |msg| r.validation_errors[msg] += 1 }
             end
           else
             classification = TaxonNameClassification.create(taxon_name: taxon_name, type: gender_type)
@@ -351,6 +358,7 @@ class TaxonNameClassification < ApplicationRecord
               r.updated.push classification.id
             else
               r.not_updated.push taxon_name.id
+              classification.errors.full_messages.each { |msg| r.validation_errors[msg] += 1 }
             end
           end
         end
@@ -360,17 +368,37 @@ class TaxonNameClassification < ApplicationRecord
       if async && !called_from_async
         dispatch_batch_by_filter_scope_job(hash_query:, mode:, params:, project_id:, user_id:)
       else
-        TaxonNameClassification
+        existing_by_taxon_name_id = TaxonNameClassification
           .with_type_array(TAXON_NAME_CLASSIFICATIONS_FOR_GENDER)
           .where(taxon_name: query)
-          .find_each do |c|
-            c.destroy # destroy is necessary to updated cached values
-            if c.destroyed?
-              r.updated.push nil
-            else
-              r.not_updated.push c.taxon_name_id
-            end
+          .group_by(&:taxon_name_id)
+
+        # Iterate every taxon name in the query (not just ones with an
+        # existing gender classification) so updated/not_updated always
+        # account for the full total_attempted. A taxon name with no gender
+        # to remove lands in not_updated with no validation_errors entry;
+        # a genuine destroy failure also lands in not_updated, but with one -
+        # that's how the two are told apart.
+        query.find_each do |taxon_name|
+          classifications = existing_by_taxon_name_id[taxon_name.id] || []
+
+          if classifications.empty?
+            r.not_updated.push taxon_name.id
+            next
           end
+
+          failed = classifications.reject do |c|
+            c.destroy # destroy is necessary to updated cached values
+            c.destroyed?
+          end
+
+          if failed.empty?
+            r.updated.push nil
+          else
+            r.not_updated.push taxon_name.id
+            failed.each { |c| c.errors.full_messages.each { |msg| r.validation_errors[msg] += 1 } }
+          end
+        end
       end
 
     when :add_status
@@ -464,18 +492,37 @@ class TaxonNameClassification < ApplicationRecord
       if async && !called_from_async
         dispatch_batch_by_filter_scope_job(hash_query:, mode:, params:, project_id:, user_id:)
       else
-        TaxonNameClassification
+        existing_by_taxon_name_id = TaxonNameClassification
           .where(type: [status_type, *disjoint_types])
           .where(taxon_name: query)
-          .find_each do |c|
-            c.destroy # destroy is necessary for cached processing
-            if c.destroyed?
-              r.updated.push nil
-            else
-              r.not_updated.push c.taxon_name_id
-              c.errors.full_messages.each { |msg| r.validation_errors[msg] += 1 }
-            end
+          .group_by(&:taxon_name_id)
+
+        # Iterate every taxon name in the query (not just ones with a
+        # matching status) so updated/not_updated always account for the
+        # full total_attempted. A taxon name with no such status to remove
+        # lands in not_updated with no validation_errors entry; a genuine
+        # destroy failure also lands in not_updated, but with one - that's
+        # how the two are told apart.
+        query.find_each do |taxon_name|
+          classifications = existing_by_taxon_name_id[taxon_name.id] || []
+
+          if classifications.empty?
+            r.not_updated.push taxon_name.id
+            next
           end
+
+          failed = classifications.reject do |c|
+            c.destroy # destroy is necessary for cached processing
+            c.destroyed?
+          end
+
+          if failed.empty?
+            r.updated.push nil
+          else
+            r.not_updated.push taxon_name.id
+            failed.each { |c| c.errors.full_messages.each { |msg| r.validation_errors[msg] += 1 } }
+          end
+        end
       end
     end
 

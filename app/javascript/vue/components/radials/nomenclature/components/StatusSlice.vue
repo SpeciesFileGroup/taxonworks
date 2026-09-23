@@ -84,7 +84,7 @@
         <b>{{ selectedType.name }}</b>
         <VBtn
           circle
-          color="destroy"
+          color="primary"
           @click="selectedType = undefined"
         >
           <VIcon

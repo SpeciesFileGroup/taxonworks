@@ -259,6 +259,7 @@ describe TaxonNameClassification, type: :model, group: [:nomenclature] do
         )
         expect(r[:not_updated]).to include(species.id)
         expect(TaxonNameClassification.where(taxon_name: species).count).to eq(0)
+        expect(r[:validation_errors].keys).to include(a_string_matching(/Gender is only applicable to genus names/))
       end
 
       specify ':set creates a gender classification when none exists' do
@@ -283,6 +284,19 @@ describe TaxonNameClassification, type: :model, group: [:nomenclature] do
         )
         expect(TaxonNameClassification.where(taxon_name: genus, type: feminine).count).to eq(1)
         expect(TaxonNameClassification.where(taxon_name: genus, type: masculine).count).to eq(0)
+      end
+
+      specify ':set skips the update (and its cached-name cascade) when the classification already has the requested gender' do
+        existing = TaxonNameClassification.create!(taxon_name: genus, type: masculine)
+        original_updated_at = existing.reload.updated_at
+        q = Queries::TaxonName::Filter.new(taxon_name_id: genus.id)
+        r = TaxonNameClassification.batch_by_filter_scope(
+          filter_query: { 'taxon_name_query' => q.params },
+          mode: :set,
+          params: { type: masculine }
+        )
+        expect(r[:updated]).to eq([existing.id])
+        expect(existing.reload.updated_at).to eq(original_updated_at)
       end
 
       specify ':set is a no-op and returns not_updated when type is invalid' do
@@ -316,6 +330,21 @@ describe TaxonNameClassification, type: :model, group: [:nomenclature] do
             params: {}
           )
         }.not_to change(TaxonNameClassification, :count)
+      end
+
+      specify ':remove_gender accounts for every taxon name in the filter, without miscounting a no-op as updated' do
+        TaxonNameClassification.create!(taxon_name: genus, type: masculine)
+        other_genus = FactoryBot.create(:iczn_genus)
+        q = Queries::TaxonName::Filter.new(taxon_name_id: [genus.id, other_genus.id])
+        r = TaxonNameClassification.batch_by_filter_scope(
+          filter_query: { 'taxon_name_query' => q.params },
+          mode: :remove_gender,
+          params: {}
+        )
+        expect(r[:total_attempted]).to eq(2)
+        expect(r[:updated].length).to eq(1)
+        expect(r[:not_updated]).to include(other_genus.id)
+        expect(r[:validation_errors]).to be_empty
       end
 
       specify ':set async dispatches a job and creates the gender classification after processing' do
@@ -454,6 +483,21 @@ describe TaxonNameClassification, type: :model, group: [:nomenclature] do
             params: { type: invalid_type }
           )
         }.not_to change(TaxonNameClassification, :count)
+      end
+
+      specify ':remove_status accounts for every taxon name in the filter, without miscounting a no-op as updated' do
+        TaxonNameClassification.create!(taxon_name: iczn_name, type: invalid_type)
+        other_name = FactoryBot.create(:valid_protonym)
+        q = Queries::TaxonName::Filter.new(taxon_name_id: [iczn_name.id, other_name.id])
+        r = TaxonNameClassification.batch_by_filter_scope(
+          filter_query: { 'taxon_name_query' => q.params },
+          mode: :remove_status,
+          params: { type: invalid_type }
+        )
+        expect(r[:total_attempted]).to eq(2)
+        expect(r[:updated].length).to eq(1)
+        expect(r[:not_updated]).to include(other_name.id)
+        expect(r[:validation_errors]).to be_empty
       end
 
       specify ':add_status async dispatches a job and creates the classification after processing' do
