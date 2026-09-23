@@ -328,6 +328,7 @@ describe TaxonNameClassification, type: :model, group: [:nomenclature] do
           params: { type: fossil_type }
         )
         expect(r[:not_updated]).to include(iczn_name.id)
+        expect(r[:validation_errors]).to include('conflicts with an existing disjoint classification' => 1)
         expect(TaxonNameClassification.where(taxon_name: iczn_name, type: fossil_type).count).to eq(0)
         expect(TaxonNameClassification.where(taxon_name: iczn_name, type: ichnotaxon_type).count).to eq(1)
         expect(existing.reload).to be_persisted
@@ -378,6 +379,7 @@ describe TaxonNameClassification, type: :model, group: [:nomenclature] do
           params: { type: invalid_type } # ICZN-only type used against an ICN name
         )
         expect(r[:not_updated]).to include(icn_name.id)
+        expect(r[:validation_errors].keys).to include(a_string_matching(/nomenclatural code/))
         expect(TaxonNameClassification.where(taxon_name: icn_name).count).to eq(0)
       end
 

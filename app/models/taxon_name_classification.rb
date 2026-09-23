@@ -424,6 +424,7 @@ class TaxonNameClassification < ApplicationRecord
         query.find_each do |taxon_name|
           if !existing_by_taxon_name_id.key?(taxon_name.id) && conflicting_taxon_name_ids.include?(taxon_name.id)
             r.not_updated.push taxon_name.id
+            r.validation_errors['conflicts with an existing disjoint classification'] += 1
             next
           end
 
@@ -432,6 +433,7 @@ class TaxonNameClassification < ApplicationRecord
 
           unless classification.persisted?
             r.not_updated.push taxon_name.id
+            classification.errors.full_messages.each { |msg| r.validation_errors[msg] += 1 }
             next
           end
 
@@ -475,6 +477,7 @@ class TaxonNameClassification < ApplicationRecord
               r.updated.push nil
             else
               r.not_updated.push c.taxon_name_id
+              c.errors.full_messages.each { |msg| r.validation_errors[msg] += 1 }
             end
           end
       end
