@@ -385,7 +385,7 @@ class Lead < ApplicationRecord
         ) AS otus_count,
         MAX(otus_source.updated_at) AS key_updated_at,
         0 AS couplets_count, -- count is now computed in views
-        (ARRAY_AGG(otus_source.updated_by_id ORDER BY otus_source.updated_at DESC))[1] AS key_updated_by_id
+        (ARRAY_AGG(otus_source.updated_by_id ORDER BY otus_source.updated_at DESC, otus_source.id DESC))[1] AS key_updated_by_id
       ")
 
     Lead
@@ -430,7 +430,7 @@ class Lead < ApplicationRecord
         0 AS couplets_count,
         CASE
           WHEN MAX(c.updated_at) IS NOT NULL AND MAX(c.updated_at) > leads.updated_at
-          THEN (ARRAY_AGG(c.updated_by_id ORDER BY c.updated_at DESC))[1]
+          THEN (ARRAY_AGG(c.updated_by_id ORDER BY c.updated_at DESC, c.id DESC))[1]
           ELSE leads.updated_by_id
         END AS key_updated_by_id
       ")
