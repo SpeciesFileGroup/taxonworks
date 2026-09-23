@@ -331,14 +331,7 @@ class TaxonNameClassification < ApplicationRecord
       return r unless TAXON_NAME_CLASSIFICATIONS_FOR_GENDER.include?(gender_type)
 
       if async && !called_from_async
-        BatchByFilterScopeJob.perform_later(
-          klass: self.name,
-          hash_query:,
-          mode:,
-          params:,
-          project_id:,
-          user_id:
-        )
+        dispatch_batch_by_filter_scope_job(hash_query:, mode:, params:, project_id:, user_id:)
       else
         existing_by_taxon_name_id = TaxonNameClassification
           .with_type_array(TAXON_NAME_CLASSIFICATIONS_FOR_GENDER)
@@ -365,14 +358,7 @@ class TaxonNameClassification < ApplicationRecord
 
     when :remove_gender
       if async && !called_from_async
-        BatchByFilterScopeJob.perform_later(
-          klass: self.name,
-          hash_query:,
-          mode:,
-          params:,
-          project_id:,
-          user_id:
-        )
+        dispatch_batch_by_filter_scope_job(hash_query:, mode:, params:, project_id:, user_id:)
       else
         TaxonNameClassification
           .with_type_array(TAXON_NAME_CLASSIFICATIONS_FOR_GENDER)
@@ -400,14 +386,7 @@ class TaxonNameClassification < ApplicationRecord
       citation_source_id = citation_params && citation_params[:source_id]
 
       if async && !called_from_async
-        BatchByFilterScopeJob.perform_later(
-          klass: self.name,
-          hash_query:,
-          mode:,
-          params:,
-          project_id:,
-          user_id:
-        )
+        dispatch_batch_by_filter_scope_job(hash_query:, mode:, params:, project_id:, user_id:)
       else
         existing_by_taxon_name_id = TaxonNameClassification
           .where(type: status_type)
@@ -420,6 +399,20 @@ class TaxonNameClassification < ApplicationRecord
           .distinct
           .pluck(:taxon_name_id)
           .to_set
+
+        # Classifications that already carry the exact citation (same
+        # source + pages) being requested; skip re-attaching those rather
+        # than paying a uniqueness-check-then-reject round trip per row.
+        already_cited_classification_ids = if citation_source_id && existing_by_taxon_name_id.any?
+          Citation
+            .where(citation_object_type: 'TaxonNameClassification', citation_object_id: existing_by_taxon_name_id.values.map(&:id))
+            .where(source_id: citation_source_id, pages: citation_params[:pages])
+            .distinct
+            .pluck(:citation_object_id)
+            .to_set
+        else
+          Set.new
+        end
 
         query.find_each do |taxon_name|
           if !existing_by_taxon_name_id.key?(taxon_name.id) && conflicting_taxon_name_ids.include?(taxon_name.id)
@@ -439,13 +432,23 @@ class TaxonNameClassification < ApplicationRecord
 
           # Citation is attached regardless of whether the status is new or
           # already existed; Citation's own uniqueness validation (source +
-          # pages, scoped to this classification) silently no-ops a repeat.
-          if citation_source_id
-            classification.citations.create(
+          # pages, scoped to this classification) silently no-ops a repeat -
+          # that's tolerated. Any other failure (e.g. a conflicting
+          # is_original) means the request wasn't fully completed, so the
+          # taxon name is reported as not_updated even though the
+          # classification itself was added/confirmed and is left in place.
+          if citation_source_id && !already_cited_classification_ids.include?(classification.id)
+            citation = classification.citations.create(
               source_id: citation_source_id,
               pages: citation_params[:pages],
               is_original: citation_params[:is_original]
             )
+
+            if !citation.persisted? && citation.errors[:source_id].empty?
+              r.not_updated.push taxon_name.id
+              citation.errors.full_messages.each { |msg| r.validation_errors[msg] += 1 }
+              next
+            end
           end
 
           r.updated.push classification.id
@@ -459,14 +462,7 @@ class TaxonNameClassification < ApplicationRecord
       disjoint_types = status_type.constantize.disjoint_taxon_name_classes
 
       if async && !called_from_async
-        BatchByFilterScopeJob.perform_later(
-          klass: self.name,
-          hash_query:,
-          mode:,
-          params:,
-          project_id:,
-          user_id:
-        )
+        dispatch_batch_by_filter_scope_job(hash_query:, mode:, params:, project_id:, user_id:)
       else
         TaxonNameClassification
           .where(type: [status_type, *disjoint_types])
@@ -484,6 +480,17 @@ class TaxonNameClassification < ApplicationRecord
     end
 
     r
+  end
+
+  def self.dispatch_batch_by_filter_scope_job(hash_query:, mode:, params:, project_id:, user_id:)
+    BatchByFilterScopeJob.perform_later(
+      klass: self.name,
+      hash_query:,
+      mode:,
+      params:,
+      project_id:,
+      user_id:
+    )
   end
 
  private

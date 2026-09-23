@@ -41,15 +41,15 @@
         v-model="view"
       />
       <tree-display
-        v-if="view === smartOptions.all"
-        @close="view = smartOptions.common"
+        v-if="view === OPTIONS.all"
+        @close="view = OPTIONS.common"
         :object-lists="mergeLists"
         modal-title="Status"
         display="name"
         @selected="selectType"
       />
       <ul
-        v-if="view === smartOptions.common"
+        v-if="view === OPTIONS.common"
         class="no_bullets"
       >
         <li
@@ -68,7 +68,7 @@
         </li>
       </ul>
       <autocomplete
-        v-if="view === smartOptions.advanced"
+        v-if="view === OPTIONS.advanced"
         url=""
         :array-list="
           Object.keys(mergeLists.all).map((key) => mergeLists.all[key])
@@ -168,7 +168,6 @@ const mergeLists = ref({})
 const view = ref(OPTIONS.common)
 const citation = ref(makeCitation(TAXON_NAME_CLASSIFICATION))
 
-const smartOptions = computed(() => OPTIONS)
 const options = computed(() => Object.values(OPTIONS))
 
 const canSubmit = computed(() => !!selectedMode.value && !!selectedType.value)
@@ -235,7 +234,7 @@ function getTreeList(list, ranksList) {
 
 function selectType(item) {
   selectedType.value = item
-  view.value = smartOptions.value.common
+  view.value = OPTIONS.common
 }
 
 async function openModal() {

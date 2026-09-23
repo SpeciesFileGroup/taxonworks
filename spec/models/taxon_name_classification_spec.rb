@@ -515,6 +515,26 @@ describe TaxonNameClassification, type: :model, group: [:nomenclature] do
           )
           expect(r[:updated]).to eq([existing.id])
           expect(existing.citations.reload.count).to eq(1)
+          expect(r[:validation_errors]).to be_empty
+        end
+
+        specify 'reports not_updated (and why) when the citation fails for a reason other than the tolerated duplicate, leaving the classification in place' do
+          existing = TaxonNameClassification.create!(taxon_name: iczn_name, type: invalid_type)
+          other_source = FactoryBot.create(:valid_source)
+          existing.citations.create!(source_id: other_source.id, pages: '1', is_original: true)
+
+          q = Queries::TaxonName::Filter.new(taxon_name_id: iczn_name.id)
+          r = TaxonNameClassification.batch_by_filter_scope(
+            filter_query: { 'taxon_name_query' => q.params },
+            mode: :add_status,
+            params: { type: invalid_type, citation: { source_id: source.id, pages: '12', is_original: true } }
+          )
+
+          expect(r[:updated]).to be_empty
+          expect(r[:not_updated]).to include(iczn_name.id)
+          expect(TaxonNameClassification.where(taxon_name: iczn_name, type: invalid_type).count).to eq(1)
+          expect(existing.citations.reload.count).to eq(1)
+          expect(r[:validation_errors].keys).to include(a_string_matching(/can only be assigned once per object/))
         end
 
         specify 'a citation with different pages is added alongside an existing citation' do
