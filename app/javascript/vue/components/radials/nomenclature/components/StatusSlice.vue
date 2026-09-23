@@ -208,12 +208,25 @@ function merge() {
     if (key === 'latinized') return
 
     const group = statusList.value[key]
-    newList.all = { ...newList.all, ...group.all }
+
+    // getTreeList (below) stamps each tree node's display name from
+    // group.all; do that per group before qualifying names, since the tree
+    // view (recursiveList.vue) already appends its own code suffix from
+    // item.type - qualifying first would double it up ("Fossil (iczn) (Iczn)").
+    getTreeList(group.tree, group.all)
     newList.tree = { ...newList.tree, ...group.tree }
 
-    // Common entries are merged across nomenclatural codes, so qualify the
-    // label with the code (e.g. "Fossil (iczn)") to disambiguate identically
-    // named statuses from different codes (see FacetStatus.vue's merge()).
+    // "All"/"common" entries have no disambiguation of their own (unlike the
+    // tree view), so qualify each label with the code (e.g. "Fossil (iczn)")
+    // to tell identically named statuses from different codes apart (see
+    // FacetStatus.vue's merge()).
+    Object.keys(group.all).forEach((type) => {
+      newList.all[type] = {
+        ...group.all[type],
+        name: `${group.all[type].name} (${key})`
+      }
+    })
+
     Object.keys(group.common).forEach((type) => {
       newList.common[type] = {
         ...group.common[type],
@@ -222,7 +235,6 @@ function merge() {
     })
   })
 
-  getTreeList(newList.tree, newList.all)
   mergeLists.value = newList
 }
 
