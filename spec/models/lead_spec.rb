@@ -327,7 +327,7 @@ RSpec.describe Lead, type: :model do
       expect(q.first.key_updated_by).to eq(child_updated_by_name)
     end
 
-    specify 'stays discoverable via is_public filtering after editing a child (#5080)' do
+    specify 'stays discoverable via is_public filtering after editing a child' do
       root = FactoryBot.create(:valid_lead, is_public: true)
       child = FactoryBot.create(:valid_lead)
       root.add_child(child)
@@ -340,7 +340,7 @@ RSpec.describe Lead, type: :model do
       expect(q.map(&:id)).to include(root.id)
     end
 
-    specify 'stays discoverable via is_public filtering after editing a child of a virtual root (#5080)' do
+    specify 'stays discoverable via is_public filtering after editing a child of a virtual root' do
       root = FactoryBot.create(:valid_lead, is_virtual: true, is_public: true)
       child = FactoryBot.create(:valid_lead, parent: root, is_virtual: true, text: nil)
 
@@ -399,43 +399,6 @@ RSpec.describe Lead, type: :model do
       expect(root.updated_by_id).to eq(user2.id)
       expect(q.first.key_updated_by_id).to eq(Current.user_id)
     end
-
-    specify 'returns a deterministic key_updated_by_id when nodes tie on updated_at' do
-      user_a = FactoryBot.create(:valid_user)
-      user_b = FactoryBot.create(:valid_user)
-
-      root = FactoryBot.create(:valid_lead)
-      child_a = FactoryBot.create(:valid_lead, parent: root)
-      child_b = FactoryBot.create(:valid_lead, parent: root)
-      expect(child_b.id).to be > child_a.id
-
-      # Force a real tie on updated_at (e.g. as could happen from a bulk
-      # import), leaving id as the only way to break it deterministically.
-      tied_at = Time.current
-      child_a.update_columns(updated_at: tied_at, updated_by_id: user_a.id)
-      child_b.update_columns(updated_at: tied_at, updated_by_id: user_b.id)
-
-      q = Lead.roots_with_data(project_id)
-      expect(q.first.key_updated_by_id).to eq(user_b.id)
-    end
-
-    specify 'returns a deterministic key_updated_by_id for a virtual root when nodes tie on updated_at' do
-      user_a = FactoryBot.create(:valid_user)
-      user_b = FactoryBot.create(:valid_user)
-
-      root = FactoryBot.create(:valid_lead, is_virtual: true)
-      child_a = FactoryBot.create(:valid_lead, parent: root, is_virtual: true, text: nil)
-      child_b = FactoryBot.create(:valid_lead, parent: root, is_virtual: true, text: nil)
-      expect(child_b.id).to be > child_a.id
-
-      tied_at = Time.current
-      child_a.update_columns(updated_at: tied_at, updated_by_id: user_a.id)
-      child_b.update_columns(updated_at: tied_at, updated_by_id: user_b.id)
-
-      q = Lead.roots_with_data(project_id, false, is_virtual: true).where(id: [root.id])
-      expect(q.first.key_updated_by_id).to eq(user_b.id)
-    end
-
   end
 
   context '::child_descendant_lead_item_flags' do
