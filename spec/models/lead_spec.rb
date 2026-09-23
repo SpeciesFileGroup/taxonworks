@@ -340,6 +340,18 @@ RSpec.describe Lead, type: :model do
       expect(q.map(&:id)).to include(root.id)
     end
 
+    specify 'stays discoverable via is_public filtering after editing a child of a virtual root (#5080)' do
+      root = FactoryBot.create(:valid_lead, is_virtual: true, is_public: true)
+      child = FactoryBot.create(:valid_lead, parent: root, is_virtual: true, text: nil)
+
+      # Editing a non-root node must not change the root's own is_public
+      # (which stays true), even though it changes key_updated_at/by.
+      child.update!(text: 'new text')
+
+      q = Lead.roots_with_data(project_id, false, is_virtual: true).where(is_public: true)
+      expect(q.map(&:id)).to include(root.id)
+    end
+
     specify "doesn't pre-load otus when you don't tell it to" do
       otu = FactoryBot.create(:valid_otu)
 

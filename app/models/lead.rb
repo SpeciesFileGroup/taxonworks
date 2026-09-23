@@ -350,13 +350,10 @@ class Lead < ApplicationRecord
   # Heavy path used for non-virtual. Walks lead_hierarchies + lead_items to
   # compute otus_count and key_updated_at across the whole tree.
   def self.nonvirtual_roots_with_data(project_id)
-    # The data subquery computes, per root, otus_count, key_updated_at, and
-    # key_updated_by_id (the updated_by_id of whichever node in the tree,
-    # root or descendant, has the max updated_at). The outer query stays
-    # keyed on the root's own id throughout, so callers can safely add
-    # conditions (e.g. `where(is_public: true)`) or eager-load associations
-    # (e.g. `includes(:otu)`) and have them apply to the root, not to
-    # whichever descendant happened to be edited most recently.
+    # Computes, per root, otus_count, key_updated_at, and key_updated_by_id
+    # (the updated_by_id of whichever node in the tree, root or descendant,
+    # has the max updated_at). See roots_from_data for how this is joined
+    # back to the root.
     data = Lead
       .joins('JOIN lead_hierarchies AS lh
         ON leads.id = lh.ancestor_id')
@@ -388,19 +385,7 @@ class Lead < ApplicationRecord
         (ARRAY_AGG(otus_source.updated_by_id ORDER BY otus_source.updated_at DESC, otus_source.id DESC))[1] AS key_updated_by_id
       ")
 
-    Lead
-      .joins("JOIN (#{data.to_sql}) AS leads_data
-        ON leads_data.id = leads.id")
-      .joins('JOIN users
-        ON users.id = leads_data.key_updated_by_id')
-      .select('
-        leads.*,
-        leads_data.otus_count,
-        leads_data.key_updated_at,
-        leads_data.couplets_count,
-        leads_data.key_updated_by_id,
-        users.name AS key_updated_by
-      ')
+    roots_from_data(data)
   end
 
   # Cheap path for simple/cite_key roots (is_virtual = TRUE). Simple keys are
@@ -413,9 +398,9 @@ class Lead < ApplicationRecord
   # child edited by someone else than the root's own last editor must still
   # be reflected).
   def self.virtual_roots_with_data(project_id)
-    # Same shape as nonvirtual_roots_with_data above: the data subquery
-    # computes key_updated_by_id per root (root or child, whichever was
-    # updated most recently), the outer query just joins users on it.
+    # Computes key_updated_by_id per root (root or child, whichever was
+    # updated most recently). See roots_from_data for how this is joined
+    # back to the root.
     data = Lead
       .joins('LEFT JOIN leads AS c ON c.parent_id = leads.id')
       .where(
@@ -435,6 +420,17 @@ class Lead < ApplicationRecord
         END AS key_updated_by_id
       ")
 
+    roots_from_data(data)
+  end
+
+  # Shared outer join used by both nonvirtual_roots_with_data and
+  # virtual_roots_with_data: joins a per-root `data` subquery (which must
+  # select leads.id, otus_count, key_updated_at, couplets_count, and
+  # key_updated_by_id) back onto leads.id and users, keeping the outer query
+  # keyed on the root's own id so callers can safely add conditions (e.g.
+  # `where(is_public: true)`) or eager-load associations (e.g.
+  # `includes(:otu)`) and have them apply to the root.
+  def self.roots_from_data(data)
     Lead
       .joins("JOIN (#{data.to_sql}) AS leads_data
         ON leads_data.id = leads.id")
@@ -449,6 +445,7 @@ class Lead < ApplicationRecord
         users.name AS key_updated_by
       ')
   end
+  private_class_method :roots_from_data
 
   def redirect_options(project_id)
     leads = Lead
