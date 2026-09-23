@@ -90,7 +90,7 @@ describe TaxonNameClassification, type: :model, group: [:nomenclature] do
         taxon_name_classification.taxon_name = g
         taxon_name_classification.type_class = 'TaxonNameClassification::Icn::Fossil'
         expect(taxon_name_classification.valid?).to be_falsey
-        msg = 'Taxon name <i>Aus</i> belongs to iczn nomenclatural code, but the status used from icn nomenclature code'
+        msg = 'Taxon name <i>Aus</i> belongs to the iczn nomenclatural code, but the status is from the icn nomenclatural code'
         expect(taxon_name_classification.errors.full_messages.include?(msg)).to be_truthy
       end
     end

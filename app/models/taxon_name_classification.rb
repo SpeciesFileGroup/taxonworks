@@ -499,7 +499,10 @@ class TaxonNameClassification < ApplicationRecord
     if taxon_name && type && nomenclature_code
       tn = taxon_name.is_combination? ? taxon_name.protonyms.last : taxon_name
       nc = tn.rank_class.nomenclatural_code
-      errors.add(:taxon_name, "#{taxon_name.cached_html} belongs to #{taxon_name.rank_class.nomenclatural_code} nomenclatural code, but the status used from #{nomenclature_code} nomenclature code") if nomenclature_code != nc
+      if nomenclature_code != nc
+        taxon_name_code = nc.nil? ? 'no' : "the #{nc}"
+        errors.add(:taxon_name, "#{taxon_name.cached_html} belongs to #{taxon_name_code} nomenclatural code, but the status is from the #{nomenclature_code} nomenclatural code")
+      end
     end
   end
 
