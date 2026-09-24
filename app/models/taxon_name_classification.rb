@@ -416,7 +416,7 @@ class TaxonNameClassification < ApplicationRecord
 
       # Disjoint types (e.g. Iczn::Fossil::Ichnotaxon is disjoint with its own
       # parent Iczn::Fossil) already satisfy this status; skip creating a
-      # conflicting sibling rather than let the two coexist.
+      # conflicting status rather than let the two coexist.
       disjoint_types = status_type.constantize.disjoint_taxon_name_classes
 
       citation_params = params[:citation]&.symbolize_keys
