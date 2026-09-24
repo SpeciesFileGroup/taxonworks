@@ -41,9 +41,8 @@
     flex-direction: row;
     position: relative;
     width: 420px;
-
     min-height: 160px;
-    border-radius: var(--border-radius-medium);
+    border-radius: var(--border-radius-large);
     background-color: var(--panel-bg-color);
     color: var(--text-color);
     box-shadow: var(--panel-shadow);
@@ -106,7 +105,7 @@
   }
 
   .task-information {
-    padding: $standard_padding;
+    padding: var(--spacing-md);
   }
 
   .fav-link {
