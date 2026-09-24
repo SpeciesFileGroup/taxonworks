@@ -492,18 +492,14 @@ class TaxonNameClassification < ApplicationRecord
       status_type = params[:type]
       return r unless TAXON_NAME_CLASSIFICATION_NAMES.include?(status_type)
 
-      # More specific forms of the status go too (e.g. removing Iczn::Fossil
-      # removes Iczn::Fossil::Ichnotaxon). Not disjoint_taxon_name_classes:
-      # that's every *conflicting* status, which would reach unrelated ones
-      # (Available when removing NomenNudum, all ICN/ICNP/ICVCN statuses
-      # when removing Iczn::Fossil).
-      remove_types = [status_type, *status_type.constantize.descendants.map(&:name)]
-
       if async && !called_from_async
         dispatch_batch_by_filter_scope_job(hash_query:, mode:, params:, project_id:, user_id:)
       else
+        # Only the exact type selected: not its subclasses (e.g. removing
+        # Iczn::Fossil leaves Iczn::Fossil::Ichnotaxon), and not
+        # disjoint_taxon_name_classes, which is every *conflicting* status.
         destroy_classifications_for_batch(
-          classifications: TaxonNameClassification.where(type: remove_types),
+          classifications: TaxonNameClassification.where(type: status_type),
           query:,
           batch_response: r
         )

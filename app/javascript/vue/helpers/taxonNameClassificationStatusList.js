@@ -59,20 +59,3 @@ export function mergeStatusList(statusList, { codes, qualifyAll = false } = {}) 
 
   return newList
 }
-
-// Counts every status nested (at any depth) under `type` in a status tree,
-// i.e. its more specific forms. Node children are the enumerable keys;
-// stampStatusTreeNames' name/type are non-enumerable.
-export function countStatusDescendants(tree, type) {
-  const countAll = (node) =>
-    Object.keys(node).reduce((sum, key) => sum + 1 + countAll(node[key]), 0)
-
-  for (const key in tree) {
-    if (key === type) return countAll(tree[key])
-
-    const count = countStatusDescendants(tree[key], type)
-    if (count !== null) return count
-  }
-
-  return null
-}

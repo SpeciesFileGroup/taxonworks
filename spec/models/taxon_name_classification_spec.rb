@@ -384,15 +384,16 @@ describe TaxonNameClassification, type: :model, group: [:nomenclature] do
         expect(existing.reload).to be_persisted
       end
 
-      specify ':remove_status also removes more specific forms of the status' do
+      specify ':remove_status leaves more specific forms of the status untouched' do
         TaxonNameClassification.create!(taxon_name: iczn_name, type: ichnotaxon_type)
         q = Queries::TaxonName::Filter.new(taxon_name_id: iczn_name.id)
-        TaxonNameClassification.batch_by_filter_scope(
+        r = TaxonNameClassification.batch_by_filter_scope(
           filter_query: { 'taxon_name_query' => q.params },
           mode: :remove_status,
           params: { type: fossil_type }
         )
-        expect(TaxonNameClassification.where(taxon_name: iczn_name, type: ichnotaxon_type).count).to eq(0)
+        expect(r[:not_updated]).to include(iczn_name.id)
+        expect(TaxonNameClassification.where(taxon_name: iczn_name, type: ichnotaxon_type).count).to eq(1)
       end
 
       specify ':remove_status leaves disjoint but unrelated classifications of the same taxon name untouched' do

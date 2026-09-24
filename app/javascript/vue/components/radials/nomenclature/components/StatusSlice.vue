@@ -93,14 +93,6 @@
           />
         </VBtn>
       </p>
-      <p
-        v-if="isRemove && descendantCount"
-        class="text-muted-color margin-small-top"
-      >
-        Also removes the {{ descendantCount }} more specific
-        {{ descendantCount === 1 ? 'status' : 'statuses' }} under
-        {{ selectedType.name }}.
-      </p>
     </fieldset>
 
     <fieldset v-if="selectedMode === 'add' && selectedType">
@@ -143,10 +135,7 @@ import FormCitation from '@/components/Form/FormCitation.vue'
 import TreeDisplay from '@/tasks/nomenclature/filter/components/treeDisplay.vue'
 import UpdateBatch from '@/components/radials/shared/UpdateBatch.vue'
 import makeCitation from '@/factory/Citation'
-import {
-  mergeStatusList,
-  countStatusDescendants
-} from '@/helpers/taxonNameClassificationStatusList'
+import { mergeStatusList } from '@/helpers/taxonNameClassificationStatusList'
 import { TaxonNameClassification } from '@/routes/endpoints'
 import { QUERY_PARAM } from '@/components/radials/filter/constants/queryParam'
 import { TAXON_NAME, TAXON_NAME_CLASSIFICATION } from '@/constants'
@@ -177,13 +166,6 @@ const citation = ref(makeCitation(TAXON_NAME_CLASSIFICATION))
 const options = computed(() => Object.values(OPTIONS))
 
 const isRemove = computed(() => selectedMode.value === 'remove')
-
-// Mirrors :remove_status, which also removes the selected status' subclasses
-const descendantCount = computed(() =>
-  selectedType.value
-    ? countStatusDescendants(mergeLists.value.tree || {}, selectedType.value.type)
-    : 0
-)
 
 const canSubmit = computed(() => !!selectedMode.value && !!selectedType.value)
 
