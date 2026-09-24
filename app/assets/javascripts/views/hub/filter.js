@@ -6,18 +6,10 @@ TW.views.hub.filter = TW.views.hub.filter || {}
 Object.assign(TW.views.hub.filter, {
   filterHubTask: undefined,
   init() {
-    const element = document.querySelector('#task_carrousel')
-
-    this.handleResizeTaskCarrousel = this.resizeTaskCarrousel.bind(this)
     this.filterHubTask = new FilterHub()
     this.loadCategoriesIcons()
-    this.handleEvents()
     this.bindCategoryCounts()
     this.updateCategoryCounts()
-
-    if (element) {
-      this.resizeTaskCarrousel()
-    }
   },
 
   // Compute the count next to each category from the cards currently in the DOM
@@ -107,50 +99,6 @@ Object.assign(TW.views.hub.filter, {
     filter.querySelectorAll('[data-filter-category]').forEach((el) => {
       el.addEventListener('click', () => setTimeout(recount, 0))
     })
-  },
-
-  resizeTaskCarrousel() {
-    const userWindowWidth = window.innerWidth
-    const userWindowHeight = window.innerHeight
-    const isFavouritePage = !!document.querySelector('#favorite-page')
-    const taskSection = document.querySelector('.task-section')
-    const minWindowWidth = isFavouritePage ? 1000 : 700
-    const cardWidth = 427.5
-    const cardHeight = 180
-
-    if (!taskSection) return
-
-    const maxCardsInColumn = Math.floor(
-      (userWindowHeight - taskSection.offsetTop) / cardHeight
-    )
-    const maxCardsInRow = Math.floor(
-      (userWindowWidth - taskSection.offsetLeft) / cardWidth
-    )
-
-    if (userWindowWidth < minWindowWidth) {
-      if (isFavouritePage) {
-        this.filterHubTask.changeTaskSize(1)
-      } else {
-        this.filterHubTask.changeTaskSize(1, maxCardsInRow)
-      }
-    } else {
-      const tmp = (userWindowWidth - minWindowWidth) / cardWidth
-
-      if (tmp > 0) {
-        if (isFavouritePage) {
-          this.filterHubTask.changeTaskSize(Math.ceil(maxCardsInColumn))
-        } else
-          this.filterHubTask.changeTaskSize(
-            maxCardsInRow,
-            Math.ceil(maxCardsInColumn)
-          )
-      }
-    }
-  },
-
-  handleEvents: function () {
-    window.removeEventListener('resize', this.handleResizeTaskCarrousel)
-    window.addEventListener('resize', this.handleResizeTaskCarrousel)
   },
 
   loadCategoriesIcons: function () {

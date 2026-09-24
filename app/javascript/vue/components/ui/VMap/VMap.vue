@@ -441,7 +441,7 @@ function geoJSON(geoJsonFeatures) {
 function addGeoJsonLayer(geoJsonLayers) {
   const geojsonLayer = L.geoJson(
     geoJsonLayers,
-    props.geojsonOptions({ L, emit, props })
+    props.geojsonOptions({ L, emit, props, map: mapObject })
   )
 
   geojsonLayer.eachLayer((layer) => {

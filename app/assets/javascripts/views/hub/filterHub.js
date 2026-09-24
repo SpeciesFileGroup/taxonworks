@@ -1,28 +1,15 @@
 const FilterHub = function () {
-  this.task_column = window.innerWidth > 1500 ? 3 : 2
-  this.task_row = window.innerWidth > 1500 ? 4 : 3
   this.arrayData = []
   this.arrayTasks = []
   this.that = this
   this.handleEvents(this)
 }
 
-FilterHub.prototype.changeTaskSize = function (column, row) {
-  this.arrayTasks.forEach(function (element) {
-    element.changeSize(column, row)
-  })
-}
-
 FilterHub.prototype.handleEvents = function (that) {
   const elements = [...document.querySelectorAll('#task_carrousel')]
 
   that.arrayTasks = elements.map(
-    (element) =>
-      new CarrouselTask(
-        '#' + element.getAttribute('id'),
-        that.task_row,
-        that.task_column
-      )
+    (element) => new CarrouselTask('#' + element.getAttribute('id'))
   )
 
   const sectionElements = [...document.querySelectorAll('[data-section]')]
@@ -86,29 +73,6 @@ FilterHub.prototype.handleEvents = function (that) {
       that.changeAllSectionsFilter(that.arrayData)
       that.changeAllSectionsFilter(that.arrayTasks)
     })
-  )
-
-  // Keyboard Shortcuts
-  TW.workbench.keyboard.createShortcut(
-    'left',
-    'Show previous card tasks',
-    'Hub tasks',
-    function () {
-      that.arrayTasks.forEach(function (element) {
-        element.loadingUp()
-      })
-    }
-  )
-
-  TW.workbench.keyboard.createShortcut(
-    'right',
-    'Show next card tasks',
-    'Hub tasks',
-    function () {
-      that.arrayTasks.forEach(function (element) {
-        element.loadingDown()
-      })
-    }
   )
 
   const btnStatusFilter = [

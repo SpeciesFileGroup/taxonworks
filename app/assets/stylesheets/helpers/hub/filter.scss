@@ -10,16 +10,21 @@
   #navigation_list {
     flex-direction: row !important;
     align-items: flex-start !important;
-    margin-top: $standard_margin !important;
+    margin-top: var(--spacing-md);
     justify-content: flex-start !important;
-    gap: $standard_margin;
+    gap: var(--spacing-md);
   }
 
   #filter {
     margin-top: 0px;
     position: relative;
 
+    /* `.sticky-navbar` (stickyNavbar.js) pins the card once the page scrolls
+       past it and caps it at the viewport height, so the card is a column:
+       the header stays put and only the filters scroll. */
     .filter-card {
+      display: flex;
+      flex-direction: column;
       background-color: var(--bg-foreground);
       overflow: hidden;
       min-width: 0;
@@ -29,12 +34,15 @@
     /* .tw-card-header pads to 20px; this panel is only 260px wide and runs its
        body at 16px, so match it or the title sits off the controls' left edge. */
     .tw-card-header {
+      flex-shrink: 0;
       padding: var(--spacing-md);
     }
 
     .filter-body {
       display: flex;
       flex-direction: column;
+      min-height: 0;
+      overflow-y: auto;
       padding: var(--spacing-md);
     }
 

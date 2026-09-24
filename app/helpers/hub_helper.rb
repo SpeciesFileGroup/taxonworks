@@ -5,16 +5,17 @@ module HubHelper
     return nil if task.nil?
     content_tag(:div, '', class: 'task_card') { 
       link_to(content_tag(:div,
-        content_tag(:div,'' , class: "task_header status #{task.status}") {
+        content_tag(:div,'' , class: 'task_header') {
 
           task.categories.collect{|c| 
             content_tag(:div, c.humanize, title: c.humanize, class: "categories #{c}", "data-category-#{c}" => 'true', "data-category-#{task.status}" => 'true' )
-          }.join().html_safe 
+          }.join().html_safe +
+          content_tag(:span, task.status.to_s.humanize, class: "task-status #{task.status}", title: "Status: #{task.status.to_s.humanize}")
 
         } +      
         content_tag(:div, '', class: 'task-information') {
           content_tag(:div, task.name, class: 'task_name') +
-          content_tag(:div, task.description, class: 'task_description') 
+          content_tag(:div, task.description, class: 'task_description', title: task.description) 
         }, class: 'task-content'
       ),send(task.path), data: { turbolinks: false }, tabindex: 0) +
       content_tag(:div, '', class: 'fav-link') {

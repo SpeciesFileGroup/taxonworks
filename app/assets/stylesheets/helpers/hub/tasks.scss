@@ -20,8 +20,7 @@
     flex-wrap: wrap;
     justify-content: flex-start;
     align-content: flex-start;
-    gap: $standard_margin;
-    margin-top: $standard_margin;
+    gap: var(--spacing-sm);
   }
 
   .show {
@@ -42,7 +41,7 @@
     flex-direction: row;
     position: relative;
     width: 420px;
-    max-height: 180px;
+
     min-height: 160px;
     border-radius: var(--border-radius-medium);
     background-color: var(--panel-bg-color);
@@ -53,8 +52,17 @@
       box-shadow 0.3s ease;
 
     .task_header {
-      opacity: 0.2;
       overflow: hidden;
+      padding: var(--spacing-sm) var(--spacing-sm);
+
+      .categories {
+        opacity: 0.2;
+      }
+
+      .task-status {
+        opacity: 0;
+        transition: opacity 0.5s ease;
+      }
     }
 
     a {
@@ -64,6 +72,8 @@
     .task-content {
       height: 100%;
       display: flex;
+      flex-direction: column-reverse;
+      justify-content: space-between;
     }
 
     &:hover {
@@ -77,21 +87,22 @@
         opacity: 1;
       }
 
-      .task_header {
+      .task_header .categories {
         transition: opacity 0.5s ease;
         opacity: 1;
 
-        .categories svg {
-          stroke: #fff;
+        svg {
+          stroke: var(--text-color);
         }
       }
     }
-  }
 
-  .status {
-    box-sizing: border-box;
-    width: 100%;
-    height: 100%;
+    &:hover,
+    &:focus-within {
+      .task-status {
+        opacity: 1;
+      }
+    }
   }
 
   .task-information {
@@ -119,19 +130,35 @@
   }
 
   .task_header {
-    width: 34px;
-    padding-top: 0.5rem;
     gap: 0.25rem;
     display: flex;
-    display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
-    border-bottom: 1px solid var(--border-color);
-    border-top-left-radius: var(--border-radius-medium);
-    border-bottom-left-radius: var(--border-radius-medium);
 
-    .status:first-letter {
-      text-transform: uppercase;
+    .task-status {
+      flex-shrink: 0;
+      margin-inline-start: auto;
+      padding: var(--spacing-xxs) var(--spacing-sm);
+      border-radius: 9999px;
+      background-color: var(--badge-default-bg);
+      color: var(--badge-default-color);
+      font-size: var(--font-size-xs);
+      line-height: 1.4;
+
+      &.prototype {
+        background-color: var(--badge-red-bg);
+        color: var(--badge-red-color);
+      }
+
+      &.stable {
+        background-color: var(--badge-yellow-bg);
+        color: var(--badge-yellow-color);
+      }
+
+      &.complete {
+        background-color: var(--badge-green-bg);
+        color: var(--badge-green-color);
+      }
     }
 
     .categories {
@@ -155,6 +182,7 @@
   .task_name {
     font-size: 18px;
     max-width: 330px;
+    font-weight: var(--font-weight-medium);
 
     a {
       color: $color-secondary-2-4;
@@ -183,76 +211,16 @@
     font-weight: 400;
     line-height: 20px;
     max-width: 350px;
-    color: var(--text-color);
-    padding-top: $standard_padding * 0.5;
-  }
-
-  .navigation {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    order: -1;
-    min-height: 42px;
-    min-width: 450px;
-    padding: var(--spacing-sm);
-    background-color: var(--panel-bg-color);
-    border-radius: var(--border-radius-medium);
-
-    a {
-      display: flex;
-      cursor: pointer;
-    }
-  }
-
-  .navigation-arrows {
-    display: flex;
-    flex-direction: row;
-  }
-
-  .navigation-arrow {
-    display: flex;
-    padding: 5px;
-  }
-
-  .more_tasks_nav {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 450px;
-    min-height: 50px;
-    bottom: 0px;
-    margin: 0.5em;
-    margin-bottom: 0px;
-    cursor: pointer;
-
-    @media screen and (min-height: 1000px) {
-      position: fixed;
-    }
+    color: var(--text-muted-color);
+    padding-top: var(--spacing-sm);
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    overflow: hidden;
   }
 
   .no-tasks {
     display: none;
-  }
-
-  .task-nav-list {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--spacing-xs);
-
-    .task-nav-item {
-      background-color: var(--border-color);
-      border-radius: var(--border-radius-xsmall);
-      width: 16px;
-      height: 16px;
-      cursor: pointer;
-
-      &.active {
-        background-color: var(--text-color);
-        opacity: 0.6;
-      }
-    }
   }
 }
