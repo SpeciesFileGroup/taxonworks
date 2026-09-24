@@ -17,8 +17,9 @@ import SliceParent from './components/ParentSlice.vue'
 import StatusSlice from './components/StatusSlice.vue'
 import VerbatimSlice from './components/VerbatimSlice.vue'
 
+// Classification slices (Gender, Status) are ids-only, capping a batch at
+// one page of checked names
 const QUERY_SLICES = {
-  Gender: GenderSlice,
   Parent: SliceParent,
   Verbatim: VerbatimSlice
 }
