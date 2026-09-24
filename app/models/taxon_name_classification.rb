@@ -523,13 +523,18 @@ class TaxonNameClassification < ApplicationRecord
       status_type = params[:type]
       return r unless TAXON_NAME_CLASSIFICATION_NAMES.include?(status_type)
 
-      disjoint_types = status_type.constantize.disjoint_taxon_name_classes
+      # More specific forms of the status go too (e.g. removing Iczn::Fossil
+      # removes Iczn::Fossil::Ichnotaxon). Not disjoint_taxon_name_classes:
+      # that's every *conflicting* status, which would reach unrelated ones
+      # (Available when removing NomenNudum, all ICN/ICNP/ICVCN statuses
+      # when removing Iczn::Fossil).
+      remove_types = [status_type, *status_type.constantize.descendants.map(&:name)]
 
       if async && !called_from_async
         dispatch_batch_by_filter_scope_job(hash_query:, mode:, params:, project_id:, user_id:)
       else
         existing_by_taxon_name_id = TaxonNameClassification
-          .where(type: [status_type, *disjoint_types])
+          .where(type: remove_types)
           .where(taxon_name: query)
           .group_by(&:taxon_name_id)
 

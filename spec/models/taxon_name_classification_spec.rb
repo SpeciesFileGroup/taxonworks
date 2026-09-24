@@ -384,7 +384,7 @@ describe TaxonNameClassification, type: :model, group: [:nomenclature] do
         expect(existing.reload).to be_persisted
       end
 
-      specify ':remove_status also removes disjoint classifications of the same taxon name' do
+      specify ':remove_status also removes more specific forms of the status' do
         TaxonNameClassification.create!(taxon_name: iczn_name, type: ichnotaxon_type)
         q = Queries::TaxonName::Filter.new(taxon_name_id: iczn_name.id)
         TaxonNameClassification.batch_by_filter_scope(
@@ -393,6 +393,35 @@ describe TaxonNameClassification, type: :model, group: [:nomenclature] do
           params: { type: fossil_type }
         )
         expect(TaxonNameClassification.where(taxon_name: iczn_name, type: ichnotaxon_type).count).to eq(0)
+      end
+
+      specify ':remove_status leaves disjoint but unrelated classifications of the same taxon name untouched' do
+        nomen_nudum = 'TaxonNameClassification::Iczn::Unavailable::NomenNudum'
+        available = 'TaxonNameClassification::Iczn::Available'
+        TaxonNameClassification.create!(taxon_name: iczn_name, type: nomen_nudum)
+        TaxonNameClassification.create!(taxon_name: iczn_name, type: available)
+        q = Queries::TaxonName::Filter.new(taxon_name_id: iczn_name.id)
+        TaxonNameClassification.batch_by_filter_scope(
+          filter_query: { 'taxon_name_query' => q.params },
+          mode: :remove_status,
+          params: { type: nomen_nudum }
+        )
+        expect(TaxonNameClassification.where(taxon_name: iczn_name, type: nomen_nudum).count).to eq(0)
+        expect(TaxonNameClassification.where(taxon_name: iczn_name, type: available).count).to eq(1)
+      end
+
+      specify ':remove_status of an ICZN status leaves the corresponding status of another code untouched' do
+        icn_fossil = 'TaxonNameClassification::Icn::Fossil'
+        TaxonNameClassification.create!(taxon_name: iczn_name, type: fossil_type)
+        TaxonNameClassification.create!(taxon_name: icn_name, type: icn_fossil)
+        q = Queries::TaxonName::Filter.new(taxon_name_id: [iczn_name.id, icn_name.id])
+        TaxonNameClassification.batch_by_filter_scope(
+          filter_query: { 'taxon_name_query' => q.params },
+          mode: :remove_status,
+          params: { type: fossil_type }
+        )
+        expect(TaxonNameClassification.where(taxon_name: iczn_name, type: fossil_type).count).to eq(0)
+        expect(TaxonNameClassification.where(taxon_name: icn_name, type: icn_fossil).count).to eq(1)
       end
 
       specify ':add_status creates a classification of the given type' do
