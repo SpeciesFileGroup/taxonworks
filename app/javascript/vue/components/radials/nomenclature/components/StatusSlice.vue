@@ -111,9 +111,10 @@
         :target="TAXON_NAME_CLASSIFICATION"
       />
       <p class="text-muted-color margin-small-top">
-        A taxon name that already has a citation with the same source and
-        pages will not update the "original" flag, and will be reported as
-        not updated.
+        A taxon name that already has this exact citation is skipped. If it
+        already has a citation with the same source and pages but a
+        different "original" flag, that flag is not changed and the taxon
+        name is reported as not updated.
       </p>
     </fieldset>
 

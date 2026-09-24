@@ -372,42 +372,11 @@ class TaxonNameClassification < ApplicationRecord
       if async && !called_from_async
         dispatch_batch_by_filter_scope_job(hash_query:, mode:, params:, project_id:, user_id:)
       else
-        existing_by_taxon_name_id = TaxonNameClassification
-          .with_type_array(TAXON_NAME_CLASSIFICATIONS_FOR_GENDER)
-          .where(taxon_name: query)
-          .group_by(&:taxon_name_id)
-
-        # Iterate every taxon name in the query (not just ones with an
-        # existing gender classification) so updated/not_updated always
-        # account for the full total_attempted. A taxon name with no gender
-        # to remove lands in not_updated with no validation_errors entry; if
-        # a destroy were ever to fail (nothing currently blocks one) it
-        # would also land in not_updated, but with one - that's how the two
-        # would be told apart.
-        query.find_each do |taxon_name|
-          classifications = existing_by_taxon_name_id[taxon_name.id] || []
-
-          if classifications.empty?
-            r.not_updated.push taxon_name.id
-            next
-          end
-
-          failed = classifications.reject do |c|
-            c.destroy # destroy is necessary to updated cached values
-            c.destroyed?
-          end
-
-          if failed.empty?
-            r.updated.push nil
-          else # never happens?
-            r.not_updated.push taxon_name.id
-            failed.each { |c|
-              c.errors.full_messages.each { |msg|
-                r.validation_errors[msg] += 1
-              }
-            }
-          end
-        end
+        destroy_classifications_for_batch(
+          classifications: TaxonNameClassification.with_type_array(TAXON_NAME_CLASSIFICATIONS_FOR_GENDER),
+          query:,
+          batch_response: r
+        )
       end
 
     when :add_status
@@ -533,46 +502,53 @@ class TaxonNameClassification < ApplicationRecord
       if async && !called_from_async
         dispatch_batch_by_filter_scope_job(hash_query:, mode:, params:, project_id:, user_id:)
       else
-        existing_by_taxon_name_id = TaxonNameClassification
-          .where(type: remove_types)
-          .where(taxon_name: query)
-          .group_by(&:taxon_name_id)
-
-        # Iterate every taxon name in the query (not just ones with a
-        # matching status) so updated/not_updated always account for the
-        # full total_attempted. A taxon name with no such status to remove
-        # lands in not_updated with no validation_errors entry; if a destroy
-        # were ever to fail (nothing currently blocks one) it would also
-        # land in not_updated, but with one - that's how the two would be
-        # told apart.
-        query.find_each do |taxon_name|
-          classifications = existing_by_taxon_name_id[taxon_name.id] || []
-
-          if classifications.empty?
-            r.not_updated.push taxon_name.id
-            next
-          end
-
-          failed = classifications.reject do |c|
-            c.destroy # destroy is necessary for cached processing
-            c.destroyed?
-          end
-
-          if failed.empty?
-            r.updated.push nil
-          else # never happens?
-            r.not_updated.push taxon_name.id
-            failed.each { |c|
-              c.errors.full_messages.each { |msg|
-                r.validation_errors[msg] += 1
-              }
-            }
-          end
-        end
+        destroy_classifications_for_batch(
+          classifications: TaxonNameClassification.where(type: remove_types),
+          query:,
+          batch_response: r
+        )
       end
     end
 
     r
+  end
+
+  # Destroys `classifications` belonging to taxon names in `query`.
+  # Iterates every taxon name in the query (not just ones with a matching
+  # classification) so updated/not_updated always account for the full
+  # total_attempted. A taxon name with nothing to remove lands in
+  # not_updated with no validation_errors entry; if a destroy were ever to
+  # fail (nothing currently blocks one) it would also land in not_updated,
+  # but with one - that's how the two would be told apart.
+  def self.destroy_classifications_for_batch(classifications:, query:, batch_response:)
+    existing_by_taxon_name_id = classifications
+      .where(taxon_name: query)
+      .group_by(&:taxon_name_id)
+
+    query.find_each do |taxon_name|
+      found = existing_by_taxon_name_id[taxon_name.id] || []
+
+      if found.empty?
+        batch_response.not_updated.push taxon_name.id
+        next
+      end
+
+      failed = found.reject do |c|
+        c.destroy # destroy is necessary to update cached values
+        c.destroyed?
+      end
+
+      if failed.empty?
+        batch_response.updated.push nil
+      else # never happens?
+        batch_response.not_updated.push taxon_name.id
+        failed.each { |c|
+          c.errors.full_messages.each { |msg|
+            batch_response.validation_errors[msg] += 1
+          }
+        }
+      end
+    end
   end
 
   def self.dispatch_batch_by_filter_scope_job(hash_query:, mode:, params:, project_id:, user_id:)
