@@ -103,10 +103,9 @@
         :target="TAXON_NAME_CLASSIFICATION"
       />
       <p class="text-muted-color margin-small-top">
-        A taxon name that already has this exact citation is skipped. If it
-        already has a citation with the same source and pages but a
-        different "original" flag, that flag is not changed and the taxon
-        name is reported as not updated.
+        A taxon name with the requested status and the same source, except for a
+        different "original" flag, is not updated, and the taxon name is
+        reported as not updated.
       </p>
     </fieldset>
 
@@ -241,12 +240,12 @@ function handleUpdateResult(data) {
     )
   } else if (updatedCount > 0 && notUpdatedCount > 0) {
     TW.workbench.alert.create(
-      `Status ${action} ${updatedCount} taxon names, ${notUpdatedCount} not updated - see details below.`,
+      `Status ${action} ${updatedCount} taxon names, ${notUpdatedCount} not updated.`,
       'notice'
     )
   } else {
     TW.workbench.alert.create(
-      `No taxon names updated (${notUpdatedCount} not updated) - see details below.`,
+      `No taxon names updated (${notUpdatedCount} not updated).`,
       'error'
     )
   }

@@ -331,7 +331,9 @@ class TaxonNameClassification < ApplicationRecord
       return r unless TAXON_NAME_CLASSIFICATIONS_FOR_GENDER.include?(gender_type)
 
       if async && !called_from_async
-        dispatch_batch_by_filter_scope_job(hash_query:, mode:, params:, project_id:, user_id:)
+        dispatch_batch_by_filter_scope_job(
+          hash_query:, mode:, params:, project_id:, user_id:
+        )
       else
         existing_by_taxon_name_id = TaxonNameClassification
           .with_type_array(TAXON_NAME_CLASSIFICATIONS_FOR_GENDER)
@@ -340,11 +342,11 @@ class TaxonNameClassification < ApplicationRecord
 
         query.find_each do |taxon_name|
           if existing = existing_by_taxon_name_id[taxon_name.id]
-            # Already the requested gender - skip the update entirely rather
-            # than trigger the expensive after_commit cascade (walks every
-            # descendant taxon name to recompute cached spellings) for
-            # nothing.
             if existing.type == gender_type
+              # Already the requested gender - skip the update entirely rather
+              # than trigger the expensive after_commit cascade (walks every
+              # descendant taxon name to recompute cached spellings) for
+              # nothing.
               r.updated.push existing.id
             elsif existing.update(type: gender_type)
               r.updated.push existing.id
@@ -355,7 +357,9 @@ class TaxonNameClassification < ApplicationRecord
               }
             end
           else
-            classification = TaxonNameClassification.create(taxon_name: taxon_name, type: gender_type)
+            classification = TaxonNameClassification.create(
+              taxon_name: taxon_name, type: gender_type
+            )
             if classification.persisted?
               r.updated.push classification.id
             else
@@ -370,7 +374,9 @@ class TaxonNameClassification < ApplicationRecord
 
     when :remove_gender
       if async && !called_from_async
-        dispatch_batch_by_filter_scope_job(hash_query:, mode:, params:, project_id:, user_id:)
+        dispatch_batch_by_filter_scope_job(
+          hash_query:, mode:, params:, project_id:, user_id:
+        )
       else
         destroy_classifications_for_batch(
           classifications: TaxonNameClassification.with_type_array(TAXON_NAME_CLASSIFICATIONS_FOR_GENDER),
@@ -396,6 +402,10 @@ class TaxonNameClassification < ApplicationRecord
           hash_query:, mode:, params:, project_id:, user_id:
         )
       else
+        # Loaded once rather than per citation created; nil (unknown id) is
+        # reported by Citation's own source presence validation.
+        citation_source = citation_source_id && Source.find_by(id: citation_source_id)
+
         existing_by_taxon_name_id = TaxonNameClassification
           .where(type: status_type)
           .where(taxon_name: query)
@@ -458,7 +468,7 @@ class TaxonNameClassification < ApplicationRecord
           # was added/confirmed and is left in place.
           if citation_source_id && !already_cited_classification_ids.include?(classification.id)
             citation = classification.citations.create(
-              source_id: citation_source_id,
+              source: citation_source,
               pages: citation_params[:pages],
               is_original: citation_params[:is_original]
             )
@@ -519,6 +529,7 @@ class TaxonNameClassification < ApplicationRecord
   def self.destroy_classifications_for_batch(classifications:, query:, batch_response:)
     existing_by_taxon_name_id = classifications
       .where(taxon_name: query)
+      .includes(:taxon_name) # used by the set_cached callback
       .group_by(&:taxon_name_id)
 
     query.find_each do |taxon_name|

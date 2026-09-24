@@ -143,12 +143,12 @@ function handleUpdateResult(data) {
     )
   } else if (updatedCount > 0 && notUpdatedCount > 0) {
     TW.workbench.alert.create(
-      `Gender ${action} ${updatedCount} taxon names, ${notUpdatedCount} not updated - see details below.`,
+      `Gender ${action} ${updatedCount} taxon names, ${notUpdatedCount} not updated.`,
       'notice'
     )
   } else {
     TW.workbench.alert.create(
-      `No taxon names updated (${notUpdatedCount} not updated) - see details below.`,
+      `No taxon names updated (${notUpdatedCount} not updated).`,
       'error'
     )
   }

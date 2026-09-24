@@ -277,11 +277,13 @@ describe TaxonNameClassification, type: :model, group: [:nomenclature] do
       specify ':set updates an existing gender classification to the new type' do
         TaxonNameClassification.create!(taxon_name: genus, type: masculine)
         q = Queries::TaxonName::Filter.new(taxon_name_id: genus.id)
-        TaxonNameClassification.batch_by_filter_scope(
+        r = TaxonNameClassification.batch_by_filter_scope(
           filter_query: { 'taxon_name_query' => q.params },
           mode: :set,
           params: { type: feminine }
         )
+        expect(r[:updated].length).to eq(1)
+        expect(r[:not_updated]).to be_empty
         expect(TaxonNameClassification.where(taxon_name: genus, type: feminine).count).to eq(1)
         expect(TaxonNameClassification.where(taxon_name: genus, type: masculine).count).to eq(0)
       end

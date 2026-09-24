@@ -43,7 +43,7 @@ class BatchByFilterScopeJob < ApplicationJob
     rescue  => ex
       ExceptionNotifier.notify_exception(
         ex,
-        data: { project_id:, filter_query:, mode:, params: }
+        data: { project_id:, hash_query:, mode:, params: }
       )
       raise
     end

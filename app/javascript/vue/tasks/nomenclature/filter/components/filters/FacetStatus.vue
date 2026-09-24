@@ -183,7 +183,12 @@ export default {
         ? [this.nomenclatureCode.toLowerCase(), 'latinized']
         : Object.keys(this.statusList)
 
-      this.mergeLists = mergeStatusList(this.statusList, { codes })
+      // qualifyAll: same-named statuses exist under more than one code
+      // (e.g. 'valid'), so the Advanced search needs the code to tell them apart
+      this.mergeLists = mergeStatusList(this.statusList, {
+        codes,
+        qualifyAll: true
+      })
     },
 
     removeItem(status) {
