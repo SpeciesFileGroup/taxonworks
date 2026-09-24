@@ -123,7 +123,8 @@ class Citation < ApplicationRecord
   )
     return Set.new if citation_object_ids.empty?
 
-    where(citation_object_type:, citation_object_id: citation_object_ids, source_id:, pages:)
+    # Stored pages are never blank (nilify_blanks), so match '' as nil.
+    where(citation_object_type:, citation_object_id: citation_object_ids, source_id:, pages: pages.presence)
       .where(is_original: is_original ? true : [false, nil])
       .distinct
       .pluck(:citation_object_id)

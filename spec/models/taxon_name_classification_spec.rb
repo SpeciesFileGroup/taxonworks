@@ -591,6 +591,20 @@ describe TaxonNameClassification, type: :model, group: [:nomenclature] do
           expect(r[:validation_errors]).to be_empty
         end
 
+        specify 'tolerates a citation with the same source and no pages already existing on the status when blank pages are requested' do
+          existing = TaxonNameClassification.create!(taxon_name: iczn_name, type: invalid_type)
+          existing.citations.create!(source_id: source.id)
+          q = Queries::TaxonName::Filter.new(taxon_name_id: iczn_name.id)
+          r = TaxonNameClassification.batch_by_filter_scope(
+            filter_query: { 'taxon_name_query' => q.params },
+            mode: :add_status,
+            params: { type: invalid_type, citation: { source_id: source.id, pages: '' } }
+          )
+          expect(r[:updated]).to eq([existing.id])
+          expect(existing.citations.reload.count).to eq(1)
+          expect(r[:validation_errors]).to be_empty
+        end
+
         specify 'reports not_updated, rather than silently no-op, when only is_original differs from an existing citation with the same source and pages' do
           existing = TaxonNameClassification.create!(taxon_name: iczn_name, type: invalid_type)
           existing.citations.create!(source_id: source.id, pages: '12')
