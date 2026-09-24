@@ -33,8 +33,8 @@
         :label="label"
         :add-tabs="Object.keys(smartSelectorTabs)"
         :autocomplete-params="tabData.polymorphic_types_allowed || {}"
-        :klass="ASSERTED_DISTRIBUTION"
-        :target="ASSERTED_DISTRIBUTION"
+        :klass="target"
+        :target="target"
         ref="smartSelector"
         inline
         buttons
@@ -95,6 +95,13 @@ const props = defineProps({
   klassKey: {
     type: String,
     default: 'objectType' // 'shapeType', etc. The polymorphic relation descriptor.
+  },
+
+  // Model type the selected object will be attached to; scopes the
+  // smart selector's recent/used lists.
+  target: {
+    type: String,
+    default: ASSERTED_DISTRIBUTION
   }
 })
 

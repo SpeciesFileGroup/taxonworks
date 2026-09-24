@@ -73,6 +73,8 @@ const RouteNames = {
   MatrixRowCoder: '/tasks/observation_matrices/row_coder/index',
   NewAssertedDistribution:
     '/tasks/asserted_distributions/new_asserted_distribution',
+  NewAssertedEnvironment:
+    '/tasks/asserted_environments/new_asserted_environment',
   NewBiologicalAssociations:
     '/tasks/biological_associations/new_biological_association',
   NewBiologicalAssociationsII: '/tasks/biological_associations/new_ba',

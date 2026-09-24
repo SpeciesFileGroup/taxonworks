@@ -244,7 +244,7 @@ export const useStore = defineStore('NewAssertedDistribution', {
     reset() {
       this.assertedDistribution = makeAssertedDistribution()
 
-      if (!this.lock.citation) {
+      if (!this.lock.source) {
         this.citation = makeCitation()
       } else {
         this.citation.id = null

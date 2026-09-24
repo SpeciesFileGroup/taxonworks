@@ -35,6 +35,10 @@ scope :tasks do
   end
 
   scope :asserted_environments do
+    scope :new_asserted_environment, controller: 'tasks/asserted_environments/new_asserted_environment' do
+      get '/', action: :index, as: 'new_asserted_environment_task'
+    end
+
     scope :filter, controller: 'tasks/asserted_environments/filter' do
       get '/', action: :index, as: 'filter_asserted_environments_task'
     end

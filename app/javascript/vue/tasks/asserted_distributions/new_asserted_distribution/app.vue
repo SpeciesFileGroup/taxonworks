@@ -50,7 +50,14 @@
     </NavBar>
 
     <div class="grid-panels gap-medium margin-medium-bottom">
-      <PanelCitation />
+      <PanelCitation
+        v-model="store.citation"
+        v-model:absent="store.assertedDistribution.isAbsent"
+        v-model:lock="store.lock.source"
+        :target="ASSERTED_DISTRIBUTION"
+        absent-field
+        required
+      />
       <PanelObject />
       <PanelGeo />
       <PanelConfidence v-if="showConfidencePanel" />
@@ -63,7 +70,7 @@
 <script setup>
 import PanelObject from './components/Panel/PanelObject.vue'
 import PanelGeo from './components/Panel/PanelGeo.vue'
-import PanelCitation from './components/Panel/PanelCitation.vue'
+import PanelCitation from '@/components/Form/FormCitation/PanelCitation.vue'
 import PanelConfidence from './components/Panel/PanelConfidence.vue'
 import TableComponent from './components/table'
 import TaskPreferences from './components/TaskPreferences.vue'
@@ -76,6 +83,7 @@ import { computed, ref, onBeforeMount, watch } from 'vue'
 import { useStore } from './store/store.js'
 
 import VBtn from '@/components/ui/VBtn/index.vue'
+import { ASSERTED_DISTRIBUTION } from '@/constants'
 
 const KEY_STORAGE_AUTOSAVE = 'Task::NewAssertedDistribution::Autosave'
 const KEY_STORAGE_SHOW_CONFIDENCE =
