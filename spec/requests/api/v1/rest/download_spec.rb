@@ -78,4 +78,100 @@ allow_any_instance_of(ApplicationController).to receive(:sessions_current_projec
       end
     end
   end
+
+  context 'Download::Coldp::Complete' do
+    include_context 'api context'
+
+    let(:otu) { Otu.create!(name: 'root', by: user, project:) }
+    let(:other_otu) { Otu.create!(name: 'other', by: user, project:) }
+
+    def make_profile(otu_id:, is_public:, max_age: nil, default_user_id: nil)
+      project.create_coldp_profile(
+        'otu_id' => otu_id,
+        'is_public' => is_public,
+        'max_age' => max_age,
+        'default_user_id' => default_user_id
+      )
+    end
+
+    specify 'otu_id is required' do
+      get "/api/v1/downloads/coldp_complete?project_token=#{project.api_access_token}"
+
+      expect(response.status).to eq(422)
+      expect(JSON.parse(response.body)['error']).to match(/otu_id/)
+    end
+
+    specify 'download is forbidden when no profile exists for the otu' do
+      get "/api/v1/downloads/coldp_complete?project_token=#{project.api_access_token}&otu_id=#{otu.id}"
+
+      expect(response.status).to eq(403)
+    end
+
+    specify 'download is forbidden when the profile is not public' do
+      make_profile(otu_id: otu.id, is_public: false)
+
+      get "/api/v1/downloads/coldp_complete?project_token=#{project.api_access_token}&otu_id=#{otu.id}"
+
+      expect(response.status).to eq(403)
+    end
+
+    specify 'download is forbidden when the requested otu differs from a public profile' do
+      make_profile(otu_id: otu.id, is_public: true)
+
+      get "/api/v1/downloads/coldp_complete?project_token=#{project.api_access_token}&otu_id=#{other_otu.id}"
+
+      expect(response.status).to eq(403)
+    end
+
+    context 'profile is public' do
+      before { make_profile(otu_id: otu.id, is_public: true, default_user_id: user.id) }
+
+      specify 'first request enqueues a build and reports it is being created' do
+        get "/api/v1/downloads/coldp_complete?project_token=#{project.api_access_token}&otu_id=#{otu.id}"
+
+        expect(response.status).to eq(422)
+        expect(JSON.parse(response.body)['status']).to eq('A download is being created')
+        expect(Download::Coldp::Complete.where(project: project, request: otu.id.to_s).count).to eq(1)
+      end
+
+      specify 'second in-flight request does not create a duplicate Complete row' do
+        get "/api/v1/downloads/coldp_complete?project_token=#{project.api_access_token}&otu_id=#{otu.id}"
+
+        get "/api/v1/downloads/coldp_complete?project_token=#{project.api_access_token}&otu_id=#{otu.id}"
+
+        expect(response.status).to eq(422)
+        expect(JSON.parse(response.body)['status']).to eq('The existing download is not ready yet')
+        expect(Download::Coldp::Complete.where(project: project, request: otu.id.to_s).count).to eq(1)
+      end
+
+      specify 'Complete rows for different otus do not collide' do
+        make_profile(otu_id: other_otu.id, is_public: true, default_user_id: user.id)
+
+        get "/api/v1/downloads/coldp_complete?project_token=#{project.api_access_token}&otu_id=#{otu.id}"
+        get "/api/v1/downloads/coldp_complete?project_token=#{project.api_access_token}&otu_id=#{other_otu.id}"
+
+        expect(Download::Coldp::Complete.where(project: project).pluck(:request)).to contain_exactly(otu.id.to_s, other_otu.id.to_s)
+      end
+
+      specify 'download uses the profile default_user_id when no session user is present' do
+        get "/api/v1/downloads/coldp_complete?project_token=#{project.api_access_token}&otu_id=#{otu.id}"
+
+        download = Download::Coldp::Complete.find_by!(project: project, request: otu.id.to_s)
+        expect(download.created_by_id).to eq(user.id)
+      end
+
+      specify 'pupal download starts when the existing complete is past max_age' do
+        # Bypass the async build so the existing Complete is marked ready without
+        # running the CoLDP exporter (covered end-to-end in spec/lib/export/coldp_spec.rb).
+        allow_any_instance_of(Download::Coldp::Complete).to receive(:ready?).and_return(true)
+        existing = Download::Coldp::Complete.create!(by: user.id, project: project, request: otu.id.to_s)
+
+        project.update_coldp_profile('otu_id' => otu.id, 'is_public' => true, 'max_age' => 0, 'default_user_id' => user.id)
+
+        get "/api/v1/downloads/coldp_complete?project_token=#{project.api_access_token}&otu_id=#{otu.id}"
+
+        expect(Download::Coldp::PupalComplete.where(project: project, request: otu.id.to_s).count).to eq(1)
+      end
+    end
+  end
 end

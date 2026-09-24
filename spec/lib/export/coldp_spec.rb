@@ -34,6 +34,13 @@ describe Export::Coldp, type: :model, group: :col do
     let!(:homonym) { TaxonNameRelationship::Iczn::Invalidating::Homonym.create!(subject_taxon_name: homonym_species, object_taxon_name: species )  }
     let!(:biological_association) { FactoryBot.create(:valid_biological_association, biological_association_subject: otu, biological_association_object: Otu.create!(name: 'ba'))  }
     let!(:otu_relationship) { FactoryBot.create(:valid_otu_relationship, subject_otu: otu, object_otu:  Otu.create!(name: 'or'))  }
+    let!(:species_estimate) {
+      predicate = FactoryBot.create(
+        :valid_controlled_vocabulary_term_predicate,
+        uri: 'https://api.checklistbank.org/vocab/estimatetype#species_living'
+      )
+      InternalAttribute.create!(attribute_subject: otu, predicate:, value: '100')
+    }
 
     let!(:d) {
       ::Export::Coldp.download_async(
@@ -68,6 +75,16 @@ describe Export::Coldp, type: :model, group: :col do
           c = z.find_entry("#{t}.tsv").get_input_stream.read.lines.count
           expect(c > 1).to be_truthy,  "Can't find #{t}.tsv"
         end
+      end
+
+      specify 'SpeciesEstimate.tsv content reflects the recorded estimate' do
+        tsv = z.find_entry('SpeciesEstimate.tsv').get_input_stream.read
+        rows = CSV.parse(tsv, col_sep: "\t", headers: true)
+        row = rows.detect { |r| r['taxonID'] == otu.id.to_s }
+
+        expect(row).to be_present
+        expect(row['type']).to eq('species living')
+        expect(row['estimate']).to eq('100')
       end
     end
   end

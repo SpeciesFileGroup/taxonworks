@@ -76,7 +76,7 @@ module Export::Coldp::Files::TypeMaterial
 
       tm.each do |r|
         text = csv << [
-          nil,                                                            # ID: don't expose TW internal type material ID
+          r.id,                                                             # ID
           r.protonym_id,                                                  # nameID
           nil,                                                            # citation ?! co.buffered_collecting_event
           r.type_type,                                                    # status
