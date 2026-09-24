@@ -26,6 +26,14 @@
           </label>
         </li>
       </ul>
+      <p
+        v-if="isRemove"
+        class="text-muted-color margin-small-top"
+      >
+        Removes exactly the status selected, nothing more specific or more
+        general. For example, removing Fossil does not remove Ichnotaxon (a
+        more specific kind of fossil).
+      </p>
     </fieldset>
 
     <fieldset v-if="selectedMode">

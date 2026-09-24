@@ -334,40 +334,41 @@ class TaxonNameClassification < ApplicationRecord
         dispatch_batch_by_filter_scope_job(
           hash_query:, mode:, params:, project_id:, user_id:
         )
-      else
-        existing_by_taxon_name_id = TaxonNameClassification
-          .with_type_array(TAXON_NAME_CLASSIFICATIONS_FOR_GENDER)
-          .where(taxon_name: query)
-          .index_by(&:taxon_name_id)
+        return r
+      end
 
-        query.find_each do |taxon_name|
-          if existing = existing_by_taxon_name_id[taxon_name.id]
-            if existing.type == gender_type
-              # Already the requested gender - skip the update entirely rather
-              # than trigger the expensive after_commit cascade (walks every
-              # descendant taxon name to recompute cached spellings) for
-              # nothing.
-              r.updated.push existing.id
-            elsif existing.update(type: gender_type)
-              r.updated.push existing.id
-            else
-              r.not_updated.push taxon_name.id
-              existing.errors.full_messages.each { |msg|
-                r.validation_errors[msg] += 1
-              }
-            end
+      existing_by_taxon_name_id = TaxonNameClassification
+        .with_type_array(TAXON_NAME_CLASSIFICATIONS_FOR_GENDER)
+        .where(taxon_name: query)
+        .index_by(&:taxon_name_id)
+
+      query.find_each do |taxon_name|
+        if existing = existing_by_taxon_name_id[taxon_name.id]
+          if existing.type == gender_type
+            # Already the requested gender - skip the update entirely rather
+            # than trigger the expensive after_commit cascade (walks every
+            # descendant taxon name to recompute cached spellings) for
+            # nothing.
+            r.updated.push existing.id
+          elsif existing.update(type: gender_type)
+            r.updated.push existing.id
           else
-            classification = TaxonNameClassification.create(
-              taxon_name: taxon_name, type: gender_type
-            )
-            if classification.persisted?
-              r.updated.push classification.id
-            else
-              r.not_updated.push taxon_name.id
-              classification.errors.full_messages.each { |msg|
-                r.validation_errors[msg] += 1
-              }
-            end
+            r.not_updated.push taxon_name.id
+            existing.errors.full_messages.each { |msg|
+              r.validation_errors[msg] += 1
+            }
+          end
+        else
+          classification = TaxonNameClassification.create(
+            taxon_name: taxon_name, type: gender_type
+          )
+          if classification.persisted?
+            r.updated.push classification.id
+          else
+            r.not_updated.push taxon_name.id
+            classification.errors.full_messages.each { |msg|
+              r.validation_errors[msg] += 1
+            }
           end
         end
       end
@@ -377,59 +378,61 @@ class TaxonNameClassification < ApplicationRecord
         dispatch_batch_by_filter_scope_job(
           hash_query:, mode:, params:, project_id:, user_id:
         )
-      else
-        destroy_classifications_for_batch(
-          classifications: TaxonNameClassification.with_type_array(TAXON_NAME_CLASSIFICATIONS_FOR_GENDER),
-          query:,
-          batch_response: r
-        )
+        return r
       end
+
+      destroy_classifications_for_batch(
+        classifications: TaxonNameClassification.with_type_array(TAXON_NAME_CLASSIFICATIONS_FOR_GENDER),
+        query:,
+        batch_response: r
+      )
 
     when :add_status
       status_type = params[:type]
       return r unless TAXON_NAME_CLASSIFICATION_NAMES.include?(status_type)
+
+      if async && !called_from_async
+        dispatch_batch_by_filter_scope_job(
+          hash_query:, mode:, params:, project_id:, user_id:
+        )
+        return r
+      end
+
+      citation_params = params[:citation]&.symbolize_keys
+      citation_source_id = citation_params && citation_params[:source_id]
+
+      citation_source = citation_source_id && Source.find_by(id: citation_source_id)
+
+      existing_by_taxon_name_id = TaxonNameClassification
+        .where(type: status_type)
+        .where(taxon_name: query)
+        .index_by(&:taxon_name_id)
 
       # Disjoint types (e.g. Iczn::Fossil::Ichnotaxon is disjoint with its own
       # parent Iczn::Fossil) already satisfy this status; skip creating a
       # conflicting status rather than let the two coexist.
       disjoint_types = status_type.constantize.disjoint_taxon_name_classes
 
-      citation_params = params[:citation]&.symbolize_keys
-      citation_source_id = citation_params && citation_params[:source_id]
+      conflicting_taxon_name_ids =
+        if disjoint_types.empty?
+          Set.new
+        else
+          TaxonNameClassification
+            .where(type: disjoint_types)
+            .where(taxon_name: query)
+            .distinct
+            .pluck(:taxon_name_id)
+            .to_set
+        end
 
-      if async && !called_from_async
-        dispatch_batch_by_filter_scope_job(
-          hash_query:, mode:, params:, project_id:, user_id:
-        )
-      else
-        # Loaded once rather than per citation created; nil (unknown id) is
-        # reported by Citation's own source presence validation.
-        citation_source = citation_source_id && Source.find_by(id: citation_source_id)
-
-        existing_by_taxon_name_id = TaxonNameClassification
-          .where(type: status_type)
-          .where(taxon_name: query)
-          .index_by(&:taxon_name_id)
-
-        conflicting_taxon_name_ids =
-          if disjoint_types.empty?
-            Set.new
-          else
-            TaxonNameClassification
-              .where(type: disjoint_types)
-              .where(taxon_name: query)
-              .distinct
-              .pluck(:taxon_name_id)
-              .to_set
-          end
-
-        # Classifications that already carry the exact citation (same
-        # source, pages, and is_original) being requested. This isn't just a
-        # performance nicety: it's what distinguishes an identical repeat
-        # (skipped and reported as updated) from a genuine conflict, same
-        # source and pages but a different is_original (attempted, fails,
-        # and is reported below with a message specific to that case).
-        already_cited_classification_ids = if citation_source_id && existing_by_taxon_name_id.any?
+      # Classifications that already carry the exact citation (same
+      # source, pages, and is_original) being requested. This isn't just a
+      # performance nicety: it's what distinguishes an identical repeat
+      # (skipped and reported as updated) from a genuine conflict: same
+      # source and pages but a different is_original (attempted, fails,
+      # and is reported below with a message specific to that case).
+      already_cited_classification_ids =
+        if citation_source_id && existing_by_taxon_name_id.any?
           Citation.duplicate_citation_object_ids(
             citation_object_type: 'TaxonNameClassification',
             citation_object_ids: existing_by_taxon_name_id.values.map(&:id),
@@ -441,61 +444,58 @@ class TaxonNameClassification < ApplicationRecord
           Set.new
         end
 
-        query.find_each do |taxon_name|
-          if !existing_by_taxon_name_id.key?(taxon_name.id) && conflicting_taxon_name_ids.include?(taxon_name.id)
-            r.not_updated.push taxon_name.id
-            r.validation_errors['conflicts with an existing disjoint classification'] += 1
-            next
-          end
-
-          classification = existing_by_taxon_name_id[taxon_name.id] ||
-            TaxonNameClassification.create(taxon_name: taxon_name, type: status_type)
-
-          unless classification.persisted?
-            r.not_updated.push taxon_name.id
-            classification.errors.full_messages.each { |msg| r.validation_errors[msg] += 1 }
-            next
-          end
-
-          # Citation is attached regardless of whether the status is new or
-          # already existed; an exact repeat (source, pages, and is_original
-          # all matching) was already filtered out above via
-          # already_cited_classification_ids, so any create attempted here
-          # that fails - including a source/pages conflict with a different
-          # is_original - is a genuine failure, not a tolerated duplicate.
-          # The request wasn't fully completed, so the taxon name is
-          # reported as not_updated even though the classification itself
-          # was added/confirmed and is left in place.
-          if citation_source_id && !already_cited_classification_ids.include?(classification.id)
-            citation = classification.citations.create(
-              source: citation_source,
-              pages: citation_params[:pages],
-              is_original: citation_params[:is_original]
-            )
-
-            unless citation.persisted?
-              r.not_updated.push taxon_name.id
-
-              # An exact repeat was already ruled out above, so a source_id
-              # conflict here can only mean a citation with this same source
-              # and pages exists with a different is_original - Citation's
-              # own validation doesn't know or care about is_original, it
-              # only reports the source/pages conflict, so the more specific
-              # wording is built here. The taxon name id is included (rather
-              # than summarized by count, as validation_errors normally are)
-              # since this needs manual review to resolve.
-              if citation.errors[:source_id].any?
-                r.validation_errors["citation already exists with a different 'original' flag for taxon name id #{taxon_name.id} - is_original was not changed"] += 1
-              else
-                citation.errors.full_messages.each { |msg| r.validation_errors[msg] += 1 }
-              end
-
-              next
-            end
-          end
-
-          r.updated.push classification.id
+      query.find_each do |taxon_name|
+        if (
+          !existing_by_taxon_name_id.key?(taxon_name.id) &&
+          conflicting_taxon_name_ids.include?(taxon_name.id)
+        )
+          r.not_updated.push taxon_name.id
+          r.validation_errors['conflicts with an existing disjoint classification'] += 1
+          next
         end
+
+        classification = existing_by_taxon_name_id[taxon_name.id] ||
+          TaxonNameClassification.create(taxon_name: taxon_name, type: status_type)
+
+        unless classification.persisted?
+          r.not_updated.push taxon_name.id
+          classification.errors.full_messages.each { |msg|
+            r.validation_errors[msg] += 1
+          }
+          next
+        end
+
+        if citation_source_id && !already_cited_classification_ids.include?(classification.id)
+          citation = classification.citations.create(
+            source: citation_source,
+            pages: citation_params[:pages],
+            is_original: citation_params[:is_original]
+          )
+
+          unless citation.persisted?
+            r.not_updated.push taxon_name.id
+
+            # An exact repeat was already ruled out above, so a source_id
+            # conflict here can only mean a citation with this same source
+            # and pages exists with a different is_original - Citation's
+            # own validation doesn't know or care about is_original, it
+            # only reports the source/pages conflict, so the more specific
+            # wording is built here. The taxon name id is included (rather
+            # than summarized by count, as validation_errors normally are)
+            # since this needs manual review to resolve.
+            if citation.errors[:source_id].any?
+              r.validation_errors["citation already exists with a different 'original' flag for taxon name id #{taxon_name.id} - is_original was not changed"] += 1
+            else # a second `is_original = true` citation, e.g.
+              citation.errors.full_messages.each { |msg|
+                r.validation_errors[msg] += 1
+              }
+            end
+
+            next
+          end
+        end
+
+        r.updated.push classification.id
       end
 
     when :remove_status
@@ -504,16 +504,17 @@ class TaxonNameClassification < ApplicationRecord
 
       if async && !called_from_async
         dispatch_batch_by_filter_scope_job(hash_query:, mode:, params:, project_id:, user_id:)
-      else
-        # Only the exact type selected: not its subclasses (e.g. removing
-        # Iczn::Fossil leaves Iczn::Fossil::Ichnotaxon), and not
-        # disjoint_taxon_name_classes, which is every *conflicting* status.
-        destroy_classifications_for_batch(
-          classifications: TaxonNameClassification.where(type: status_type),
-          query:,
-          batch_response: r
-        )
+        return r
       end
+
+      # Only the exact type selected: not its subclasses (e.g. removing
+      # Iczn::Fossil leaves Iczn::Fossil::Ichnotaxon), and not
+      # disjoint_taxon_name_classes, which is every *conflicting* status.
+      destroy_classifications_for_batch(
+        classifications: TaxonNameClassification.where(type: status_type),
+        query:,
+        batch_response: r
+      )
     end
 
     r
@@ -525,7 +526,7 @@ class TaxonNameClassification < ApplicationRecord
   # total_attempted. A taxon name with nothing to remove lands in
   # not_updated with no validation_errors entry; if a destroy were ever to
   # fail (nothing currently blocks one) it would also land in not_updated,
-  # but with one - that's how the two would be told apart.
+  # but with an error message - that's how the two would be told apart.
   def self.destroy_classifications_for_batch(classifications:, query:, batch_response:)
     existing_by_taxon_name_id = classifications
       .where(taxon_name: query)
