@@ -7,7 +7,7 @@
         <th>Shape</th>
         <th>Citations</th>
         <th class="w-2">OTU</th>
-        <th class="w-2">AD</th>
+        <th class="w-2">Asserted distribution</th>
       </tr>
     </thead>
     <tbody>

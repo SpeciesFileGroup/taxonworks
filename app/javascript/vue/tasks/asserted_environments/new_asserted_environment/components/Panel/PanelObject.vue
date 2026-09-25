@@ -47,8 +47,11 @@ const isBroadcastActive = ref(false)
 const { post } = useBroadcastChannel({
   name: 'otuObject',
   onMessage({ data }) {
-    if (isBroadcastActive.value && data.objectType === OTU) {
-      store.object = data
+    // New AD posts objectType, New BA posts raw records (base_class only)
+    const type = data.objectType || data.base_class
+
+    if (isBroadcastActive.value && type === OTU) {
+      store.object = { ...data, objectType: OTU }
     }
   }
 })
