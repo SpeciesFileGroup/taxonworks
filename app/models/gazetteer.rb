@@ -346,39 +346,66 @@ class Gazetteer < ApplicationRecord
     FileUtils.rmdir(tmp_dir)
   end
 
-  # @param used_on [String] currently `AssertedDistribution`
-  # @return [Scope]
-  #    the max 10 most recently used (1 week, could parameterize) gazetteers, as used `use_on`
+  # Targets whose recent lists draw on gazetteers used in both asserted
+  # distributions and asserted environments.
+  RECENTLY_USED_TARGETS = %w{AssertedDistribution AssertedEnvironment}.freeze
+
+  # @param used_on [String] one of RECENTLY_USED_TARGETS; both currently
+  #   return the same list
+  # @return [Array]
+  #    ids of gazetteers recently (1 week, could parameterize) used by
+  #    user_id as an AssertedDistribution shape (cited) or an
+  #    AssertedEnvironment object (updated), most recent first
   def self.used_recently(user_id, project_id, used_on = 'AssertedDistribution')
+    return [] unless RECENTLY_USED_TARGETS.include?(used_on)
 
-    case used_on
-    when 'AssertedDistribution'
-      t = Citation.arel_table
-      # i is a select manager
-      i = t.project(t['citation_object_id'], t['citation_object_type'], t['created_at']).from(t)
-        .where(t['created_at'].gt(1.week.ago))
-        .where(t['created_by_id'].eq(user_id))
-        .where(t['project_id'].eq(project_id))
-        .order(t['created_at'].desc)
-
-      # z is a table alias
-      z = i.as('recent_t')
-      p = AssertedDistribution.arel_table
-
-      AssertedDistribution
-        .joins(
-          Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['citation_object_id'].eq(p['id']).and(z['citation_object_type'].eq('AssertedDistribution')))  )
-        )
-        .where(asserted_distribution_shape_type: 'Gazetteer')
-        .pluck(:asserted_distribution_shape_id).uniq
-    end
+    (used_recently_in_asserted_distributions(user_id, project_id) +
+      used_recently_in_asserted_environments(user_id, project_id))
+      .sort_by { |_id, used_at| used_at }
+      .reverse
+      .map(&:first)
+      .uniq
   end
 
-  # @params target [String] currently only `AssertedDistribution`
+  # @return [Array] of [gazetteer_id, used_at] pairs
+  def self.used_recently_in_asserted_distributions(user_id, project_id)
+    t = Citation.arel_table
+    # i is a select manager
+    i = t.project(t['citation_object_id'], t['citation_object_type'], t['created_at']).from(t)
+      .where(t['created_at'].gt(1.week.ago))
+      .where(t['created_by_id'].eq(user_id))
+      .where(t['project_id'].eq(project_id))
+      .order(t['created_at'].desc)
+
+    # z is a table alias
+    z = i.as('recent_t')
+    p = AssertedDistribution.arel_table
+
+    AssertedDistribution
+      .joins(
+        Arel::Nodes::InnerJoin.new(z, Arel::Nodes::On.new(z['citation_object_id'].eq(p['id']).and(z['citation_object_type'].eq('AssertedDistribution')))  )
+      )
+      .where(asserted_distribution_shape_type: 'Gazetteer')
+      .pluck(:asserted_distribution_shape_id, Arel.sql('recent_t.created_at'))
+  end
+
+  # @return [Array] of [gazetteer_id, used_at] pairs
+  def self.used_recently_in_asserted_environments(user_id, project_id)
+    AssertedEnvironment
+      .where(
+        project_id:,
+        updated_by_id: user_id,
+        asserted_environment_object_type: 'Gazetteer',
+        updated_at: 1.week.ago..
+      )
+      .pluck(:asserted_environment_object_id, :updated_at)
+  end
+
+  # @params target [String] recent lists are only provided for RECENTLY_USED_TARGETS
   # @return [Hash] gazetteers optimized for user selection
   def self.select_optimized(user_id, project_id, target = 'AssertedDistribution')
     target = 'AssertedDistribution' if target.blank?
-    r = used_recently(user_id, project_id, target) || []
+    r = used_recently(user_id, project_id, target)
     h = {
       quick: [],
       pinboard: Gazetteer.pinned_by(user_id).where(pinboard_items: {project_id:}).pinboard_ordered.to_a,
@@ -388,10 +415,7 @@ class Gazetteer < ApplicationRecord
     if r.empty?
       h[:quick] = Gazetteer.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id:}).to_a
     else
-      case target
-      when 'AssertedDistribution'
-        h[:recent] = Gazetteer.where('"gazetteers"."id" IN (?)', r.first(15) ).order(:name).to_a
-      end
+      h[:recent] = Gazetteer.where('"gazetteers"."id" IN (?)', r.first(15) ).order(:name).to_a
       h[:quick] = (Gazetteer.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id:}).to_a +
         Gazetteer.where('"gazetteers"."id" IN (?)', r.first(5) ).order(:name).to_a).uniq
     end
