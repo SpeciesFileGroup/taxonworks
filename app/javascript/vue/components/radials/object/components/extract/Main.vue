@@ -7,6 +7,7 @@
     <DisplayList
       :list="list"
       label="object_tag"
+      annotator
       @delete="removeItem"
     />
   </div>
