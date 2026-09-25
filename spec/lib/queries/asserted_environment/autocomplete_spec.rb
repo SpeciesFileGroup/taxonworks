@@ -82,4 +82,25 @@ describe Queries::AssertedEnvironment::Autocomplete, type: :model do
     r = described_class.new('Zzyzx', project_id: ae.project_id).autocomplete
     expect(r).to include(ae)
   end
+
+  # The object autocompletes cap their own result counts, so they must only
+  # consider objects that have asserted environments - otherwise enough
+  # matching objects without them crowd out the one that has one.
+  specify 'finds a CollectingEvent match among many matching CollectingEvents without asserted environments' do
+    35.times { FactoryBot.create(:valid_collecting_event, verbatim_locality: 'Zzyzx Preserve') }
+    ce = FactoryBot.create(:valid_collecting_event, verbatim_locality: 'Zzyzx Preserve')
+    ae = FactoryBot.create(:asserted_environment, uri_label: 'planned burn', asserted_environment_object: ce)
+
+    r = described_class.new('Zzyzx', project_id: ae.project_id).autocomplete
+    expect(r).to contain_exactly(ae)
+  end
+
+  specify 'finds an Otu match among many matching Otus without asserted environments' do
+    35.times { FactoryBot.create(:valid_otu, name: 'Uniquotu name Foo') }
+    otu = FactoryBot.create(:valid_otu, name: 'Uniquotu name Foo')
+    ae = FactoryBot.create(:asserted_environment, uri_label: 'planned burn', asserted_environment_object: otu)
+
+    r = described_class.new('Uniquotu', project_id: ae.project_id).autocomplete
+    expect(r).to contain_exactly(ae)
+  end
 end
