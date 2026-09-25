@@ -1,4 +1,3 @@
-// Written with CLAUDE code
 import { defineStore } from 'pinia'
 import { AssertedEnvironment, Citation } from '@/routes/endpoints'
 import { smartSelectorRefresh } from '@/helpers/smartSelector/index.js'
@@ -121,7 +120,7 @@ export const useStore = defineStore('NewAssertedEnvironment', {
         return
       }
 
-      await Citation.create({
+      const { body: citation } = await Citation.create({
         citation: {
           citation_object_id: record.id,
           citation_object_type: ASSERTED_ENVIRONMENT,
@@ -131,10 +130,15 @@ export const useStore = defineStore('NewAssertedEnvironment', {
         }
       })
 
-      const { body } = await AssertedEnvironment.find(record.id, { extend })
+      // record was just fetched (with citations), so update it locally
+      // rather than re-requesting it after the citation is saved
+      const updated = {
+        ...record,
+        citations: [...(record.citations || []), citation]
+      }
 
-      removeFromArray(this.assertedEnvironments, body)
-      addToArray(this.assertedEnvironments, body, { prepend: true })
+      removeFromArray(this.assertedEnvironments, updated)
+      addToArray(this.assertedEnvironments, updated, { prepend: true })
       TW.workbench.alert.create(
         'Asserted environment already existed, citation was added.',
         'notice'

@@ -59,7 +59,6 @@
 
 <script setup>
 import { computed, ref } from 'vue'
-import { ASSERTED_DISTRIBUTION } from '@/constants'
 import MapShapePicker from '@/components/ui/SmartSelector/MapShapePicker.vue'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
 import VAutocomplete from '@/components/ui/Autocomplete.vue'
@@ -101,7 +100,7 @@ const props = defineProps({
   // smart selector's recent/used lists.
   target: {
     type: String,
-    default: ASSERTED_DISTRIBUTION
+    required: true
   }
 })
 

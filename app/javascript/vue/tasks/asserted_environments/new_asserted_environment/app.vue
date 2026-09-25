@@ -54,7 +54,6 @@
 </template>
 
 <script setup>
-// Written with CLAUDE code
 import { onBeforeMount, ref, watch } from 'vue'
 import { useHotkey, useUserPreference } from '@/composables'
 import { ASSERTED_ENVIRONMENT } from '@/constants'
@@ -82,12 +81,11 @@ const shortcuts = ref([
     }
   }
 ])
+useHotkey(shortcuts.value)
 
 defineOptions({
   name: 'NewAssertedEnvironment'
 })
-
-useHotkey(shortcuts.value)
 
 watch(
   autosave,

@@ -27,7 +27,6 @@
 </template>
 
 <script setup>
-// Written with CLAUDE code
 import { ref } from 'vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VModal from '@/components/ui/Modal.vue'

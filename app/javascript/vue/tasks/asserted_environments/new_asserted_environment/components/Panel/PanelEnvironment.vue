@@ -25,7 +25,6 @@
 </template>
 
 <script setup>
-// Written with CLAUDE code
 import { useStore } from '../../store/store'
 import AutoselectField from '@/components/ui/AutoselectField.vue'
 import BlockLayout from '@/components/layout/BlockLayout.vue'

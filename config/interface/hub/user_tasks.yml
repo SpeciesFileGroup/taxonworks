@@ -1308,7 +1308,6 @@ project_organizations_task:
     - project
   status: prototype
   description: 'Add and remove the organizations that are associated with your project.'
-
 new_asserted_environment_task:
   hub: true
   name: 'New asserted environment'
@@ -1318,4 +1317,4 @@ new_asserted_environment_task:
     - collecting
     - biology
   status: prototype
-  description: 'Create new asserted environments (ENVO terms characterizing OTUs, collecting events, and gazetteers), optionally cited. Has locking mechanisms.'
+  description: 'Create new asserted environments (ENVO terms characterizing OTUs, collecting events, and gazetteers), optionally cited.'

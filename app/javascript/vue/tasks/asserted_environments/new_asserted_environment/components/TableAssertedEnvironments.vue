@@ -18,6 +18,7 @@
         <td>
           <a
             :href="browseObjectLink(item)"
+            target="_blank"
             v-html="item.asserted_environment_object.object_tag"
           />
         </td>
@@ -41,7 +42,7 @@
         <td v-else>
           <a
             v-if="item.citations?.length"
-            target="blank"
+            target="_blank"
             :href="nomenclatureBySourceRoute(item.citations[0].source_id)"
             v-html="item.citations[0].citation_source_body"
           />
@@ -64,7 +65,6 @@
 </template>
 
 <script setup>
-// Written with CLAUDE code
 import RadialAnnotator from '@/components/radials/annotator/annotator'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import CitationCount from '@/components/citations/CitationsCount.vue'

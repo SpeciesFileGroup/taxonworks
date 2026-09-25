@@ -29,7 +29,6 @@
 </template>
 
 <script setup>
-// Written with CLAUDE code
 import { onBeforeMount, ref } from 'vue'
 import { useBroadcastChannel } from '@/composables'
 import { CollectingEvent, Gazetteer, Otu } from '@/routes/endpoints'
