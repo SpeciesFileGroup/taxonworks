@@ -376,7 +376,7 @@ RSpec.describe Gazetteer, type: :model, group: [:geo, :shared_geo] do
 
     context '.select_optimized' do
       specify 'returns selector buckets when target is nil' do
-        expect(described_class.select_optimized(1, @project_id, nil)).to include(
+        expect(described_class.select_optimized(Current.user_id, Current.project_id, nil)).to include(
           :quick,
           :pinboard,
           :recent
@@ -402,6 +402,11 @@ RSpec.describe Gazetteer, type: :model, group: [:geo, :shared_geo] do
 
         specify 'includes gazetteers recently used in asserted distributions and asserted environments, target AssertedEnvironment' do
           r = described_class.select_optimized(user_id, project_id, 'AssertedEnvironment')[:recent]
+          expect(r).to contain_exactly(ad_gazetteer, ae_gazetteer)
+        end
+
+        specify 'treats a nil target as AssertedDistribution' do
+          r = described_class.select_optimized(user_id, project_id, nil)[:recent]
           expect(r).to contain_exactly(ad_gazetteer, ae_gazetteer)
         end
 
