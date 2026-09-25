@@ -35,6 +35,12 @@ AssertedDistribution:
     - unify_objects_task
   config:
     recent: true
+AssertedEnvironment:
+  tasks:
+    - new_asserted_environment_task
+    - filter_asserted_environments_task
+  config:
+    recent: true
 BiologicalAssociation:
   tasks:
     - edit_biological_associations_graph_task
@@ -92,6 +98,7 @@ CollectingEvent:
     - filter_field_occurrences_task
     - comprehensive_collection_object_task
     - new_field_occurrence_task
+    - new_asserted_environment_task
     - unify_objects_task
   config:
     recent: true
@@ -146,6 +153,8 @@ Gazetteer:
   tasks:
     - new_gazetteer_task
     - import_gazetteers_task
+    - new_asserted_distribution_task
+    - new_asserted_environment_task
   new: new_gazetteer_task
   edit: new_gazetteer_task
 GeographicArea:
@@ -154,6 +163,7 @@ GeographicArea:
     - filter_collecting_events_task
     - filter_otus_task
     - asserted_distributions_basic_endemism_task
+    - new_asserted_distribution_task
   config:
     recent: false
 GeographicItem:
@@ -215,6 +225,8 @@ Otu:
     - content_editor_task
     - cite_otus_task
     - browse_asserted_distributions_task
+    - new_asserted_distribution_task
+    - new_asserted_environment_task
     - unify_objects_task
     - anatomical_parts_graph_task
     - monograph_facilitator_task

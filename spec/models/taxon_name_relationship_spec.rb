@@ -240,6 +240,14 @@ describe TaxonNameRelationship, type: :model, group: [:nomenclature] do
         expect(r2.errors.include?(:object_taxon_name_id)).to be_truthy
       end
 
+      specify 'has only one type relationship (new record)' do
+        s  = FactoryBot.create(:relationship_species, parent: genus)
+        FactoryBot.create(:taxon_name_relationship, subject_taxon_name: s, object_taxon_name: genus, type: 'TaxonNameRelationship::Typification::Genus')
+        r2 = FactoryBot.build(:taxon_name_relationship, subject_taxon_name: s, object_taxon_name: genus, type: 'TaxonNameRelationship::Typification::Genus::Original')
+        r2.valid?
+        expect(r2.errors.include?(:object_taxon_name_id)).to be_truthy
+      end
+
       specify 'has only one original genus' do
         g  = FactoryBot.create(:relationship_genus, parent: family)
         s  = FactoryBot.create(:relationship_species, parent: g)

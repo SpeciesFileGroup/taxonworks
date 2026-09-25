@@ -33,8 +33,8 @@
         :label="label"
         :add-tabs="Object.keys(smartSelectorTabs)"
         :autocomplete-params="tabData.polymorphic_types_allowed || {}"
-        :klass="ASSERTED_DISTRIBUTION"
-        :target="ASSERTED_DISTRIBUTION"
+        :klass="target"
+        :target="target"
         ref="smartSelector"
         inline
         buttons
@@ -59,7 +59,6 @@
 
 <script setup>
 import { computed, ref } from 'vue'
-import { ASSERTED_DISTRIBUTION } from '@/constants'
 import MapShapePicker from '@/components/ui/SmartSelector/MapShapePicker.vue'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
 import VAutocomplete from '@/components/ui/Autocomplete.vue'
@@ -95,6 +94,13 @@ const props = defineProps({
   klassKey: {
     type: String,
     default: 'objectType' // 'shapeType', etc. The polymorphic relation descriptor.
+  },
+
+  // Model type the selected object will be attached to; scopes the
+  // smart selector's recent/used lists.
+  target: {
+    type: String,
+    required: true
   }
 })
 

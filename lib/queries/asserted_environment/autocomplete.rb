@@ -21,32 +21,46 @@ module Queries
         base_query.where('asserted_environments.uri ILIKE ?', '%' + query_string).limit(20)
       end
 
-      # Matching by ENVO term alone can't distinguish two assertions with the
-      # same uri_label on different objects (see asserted_environment_tag), so
-      # also let the object's own label reach its AssertedEnvironments - one
-      # subquery per polymorphic type, each delegating to that object's own
-      # (already comprehensive) Autocomplete class rather than reimplementing
-      # a narrower match here.
-
       def autocomplete_collecting_event_object
-        return nil if query_string.length < 3
-        ids = ::Queries::CollectingEvent::Autocomplete.new(query_string, project_id:).autocomplete.map(&:id)
-        return nil if ids.empty?
-        base_query.where(asserted_environment_object_type: 'CollectingEvent', asserted_environment_object_id: ids)
+        autocomplete_object('CollectingEvent', ::Queries::CollectingEvent::Autocomplete)
       end
 
       def autocomplete_otu_object
-        return nil if query_string.length < 3
-        ids = ::Queries::Otu::Autocomplete.new(query_string, project_id:).autocomplete.map(&:id)
-        return nil if ids.empty?
-        base_query.where(asserted_environment_object_type: 'Otu', asserted_environment_object_id: ids)
+        autocomplete_object('Otu', ::Queries::Otu::Autocomplete)
       end
 
       def autocomplete_gazetteer_object
+        autocomplete_object('Gazetteer', ::Queries::Gazetteer::Autocomplete)
+      end
+
+      # The object's Autocomplete is restricted to only those objects that
+      # have an AssertedEnvironment in this project. This keeps it fast and
+      # prevents matching objects without asserted environments from filling the
+      # object Autocomplete's own result limit.
+      # @param object_type [String]
+      # @param object_autocomplete_class [Class]
+      # @return [Scope, nil]
+      def autocomplete_object(object_type, object_autocomplete_class)
         return nil if query_string.length < 3
-        ids = ::Queries::Gazetteer::Autocomplete.new(query_string, project_id:).autocomplete.map(&:id)
+
+        asserted_object_ids = ::AssertedEnvironment
+          .where(asserted_environment_object_type: object_type)
+        if project_id.present?
+          asserted_object_ids = asserted_object_ids.where(project_id:)
+        end
+        asserted_objects = object_type.constantize.where(
+          id: asserted_object_ids.select(:asserted_environment_object_id)
+        )
+
+        ids = object_autocomplete_class
+          .new(query_string, project_id:, restrict_to: asserted_objects)
+          .autocomplete.map(&:id)
+
         return nil if ids.empty?
-        base_query.where(asserted_environment_object_type: 'Gazetteer', asserted_environment_object_id: ids)
+        base_query.where(
+          asserted_environment_object_type: object_type,
+          asserted_environment_object_id: ids
+        )
       end
 
       def updated_queries

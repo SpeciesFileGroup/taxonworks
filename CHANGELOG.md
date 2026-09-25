@@ -13,11 +13,14 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - `/api/v1/alternate_values` and `/api/v1/alternate_values/<id>` endpoints
 - Adds extend[]=citations to /api/v1/common_names endpoint
 - Asserted Environments (with terms from the ENVO ontology) for Collecting Events, Gazetteers, and OTUs [#114]
+- New Asserted Environment task [#5107]
 - Taxon Determination facet to Filter Field Occurrences [#5090]
+- Status (i.e. Classification) slice to Filter Taxon Names radial (ids side only); replaces/extends separate Fossil slice [#5088]
 
 ### Changed
 
 - Updated attribution label in `/api/v1/leads/key/<id>`
+- Radial annotator: Replace background color by badge when citation is original [#4979]
 
 ### Fixed
 
@@ -26,10 +29,15 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - `New taxon name`: browser back/forward buttons left the form out of sync with the URL
 - `New taxon name`: returning with the browser back button from "Add new source" left the task with no taxon loaded
 - Fix error when searching Catalogue of Life level of OTU and Taxon Name autoselects [#5097]
+- Bug allowing to create more than one type genus, type family, etc. [#5106]
 
 [#114]: https://github.com/SpeciesFileGroup/taxonworks/issues/114
+[#4979]: https://github.com/SpeciesFileGroup/taxonworks/issues/4979
+[#5088]: https://github.com/SpeciesFileGroup/taxonworks/issues/5088
 [#5090]: https://github.com/SpeciesFileGroup/taxonworks/issues/5090
 [#5097]: https://github.com/SpeciesFileGroup/taxonworks/issues/5097
+[#5107]: https://github.com/SpeciesFileGroup/taxonworks/issues/5107
+[#5106]: https://github.com/SpeciesFileGroup/taxonworks/issues/5106
 
 ## [0.65.0] - 2026-09-04
 

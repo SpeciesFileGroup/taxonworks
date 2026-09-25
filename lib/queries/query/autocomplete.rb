@@ -36,11 +36,20 @@ module Queries
     # TODO: add mode
     # attr_accessor :mode
 
+    # @return [ActiveRecord::Relation, nil]
+    #   optional, restricts results to these records of referenced_klass.
+    #   nil (default) is no restriction. Must be a relation of
+    #   referenced_klass (or a subclass), e.g. `::CollectingEvent.where(...)`;
+    #   any select on it is replaced with `select(:id)`. Anything else raises
+    #   ArgumentError. See #apply_restriction.
+    attr_accessor :restrict_to
+
     # @param [Hash] args
-    def initialize(string, project_id: nil, **keyword_args)
+    def initialize(string, project_id: nil, restrict_to: nil, **keyword_args)
       @query_string = ::ApplicationRecord.sanitize_sql(string)&.delete("\u0000") # remove null bytes
 
       @project_id = project_id
+      @restrict_to = restrict_to
 
       # should not need this
       # build_terms # TODO - should remove this for accessors
@@ -48,6 +57,35 @@ module Queries
 
     def project_id
       [@project_id].flatten.compact
+    end
+
+    # Apply #restrict_to to query. Subclasses should call this where they
+    # assemble their individual queries (i.e. alongside where project_id is
+    # applied), rather than in base_query, so that it covers queries not
+    # built from base_query (e.g. referenced_klass.joins(:identifiers)).
+    #
+    # Use this when the caller only wants a subset of the model's records,
+    # typically when one autocomplete delegates to another: restricting the
+    # inner autocomplete to candidates the outer one can use keeps it fast,
+    # and keeps unusable candidates from filling its result limits.
+    #
+    # The restriction is `table.id IN (<restrict_to>)`. Requiring a relation
+    # of referenced_klass means the ids are always the model's own, and
+    # `reselect(:id)` guarantees the single column an IN subquery needs.
+    #
+    # @param query [ActiveRecord::Relation] of referenced_klass
+    # @return [ActiveRecord::Relation]
+    def apply_restriction(query)
+      return query if restrict_to.nil?
+
+      r = restrict_to
+      unless r.is_a?(ActiveRecord::Relation) && r.klass <= referenced_klass
+        given = r.is_a?(ActiveRecord::Relation) ? r.klass.name : r.class.name
+        raise ArgumentError,
+          "restrict_to must be a relation of #{referenced_klass.name}, not #{given}"
+      end
+
+      query.where(table[:id].in(r.reselect(:id).arel))
     end
 
     # @return [Scope]

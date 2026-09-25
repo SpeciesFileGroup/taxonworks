@@ -8,7 +8,12 @@ const permitParams = {
     asserted_environment_object_type: String,
     uri: String,
     uri_label: String,
-    position: Number
+    position: Number,
+    citations_attributes: {
+      is_original: Boolean,
+      source_id: Number,
+      pages: String
+    }
   }
 }
 

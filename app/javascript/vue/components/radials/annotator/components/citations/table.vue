@@ -17,12 +17,16 @@
           class="list-complete-item"
         >
           <td>
-            <span
-              :class="{ originalCitation: item.is_original }"
-              class="margin-small-right"
-              v-html="item.object_tag"
-            />
-            <SoftValidation :global-id="item.global_id" />
+            <div class="horizontal-left-content middle gap-small">
+              <span v-html="item.object_tag" />
+              <VBadge
+                v-if="item.is_original"
+                color="blue"
+              >
+                Original
+              </VBadge>
+              <SoftValidation :global-id="item.global_id" />
+            </div>
           </td>
           <td>
             <div class="horizontal-right-content middle gap-small">
@@ -82,6 +86,7 @@ import VBtn from '@/components/ui/VBtn/index.vue'
 import IconPencil from '@/components/Icon/IconPencil.vue'
 import IconTrash from '@/components/Icon/IconTrash.vue'
 import IconQuote from '@/components/Icon/IconQuote.vue'
+import VBadge from '@/components/ui/VBadge/VBadge.vue'
 
 defineProps({
   list: {
@@ -128,11 +133,5 @@ function deleteItem(item) {
   opacity: 0;
   font-size: 0px;
   border: none;
-}
-.originalCitation {
-  padding: 5px;
-  border-radius: 3px;
-  background-color: #006ebf;
-  color: #fff;
 }
 </style>
