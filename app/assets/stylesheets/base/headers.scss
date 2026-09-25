@@ -78,6 +78,20 @@
   .hub_project_name {
     color: white;
     font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  a.hub_project_name:hover,
+  a.hub_project_name:focus-visible {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .header-section-name {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
   }
 
   .dropdown-content {
