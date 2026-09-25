@@ -6,7 +6,9 @@
       v-model="preparationTypeId"
     >
       <template #tabs-right>
-        <LockComponent v-model="locked.collection_object.preparation_type_id" />
+        <div class="w-full horizontal-right-content">
+          <VLock v-model="locked.collection_object.preparation_type_id" />
+        </div>
       </template>
     </PreparationTypeSelector>
   </div>
@@ -17,7 +19,7 @@ import { computed } from 'vue'
 import { useStore } from 'vuex'
 import { MutationNames } from '../../store/mutations/mutations.js'
 import { GetterNames } from '../../store/getters/getters.js'
-import LockComponent from '@/components/ui/VLock/index.vue'
+import VLock from '@/components/ui/VLock/index.vue'
 import PreparationTypeSelector from '@/components/ui/SmartSelector/PreparationTypeSelector.vue'
 
 const store = useStore()

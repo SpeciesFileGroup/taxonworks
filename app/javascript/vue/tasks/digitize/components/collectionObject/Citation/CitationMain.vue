@@ -12,7 +12,9 @@
       @submit="addCitation"
     >
       <template #tabs-right>
-        <VLock v-model="lock.coCitations" />
+        <div class="w-full horizontal-right-content">
+          <VLock v-model="lock.coCitations" />
+        </div>
       </template>
     </FormCitation>
     <display-list
