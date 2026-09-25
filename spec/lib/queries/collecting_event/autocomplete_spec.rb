@@ -168,4 +168,27 @@ describe Queries::CollectingEvent::Autocomplete, type: :model do
     end
   end
 
+  context 'restrict_to' do
+    specify 'restricts results to the given CollectingEvents (relation)' do
+      q = Queries::CollectingEvent::Autocomplete.new('there', restrict_to: CollectingEvent.where(id: ce2.id))
+      expect(q.autocomplete.map(&:id)).to contain_exactly(ce2.id)
+    end
+
+    specify 'restricts results to the given CollectingEvents (ids)' do
+      q = Queries::CollectingEvent::Autocomplete.new('there', restrict_to: [ce1.id])
+      expect(q.autocomplete.map(&:id)).to contain_exactly(ce1.id)
+    end
+
+    specify 'restricts identifier matches, which are not built from base_query' do
+      Identifier::Local::FieldNumber.create!(identifier_object: ce2, identifier: '124', namespace:)
+      q = Queries::CollectingEvent::Autocomplete.new('oo 12', restrict_to: CollectingEvent.where(id: ce2.id))
+      expect(q.autocomplete.map(&:id)).to contain_exactly(ce2.id)
+    end
+
+    specify 'is not applied when nil' do
+      q = Queries::CollectingEvent::Autocomplete.new('there', restrict_to: nil)
+      expect(q.autocomplete.map(&:id)).to include(ce1.id, ce2.id)
+    end
+  end
+
 end

@@ -40,7 +40,7 @@ module Queries
         autocomplete_object('Gazetteer', ::Queries::Gazetteer::Autocomplete)
       end
 
-      # The object's Autocomplete is run scoped to only those objects that
+      # The object's Autocomplete is restricted to only those objects that
       # have an AssertedEnvironment in this project. This keeps it fast
       # regardless of how many objects of that type exist, and prevents
       # matching objects without asserted environments from filling the
@@ -56,9 +56,9 @@ module Queries
         asserted_object_ids = asserted_object_ids.where(project_id:) if project_id.present?
         asserted_object_ids = asserted_object_ids.select(:asserted_environment_object_id)
 
-        ids = object_type.constantize.where(id: asserted_object_ids).scoping do
-          object_autocomplete_class.new(query_string, project_id:).autocomplete.map(&:id)
-        end
+        ids = object_autocomplete_class
+          .new(query_string, project_id:, restrict_to: asserted_object_ids)
+          .autocomplete.map(&:id)
 
         return nil if ids.empty?
         base_query.where(asserted_environment_object_type: object_type, asserted_environment_object_id: ids)

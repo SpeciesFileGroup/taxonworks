@@ -70,10 +70,10 @@ module Queries
       def initialize(
         string, project_id: nil, having_taxon_name_only: false,
         with_taxon_name: nil, exact: 'false', include_common_names: false,
-        include_taxon_name: false
+        include_taxon_name: false, restrict_to: nil
       )
 
-        super(string, project_id:)
+        super(string, project_id:, restrict_to:)
         @having_taxon_name_only = boolean_param({having_taxon_name_only:}, :having_taxon_name_only)
         @with_taxon_name = boolean_param({with_taxon_name:}, :with_taxon_name)
 
@@ -339,6 +339,7 @@ module Queries
       end
 
       def scope_autocomplete(query)
+        query = apply_restriction(query)
         query = query.joins(:taxon_name) if with_taxon_name
         query = query.where.missing(:taxon_name) if with_taxon_name == false
         query = query.where(otus: {name: nil}) if having_taxon_name_only

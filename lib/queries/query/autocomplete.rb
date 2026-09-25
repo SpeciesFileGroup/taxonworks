@@ -36,11 +36,19 @@ module Queries
     # TODO: add mode
     # attr_accessor :mode
 
+    # @return [ActiveRecord::Relation, Array, nil]
+    #   optional, restricts results to these records of referenced_klass -
+    #   either a relation (of referenced_klass, or selecting only its ids) or
+    #   an Array of ids. nil (default) is no restriction. Applied per query
+    #   via #apply_restriction, see there.
+    attr_accessor :restrict_to
+
     # @param [Hash] args
-    def initialize(string, project_id: nil, **keyword_args)
+    def initialize(string, project_id: nil, restrict_to: nil, **keyword_args)
       @query_string = ::ApplicationRecord.sanitize_sql(string)&.delete("\u0000") # remove null bytes
 
       @project_id = project_id
+      @restrict_to = restrict_to
 
       # should not need this
       # build_terms # TODO - should remove this for accessors
@@ -48,6 +56,32 @@ module Queries
 
     def project_id
       [@project_id].flatten.compact
+    end
+
+    # Apply #restrict_to to query. Subclasses should call this where they
+    # assemble their individual queries (i.e. alongside where project_id is
+    # applied), rather than in base_query, so that it covers queries not
+    # built from base_query (e.g. referenced_klass.joins(:identifiers)).
+    #
+    # Use this when the caller only wants a subset of the model's records,
+    # typically when one autocomplete delegates to another: restricting the
+    # inner autocomplete to candidates the outer one can use keeps it fast,
+    # and keeps unusable candidates from filling its result limits.
+    #
+    # @param query [ActiveRecord::Relation] of referenced_klass
+    # @return [ActiveRecord::Relation]
+    def apply_restriction(query)
+      return query if restrict_to.nil?
+
+      r = restrict_to
+      if r.is_a?(ActiveRecord::Relation)
+        r = r.select(:id) if r.select_values.empty?
+        r = r.arel
+      else
+        r = Array(r)
+      end
+
+      query.where(table[:id].in(r))
     end
 
     # @return [Scope]

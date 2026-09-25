@@ -14,9 +14,9 @@ module Queries
 
       # @params string [String]
       # @params [Hash] args
-      def initialize(string, project_id: nil, georeferences: nil)
+      def initialize(string, project_id: nil, georeferences: nil, restrict_to: nil)
         @georeferences = boolean_param({georeferences:}, :georeferences)
-        super(string, project_id:)
+        super(string, project_id:, restrict_to:)
       end
 
       def autocomplete_verbatim_label_md5
@@ -113,7 +113,7 @@ module Queries
           a = q.where(project_id:) if project_id.present?
           a ||= q
           a = a.merge(georeference_restriction) unless georeferences.nil?
-          updated_queries[i] = a
+          updated_queries[i] = apply_restriction(a)
         end
 
         result = []

@@ -35,7 +35,7 @@ module Queries
 
         queries.each do |q|
           a = q.where(project_id:) if project_id.present?
-          updated_queries << a
+          updated_queries << apply_restriction(a) if a
         end
 
         updated_queries
