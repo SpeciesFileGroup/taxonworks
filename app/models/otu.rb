@@ -374,6 +374,7 @@ class Otu < ApplicationRecord
         when 'AssertedDistribution'
           t.project(t['asserted_distribution_object_id'].as('otu_id'),
                     t['updated_at']).from(t)
+            .where(t['asserted_distribution_object_type'].eq('Otu'))
             .where(t['updated_at'].gt( 1.week.ago ))
             .where(t['updated_by_id'].eq(user_id))
             .where(t['project_id'].eq(project_id))

@@ -376,11 +376,51 @@ RSpec.describe Gazetteer, type: :model, group: [:geo, :shared_geo] do
 
     context '.select_optimized' do
       specify 'returns selector buckets when target is nil' do
-        expect(described_class.select_optimized(1, @project_id, nil)).to include(
+        expect(described_class.select_optimized(Current.user_id, Current.project_id, nil)).to include(
           :quick,
           :pinboard,
           :recent
         )
+      end
+
+      context 'recent' do
+        let!(:ad_gazetteer) { FactoryBot.create(:valid_gazetteer, name: 'AD gaz') }
+        let!(:ae_gazetteer) { FactoryBot.create(:valid_gazetteer, name: 'AE gaz') }
+        let!(:unused_gazetteer) { FactoryBot.create(:valid_gazetteer, name: 'Unused gaz') }
+        let(:user_id) { ad_gazetteer.created_by_id }
+        let(:project_id) { ad_gazetteer.project_id }
+
+        before do
+          FactoryBot.create(:valid_gazetteer_asserted_distribution, asserted_distribution_shape: ad_gazetteer)
+          FactoryBot.create(:valid_asserted_environment, asserted_environment_object: ae_gazetteer)
+        end
+
+        specify 'includes only gazetteers recently used in asserted distributions, target AssertedDistribution' do
+          r = described_class.select_optimized(user_id, project_id, 'AssertedDistribution')[:recent]
+          expect(r).to contain_exactly(ad_gazetteer)
+        end
+
+        specify 'includes gazetteers recently used in asserted distributions and asserted environments, target AssertedEnvironment' do
+          r = described_class.select_optimized(user_id, project_id, 'AssertedEnvironment')[:recent]
+          expect(r).to contain_exactly(ad_gazetteer, ae_gazetteer)
+        end
+
+        specify 'treats a nil target as AssertedDistribution' do
+          r = described_class.select_optimized(user_id, project_id, nil)[:recent]
+          expect(r).to contain_exactly(ad_gazetteer)
+        end
+
+        specify 'excludes asserted environments older than a week' do
+          AssertedEnvironment.update_all(updated_at: 2.weeks.ago)
+          r = described_class.select_optimized(user_id, project_id, 'AssertedEnvironment')[:recent]
+          expect(r).to contain_exactly(ad_gazetteer)
+        end
+
+        specify 'excludes asserted environments updated by another user' do
+          AssertedEnvironment.update_all(updated_by_id: FactoryBot.create(:valid_user).id)
+          r = described_class.select_optimized(user_id, project_id, 'AssertedEnvironment')[:recent]
+          expect(r).to contain_exactly(ad_gazetteer)
+        end
       end
     end
   end

@@ -248,4 +248,18 @@ describe Queries::Otu::Autocomplete, type: :model do
 
   end
 
+  context 'restrict_to' do
+    let!(:otu2) { Otu.create!(name: name + ' two') }
+
+    specify 'restricts results to the given Otus' do
+      q = Queries::Otu::Autocomplete.new(name, restrict_to: Otu.where(id: otu2.id))
+      expect(q.autocomplete.map(&:id)).to contain_exactly(otu2.id)
+    end
+
+    specify 'is not applied when nil' do
+      q = Queries::Otu::Autocomplete.new(name)
+      expect(q.autocomplete.map(&:id)).to include(otu.id, otu2.id)
+    end
+  end
+
 end

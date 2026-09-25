@@ -40,6 +40,7 @@
         class="margin-medium-top"
         :list="list"
         label="uri_label"
+        annotator
         @delete="removeItem"
       />
     </fieldset>

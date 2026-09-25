@@ -122,7 +122,8 @@ class AssertedEnvironmentsController < ApplicationController
   def asserted_environment_params
     params.require(:asserted_environment).permit(
       :asserted_environment_object_id, :asserted_environment_object_type,
-      :uri, :uri_label, :position
+      :uri, :uri_label, :position,
+      citations_attributes: [:is_original, :source_id, :pages]
     )
   end
 

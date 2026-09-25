@@ -1,11 +1,11 @@
 <template>
-  <BlockLayout :warning="!store.citation.source_id">
+  <BlockLayout :warning="required && !citation.source_id">
     <template #header>
       <div class="flex-separate full_width middle">
         <h3>Source</h3>
         <VBtn
           color="primary"
-          @click="openTask"
+          @click="openNewSourceTask"
         >
           New
         </VBtn>
@@ -15,15 +15,14 @@
       <FormCitation
         :fieldset="false"
         lock-button
-        absent-field
         use-session
-        v-model="store.citation"
-        v-model:absent="store.assertedDistribution.isAbsent"
-        v-model:lock="store.lock.source"
-        :klass="ASSERTED_DISTRIBUTION"
-        :target="ASSERTED_DISTRIBUTION"
+        v-model="citation"
+        v-model:absent="isAbsent"
+        v-model:lock="isLocked"
+        :absent-field="absentField"
+        :klass="target"
+        :target="target"
         @update="sendBroadcast"
-        @lock="(e) => (store.lock.citation = e)"
       >
         <template #tabs-right>
           <VBroadcast v-model="isBroadcastActive" />
@@ -34,24 +33,55 @@
 </template>
 
 <script setup>
-import { useStore } from '../../store/store'
-import { ASSERTED_DISTRIBUTION } from '@/constants'
-import { RouteNames } from '@/routes/routes.js'
 import { ref } from 'vue'
+import { RouteNames } from '@/routes/routes.js'
 import { useBroadcastChannel } from '@/composables'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
 import FormCitation from '@/components/Form/FormCitation.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VBroadcast from '@/components/ui/VBroadcast/VBroadcast.vue'
 
-const store = useStore()
 const isBroadcastActive = ref(false)
+
+defineProps({
+  // Model type of the object being cited, e.g. 'AssertedDistribution'
+  target: {
+    type: String,
+    required: true
+  },
+
+  // Show the warning state until a source is selected
+  required: {
+    type: Boolean,
+    default: false
+  },
+
+  absentField: {
+    type: Boolean,
+    default: false
+  }
+})
+
+const citation = defineModel({
+  type: Object,
+  required: true
+})
+
+const isAbsent = defineModel('absent', {
+  type: Boolean,
+  default: false
+})
+
+const isLocked = defineModel('lock', {
+  type: Boolean,
+  default: false
+})
 
 const { post } = useBroadcastChannel({
   name: 'citation',
   onMessage({ data }) {
     if (isBroadcastActive.value) {
-      Object.assign(store.citation, data)
+      Object.assign(citation.value, data)
     }
   }
 })
@@ -64,7 +94,7 @@ function sendBroadcast(data) {
   }
 }
 
-function openTask() {
+function openNewSourceTask() {
   window.open(RouteNames.NewSource)
 }
 </script>

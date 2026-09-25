@@ -1,16 +1,14 @@
 <template>
   <div>
     <PolymorphicObjectPicker
-      :object-types="PolymorphicShapes"
-      :target="ASSERTED_DISTRIBUTION"
-      v-model="inputShape"
+      :object-types="AssertedEnvironmentObject"
+      :target="ASSERTED_ENVIRONMENT"
+      v-model="inputObject"
       :minimal="minimal"
       :autofocus="autofocus"
       :focus-on-select="focusOnSelect"
       :label="label"
-      :under-text="underText"
-      klass-key="shapeType"
-      @select-object="(o) => { emit('selectShape', o) }"
+      @select-object="(o) => { emit('selectObject', o) }"
     >
       <template #tabs-right>
         <slot name="tabs-right" />
@@ -20,9 +18,9 @@
 </template>
 
 <script setup>
-import { ASSERTED_DISTRIBUTION } from '@/constants'
+import { ASSERTED_ENVIRONMENT } from '@/constants'
 import PolymorphicObjectPicker from './PolymorphicObjectPicker/PolymorphicObjectPicker.vue'
-import PolymorphicShapes from './PolymorphicObjectPicker/PolymorphismClasses/PolymorphicShapes.js'
+import AssertedEnvironmentObject from './PolymorphicObjectPicker/PolymorphismClasses/AssertedEnvironmentObject'
 
 const props = defineProps({
   minimal: {
@@ -43,19 +41,13 @@ const props = defineProps({
   label: {
     type: String,
     required: false
-  },
-
-  underText: {
-    type: String,
-    required: false
   }
 })
 
-const inputShape = defineModel({
+const inputObject = defineModel({
   type: Object,
   default: () => ({})
 })
 
-const emit = defineEmits(['selectShape'])
-
+const emit = defineEmits(['selectObject'])
 </script>
