@@ -20,6 +20,11 @@ module Workbench::LayoutHelper
     Rails.env
   end
 
+  def current_environment_badge_tag
+    color = { 'production' => 'green', 'development' => 'yellow' }.fetch(current_environment, 'default')
+    content_tag(:span, current_environment.capitalize, class: ['v-badge', "v-badge--#{color}"])
+  end
+
   def taxonworks_version_tag
     unless Settings.sandbox_mode?
       link_to("v#{TaxonWorks::VERSION}", "https://github.com/SpeciesFileGroup/taxonworks/releases/tag/v#{TaxonWorks::VERSION}", id: 'taxonworks_version')

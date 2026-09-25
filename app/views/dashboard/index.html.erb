@@ -9,9 +9,13 @@
           <h2 class="tw-card-title">Projects</h2>
         </div>
         <div class="tw-card-body">
+          <% if @projects.length > 8 -%>
+            <input type="search" class="normal-input full_width project-filter-input" placeholder="Filter projects..." autocomplete="off">
+          <% end -%>
           <ul class="project-list no_bullets">
             <%= projects_list(@projects) -%>
           </ul>
+          <p class="project-filter-empty subtle d-none">No projects match.</p>
         </div>
       </div>
 
@@ -73,7 +77,7 @@
             </div>
             <div class="info-list-item">
               <span class="info-list-label">Environment</span>
-              <span class="badge badge-<%= current_environment -%>"><%= current_environment -%></span>
+              <%= current_environment_badge_tag -%>
             </div>
             <% if Settings.sandbox_mode? %>
             <div class="info-list-item">  

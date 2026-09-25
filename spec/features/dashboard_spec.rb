@@ -41,6 +41,42 @@ describe 'Dashboard' do
       }
     end
 
+    context 'projects panel' do
+      it 'shows no filter for few projects' do
+        within('.panel-projects') do
+          expect(page).to have_selector('.project-item', text: 'My Project')
+          expect(page).not_to have_selector('.project-filter-input')
+        end
+      end
+
+      context 'with many projects', js: true do
+        before do
+          %w{Aphid Bee Cicada Dragonfly Earwig Firefly Grasshopper Hornet}.each do |n|
+            p = Project.create!(name: n, creator: @administrator, updater: @administrator, without_root_taxon_name: true)
+            p.project_members.create!(creator: @administrator, updater: @administrator, user: @user)
+          end
+          visit dashboard_path
+        end
+
+        it 'filters projects by name' do
+          within('.panel-projects') do
+            fill_in(placeholder: 'Filter projects...', with: 'fire')
+            expect(page).to have_selector('.project-item', text: 'Firefly')
+            expect(page).not_to have_selector('.project-item', text: 'Aphid')
+            expect(page).not_to have_selector('.project-filter-empty')
+          end
+        end
+
+        it 'shows an empty message when nothing matches' do
+          within('.panel-projects') do
+            fill_in(placeholder: 'Filter projects...', with: 'zzz')
+            expect(page).not_to have_selector('.project-item')
+            expect(page).to have_selector('.project-filter-empty', text: 'No projects match')
+          end
+        end
+      end
+    end
+
     context 'when click Sign out', js: true do
       before { click_link 'Sign out' }
 

@@ -35,13 +35,24 @@
     border-left: 4px solid transparent;
     border-radius: var(--border-radius-small);
     cursor: pointer;
-    transition: background-color 0.2s, border-color 0.2s;
+    transition:
+      background-color 0.2s,
+      border-color 0.2s;
 
     a {
       width: 100%;
       padding: var(--spacing-xxs) var(--spacing-md);
       font-size: var(--font-size-sm);
     }
+  }
+
+  .project-filter-input {
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .project-filter-empty {
+    margin: var(--spacing-xs) var(--spacing-md) 0;
+    font-size: var(--font-size-sm);
   }
 
   .project-item:hover {
@@ -80,7 +91,7 @@
   .info-list {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-md);
+    gap: var(--spacing-sm);
   }
 
   .info-list-item {
@@ -99,23 +110,5 @@
 
   .info-list-value {
     font-size: var(--font-size-sm);
-  }
-
-  .badge {
-    padding: var(--spacing-xxs) var(--spacing-sm);
-    border-radius: 9999px;
-    font-size: var(--font-size-xs);
-    font-weight: 600;
-    text-transform: capitalize;
-  }
-
-  .badge-development {
-    background-color: var(--badge-yellow-bg);
-    color: var(--badge-yellow-color);
-  }
-
-  .badge-production {
-    background-color: var(--badge-green-bg);
-    color: var(--badge-green-color);
   }
 }

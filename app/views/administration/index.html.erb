@@ -240,7 +240,7 @@
 
             <div class="info-list-item">
               <span class="info-list-label">Environment</span>
-              <span class="badge badge-<%= current_environment -%>"><%= current_environment -%></span>
+              <%= current_environment_badge_tag -%>
             </div>
 
             <% if Settings.sandbox_mode? -%>
@@ -275,9 +275,9 @@
             <div class="info-list-item">
               <span class="info-list-label">Jobs failed</span>
               <% if @failed_jobs_count.zero? -%>
-                <span class="status-pill ok">0</span>
+                <span class="v-badge v-badge--green">0</span>
               <% else -%>
-                <span class="status-pill warn"><%= number_with_delimiter(@failed_jobs_count) -%></span>
+                <span class="v-badge v-badge--yellow"><%= number_with_delimiter(@failed_jobs_count) -%></span>
               <% end -%>
             </div>
 
