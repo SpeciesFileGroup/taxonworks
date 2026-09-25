@@ -346,21 +346,27 @@ class Gazetteer < ApplicationRecord
     FileUtils.rmdir(tmp_dir)
   end
 
-  # Targets whose recent lists draw on gazetteers used in both asserted
-  # distributions and asserted environments.
-  RECENTLY_USED_TARGETS = %w{AssertedDistribution AssertedEnvironment}.freeze
-
-  # @param used_on [String] one of RECENTLY_USED_TARGETS; both currently
-  #   return the same list
+  # @param used_on [String] `AssertedDistribution` or `AssertedEnvironment`;
+  #   anything else returns []
   # @return [Array]
   #    ids of gazetteers recently (1 week, could parameterize) used by
-  #    user_id as an AssertedDistribution shape (cited) or an
-  #    AssertedEnvironment object (updated), most recent first
+  #    user_id, most recent first:
+  #    * AssertedDistribution - as an AssertedDistribution shape (cited)
+  #    * AssertedEnvironment - as an AssertedEnvironment object (updated),
+  #      and as an AssertedDistribution shape, since those are likely
+  #      environment objects too
   def self.used_recently(user_id, project_id, used_on = 'AssertedDistribution')
-    return [] unless RECENTLY_USED_TARGETS.include?(used_on)
+    used = case used_on
+           when 'AssertedDistribution'
+             used_recently_in_asserted_distributions(user_id, project_id)
+           when 'AssertedEnvironment'
+             used_recently_in_asserted_environments(user_id, project_id) +
+               used_recently_in_asserted_distributions(user_id, project_id)
+           else
+             return []
+           end
 
-    (used_recently_in_asserted_distributions(user_id, project_id) +
-      used_recently_in_asserted_environments(user_id, project_id))
+    used
       .sort_by { |_id, used_at| used_at }
       .reverse
       .map(&:first)
@@ -401,7 +407,8 @@ class Gazetteer < ApplicationRecord
       .pluck(:asserted_environment_object_id, :updated_at)
   end
 
-  # @params target [String] recent lists are only provided for RECENTLY_USED_TARGETS
+  # @params target [String] see .used_recently; blank is treated as
+  #   `AssertedDistribution`
   # @return [Hash] gazetteers optimized for user selection
   def self.select_optimized(user_id, project_id, target = 'AssertedDistribution')
     target = 'AssertedDistribution' if target.blank?

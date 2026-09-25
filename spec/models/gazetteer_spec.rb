@@ -395,9 +395,9 @@ RSpec.describe Gazetteer, type: :model, group: [:geo, :shared_geo] do
           FactoryBot.create(:valid_asserted_environment, asserted_environment_object: ae_gazetteer)
         end
 
-        specify 'includes gazetteers recently used in asserted distributions and asserted environments, target AssertedDistribution' do
+        specify 'includes only gazetteers recently used in asserted distributions, target AssertedDistribution' do
           r = described_class.select_optimized(user_id, project_id, 'AssertedDistribution')[:recent]
-          expect(r).to contain_exactly(ad_gazetteer, ae_gazetteer)
+          expect(r).to contain_exactly(ad_gazetteer)
         end
 
         specify 'includes gazetteers recently used in asserted distributions and asserted environments, target AssertedEnvironment' do
@@ -407,7 +407,7 @@ RSpec.describe Gazetteer, type: :model, group: [:geo, :shared_geo] do
 
         specify 'treats a nil target as AssertedDistribution' do
           r = described_class.select_optimized(user_id, project_id, nil)[:recent]
-          expect(r).to contain_exactly(ad_gazetteer, ae_gazetteer)
+          expect(r).to contain_exactly(ad_gazetteer)
         end
 
         specify 'excludes asserted environments older than a week' do

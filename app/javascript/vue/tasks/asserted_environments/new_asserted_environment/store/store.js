@@ -7,7 +7,8 @@ import { ASSERTED_ENVIRONMENT } from '@/constants'
 
 import makeCitation from '@/factory/Citation'
 
-const extend = ['citations']
+// source: CitationsCount (more than one citation) reads citation.source
+const extend = ['citations', 'source']
 
 function isSameCitation(a, b) {
   return a.source_id === b.source_id && (a.pages || null) === (b.pages || null)
@@ -127,7 +128,8 @@ export const useStore = defineStore('NewAssertedEnvironment', {
           source_id: this.citation.source_id,
           pages: this.citation.pages,
           is_original: this.citation.is_original
-        }
+        },
+        extend: ['source']
       })
 
       // record was just fetched (with citations), so update it locally
@@ -155,6 +157,10 @@ export const useStore = defineStore('NewAssertedEnvironment', {
       Citation.destroy(citation.id)
         .then(() => {
           removeFromArray(record.citations, citation)
+          TW.workbench.alert.create(
+            'Citation was successfully destroyed.',
+            'notice'
+          )
         })
         .catch(() => {})
     },

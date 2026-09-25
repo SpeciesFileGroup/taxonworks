@@ -85,19 +85,31 @@ describe Queries::AssertedEnvironment::Autocomplete, type: :model do
 
   # The object autocompletes cap their own result counts, so they must only
   # consider objects that have asserted environments - otherwise enough
-  # matching objects without them crowd out the one that has one.
-  specify 'finds a CollectingEvent match among many matching CollectingEvents without asserted environments' do
-    35.times { FactoryBot.create(:valid_collecting_event, verbatim_locality: 'Zzyzx Preserve') }
-    ce = FactoryBot.create(:valid_collecting_event, verbatim_locality: 'Zzyzx Preserve')
+  # matching objects without them crowd out the one that has one. The data
+  # is arranged so that, unrestricted, the cap is always filled before the
+  # asserted object is reached (i.e. not dependent on row order).
+  specify 'finds a CollectingEvent crowded out of the CollectingEvent autocomplete cap' do
+    # Two disjoint sets, matching via verbatim_field_number and
+    # verbatim_collectors (limit 20 each, so 40 distinct), both queried
+    # before verbatim_habitat; CE autocomplete stops after 30.
+    25.times { FactoryBot.create(:valid_collecting_event, verbatim_field_number: 'Zzyzx 1') }
+    25.times { FactoryBot.create(:valid_collecting_event, verbatim_collectors: 'Zzyzx, A.') }
+
+    # Matches only via verbatim_habitat.
+    ce = FactoryBot.create(:valid_collecting_event, verbatim_habitat: 'Zzyzx scrub')
     ae = FactoryBot.create(:asserted_environment, uri_label: 'planned burn', asserted_environment_object: ce)
 
     r = described_class.new('Zzyzx', project_id: ae.project_id).autocomplete
     expect(r).to contain_exactly(ae)
   end
 
-  specify 'finds an Otu match among many matching Otus without asserted environments' do
-    35.times { FactoryBot.create(:valid_otu, name: 'Uniquotu name Foo') }
-    otu = FactoryBot.create(:valid_otu, name: 'Uniquotu name Foo')
+  specify 'finds an Otu crowded out of the Otu autocomplete cap' do
+    # Exact name matches (priority 2) sort before start matches (priority
+    # 200); Otu autocomplete returns at most 40.
+    45.times { FactoryBot.create(:valid_otu, name: 'Uniquotu') }
+
+    # Matches only as a name start match.
+    otu = FactoryBot.create(:valid_otu, name: 'Uniquotu secundus')
     ae = FactoryBot.create(:asserted_environment, uri_label: 'planned burn', asserted_environment_object: otu)
 
     r = described_class.new('Uniquotu', project_id: ae.project_id).autocomplete

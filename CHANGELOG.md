@@ -13,8 +13,9 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - `/api/v1/alternate_values` and `/api/v1/alternate_values/<id>` endpoints
 - Adds extend[]=citations to /api/v1/common_names endpoint
 - Asserted Environments (with terms from the ENVO ontology) for Collecting Events, Gazetteers, and OTUs [#114]
+- New Asserted Environment task [#5107]
 - Taxon Determination facet to Filter Field Occurrences [#5090]
-- Status (i.e. Classification) slice to Filter Taxon Names radial taxon names (ids side only); replaces separate Fossil slice [#5088]
+- Status (i.e. Classification) slice to Filter Taxon Names radial (ids side only); replaces/extends separate Fossil slice [#5088]
 
 ### Changed
 
@@ -32,6 +33,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 [#5088]: https://github.com/SpeciesFileGroup/taxonworks/issues/5088
 [#5090]: https://github.com/SpeciesFileGroup/taxonworks/issues/5090
 [#5097]: https://github.com/SpeciesFileGroup/taxonworks/issues/5097
+[#5107]: https://github.com/SpeciesFileGroup/taxonworks/issues/5107
 
 ## [0.65.0] - 2026-09-04
 

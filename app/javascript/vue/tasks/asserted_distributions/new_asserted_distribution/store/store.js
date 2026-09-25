@@ -218,6 +218,10 @@ export const useStore = defineStore('NewAssertedDistribution', {
       Citation.destroy(citation.id)
         .then(() => {
           removeFromArray(ad.citations, citation)
+          TW.workbench.alert.create(
+            'Citation was successfully destroyed.',
+            'notice'
+          )
         })
         .catch(() => {})
     },
