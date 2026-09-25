@@ -3,13 +3,15 @@
     <VSpinner v-if="isLoading" />
     <div class="flex-separate middle">
       <h2>{{ title }}</h2>
-      <button
-        @click="loadOtuByProxy(summarizeParam)"
+      <VBtn
+        color="primary"
         :disabled="!citations.length"
-        class="button normal-input button-default"
+        medium
+        tonal
+        @click="loadOtuByProxy(summarizeParam)"
       >
         Summarize OTUs
-      </button>
+      </VBtn>
     </div>
 
     <div
@@ -39,6 +41,7 @@ import TableCitation from './Table/TableCitation.vue'
 import useCitation from '../composables/useCitation.js'
 import VPagination from '@/components/pagination.vue'
 import VPaginationCount from '@/components/pagination/PaginationCount.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
 
 const props = defineProps({
   title: {

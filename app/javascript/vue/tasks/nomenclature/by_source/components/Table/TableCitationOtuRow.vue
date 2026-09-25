@@ -44,7 +44,8 @@
       <div class="horizontal-right-content gap-small">
         <RadialAnnotator :global-id="citation.citation_object.global_id" />
         <VBtn
-          circle
+          icon
+          variant="tonal"
           color="destroy"
           @click="removeCitation"
         >

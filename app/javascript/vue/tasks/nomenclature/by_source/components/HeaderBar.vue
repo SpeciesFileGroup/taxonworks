@@ -12,7 +12,6 @@
         <RadialAnnotator :global-id="source.global_id" />
         <pin-component
           v-if="source.id"
-          class="circle-button"
           :object-id="source.id"
           :type="source.base_class"
         />
