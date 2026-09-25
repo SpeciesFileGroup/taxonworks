@@ -55,3 +55,26 @@ end
 
 ## Autocomplete
 TODO:
+
+### Restricting results (`restrict_to`)
+`Query::Autocomplete` accepts an optional `restrict_to:` - a relation of the referenced model, a relation selecting only its ids, or an Array of ids. `nil` (the default) is no restriction.
+
+Use it when only a subset of the model's records is useful to the caller, most often when one autocomplete delegates to another. For example, `Queries::AssertedEnvironment::Autocomplete` matches by object label, so it runs `Queries::CollectingEvent::Autocomplete` restricted to CollectingEvents that have asserted environments:
+
+```ruby
+Queries::CollectingEvent::Autocomplete.new(
+  query_string, project_id:,
+  restrict_to: ::AssertedEnvironment.where(asserted_environment_object_type: 'CollectingEvent').select(:asserted_environment_object_id)
+).autocomplete
+```
+
+Unrestricted, the inner autocomplete:
+* pays its full cost over every record (e.g. ~3.7s for a CE autocomplete miss over 500k records), and
+* can fill its own result limit with records the caller can't use, crowding out the ones it can.
+
+Implementing it in an autocomplete:
+* Call `apply_restriction(query)` where the individual queries are assembled, alongside where `project_id` is applied - NOT in `base_query`. Not all queries are built from `base_query` (e.g. `referenced_klass.joins(:identifiers)`, `k.where(...)` in concerns); applying it at assembly covers them all.
+* Subclasses with explicit keyword arguments in `initialize` must accept `restrict_to:` and pass it to `super`.
+* When an autocomplete itself delegates to another model's autocomplete, translate the restriction for that model and pass it on (e.g. Otus -> the TaxonNames those Otus use), so restrictions compose down the chain.
+
+Currently implemented in: CollectingEvent, Otu, Gazetteer.
