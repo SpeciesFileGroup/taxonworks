@@ -20,6 +20,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 ### Changed
 
 - Updated attribution label in `/api/v1/leads/key/<id>`
+- Radial annotator: Replace background color by badge when citation is original [#4979]
 
 ### Fixed
 
@@ -31,6 +32,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Bug allowing to create more than one type genus, type family, etc. [#5106]
 
 [#114]: https://github.com/SpeciesFileGroup/taxonworks/issues/114
+[#4979]: https://github.com/SpeciesFileGroup/taxonworks/issues/4979
 [#5088]: https://github.com/SpeciesFileGroup/taxonworks/issues/5088
 [#5090]: https://github.com/SpeciesFileGroup/taxonworks/issues/5090
 [#5097]: https://github.com/SpeciesFileGroup/taxonworks/issues/5097
