@@ -57,29 +57,32 @@ end
 TODO:
 
 ### Restricting results (`restrict_to`)
-`Query::Autocomplete` accepts an optional `restrict_to:` - a relation of the
-referenced model, a relation selecting only its ids, or an Array of ids. `nil`
-(the default) is no restriction.
+`Query::Autocomplete` accepts an optional `restrict_to:` - the set of the
+referenced model's records to restrict results to. `nil` (the default) is no
+restriction. It must be a relation OF THE REFERENCED MODEL (or a subclass);
+any `select` on it is replaced with `select(:id)`. Anything else (a relation
+of another model, an Array of ids, ...) raises `ArgumentError`.
 
-Use it when only a subset of the model's records is useful to the caller, most
-often when one autocomplete delegates to another. For example,
+When the ids come from another table, wrap them in a relation of the
+referenced model. For example,
 `Queries::AssertedEnvironment::Autocomplete` matches by object label, so it
 runs `Queries::CollectingEvent::Autocomplete` restricted to CollectingEvents
 that have asserted environments:
 
 ```ruby
-ce_ids = ::AssertedEnvironment
-  .where(asserted_environment_object_type: 'CollectingEvent')
-  .select(:asserted_environment_object_id)
+collecting_events = ::CollectingEvent.where(
+  id: ::AssertedEnvironment
+    .where(asserted_environment_object_type: 'CollectingEvent')
+    .select(:asserted_environment_object_id)
+)
 
 Queries::CollectingEvent::Autocomplete.new(
-  query_string, project_id:, restrict_to: ce_ids
+  query_string, project_id:, restrict_to: collecting_events
 ).autocomplete
 ```
 
 Unrestricted, the inner autocomplete:
-* pays its full cost over every record (e.g. ~3.7s for a CE autocomplete miss
-  over 500k records), and
+* pays its full cost over every record, and
 * can fill its own result limit with records the caller can't use, crowding
   out the ones it can.
 
@@ -94,5 +97,3 @@ Implementing it in an autocomplete:
 * When an autocomplete itself delegates to another model's autocomplete,
   translate the restriction for that model and pass it on (e.g. Otus -> the
   TaxonNames those Otus use), so restrictions compose down the chain.
-
-Currently implemented in: CollectingEvent, Otu, Gazetteer.

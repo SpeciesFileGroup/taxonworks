@@ -174,15 +174,26 @@ describe Queries::CollectingEvent::Autocomplete, type: :model do
       expect(q.autocomplete.map(&:id)).to contain_exactly(ce2.id)
     end
 
-    specify 'restricts results to the given CollectingEvents (ids)' do
+    specify 'raises when given an Array' do
       q = Queries::CollectingEvent::Autocomplete.new('there', restrict_to: [ce1.id])
-      expect(q.autocomplete.map(&:id)).to contain_exactly(ce1.id)
+      expect { q.autocomplete }.to raise_error(ArgumentError)
     end
 
     specify 'restricts identifier matches, which are not built from base_query' do
       Identifier::Local::FieldNumber.create!(identifier_object: ce2, identifier: '124', namespace:)
       q = Queries::CollectingEvent::Autocomplete.new('oo 12', restrict_to: CollectingEvent.where(id: ce2.id))
       expect(q.autocomplete.map(&:id)).to contain_exactly(ce2.id)
+    end
+
+    specify 'accepts a relation with an existing multi-column select' do
+      r = CollectingEvent.select('collecting_events.*').where(id: ce2.id)
+      q = Queries::CollectingEvent::Autocomplete.new('there', restrict_to: r)
+      expect(q.autocomplete.map(&:id)).to contain_exactly(ce2.id)
+    end
+
+    specify 'raises when the relation is of another model' do
+      q = Queries::CollectingEvent::Autocomplete.new('there', restrict_to: Otu.all)
+      expect { q.autocomplete }.to raise_error(ArgumentError, /Otu/)
     end
 
     specify 'is not applied when nil' do

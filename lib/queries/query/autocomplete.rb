@@ -36,11 +36,12 @@ module Queries
     # TODO: add mode
     # attr_accessor :mode
 
-    # @return [ActiveRecord::Relation, Array, nil]
-    #   optional, restricts results to these records of referenced_klass -
-    #   either a relation (of referenced_klass, or selecting only its ids) or
-    #   an Array of ids. nil (default) is no restriction. Applied per query
-    #   via #apply_restriction, see there.
+    # @return [ActiveRecord::Relation, nil]
+    #   optional, restricts results to these records of referenced_klass.
+    #   nil (default) is no restriction. Must be a relation of
+    #   referenced_klass (or a subclass), e.g. `::CollectingEvent.where(...)`;
+    #   any select on it is replaced with `select(:id)`. Anything else raises
+    #   ArgumentError. See #apply_restriction.
     attr_accessor :restrict_to
 
     # @param [Hash] args
@@ -68,20 +69,23 @@ module Queries
     # inner autocomplete to candidates the outer one can use keeps it fast,
     # and keeps unusable candidates from filling its result limits.
     #
+    # The restriction is `table.id IN (<restrict_to>)`. Requiring a relation
+    # of referenced_klass means the ids are always the model's own, and
+    # `reselect(:id)` guarantees the single column an IN subquery needs.
+    #
     # @param query [ActiveRecord::Relation] of referenced_klass
     # @return [ActiveRecord::Relation]
     def apply_restriction(query)
       return query if restrict_to.nil?
 
       r = restrict_to
-      if r.is_a?(ActiveRecord::Relation)
-        r = r.select(:id) if r.select_values.empty?
-        r = r.arel
-      else
-        r = Array(r)
+      unless r.is_a?(ActiveRecord::Relation) && r.klass <= referenced_klass
+        given = r.is_a?(ActiveRecord::Relation) ? r.klass.name : r.class.name
+        raise ArgumentError,
+          "restrict_to must be a relation of #{referenced_klass.name}, not #{given}"
       end
 
-      query.where(table[:id].in(r))
+      query.where(table[:id].in(r.reselect(:id).arel))
     end
 
     # @return [Scope]
