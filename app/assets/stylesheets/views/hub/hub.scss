@@ -108,7 +108,7 @@
   }
 
   #navigation_list {
-    margin-top: $standard_margin;
+    margin-top: var(--spacing-md);
     display: flex;
     justify-content: flex-start;
     align-items: center;

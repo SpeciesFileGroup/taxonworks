@@ -26,11 +26,7 @@ headers to be used in the call. Using it will override the common headers
       v-model="type"
       v-bind="inputAttributes"
       autocomplete="off"
-      :class="[
-        'vue-autocomplete-input normal-input',
-        !spinner && 'vue-autocomplete-input-search',
-        inputClass
-      ]"
+      :class="['vue-autocomplete-input normal-input', inputClass]"
       @input="(checkTime(), sendType())"
       @keydown.down="downKey"
       @keydown.up="upKey"
@@ -40,6 +36,10 @@ headers to be used in the call. Using it will override the common headers
       @blur="onBlur"
     />
     <AutocompleteSpinner v-if="spinner" />
+    <IconSearch
+      class="w-4 h-4 vue-autocomplete-input-search"
+      v-else
+    />
     <teleport to="body">
       <ul
         v-if="type && searchEnd"
@@ -90,10 +90,12 @@ import AjaxCall from '@/helpers/ajaxCall'
 import AutocompleteSpinner from './Autocomplete/AutocompleteSpinner.vue'
 import { AUTOCOMPLETE_HELP } from './Autocomplete/autocompleteHelp'
 import Qs from 'qs'
+import IconSearch from '@/components/Icon/IconSearch.vue'
 
 export default {
   components: {
-    AutocompleteSpinner
+    AutocompleteSpinner,
+    IconSearch
   },
 
   props: {

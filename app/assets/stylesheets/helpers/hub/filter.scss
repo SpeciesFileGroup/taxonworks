@@ -73,12 +73,12 @@
       min-width: 0;
       box-sizing: border-box;
       height: var(--size-large);
-      padding: 0 var(--spacing-md) 0 calc(var(--spacing-md) + 18px);
+      padding: 0 var(--spacing-md) 0 calc(var(--spacing-md) + 16px);
       border: 1px solid var(--border-color);
       border-radius: var(--border-radius-medium);
       background-color: var(--input-bg-color);
       background-image: image-url('search.svg');
-      background-size: 20px;
+      background-size: 16px;
       background-repeat: no-repeat;
       background-position: left var(--spacing-xs) center;
       font-size: var(--font-size-sm);

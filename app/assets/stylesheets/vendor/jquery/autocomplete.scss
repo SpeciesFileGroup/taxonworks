@@ -3,22 +3,29 @@
   border: 1px solid #aed581;
 }
 
-.ui-autocomplete-input,
-.vue-autocomplete-input-search {
+.ui-autocomplete-input {
   background-image: image-url('search.svg');
-  background-position: right 4px center;
+  background-position: right var(--spacing-xs) center;
   background-repeat: no-repeat;
-  padding-right: $standard_padding;
+  padding-right: var(--spacing-md);
   display: inline-block;
   box-sizing: border-box;
   padding-right: 24px;
-  background-size: 18px;
+  background-size: 1rem;
+}
+
+.vue-autocomplete-input-search {
+  position: absolute;
+  right: var(--spacing-xs);
+  color: var(--text-muted-color);
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 .ui-autocomplete-loading {
   background-image: image-url('spinner.gif');
   background-repeat: no-repeat;
-  background-position: right, center;
+  background-position: right var(--spacing-xs) center;
 }
 
 .injected_new_header {
