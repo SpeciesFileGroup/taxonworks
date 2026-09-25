@@ -128,6 +128,7 @@ const props = defineProps({
 })
 
 const WITH_PARAMS = [
+  'attribution',
   'citations',
   'depictions',
   'notes',
