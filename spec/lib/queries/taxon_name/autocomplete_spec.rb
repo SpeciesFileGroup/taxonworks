@@ -226,6 +226,17 @@ describe Queries::TaxonName::Autocomplete, type: :model do
     end
   end
 
+  context 'limit' do
+    specify 'defaults to 20' do
+      expect(Queries::TaxonName::Autocomplete.new('Erasmoneura').limit).to eq(20)
+    end
+
+    specify 'caps results' do
+      q = Queries::TaxonName::Autocomplete.new('Erasmoneura', limit: 1)
+      expect(q.autocomplete.size).to eq(1)
+    end
+  end
+
   context 'restrict_to' do
     specify 'restricts results to the given TaxonNames' do
       q = Queries::TaxonName::Autocomplete.new('Erasmoneura', restrict_to: TaxonName.where(id: species.id))

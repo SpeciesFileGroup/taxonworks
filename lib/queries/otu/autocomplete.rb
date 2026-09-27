@@ -39,6 +39,10 @@ module Queries
       # Only applied pertinent to the TaxonName autocomplete
       attr_accessor :include_taxon_name
 
+      # How deep to take unrestricted TaxonName autocomplete results when
+      # restricted, see #taxon_name_autocomplete
+      TAXON_NAME_DEPTH = 1000
+
       # Keys are method names. Existence of method is checked
       # before requesting the query
       QUERIES = {
@@ -143,13 +147,57 @@ module Queries
           .or(::TaxonName.where(type: 'Combination', cached_valid_taxon_name_id: otu_taxon_name_ids))
       end
 
+      # @return [Integer]
+      #   the id of the TaxonName whose Otus a TaxonName autocomplete result
+      #   resolves to
+      def otu_taxon_name_id(taxon_name)
+        taxon_name.is_combination? ? taxon_name.cached_valid_taxon_name_id : taxon_name.id
+      end
+
+      # @return [Array<TaxonName>]
+      #   the TaxonName autocomplete results for #autocomplete_taxon_name(_extended).
+      #
+      #   When restricted, pushing #taxon_name_restriction into every
+      #   TaxonName query is expensive for large restrictions (it's re-built
+      #   in each query). Instead take the unrestricted results
+      #   TAXON_NAME_DEPTH deep and keep those that resolve to a restrict_to
+      #   Otu, using one query. Restricted, TaxonName autocomplete returns
+      #   fewer than 2 * its limit names, always the first ones of the
+      #   unrestricted order that survive the restriction, so the kept names
+      #   start with exactly those results unless the deep results were cut
+      #   off before that many survived - then fall back to the restricted
+      #   TaxonName autocomplete.
+      def taxon_name_autocomplete
+        @taxon_name_autocomplete ||= begin
+          if restrict_to.nil?
+            Queries::TaxonName::Autocomplete.new(query_string, exact:, project_id:).autocomplete
+          else
+            names = Queries::TaxonName::Autocomplete
+              .new(query_string, exact:, project_id:, restrict_to: nil, limit: TAXON_NAME_DEPTH)
+              .autocomplete
+
+            allowed = apply_restriction(::Otu.where(taxon_name_id: names.map { otu_taxon_name_id(_1) }))
+              .distinct.pluck(:taxon_name_id).to_set
+
+            kept = names.select { allowed.include?(otu_taxon_name_id(_1)) }
+
+            if names.size < TAXON_NAME_DEPTH || kept.size >= 2 * Queries::TaxonName::Autocomplete::DEFAULT_LIMIT
+              kept
+            else
+              Queries::TaxonName::Autocomplete
+                .new(query_string, exact:, project_id:, restrict_to: taxon_name_restriction).autocomplete
+            end
+          end
+        end
+      end
+
       # @return [Scope]
       #   Pull the result of a TaxonName autocomplete. Maintain the order returned, and
       #   re-cast the result in terms of an OTU query. Expensive but maintaining order is key.
       def autocomplete_taxon_name
-        taxon_names = Queries::TaxonName::Autocomplete.new(query_string, exact:, project_id:, restrict_to: taxon_name_restriction).autocomplete # an array, not a query
+        taxon_names = taxon_name_autocomplete # an array, not a query
 
-        ids = taxon_names.collect{|n| n.is_combination? ? n.cached_valid_taxon_name_id : n.id} # TODO: Experiment with :cached_valid_taxon_name_id) # We assume we want to land on Valid OTUs, but see #
+        ids = taxon_names.collect{|n| otu_taxon_name_id(n)} # TODO: Experiment with :cached_valid_taxon_name_id) # We assume we want to land on Valid OTUs, but see #
         return nil if ids.empty?
 
         min = 10.0
@@ -189,11 +237,11 @@ module Queries
       end
 
       def autocomplete_taxon_name_extended
-        taxon_names = Queries::TaxonName::Autocomplete.new(query_string, exact:, project_id:, restrict_to: taxon_name_restriction).autocomplete # an array, not a query
+        taxon_names = taxon_name_autocomplete # an array, not a query
 
         ids = taxon_names.collect{|n|
           [
-            (n.is_combination? ? n.cached_valid_taxon_name_id : n.id), # Points to the OTU target, if there is one
+            otu_taxon_name_id(n), # Points to the OTU target, if there is one
             n.id,  # points to the label target
           ]
         }

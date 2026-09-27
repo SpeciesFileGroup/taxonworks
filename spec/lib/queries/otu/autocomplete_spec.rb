@@ -281,7 +281,30 @@ describe Queries::Otu::Autocomplete, type: :model do
       expect(q.taxon_name_restriction).to include(combination)
     end
 
-    specify 'restricts the TaxonName autocomplete' do
+    specify 'takes deep, unrestricted TaxonName results, filtered by the Otu restriction' do
+      expect(Queries::TaxonName::Autocomplete).to receive(:new)
+        .with('Erasmoneura', hash_including(restrict_to: nil, limit: Queries::Otu::Autocomplete::TAXON_NAME_DEPTH))
+        .and_call_original
+
+      q = Queries::Otu::Autocomplete.new('Erasmoneura', restrict_to: Otu.where(id: otu2.id))
+      expect(q.autocomplete).to contain_exactly(otu2)
+    end
+
+    specify 'extended takes deep, unrestricted TaxonName results, filtered by the Otu restriction' do
+      expect(Queries::TaxonName::Autocomplete).to receive(:new)
+        .with('Erasmoneura', hash_including(restrict_to: nil, limit: Queries::Otu::Autocomplete::TAXON_NAME_DEPTH))
+        .and_call_original
+
+      q = Queries::Otu::Autocomplete.new('Erasmoneura', restrict_to: Otu.where(id: otu2.id))
+      expect(q.autocomplete_taxon_name_extended).to contain_exactly(otu2)
+    end
+
+    specify 'falls back to a restricted TaxonName autocomplete when deep results are cut off with too few allowed' do
+      stub_const('Queries::Otu::Autocomplete::TAXON_NAME_DEPTH', 1)
+
+      expect(Queries::TaxonName::Autocomplete).to receive(:new)
+        .with('Erasmoneura', hash_including(restrict_to: nil, limit: 1))
+        .and_call_original
       expect(Queries::TaxonName::Autocomplete).to receive(:new)
         .with('Erasmoneura', hash_including(restrict_to: satisfy { |r| r.to_a == [species] }))
         .and_call_original
@@ -290,13 +313,19 @@ describe Queries::Otu::Autocomplete, type: :model do
       expect(q.autocomplete).to contain_exactly(otu2)
     end
 
-    specify 'restricts the extended TaxonName autocomplete' do
-      expect(Queries::TaxonName::Autocomplete).to receive(:new)
-        .with('Erasmoneura', hash_including(restrict_to: satisfy { |r| r.to_a == [species] }))
-        .and_call_original
+    specify 'finds a restricted Otu whose taxon name is crowded out of the default TaxonName limit' do
+      crowd_genus = Protonym.create!(name: 'Zzyzxcrowd', rank_class: Ranks.lookup(:iczn, 'genus'), parent: root)
+      # Shorter names sort first in TaxonName autocomplete
+      ('aa'..'az').each do |n|
+        Protonym.create!(name: n, rank_class: Ranks.lookup(:iczn, 'species'), parent: crowd_genus)
+      end
+      target = Protonym.create!(name: 'zzzzzzzz', rank_class: Ranks.lookup(:iczn, 'species'), parent: crowd_genus)
+      target_otu = Otu.create!(taxon_name: target)
 
-      q = Queries::Otu::Autocomplete.new('Erasmoneura', restrict_to: Otu.where(id: otu2.id))
-      expect(q.autocomplete_taxon_name_extended).to contain_exactly(otu2)
+      expect(Queries::TaxonName::Autocomplete.new('Zzyzxcrowd').autocomplete).to_not include(target)
+
+      q = Queries::Otu::Autocomplete.new('Zzyzxcrowd', restrict_to: Otu.where(id: target_otu.id))
+      expect(q.autocomplete).to contain_exactly(target_otu)
     end
   end
 

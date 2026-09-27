@@ -123,6 +123,17 @@ describe Queries::BiologicalAssociation::Autocomplete, type: :model do
     expect(q.autocomplete).to eq([])
   end
 
+  specify '#otu_matches returns biological associations in otu candidate order' do
+    # Created first, so likely first in an unordered result
+    partial_otu = FactoryBot.create(:valid_otu, name: 'Zzyzxrank partial')
+    partial_ba = FactoryBot.create(:valid_biological_association, biological_association_subject: partial_otu)
+    exact_otu = FactoryBot.create(:valid_otu, name: 'Zzyzxrank')
+    exact_ba = FactoryBot.create(:valid_biological_association, biological_association_subject: exact_otu)
+
+    q = Queries::BiologicalAssociation::Autocomplete.new('Zzyzxrank', project_id:)
+    expect(q.otu_matches(:subject, 10)).to eq([exact_ba, partial_ba])
+  end
+
   context 'restrict_to' do
     let(:subject_otu) { FactoryBot.create(:valid_otu, name: 'Zzyzxrestrictotu') }
     let!(:ba1) { FactoryBot.create(:valid_biological_association, biological_association_subject: subject_otu) }

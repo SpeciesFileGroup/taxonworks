@@ -19,6 +19,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 ### Changed
 
+- Biological Association autocomplete is faster and finds more matches, e.g. genus-level searches in large projects
 - Updated attribution label in `/api/v1/leads/key/<id>`
 - Radial annotator: Replace background color by badge when citation is original [#4979]
 

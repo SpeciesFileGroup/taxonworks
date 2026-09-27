@@ -57,7 +57,7 @@ module Queries
 
       # @return [Array<BiologicalAssociation>]
       #   biological_associations where the subject or object (on `side`) is one of the
-      #   related_klass records identified by `ids`
+      #   related_klass records identified by `ids`, in `ids` order
       def joined_matches(related_table_name, related_type, side, ids)
         return [] if ids.empty?
 
@@ -70,6 +70,11 @@ module Queries
             "AND biological_associations.#{type_column} = '#{related_type}'"
           )
           .where(related_table_name.to_sym => { id: ids })
+          # Keep the related autocomplete's ranking, so that the results cap
+          # keeps the best matches
+          .order(Arel.sql(
+            "array_position(ARRAY[#{ids.map(&:to_i).join(',')}], #{related_table_name}.id), biological_associations.id"
+          ))
 
         apply_restriction(q).to_a
       end

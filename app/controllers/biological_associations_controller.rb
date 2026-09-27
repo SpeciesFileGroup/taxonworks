@@ -242,6 +242,9 @@ class BiologicalAssociationsController < ApplicationController
       ::Queries::BiologicalAssociation::Autocomplete.new(
         params.require(:term),
         project_id: sessions_current_project_id,
+        # Pushed down to the subject/object autocompletes, so they only
+        # consider records that are in a biological association
+        restrict_to: ::BiologicalAssociation.where(project_id: sessions_current_project_id)
       ).autocomplete
   end
 

@@ -81,10 +81,11 @@ Queries::CollectingEvent::Autocomplete.new(
 ).autocomplete
 ```
 
-Unrestricted, the inner autocomplete:
-* pays its full cost over every record, and
-* can fill its own result limit with records the caller can't use, crowding
-  out the ones it can.
+Unrestricted, the inner autocomplete can fill its own result limit with
+records the caller can't use, crowding out the ones it can. In large projects
+this is common (e.g. a genus search matching hundreds of species, few of
+which are in a biological association) and the caller silently misses
+results.
 
 Implementing it in an autocomplete:
 * Call `apply_restriction(query)` where the individual queries are assembled,
@@ -95,5 +96,44 @@ Implementing it in an autocomplete:
 * Subclasses with explicit keyword arguments in `initialize` must accept
   `restrict_to:` and pass it to `super`.
 * When an autocomplete itself delegates to another model's autocomplete,
-  translate the restriction for that model and pass it on (e.g. Otus -> the
-  TaxonNames those Otus use), so restrictions compose down the chain.
+  translate the restriction for that model and pass it on, so restrictions
+  compose down the chain. `Queries::BiologicalAssociation::Autocomplete`
+  translates per side, e.g. Otus that are the *subject* of a restricted BA
+  for subject matching (`#side_restriction`).
+
+#### Cost
+`apply_restriction` adds `id IN (<restrict_to>)` to every query it is
+applied to, and PostgreSQL generally evaluates the whole restriction for
+each. An autocomplete chain runs dozens of queries, so the restriction's
+cost is paid dozens of times, and it grows with the size of the restriction,
+not with the number of matching records.
+* Small restrictions: pass literal ids,
+  `::BiologicalAssociation.where(id: ids)` (still a relation of the
+  referenced model). See `Queries::AssertedDistribution::Autocomplete`,
+  which plucks the ids when there are at most `LITERAL_RESTRICTION_MAX` and
+  otherwise passes the subquery - literal ids are much faster for a few
+  hundred ids, and slower than the subquery for many thousands.
+* Large restrictions pushed into many queries: filter candidates instead,
+  below.
+
+#### Filtering candidates instead of restricting every query
+Rather than restricting each of an inner autocomplete's queries, run it
+unrestricted but deeper (e.g. 1000 results instead of 20), then keep the
+candidates that satisfy the restriction with ONE query. This costs about
+the same as the unrestricted autocomplete.
+
+Keep it exact, not a depth heuristic: a restricted autocomplete returns the
+first candidates, in the unrestricted order, that satisfy the restriction.
+The kept candidates start with exactly those results unless the deep results
+were cut off (reached the depth) before enough candidates were kept - then
+fall back to the restricted autocomplete. See
+`Queries::Otu::Autocomplete#taxon_name_autocomplete` (TaxonName results,
+filtered through the Otu restriction, `TAXON_NAME_DEPTH`).
+
+#### Keep the ranking
+When candidates are turned into results by a join (e.g. Otus -> the
+biological associations they are in), order the results by candidate rank
+(e.g. `array_position(ARRAY[<ids>], otus.id)`). Otherwise the database
+returns them in arbitrary order, and the caller's result limit keeps an
+arbitrary subset instead of the best matches. See
+`Queries::BiologicalAssociation::Autocomplete#joined_matches`.

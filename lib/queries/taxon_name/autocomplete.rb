@@ -3,6 +3,8 @@ module Queries
   module TaxonName
     class Autocomplete < Query::Autocomplete
 
+      DEFAULT_LIMIT = 20
+
       # @return [Array]
       #   &nomenclature_group[]=<<Iczn|Icnp|Icn>::<Higher|Family|Genus|Species>>
       attr_accessor :nomenclature_group
@@ -38,6 +40,11 @@ module Queries
       # As determined by GlobalNames parser
       attr_accessor :authorship
 
+      # @return [Integer]
+      #   the (approximate) maximum number of names returned by #autocomplete,
+      #   default DEFAULT_LIMIT
+      attr_accessor :limit
+
       # @param [Hash] args
       def initialize(string, **params)
         @nomenclature_group = params[:nomenclature_group]
@@ -45,6 +52,7 @@ module Queries
         @type = params[:type]
         @parent_id = params[:parent_id]
         @no_leaves = boolean_param(params, :no_leaves)
+        @limit = params[:limit] || DEFAULT_LIMIT
 
         # TODO: move to mode
         @exact = boolean_param(params, :exact)
@@ -417,8 +425,8 @@ module Queries
           a = a.not_leaves if no_leaves
           a = apply_restriction(a)
 
-          result += a.limit(20).to_a
-          break if result.count > 19
+          result += a.limit(limit).to_a
+          break if result.count >= limit
         end
 
         result.uniq!
