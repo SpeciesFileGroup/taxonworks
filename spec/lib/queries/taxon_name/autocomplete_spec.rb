@@ -225,4 +225,21 @@ describe Queries::TaxonName::Autocomplete, type: :model do
       expect(query.authorship).to eq(nil)
     end
   end
+
+  context 'restrict_to' do
+    specify 'restricts results to the given TaxonNames' do
+      q = Queries::TaxonName::Autocomplete.new('Erasmoneura', restrict_to: TaxonName.where(id: species.id))
+      expect(q.autocomplete.map(&:id)).to contain_exactly(species.id)
+    end
+
+    specify 'raises when the relation is of another model' do
+      q = Queries::TaxonName::Autocomplete.new('Erasmoneura', restrict_to: Otu.all)
+      expect { q.autocomplete }.to raise_error(ArgumentError, /Otu/)
+    end
+
+    specify 'is not applied when nil' do
+      q = Queries::TaxonName::Autocomplete.new('Erasmoneura', restrict_to: nil)
+      expect(q.autocomplete.map(&:id)).to include(genus.id, species.id)
+    end
+  end
 end

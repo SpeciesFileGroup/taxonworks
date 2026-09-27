@@ -415,6 +415,7 @@ module Queries
           end
 
           a = a.not_leaves if no_leaves
+          a = apply_restriction(a)
 
           result += a.limit(20).to_a
           break if result.count > 19

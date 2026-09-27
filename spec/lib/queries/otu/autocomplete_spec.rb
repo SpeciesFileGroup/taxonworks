@@ -262,4 +262,42 @@ describe Queries::Otu::Autocomplete, type: :model do
     end
   end
 
+  context 'restrict_to taxon names' do
+    specify '#taxon_name_restriction is nil when there is no restriction' do
+      expect(Queries::Otu::Autocomplete.new('Erasmoneura').taxon_name_restriction).to be_nil
+    end
+
+    specify '#taxon_name_restriction includes the taxon names of the restricted Otus' do
+      q = Queries::Otu::Autocomplete.new('Erasmoneura', restrict_to: Otu.where(id: otu2.id))
+      expect(q.taxon_name_restriction).to contain_exactly(species)
+    end
+
+    specify '#taxon_name_restriction includes Combinations whose valid name is that of a restricted Otu' do
+      combination = FactoryBot.create(:valid_combination)
+      combination.reload
+      o = Otu.create!(taxon_name_id: combination.cached_valid_taxon_name_id)
+
+      q = Queries::Otu::Autocomplete.new('Aus bus', restrict_to: Otu.where(id: o.id))
+      expect(q.taxon_name_restriction).to include(combination)
+    end
+
+    specify 'restricts the TaxonName autocomplete' do
+      expect(Queries::TaxonName::Autocomplete).to receive(:new)
+        .with('Erasmoneura', hash_including(restrict_to: satisfy { |r| r.to_a == [species] }))
+        .and_call_original
+
+      q = Queries::Otu::Autocomplete.new('Erasmoneura', restrict_to: Otu.where(id: otu2.id))
+      expect(q.autocomplete).to contain_exactly(otu2)
+    end
+
+    specify 'restricts the extended TaxonName autocomplete' do
+      expect(Queries::TaxonName::Autocomplete).to receive(:new)
+        .with('Erasmoneura', hash_including(restrict_to: satisfy { |r| r.to_a == [species] }))
+        .and_call_original
+
+      q = Queries::Otu::Autocomplete.new('Erasmoneura', restrict_to: Otu.where(id: otu2.id))
+      expect(q.autocomplete_taxon_name_extended).to contain_exactly(otu2)
+    end
+  end
+
 end

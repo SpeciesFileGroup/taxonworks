@@ -129,11 +129,25 @@ module Queries
           .order('taxon_names.cached, otus.name, length(taxon_names.cached), length(otus.name)')
       end
 
+      # @return [ActiveRecord::Relation, nil]
+      #   the TaxonNames that resolve to a restrict_to Otu in
+      #   #autocomplete_taxon_name (a name resolves to Otus on its id, or, for
+      #   a Combination, on its cached_valid_taxon_name_id), nil when there is
+      #   no restriction
+      def taxon_name_restriction
+        return nil if restrict_to.nil?
+
+        otu_taxon_name_ids = apply_restriction(::Otu.all).select(:taxon_name_id)
+
+        ::TaxonName.where(id: otu_taxon_name_ids)
+          .or(::TaxonName.where(type: 'Combination', cached_valid_taxon_name_id: otu_taxon_name_ids))
+      end
+
       # @return [Scope]
       #   Pull the result of a TaxonName autocomplete. Maintain the order returned, and
       #   re-cast the result in terms of an OTU query. Expensive but maintaining order is key.
       def autocomplete_taxon_name
-        taxon_names = Queries::TaxonName::Autocomplete.new(query_string, exact:, project_id:).autocomplete # an array, not a query
+        taxon_names = Queries::TaxonName::Autocomplete.new(query_string, exact:, project_id:, restrict_to: taxon_name_restriction).autocomplete # an array, not a query
 
         ids = taxon_names.collect{|n| n.is_combination? ? n.cached_valid_taxon_name_id : n.id} # TODO: Experiment with :cached_valid_taxon_name_id) # We assume we want to land on Valid OTUs, but see #
         return nil if ids.empty?
@@ -175,7 +189,7 @@ module Queries
       end
 
       def autocomplete_taxon_name_extended
-        taxon_names = Queries::TaxonName::Autocomplete.new(query_string, exact:, project_id:).autocomplete # an array, not a query
+        taxon_names = Queries::TaxonName::Autocomplete.new(query_string, exact:, project_id:, restrict_to: taxon_name_restriction).autocomplete # an array, not a query
 
         ids = taxon_names.collect{|n|
           [
