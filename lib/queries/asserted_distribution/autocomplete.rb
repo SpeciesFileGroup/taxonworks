@@ -39,18 +39,14 @@ module Queries
       end
 
       def autocomplete_biological_association
-        # This is not great (lots of queries), but the combinatorics are also
-        # not great for doing each option joined with AD directly.
-        a = Queries::BiologicalAssociation::Autocomplete
-          .new(query_string, project_id: project_id).updated_queries
+        # The combinatorics are not great for joining each BA autocomplete
+        # option with AD directly, so match on the BA autocomplete results.
+        biological_association_ids = Queries::BiologicalAssociation::Autocomplete
+          .new(query_string, project_id: project_id).autocomplete.map(&:id)
 
-        queries = a.map do |q|
-          ::AssertedDistribution
-            .where(asserted_distribution_object_type: 'BiologicalAssociation')
-            .where(asserted_distribution_object_id: q.pluck(:id))
-        end
-
-        referenced_klass_union(queries)
+        ::AssertedDistribution
+          .where(asserted_distribution_object_type: 'BiologicalAssociation')
+          .where(asserted_distribution_object_id: biological_association_ids)
       end
 
       def autocomplete_biological_associations_graph
