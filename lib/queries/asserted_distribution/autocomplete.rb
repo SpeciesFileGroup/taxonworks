@@ -2,6 +2,9 @@ module Queries
   module AssertedDistribution
     class Autocomplete < Query::Autocomplete
 
+      # See #autocomplete_biological_association
+      LITERAL_RESTRICTION_MAX = 1000
+
       def initialize(string, project_id: nil)
         super
       end
@@ -51,6 +54,17 @@ module Queries
         asserted_biological_associations = ::BiologicalAssociation.where(
           id: biological_association_ads.select(:asserted_distribution_object_id)
         )
+
+        # The restriction is re-applied in every query down the
+        # BA -> Otu/CO/... -> TaxonName chain (dozens of queries): when there
+        # are few ids, passing them literally is much cheaper than
+        # re-evaluating the subquery in each; when there are many, the
+        # subquery is cheaper.
+        ids = biological_association_ads.distinct
+          .limit(LITERAL_RESTRICTION_MAX + 1).pluck(:asserted_distribution_object_id)
+        if ids.size <= LITERAL_RESTRICTION_MAX
+          asserted_biological_associations = ::BiologicalAssociation.where(id: ids)
+        end
 
         biological_association_ids = Queries::BiologicalAssociation::Autocomplete
           .new(query_string, project_id:, restrict_to: asserted_biological_associations)

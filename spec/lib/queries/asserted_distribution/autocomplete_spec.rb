@@ -39,4 +39,15 @@ describe Queries::AssertedDistribution::Autocomplete, type: :model do
       .autocomplete_biological_association
   end
 
+  specify '#autocomplete_biological_association with more restricting ids than LITERAL_RESTRICTION_MAX' do
+    stub_const('Queries::AssertedDistribution::Autocomplete::LITERAL_RESTRICTION_MAX', 0)
+    subject_otu = FactoryBot.create(:valid_otu, name: 'Zzyzxbasubjectotu')
+    FactoryBot.create(:valid_biological_association, biological_association_subject: subject_otu)
+    ba = FactoryBot.create(:valid_biological_association, biological_association_subject: subject_otu)
+    ad = FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object: ba)
+
+    q = Queries::AssertedDistribution::Autocomplete.new('Zzyzxbasubjectotu', project_id:)
+    expect(q.autocomplete_biological_association.to_a).to contain_exactly(ad)
+  end
+
 end
