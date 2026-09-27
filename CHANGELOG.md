@@ -24,7 +24,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 ### Fixed
 
-- Asserted Distribution autocomplete raised an error (on biological association matches)
+- Asserted Distribution autocomplete raised an error (on biological association matches); now also only searches biological associations that have asserted distributions
 - DwC importer incorrectly applied `CollectionObject` project predicates with DwC URIs to `HumanObservation` records, missed `FieldOccurrence` DwC predicate mappings, and failed to flag unused model-specific columns as ignored
 - `controlled_vocabulary_term_id` param is not working on the controlled vocabulary terms endpoint
 - `New taxon name`: browser back/forward buttons left the form out of sync with the URL

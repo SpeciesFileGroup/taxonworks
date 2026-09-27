@@ -4,8 +4,8 @@ module Queries
 
       # @params string [String]
       # @params [Hash] args
-      def initialize(string, project_id: nil)
-        super
+      def initialize(string, project_id: nil, restrict_to: nil)
+        super(string, project_id:, restrict_to:)
       end
 
       # @return [Arel::Table]
@@ -56,7 +56,7 @@ module Queries
         queries.each_with_index do |q ,i|
           a = q.where(project_id: project_id) if project_id.present?
           a ||= q
-          updated_queries[i] = a
+          updated_queries[i] = apply_restriction(a)
         end
         updated_queries
       end

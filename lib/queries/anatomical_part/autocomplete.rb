@@ -2,8 +2,8 @@ module Queries
   module AnatomicalPart
     class Autocomplete < Query::Autocomplete
 
-      def initialize(string, project_id: nil)
-        super
+      def initialize(string, project_id: nil, restrict_to: nil)
+        super(string, project_id:, restrict_to:)
       end
 
       def autocomplete_uri_label_contains_match
@@ -55,8 +55,9 @@ module Queries
         project_queries = []
 
         queries.each do |q|
-          a = q.where(project_id:) if project_id.present?
-          project_queries.push a
+          a = q
+          a = a.where(project_id:) if project_id.present?
+          project_queries.push apply_restriction(a)
         end
 
         project_queries

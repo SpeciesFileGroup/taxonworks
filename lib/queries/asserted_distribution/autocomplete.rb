@@ -40,12 +40,23 @@ module Queries
 
       def autocomplete_biological_association
         # The combinatorics are not great for joining each BA autocomplete
-        # option with AD directly, so match on the BA autocomplete results.
-        biological_association_ids = Queries::BiologicalAssociation::Autocomplete
-          .new(query_string, project_id: project_id).autocomplete.map(&:id)
-
-        ::AssertedDistribution
+        # option with AD directly, so match on the BA autocomplete results,
+        # restricted to BAs that have asserted distributions.
+        biological_association_ads = ::AssertedDistribution
           .where(asserted_distribution_object_type: 'BiologicalAssociation')
+        if project_id.present?
+          biological_association_ads = biological_association_ads.where(project_id:)
+        end
+
+        asserted_biological_associations = ::BiologicalAssociation.where(
+          id: biological_association_ads.select(:asserted_distribution_object_id)
+        )
+
+        biological_association_ids = Queries::BiologicalAssociation::Autocomplete
+          .new(query_string, project_id:, restrict_to: asserted_biological_associations)
+          .autocomplete.map(&:id)
+
+        biological_association_ads
           .where(asserted_distribution_object_id: biological_association_ids)
       end
 

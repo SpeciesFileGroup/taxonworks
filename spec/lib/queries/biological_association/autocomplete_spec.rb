@@ -123,4 +123,74 @@ describe Queries::BiologicalAssociation::Autocomplete, type: :model do
     expect(q.autocomplete).to eq([])
   end
 
+  context 'restrict_to' do
+    let(:subject_otu) { FactoryBot.create(:valid_otu, name: 'Zzyzxrestrictotu') }
+    let!(:ba1) { FactoryBot.create(:valid_biological_association, biological_association_subject: subject_otu) }
+    let!(:ba2) { FactoryBot.create(:valid_biological_association, biological_association_subject: subject_otu) }
+
+    specify 'restricts otu matches' do
+      q = Queries::BiologicalAssociation::Autocomplete.new('Zzyzxrestrictotu', project_id:, restrict_to: BiologicalAssociation.where(id: ba2.id))
+      expect(q.autocomplete).to contain_exactly(ba2)
+    end
+
+    specify 'restricts exact id matches' do
+      q = Queries::BiologicalAssociation::Autocomplete.new(ba1.id.to_s, project_id:, restrict_to: BiologicalAssociation.where(id: ba2.id))
+      expect(q.autocomplete).to_not include(ba1)
+    end
+
+    specify 'restricts biological relationship matches' do
+      ba1.biological_relationship.update!(name: 'Zzyzxrestrictrelationship')
+      ba2.update!(biological_relationship: ba1.biological_relationship)
+      q = Queries::BiologicalAssociation::Autocomplete.new('Zzyzxrestrictrelationship', project_id:, restrict_to: BiologicalAssociation.where(id: ba2.id))
+      expect(q.autocomplete).to contain_exactly(ba2)
+    end
+
+    specify 'raises when the relation is of another model' do
+      q = Queries::BiologicalAssociation::Autocomplete.new('Zzyzxrestrictotu', project_id:, restrict_to: Otu.all)
+      expect { q.autocomplete }.to raise_error(ArgumentError, /Otu/)
+    end
+
+    specify 'restricts candidate otus, per side, before limiting them' do
+      # The exact name match outranks the partial one, so unrestricted
+      # the single allowed otu candidate would be exact_otu, which has no
+      # BA in the restriction.
+      exact_otu = FactoryBot.create(:valid_otu, name: 'Zzyzxpushdown')
+      partial_otu = FactoryBot.create(:valid_otu, name: 'Zzyzxpushdown partial')
+      FactoryBot.create(:valid_biological_association, biological_association_subject: exact_otu)
+      ba = FactoryBot.create(:valid_biological_association, biological_association_subject: partial_otu)
+      # partial_otu as object shouldn't make it a subject candidate
+      other = FactoryBot.create(:valid_biological_association, biological_association_object: exact_otu)
+
+      q = Queries::BiologicalAssociation::Autocomplete.new('Zzyzxpushdown', project_id:,
+        restrict_to: BiologicalAssociation.where(id: [ba.id, other.id]))
+
+      expect(q.otu_matches(:subject, 1)).to contain_exactly(ba)
+      expect(q.otu_matches(:object, 1)).to contain_exactly(other)
+    end
+
+    specify 'restricts collection object, field occurrence, and anatomical part candidates per side' do
+      co = FactoryBot.create(:valid_specimen)
+      fo = FactoryBot.create(:valid_field_occurrence)
+      ap = FactoryBot.create(:valid_anatomical_part)
+      FactoryBot.create(:valid_biological_association, biological_association_object: co)
+      FactoryBot.create(:valid_biological_association, biological_association_object: fo)
+      FactoryBot.create(:valid_biological_association, biological_association_object: ap)
+
+      q = Queries::BiologicalAssociation::Autocomplete.new('Zzyzx', project_id:,
+        restrict_to: BiologicalAssociation.all)
+
+      expect(q.collection_object_autocomplete(:subject).restrict_to).to_not include(co)
+      expect(q.collection_object_autocomplete(:object).restrict_to).to contain_exactly(co)
+      expect(q.field_occurrence_autocomplete(:subject).restrict_to).to_not include(fo)
+      expect(q.field_occurrence_autocomplete(:object).restrict_to).to contain_exactly(fo)
+      expect(q.anatomical_part_autocomplete(:subject).restrict_to).to_not include(ap)
+      expect(q.anatomical_part_autocomplete(:object).restrict_to).to contain_exactly(ap)
+    end
+
+    specify 'is not applied when nil' do
+      q = Queries::BiologicalAssociation::Autocomplete.new('Zzyzxrestrictotu', project_id:, restrict_to: nil)
+      expect(q.autocomplete).to include(ba1, ba2)
+    end
+  end
+
 end
