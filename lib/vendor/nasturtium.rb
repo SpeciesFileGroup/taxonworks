@@ -37,12 +37,18 @@ module Vendor
       end
     end
 
-    def self.taxon_name(result, use_community_taxon: true)
-      if use_community_taxon
-        result.dig('community_taxon', 'name').presence || result.dig('taxon', 'name')
+    # @return [Hash, nil] the iNat taxon (community_taxon, falling back to
+    #   taxon, or just taxon when use_community_taxon is false)
+    def self.taxon(result, use_community_taxon: true)
+      if use_community_taxon && result.dig('community_taxon', 'name').present?
+        result['community_taxon']
       else
-        result.dig('taxon', 'name')
+        result['taxon']
       end
+    end
+
+    def self.taxon_name(result, use_community_taxon: true)
+      taxon(result, use_community_taxon:)&.dig('name')
     end
 
     def self.stub_collecting_event(result, guess_as_locality: true, person_cache: nil)
@@ -214,26 +220,76 @@ module Vendor
     # @param result [Hash] a Nasturtium result
     # @param project_id [Integer]
     # @param match_by_name [Boolean]
-    #   if true, look for an existing OTU with matching name in the project first
+    #   if true, look for an existing OTU in the project first:
+    #     1. an OTU on a TaxonName matching the iNat name - subgenus ignored, see
+    #        .match_taxon_name - or a new OTU on that TaxonName if it has none
+    #     2. an OTU whose name is the iNat name
     # @param use_community_taxon [Boolean]
     #   if true, use the community consensus taxon (community_taxon, falling back to
     #   taxon); if false, use the observation taxon (taxon), which is the observer's
     #   own most recent ID when no community consensus exists
     # @return [Otu, nil]
     def self.stub_otu(result, project_id:, match_by_name: false, use_community_taxon: true)
-      taxon_name = self.taxon_name(result, use_community_taxon:)
+      taxon = self.taxon(result, use_community_taxon:)
+      taxon_name = taxon&.dig('name')
       return nil if taxon_name.blank?
 
       if match_by_name
-        existing = Otu.where(project_id:)
-          .left_joins(:taxon_name)
-          .where('otus.name = ? OR taxon_names.cached = ?', taxon_name, taxon_name)
-          .order(Arel.sql('taxon_names.id IS NULL ASC'))
-          .first
+        matched_taxon_name = match_taxon_name(taxon_name, rank: taxon['rank'], project_id:)
+
+        if matched_taxon_name
+          otu = otu_for_taxon_name(matched_taxon_name, project_id:)
+          return otu if otu
+        end
+
+        existing = Otu.where(project_id:, name: taxon_name).order(:id).first
         return existing if existing
       end
 
       Otu.new(name: taxon_name)
+    end
+
+    SUBGENUS_RANK_CLASSES = CODES_WITH_SUBGENUS.map { |code| Ranks.lookup(code, :subgenus) }.freeze
+
+    # iNat names never include a subgenus, while TaxonName#cached does
+    # ('Aus bus' vs 'Aus (Bus) bus'), so species-group names are matched with
+    # the subgenus ignored, and an iNat subgenus ('Bus') by its bare name.
+    #
+    # @param name [String] the iNat taxon name
+    # @param rank [String, nil] the iNat taxon rank
+    # @param project_id [Integer]
+    # @return [TaxonName, nil] nil when there is no match, or more than one
+    def self.match_taxon_name(name, rank:, project_id:)
+      if rank == 'subgenus'
+        matches = ::TaxonName.where(project_id:, name:, rank_class: SUBGENUS_RANK_CLASSES).to_a
+        return matches.one? ? matches.first : nil
+      end
+
+      match = ::Match::Otu::TaxonName.new(
+        names: [name], project_id:,
+        try_without_subgenus: true, try_without_subgenus_after_exact_match: true
+      ).call.first
+      return nil if !match[:matched] || match[:ambiguous]
+
+      match[:taxon_name]
+    end
+
+    # @param taxon_name [TaxonName]
+    # @param project_id [Integer]
+    # @return [Otu, nil] the TaxonName's only OTU, else its only unnamed OTU, else
+    #   a new OTU on it when it has none; nil when there is no single choice
+    def self.otu_for_taxon_name(taxon_name, project_id:)
+      otus = Otu.where(project_id:, taxon_name_id: taxon_name.id).to_a
+
+      case otus.size
+      when 0
+        Otu.new(taxon_name:)
+      when 1
+        otus.first
+      else
+        unnamed = otus.select { |o| o.name.blank? }
+        unnamed.one? ? unnamed.first : nil
+      end
     end
 
     # Find BiocurationClass records in the project that match iNat annotations on

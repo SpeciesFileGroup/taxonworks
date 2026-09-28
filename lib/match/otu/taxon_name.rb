@@ -70,7 +70,7 @@ module Match
 
       attr_reader :names, :project_id, :levenshtein_distance, :taxon_name_id,
         :taxon_name_query, :resolve_synonyms, :try_without_subgenus,
-        :candidates, :match_original_combination, :use_author_year,
+        :try_without_subgenus_after_exact_match, :candidates, :match_original_combination, :use_author_year,
         :trigram_prefilter
 
       # @param names [Array<String>] array of name strings to match
@@ -88,6 +88,11 @@ module Match
       #     * subgenus (and other genus-group ranks) ignored,
       #     * species-group epithets gender-tolerant,
       #     * genus matched as either current or original.
+      # @param try_without_subgenus_after_exact_match [Boolean] when true (and
+      #   try_without_subgenus is true), also retry after the plain match
+      #   succeeds, so that a different taxon matched without subgenus makes
+      #   the result ambiguous. Costs an extra query per name, so it's off by
+      #   default for large batches.
       # @param candidates [Integer, nil] when set, include the ranked match set,
       #   capped at this many
       # @param match_original_combination [Boolean] when true, match
@@ -101,7 +106,8 @@ module Match
       def initialize(
         names:, project_id:, levenshtein_distance: 0, taxon_name_id: nil,
         taxon_name_query: nil, resolve_synonyms: false,
-        try_without_subgenus: false, candidates: nil,
+        try_without_subgenus: false,
+        try_without_subgenus_after_exact_match: false, candidates: nil,
         match_original_combination: false, use_author_year: false,
         trigram_prefilter: false
       )
@@ -112,6 +118,7 @@ module Match
         @taxon_name_query = taxon_name_query
         @resolve_synonyms = resolve_synonyms
         @try_without_subgenus = try_without_subgenus
+        @try_without_subgenus_after_exact_match = try_without_subgenus_after_exact_match
         @candidates = candidates&.to_i
         @match_original_combination = match_original_combination
         @use_author_year = use_author_year
@@ -128,10 +135,15 @@ module Match
 
         taxon_names = find_taxon_names(search_string)
 
-        # TODO: there could be another match without_subgenus even if
-        # taxon_names.present?, which would signal ambiguity.
-        if taxon_names.empty? && try_without_subgenus
-          taxon_names = find_taxon_names_ignoring_subgenus(search_string)
+        # There could be another match without subgenus even when
+        # taxon_names.present?, which would signal ambiguity - only checked
+        # when asked for, since it costs an extra query per name.
+        if try_without_subgenus
+          if taxon_names.empty?
+            taxon_names = find_taxon_names_ignoring_subgenus(search_string)
+          elsif try_without_subgenus_after_exact_match
+            taxon_names = (taxon_names + find_taxon_names_ignoring_subgenus(search_string)).uniq(&:id)
+          end
         end
 
         if parsed && taxon_names.size > 1

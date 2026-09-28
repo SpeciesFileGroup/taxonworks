@@ -62,7 +62,7 @@
             type="checkbox"
             v-model="options.match_otu_by_name"
           />
-          Match OTU by taxon name (tries existing OTU in project first; creates name-only OTU if none found)
+          Match OTU by taxon name (tries an existing taxon name or OTU in the project first, ignoring subgenus; creates a name-only OTU if none found)
         </label>
       </div>
     </template>

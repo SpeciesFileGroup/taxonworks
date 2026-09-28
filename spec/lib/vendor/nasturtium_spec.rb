@@ -424,27 +424,93 @@ describe Vendor::Nasturtium, type: :model, group: [:field_occurrences] do
     end
 
     context 'with match_by_name: true' do
-      let(:taxon_name) { FactoryBot.create(:valid_protonym).tap { |t| t.update_columns(cached: 'Aus bus') } }
-      let!(:otu_with_taxon_name) { Otu.create!(taxon_name: taxon_name) }
-      let!(:otu_name_only) { Otu.create!(name: 'Aus bus') }
+      let(:root) { FactoryBot.create(:root_taxon_name) }
+      let(:genus) { Protonym.create!(name: 'Aus', rank_class: Ranks.lookup(:iczn, :genus), parent: root) }
+      let(:subgenus) { Protonym.create!(name: 'Bus', rank_class: Ranks.lookup(:iczn, :subgenus), parent: genus) }
+      let(:species) { Protonym.create!(name: 'bus', rank_class: Ranks.lookup(:iczn, :species), parent: subgenus) }
 
-      specify 'prefers OTU linked to a matching TaxonName' do
-        found = Vendor::Nasturtium.stub_otu(result, project_id: Current.project_id, match_by_name: true)
-        expect(found).to eq(otu_with_taxon_name)
+      def stub_otu(r = result)
+        Vendor::Nasturtium.stub_otu(r, project_id: Current.project_id, match_by_name: true)
+      end
+
+      specify 'matches an OTU on a TaxonName by exact cached name' do
+        otu = Otu.create!(taxon_name: genus)
+        expect(stub_otu(result.merge('community_taxon' => { 'name' => 'Aus', 'rank' => 'genus' }))).to eq(otu)
+      end
+
+      specify 'matches a species whose cached name includes a subgenus' do
+        otu = Otu.create!(taxon_name: species)
+        expect(species.cached).to eq('Aus (Bus) bus')
+        expect(stub_otu).to eq(otu)
+      end
+
+      specify 'prefers an OTU on a matching TaxonName over a name-only OTU' do
+        otu = Otu.create!(taxon_name: species)
+        Otu.create!(name: 'Aus bus')
+        expect(stub_otu).to eq(otu)
+      end
+
+      specify 'builds an OTU on a matched TaxonName that has none' do
+        species
+        found = stub_otu
+        expect(found).to be_new_record
+        expect(found.taxon_name).to eq(species)
+        expect(found.name).to be_nil
+      end
+
+      specify 'uses the one unnamed OTU when the matched TaxonName has several OTUs' do
+        unnamed = Otu.create!(taxon_name: species)
+        Otu.create!(taxon_name: species, name: 'morphotype 1')
+        expect(stub_otu).to eq(unnamed)
+      end
+
+      specify 'falls back when the matched TaxonName has several OTUs, none unnamed' do
+        Otu.create!(taxon_name: species, name: 'morphotype 1')
+        Otu.create!(taxon_name: species, name: 'morphotype 2')
+        found = stub_otu
+        expect(found).to be_new_record
+        expect(found.taxon_name).to be_nil
+        expect(found.name).to eq('Aus bus')
+      end
+
+      specify 'falls back when the TaxonName match is ambiguous' do
+        other_subgenus = Protonym.create!(name: 'Cus', rank_class: Ranks.lookup(:iczn, :subgenus), parent: genus)
+        other_species = Protonym.create!(name: 'bus', rank_class: Ranks.lookup(:iczn, :species), parent: other_subgenus)
+        Otu.create!(taxon_name: species)
+        Otu.create!(taxon_name: other_species)
+        name_only = Otu.create!(name: 'Aus bus')
+        expect(stub_otu).to eq(name_only)
       end
 
       specify 'falls back to OTU with matching name field when no TaxonName match' do
-        otu_with_taxon_name.destroy
-        found = Vendor::Nasturtium.stub_otu(result, project_id: Current.project_id, match_by_name: true)
-        expect(found).to eq(otu_name_only)
+        name_only = Otu.create!(name: 'Aus bus')
+        expect(stub_otu).to eq(name_only)
       end
 
       specify 'builds a new name-only OTU when no match found' do
-        otu_with_taxon_name.destroy
-        otu_name_only.destroy
-        found = Vendor::Nasturtium.stub_otu(result, project_id: Current.project_id, match_by_name: true)
+        found = stub_otu
         expect(found).to be_new_record
+        expect(found.taxon_name).to be_nil
         expect(found.name).to eq('Aus bus')
+      end
+
+      context 'when the iNat taxon is a subgenus' do
+        let(:subgenus_result) { result.merge('community_taxon' => { 'name' => 'Bus', 'rank' => 'subgenus' }) }
+
+        specify 'matches the subgenus by its bare name' do
+          otu = Otu.create!(taxon_name: subgenus)
+          expect(stub_otu(subgenus_result)).to eq(otu)
+        end
+
+        specify 'falls back when the subgenus name is ambiguous' do
+          other_genus = Protonym.create!(name: 'Dus', rank_class: Ranks.lookup(:iczn, :genus), parent: root)
+          other_subgenus = Protonym.create!(name: 'Bus', rank_class: Ranks.lookup(:iczn, :subgenus), parent: other_genus)
+          Otu.create!(taxon_name: subgenus)
+          Otu.create!(taxon_name: other_subgenus)
+          found = stub_otu(subgenus_result)
+          expect(found).to be_new_record
+          expect(found.name).to eq('Bus')
+        end
       end
     end
   end

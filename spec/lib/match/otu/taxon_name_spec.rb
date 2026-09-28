@@ -133,6 +133,37 @@ describe Match::Otu::TaxonName, type: :model do
       expect(result[:matched]).to eq(false)
     end
 
+    context 'try_without_subgenus_after_exact_match' do
+      let!(:species_without_subgenus) do
+        Protonym.create!(name: 'maculatus', rank_class: Ranks.lookup(:iczn, :species), parent: genus)
+      end
+
+      specify 'by default, an exact match hides a different taxon matched without subgenus' do
+        result = match(names: ['Aus maculatus'], try_without_subgenus: true).first
+        expect(result[:taxon_name_id]).to eq(species_without_subgenus.id)
+        expect(result[:ambiguous]).to eq(false)
+      end
+
+      specify 'when enabled, the exact match and the subgenus-ignored match are both candidates' do
+        result = match(
+          names: ['Aus maculatus'], try_without_subgenus: true,
+          try_without_subgenus_after_exact_match: true, candidates: 5
+        ).first
+        expect(result[:ambiguous]).to eq(true)
+        expect(result[:candidates].map(&:id)).to contain_exactly(species_without_subgenus.id, species_under_subgenus.id)
+      end
+
+      specify 'when enabled, an exact match found again without subgenus is not ambiguous' do
+        species_dus = Protonym.create!(name: 'dus', rank_class: Ranks.lookup(:iczn, :species), parent: genus)
+        result = match(
+          names: ['Aus dus'], try_without_subgenus: true,
+          try_without_subgenus_after_exact_match: true
+        ).first
+        expect(result[:taxon_name_id]).to eq(species_dus.id)
+        expect(result[:ambiguous]).to eq(false)
+      end
+    end
+
     context '2 words (Genus species), subgenus omitted from the search string' do
       specify 'a feminine-ending search matches the stored masculine species' do
         result = match(names: ['Aus maculata'], try_without_subgenus: true).first
