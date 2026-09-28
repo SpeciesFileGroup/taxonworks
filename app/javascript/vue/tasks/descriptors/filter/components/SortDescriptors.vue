@@ -55,6 +55,16 @@
           Apply
         </VBtn>
       </div>
+      <div class="margin-small-top margin-medium-bottom">
+        <VBtn
+          color="create"
+          medium
+          :disabled="isLoading || !descriptors.length"
+          @click="saveOrder"
+        >
+          Save order
+        </VBtn>
+      </div>
       <table class="table-striped full_width">
         <thead>
           <tr>
