@@ -266,15 +266,14 @@ class Tools::ImageMatrix
   def descriptors_with_keywords
     if observation_matrix_id.to_i == 0 && otu_filter.present?
       d = observation_depictions_from_otu_filter.pluck(:descriptor_id).uniq
-      ds = Descriptor::Media.where(id: d).not_weight_zero
+      ds = Descriptor::Media.where(id: d).not_weight_zero.order(:position)
     elsif keyword_ids
       ds = descriptors.joins(:tags).where('tags.keyword_id IN (?)', keyword_ids.to_s.split('|').map(&:to_i) )
     else
       ds = descriptors
     end
     return [] if ds.nil? || ds.empty?
-    ds = ds.sort{|a,b| a.observation_matrix_columns.first.try(:position).to_i <=> b.observation_matrix_columns.first.try(:position).to_i}
-    ds
+    ds.to_a
   end
 
   def row_filter_array

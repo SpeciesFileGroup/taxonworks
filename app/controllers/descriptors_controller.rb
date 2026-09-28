@@ -18,6 +18,10 @@ class DescriptorsController < ApplicationController
           .page(params[:page])
           .per(params[:per])
           .order('descriptors.name')
+
+        if helpers.extend_response_with('observation_matrices')
+          @descriptors = @descriptors.includes(:observation_matrices)
+        end
       }
     end
   end
@@ -179,6 +183,12 @@ class DescriptorsController < ApplicationController
 
   def units
     render json: UNITS
+  end
+
+  # PATCH /descriptors/sort.json?ids[]=1&ids[]=2
+  def sort
+    Descriptor.sort(params.require(:ids), sessions_current_project_id)
+    head :no_content
   end
 
   private
