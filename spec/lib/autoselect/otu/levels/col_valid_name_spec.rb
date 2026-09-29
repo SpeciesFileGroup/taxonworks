@@ -80,6 +80,53 @@ RSpec.describe Autoselect::Otu::Levels::ColValidName, type: :model do
       end
     end
 
+    # CoL and TaxonWorks can write the same name differently (see
+    # Vendor::Colrapi::NameTranslation) - the OTU is found via the TaxonName
+    # resolve_target already matched, not by name string.
+    context 'when the matched TaxonName is written differently by CoL' do
+      let(:subspecies) { FactoryBot.create(:iczn_subspecies) }
+      let(:species) { subspecies.parent }
+      let(:subgenus) { species.parent }
+
+      it 'finds the OTU of a subgenus CoL gives as a bare epithet' do
+        otu = ::Otu.create!(taxon_name: subgenus, project_id:, by: user_id)
+        target = resolved_record(
+          valid_name: 'Erythroneura',
+          extra_extension: {
+            col_rank: 'subgenus', target_taxonworks_id: subgenus.id
+          }
+        )
+        stub_resolve_target(term: 'Erythroneura', target:)
+
+        expect(level.call(term: 'Erythroneura', project_id:, user_id:))
+          .to contain_exactly(otu)
+      end
+
+      it 'finds the OTU of a species CoL gives without its subgenus' do
+        otu = ::Otu.create!(taxon_name: species, project_id:, by: user_id)
+        target = resolved_record(
+          valid_name: 'Erythroneura vitis',
+          extra_extension: { target_taxonworks_id: species.id }
+        )
+        stub_resolve_target(term: 'Erythroneura vitis', target:)
+
+        expect(level.call(term: 'Erythroneura vitis', project_id:, user_id:))
+          .to contain_exactly(otu)
+      end
+    end
+
+    context 'when a local OTU without a TaxonName is named the valid name' do
+      let!(:otu) { ::Otu.create!(name: 'Panthera leo', project_id:, by: user_id) }
+      let(:target) { resolved_record(valid_name: 'Panthera leo') }
+
+      before { stub_resolve_target(term: 'Panthera leo persica', target:) }
+
+      it 'returns that Otu' do
+        expect(level.call(term: 'Panthera leo persica', project_id:, user_id:))
+          .to contain_exactly(otu)
+      end
+    end
+
     context 'when multiple local OTUs match the valid name' do
       before { find_or_create_root_taxon_name }
       let(:root) { ::TaxonName.where(project_id:, parent_id: nil).first }

@@ -77,7 +77,9 @@ module Autoselect
 
           valid_name = target.cached
 
-          matches = ::Queries::Otu::Autocomplete.new(valid_name, project_id:, exact: true).autocomplete
+          matches = existing_otus(
+            valid_name, target._col_extension[:target_taxonworks_id], project_id
+          )
           return matches.each { |otu| attach_resolution(otu, term, valid_name) } if matches.any?
 
           extension = target._col_extension.merge(
@@ -88,6 +90,30 @@ module Autoselect
         end
 
         private
+
+        # CoL's name for the resolved TaxonName can be written differently than
+        # TaxonWorks' (subgenus epithet, species with/without subgenus, [sic] -
+        # see Vendor::Colrapi::NameTranslation), so OTUs of the TaxonName
+        # resolve_target already matched are found by id. The exact name query
+        # still covers OTUs without a TaxonName.
+        #
+        # @param valid_name [String] CoL's name for the resolved valid name
+        # @param taxon_name_id [Integer, nil] the matched TaxonName, if any
+        # @return [Array<Otu>]
+        def existing_otus(valid_name, taxon_name_id, project_id)
+          by_taxon_name =
+            if taxon_name_id.present?
+              ::Otu.where(project_id:, taxon_name_id:).to_a
+            else
+              []
+            end
+
+          by_name = ::Queries::Otu::Autocomplete
+            .new(valid_name, project_id:, exact: true)
+            .autocomplete
+
+          by_taxon_name | by_name
+        end
 
         # record_info / record_info_html come from ::Autoselect::Levels::ColResolvedName;
         # #existing_match? there keys off the `_col_resolution` this attaches to real
