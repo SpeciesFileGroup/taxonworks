@@ -1,18 +1,21 @@
 class Tasks::ObservationMatrices::ImageMatrixController < ApplicationController
   include TaskControllerConfiguration
-  
+
   # GET /tasks/observation_matrices/image_matrix
   def index
   end
 
   # GET /tasks/observation_matrices/image_matrix/37/key
   def key
-    @key = Tools::ImageMatrix.new(**image_key_params)
+    @key = Tools::ImageMatrix.new(**image_key_params, attributed_images_only: false)
   end
 
   # GET /api/v1/observation_matrices/123/image_matrix.json
   def api_key
-    @key = Tools::ImageMatrix.new(**image_key_params)
+    @key = Tools::ImageMatrix.new(
+      **image_key_params,
+      attributed_images_only: params[:attributed_images_only] != 'false'
+    )
     render '/observation_matrices/api/v1/image_matrix'
   end
 

@@ -47,7 +47,8 @@ describe Tools::ImageMatrix, type: :model, group: :observation_matrix do
       depiction1.image.citations.create(source: source, is_original: true)
       im = Tools::ImageMatrix.new(
         observation_matrix_id: observation_matrix.id,
-        project_id: observation_matrix.project_id)
+        project_id: observation_matrix.project_id,
+        attributed_images_only: false)
 
       expect(im.depiction_matrix.count).to eq(3)
 
@@ -55,6 +56,29 @@ describe Tools::ImageMatrix, type: :model, group: :observation_matrix do
       expect(im.depiction_matrix[index][:depictions].count).to eq(3)
       expect(im.depiction_matrix[index][:depictions][0].count).to eq(1)
       expect(im.depiction_matrix[index][:depictions][0].first.source_id).to eq(source.id)
+    end
+
+    specify 'image_matrix: attributed_images_only defaults to true, keeping depiction_matrix and image_hash consistent' do
+      # Distinct images (not the shared depiction1/depiction2 image_file, which
+      # would otherwise get deduplicated onto the same Image record).
+      attributed_image = FactoryBot.create(:tiny_random_image)
+      FactoryBot.create(:valid_attribution, attribution_object: attributed_image)
+      unattributed_image = FactoryBot.create(:tiny_random_image)
+
+      attributed_depiction = Depiction.create!(depiction_object: o1, image: attributed_image)
+      unattributed_depiction = Depiction.create!(depiction_object: o2, image: unattributed_image)
+
+      im = Tools::ImageMatrix.new(
+        observation_matrix_id: observation_matrix.id,
+        project_id: observation_matrix.project_id)
+
+      index1 = 'Otu' + otu1.id.to_s
+      index2 = 'Otu' + otu2.id.to_s
+
+      expect(im.depiction_matrix[index1][:depictions][0].map(&:image_id)).to include(attributed_depiction.image_id)
+      expect(im.depiction_matrix[index2][:depictions][1].map(&:image_id)).not_to include(unattributed_depiction.image_id)
+      expect(im.image_hash).to have_key(attributed_depiction.image_id)
+      expect(im.image_hash).not_to have_key(unattributed_depiction.image_id)
     end
 
     specify 'image_matrix: otu_filter' do

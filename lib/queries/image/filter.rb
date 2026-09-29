@@ -6,6 +6,7 @@ module Queries
       include Queries::Concerns::Notes
 
       PARAMS = [
+        :attribution,
         :biocuration_class_id,
         :collection_object_id,
         :collection_object_scope,
@@ -62,6 +63,12 @@ module Queries
         source_id: [],
         taxon_name_id: [],
       ].freeze
+
+      # @return [Boolean, nil]
+      #   true - image has an Attribution
+      #   false - image has no Attribution
+      #   nil - ignored
+      attr_accessor :attribution
 
       # @return [Array]
       #   images depicting collecting_object
@@ -273,6 +280,7 @@ module Queries
       def initialize(query_params)
         super
 
+        @attribution = boolean_param(params, :attribution)
         @biocuration_class_id = params[:biocuration_class_id]
         @collection_object_id = params[:collection_object_id]
         @collection_object_scope = params[:collection_object_scope]
@@ -438,6 +446,11 @@ module Queries
           ::CollectionObject::BiologicalCollectionObject.joins(:biocuration_classifications)
           .where(biocuration_classifications: {biocuration_class_id:})
         )
+      end
+
+      def attribution_facet
+        return nil if attribution.nil?
+        attribution ? ::Image.with_attribution : ::Image.without_attribution
       end
 
       def metadata_depiction_facet
@@ -896,6 +909,7 @@ module Queries
         s = ::Queries::Query::Filter::SUBQUERIES.select{|k,v| v.include?(:image)}.keys.map(&:to_s) - ['source']
         [
           *s.collect{|m| query_facets_facet(m)}, # Reference all the Image referencing SUBQUERIES
+          attribution_facet,
           biocuration_facet,
           collection_object_scope_facet,
           copyright_holder_facet,

@@ -5,7 +5,7 @@ json.extract! depiction, :id, :depiction_object_id, :depiction_object_type,
 :svg_view_box,
 :project_id, :created_at, :updated_at
 
-if extend_response_with('figures')
+if extend_response_with('figures') && depiction.image.attributed?
   json.figures do
     json.medium depiction_tag(depiction, size: :medium)
     json.thumb depiction_tag(depiction, size: :thumb)
