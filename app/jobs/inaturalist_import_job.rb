@@ -19,7 +19,6 @@ class InaturalistImportJob < ApplicationJob
     Current.project_id = project_id
     Current.user_id = user_id
 
-    # Updated as it's used so that a new determiner is created only once.
     @taxon_determination = taxon_determination
 
     # Reuse one Person across this run for an observer/copyright holder/etc.
@@ -87,12 +86,6 @@ class InaturalistImportJob < ApplicationJob
         identifiers: [::Vendor::Nasturtium.stub_identifier(result)].compact,
       )
       fo.save!
-
-      if @taxon_determination
-        @taxon_determination = TaxonDetermination.reuse_created_determiners(
-          @taxon_determination, fo.taxon_determinations.first
-        )
-      end
 
       ::Vendor::Nasturtium.stub_biocuration_classes(result, project_id:).each do |biocuration_class|
         BiocurationClassification.create!(biocuration_class:, biocuration_classification_object: fo)

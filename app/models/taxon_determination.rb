@@ -104,7 +104,7 @@ class TaxonDetermination < ApplicationRecord
       raise ArgumentError, "Unsupported object_type: #{object_type}"
     end
 
-    object_ids = [object_id].flatten.compact.map(&:to_i).uniq
+    object_ids = [object_id].flatten.compact.uniq
     result = {
       failed: [],
       total_created: 0
@@ -112,13 +112,12 @@ class TaxonDetermination < ApplicationRecord
 
     object_ids.each do |id|
       begin
-        taxon_determination = TaxonDetermination.create!(
+        TaxonDetermination.create!(
           params.merge(
             taxon_determination_object_id: id,
             taxon_determination_object_type: object_type
           )
         )
-        params = reuse_created_determiners(params, taxon_determination)
 
         result[:total_created] += 1
 
@@ -128,38 +127,6 @@ class TaxonDetermination < ApplicationRecord
       end
     end
     result
-  end
-
-  # Replaces new-person determiner roles (person_attributes) in params with the
-  # people taxon_determination created from them, so that creating further
-  # determinations from params doesn't create a duplicate person each time.
-  # @param params [Hash] the attributes taxon_determination was created from
-  # @param taxon_determination [TaxonDetermination]
-  # @return [Hash] params, with person_id in place of those person_attributes
-  def self.reuse_created_determiners(params, taxon_determination)
-    params = params.to_h.with_indifferent_access
-    roles = params[:roles_attributes]
-    return params if roles.blank?
-
-    roles = roles.values if roles.is_a?(Hash)
-    created_people = taxon_determination.determiners.to_a
-
-    params.merge(
-      roles_attributes: roles.map { |role|
-        role = role.to_h.with_indifferent_access
-        new_person = role[:person_attributes]
-        next role if new_person.blank? || role[:person_id].present?
-
-        person = created_people.find { |p|
-          %i{last_name first_name prefix suffix}.all? { |field|
-            p.send(field).to_s == new_person[field].to_s.strip
-          }
-        }
-        next role if person.nil?
-
-        role.except(:person_attributes).merge(person_id: person.id)
-      }
-    )
   end
 
   # @return [String]

@@ -91,54 +91,6 @@ describe TaxonDetermination, type: :model, group: [:collection_objects] do
       expect(field_occurrence.current_otu).to eq(otu)
     end
 
-    specify 'creates a new determiner once, not once per object' do
-      other = FactoryBot.create(:valid_field_occurrence)
-      new_determiner = {
-        roles_attributes: [{
-          type: 'Determiner',
-          person_attributes: { last_name: 'Batchdeterminer', first_name: 'A' }
-        }]
-      }
-
-      expect {
-        TaxonDetermination.batch_create(
-          [field_occurrence.id, other.id], params.merge(new_determiner),
-          object_type: 'FieldOccurrence'
-        )
-      }.to change { Person.where(last_name: 'Batchdeterminer').count }.by(1)
-
-      expect(field_occurrence.current_taxon_determination.determiners)
-        .to eq(other.current_taxon_determination.determiners)
-    end
-
-    specify 'keeps new determiners that differ only by suffix distinct' do
-      other = FactoryBot.create(:valid_field_occurrence)
-      new_determiners = {
-        roles_attributes: [
-          {
-            type: 'Determiner',
-            person_attributes: { last_name: 'Batchsuffix', first_name: 'A' }
-          },
-          {
-            type: 'Determiner',
-            person_attributes: {
-              last_name: 'Batchsuffix', first_name: 'A', suffix: 'Jr.'
-            }
-          }
-        ]
-      }
-
-      TaxonDetermination.batch_create(
-        [field_occurrence.id, other.id], params.merge(new_determiners),
-        object_type: 'FieldOccurrence'
-      )
-
-      expect(Person.where(last_name: 'Batchsuffix').pluck(:suffix))
-        .to contain_exactly(nil, 'Jr.')
-      expect(other.current_taxon_determination.determiners.map(&:suffix))
-        .to contain_exactly(nil, 'Jr.')
-    end
-
     specify 'rejects other object types' do
       expect {
         TaxonDetermination.batch_create([1], params, object_type: 'Otu')

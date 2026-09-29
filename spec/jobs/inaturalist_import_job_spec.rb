@@ -148,14 +148,12 @@ RSpec.describe InaturalistImportJob, type: :model, group: :field_occurrences do
         'community_taxon' => nil
       )
     }
+    let(:determiner) { FactoryBot.create(:valid_person) }
     let(:taxon_determination) {
       {
         otu_id: otu.id,
         year_made: 2024,
-        roles_attributes: [{
-          type: 'Determiner',
-          person_attributes: { last_name: 'Alldeterminer', first_name: 'B' }
-        }]
+        roles_attributes: [{ type: 'Determiner', person_id: determiner.id }]
       }
     }
 
@@ -181,15 +179,10 @@ RSpec.describe InaturalistImportJob, type: :model, group: :field_occurrences do
       expect { perform_determined }.to change(FieldOccurrence, :count).by(2)
     end
 
-    specify 'creates a new determiner once for all results' do
-      expect { perform_determined }
-        .to change { Person.where(last_name: 'Alldeterminer').count }.by(1)
-    end
-
     specify 'does not attach the iNat observer or identification' do
       perform_determined
       td = FieldOccurrence.first.current_taxon_determination
-      expect(td.determiners.map(&:last_name)).to eq(['Alldeterminer'])
+      expect(td.determiners.map(&:id)).to eq([determiner.id])
       expect(td.identifiers).to be_empty
     end
   end
