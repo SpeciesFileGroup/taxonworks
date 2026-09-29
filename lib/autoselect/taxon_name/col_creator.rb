@@ -111,7 +111,8 @@ module Autoselect
             begin
               tn = ::TaxonName.create!(
                 type:                'Protonym',
-                name:                row[:col_name],
+                name: ::Vendor::Colrapi::NameTranslation
+                  .protonym_name(row[:col_name], row[:col_rank]),
                 parent_id:,
                 rank_class:,
                 verbatim_author:     author,

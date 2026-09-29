@@ -41,6 +41,21 @@ module Vendor
         ::Utilities::Nomenclature.infrageneric_epithet(col_name)
       end
 
+      # CoL classification entries give species-group names in full ("Olea
+      # europaea", "Carabus (Megodontus) violaceus", "Olea europaea subsp.
+      # cuspidata"), TaxonWorks Protonym#name takes just the last epithet.
+      # Names that are already an epithet or uninomial are returned as is.
+      #
+      # @param col_name [String, nil]
+      # @param rank [String, nil] CoL rank name, e.g. 'species'
+      # @return [String, nil] the TaxonWorks Protonym#name for col_name
+      def self.protonym_name(col_name, rank)
+        return nil if col_name.nil?
+        return subgenus_epithet(col_name) if rank == 'subgenus'
+
+        col_name.split(' ').last
+      end
+
       # @param col_name [String, nil] a name as CoL gives it (a subgenus may
       #   already be reduced to its epithet)
       # @param rank [String, nil] CoL rank name, e.g. 'subgenus'

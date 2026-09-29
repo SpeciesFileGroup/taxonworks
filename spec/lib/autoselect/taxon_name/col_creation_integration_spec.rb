@@ -89,4 +89,120 @@ RSpec.describe 'CatalogueOfLife matching + ColCreator creation, end to end', typ
       expect(family.reload.parent_id).to eq(root.id) # untouched
     end
   end
+
+  # CoL classification entries give species-group ancestors as full names
+  # ("Olea europaea"); the created Protonym#name must be just the epithet.
+  context 'when a species-group ancestor of the target has to be created' do
+    let!(:root) { ::TaxonName.where(project_id:, parent_id: nil).first }
+
+    def col_subspecies(scientific_name, genus, species, subspecies, code)
+      {
+        'id' => 'TGT1', 'status' => 'accepted',
+        'name' => {
+          'scientificName' => scientific_name, 'rank' => 'subspecies',
+          'genus' => genus, 'specificEpithet' => species,
+          'infraspecificEpithet' => subspecies, 'code' => code
+        },
+        'label' => scientific_name, 'labelHtml' => scientific_name
+      }
+    end
+
+    def create_from(col_result, ancestors, code)
+      allow(::Vendor::Colrapi).to receive(:search)
+        .and_return('result' => [col_result])
+      allow(::Vendor::Colrapi).to receive(:ancestors).and_return(ancestors)
+
+      ext = level.call(term: 'x', project_id:, user_id:).first._col_extension
+      rows = rows_from_level_result(
+        ext, target_col_name: ext[:col_name], target_rank: ext[:col_rank]
+      )
+      result = Autoselect::TaxonName::ColCreator.new(
+        rows:, project_id:, user_id:, col_code: code
+      ).call
+      ::TaxonName.find(result[:taxon_name_id])
+    end
+
+    specify 'ICZN species' do
+      genus = Protonym.create!(
+        name: 'Testus', rank_class: Ranks.lookup(:iczn, 'genus'),
+        parent: root, project_id:, by: user_id
+      )
+
+      subspecies = create_from(
+        col_subspecies(
+          'Testus novus novus', 'Testus', 'novus', 'novus', 'zoological'
+        ),
+        [
+          col_classification_entry(id: 'A1', name: 'Testus', rank: 'genus'),
+          col_classification_entry(
+            id: 'A2', name: 'Testus novus', rank: 'species'
+          )
+        ],
+        'zoological'
+      )
+
+      expect(subspecies.name).to eq('novus')
+      expect(subspecies.parent.name).to eq('novus')
+      expect(subspecies.parent.parent).to eq(genus)
+      expect(subspecies.cached).to eq('Testus novus novus')
+    end
+
+    specify 'ICZN species and subgenus, CoL species name carrying the ' \
+      'subgenus' do
+      genus = Protonym.create!(
+        name: 'Carabus', rank_class: Ranks.lookup(:iczn, 'genus'),
+        parent: root, project_id:, by: user_id
+      )
+
+      subspecies = create_from(
+        col_subspecies(
+          'Carabus violaceus violaceus', 'Carabus', 'violaceus', 'violaceus',
+          'zoological'
+        ),
+        [
+          col_classification_entry(id: 'A1', name: 'Carabus', rank: 'genus'),
+          col_classification_entry(
+            id: 'A2', name: 'Carabus (Megodontus)', rank: 'subgenus'
+          ),
+          col_classification_entry(
+            id: 'A3', name: 'Carabus (Megodontus) violaceus', rank: 'species'
+          )
+        ],
+        'zoological'
+      )
+
+      species = subspecies.parent
+      subgenus = species.parent
+      expect(species.name).to eq('violaceus')
+      expect(subgenus.name).to eq('Megodontus')
+      expect(subgenus.parent).to eq(genus)
+      expect(subspecies.cached).to eq('Carabus (Megodontus) violaceus violaceus')
+    end
+
+    specify 'ICN species' do
+      genus = Protonym.create!(
+        name: 'Olea', rank_class: Ranks.lookup(:icn, 'genus'),
+        parent: root, project_id:, by: user_id
+      )
+
+      subspecies = create_from(
+        col_subspecies(
+          'Olea europaea subsp. cuspidata', 'Olea', 'europaea', 'cuspidata',
+          'botanical'
+        ),
+        [
+          col_classification_entry(id: 'A1', name: 'Olea', rank: 'genus'),
+          col_classification_entry(
+            id: 'A2', name: 'Olea europaea', rank: 'species'
+          )
+        ],
+        'botanical'
+      )
+
+      expect(subspecies.name).to eq('cuspidata')
+      expect(subspecies.parent.name).to eq('europaea')
+      expect(subspecies.parent.parent).to eq(genus)
+      expect(subspecies.cached).to eq('Olea europaea subsp. cuspidata')
+    end
+  end
 end

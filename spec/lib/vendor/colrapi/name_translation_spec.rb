@@ -16,6 +16,40 @@ describe Vendor::Colrapi::NameTranslation, type: :model do
     end
   end
 
+  context '.protonym_name' do
+    specify 'a species takes its epithet' do
+      expect(t.protonym_name('Testus novus', 'species')).to eq('novus')
+    end
+
+    specify 'a species with a subgenus takes its epithet' do
+      expect(t.protonym_name('Carabus (Megodontus) violaceus', 'species'))
+        .to eq('violaceus')
+    end
+
+    specify 'an ICN infraspecific name takes its last epithet' do
+      expect(t.protonym_name('Olea europaea subsp. cuspidata', 'subspecies'))
+        .to eq('cuspidata')
+    end
+
+    specify 'a subgenus takes its epithet' do
+      expect(t.protonym_name('Carabus (Megodontus)', 'subgenus'))
+        .to eq('Megodontus')
+    end
+
+    specify 'an already-reduced epithet is unchanged' do
+      expect(t.protonym_name('novus', 'species')).to eq('novus')
+      expect(t.protonym_name('Megodontus', 'subgenus')).to eq('Megodontus')
+    end
+
+    specify 'a uninomial is unchanged' do
+      expect(t.protonym_name('Hominidae', 'family')).to eq('Hominidae')
+    end
+
+    specify 'nil is nil' do
+      expect(t.protonym_name(nil, 'species')).to be_nil
+    end
+  end
+
   context '.col_key' do
     specify 'a subgenus is keyed by its epithet' do
       expect(t.col_key('Carabus (Megodontus)', 'subgenus')).to eq('Megodontus')
