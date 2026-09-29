@@ -42,11 +42,12 @@ class Tasks::FieldOccurrences::InaturalistImportController < ApplicationControll
     return unless results
 
     existing_fo_by_uuid = existing_field_occurrences_for(results)
+    fo_data = fetch_field_occurrence_data(existing_fo_by_uuid)
     opts = import_options
 
     queue_import(results, existing_fo_by_uuid, opts)
 
-    summary = helpers.inaturalist_import_summary(results, existing_fo_by_uuid, **opts) +
+    summary = helpers.inaturalist_import_summary(results, existing_fo_by_uuid, fo_data:, **opts) +
               not_found_rows(observation_ids, results)
 
     render json: { summary: }
@@ -63,8 +64,9 @@ class Tasks::FieldOccurrences::InaturalistImportController < ApplicationControll
       {
         uuid:,
         field_occurrence_id: fo_id,
+        global_id: fo[:global_id],
         browse_url: helpers.browse_field_occurrence_task_path(field_occurrence_id: fo_id),
-        taxon_name: fo[:taxon_name],
+        determination_label: fo[:determination_label],
         image_count: fo[:image_count],
         sound_count: fo[:sound_count]
       }
@@ -74,6 +76,7 @@ class Tasks::FieldOccurrences::InaturalistImportController < ApplicationControll
   end
 
   # GET /tasks/field_occurrences/inaturalist_import/recent.json
+  #   field_occurrence_id[] - optionally restrict to these (e.g. to refresh a row)
   def recent
     fos = FieldOccurrence
       .joins(:identifiers)
@@ -81,6 +84,8 @@ class Tasks::FieldOccurrences::InaturalistImportController < ApplicationControll
         project_id: sessions_current_project_id,
         identifiers: { type: 'Identifier::Global::Uuid::InaturalistObservation' }
       )
+    fos = fos.where(id: params[:field_occurrence_id]) if params[:field_occurrence_id].present?
+    fos = fos
       .order(created_at: :desc)
       .page(params[:page])
       .per(params.fetch(:per_page, 10).to_i.clamp(1, 100))
@@ -140,9 +145,12 @@ class Tasks::FieldOccurrences::InaturalistImportController < ApplicationControll
       .includes(:depictions, :conveyances, taxon_determinations: { otu: :taxon_name })
       .each_with_object({}) do |fo, h|
         h[fo.id] = {
+          global_id: fo.to_global_id.to_s,
           image_count: fo.depictions.size,
           sound_count: fo.conveyances.size,
-          taxon_name: helpers.otu_tag(fo.taxon_determinations.first.otu)
+          # current determination (lowest position; the preloaded association is
+          # unordered); nil when every determination has been removed
+          determination_label: helpers.otu_tag(fo.taxon_determinations.min_by(&:position)&.otu)
         }
       end
   end

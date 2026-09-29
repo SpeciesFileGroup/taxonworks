@@ -251,27 +251,41 @@ module Vendor
 
     SUBGENUS_RANK_CLASSES = CODES_WITH_SUBGENUS.map { |code| Ranks.lookup(code, :subgenus) }.freeze
 
+    # High enough that an ambiguous match's candidates are never truncated.
+    MATCH_CANDIDATES_LIMIT = 100
+
     # iNat names never include a subgenus, while TaxonName#cached does
     # ('Aus bus' vs 'Aus (Bus) bus'), so species-group names are matched with
     # the subgenus ignored, and an iNat subgenus ('Bus') by its bare name.
     #
+    # When the name matches more than one taxon (e.g. a valid name and a junior
+    # homonym), the one valid name is taken, as iNat names are (almost always)
+    # meant as the current valid name.
+    #
     # @param name [String] the iNat taxon name
     # @param rank [String, nil] the iNat taxon rank
     # @param project_id [Integer]
-    # @return [TaxonName, nil] nil when there is no match, or more than one
+    # @return [TaxonName, nil] nil when there is no match, or an ambiguous match
+    #   without exactly one valid name
     def self.match_taxon_name(name, rank:, project_id:)
-      if rank == 'subgenus'
-        matches = ::TaxonName.where(project_id:, name:, rank_class: SUBGENUS_RANK_CLASSES).to_a
-        return matches.one? ? matches.first : nil
+      candidates = if rank == 'subgenus'
+        ::TaxonName.where(project_id:, name:, rank_class: SUBGENUS_RANK_CLASSES).to_a
+      else
+        match = ::Match::Otu::TaxonName.new(
+          names: [name], project_id:,
+          try_without_subgenus: true, try_without_subgenus_after_exact_match: true,
+          candidates: MATCH_CANDIDATES_LIMIT
+        ).call.first
+        return nil if !match[:matched]
+        return match[:taxon_name] if !match[:ambiguous]
+
+        match[:candidates]
       end
 
-      match = ::Match::Otu::TaxonName.new(
-        names: [name], project_id:,
-        try_without_subgenus: true, try_without_subgenus_after_exact_match: true
-      ).call.first
-      return nil if !match[:matched] || match[:ambiguous]
+      return candidates.first if candidates.one?
 
-      match[:taxon_name]
+      valid = candidates.select { |tn| tn.cached_valid_taxon_name_id == tn.id }
+      valid.one? ? valid.first : nil
     end
 
     # @param taxon_name [TaxonName]

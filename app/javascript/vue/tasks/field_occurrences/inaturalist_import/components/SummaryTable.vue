@@ -61,8 +61,8 @@
             </a>
           </td>
           <td
-            v-if="row.field_occurrence_id"
-            v-html="row.taxon_name"
+            v-if="row.determination_label"
+            v-html="row.determination_label"
           />
           <td v-else>{{ row.taxon_name }}</td>
           <td>{{ row.observer }}</td>
@@ -71,24 +71,26 @@
           <td>{{ row.image_count ?? 'n/a' }}</td>
           <td>{{ row.sound_count ?? 'n/a' }}</td>
           <td>
-            <a
-              v-if="row.status === INAT_STATUS_FOUND"
-              :href="row.browse_url"
-              target="_blank"
-            >Found</a>
-            <a
-              v-else-if="row.status === INAT_STATUS_CREATED"
-              :href="row.browse_url"
-              target="_blank"
-            >Created</a>
+            <FieldOccurrenceLink
+              v-if="row.status === INAT_STATUS_FOUND || row.status === INAT_STATUS_CREATED"
+              :browse-url="row.browse_url"
+              :global-id="row.global_id"
+              :determination-label="row.determination_label"
+              @quick-forms-change="(event) => onQuickFormsChange(row.uuid, event)"
+            />
             <span v-else-if="row.status === INAT_STATUS_NOT_IMPORTED">{{ localFindMode ? 'Not imported' : 'Queued' }}</span>
-            <span v-else-if="row.status === INAT_STATUS_ALREADY_IMPORTED">
-              Already imported —
-              <a
-                :href="row.browse_url"
-                target="_blank"
-              >view</a>
-            </span>
+            <div
+              v-else-if="row.status === INAT_STATUS_ALREADY_IMPORTED"
+              class="flex-row gap-small middle"
+            >
+              <span>Already imported —</span>
+              <FieldOccurrenceLink
+                :browse-url="row.browse_url"
+                :global-id="row.global_id"
+                :determination-label="row.determination_label"
+                @quick-forms-change="(event) => onQuickFormsChange(row.uuid, event)"
+              />
+            </div>
             <span v-else-if="row.status === INAT_STATUS_NOT_FOUND">Not found on iNaturalist</span>
             <span v-else-if="row.status === INAT_STATUS_NO_TAXON">No taxon — skipped</span>
             <span v-else>Queued</span>
@@ -102,6 +104,7 @@
 <script setup>
 import { ref, watch, computed } from 'vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import FieldOccurrenceLink from './FieldOccurrenceLink.vue'
 import { FieldOccurrence } from '@/routes/endpoints'
 import { RouteNames } from '@/routes/routes'
 import {
@@ -158,6 +161,25 @@ async function refresh() {
   } finally {
     isRefreshing.value = false
   }
+}
+
+function onQuickFormsChange(uuid, { slice }) {
+  if (slice === 'taxon_determinations') {
+    refreshRow(uuid)
+  }
+}
+
+// Replace the row in place rather than refreshing every row, and keep its
+// status.
+async function refreshRow(uuid) {
+  try {
+    const { body } = await FieldOccurrence.iNatCheckForExisting({ uuids: [uuid] })
+    const updated = body.found[0]
+    const index = localRows.value.findIndex((row) => row.uuid === uuid)
+    if (updated && index !== -1) {
+      localRows.value[index] = { ...localRows.value[index], ...updated }
+    }
+  } catch {}
 }
 
 function sendToFilter() {

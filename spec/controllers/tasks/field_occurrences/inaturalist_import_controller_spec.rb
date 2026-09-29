@@ -81,10 +81,10 @@ RSpec.describe Tasks::FieldOccurrences::InaturalistImportController, type: :cont
       expect { do_find }.not_to have_enqueued_job(InaturalistImportJob)
     end
 
-    specify 'found row has a non-blank taxon_name from otu_tag' do
+    specify 'found row has a non-blank determination_label from otu_tag' do
       do_find
       row = response.parsed_body['summary'].find { |r| r['observation_id'] == '100' }
-      expect(row['taxon_name']).to be_present
+      expect(row['determination_label']).to be_present
     end
   end
 

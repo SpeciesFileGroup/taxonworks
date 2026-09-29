@@ -482,6 +482,16 @@ describe Vendor::Nasturtium, type: :model, group: [:field_occurrences] do
         expect(stub_otu).to eq(name_only)
       end
 
+      specify 'accepts the one valid name when the TaxonName match is ambiguous' do
+        other_subgenus = Protonym.create!(name: 'Cus', rank_class: Ranks.lookup(:iczn, :subgenus), parent: genus)
+        homonym = Protonym.create!(name: 'bus', rank_class: Ranks.lookup(:iczn, :species), parent: other_subgenus)
+        replacement = Protonym.create!(name: 'eus', rank_class: Ranks.lookup(:iczn, :species), parent: other_subgenus)
+        TaxonNameRelationship::Iczn::Invalidating::Synonym.create!(subject_taxon_name: homonym, object_taxon_name: replacement)
+        otu = Otu.create!(taxon_name: species)
+        Otu.create!(taxon_name: homonym)
+        expect(stub_otu).to eq(otu)
+      end
+
       specify 'falls back to OTU with matching name field when no TaxonName match' do
         name_only = Otu.create!(name: 'Aus bus')
         expect(stub_otu).to eq(name_only)
@@ -510,6 +520,15 @@ describe Vendor::Nasturtium, type: :model, group: [:field_occurrences] do
           found = stub_otu(subgenus_result)
           expect(found).to be_new_record
           expect(found.name).to eq('Bus')
+        end
+
+        specify 'accepts the one valid subgenus when the subgenus name is ambiguous' do
+          other_genus = Protonym.create!(name: 'Dus', rank_class: Ranks.lookup(:iczn, :genus), parent: root)
+          homonym = Protonym.create!(name: 'Bus', rank_class: Ranks.lookup(:iczn, :subgenus), parent: other_genus)
+          replacement = Protonym.create!(name: 'Eus', rank_class: Ranks.lookup(:iczn, :subgenus), parent: other_genus)
+          TaxonNameRelationship::Iczn::Invalidating::Synonym.create!(subject_taxon_name: homonym, object_taxon_name: replacement)
+          otu = Otu.create!(taxon_name: subgenus)
+          expect(stub_otu(subgenus_result)).to eq(otu)
         end
       end
     end
