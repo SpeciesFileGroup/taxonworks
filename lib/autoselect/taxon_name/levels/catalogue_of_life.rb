@@ -58,7 +58,7 @@ module Autoselect
           # Flat nameusage structure: 'id', 'status', 'name' hash, 'label', 'labelHtml'
           col_name  = col_result.dig('name', 'scientificName') || col_result['label']
           col_rank  = col_result.dig('name', 'rank')&.downcase
-          col_name  = ::Vendor::Colrapi.extract_subgenus_name(col_name) if col_rank == 'subgenus'
+          col_name  = ::Vendor::Colrapi::NameTranslation.subgenus_epithet(col_name) if col_rank == 'subgenus'
           extension = ::Vendor::Colrapi.build_extension(col_result, dataset_id:)
 
           # Flag when the target's rank is not resolvable in TaxonWorks (e.g. 'domain').
@@ -108,19 +108,12 @@ module Autoselect
             col_authorship: extension[:col_authorship]
           }]
 
-          # Subgenus rows carry the bare epithet, so look those up by #name
-          # (see ColAncestryComparator.col_comparable_name).
-          subgenus_names = full_chain
-            .select { |row| row[:rank] == 'subgenus' }
-            .map { |row| row[:col_name] }
-
-          candidates_by_name = ::TaxonName
-            .where(project_id:, cached: full_chain.map { |row| row[:col_name] })
-            .or(::TaxonName.where(project_id:, name: subgenus_names))
-            .group_by do |candidate|
-              ::Autoselect::TaxonName::ColAncestryComparator
-                .col_comparable_name(candidate)
-            end
+          # CoL and TaxonWorks format some names differently (subgenus,
+          # species-group names with/without subgenus, [sic]), so candidates
+          # are found and compared by key - see Vendor::Colrapi::NameTranslation.
+          translation = ::Vendor::Colrapi::NameTranslation
+          candidates_by_key =
+            translation.candidates_by_key(full_chain, project_id:)
 
           # When CoL tells us the code, require candidates to match it too — same-name,
           # same-rank homonyms do occur across codes (e.g. a zoological vs a botanical
@@ -135,7 +128,8 @@ module Autoselect
 
           (full_chain.length - 1).downto(0) do |i|
             row = full_chain[i]
-            rank_matched = (candidates_by_name[row[:col_name]] || [])
+            row_key = translation.col_key(row[:col_name], row[:rank])
+            rank_matched = (candidates_by_key[row_key] || [])
               .select { |candidate| rank_name_for(candidate.rank_class) == row[:rank] }
 
             if expected_nomenclature_code

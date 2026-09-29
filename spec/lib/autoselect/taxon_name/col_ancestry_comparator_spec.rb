@@ -199,6 +199,19 @@ RSpec.describe Autoselect::TaxonName::ColAncestryComparator, type: :model do
       end
     end
 
+    context 'a species TW places under a subgenus that CoL names without it' do
+      let(:species_rank) { Ranks.lookup(:iczn, :species) }
+      let(:tw_chain) do
+        [tw_node(id: 1, cached: 'Aus (Bus) cus', name: 'cus',
+          rank_class: species_rank)]
+      end
+      let(:col_chain) { [col_node(col_name: 'Aus cus', col_rank: 'species')] }
+
+      it 'is exact' do
+        expect(comparator.call.first[:match]).to eq('exact')
+      end
+    end
+
     context 'a subgenus whose name genuinely differs from CoL' do
       let(:tw_chain) do
         [tw_node(id: 1, cached: 'Aus (Bus)', name: 'Bus',

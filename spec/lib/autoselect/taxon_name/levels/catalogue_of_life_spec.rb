@@ -248,6 +248,102 @@ RSpec.describe Autoselect::TaxonName::Levels::CatalogueOfLife, type: :model do
       end
     end
 
+    # CoL includes or omits the subgenus in species-group names depending on
+    # the source (seen: mosquitoes include it, bees omit it, Carabus species
+    # include it but its subspecies omit it).
+    context 'when CoL omits the subgenus TaxonWorks places a species in' do
+      let(:species) { subspecies.parent }
+      let(:col_result) do
+        col_result_for_target(
+          id: 'TGT1', scientific_name: 'Erythroneura vitis', rank: 'species'
+        )
+      end
+
+      before do
+        allow(::Vendor::Colrapi).to receive(:search)
+          .and_return('result' => [col_result])
+        allow(::Vendor::Colrapi).to receive(:ancestors).and_return([
+          col_classification_entry(id: 'A1', name: genus.cached, rank: 'genus')
+        ])
+      end
+
+      it 'matches the existing species' do
+        result = level.call(term: 'Erythroneura vitis', project_id:, user_id:)
+        ext = result.first._col_extension
+        expect(ext[:target_taxonworks_id]).to eq(species.id)
+        expect(ext[:chain_consistent]).to be true
+      end
+    end
+
+    context 'when CoL includes a subgenus TaxonWorks does not place the ' \
+      'species in' do
+      let!(:novus) do
+        Protonym.create!(
+          name: 'novus', rank_class: Ranks.lookup(:iczn, :species),
+          parent: genus, project_id:, by: user_id
+        )
+      end
+      let(:col_result) do
+        col_result_for_target(
+          id: 'TGT1', scientific_name: 'Erythroneura (Erythroneura) novus',
+          rank: 'species'
+        )
+      end
+
+      before do
+        allow(::Vendor::Colrapi).to receive(:search)
+          .and_return('result' => [col_result])
+        allow(::Vendor::Colrapi).to receive(:ancestors).and_return([
+          col_classification_entry(id: 'A1', name: genus.cached, rank: 'genus'),
+          col_classification_entry(
+            id: 'A2', name: 'Erythroneura (Erythroneura)', rank: 'subgenus'
+          )
+        ])
+      end
+
+      it 'matches the existing species' do
+        result = level.call(
+          term: 'Erythroneura (Erythroneura) novus', project_id:, user_id:
+        )
+        expect(result.first._col_extension[:target_taxonworks_id])
+          .to eq(novus.id)
+      end
+    end
+
+    context 'when CoL omits the subgenus from a subspecies but not from its ' \
+      'species' do
+      let(:species) { subspecies.parent }
+      let(:col_result) do
+        col_result_for_target(
+          id: 'TGT1', scientific_name: 'Erythroneura vitis vitata',
+          rank: 'subspecies'
+        )
+      end
+
+      before do
+        allow(::Vendor::Colrapi).to receive(:search)
+          .and_return('result' => [col_result])
+        allow(::Vendor::Colrapi).to receive(:ancestors).and_return([
+          col_classification_entry(id: 'A1', name: genus.cached, rank: 'genus'),
+          col_classification_entry(
+            id: 'A2', name: 'Erythroneura (Erythroneura)', rank: 'subgenus'
+          ),
+          col_classification_entry(
+            id: 'A3', name: 'Erythroneura (Erythroneura) vitis', rank: 'species'
+          )
+        ])
+      end
+
+      it 'matches the existing subspecies' do
+        result = level.call(
+          term: 'Erythroneura vitis vitata', project_id:, user_id:
+        )
+        ext = result.first._col_extension
+        expect(ext[:target_taxonworks_id]).to eq(subspecies.id)
+        expect(ext[:chain_consistent]).to be true
+      end
+    end
+
     context 'when the target itself matches multiple homonym records (same name, same rank)' do
       let!(:homonym_a) do
         Protonym.create!(name: 'Homonymus', rank_class: Ranks.lookup(:iczn, 'genus'), parent: family.root, project_id:, by: user_id)

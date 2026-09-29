@@ -225,7 +225,7 @@ module Vendor
       col_key        = col_result['id']
       col_name       = uninomial_name(col_result['name'])
       col_rank       = col_result.dig('name', 'rank')&.downcase
-      col_name       = extract_subgenus_name(col_name) if col_rank == 'subgenus'
+      col_name       = NameTranslation.subgenus_epithet(col_name) if col_rank == 'subgenus'
       col_status     = col_result['status']
       col_authorship = col_result.dig('name', 'authorship')
       col_year       = col_result.dig('name', 'combinationAuthorship', 'year') ||
@@ -290,7 +290,7 @@ module Vendor
         rank     = ancestor['rank']&.downcase
         # In classification entries 'name' is a plain String (the uninomial name)
         anc_name = ancestor['name'].is_a?(String) ? ancestor['name'] : ancestor.dig('name', 'scientificName')
-        anc_name = extract_subgenus_name(anc_name) if rank == 'subgenus'
+        anc_name = NameTranslation.subgenus_epithet(anc_name) if rank == 'subgenus'
 
         {
           rank:,
@@ -365,13 +365,6 @@ module Vendor
         name_hash['specificEpithet'].presence ||
         name_hash['uninomial'].presence ||
         name_hash['scientificName']
-    end
-
-    # Subgenus names in CoL classification arrive as "Genus (Subgenus)" combinations.
-    # Extract just the subgenus epithet from inside the parentheses when present.
-    def self.extract_subgenus_name(name)
-      return name if name.nil?
-      name[/\(([^)]+)\)/, 1] || name
     end
 
     COL_CODE_LOOKUP_MAP = {

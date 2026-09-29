@@ -120,9 +120,24 @@ module Utilities::Nomenclature
 
   # SIC_PATTERN = /\s*[\[\(]\s*sic\s*[\]\)]/
 
-  # TODO: Untested
   def self.unmisspell_name(misspelled_name)
     misspelled_name.gsub(/\s*[\[\(]\s*sic\s*[\]\)]/, '').strip
+  end
+
+  # @param name [String, nil]
+  # @return [String, nil] name without any parenthetical infrageneric epithet,
+  #   e.g. "Aedes (Stegomyia) aegypti" => "Aedes aegypti"
+  def self.without_infrageneric_epithet(name)
+    return nil if name.nil?
+    name.gsub(/\s*\([^)]*\)/, '').squeeze(' ').strip
+  end
+
+  # @param name [String, nil]
+  # @return [String, nil] the epithet from a "Genus (Subgenus)" combination,
+  #   e.g. "Aedes (Stegomyia)" => "Stegomyia"; a bare epithet is returned as is
+  def self.infrageneric_epithet(name)
+    return nil if name.nil?
+    name[/\(([^)]+)\)/, 1] || name
   end
 
 end
