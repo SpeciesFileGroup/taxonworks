@@ -10,7 +10,10 @@
       v-else
       :href="browseUrl"
       target="_blank"
-    >Undetermined</a>
+    >
+      Undetermined
+    </a>
+
     <template v-if="globalId">
       <RadialAnnotator :global-id="globalId" />
       <RadialObject

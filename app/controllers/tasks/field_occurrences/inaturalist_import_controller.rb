@@ -24,8 +24,9 @@ class Tasks::FieldOccurrences::InaturalistImportController < ApplicationControll
     fo_data = fetch_field_occurrence_data(existing_fo_by_uuid)
     use_community_taxon = params[:use_community_taxon] != false
 
-    summary = helpers.inaturalist_find_summary(results, existing_fo_by_uuid, fo_data:, use_community_taxon:) +
-              not_found_rows(observation_ids, results)
+    summary = helpers.inaturalist_find_summary(
+        results, existing_fo_by_uuid, fo_data:, use_community_taxon:
+      ) + not_found_rows(observation_ids, results)
 
     render json: { summary: }
   end
@@ -47,8 +48,9 @@ class Tasks::FieldOccurrences::InaturalistImportController < ApplicationControll
 
     queue_import(results, existing_fo_by_uuid, opts)
 
-    summary = helpers.inaturalist_import_summary(results, existing_fo_by_uuid, fo_data:, **opts) +
-              not_found_rows(observation_ids, results)
+    summary = helpers.inaturalist_import_summary(
+        results, existing_fo_by_uuid, fo_data:, **opts
+      ) + not_found_rows(observation_ids, results)
 
     render json: { summary: }
   end
@@ -84,15 +86,24 @@ class Tasks::FieldOccurrences::InaturalistImportController < ApplicationControll
         project_id: sessions_current_project_id,
         identifiers: { type: 'Identifier::Global::Uuid::InaturalistObservation' }
       )
-    fos = fos.where(id: params[:field_occurrence_id]) if params[:field_occurrence_id].present?
+    if params[:field_occurrence_id].present?
+      fos = fos.where(id: params[:field_occurrence_id])
+    end
     fos = fos
       .order(created_at: :desc)
       .page(params[:page])
       .per(params.fetch(:per_page, 10).to_i.clamp(1, 100))
-      .includes(:collecting_event, :identifiers, :depictions, :conveyances, taxon_determinations: { otu: :taxon_name })
+      .includes(
+        :collecting_event, :identifiers, :depictions, :conveyances,
+        taxon_determinations: { otu: :taxon_name }
+      )
 
     assign_pagination(fos)
-    render json: { field_occurrences: fos.map { |fo| helpers.serialize_inat_field_occurrence(fo) } }
+    render json: {
+      field_occurrences: fos.map { |fo|
+        helpers.serialize_inat_field_occurrence(fo)
+      }
+    }
   end
 
   private
@@ -113,8 +124,9 @@ class Tasks::FieldOccurrences::InaturalistImportController < ApplicationControll
   end
 
   def not_found_rows(observation_ids, results)
-    (observation_ids.to_set - results.map { |r| r['id'].to_s }.to_set)
-      .map { |id| { observation_id: id, status: 'not_found' } }
+    (observation_ids.to_set - results.map { |r| r['id'].to_s }.to_set).map { |id|
+       { observation_id: id, status: 'not_found' }
+    }
   end
 
   def import_options
@@ -127,6 +139,7 @@ class Tasks::FieldOccurrences::InaturalistImportController < ApplicationControll
 
   def queue_import(results, existing_fo_by_uuid, opts)
     new_results = results.reject { |r| existing_fo_by_uuid.key?(r['uuid']) }
+    return if new_results.empty?
 
     InaturalistImportJob.perform_later(
       results: new_results,
@@ -134,7 +147,7 @@ class Tasks::FieldOccurrences::InaturalistImportController < ApplicationControll
       user_id: sessions_current_user_id,
       match_otu_by_name: params[:match_otu_by_name] == true,
       **opts
-    ) if new_results.any?
+    )
   end
 
   def fetch_field_occurrence_data(existing_fo_by_uuid)
@@ -150,7 +163,9 @@ class Tasks::FieldOccurrences::InaturalistImportController < ApplicationControll
           sound_count: fo.conveyances.size,
           # current determination (lowest position; the preloaded association is
           # unordered); nil when every determination has been removed
-          determination_label: helpers.otu_tag(fo.taxon_determinations.min_by(&:position)&.otu)
+          determination_label: helpers.otu_tag(
+              fo.taxon_determinations.min_by(&:position)&.otu
+            )
         }
       end
   end

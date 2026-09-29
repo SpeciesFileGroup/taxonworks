@@ -70,8 +70,8 @@ module Match
 
       attr_reader :names, :project_id, :levenshtein_distance, :taxon_name_id,
         :taxon_name_query, :resolve_synonyms, :try_without_subgenus,
-        :try_without_subgenus_after_exact_match, :candidates, :match_original_combination, :use_author_year,
-        :trigram_prefilter
+        :try_without_subgenus_after_exact_match, :candidates,
+        :match_original_combination, :use_author_year, :trigram_prefilter
 
       # @param names [Array<String>] array of name strings to match
       # @param project_id [Integer]
@@ -142,7 +142,9 @@ module Match
           if taxon_names.empty?
             taxon_names = find_taxon_names_ignoring_subgenus(search_string)
           elsif try_without_subgenus_after_exact_match
-            taxon_names = (taxon_names + find_taxon_names_ignoring_subgenus(search_string)).uniq(&:id)
+            taxon_names = (
+              taxon_names + find_taxon_names_ignoring_subgenus(search_string)
+            ).uniq(&:id)
           end
         end
 

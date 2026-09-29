@@ -162,7 +162,8 @@ async function refreshRow(fieldOccurrenceId) {
       field_occurrence_id: [fieldOccurrenceId]
     })
     const updated = body.field_occurrences[0]
-    const index = fieldOccurrences.value.findIndex((fo) => fo.id === fieldOccurrenceId)
+    const index =
+      fieldOccurrences.value.findIndex((fo) => fo.id === fieldOccurrenceId)
     if (updated && index !== -1) {
       fieldOccurrences.value[index] = updated
     }
