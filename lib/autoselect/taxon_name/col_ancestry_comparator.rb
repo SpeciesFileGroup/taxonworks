@@ -22,6 +22,21 @@ module Autoselect
       #   :above_genus_group (passed through on 'none' rows only — the client only
       #   needs it to default those rows' checkboxes)
       # @param col_code [String, nil] CoL nomenclatural code ('zoological', 'botanical', …)
+      # CoL gives a subgenus as its bare epithet (see
+      # Vendor::Colrapi.extract_subgenus_name), but TaxonName#cached for a
+      # subgenus is the "Genus (Subgenus)" combination, so a subgenus is
+      # compared on its own #name instead.
+      #
+      # @param taxon_name [TaxonName]
+      # @return [String] taxon_name's name as CoL would give it
+      def self.col_comparable_name(taxon_name)
+        if ::RANKS_LOOKUP[taxon_name.rank_class.to_s] == 'subgenus'
+          taxon_name.name
+        else
+          taxon_name.cached
+        end
+      end
+
       def initialize(tw_chain:, col_chain:, col_code: nil)
         @tw_chain = tw_chain
         @col_chain = col_chain
@@ -89,7 +104,8 @@ module Autoselect
       end
 
       def matched_row(tw_entry, col_entry, rank_name)
-        exact = tw_entry.cached == col_entry[:col_name]
+        exact =
+          self.class.col_comparable_name(tw_entry) == col_entry[:col_name]
         {
           rank: rank_name,
           col_name: col_entry[:col_name],

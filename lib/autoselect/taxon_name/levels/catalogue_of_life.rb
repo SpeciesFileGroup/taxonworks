@@ -108,9 +108,19 @@ module Autoselect
             col_authorship: extension[:col_authorship]
           }]
 
+          # Subgenus rows carry the bare epithet, so look those up by #name
+          # (see ColAncestryComparator.col_comparable_name).
+          subgenus_names = full_chain
+            .select { |row| row[:rank] == 'subgenus' }
+            .map { |row| row[:col_name] }
+
           candidates_by_name = ::TaxonName
             .where(project_id:, cached: full_chain.map { |row| row[:col_name] })
-            .group_by(&:cached)
+            .or(::TaxonName.where(project_id:, name: subgenus_names))
+            .group_by do |candidate|
+              ::Autoselect::TaxonName::ColAncestryComparator
+                .col_comparable_name(candidate)
+            end
 
           # When CoL tells us the code, require candidates to match it too — same-name,
           # same-rank homonyms do occur across codes (e.g. a zoological vs a botanical

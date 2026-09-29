@@ -1,9 +1,9 @@
 require 'rails_helper'
 
 # Lightweight double for a real TaxonName ancestor — the comparator only reads
-# id, cached, rank_class.
-def tw_node(id:, cached:, rank_class:)
-  OpenStruct.new(id:, cached:, rank_class:)
+# id, cached, name, rank_class.
+def tw_node(id:, cached:, rank_class:, name: cached)
+  OpenStruct.new(id:, cached:, name:, rank_class:)
 end
 
 def col_node(col_name:, col_rank:, col_id: nil, dataset_id: '3LR', col_authorship: nil)
@@ -15,6 +15,7 @@ RSpec.describe Autoselect::TaxonName::ColAncestryComparator, type: :model do
   let(:genus_rank)    { Ranks.lookup(:iczn, 'genus') }
   let(:subfamily_rank) { Ranks.lookup(:iczn, 'subfamily') }
   let(:tribe_rank)    { Ranks.lookup(:iczn, 'tribe') }
+  let(:subgenus_rank) { Ranks.lookup(:iczn, 'subgenus') }
 
   subject(:comparator) { described_class.new(tw_chain:, col_chain:, col_code: 'zoological') }
 
@@ -170,6 +171,43 @@ RSpec.describe Autoselect::TaxonName::ColAncestryComparator, type: :model do
         result = comparator.call
         expect(result.length).to eq(1)
         expect(result.first[:match]).to eq('exact')
+      end
+    end
+
+    context 'a subgenus (TW cached is "Genus (Subgenus)", CoL gives the bare epithet)' do
+      let(:tw_chain) do
+        [
+          tw_node(id: 1, cached: 'Aus', rank_class: genus_rank),
+          tw_node(id: 2, cached: 'Aus (Bus)', name: 'Bus',
+            rank_class: subgenus_rank)
+        ]
+      end
+      let(:col_chain) do
+        [
+          col_node(col_name: 'Aus', col_rank: 'genus'),
+          col_node(col_name: 'Bus', col_rank: 'subgenus')
+        ]
+      end
+
+      it 'matches the subgenus on its name, not its cached combination' do
+        result = comparator.call
+        expect(result.map { |r| r[:match] }).to eq(%w[exact exact])
+      end
+
+      it 'still reports the TW cached combination as the taxonworks name' do
+        expect(comparator.call.last[:taxonworks_name]).to eq('Aus (Bus)')
+      end
+    end
+
+    context 'a subgenus whose name genuinely differs from CoL' do
+      let(:tw_chain) do
+        [tw_node(id: 1, cached: 'Aus (Bus)', name: 'Bus',
+          rank_class: subgenus_rank)]
+      end
+      let(:col_chain) { [col_node(col_name: 'Cus', col_rank: 'subgenus')] }
+
+      it 'is a conflict' do
+        expect(comparator.call.first[:match]).to eq('conflict')
       end
     end
 

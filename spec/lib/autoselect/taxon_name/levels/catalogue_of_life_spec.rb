@@ -193,6 +193,61 @@ RSpec.describe Autoselect::TaxonName::Levels::CatalogueOfLife, type: :model do
       end
     end
 
+    # CoL gives a subgenus as its bare epithet ('Erythroneura'), while TW's
+    # subgenus cached is the combination 'Erythroneura (Erythroneura)'.
+    context 'when a real local subgenus is in the CoL chain above a new target' do
+      let(:subgenus) { subspecies.ancestor_at_rank('subgenus') }
+      let(:col_result) do
+        col_result_for_target(
+          id: 'TGT1', scientific_name: 'Erythroneura novus', rank: 'species'
+        )
+      end
+
+      before do
+        allow(::Vendor::Colrapi).to receive(:search)
+          .and_return('result' => [col_result])
+        allow(::Vendor::Colrapi).to receive(:ancestors).and_return([
+          col_classification_entry(id: 'A1', name: genus.cached, rank: 'genus'),
+          col_classification_entry(
+            id: 'A2', name: subgenus.cached, rank: 'subgenus'
+          )
+        ])
+      end
+
+      it 'anchors at the subgenus and matches it exactly' do
+        result = level.call(term: 'Erythroneura novus', project_id:, user_id:)
+        subgenus_row = result.first._col_extension[:alignment]
+          .find { |r| r[:rank] == 'subgenus' }
+        expect(subgenus_row[:match]).to eq('exact')
+        expect(subgenus_row[:taxonworks_id]).to eq(subgenus.id)
+        expect(result.first._col_extension[:chain_consistent]).to be true
+      end
+    end
+
+    context 'when the target is a real local subgenus' do
+      let(:subgenus) { subspecies.ancestor_at_rank('subgenus') }
+      let(:col_result) do
+        col_result_for_target(
+          id: 'TGT1', scientific_name: subgenus.cached, rank: 'subgenus'
+        )
+      end
+
+      before do
+        allow(::Vendor::Colrapi).to receive(:search)
+          .and_return('result' => [col_result])
+        allow(::Vendor::Colrapi).to receive(:ancestors).and_return([
+          col_classification_entry(id: 'A1', name: genus.cached, rank: 'genus')
+        ])
+      end
+
+      it 'matches the target subgenus instead of offering to create it' do
+        result = level.call(term: subgenus.name, project_id:, user_id:)
+        ext = result.first._col_extension
+        expect(ext[:target_taxonworks_id]).to eq(subgenus.id)
+        expect(ext[:chain_consistent]).to be true
+      end
+    end
+
     context 'when the target itself matches multiple homonym records (same name, same rank)' do
       let!(:homonym_a) do
         Protonym.create!(name: 'Homonymus', rank_class: Ranks.lookup(:iczn, 'genus'), parent: family.root, project_id:, by: user_id)
