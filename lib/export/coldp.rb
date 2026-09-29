@@ -62,6 +62,7 @@ module Export
       Name
       NameRelation
       References
+      SpeciesEstimate
       SpeciesInteraction
       Synonym
       Taxon
@@ -99,6 +100,59 @@ module Export
         .group('data_attributes.attribute_subject_id')
 
       ApplicationRecord.connection.execute(c.to_sql).to_a
+    end
+
+    # @param project [Project]
+    # @return [Array]
+    #   status of each IRI_MAP controlled vocabulary predicate in the project
+    def self.controlled_vocabulary_status(project)
+      ::Export::Coldp::Files::Taxon::IRI_MAP.map do |key, uri|
+        predicate = Predicate.where(project_id: project.id, uri: uri).first
+        {
+          key: key.to_s,
+          uri: uri,
+          exists: predicate.present?,
+          predicate_id: predicate&.id,
+          predicate_name: predicate&.name
+        }
+      end
+    end
+
+    # @param project [Project]
+    # @param key [Symbol]
+    #   an IRI_MAP key
+    # @param user_id [Integer]
+    # @return [Predicate]
+    # @raise [ArgumentError] if key is not in IRI_MAP
+    # @raise [ActiveRecord::RecordInvalid] if predicate already exists or fails validation
+    def self.create_predicate(project, key, user_id)
+      uri = ::Export::Coldp::Files::Taxon::IRI_MAP[key]
+      raise ArgumentError, "Unknown term: #{key}" if uri.nil?
+
+      Predicate.create!(
+        name: "ColDP #{key}",
+        definition: "ColDP controlled vocabulary term for #{key} (#{uri})",
+        uri: uri,
+        project: project,
+        by: user_id
+      )
+    end
+
+    # @param project [Project]
+    # @param user_id [Integer]
+    # @return [Array]
+    #   of hashes for each created predicate
+    def self.create_missing_predicates(project, user_id)
+      created = []
+
+      ::Export::Coldp::Files::Taxon::IRI_MAP.each do |key, uri|
+        next if Predicate.where(project_id: project.id, uri: uri).exists?
+
+        predicate = create_predicate(project, key, user_id)
+        created << { key: key.to_s, uri: uri, predicate_id: predicate.id }
+      end
+
+      created
     end
 
     def self.project_members(project_id)
@@ -146,16 +200,11 @@ module Export
 
       otu = ::Otu.find(otu_id)
 
-      # Check for a clb_dataset_id identifier
-      # TODO: Document this setup process.  Include it in Project settings likely. Remember > 1 checklist can emerge from a project.
-      ns = Namespace.find_by(institution: 'ChecklistBank', name: 'clb_dataset_id')
-      clb_dataset_id = otu.identifiers.where(namespace_id: ns.id)&.first&.identifier unless ns.nil?
-
       project = ::Project.find(otu.project_id)
       project_id = project.id
 
       project_members = project_members(project.id)
-      feedback_url = project[:data_curation_issue_tracker_url] unless project[:data_curation_issue_tracker_url].nil?
+      feedback_url = project[:data_curation_issue_tracker_url].presence
 
       # TODO: This will likely have to change, it is renamed on serving the file.
       zip_file_path = "/tmp/_#{SecureRandom.hex(8)}_coldp.zip"
@@ -166,33 +215,41 @@ module Export
         version = Settings.sandbox_commit_sha
       end
 
-      # We lose the ability to maintain title in TW but until we can model metadata in TW,
-      #   it seems desirable because there's a lot of TW vs CLB title mismatches
+      coldp_profile = project.coldp_profile_for(otu_id)
+
+      # Resolve ChecklistBank dataset ID: prefer profile, fall back to legacy Namespace identifier on OTU
+      clb_dataset_id = coldp_profile&.fetch('checklistbank_dataset_id', nil)
       if clb_dataset_id.nil?
-        metadata = {
-          'title' => project.name,
-          'issued' => DateTime.now.strftime('%Y-%m-%d'),
-          'version' => DateTime.now.strftime('%b %Y'),
-          'feedbackUrl' => feedback_url
-        }
-      else
-        metadata = Colrapi.dataset(dataset_id: clb_dataset_id) unless clb_dataset_id.nil?
-
-        # remove fields maintained by ChecklistBank or TW
-        exclude_fields = %w[created createdBy modified modifiedBy attempt imported lastImportAttempt lastImportState size label citation private platform]
-        metadata = metadata.except(*exclude_fields)
-
-        # put feedbackUrl before the contact email in the metadata file to encourage use of the issue tracker
-        reordered_metadata = {}
-        metadata.each do |key, value|
-          if key == 'contact'
-            reordered_metadata['feedbackUrl'] = feedback_url
-          end
-          reordered_metadata[key] = value
-        end
-        metadata = reordered_metadata
+        ns = Namespace.find_by(institution: 'ChecklistBank', name: 'clb_dataset_id')
+        clb_dataset_id = otu.identifiers.where(namespace_id: ns.id)&.first&.identifier unless ns.nil?
       end
 
+      maintain_in_clb = coldp_profile &&
+        coldp_profile['maintain_metadata_in_checklistbank'] == true
+
+      metadata = if maintain_in_clb && clb_dataset_id.present?
+        # Metadata is maintained in ChecklistBank — fetch it
+        fetched = Vendor::Colrapi::Dashboard.dataset_metadata(clb_dataset_id)
+
+        # Insert feedbackUrl before the contact entry
+        reordered = {}
+        fetched.each do |key, value|
+          reordered['feedbackUrl'] = feedback_url if key == 'contact' && feedback_url
+          reordered[key] = value
+        end
+        reordered
+      elsif coldp_profile && coldp_profile['metadata_yaml'].present? && !maintain_in_clb
+        # Metadata is maintained in TaxonWorks — use stored YAML from the profile
+        YAML.safe_load(coldp_profile['metadata_yaml'])
+      else
+        # Fallback — no profile or no metadata configured
+        {
+          'title' => project.name,
+          'feedbackUrl' => feedback_url
+        }.compact
+      end
+
+      # Always set issued, version, and platform at export time
       metadata['issued'] = DateTime.now.strftime('%Y-%m-%d')
       metadata['version'] = DateTime.now.strftime('%b %Y')
 
@@ -214,7 +271,8 @@ module Export
        zipfile.get_output_stream('TypeMaterial.tsv') { |f| f.write Export::Coldp::Files::TypeMaterial.generate(otu, project_members, ref_tsv) }
 
        zipfile.get_output_stream('Synonym.tsv') { |f| f.write Export::Coldp::Files::Synonym.generate(otu, otus, project_members, ref_tsv) }
-       zipfile.get_output_stream('Taxon.tsv') { |f| f.write Export::Coldp::Files::Taxon.generate(otu, otus, project_members, ref_tsv, prefer_unlabelled_otus) }
+       profile_base_url = coldp_profile&.fetch('base_url', nil).presence
+       zipfile.get_output_stream('Taxon.tsv') { |f| f.write Export::Coldp::Files::Taxon.generate(otu, otus, project_members, ref_tsv, prefer_unlabelled_otus, base_url: profile_base_url, coldp_profile: coldp_profile) }
 
        (FILETYPES - %w{Name NameRelation TypeMaterial Synonym Taxon References}).each do |ft|
          puts ft

@@ -14,7 +14,7 @@
         size: 60} %>
     </div>
     <div class="field">
-      <%= check_box_tag 'prefer_unlabelled_otus' %>
+      <%= check_box_tag 'prefer_unlabelled_otus', '1', true %>
       <%= label_tag 'prefer_unlabelled_otus', 'Export single OTU only' %> <span class="feedback feedback-warning feedback-thin"> If a taxon name has multiple OTUs, then, if possible, choose the OTU without a value in the OTU <b>name</b> field.</span>
     </div>
 

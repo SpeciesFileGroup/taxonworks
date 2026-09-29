@@ -48,6 +48,7 @@ module Export::Coldp::Files::VernacularName
         referenceID
         modified
         modifiedBy
+        tw_common_name_id
       }
 
       cn = common_names(otus)
@@ -70,7 +71,8 @@ module Export::Coldp::Files::VernacularName
           area(n),                                                       # area # TODO: query expensive
           n.aggregate_source_ids,                                        # reference_id
           Export::Coldp.modified(n[:updated_at]),                        # modified
-          Export::Coldp.modified_by(n[:updated_by_id], project_members)  # modified_by
+          Export::Coldp.modified_by(n[:updated_by_id], project_members), # modified_by
+          n.id                                                           # tw_common_name_id
         ]
       end
     end
