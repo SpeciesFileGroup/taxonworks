@@ -145,13 +145,22 @@ class TaxonDeterminationsController < ApplicationController
   end
 
   # POST /taxon_determinations/batch_create
+  #   collection_object_id[] or field_occurrence_id[]
   def batch_create
+    object_id, object_type =
+      if params[:field_occurrence_id].present?
+        [params[:field_occurrence_id], 'FieldOccurrence']
+      else
+        [params[:collection_object_id], 'CollectionObject']
+      end
+
     render json: TaxonDetermination.batch_create(
-      params[:collection_object_id],
+      object_id,
       taxon_determination_params.to_h.merge(
         project_id: sessions_current_project_id,
         by: sessions_current_user_id
-      )
+      ),
+      object_type:
     )
   end
 

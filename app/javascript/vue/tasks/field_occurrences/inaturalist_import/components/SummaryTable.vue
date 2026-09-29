@@ -4,6 +4,14 @@
       <h2>{{ localFindMode ? 'Search results' : 'Submission summary' }}</h2>
       <div class="horizontal-right-content gap-small">
         <VBtn
+          v-if="selectableIds.length"
+          color="primary"
+          :disabled="!selectedIds.length"
+          @click="isDeterminationModalVisible = true"
+        >
+          Set determination
+        </VBtn>
+        <VBtn
           v-if="foundIds.length"
           color="primary"
           @click="sendToFilter"
@@ -34,9 +42,36 @@
       Observations are imported in the background. Use Refresh to check progress.
     </p>
 
+    <VModal
+      v-if="isDeterminationModalVisible"
+      @close="isDeterminationModalVisible = false"
+    >
+      <template #header>
+        <h3>
+          Set determination on {{ selectedIds.length }} field
+          occurrence{{ selectedIds.length === 1 ? '' : 's' }}
+        </h3>
+      </template>
+      <template #body>
+        <TaxonDeterminationForm
+          create-form
+          @on-add="setDetermination"
+        />
+      </template>
+    </VModal>
+
     <table class="full_width table-striped">
       <thead>
         <tr>
+          <th class="w-2">
+            <input
+              v-if="selectableIds.length"
+              type="checkbox"
+              title="Select all"
+              :checked="areAllSelected"
+              @change="toggleAll"
+            />
+          </th>
           <th>iNat observation</th>
           <th>Taxon</th>
           <th>Observer</th>
@@ -52,6 +87,14 @@
           v-for="row in localRows"
           :key="row.observation_id"
         >
+          <td>
+            <input
+              v-if="row.field_occurrence_id"
+              v-model="selectedIds"
+              type="checkbox"
+              :value="row.field_occurrence_id"
+            />
+          </td>
           <td>
             <a
               :href="`https://www.inaturalist.org/observations/${row.observation_id}`"
@@ -104,8 +147,10 @@
 <script setup>
 import { ref, watch, computed } from 'vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import VModal from '@/components/ui/Modal.vue'
+import TaxonDeterminationForm from '@/components/TaxonDetermination/TaxonDeterminationForm.vue'
 import FieldOccurrenceLink from './FieldOccurrenceLink.vue'
-import { FieldOccurrence } from '@/routes/endpoints'
+import { FieldOccurrence, TaxonDetermination } from '@/routes/endpoints'
 import { RouteNames } from '@/routes/routes'
 import {
   INAT_STATUS_FOUND,
@@ -134,8 +179,13 @@ defineOptions({ name: 'SummaryTable' })
 const localRows = ref([...props.rows])
 const localFindMode = ref(props.findMode)
 const isRefreshing = ref(false)
+const selectedIds = ref([])
+const isDeterminationModalVisible = ref(false)
 
-watch(() => props.rows, rows => { localRows.value = [...rows] })
+watch(() => props.rows, rows => {
+  localRows.value = [...rows]
+  selectedIds.value = []
+})
 watch(() => props.findMode, mode => { localFindMode.value = mode })
 
 const foundIds = computed(() =>
@@ -144,6 +194,52 @@ const foundIds = computed(() =>
     .map(r => r.field_occurrence_id)
     .filter(Boolean)
 )
+
+// Rows with a field occurrence (not queued ones) can be determined.
+const selectableIds = computed(() =>
+  localRows.value.map((r) => r.field_occurrence_id).filter(Boolean)
+)
+
+const areAllSelected = computed(() =>
+  selectableIds.value.length > 0 &&
+  selectableIds.value.every((id) => selectedIds.value.includes(id))
+)
+
+function toggleAll() {
+  selectedIds.value = areAllSelected.value ? [] : [...selectableIds.value]
+}
+
+// Adds the determination on top of each selected field occurrence's existing
+// ones, making it current.
+function setDetermination(taxonDetermination) {
+  const fieldOccurrenceIds = [...selectedIds.value]
+  const uuids = localRows.value
+    .filter((r) => fieldOccurrenceIds.includes(r.field_occurrence_id))
+    .map((r) => r.uuid)
+
+  TaxonDetermination.createBatch({
+    taxon_determination: taxonDetermination,
+    field_occurrence_id: fieldOccurrenceIds
+  })
+    .then(({ body }) => {
+      isDeterminationModalVisible.value = false
+      selectedIds.value = []
+      refreshRows(uuids)
+
+      if (body.failed.length) {
+        TW.workbench.alert.create(
+          `${body.total_created} determined, ${body.failed.length} failed.`,
+          'error'
+        )
+      } else {
+        TW.workbench.alert.create(
+          `${body.total_created} determined.`,
+          'notice'
+        )
+      }
+    })
+    .catch(() => {})
+}
 
 async function refresh() {
   const uuids = localRows.value.filter(r => r.uuid).map(r => r.uuid)
@@ -165,20 +261,20 @@ async function refresh() {
 
 function onQuickFormsChange(uuid, { slice }) {
   if (slice === 'taxon_determinations') {
-    refreshRow(uuid)
+    refreshRows([uuid])
   }
 }
 
-// Replace the row in place rather than refreshing every row, and keep its
-// status.
-async function refreshRow(uuid) {
+// Replace just these rows in place, keeping their status.
+async function refreshRows(uuids) {
   try {
-    const { body } = await FieldOccurrence.iNatCheckForExisting({ uuids: [uuid] })
-    const updated = body.found[0]
-    const index = localRows.value.findIndex((row) => row.uuid === uuid)
-    if (updated && index !== -1) {
-      localRows.value[index] = { ...localRows.value[index], ...updated }
-    }
+    const { body } = await FieldOccurrence.iNatCheckForExisting({ uuids })
+    body.found.forEach((updated) => {
+      const index = localRows.value.findIndex((r) => r.uuid === updated.uuid)
+      if (index !== -1) {
+        localRows.value[index] = { ...localRows.value[index], ...updated }
+      }
+    })
   } catch {}
 }
 

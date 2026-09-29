@@ -74,6 +74,37 @@ describe TaxonDetermination, type: :model, group: [:collection_objects] do
     expect(r[:failed]).to contain_exactly(s1.id, s2.id)
   end
 
+  context '.batch_create with object_type' do
+    let(:otu) { FactoryBot.create(:valid_otu) }
+    let(:params) { { otu:, by: user_id, project_id: } }
+    let(:field_occurrence) { FactoryBot.create(:valid_field_occurrence) }
+
+    specify 'determines FieldOccurrences' do
+      r = TaxonDetermination.batch_create(
+        [field_occurrence.id], params, object_type: 'FieldOccurrence'
+      )
+      expect(r[:total_created]).to eq(1)
+      expect(field_occurrence.current_otu).to eq(otu)
+    end
+
+    specify 'fails ids of objects in another project' do
+      other_project_id = FactoryBot.create(:valid_project).id
+      field_occurrence.update_column(:project_id, other_project_id)
+
+      r = TaxonDetermination.batch_create(
+        [field_occurrence.id], params, object_type: 'FieldOccurrence'
+      )
+      expect(r[:total_created]).to eq(0)
+      expect(r[:failed]).to contain_exactly(field_occurrence.id)
+    end
+
+    specify 'rejects other object types' do
+      expect {
+        TaxonDetermination.batch_create([1], params, object_type: 'Otu')
+      }.to raise_error(ArgumentError)
+    end
+  end
+
   context 'associations' do
     context 'belongs_to' do
       specify 'otu' do
