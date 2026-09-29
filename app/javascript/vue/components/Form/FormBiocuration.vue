@@ -80,11 +80,6 @@ function isInList(id) {
   display: flex;
   flex-wrap: wrap;
   gap: var(--spacing-xxs);
-  width: fit-content;
-  max-width: 100%;
-  padding: var(--spacing-xxs);
-  border-radius: var(--border-radius-medium);
-  background-color: var(--bg-color);
 }
 
 .biocuration-toggle__option {
