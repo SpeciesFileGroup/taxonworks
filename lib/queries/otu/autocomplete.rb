@@ -320,7 +320,7 @@ module Queries
         ids = base_query.joins(:taxon_name).where(taxon_names: {cached: term}).pluck(:id)
         ids |= base_query.where(taxon_name_id: nil, name: term).pluck(:id)
         ids |= morphospecies_match_ids
-        base_query.where(id: ids).limit(40).to_a
+        scope_autocomplete(base_query.where(id: ids)).limit(40).to_a
       end
 
       def autocomplete_base(targets = QUERIES)

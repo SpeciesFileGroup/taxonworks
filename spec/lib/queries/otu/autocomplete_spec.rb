@@ -260,6 +260,15 @@ describe Queries::Otu::Autocomplete, type: :model do
       q = Queries::Otu::Autocomplete.new(name)
       expect(q.autocomplete.map(&:id)).to include(otu.id, otu2.id)
     end
+
+    specify 'restricts exact: true results to the given Otus' do
+      genus = Protonym.create!(name: 'Restrictonoma', rank_class: Ranks.lookup(:iczn, 'genus'), parent: root)
+      Otu.create!(taxon_name: genus, name: 'one', project_id: project_id)
+      target = Otu.create!(taxon_name: genus, name: 'two', project_id: project_id)
+
+      q = Queries::Otu::Autocomplete.new(genus.cached, project_id: project_id, exact: true, restrict_to: Otu.where(id: target.id))
+      expect(q.autocomplete.map(&:id)).to contain_exactly(target.id)
+    end
   end
 
   # Regression: `exact:` was accepted but never actually consulted — #autocomplete
@@ -358,6 +367,28 @@ describe Queries::Otu::Autocomplete, type: :model do
 
       q = Queries::Otu::Autocomplete.new('Subgenoma sp1', project_id: project_id, exact: true)
       expect(q.autocomplete.to_a).to contain_exactly(target)
+    end
+
+    context 'with taxon name filters' do
+      let!(:scope_genus) { Protonym.create!(name: 'Scopenoma', rank_class: Ranks.lookup(:iczn, 'genus'), parent: root) }
+      let!(:linked_unnamed) { Otu.create!(taxon_name: scope_genus, project_id: project_id) }
+      let!(:linked_named) { Otu.create!(taxon_name: scope_genus, name: 'named', project_id: project_id) }
+      let!(:unlinked) { Otu.create!(name: 'Scopenoma', project_id: project_id) }
+
+      specify 'with_taxon_name: true excludes Otus without a TaxonName' do
+        q = Queries::Otu::Autocomplete.new('Scopenoma', project_id: project_id, exact: true, with_taxon_name: true)
+        expect(q.autocomplete.to_a).to contain_exactly(linked_unnamed, linked_named)
+      end
+
+      specify 'with_taxon_name: false excludes Otus with a TaxonName' do
+        q = Queries::Otu::Autocomplete.new('Scopenoma', project_id: project_id, exact: true, with_taxon_name: false)
+        expect(q.autocomplete.to_a).to contain_exactly(unlinked)
+      end
+
+      specify 'having_taxon_name_only: true excludes Otus with a name' do
+        q = Queries::Otu::Autocomplete.new('Scopenoma', project_id: project_id, exact: true, having_taxon_name_only: true)
+        expect(q.autocomplete.to_a).to contain_exactly(linked_unnamed)
+      end
     end
   end
 
