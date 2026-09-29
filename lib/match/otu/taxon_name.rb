@@ -215,22 +215,23 @@ module Match
 
       # @param taxon_name [TaxonName]
       # @return [Integer] the id of the name taxon_name is a spelling of: the
-      #   Protonym (for a Combination its finest one), or that Protonym's
-      #   parent when it's nominotypical - e.g. 'Aus bus bus' is a spelling of
-      #   'Aus bus', as they share name and type
+      #   Protonym (for a Combination its finest one), or, when that's
+      #   nominotypical, the ancestor it's nominotypical of - e.g. 'Aus bus bus'
+      #   is a spelling of 'Aus bus', as they share name and type; ICN autonyms
+      #   can chain ('Aus bus var. bus f. bus')
       def name_key(taxon_name)
         protonym = taxon_name.is_combination? ?
           taxon_name.finest_protonym :
           taxon_name
+        # Either a hybrid or a Combination with bad parts:
         return taxon_name.id if !protonym.is_a?(::Protonym)
 
-        parent = protonym.parent
-        if parent.present? && protonym.nominotypical_sub_of?(parent)
-          parent.id
-        else
-          protonym.id
+        while (parent = protonym.parent) &&
+            protonym.nominotypical_sub_of?(parent)
+          protonym = parent
         end
 
+        protonym.id
       end
 
       # @return [Array<Symbol>]

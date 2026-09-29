@@ -154,7 +154,7 @@ describe Match::Otu::TaxonName, type: :model do
       end
 
       specify 'when enabled, flags an exact match invalidated by the ' \
-        'subgenus-ignored match (#5066)' do
+        'subgenus-ignored match' do
         # e.g. Mirollia cincticornis Bruner, 1915, invalid in favour of
         # Mirollia (Mirollia) cincticornis Karny, 1926
         TaxonNameRelationship::Iczn::Invalidating::Synonym.create!(
@@ -512,6 +512,41 @@ describe Match::Otu::TaxonName, type: :model do
       specify 'is not flagged ambiguous' do
         expect(combination.cached).to eq(valid_species.cached)
         result = match(names: [valid_species.cached]).first
+        expect(result[:ambiguous]).to eq(false)
+      end
+    end
+
+    context 'when a Combination of a chained nominotypical name (ICN ' \
+      'autonyms) shares a cached name with the species' do
+      let(:plant_genus) do
+        Protonym.create!(
+          name: 'Planta', rank_class: Ranks.lookup(:icn, :genus), parent: root
+        )
+      end
+      let(:plant_species) do
+        Protonym.create!(
+          name: 'bus', rank_class: Ranks.lookup(:icn, :species),
+          parent: plant_genus
+        )
+      end
+      # Planta bus var. bus f. bus
+      let(:autonym_form) do
+        variety = Protonym.create!(
+          name: 'bus', rank_class: Ranks.lookup(:icn, :variety),
+          parent: plant_species
+        )
+        Protonym.create!(
+          name: 'bus', rank_class: Ranks.lookup(:icn, :form), parent: variety
+        )
+      end
+
+      let!(:combination) do
+        Combination.create!(genus: plant_genus, species: autonym_form)
+      end
+
+      specify 'is not flagged ambiguous' do
+        expect(combination.cached).to eq(plant_species.cached)
+        result = match(names: [plant_species.cached]).first
         expect(result[:ambiguous]).to eq(false)
       end
     end
