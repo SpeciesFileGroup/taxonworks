@@ -342,6 +342,13 @@ describe Protonym, type: :model, group: [:nomenclature, :protonym] do
     specify '#nominotypical_sub_of? 4' do
       expect(s2.nominotypical_sub_of?(s1)).to be_truthy
     end
+
+    specify '#nominotypical_sub_of? a differently named child is not' do
+      s3 = Protonym.create!(
+        name: 'bus', parent: s1, rank_class: Ranks.lookup(:iczn, :subspecies)
+      )
+      expect(s3.nominotypical_sub_of?(s1)).to be_falsey
+    end
   end
 
   context 'citation' do

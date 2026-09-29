@@ -203,11 +203,12 @@ module Match
       def genuinely_ambiguous?(ranked)
         return false if ranked.size < 2
 
-        keys = if resolve_synonyms
-          ranked.map(&:cached_valid_taxon_name_id)
-        else
-          ranked.map { |tn| name_key(tn) }
-        end
+        keys =
+          if resolve_synonyms
+            ranked.map(&:cached_valid_taxon_name_id)
+          else
+            ranked.map { |tn| name_key(tn) }
+          end
 
         keys.uniq.length > 1
       end
@@ -221,15 +222,15 @@ module Match
         protonym = taxon_name.is_combination? ?
           taxon_name.finest_protonym :
           taxon_name
-        return taxon_name.id if protonym.nil?
+        return taxon_name.id if !protonym.is_a?(::Protonym)
 
         parent = protonym.parent
-        nominotypical = parent.present? &&
-          protonym.name == parent.name &&
-          protonym.is_genus_or_species_rank? &&
-          parent.is_genus_or_species_rank?
+        if parent.present? && protonym.nominotypical_sub_of?(parent)
+          parent.id
+        else
+          protonym.id
+        end
 
-        nominotypical ? parent.id : protonym.id
       end
 
       # @return [Array<Symbol>]
