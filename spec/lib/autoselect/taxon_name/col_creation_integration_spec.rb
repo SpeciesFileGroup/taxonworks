@@ -12,10 +12,11 @@ def col_classification_entry(id:, name:, rank:)
   { 'id' => id, 'name' => name, 'rank' => rank, 'label' => name, 'labelHtml' => name }
 end
 
-# Mirrors ColConfirmModal.vue's doCreate(): every 'exact'/'extra' alignment row plus
-# every checked 'none' row, kingdom-first, taxonworks_id carried on all but 'none'
-# rows, then the target row appended last. (This helper treats every 'none' row as
-# checked; the real modal defaults family-group-and-higher rows to unchecked.)
+# Mirrors ColConfirmModal.vue's doCreate(): every 'exact'/'extra'/'conflict'
+# alignment row plus every checked 'none' row, kingdom-first, taxonworks_id carried
+# on all but 'none' rows, then the target row appended last. (This helper treats
+# every 'none' row as checked; the real modal defaults family-group-and-higher rows
+# to unchecked.)
 def rows_from_level_result(col_extension, target_col_name:, target_rank:, target_col_status: 'accepted')
   ancestor_rows = col_extension[:alignment].map do |r|
     {
@@ -87,6 +88,60 @@ RSpec.describe 'CatalogueOfLife matching + ColCreator creation, end to end', typ
       expect(tribe.parent_id).to eq(subfamily.id)
       expect(genus.reload.parent_id).to eq(tribe.id)
       expect(family.reload.parent_id).to eq(root.id) # untouched
+    end
+  end
+
+  # TW: Cicadellidae > Deltocephalinae > Athysanini > Aus > Aus bus
+  # CoL puts Aus in Paralimnini instead. The conflicting tribe row must still be
+  # sent (with TW's own record), otherwise ColCreator sees Aus directly below
+  # Deltocephalinae and reparents it there.
+  context 'when the existing target\'s lineage conflicts with CoL' do
+    let!(:root) { ::TaxonName.where(project_id:, parent_id: nil).first }
+    let!(:family) { Protonym.create!(name: 'Cicadellidae', rank_class: Ranks.lookup(:iczn, 'family'), parent: root, project_id:, by: user_id) }
+    let!(:subfamily) { Protonym.create!(name: 'Deltocephalinae', rank_class: Ranks.lookup(:iczn, 'subfamily'), parent: family, project_id:, by: user_id) }
+    let!(:tribe) { Protonym.create!(name: 'Athysanini', rank_class: Ranks.lookup(:iczn, 'tribe'), parent: subfamily, project_id:, by: user_id) }
+    let!(:genus) { Protonym.create!(name: 'Aus', rank_class: Ranks.lookup(:iczn, 'genus'), parent: tribe, project_id:, by: user_id) }
+    let!(:species) { Protonym.create!(name: 'bus', rank_class: Ranks.lookup(:iczn, 'species'), parent: genus, project_id:, by: user_id) }
+
+    let(:col_result) do
+      {
+        'id' => 'TGT1', 'status' => 'accepted',
+        'name' => { 'scientificName' => 'Aus bus', 'rank' => 'species', 'specificEpithet' => 'bus', 'authorship' => nil, 'code' => 'zoological' },
+        'label' => 'Aus bus', 'labelHtml' => 'Aus bus'
+      }
+    end
+
+    before do
+      allow(::Vendor::Colrapi).to receive(:search).and_return('result' => [col_result])
+      allow(::Vendor::Colrapi).to receive(:ancestors).and_return([
+        col_classification_entry(id: 'A1', name: 'Cicadellidae', rank: 'family'),
+        col_classification_entry(id: 'A2', name: 'Deltocephalinae', rank: 'subfamily'),
+        col_classification_entry(id: 'A3', name: 'Paralimnini', rank: 'tribe'),
+        col_classification_entry(id: 'A4', name: 'Aus', rank: 'genus')
+      ])
+    end
+
+    it 'leaves the existing lineage untouched' do
+      ext = level.call(term: 'Aus bus', project_id:, user_id:).first._col_extension
+      expect(ext[:alignment].find { |r| r[:rank] == 'tribe' }[:match]).to eq('conflict')
+
+      rows = rows_from_level_result(ext, target_col_name: ext[:col_name], target_rank: 'species')
+      result = Autoselect::TaxonName::ColCreator.new(rows:, project_id:, user_id:, col_code: 'zoological').call
+
+      expect(result[:taxon_name_id]).to eq(species.id)
+      expect(result[:created_ids]).to be_empty
+      expect(genus.reload.parent_id).to eq(tribe.id)
+      expect(::TaxonName.where(name: 'Paralimnini', project_id:)).to be_empty
+    end
+
+    it 'would reparent the genus if the conflict row were left out (the old modal behavior)' do
+      ext = level.call(term: 'Aus bus', project_id:, user_id:).first._col_extension
+      rows = rows_from_level_result(ext, target_col_name: ext[:col_name], target_rank: 'species')
+      rows = rows.reject { |r| r[:col_rank] == 'tribe' && r[:taxonworks_id] == tribe.id }
+
+      Autoselect::TaxonName::ColCreator.new(rows:, project_id:, user_id:, col_code: 'zoological').call
+
+      expect(genus.reload.parent_id).to eq(subfamily.id)
     end
   end
 

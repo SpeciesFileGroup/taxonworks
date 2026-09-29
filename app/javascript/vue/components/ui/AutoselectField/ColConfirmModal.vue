@@ -275,15 +275,21 @@ async function doCreate() {
 
   // Build distal→proximal rows for the server — alignment already comes back in that
   // order (kingdom-first) from Vendor::Colrapi.build_extension.
-  // 'exact' and 'extra' ancestors both pass their taxonworks_id: the server walks them
+  // 'exact', 'extra' and 'conflict' ancestors all pass their taxonworks_id (for a
+  // 'conflict' row that's TaxonWorks' own record at that rank): the server walks them
   // as parent anchors so the chain it sees is a faithful, contiguous picture of the
-  // real TaxonWorks lineage. Dropping 'extra' (TaxonWorks-only) rows here would leave a
-  // gap the server can't see, making its "was a row inserted above this existing
-  // record?" reparent check fire against the wrong parent and silently move a curated
-  // record. Unchecked 'none' rows (and 'conflict' rows, which block Create anyway) are
-  // the only alignment rows left out.
+  // real TaxonWorks lineage. Dropping any of them here would leave a gap the server
+  // can't see, making its "was a row inserted above this existing record?" reparent
+  // check fire against the wrong parent and silently move a curated record.
+  // Unchecked 'none' rows are the only alignment rows left out.
   const ancestorRows = (ext.value.alignment ?? [])
-    .filter((r) => r.match === 'exact' || r.match === 'extra' || checkedNames.value.has(r.col_name))
+    .filter(
+      (r) =>
+        r.match === 'exact' ||
+        r.match === 'extra' ||
+        r.match === 'conflict' ||
+        checkedNames.value.has(r.col_name)
+    )
     .map((r) => ({
       col_name: r.col_name,
       col_rank: r.rank,
