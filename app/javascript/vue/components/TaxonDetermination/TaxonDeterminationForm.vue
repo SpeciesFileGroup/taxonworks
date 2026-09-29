@@ -37,7 +37,8 @@
         @click="addDetermination"
       >
         {{
-          taxonDetermination.id || taxonDetermination.uuid ? 'Update' : 'Create'
+          buttonLabel ||
+          (taxonDetermination.id || taxonDetermination.uuid ? 'Update' : 'Create')
         }}
       </VBtn>
       <VBtn
@@ -49,7 +50,8 @@
         @click="addDetermination"
       >
         {{
-          taxonDetermination.id || taxonDetermination.uuid ? 'Update' : 'Add'
+          buttonLabel ||
+          (taxonDetermination.id || taxonDetermination.uuid ? 'Update' : 'Add')
         }}
       </VBtn>
       <slot name="footer-right"></slot>
@@ -88,6 +90,12 @@ const props = defineProps({
 
   lockDate: {
     type: Boolean,
+    default: undefined
+  },
+
+  // Overrides the default Create/Add/Update submit button label
+  buttonLabel: {
+    type: String,
     default: undefined
   }
 })

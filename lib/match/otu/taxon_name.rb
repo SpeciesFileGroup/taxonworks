@@ -70,8 +70,8 @@ module Match
 
       attr_reader :names, :project_id, :levenshtein_distance, :taxon_name_id,
         :taxon_name_query, :resolve_synonyms, :try_without_subgenus,
-        :candidates, :match_original_combination, :use_author_year,
-        :trigram_prefilter
+        :try_without_subgenus_after_exact_match, :candidates,
+        :match_original_combination, :use_author_year, :trigram_prefilter
 
       # @param names [Array<String>] array of name strings to match
       # @param project_id [Integer]
@@ -88,6 +88,11 @@ module Match
       #     * subgenus (and other genus-group ranks) ignored,
       #     * species-group epithets gender-tolerant,
       #     * genus matched as either current or original.
+      # @param try_without_subgenus_after_exact_match [Boolean] when true (and
+      #   try_without_subgenus is true), also retry after the plain match
+      #   succeeds, so that a different taxon matched without subgenus makes
+      #   the result ambiguous. Costs an extra query per name, so it's off by
+      #   default for large batches.
       # @param candidates [Integer, nil] when set, include the ranked match set,
       #   capped at this many
       # @param match_original_combination [Boolean] when true, match
@@ -101,7 +106,8 @@ module Match
       def initialize(
         names:, project_id:, levenshtein_distance: 0, taxon_name_id: nil,
         taxon_name_query: nil, resolve_synonyms: false,
-        try_without_subgenus: false, candidates: nil,
+        try_without_subgenus: false,
+        try_without_subgenus_after_exact_match: false, candidates: nil,
         match_original_combination: false, use_author_year: false,
         trigram_prefilter: false
       )
@@ -112,6 +118,7 @@ module Match
         @taxon_name_query = taxon_name_query
         @resolve_synonyms = resolve_synonyms
         @try_without_subgenus = try_without_subgenus
+        @try_without_subgenus_after_exact_match = try_without_subgenus_after_exact_match
         @candidates = candidates&.to_i
         @match_original_combination = match_original_combination
         @use_author_year = use_author_year
@@ -128,10 +135,17 @@ module Match
 
         taxon_names = find_taxon_names(search_string)
 
-        # TODO: there could be another match without_subgenus even if
-        # taxon_names.present?, which would signal ambiguity.
-        if taxon_names.empty? && try_without_subgenus
-          taxon_names = find_taxon_names_ignoring_subgenus(search_string)
+        # There could be another match without subgenus even when
+        # taxon_names.present?, which would signal ambiguity - only checked
+        # when asked for, since it costs an extra query per name.
+        if try_without_subgenus
+          if taxon_names.empty?
+            taxon_names = find_taxon_names_ignoring_subgenus(search_string)
+          elsif try_without_subgenus_after_exact_match
+            taxon_names = (
+              taxon_names + find_taxon_names_ignoring_subgenus(search_string)
+            ).uniq(&:id)
+          end
         end
 
         if parsed && taxon_names.size > 1
@@ -178,14 +192,46 @@ module Match
         result
       end
 
-      # Multiple candidate rows aren't ambiguous if they all resolve to the
-      # same valid taxon (e.g. a Combination alongside its own Protonym) —
-      # ranking always picks correctly there. Only flag it when candidates
-      # point to genuinely different valid taxa (e.g. true homonyms).
+      # Multiple candidate rows are ambiguous when they're different names,
+      # e.g. true homonyms, or a junior homonym alongside the valid name it's
+      # invalidated by - the curator has to choose. A Combination alongside
+      # its own Protonym is one name, not two, and ranking picks correctly
+      # there. When resolving synonyms, the result is the valid name
+      # regardless, so only different valid taxa are ambiguous.
       # @param ranked [Array<TaxonName>]
       # @return [Boolean]
       def genuinely_ambiguous?(ranked)
-        ranked.map(&:cached_valid_taxon_name_id).uniq.length > 1
+        return false if ranked.size < 2
+
+        keys =
+          if resolve_synonyms
+            ranked.map(&:cached_valid_taxon_name_id)
+          else
+            ranked.map { |tn| name_key(tn) }
+          end
+
+        keys.uniq.length > 1
+      end
+
+      # @param taxon_name [TaxonName]
+      # @return [Integer] the id of the name taxon_name is a spelling of: the
+      #   Protonym (for a Combination its finest one), or, when that's
+      #   nominotypical, the ancestor it's nominotypical of - e.g. 'Aus bus bus'
+      #   is a spelling of 'Aus bus', as they share name and type; ICN autonyms
+      #   can chain ('Aus bus var. bus f. bus')
+      def name_key(taxon_name)
+        protonym = taxon_name.is_combination? ?
+          taxon_name.finest_protonym :
+          taxon_name
+        # Either a hybrid or a Combination with bad parts:
+        return taxon_name.id if !protonym.is_a?(::Protonym)
+
+        while (parent = protonym.parent) &&
+            protonym.nominotypical_sub_of?(parent)
+          protonym = parent
+        end
+
+        protonym.id
       end
 
       # @return [Array<Symbol>]

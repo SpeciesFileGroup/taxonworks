@@ -45,20 +45,29 @@
         </div>
       </div>
 
-      <!-- Try without subgenus -->
-      <div class="field margin-medium-bottom">
-        <label class="middle" data-help="When checked, any subgenus (or section, series...) between genus and epithet is ignored; every species-group epithet present (species, subspecies, variety, form...) may match any of its three predicted gender-agreeing spellings — masculine, feminine, or neuter — instead of the exact spelling stored; and the genus may be either the current one or the genus a name was originally described in.">
-          <input
-            type="checkbox"
-            :checked="tryWithoutSubgenus"
-            @change="handleTryWithoutSubgenusChange"
-          />
-          Try without subgenus
-        </label>
-        <span class="subtle">
-          Ignore subgenus; match against different gender endings and current/original genus.
-        </span>
-      </div>
+      <!-- Subgenus matching -->
+      <fieldset class="margin-medium-bottom">
+        <legend :data-help="SUBGENUS_MATCHING_HELP">
+          Subgenus
+        </legend>
+        <div
+          v-for="option in SUBGENUS_MATCHING_OPTIONS"
+          :key="option.value"
+          class="margin-small-bottom"
+        >
+          <label class="middle">
+            <input
+              type="radio"
+              name="subgenus-matching"
+              :value="option.value"
+              :checked="subgenusMatching === option.value"
+              @change="handleSubgenusMatchingChange(option.value)"
+            />
+            {{ option.label }}
+          </label>
+          <span class="subtle">{{ option.description }}</span>
+        </div>
+      </fieldset>
 
       <!-- Fuzzy match slider -->
       <div class="field margin-medium-bottom">
@@ -173,6 +182,11 @@ import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import IconTrash from '@/components/Icon/IconTrash.vue'
 import Autocomplete from '@/components/ui/Autocomplete.vue'
+import {
+  SUBGENUS_MATCHING,
+  SUBGENUS_MATCHING_HELP,
+  SUBGENUS_MATCHING_OPTIONS
+} from '../constants.js'
 
 const emit = defineEmits(['clear-all', 'update-options'])
 
@@ -184,9 +198,9 @@ const levenshteinDistance = defineModel('levenshteinDistance', {
   type: Number,
   default: 0
 })
-const tryWithoutSubgenus = defineModel('tryWithoutSubgenus', {
-  type: Boolean,
-  default: false
+const subgenusMatching = defineModel('subgenusMatching', {
+  type: String,
+  default: SUBGENUS_MATCHING.WITH
 })
 const resolveSynonyms = defineModel('resolveSynonyms', {
   type: Boolean,
@@ -234,8 +248,8 @@ function handleLevenshteinChange(event) {
   debouncedUpdate()
 }
 
-function handleTryWithoutSubgenusChange(event) {
-  tryWithoutSubgenus.value = event.target.checked
+function handleSubgenusMatchingChange(value) {
+  subgenusMatching.value = value
   emit('update-options')
 }
 

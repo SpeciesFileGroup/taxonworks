@@ -335,6 +335,7 @@ resources :descriptors do
   end
   collection do
     match :filter, to: 'descriptors#index', via: [:get, :post]
+    patch :sort, defaults: {format: :json}
     get :units
     post :preview_modify_gene_descriptor_batch_load
     post :create_modify_gene_descriptor_batch_load

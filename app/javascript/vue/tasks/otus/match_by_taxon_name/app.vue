@@ -46,7 +46,7 @@
             class="sticky-panel"
             v-model:scope-taxon-name="scopeTaxonName"
             v-model:levenshtein-distance="levenshteinDistance"
-            v-model:try-without-subgenus="tryWithoutSubgenus"
+            v-model:subgenus-matching="subgenusMatching"
             v-model:resolve-synonyms="resolveSynonyms"
             v-model:modifiers="modifiers"
             @clear-all="clearAllMatches"
@@ -91,7 +91,13 @@ import InputPanel from './components/InputPanel.vue'
 import ResultTable from './components/ResultTable.vue'
 import SummaryBar from './components/SummaryBar.vue'
 import MatchOptionsPanel from './components/MatchOptionsPanel.vue'
-import { MAX_ROWS, TAXON_NAME_FILTER, OTU_FILTER, defaultModifiers } from './constants.js'
+import {
+  MAX_ROWS,
+  TAXON_NAME_FILTER,
+  OTU_FILTER,
+  SUBGENUS_MATCHING,
+  defaultModifiers
+} from './constants.js'
 import effectiveName from './utils/effectiveName.js'
 import sortOtus from './utils/sortOtus.js'
 
@@ -166,7 +172,7 @@ const visibleRows = computed(() =>
 
 const scopeTaxonName = ref()
 const levenshteinDistance = ref(0)
-const tryWithoutSubgenus = ref(false)
+const subgenusMatching = ref(SUBGENUS_MATCHING.WITH)
 const resolveSynonyms = ref(false)
 const matchOtuNames = ref(localStorage.getItem(MATCH_OTU_NAMES_STORAGE_KEY) === 'true')
 const modifiers = ref(defaultModifiers())
@@ -296,7 +302,7 @@ async function matchRows(targetRows) {
       levenshtein_distance: levenshteinDistance.value,
       taxon_name_id: scopeTaxonName.value?.id,
       resolve_synonyms: resolveSynonyms.value ? 'true' : 'false',
-      try_without_subgenus: tryWithoutSubgenus.value ? 'true' : 'false',
+      subgenus_matching: subgenusMatching.value,
       match_otu_names: matchOtuNames.value ? 'true' : 'false'
     })
 
@@ -603,7 +609,7 @@ function syncAllDuplicates() {
 function resetMatchOptions() {
   scopeTaxonName.value = initialScopeTaxonName.value
   levenshteinDistance.value = 0
-  tryWithoutSubgenus.value = false
+  subgenusMatching.value = SUBGENUS_MATCHING.WITH
   resolveSynonyms.value = false
   modifiers.value = defaultModifiers()
 }
