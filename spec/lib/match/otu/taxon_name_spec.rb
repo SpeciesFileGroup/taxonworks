@@ -153,6 +153,21 @@ describe Match::Otu::TaxonName, type: :model do
         expect(result[:candidates].map(&:id)).to contain_exactly(species_without_subgenus.id, species_under_subgenus.id)
       end
 
+      specify 'when enabled, flags an exact match invalidated by the ' \
+        'subgenus-ignored match (#5066)' do
+        # e.g. Mirollia cincticornis Bruner, 1915, invalid in favour of
+        # Mirollia (Mirollia) cincticornis Karny, 1926
+        TaxonNameRelationship::Iczn::Invalidating::Synonym.create!(
+          subject_taxon_name: species_without_subgenus,
+          object_taxon_name: species_under_subgenus
+        )
+        result = match(
+          names: ['Aus maculatus'], try_without_subgenus: true,
+          try_without_subgenus_after_exact_match: true
+        ).first
+        expect(result[:ambiguous]).to eq(true)
+      end
+
       specify 'when enabled, an exact match found again without subgenus is not ambiguous' do
         species_dus = Protonym.create!(name: 'dus', rank_class: Ranks.lookup(:iczn, :species), parent: genus)
         result = match(
@@ -469,16 +484,63 @@ describe Match::Otu::TaxonName, type: :model do
   end
 
   context 'ambiguous' do
-    context 'when multiple candidates share a cached name but resolve to the same valid taxon (e.g. a Combination alongside its own Protonym)' do
-      let!(:combination_like) do
-        Protonym.create!(name: 'dus', rank_class: Ranks.lookup(:iczn, :species), parent: genus).tap do |tn|
-          tn.update_columns(cached: valid_species.cached, cached_valid_taxon_name_id: valid_species.id)
-        end
+    context 'when a Combination shares a cached name with its own Protonym' do
+      let!(:combination) do
+        Combination.create!(genus:, species: valid_species)
       end
 
       specify 'is not flagged ambiguous' do
+        expect(combination.cached).to eq(valid_species.cached)
         result = match(names: [valid_species.cached]).first
         expect(result[:ambiguous]).to eq(false)
+      end
+    end
+
+    context 'when a Combination of the nominotypical subspecies shares a ' \
+      'cached name with the species' do
+      let!(:nominotypical) do
+        Protonym.create!(
+          name: valid_species.name, rank_class: Ranks.lookup(:iczn, :subspecies),
+          parent: valid_species
+        )
+      end
+
+      let!(:combination) do
+        Combination.create!(genus:, species: nominotypical)
+      end
+
+      specify 'is not flagged ambiguous' do
+        expect(combination.cached).to eq(valid_species.cached)
+        result = match(names: [valid_species.cached]).first
+        expect(result[:ambiguous]).to eq(false)
+      end
+    end
+
+    context 'when two Protonyms share a cached name, one invalidated by the ' \
+      'other (e.g. a junior homonym)' do
+      let!(:junior) do
+        Protonym.create!(
+          name: 'dus', rank_class: Ranks.lookup(:iczn, :species), parent: genus
+        ).tap do |tn|
+          TaxonNameRelationship::Iczn::Invalidating::Synonym.create!(
+            subject_taxon_name: tn, object_taxon_name: valid_species
+          )
+          # after the relationship, which recomputes cached
+          tn.update_columns(cached: valid_species.cached)
+        end
+      end
+
+      specify 'is flagged ambiguous' do
+        result = match(names: [valid_species.cached]).first
+        expect(result[:ambiguous]).to eq(true)
+      end
+
+      specify 'is not flagged ambiguous when resolving synonyms' do
+        result = match(
+          names: [valid_species.cached], resolve_synonyms: true
+        ).first
+        expect(result[:ambiguous]).to eq(false)
+        expect(result[:taxon_name_id]).to eq(valid_species.id)
       end
     end
 

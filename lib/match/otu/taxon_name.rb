@@ -192,14 +192,44 @@ module Match
         result
       end
 
-      # Multiple candidate rows aren't ambiguous if they all resolve to the
-      # same valid taxon (e.g. a Combination alongside its own Protonym) —
-      # ranking always picks correctly there. Only flag it when candidates
-      # point to genuinely different valid taxa (e.g. true homonyms).
+      # Multiple candidate rows are ambiguous when they're different names,
+      # e.g. true homonyms, or a junior homonym alongside the valid name it's
+      # invalidated by - the curator has to choose. A Combination alongside
+      # its own Protonym is one name, not two, and ranking picks correctly
+      # there. When resolving synonyms, the result is the valid name
+      # regardless, so only different valid taxa are ambiguous.
       # @param ranked [Array<TaxonName>]
       # @return [Boolean]
       def genuinely_ambiguous?(ranked)
-        ranked.map(&:cached_valid_taxon_name_id).uniq.length > 1
+        return false if ranked.size < 2
+
+        keys = if resolve_synonyms
+          ranked.map(&:cached_valid_taxon_name_id)
+        else
+          ranked.map { |tn| name_key(tn) }
+        end
+
+        keys.uniq.length > 1
+      end
+
+      # @param taxon_name [TaxonName]
+      # @return [Integer] the id of the name taxon_name is a spelling of: the
+      #   Protonym (for a Combination its finest one), or that Protonym's
+      #   parent when it's nominotypical - e.g. 'Aus bus bus' is a spelling of
+      #   'Aus bus', as they share name and type
+      def name_key(taxon_name)
+        protonym = taxon_name.is_combination? ?
+          taxon_name.finest_protonym :
+          taxon_name
+        return taxon_name.id if protonym.nil?
+
+        parent = protonym.parent
+        nominotypical = parent.present? &&
+          protonym.name == parent.name &&
+          protonym.is_genus_or_species_rank? &&
+          parent.is_genus_or_species_rank?
+
+        nominotypical ? parent.id : protonym.id
       end
 
       # @return [Array<Symbol>]
