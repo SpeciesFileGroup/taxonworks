@@ -58,12 +58,6 @@ RSpec.describe Tasks::FieldOccurrences::InaturalistImportController, type: :cont
       expect(row['status']).to eq('found')
     end
 
-    specify 'found row includes browse_url' do
-      do_find
-      row = response.parsed_body['summary'].find { |r| r['observation_id'] == '100' }
-      expect(row['browse_url']).to be_present
-    end
-
     specify 'returns not_imported for an observation not in the project' do
       do_find
       row = response.parsed_body['summary'].find { |r| r['observation_id'] == '200' }

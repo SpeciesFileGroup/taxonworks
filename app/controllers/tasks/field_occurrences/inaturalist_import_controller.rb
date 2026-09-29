@@ -39,19 +39,12 @@ class Tasks::FieldOccurrences::InaturalistImportController < ApplicationControll
       return
     end
 
-    opts = import_options
-    otu_id = opts.dig(:taxon_determination, :otu_id)
-    if otu_id && !Otu.where(project_id: sessions_current_project_id, id: otu_id).exists?
-      render json: { error: 'The determination OTU is not in this project.' },
-        status: :unprocessable_entity
-      return
-    end
-
     results = fetch_inat_results(observation_ids)
     return unless results
 
     existing_fo_by_uuid = existing_field_occurrences_for(results)
     fo_data = fetch_field_occurrence_data(existing_fo_by_uuid)
+    opts = import_options
 
     queue_import(results, existing_fo_by_uuid, opts)
 
@@ -74,7 +67,6 @@ class Tasks::FieldOccurrences::InaturalistImportController < ApplicationControll
         uuid:,
         field_occurrence_id: fo_id,
         global_id: fo[:global_id],
-        browse_url: helpers.browse_field_occurrence_task_path(field_occurrence_id: fo_id),
         determination_label: fo[:determination_label],
         image_count: fo[:image_count],
         sound_count: fo[:sound_count]

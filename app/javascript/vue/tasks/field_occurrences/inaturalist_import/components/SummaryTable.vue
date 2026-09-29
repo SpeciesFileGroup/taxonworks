@@ -44,6 +44,7 @@
 
     <VModal
       v-if="isDeterminationModalVisible"
+      :container-style="{ width: '700px' }"
       @close="isDeterminationModalVisible = false"
     >
       <template #header>
@@ -73,6 +74,7 @@
               @change="toggleAll"
             />
           </th>
+          <th class="w-2" />
           <th>iNat observation</th>
           <th>Taxon</th>
           <th>Observer</th>
@@ -97,6 +99,19 @@
             />
           </td>
           <td>
+            <div
+              v-if="row.global_id"
+              class="horizontal-right-content middle gap-small"
+            >
+              <RadialAnnotator :global-id="row.global_id" />
+              <RadialObject
+                :global-id="row.global_id"
+                @change="(event) => onQuickFormsChange(row.uuid, event)"
+              />
+              <RadialNavigator :global-id="row.global_id" />
+            </div>
+          </td>
+          <td>
             <a
               :href="`https://www.inaturalist.org/observations/${row.observation_id}`"
               target="_blank"
@@ -114,31 +129,7 @@
           <td>{{ row.place_guess }}</td>
           <td>{{ row.image_count ?? 'n/a' }}</td>
           <td>{{ row.sound_count ?? 'n/a' }}</td>
-          <td>
-            <FieldOccurrenceLink
-              v-if="row.status === INAT_STATUS_FOUND || row.status === INAT_STATUS_CREATED"
-              :browse-url="row.browse_url"
-              :global-id="row.global_id"
-              :determination-label="row.determination_label"
-              @quick-forms-change="(event) => onQuickFormsChange(row.uuid, event)"
-            />
-            <span v-else-if="row.status === INAT_STATUS_NOT_IMPORTED">{{ localFindMode ? 'Not imported' : 'Queued' }}</span>
-            <div
-              v-else-if="row.status === INAT_STATUS_ALREADY_IMPORTED"
-              class="flex-row gap-small middle"
-            >
-              <span>Already imported —</span>
-              <FieldOccurrenceLink
-                :browse-url="row.browse_url"
-                :global-id="row.global_id"
-                :determination-label="row.determination_label"
-                @quick-forms-change="(event) => onQuickFormsChange(row.uuid, event)"
-              />
-            </div>
-            <span v-else-if="row.status === INAT_STATUS_NOT_FOUND">Not found on iNaturalist</span>
-            <span v-else-if="row.status === INAT_STATUS_NO_TAXON">No taxon — skipped</span>
-            <span v-else>Queued</span>
-          </td>
+          <td>{{ statusLabel(row.status) }}</td>
         </tr>
       </tbody>
     </table>
@@ -150,7 +141,9 @@ import { ref, watch, computed } from 'vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VModal from '@/components/ui/Modal.vue'
 import TaxonDeterminationForm from '@/components/TaxonDetermination/TaxonDeterminationForm.vue'
-import FieldOccurrenceLink from './FieldOccurrenceLink.vue'
+import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
+import RadialObject from '@/components/radials/object/radial.vue'
+import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import { FieldOccurrence, TaxonDetermination } from '@/routes/endpoints'
 import { RouteNames } from '@/routes/routes'
 import {
@@ -257,6 +250,25 @@ async function refresh() {
   } catch {
   } finally {
     isRefreshing.value = false
+  }
+}
+
+function statusLabel(status) {
+  switch (status) {
+    case INAT_STATUS_FOUND:
+      return 'Found'
+    case INAT_STATUS_CREATED:
+      return 'Created'
+    case INAT_STATUS_NOT_IMPORTED:
+      return localFindMode.value ? 'Not imported' : 'Queued'
+    case INAT_STATUS_ALREADY_IMPORTED:
+      return 'Already imported'
+    case INAT_STATUS_NOT_FOUND:
+      return 'Not found on iNaturalist'
+    case INAT_STATUS_NO_TAXON:
+      return 'No taxon — skipped'
+    default:
+      return 'Queued'
   }
 }
 

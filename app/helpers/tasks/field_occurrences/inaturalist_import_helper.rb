@@ -7,9 +7,6 @@ module Tasks::FieldOccurrences::InaturalistImportHelper
       uuid = r['uuid']
       existing_fo_id = existing_fo_by_uuid[uuid]
       fo = fo_data[existing_fo_id]
-      browse_url = existing_fo_id ?
-        browse_field_occurrence_task_path(field_occurrence_id: existing_fo_id) :
-        nil
       if fo
         image_count = fo.dig(:image_count)
         sound_count = fo.dig(:sound_count)
@@ -29,7 +26,6 @@ module Tasks::FieldOccurrences::InaturalistImportHelper
         status: existing_fo_id ? 'found' : 'not_imported',
         field_occurrence_id: existing_fo_id,
         global_id: fo&.dig(:global_id),
-        browse_url:,
         image_count:,
         sound_count:
       }
@@ -54,9 +50,6 @@ module Tasks::FieldOccurrences::InaturalistImportHelper
         else
           'queued'
         end
-      browse_url = existing_fo_id ?
-        browse_field_occurrence_task_path(field_occurrence_id: existing_fo_id) :
-        nil
 
       {
         observation_id: r['id'].to_s,
@@ -69,7 +62,6 @@ module Tasks::FieldOccurrences::InaturalistImportHelper
         field_occurrence_id: existing_fo_id,
         global_id: fo&.dig(:global_id),
         determination_label: fo&.dig(:determination_label),
-        browse_url:,
         image_count: import_images ? ::Vendor::Nasturtium.permitted_photos(r).size : nil,
         sound_count: import_sounds ? ::Vendor::Nasturtium.permitted_sounds(r).size : nil
       }

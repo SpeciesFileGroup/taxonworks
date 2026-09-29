@@ -91,17 +91,6 @@ describe TaxonDetermination, type: :model, group: [:collection_objects] do
       expect(field_occurrence.current_otu).to eq(otu)
     end
 
-    specify 'fails ids of objects in another project' do
-      other_project_id = FactoryBot.create(:valid_project).id
-      field_occurrence.update_column(:project_id, other_project_id)
-
-      r = TaxonDetermination.batch_create(
-        [field_occurrence.id], params, object_type: 'FieldOccurrence'
-      )
-      expect(r[:total_created]).to eq(0)
-      expect(r[:failed]).to contain_exactly(field_occurrence.id)
-    end
-
     specify 'creates a new determiner once, not once per object' do
       other = FactoryBot.create(:valid_field_occurrence)
       new_determiner = {

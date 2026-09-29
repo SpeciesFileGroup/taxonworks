@@ -96,8 +96,7 @@ class TaxonDetermination < ApplicationRecord
 
   # @param object_id [Array, Integer]
   #   an Array or single id
-  # @param params [Hash] TaxonDetermination attributes, including project_id;
-  #   ids of objects not in that project fail
+  # @param params [Hash] TaxonDetermination attributes, including project_id
   # @param object_type [String] one of BATCH_CREATE_OBJECT_TYPES
   # @return Hash
   def self.batch_create(object_id, params, object_type:)
@@ -111,16 +110,7 @@ class TaxonDetermination < ApplicationRecord
       total_created: 0
     }
 
-    ids_in_project = object_type.constantize
-      .where(project_id: params[:project_id], id: object_ids)
-      .pluck(:id)
-
     object_ids.each do |id|
-      if !ids_in_project.include?(id)
-        result[:failed].push id
-        next
-      end
-
       begin
         taxon_determination = TaxonDetermination.create!(
           params.merge(
