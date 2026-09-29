@@ -22,6 +22,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 - Updated attribution label in `/api/v1/leads/key/<id>`
 - Radial annotator: Replace background color by badge when citation is original [#4979]
+- Add support for setting a Taxon Determination for a batch import of iNaturalist observations [#4912]
 
 ### Fixed
 
@@ -31,9 +32,14 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - `New taxon name`: returning with the browser back button from "Add new source" left the task with no taxon loaded
 - Fix error when searching Catalogue of Life level of OTU and Taxon Name autoselects [#5097]
 - Bug allowing to create more than one type genus, type family, etc. [#5106]
+- iNaturalist OTU matching fails on subgenera [#5086]
+- Match OTU to Taxon Name can fail to label ambiguity when an input name matches both a name with subgenus and a name without subgenus [#5066]
 
 [#114]: https://github.com/SpeciesFileGroup/taxonworks/issues/114
+[#4912]: https://github.com/SpeciesFileGroup/taxonworks/issues/4912
 [#4979]: https://github.com/SpeciesFileGroup/taxonworks/issues/4979
+[#5066]: https://github.com/SpeciesFileGroup/taxonworks/issues/5066
+[#5086]: https://github.com/SpeciesFileGroup/taxonworks/issues/5086
 [#5088]: https://github.com/SpeciesFileGroup/taxonworks/issues/5088
 [#5090]: https://github.com/SpeciesFileGroup/taxonworks/issues/5090
 [#5097]: https://github.com/SpeciesFileGroup/taxonworks/issues/5097
