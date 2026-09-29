@@ -39,12 +39,20 @@ class Tasks::FieldOccurrences::InaturalistImportController < ApplicationControll
       return
     end
 
+    opts = import_options
+    otu_id = opts.dig(:taxon_determination, :otu_id)
+    if otu_id &&
+        !Otu.where(project_id: sessions_current_project_id, id: otu_id).exists?
+      render json: { error: 'The determination OTU is not in this project.' },
+        status: :unprocessable_entity
+      return
+    end
+
     results = fetch_inat_results(observation_ids)
     return unless results
 
     existing_fo_by_uuid = existing_field_occurrences_for(results)
     fo_data = fetch_field_occurrence_data(existing_fo_by_uuid)
-    opts = import_options
 
     queue_import(results, existing_fo_by_uuid, opts)
 
@@ -134,7 +142,22 @@ class Tasks::FieldOccurrences::InaturalistImportController < ApplicationControll
       use_community_taxon: params[:use_community_taxon] != false,
       import_images: params[:import_images] == true,
       import_sounds: params[:import_sounds] == true,
+      taxon_determination: import_taxon_determination
     }
+  end
+
+  # A determination to give every imported observation, if any.
+  # @return [Hash, nil]
+  def import_taxon_determination
+    return nil if params[:taxon_determination].blank?
+
+    params.require(:taxon_determination).permit(
+      :otu_id, :year_made, :month_made, :day_made,
+      roles_attributes: [
+        :type, :organization_id, :person_id, :position,
+        person_attributes: [:last_name, :first_name, :suffix, :prefix]
+      ]
+    ).to_h
   end
 
   def queue_import(results, existing_fo_by_uuid, opts)

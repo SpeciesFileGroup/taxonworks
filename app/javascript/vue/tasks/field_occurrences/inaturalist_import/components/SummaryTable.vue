@@ -55,6 +55,7 @@
       <template #body>
         <TaxonDeterminationForm
           create-form
+          button-label="Set"
           @on-add="setDetermination"
         />
       </template>

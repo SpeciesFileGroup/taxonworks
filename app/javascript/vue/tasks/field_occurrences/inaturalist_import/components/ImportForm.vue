@@ -51,6 +51,7 @@
           <input
             type="checkbox"
             v-model="options.use_community_taxon"
+            :disabled="!!determination"
           />
           Use iNat community taxon determination (uncheck to use observer's own identification instead)
         </label>
@@ -61,10 +62,51 @@
           <input
             type="checkbox"
             v-model="options.match_otu_by_name"
+            :disabled="!!determination"
           />
           Match OTU by taxon name (tries an existing taxon name or OTU in the project first, ignoring subgenus; creates a name-only OTU if none found)
         </label>
       </div>
+
+      <div class="separate-bottom">
+        <div class="horizontal-left-content middle gap-small">
+          <VBtn
+            color="primary"
+            @click="isDeterminationModalVisible = true"
+          >
+            Set determination for all…
+          </VBtn>
+          <SmartSelectorItem
+            v-if="determination"
+            :item="determination"
+            label="object_tag"
+            @unset="determination = null"
+          />
+        </div>
+        <span
+          v-if="determination"
+          class="subtle"
+        >
+          Every imported observation gets this determination instead of
+          iNat's taxon.
+        </span>
+      </div>
+
+      <VModal
+        v-if="isDeterminationModalVisible"
+        @close="isDeterminationModalVisible = false"
+      >
+        <template #header>
+          <h3>Set determination for all imported observations</h3>
+        </template>
+        <template #body>
+          <TaxonDeterminationForm
+            create-form
+            button-label="Set"
+            @on-add="setDetermination"
+          />
+        </template>
+      </VModal>
     </template>
 
     <VBtn
@@ -82,6 +124,9 @@
 import { ref, computed, reactive } from 'vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VSwitch from '@/components/ui/VSwitch.vue'
+import VModal from '@/components/ui/Modal.vue'
+import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
+import TaxonDeterminationForm from '@/components/TaxonDetermination/TaxonDeterminationForm.vue'
 import { FieldOccurrence } from '@/routes/endpoints'
 import {
   FIND_STATUS_LABELS,
@@ -99,6 +144,8 @@ defineOptions({ name: 'ImportForm' })
 const rawInput = ref('')
 const isSubmitting = ref(false)
 const mode = ref('Import')
+const determination = ref(null)
+const isDeterminationModalVisible = ref(false)
 
 const options = reactive({
   use_community_taxon: true,
@@ -118,6 +165,11 @@ const parsedIds = computed(() =>
     })
 )
 
+function setDetermination(taxonDetermination) {
+  determination.value = taxonDetermination
+  isDeterminationModalVisible.value = false
+}
+
 const canSubmit = computed(() =>
   parsedIds.value.length > 0 &&
   parsedIds.value.length <= (mode.value === 'Import' ? IMPORT_LIMIT : FIND_LIMIT) &&
@@ -133,7 +185,13 @@ async function submit() {
     const call = findOnly ? FieldOccurrence.iNatFind : FieldOccurrence.iNatImport
     const params = findOnly
       ? { observation_ids: parsedIds.value }
-      : { observation_ids: parsedIds.value, ...options }
+      : {
+          observation_ids: parsedIds.value,
+          ...options,
+          ...(determination.value && {
+            taxon_determination: determination.value
+          })
+        }
     const { body } = await call(params)
 
     const labelMap = findOnly ? FIND_STATUS_LABELS : IMPORT_STATUS_LABELS

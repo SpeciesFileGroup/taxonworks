@@ -8,9 +8,19 @@ class InaturalistImportJob < ApplicationJob
   # @param use_community_taxon [Boolean]
   # @param import_images [Boolean]
   # @param import_sounds [Boolean]
-  def perform(results:, project_id:, user_id:, match_otu_by_name: false, use_community_taxon: true, import_images: false, import_sounds: false)
+  # @param taxon_determination [Hash, nil] TaxonDetermination attributes to
+  #   determine every result with, in place of matching/creating an OTU from
+  #   its iNat taxon
+  def perform(
+    results:, project_id:, user_id:, match_otu_by_name: false,
+    use_community_taxon: true, import_images: false, import_sounds: false,
+    taxon_determination: nil
+  )
     Current.project_id = project_id
     Current.user_id = user_id
+
+    # Updated as it's used so that a new determiner is created only once.
+    @taxon_determination = taxon_determination
 
     # Reuse one Person across this run for an observer/copyright holder/etc.
     # that would otherwise be built repeatedly.
@@ -35,12 +45,30 @@ class InaturalistImportJob < ApplicationJob
       # Save the OTU first so otu.id is available for the TaxonDetermination nested
       # attributes — reject_taxon_determinations rejects entries with a blank otu_id
       # and a blank otu.id, which is the case for any new (unsaved) OTU object.
-      otu = ::Vendor::Nasturtium.stub_otu(result, project_id:, match_by_name: match_otu_by_name, use_community_taxon:)
-      unless otu
-        Rails.logger.warn("InaturalistImportJob: skipping observation #{result['id']} — no taxon name")
-        return
+      taxon_determination_attributes = if @taxon_determination
+        @taxon_determination
+      else
+        otu = ::Vendor::Nasturtium.stub_otu(
+          result, project_id:, match_by_name: match_otu_by_name,
+          use_community_taxon:
+        )
+        unless otu
+          Rails.logger.warn(
+            "InaturalistImportJob: skipping observation #{result['id']} " \
+            '— no taxon name'
+          )
+          return
+        end
+        otu.save! if otu.new_record?
+
+        d = result['observed_on_details']
+        {
+          otu_id: otu.id,
+          year_made: d['year'],
+          month_made: d['month'],
+          day_made: d['day'],
+        }
       end
-      otu.save! if otu.new_record?
 
       # Save the CE (and its nested georeference) before the FO so that
       # collecting_event_id is set when the FO is created.
@@ -51,25 +79,27 @@ class InaturalistImportJob < ApplicationJob
         georef.georeferencer_roles.create!(person: observer_person(result))
       end
 
-      d = result['observed_on_details']
       fo = FieldOccurrence.new(
         total: 1,
         collecting_event: ce,
-        taxon_determinations_attributes: [{
-          otu_id: otu.id,
-          year_made: d['year'],
-          month_made: d['month'],
-          day_made: d['day'],
-        }],
+        taxon_determinations_attributes: [taxon_determination_attributes],
         identifiers: [::Vendor::Nasturtium.stub_identifier(result)].compact,
       )
       fo.save!
+
+      if @taxon_determination
+        @taxon_determination = TaxonDetermination.reuse_created_determiners(
+          @taxon_determination, fo.taxon_determinations.first
+        )
+      end
 
       ::Vendor::Nasturtium.stub_biocuration_classes(result, project_id:).each do |biocuration_class|
         BiocurationClassification.create!(biocuration_class:, biocuration_classification_object: fo)
       end
 
-      unless use_community_taxon
+      # The observer's iNat identification isn't the determination when one
+      # was given for all results.
+      if !use_community_taxon && @taxon_determination.nil?
         td = fo.taxon_determinations.first
         td.determiner_roles.create!(person: observer_person(result))
 

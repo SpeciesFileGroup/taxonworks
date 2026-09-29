@@ -129,6 +129,71 @@ RSpec.describe InaturalistImportJob, type: :model, group: :field_occurrences do
     end
   end
 
+  context 'with a taxon_determination for all results' do
+    let(:otu) { FactoryBot.create(:valid_otu) }
+    let(:first_result) {
+      base_result.merge(
+        'identifications' => [{
+          'uuid' => '661f9511-f30c-52e5-b827-557766551111',
+          'user' => { 'id' => 42 },
+          'current' => true
+        }]
+      )
+    }
+    let(:second_result) {
+      base_result.merge(
+        'id' => '99182857',
+        'uuid' => '550e8400-e29b-41d4-a716-446655440001',
+        'taxon' => nil,
+        'community_taxon' => nil
+      )
+    }
+    let(:taxon_determination) {
+      {
+        otu_id: otu.id,
+        year_made: 2024,
+        roles_attributes: [{
+          type: 'Determiner',
+          person_attributes: { last_name: 'Alldeterminer', first_name: 'B' }
+        }]
+      }
+    }
+
+    def perform_determined
+      perform(
+        results: [first_result, second_result],
+        taxon_determination:,
+        match_otu_by_name: true,
+        use_community_taxon: false
+      )
+    end
+
+    specify 'determines every result as given, creating no OTU' do
+      otu
+      expect { perform_determined }.not_to change(Otu, :count)
+      expect(FieldOccurrence.all.map(&:current_otu)).to eq([otu, otu])
+      expect(FieldOccurrence.all.map { |fo|
+        fo.current_taxon_determination.year_made
+      }).to eq([2024, 2024])
+    end
+
+    specify 'imports results that have no iNat taxon' do
+      expect { perform_determined }.to change(FieldOccurrence, :count).by(2)
+    end
+
+    specify 'creates a new determiner once for all results' do
+      expect { perform_determined }
+        .to change { Person.where(last_name: 'Alldeterminer').count }.by(1)
+    end
+
+    specify 'does not attach the iNat observer or identification' do
+      perform_determined
+      td = FieldOccurrence.first.current_taxon_determination
+      expect(td.determiners.map(&:last_name)).to eq(['Alldeterminer'])
+      expect(td.identifiers).to be_empty
+    end
+  end
+
   specify 'skips results with no taxon name and continues remaining imports' do
     no_taxon = base_result.merge('taxon' => nil, 'community_taxon' => nil, 'uuid' => '00000000-0000-0000-0000-000000000001')
     with_taxon = base_result.merge('uuid' => '00000000-0000-0000-0000-000000000002')

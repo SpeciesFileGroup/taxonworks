@@ -38,7 +38,8 @@ module Tasks::FieldOccurrences::InaturalistImportHelper
 
   def inaturalist_import_summary(
     results, existing_fo_by_uuid,
-    fo_data:, use_community_taxon:, import_images:, import_sounds:
+    fo_data:, use_community_taxon:, import_images:, import_sounds:,
+    taxon_determination: nil
   )
     results.map do |r|
       uuid = r['uuid']
@@ -48,7 +49,7 @@ module Tasks::FieldOccurrences::InaturalistImportHelper
       status =
         if existing_fo_id
           'already_imported'
-        elsif taxon_name.blank?
+        elsif taxon_name.blank? && taxon_determination.nil?
           'no_taxon'
         else
           'queued'
