@@ -36,6 +36,11 @@ module Autoselect
           true
         end
 
+        # Searches with the CoL dataset chosen for the catalogue_of_life level.
+        def options_level
+          :catalogue_of_life
+        end
+
         # Opt-in only — fast/smart/catalogue_of_life cover the common cases; this
         # stays present-but-unchecked in the preferences modal until a user opts in.
         def is_default

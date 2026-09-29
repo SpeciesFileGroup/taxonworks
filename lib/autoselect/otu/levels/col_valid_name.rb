@@ -41,6 +41,11 @@ module Autoselect
           true
         end
 
+        # Searches with the CoL dataset chosen for the catalogue_of_life level.
+        def options_level
+          :catalogue_of_life
+        end
+
         # Opt-in only — see the class comment above.
         def is_default
           false

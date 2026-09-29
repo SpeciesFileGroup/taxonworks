@@ -58,6 +58,11 @@ RSpec.describe Autoselect::TaxonName::Autoselect, type: :model do
         expect(levels_by_key['col_valid_name'][:is_default]).to be false
       end
 
+      it 'col_valid_name uses the catalogue_of_life options (CoL dataset)' do
+        expect(levels_by_key['col_valid_name'][:options_level])
+          .to eq('catalogue_of_life')
+      end
+
       it 'fast, smart, and catalogue_of_life are is_default: true' do
         expect(levels_by_key['fast'][:is_default]).to be true
         expect(levels_by_key['smart'][:is_default]).to be true

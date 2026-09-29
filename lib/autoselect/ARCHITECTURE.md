@@ -294,12 +294,18 @@ GET /taxon_names/autoselect?term=Rattus&level=catalogue_of_life&dataset_id=9830
 The controller must explicitly permit any option keys (e.g. `dataset_id` in
 `autoselect_params`), and the level's `call` method must accept them.
 
+A level can instead search with another level's options by overriding
+`Autoselect::Level#options_level` (sent as `options_level` in the level
+metadata). The CoL `col_valid_name` levels do this with `:catalogue_of_life`,
+so the one CoL dataset preference applies to every CoL level.
+
 ### CoL dataset selection (`ColDatasetPicker`)
 
 `ColDatasetPicker` is the preferences options component for autoselects that include
 a `catalogue_of_life` level.  It searches CoL datasets via
 `GET /taxon_names/autoselect_col_datasets?q=...` and stores the chosen dataset id in
-`options.dataset_id` for the `catalogue_of_life` level preference.  When no dataset
+`options.dataset_id` for the `catalogue_of_life` level preference; other CoL
+levels read it from there via `options_level` (see above).  When no dataset
 is chosen the `Vendor::Colrapi::DATASETS[:col]` default is used.
 
 ### `AutoselectPicker` (opinionated wrapper)

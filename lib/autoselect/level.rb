@@ -45,6 +45,14 @@ class Autoselect::Level
     true
   end
 
+  # @return [Symbol, nil] the key of another level whose stored preference
+  #   options this level searches with, instead of its own. For levels that
+  #   share one setting (e.g. every Catalogue of Life level uses the same
+  #   dataset) so it's stored, and set, in one place.
+  def options_level
+    nil
+  end
+
   # @return [Integer] milliseconds for the fuse animation before auto-escalating
   def fuse_ms
     external? ? EXTERNAL_FUSE_MS : DEFAULT_FUSE_MS
@@ -74,7 +82,8 @@ class Autoselect::Level
       description:,
       external: external?,
       fuse_ms:,
-      is_default:
+      is_default:,
+      options_level: options_level&.to_s
     }
   end
 

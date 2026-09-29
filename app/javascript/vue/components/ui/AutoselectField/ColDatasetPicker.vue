@@ -4,7 +4,8 @@
 
   Renders a search box for CoL datasets. The user selects a dataset; the chosen id is
   stored in levelOptions['catalogue_of_life'].dataset_id and carried to the server on
-  every catalogue_of_life search.
+  every catalogue_of_life search, and on searches of every level whose
+  options_level is catalogue_of_life (e.g. col_valid_name).
 
   Props (from PreferencesModal):
     levels      Array of level metadata — used to detect whether catalogue_of_life is present

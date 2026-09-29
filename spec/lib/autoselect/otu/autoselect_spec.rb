@@ -28,6 +28,12 @@ RSpec.describe Autoselect::Otu::Autoselect, type: :model do
       expect(levels_by_key['col_valid_name'][:is_default]).to be false
     end
 
+    it 'col_valid_name uses the catalogue_of_life options (CoL dataset)' do
+      levels_by_key = config[:levels].index_by { |l| l[:key].to_s }
+      expect(levels_by_key['col_valid_name'][:options_level])
+        .to eq('catalogue_of_life')
+    end
+
     it 'includes !n operator trigger' do
       triggers = config[:operators].map { |o| o[:trigger] }
       expect(triggers).to include('!n')

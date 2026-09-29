@@ -331,7 +331,10 @@ let preInputText = '' // text in field before !p was typed
 const allFuseSegments = computed(() =>
   (config.value?.levels ?? []).map((l) => {
     const key = String(l.key)
-    const options = currentPrefs.value.levels?.[key]?.options || {}
+    // A level may search with another level's options (see
+    // Autoselect::Level#options_level) — label it with those too.
+    const optionsKey = l.options_level ? String(l.options_level) : key
+    const options = currentPrefs.value.levels?.[optionsKey]?.options || {}
     const displayLabel = options.dataset_title
       ? `${l.label} (${options.dataset_title})`
       : l.label
@@ -342,7 +345,8 @@ const allFuseSegments = computed(() =>
       description: l.description,
       external: l.external ?? false,
       fuse_ms: l.fuse_ms ?? 600,
-      is_default: l.is_default ?? true
+      is_default: l.is_default ?? true,
+      optionsKey
     }
   })
 )
@@ -594,8 +598,14 @@ function triggerSearch(term) {
   isSearching.value = true
   dropdownItems.value = []
 
-  // Merge current level's preference options and global prefs into the request params
-  const levelOptions = prefs.getLevelOptions(currentLevel.value)
+  // Merge current level's preference options (or those of the level it takes
+  // its options from) and global prefs into the request params
+  const currentSegment = allFuseSegments.value.find(
+    (s) => s.key === currentLevel.value
+  )
+  const levelOptions = prefs.getLevelOptions(
+    currentSegment?.optionsKey ?? currentLevel.value
+  )
 
   AjaxCall('get', props.url, {
     params: {
