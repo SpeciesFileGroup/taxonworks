@@ -74,7 +74,7 @@
             color="primary"
             @click="isDeterminationModalVisible = true"
           >
-            Set determination for all…
+            Set determination for all
           </VBtn>
           <SmartSelectorItem
             v-if="determination"
@@ -88,7 +88,7 @@
           class="subtle"
         >
           Every imported observation gets this determination instead of
-          iNat's taxon.
+          iNaturalist's taxon.
         </span>
       </div>
 

@@ -77,15 +77,12 @@
           </td>
           <td>
             <a
-              v-if="fo.otu_id"
               :href="`${RouteNames.BrowseOtu}?otu_id=${fo.otu_id}`"
               v-html="fo.taxon_name"
             />
-            <span v-else>Undetermined</span>
           </td>
           <td class="w-2">
             <div
-              v-if="fo.otu_global_id"
               :key="fo.otu_global_id"
               class="flex-row gap-small"
             >

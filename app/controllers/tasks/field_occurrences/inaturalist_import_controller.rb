@@ -41,8 +41,7 @@ class Tasks::FieldOccurrences::InaturalistImportController < ApplicationControll
 
     opts = import_options
     otu_id = opts.dig(:taxon_determination, :otu_id)
-    if otu_id &&
-        !Otu.where(project_id: sessions_current_project_id, id: otu_id).exists?
+    if otu_id && !Otu.where(project_id: sessions_current_project_id, id: otu_id).exists?
       render json: { error: 'The determination OTU is not in this project.' },
         status: :unprocessable_entity
       return
@@ -185,9 +184,9 @@ class Tasks::FieldOccurrences::InaturalistImportController < ApplicationControll
           image_count: fo.depictions.size,
           sound_count: fo.conveyances.size,
           # current determination (lowest position; the preloaded association is
-          # unordered); nil when every determination has been removed
+          # unordered)
           determination_label: helpers.otu_tag(
-              fo.taxon_determinations.min_by(&:position)&.otu
+              fo.taxon_determinations.min_by(&:position).otu
             )
         }
       end

@@ -1,27 +1,17 @@
 <template>
   <div class="flex-row gap-small middle">
     <a
-      v-if="determinationLabel"
       :href="browseUrl"
       target="_blank"
       v-html="determinationLabel"
     />
-    <a
-      v-else
-      :href="browseUrl"
-      target="_blank"
-    >
-      Undetermined
-    </a>
 
-    <template v-if="globalId">
-      <RadialAnnotator :global-id="globalId" />
-      <RadialObject
-        :global-id="globalId"
-        @change="(event) => emit('quickFormsChange', event)"
-      />
-      <RadialNavigator :global-id="globalId" />
-    </template>
+    <RadialAnnotator :global-id="globalId" />
+    <RadialObject
+      :global-id="globalId"
+      @change="(event) => emit('quickFormsChange', event)"
+    />
+    <RadialNavigator :global-id="globalId" />
   </div>
 </template>
 
@@ -42,12 +32,12 @@ defineProps({
 
   globalId: {
     type: String,
-    default: undefined
+    required: true
   },
 
   determinationLabel: {
     type: String,
-    default: undefined
+    required: true
   }
 })
 </script>

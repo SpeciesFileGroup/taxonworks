@@ -45,30 +45,31 @@ class InaturalistImportJob < ApplicationJob
       # Save the OTU first so otu.id is available for the TaxonDetermination nested
       # attributes — reject_taxon_determinations rejects entries with a blank otu_id
       # and a blank otu.id, which is the case for any new (unsaved) OTU object.
-      taxon_determination_attributes = if @taxon_determination
-        @taxon_determination
-      else
-        otu = ::Vendor::Nasturtium.stub_otu(
-          result, project_id:, match_by_name: match_otu_by_name,
-          use_community_taxon:
-        )
-        unless otu
-          Rails.logger.warn(
-            "InaturalistImportJob: skipping observation #{result['id']} " \
-            '— no taxon name'
+      taxon_determination_attributes =
+        if @taxon_determination
+          @taxon_determination
+        else
+          otu = ::Vendor::Nasturtium.stub_otu(
+            result, project_id:, match_by_name: match_otu_by_name,
+            use_community_taxon:
           )
-          return
-        end
-        otu.save! if otu.new_record?
+          unless otu
+            Rails.logger.warn(
+              "InaturalistImportJob: skipping observation #{result['id']} " \
+              '— no taxon name'
+            )
+            return
+          end
+          otu.save! if otu.new_record?
 
-        d = result['observed_on_details']
-        {
-          otu_id: otu.id,
-          year_made: d['year'],
-          month_made: d['month'],
-          day_made: d['day'],
-        }
-      end
+          d = result['observed_on_details']
+          {
+            otu_id: otu.id,
+            year_made: d['year'],
+            month_made: d['month'],
+            day_made: d['day'],
+          }
+        end
 
       # Save the CE (and its nested georeference) before the FO so that
       # collecting_event_id is set when the FO is created.

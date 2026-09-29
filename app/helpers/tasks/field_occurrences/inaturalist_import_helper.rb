@@ -78,8 +78,8 @@ module Tasks::FieldOccurrences::InaturalistImportHelper
 
   def serialize_inat_field_occurrence(fo)
     # current determination (lowest position; the preloaded association is
-    # unordered); nil when every determination has been removed
-    otu = fo.taxon_determinations.min_by(&:position)&.otu
+    # unordered)
+    otu = fo.taxon_determinations.min_by(&:position).otu
     inat_identifier = fo.identifiers.find { |i|
       i.is_a?(Identifier::Global::Uuid::InaturalistObservation)
     }
@@ -90,8 +90,8 @@ module Tasks::FieldOccurrences::InaturalistImportHelper
     {
       id: fo.id,
       taxon_name: otu_tag(otu),
-      otu_global_id: otu&.to_global_id&.to_s,
-      otu_id: otu&.id,
+      otu_global_id: otu.to_global_id.to_s,
+      otu_id: otu.id,
       global_id: fo.to_global_id.to_s,
       verbatim_locality: fo.collecting_event.verbatim_locality,
       created_at: fo.created_at.strftime('%Y-%m-%d %H:%M'),

@@ -100,7 +100,7 @@ class TaxonDetermination < ApplicationRecord
   #   ids of objects not in that project fail
   # @param object_type [String] one of BATCH_CREATE_OBJECT_TYPES
   # @return Hash
-  def self.batch_create(object_id, params, object_type: 'CollectionObject')
+  def self.batch_create(object_id, params, object_type:)
     if !BATCH_CREATE_OBJECT_TYPES.include?(object_type)
       raise ArgumentError, "Unsupported object_type: #{object_type}"
     end
@@ -161,8 +161,9 @@ class TaxonDetermination < ApplicationRecord
         next role if new_person.blank? || role[:person_id].present?
 
         person = created_people.find { |p|
-          p.last_name.to_s == new_person[:last_name].to_s.strip &&
-            p.first_name.to_s == new_person[:first_name].to_s.strip
+          %i{last_name first_name prefix suffix}.all? { |field|
+            p.send(field).to_s == new_person[field].to_s.strip
+          }
         }
         next role if person.nil?
 
