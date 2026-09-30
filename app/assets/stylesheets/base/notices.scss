@@ -8,16 +8,16 @@
 
 .alert-stack {
   position: fixed;
-  bottom: 20px;
+  bottom: var(--spacing-lg);
   left: 50%;
   transform: translateX(-50%);
   z-index: 999999;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: var(--spacing-xs);
   width: 440px;
-  max-width: calc(100vw - 32px);
+  max-width: calc(100vw - var(--spacing-2xl));
   // Let clicks pass through the gaps; individual toasts re-enable pointers.
   pointer-events: none;
 }
@@ -26,23 +26,61 @@
   --alert-accent: var(--feedback-info-text-color);
   --alert-surface: var(--feedback-info-bg-color);
   --alert-border: var(--feedback-info-border-color);
+  --alert-progress-height: 3px;
+  --alert-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='M12 16v-4'/%3E%3Cpath d='M12 8h.01'/%3E%3C/svg%3E");
 
   pointer-events: auto;
   position: relative;
   width: 100%;
   display: flex;
   align-items: flex-start;
-  gap: 11px;
-  padding: 13px 15px;
+  gap: var(--spacing-sm);
+  // Bottom padding adds the countdown bar height, so the space between text
+  // and bar equals the top padding.
+  padding: var(--spacing-sm) var(--spacing-md)
+    calc(var(--spacing-sm) + var(--alert-progress-height));
   color: var(--text-color);
   background: var(--alert-surface);
   border: 1px solid var(--alert-border);
-  border-left: 4px solid var(--alert-accent);
   border-radius: var(--border-radius-medium);
   box-shadow: var(--panel-shadow-hover);
   font-size: var(--font-size-sm);
   line-height: 1.45;
+  overflow: hidden;
   animation: toast-in 0.26s cubic-bezier(0.21, 1, 0.7, 1) both;
+
+  // Type icon (Lucide shapes, same set as app/javascript/vue/components/Icon),
+  // tinted with the accent colour via mask so it follows the theme.
+  &::before {
+    content: '';
+    flex: 0 0 auto;
+    width: 18px;
+    height: 18px;
+    margin-top: 1px;
+    background-color: var(--alert-accent);
+    -webkit-mask: var(--alert-icon) center / contain no-repeat;
+    mask: var(--alert-icon) center / contain no-repeat;
+  }
+
+  // Countdown bar along the bottom edge. Its animation is the dismiss timer:
+  // notices.js.erb sets --alert-duration and closes the toast on animationend.
+  &::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: var(--alert-progress-height);
+    background-color: var(--alert-accent);
+    transform: scaleX(0);
+    transform-origin: left center;
+    animation: toast-progress var(--alert-duration, 6000ms) linear forwards;
+  }
+
+  // Pause the countdown while the pointer is over the toast.
+  &:hover::after {
+    animation-play-state: paused;
+  }
 
   &.is-leaving {
     animation: toast-out 0.18s ease forwards;
@@ -58,7 +96,7 @@
     }
 
     ul {
-      margin: 4px 0 0;
+      margin: var(--spacing-xxs) 0 0;
       padding-left: 18px;
     }
   }
@@ -67,7 +105,7 @@
     flex: 0 0 auto;
     width: 22px;
     height: 22px;
-    margin: -2px -3px 0 4px;
+    margin: -2px -3px 0 var(--spacing-xxs);
     padding: 0;
     border: 0;
     background-color: var(--text-muted-color);
@@ -95,6 +133,7 @@
     --alert-accent: var(--feedback-success-text-color);
     --alert-surface: var(--feedback-success-bg-color);
     --alert-border: var(--feedback-success-border-color);
+    --alert-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='m9 12 2 2 4-4'/%3E%3C/svg%3E");
   }
 
   // Rails `alert` and explicit error -> red x.
@@ -103,17 +142,20 @@
     --alert-accent: var(--feedback-error-text-color);
     --alert-surface: var(--feedback-error-bg-color);
     --alert-border: var(--feedback-error-border-color);
+    --alert-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='m15 9-6 6'/%3E%3Cpath d='m9 9 6 6'/%3E%3C/svg%3E");
   }
 
   &.alert-warning {
     --alert-accent: var(--feedback-warning-text-color);
     --alert-surface: var(--feedback-warning-bg-color);
     --alert-border: var(--feedback-warning-border-color);
+    --alert-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3'/%3E%3Cpath d='M12 9v4'/%3E%3Cpath d='M12 17h.01'/%3E%3C/svg%3E");
   }
 
   &.alert-info {
     --alert-accent: var(--feedback-info-text-color);
     --alert-surface: var(--feedback-info-bg-color);
     --alert-border: var(--feedback-info-border-color);
+    --alert-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='M12 16v-4'/%3E%3Cpath d='M12 8h.01'/%3E%3C/svg%3E");
   }
 }

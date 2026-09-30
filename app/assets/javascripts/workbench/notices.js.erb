@@ -59,12 +59,13 @@ Object.assign(TW.workbench.alert, {
   dismiss: function (element) {
     if (!element || element.classList.contains('is-leaving')) return;
 
-    clearTimeout(element._dismissTimer);
     element.classList.add('is-leaving');
 
     const remove = () => element.remove();
 
-    element.addEventListener('animationend', remove, { once: true });
+    element.addEventListener('animationend', (event) => {
+      if (event.animationName === 'toast-out') remove();
+    });
     // Fallback in case the animation event does not fire.
     setTimeout(remove, 300);
   },
@@ -72,15 +73,10 @@ Object.assign(TW.workbench.alert, {
   scheduleDismiss: function (element, type) {
     const delay = this.duration[type] || this.duration.default;
 
-    const start = () => {
-      element._dismissTimer = setTimeout(() => this.dismiss(element), delay);
-    };
-
-    // Pause the countdown while the pointer is over the toast.
-    element.addEventListener('mouseenter', () => clearTimeout(element._dismissTimer));
-    element.addEventListener('mouseleave', start);
-
-    start();
+    element.style.setProperty('--alert-duration', delay + 'ms');
+    element.addEventListener('animationend', (event) => {
+      if (event.animationName === 'toast-progress') this.dismiss(element);
+    });
   },
 
   // Wire dismiss behavior onto an existing .alert element and move it into the
