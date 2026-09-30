@@ -111,16 +111,17 @@ RSpec.describe Autoselect::Otu::Levels::ColValidName, type: :model do
 
     it 'tags the TW source when the name already has an OTU' do
       expect(level.record_info(result(resolved_from: 'Panthera leo persica', existing_id: 1)))
-        .to eq(['TW', 'valid name for "Panthera leo persica"'])
+        .to eq(['TW', 'species', 'valid name for "Panthera leo persica"'])
     end
 
     it 'tags the CoL source when an OTU would be created' do
       expect(level.record_info(result(resolved_from: 'Panthera leo persica')))
-        .to eq(['CoL', 'valid name for "Panthera leo persica"'])
+        .to eq(['CoL', 'species', 'valid name for "Panthera leo persica"'])
     end
 
     it 'omits the note when the typed term already is the valid name' do
-      expect(level.record_info(result(resolved_from: 'Panthera leo'))).to eq(['CoL'])
+      expect(level.record_info(result(resolved_from: 'Panthera leo')))
+        .to eq(['CoL', 'species'])
     end
 
     it 'renders the TW icon in front of the "valid name for" badge' do
@@ -136,9 +137,10 @@ RSpec.describe Autoselect::Otu::Levels::ColValidName, type: :model do
       expect(html).not_to include(described_class::TW_ICON)
     end
 
-    it 'renders just the icon when nothing was renamed' do
+    it 'renders just the icon and rank when nothing was renamed' do
       expect(level.record_info_html(result(resolved_from: 'Panthera leo')))
-        .to eq(described_class::COL_ICON)
+        .to eq(described_class::COL_ICON +
+          '<span class="feedback feedback-thin feedback-light">species</span>')
     end
   end
 end

@@ -8,6 +8,12 @@
 #   * a source mark — TW_ICON when the resolved name is already in TaxonWorks,
 #     COL_ICON when it would be created (see ColSourceMark) — so it's always
 #     clear the result came through CoL resolution, not a plain local match;
+#   * a status badge, but only when CoL's status isn't 'accepted'. The level's
+#     name promises a valid name, yet Vendor::Colrapi.resolve_accepted_name
+#     resolves a top hit to itself unless it's a synonym with a single accepted
+#     target (ambiguous synonyms, misapplied names, ...) — those must not look
+#     like accepted names. An 'accepted' badge on every row would be noise;
+#   * a rank badge, as on the catalogue_of_life levels;
 #   * a "valid name for X" note, but only when CoL actually *changed* the name.
 #     When what was typed already is the accepted name the note would imply a
 #     difference that isn't there, so it's left off.
@@ -21,30 +27,50 @@ module Autoselect
     module ColResolvedName
       include ::Autoselect::Levels::ColSourceMark
 
-      # @return [Array<String>] source tag ("TW"/"CoL"), plus a "valid name for X"
-      #   note when CoL changed the name. Falls back to the ancestor's info for
-      #   anything without CoL provenance.
+      # @return [Array<String>] source tag ("TW"/"CoL"), then any non-accepted
+      #   status, the rank, and a "valid name for X" note when CoL changed the
+      #   name. Falls back to the ancestor's info for anything without CoL
+      #   provenance.
       def record_info(record)
-        input = resolved_from(record)
-        return super if input.nil?
+        return super if resolved_from(record).nil?
 
-        source = col_source_tag(record)
-        return [source] unless resolved_and_renamed?(record)
-        [source, "valid name for \"#{input}\""]
+        [col_source_tag(record), *col_resolved_badges(record).map(&:first)]
       end
 
       # @return [String] same as #record_info, but the source tag is an inline
-      #   brand-mark icon in front of a styled feedback badge for the note.
+      #   brand-mark icon in front of styled feedback badges for the rest.
       def record_info_html(record)
-        input = resolved_from(record)
-        return super if input.nil?
+        return super if resolved_from(record).nil?
 
-        icon = col_source_icon(record)
-        return icon unless resolved_and_renamed?(record)
-        "#{icon}#{col_resolved_feedback_badge(%(valid name for "#{input}"), :warning)}"
+        badges = col_resolved_badges(record).map do |text, modifier|
+          col_resolved_feedback_badge(text, modifier)
+        end
+        col_source_icon(record) + badges.join(' ')
       end
 
       private
+
+      # @return [Array<Array(String, Symbol)>] [text, feedback modifier] pairs
+      #   for everything after the source mark, in display order
+      def col_resolved_badges(record)
+        extension = record._col_extension
+        badges = []
+
+        status = extension[:col_status].presence
+        if status && !status.to_s.casecmp?('accepted')
+          badges << [status, :warning]
+        end
+
+        if (rank = extension[:col_rank].presence)
+          badges << [rank, :light]
+        end
+
+        if resolved_and_renamed?(record)
+          badges << [%(valid name for "#{resolved_from(record)}"), :warning]
+        end
+
+        badges
+      end
 
       # True when CoL actually changed the name — #resolved_from (what was typed)
       # differs from #valid_name_for (what the result shows). False both for

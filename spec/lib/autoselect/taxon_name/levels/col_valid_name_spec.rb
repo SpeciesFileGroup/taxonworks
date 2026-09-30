@@ -150,5 +150,39 @@ RSpec.describe Autoselect::TaxonName::Levels::ColValidName, type: :model do
     it 'renders just the CoL icon when nothing was renamed' do
       expect(level.record_info_html(unchanged)).to eq(described_class::COL_ICON)
     end
+
+    context 'with CoL status and rank' do
+      def result(col_status:, resolved_from: 'Panthera leo')
+        OpenStruct.new(
+          name: 'Panthera leo',
+          _col_extension: { col_status:, col_rank: 'species', resolved_from: }
+        )
+      end
+
+      it 'shows the rank but not an accepted status' do
+        expect(level.record_info(result(col_status: 'accepted')))
+          .to eq(['CoL', 'species'])
+      end
+
+      # resolve_accepted_name only follows a synonym with a single accepted
+      # target; anything else resolves to itself, still not accepted.
+      it 'flags a status other than accepted' do
+        expect(level.record_info(result(col_status: 'ambiguous synonym')))
+          .to eq(['CoL', 'ambiguous synonym', 'species'])
+      end
+
+      it 'orders status and rank badges before the note' do
+        html = level.record_info_html(
+          result(col_status: 'misapplied', resolved_from: 'Felis leo')
+        )
+        expect(html).to eq(
+          described_class::COL_ICON +
+          '<span class="feedback feedback-thin feedback-warning">misapplied</span> ' \
+          '<span class="feedback feedback-thin feedback-light">species</span> ' \
+          '<span class="feedback feedback-thin feedback-warning">' \
+          'valid name for &quot;Felis leo&quot;</span>'
+        )
+      end
+    end
   end
 end
