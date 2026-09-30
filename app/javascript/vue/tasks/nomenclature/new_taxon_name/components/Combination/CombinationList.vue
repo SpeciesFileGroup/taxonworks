@@ -1,7 +1,7 @@
 <template>
   <div class="margin-medium-top">
-    <h3 v-if="isPlant && !currentCombination">Preferred name (optional)</h3>
-    <h3 v-else>{{ isPlant ? 'Synonyms' : 'Combinations' }}</h3>
+    <h4 v-if="isPlant && !currentCombination">Preferred name (optional)</h4>
+    <h4 v-else>{{ isPlant ? 'Synonyms' : 'Combinations' }}</h4>
     <ul class="table-entrys-list">
       <li
         v-for="combination in list"
@@ -21,12 +21,12 @@
           />
           <span v-html="combination.object_label" />
         </label>
-        <div class="horizontal-left-content gap-xsmall middle">
+        <div class="horizontal-left-content gap-small middle">
           <RadialAnnotator :global-id="combination.global_id" />
           <DefaultConfidence :global-id="combination.global_id" />
           <VBtn
             icon
-            color="update"
+            color="primary"
             variant="tonal"
             @click="emit('edit', combination)"
           >

@@ -41,7 +41,6 @@
           :taxon="taxon"
           v-model="citationData"
         />
-        <hr class="divisor" />
 
         <template v-if="isBotanyCode">
           <h3>Classification</h3>
@@ -87,12 +86,14 @@
           New
         </VBtn>
       </div>
-      <hr class="divisor" />
-      <CombinationList
-        :list="combinationList"
-        @edit="loadCombination"
-        @delete="removeCombination"
-      />
+      <template v-if="combinationList.length">
+        <hr class="divisor margin-medium-top" />
+        <CombinationList
+          :list="combinationList"
+          @edit="loadCombination"
+          @delete="removeCombination"
+        />
+      </template>
     </template>
   </block-layout>
 </template>

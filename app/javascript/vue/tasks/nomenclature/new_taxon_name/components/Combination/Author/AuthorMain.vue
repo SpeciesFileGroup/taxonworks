@@ -1,6 +1,7 @@
 <template>
-  <h3>Author</h3>
+  <h4>Author</h4>
   <switch-component
+    v-if="sections.length"
     class="margin-medium-bottom"
     :options="sections"
     use-index
@@ -75,6 +76,8 @@ function getTabLabel(label, hasData) {
 watch(tabIndex, () => nextTick(() => activeTab.value?.focus?.()))
 
 defineExpose({
-  focus() { activeTab.value?.focus?.() }
+  focus() {
+    activeTab.value?.focus?.()
+  }
 })
 </script>
