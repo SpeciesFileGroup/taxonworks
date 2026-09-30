@@ -273,7 +273,7 @@ async function doCreate() {
 .tn-new-modal__label {
   font-weight: 600;
   font-size: 11px;
-  color: var(--text-color-muted, #666);
+  color: var(--text-muted-color, #666);
   margin-bottom: 1px;
 }
 
@@ -313,7 +313,7 @@ async function doCreate() {
   border: none;
   cursor: pointer;
   font-size: 11px;
-  color: var(--text-color-muted, #888);
+  color: var(--text-muted-color, #888);
   padding: 0 2px;
   line-height: 1;
 }
@@ -324,7 +324,7 @@ async function doCreate() {
 
 .tn-new-modal__searching {
   font-size: 11px;
-  color: var(--text-color-muted, #888);
+  color: var(--text-muted-color, #888);
   white-space: nowrap;
 }
 

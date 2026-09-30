@@ -166,7 +166,7 @@ function doSave() {
 .prefs-modal__section-title {
   font-size: 11px;
   font-weight: 600;
-  color: var(--text-color-muted, #666);
+  color: var(--text-muted-color, #666);
   margin: 0 0 6px;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -196,7 +196,7 @@ function doSave() {
 
 .prefs-modal__level-badge {
   font-size: 10px;
-  color: var(--text-color-muted, #888);
+  color: var(--text-muted-color, #888);
   background: var(--border-color, #e0e0e0);
   border-radius: 3px;
   padding: 1px 5px;

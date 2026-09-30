@@ -397,7 +397,7 @@ async function doCreate() {
 
 .col-confirm-modal__note {
   font-size: 11px;
-  color: var(--text-color-muted, #777);
+  color: var(--text-muted-color, #777);
   margin: 4px 0 0;
 }
 

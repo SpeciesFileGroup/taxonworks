@@ -190,7 +190,7 @@ function emitOptions(datasetId, datasetTitle) {
 .col-dataset-picker__label {
     font-size: 11px;
     font-weight: 600;
-    color: var(--text-color-muted, #666);
+    color: var(--text-muted-color, #666);
 }
 
 .col-dataset-picker__selected {
@@ -205,7 +205,7 @@ function emitOptions(datasetId, datasetTitle) {
 
 .col-dataset-picker__selected-alias {
     font-size: 10px;
-    color: var(--text-color-muted, #888);
+    color: var(--text-muted-color, #888);
 }
 
 .col-dataset-picker__clear {
@@ -213,7 +213,7 @@ function emitOptions(datasetId, datasetTitle) {
     border: none;
     cursor: pointer;
     font-size: 11px;
-    color: var(--text-color-muted, #888);
+    color: var(--text-muted-color, #888);
     margin-left: auto;
     padding: 0 2px;
 }
@@ -224,7 +224,7 @@ function emitOptions(datasetId, datasetTitle) {
 
 .col-dataset-picker__default-note {
     font-size: 11px;
-    color: var(--text-color-muted, #888);
+    color: var(--text-muted-color, #888);
     margin: 0;
 }
 
@@ -270,13 +270,13 @@ function emitOptions(datasetId, datasetTitle) {
 .col-dataset-picker__result-alias,
 .col-dataset-picker__result-id {
     font-size: 10px;
-    color: var(--text-color-muted, #888);
+    color: var(--text-muted-color, #888);
     white-space: nowrap;
 }
 
 .col-dataset-picker__none {
     font-size: 11px;
-    color: var(--text-color-muted, #888);
+    color: var(--text-muted-color, #888);
     margin: 2px 0 0;
 }
 </style>

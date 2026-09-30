@@ -1097,7 +1097,7 @@ function clearResults() {
 }
 
 .autoselect__fuse-tooltip-desc {
-  color: var(--text-color-muted, #666);
+  color: var(--text-muted-color, #666);
 }
 
 /* ── Input row ── */
@@ -1178,7 +1178,7 @@ function clearResults() {
   padding: 6px 12px;
   border-top: 1px solid var(--border-color);
   font-size: 12px;
-  color: var(--text-color-muted, #888);
+  color: var(--text-muted-color, #888);
 }
 
 @keyframes autoselect-none-fade {
@@ -1219,7 +1219,7 @@ function clearResults() {
   cursor: pointer;
   font-size: 13px;
   line-height: 1;
-  color: var(--text-color-muted, #888);
+  color: var(--text-muted-color, #888);
   padding: 0 2px;
 }
 
@@ -1269,7 +1269,7 @@ function clearResults() {
    so it's visually clear before you try arrow-navigating to it that this one
    isn't part of that focus order. */
 .autoselect__help-trigger-muted {
-  color: var(--text-color-muted, #666);
+  color: var(--text-muted-color, #666);
 }
 
 .autoselect__help-desc {
