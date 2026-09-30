@@ -502,7 +502,8 @@ class OtusController < ApplicationController
   end
 
   # POST /otus/autoselect_col_create
-  # Creates TaxonNames from a CoL alignment then wraps the result in a new OTU.
+  # Creates TaxonNames from a CoL alignment then wraps the result in an OTU:
+  # the name's existing one if it has one, else a new one.
   def autoselect_col_create
     tn_result = ::Autoselect::TaxonName::ColCreator.new(
       rows:     autoselect_col_create_params,
@@ -511,7 +512,9 @@ class OtusController < ApplicationController
       user_id:    sessions_current_user_id
     ).call
 
-    otu = ::Otu.create!(
+    otu = ::Autoselect::Otu::ColExistingOtu.for_taxon_name(
+      tn_result[:taxon_name_id], project_id: sessions_current_project_id
+    ) || ::Otu.create!(
       taxon_name_id: tn_result[:taxon_name_id],
       project_id:    sessions_current_project_id,
       created_by_id: sessions_current_user_id,

@@ -473,4 +473,23 @@ RSpec.describe Autoselect::TaxonName::Levels::CatalogueOfLife, type: :model do
       end
     end
   end
+  describe '#record_info_html' do
+    def result(target_taxonworks_id)
+      OpenStruct.new(
+        cached: 'Aus bus',
+        _col_extension: { col_status: 'accepted', col_rank: 'species', target_taxonworks_id: }
+      )
+    end
+
+    it 'marks a name already in TaxonWorks with the TW icon, then its CoL badges' do
+      html = level.record_info_html(result(1))
+      expect(html).to start_with(described_class::TW_ICON)
+      expect(html).to include('accepted', 'species')
+    end
+
+    it 'marks a name that would be created with the CoL icon' do
+      expect(level.record_info_html(result(nil)))
+        .to start_with(described_class::COL_ICON)
+    end
+  end
 end

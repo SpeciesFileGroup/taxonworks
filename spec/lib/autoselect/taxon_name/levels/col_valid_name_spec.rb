@@ -80,15 +80,16 @@ RSpec.describe Autoselect::TaxonName::Levels::ColValidName, type: :model do
                          _col_extension: { col_key: 'VALID1', target_taxonworks_id: existing_name.id })
         end
 
-        it 'returns the existing TaxonName, not a creation offer' do
+        # Still a CoL result, so the confirmation modal can show missing ancestors.
+        it 'returns the CoL result, pointing at the existing TaxonName' do
           result = level.call(term: 'Panthera leo persica', project_id:, user_id:)
-          expect(result).to contain_exactly(existing_name)
+          expect(result.length).to eq(1)
+          expect(result.first._col_extension[:target_taxonworks_id]).to eq(existing_name.id)
         end
 
-        it 'attaches _col_resolution provenance (so it renders the TW source) and no _col_extension' do
+        it 'renders it with the TW source' do
           record = level.call(term: 'Panthera leo persica', project_id:, user_id:).first
-          expect(record._col_resolution).to eq(input: 'Panthera leo persica', valid_name: existing_name.cached)
-          expect(record).not_to respond_to(:_col_extension)
+          expect(level.record_info(record).first).to eq('TW')
         end
       end
     end
@@ -106,9 +107,8 @@ RSpec.describe Autoselect::TaxonName::Levels::ColValidName, type: :model do
   end
 
   # Shared with Autoselect::Otu::Levels::ColValidName via
-  # Autoselect::Levels::ColResolvedName. A creation offer (_col_extension) shows
-  # the CoL source; a real existing record (_col_resolution, attached by #call
-  # when the accepted name is already a TaxonName) shows the TW source.
+  # Autoselect::Levels::ColResolvedName. A result whose name is already a
+  # TaxonName (target_taxonworks_id) shows the TW source, else the CoL source.
   describe '#record_info / #record_info_html' do
     let(:renamed) do
       OpenStruct.new(name: 'Panthera leo', _col_extension: { resolved_from: 'Panthera leo persica' })
@@ -117,16 +117,17 @@ RSpec.describe Autoselect::TaxonName::Levels::ColValidName, type: :model do
       OpenStruct.new(name: 'Panthera leo', _col_extension: { resolved_from: 'Panthera leo' })
     end
     let(:existing) do
-      OpenStruct.new(cached: 'Panthera leo').tap do |r|
-        r.define_singleton_method(:_col_resolution) { { input: 'Panthera leo persica', valid_name: 'Panthera leo' } }
-      end
+      OpenStruct.new(
+        name: 'Panthera leo',
+        _col_extension: { resolved_from: 'Panthera leo persica', target_taxonworks_id: 1 }
+      )
     end
 
     it 'tags the CoL source and notes what was typed when CoL changed the name' do
       expect(level.record_info(renamed)).to eq(['CoL', 'valid name for "Panthera leo persica"'])
     end
 
-    it 'tags the TW source when the result is an existing record' do
+    it 'tags the TW source when the name is already a TaxonName' do
       expect(level.record_info(existing)).to eq(['TW', 'valid name for "Panthera leo persica"'])
     end
 
@@ -140,7 +141,7 @@ RSpec.describe Autoselect::TaxonName::Levels::ColValidName, type: :model do
       expect(html).to include('<span class="feedback feedback-thin feedback-warning">valid name for &quot;Panthera leo persica&quot;</span>')
     end
 
-    it 'renders the TW icon for an existing record' do
+    it 'renders the TW icon when the name is already a TaxonName' do
       html = level.record_info_html(existing)
       expect(html).to start_with(described_class::TW_ICON)
       expect(html).not_to include(described_class::COL_ICON)

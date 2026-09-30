@@ -1,10 +1,12 @@
 # lib/autoselect/levels/col_record_info.rb
 #
 # Shared mixin for CoL level classes. Provides styled record_info_html using
-# TaxonWorks feedback CSS classes to communicate CoL status at a glance.
+# TaxonWorks feedback CSS classes to communicate CoL status at a glance, led by
+# a TW/CoL source mark (see ColSourceMark).
 module Autoselect
   module Levels
     module ColRecordInfo
+      include ::Autoselect::Levels::ColSourceMark
 
       def record_info(record)
         col_ext = record._col_extension
@@ -29,7 +31,7 @@ module Autoselect
           parts << "<span class=\"feedback feedback-thin feedback-light\">#{ERB::Util.html_escape(rank)}</span>"
         end
 
-        parts.join(' ')
+        col_source_icon(record) + parts.join(' ')
       end
 
     end

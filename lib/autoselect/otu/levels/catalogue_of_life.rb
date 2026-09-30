@@ -4,6 +4,8 @@ module Autoselect
     module Levels
       # Delegates to the TaxonName CatalogueOfLife level and wraps results with
       # hook metadata indicating they should trigger a TaxonName-creation flow.
+      # A result whose TaxonName already has an Otu carries it in the hook (see
+      # Autoselect::Otu::ColExistingOtu), so that Otu is reused, not duplicated.
       class CatalogueOfLife < ::Autoselect::Level
         include ::Autoselect::Levels::ColRecordInfo
 
@@ -39,9 +41,16 @@ module Autoselect
           taxon_name_level = ::Autoselect::TaxonName::Levels::CatalogueOfLife.new
           col_records = taxon_name_level.call(term:, operator:, project_id:, user_id:, dataset_id:)
 
+          existing_otus = ::Autoselect::Otu::ColExistingOtu.for_taxon_names(
+            col_records.map { |record| record._col_extension[:target_taxonworks_id] },
+            project_id:
+          )
+
           col_records.map do |record|
+            existing_otu =
+              existing_otus[record._col_extension[:target_taxonworks_id]]
             extension = record._col_extension.merge(
-              hook: { create_url: '/otus/autoselect_col_create', yields: 'otu_id' }
+              hook: ::Autoselect::Otu::ColExistingOtu.hook(existing_otu)
             )
 
             OpenStruct.new(

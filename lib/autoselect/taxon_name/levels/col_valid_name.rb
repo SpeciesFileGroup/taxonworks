@@ -8,14 +8,14 @@ module Autoselect
       # nameusage hash that resolve_accepted_name already returned, so no second CoL
       # search (and no per-result classification fetch) is needed.
       #
-      # Returns at most one record — the resolved valid name. When that name is
-      # already a TaxonName in the project the real record is returned (selecting it
-      # just picks that name); otherwise a CoL creation-offer pseudo-record, flagged
-      # with `resolved_from:` so the confirmation UI can show it's the accepted name
-      # for what was typed, not a literal search match.
+      # Returns at most one record — a CoL pseudo-record for the resolved valid
+      # name, flagged with `resolved_from:` so the confirmation UI can show it's the
+      # accepted name for what was typed, not a literal search match. It's a CoL
+      # record even when the name is already a TaxonName in the project, so the
+      # confirmation UI can still show (and offer to create) missing ancestors.
       #
-      # Autoselect::Otu::Levels::ColValidName reuses #resolve_target directly — it
-      # makes its own existing-Otu decision and always needs the raw pseudo-record.
+      # Autoselect::Otu::Levels::ColValidName reuses #resolve_target directly and
+      # adds its own existing-Otu hook.
       class ColValidName < ::Autoselect::Level
         # Source mark + "valid name for X" note, shared with the Otu-level equivalent.
         include ::Autoselect::Levels::ColResolvedName
@@ -48,29 +48,21 @@ module Autoselect
         end
 
         def record_label(record)
-          return super if record.is_a?(::TaxonName)
           ::Autoselect::TaxonName::Levels::CatalogueOfLife.new.record_label(record)
         end
 
         def record_label_html(record)
-          return super if record.is_a?(::TaxonName)
           ::Autoselect::TaxonName::Levels::CatalogueOfLife.new.record_label_html(record)
         end
 
         # @param term [String]
         # @param project_id [Integer, nil]
         # @param dataset_id [String, nil] CoL dataset ID from user preferences; falls back to default when nil
-        # @return [Array<::TaxonName>, Array<OpenStruct>] the existing TaxonName for the
-        #   resolved valid name, or a single creation-offer pseudo-record
+        # @return [Array<OpenStruct>] a single CoL result for the resolved valid
+        #   name (its target_taxonworks_id set when the name already exists)
         def call(term:, operator: nil, project_id: nil, user_id: nil, dataset_id: nil, **_kwargs)
           target = resolve_target(term, project_id:, dataset_id:)
           return [] if target.nil?
-
-          if (tw_id = target._col_extension[:target_taxonworks_id]).present? &&
-             (existing = ::TaxonName.where(project_id:).find_by(id: tw_id))
-            existing.define_singleton_method(:_col_resolution) { { input: term, valid_name: existing.cached } }
-            return [existing]
-          end
 
           [OpenStruct.new(
             id: nil,

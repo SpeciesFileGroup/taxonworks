@@ -184,13 +184,25 @@ const checkedNames = ref(
   )
 )
 
-// True when nothing needs to be created: target already exists, no ancestor rows are
-// checked for creation, and this is a direct TaxonName result (not an OTU hook).
+// The existing record selecting this result yields without creating anything: for
+// a hook result (e.g. the OTU levels) the hook's existing record, otherwise the
+// matched target TaxonName. id is null when there's none.
+const existingRecord = computed(() =>
+  ext.value.hook
+    ? {
+        id: ext.value.hook.existing_id ?? null,
+        global_id: ext.value.hook.existing_global_id ?? null
+      }
+    : {
+        id: ext.value.target_taxonworks_id ?? null,
+        global_id: ext.value.target_global_id ?? null
+      }
+)
+
+// True when nothing needs to be created: the record this result yields already
+// exists and no ancestor rows are checked for creation.
 const nothingToCreate = computed(
-  () =>
-    !ext.value.hook &&
-    checkedNames.value.size === 0 &&
-    !!ext.value.target_taxonworks_id
+  () => checkedNames.value.size === 0 && !!existingRecord.value.id
 )
 
 // True when the target rank is unsupported by TaxonWorks AND no ancestor rows are
@@ -259,10 +271,7 @@ onMounted(() => {
 
 function doConfirm() {
   if (nothingToCreate.value) {
-    emit('confirm', {
-      id: ext.value.target_taxonworks_id,
-      global_id: ext.value.target_global_id ?? null
-    })
+    emit('confirm', { ...existingRecord.value })
     return
   }
   doCreate()
@@ -307,10 +316,10 @@ async function doCreate() {
     dataset_id: ext.value.col_dataset_id ?? null,
     // When the target itself already exists locally (ext.target_taxonworks_id, set by
     // TaxonName::Levels::CatalogueOfLife#call), pass it through so ColCreator reuses it
-    // instead of creating a duplicate — same as exact-match ancestor rows above. This path
-    // still has to hit the server (unlike nothingToCreate) because a hook flow (e.g. OTU
-    // creation) needs the create endpoint to make its own record even when the TaxonName
-    // itself needs nothing.
+    // instead of creating a duplicate — same as exact-match ancestor rows above. A hook
+    // flow (e.g. OTU creation) reaches here with an existing target when its own record
+    // doesn't exist yet, or when ancestor rows are checked; the create endpoint then
+    // makes (or reuses) its own record.
     taxonworks_id: ext.value.target_taxonworks_id ?? null,
     col_authorship: ext.value.col_authorship ?? null,
     col_year: ext.value.col_year ?? null,
