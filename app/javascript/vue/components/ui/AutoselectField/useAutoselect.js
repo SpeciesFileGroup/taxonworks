@@ -10,48 +10,32 @@ import AjaxCall from '@/helpers/ajaxCall'
 
 const configRequests = new Map()
 
-// Extra params can change which levels the server returns, so they must be part of
-// the cache key — otherwise two instances of the same url with different extraParams
-// would clobber each other's cached level map.
-function cacheKey(url, extraParams) {
-  const entries = Object.entries(extraParams).sort(([a], [b]) => a.localeCompare(b))
-  return entries.length ? `${url}?${new URLSearchParams(entries).toString()}` : url
-}
-
-function requestConfig(url, extraParams) {
-  const key = cacheKey(url, extraParams)
-
-  if (!configRequests.has(key)) {
-    const request = AjaxCall('get', url, { params: extraParams })
+function requestConfig(url) {
+  if (!configRequests.has(url)) {
+    const request = AjaxCall('get', url)
       .then(({ body }) => {
         if (body && body.config) return body
 
-        configRequests.delete(key)
+        configRequests.delete(url)
         return null
       })
       .catch((e) => {
         console.warn('[useAutoselect] Failed to fetch config from', url, e)
-        configRequests.delete(key)
+        configRequests.delete(url)
         return null
       })
 
-    configRequests.set(key, request)
+    configRequests.set(url, request)
   }
 
-  return configRequests.get(key)
+  return configRequests.get(url)
 }
 
-/**
- * @param {string} url
- * @param {Object} [extraParams] - extra query params sent with every request (config
- *   and term search alike). Read once at call time; pass a plain object, not a ref
- *   (component owns reactivity, this composable doesn't).
- */
-export function useAutoselect(url, extraParams = {}) {
+export function useAutoselect(url) {
   const config = ref(null)
 
   async function fetchConfig() {
-    const body = await requestConfig(url, extraParams)
+    const body = await requestConfig(url)
     if (body) config.value = body
 
     return config.value

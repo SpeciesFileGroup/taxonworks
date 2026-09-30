@@ -246,6 +246,12 @@ to localStorage regardless. Treat the array as immutable — replace it, don't
 mutate in place. Leave the prop unbound (`null`, the default) for the standard
 per-instance behaviour. The prop falls through `AutoselectPicker` unchanged.
 
+Changing the array mid-session is supported: if the active level drops out, the
+field switches to the leftmost remaining segment (fuse-bar order, not the array's
+order), drops any pending/in-flight search, and re-runs the current term there.
+Bind with `v-model` (not a one-way `:visible-levels`) if users should still be
+able to change levels via `!p`; a one-way binding ignores those checkboxes.
+
 ### `id` attribute
 
 Every `<div class="autoselect">` element should carry a globally unique `id`

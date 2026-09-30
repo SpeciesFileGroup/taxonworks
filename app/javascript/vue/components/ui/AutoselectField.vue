@@ -238,10 +238,6 @@ const props = defineProps({
   // the input with the selected label.  Use for "append to list" contexts where the
   // field should be ready for the next search immediately after each pick.
   resetOnSelect: { type: Boolean, default: false },
-  // Extra query params sent with every request (config fetch and term search alike).
-  // Not reactive — changing which levels are available mid-session isn't supported;
-  // mount a fresh instance (e.g. via :key) if that's needed.
-  extraParams: { type: Object, default: () => ({}) },
   // Focus the input once it's actually usable. A plain HTML `autofocus` attribute
   // (or focusing from a parent right after mount) doesn't work here: the input is
   // `:disabled` until the initial config fetch resolves, and browsers won't focus
@@ -266,8 +262,7 @@ const effectiveId = props.id ?? `autoselect_${randomUUID()}`
 
 // ── Composables ────────────────────────────────────────────────────────────────
 const { config, fetchConfig, getFirstLevelKey, getOperators } = useAutoselect(
-  props.url,
-  props.extraParams
+  props.url
 )
 
 const prefs = usePreferences(props.url, props.preferencesKey ?? effectiveId)
@@ -434,16 +429,28 @@ onBeforeUnmount(() => {
 
 // Parent changed the controlled visible-levels list (e.g. a task-wide toggle that
 // drives every field at once). Segments re-derive reactively; only the active
-// level needs rescuing if it just disappeared.
+// level needs rescuing if it just disappeared. The replacement is the leftmost
+// visible segment (fuse-bar order, only levels the config knows), not the
+// parent's levels[0]. Anything still in flight for the old level is dropped so
+// it can't repopulate the dropdown, then the term re-runs on the new level —
+// same as onPrefsSave.
 watch(
   () => props.visibleLevels,
   (levels) => {
     if (levels === null || !ready.value) return
-    if (!levels.includes(currentLevel.value)) {
-      currentLevel.value = levels[0] ?? getFirstLevelKey()
-      clearResults()
-      cancelFuse()
+    if (visibleFuseSegments.value.some((s) => s.key === currentLevel.value)) {
+      return
     }
+
+    currentLevel.value = getFirstVisibleLevelKey()
+    if (getRequest) clearTimeout(getRequest)
+    controller.value?.abort()
+    isSearching.value = false
+    cancelFuse()
+    clearResults()
+
+    const term = inputText.value.trim()
+    if (term) triggerSearch(term)
   }
 )
 
@@ -612,7 +619,6 @@ function triggerSearch(term) {
       term,
       level: currentLevel.value,
       ...levelOptions,
-      ...props.extraParams,
       show_info: prefs.getShowInfo()
     },
     signal: controller.value.signal
