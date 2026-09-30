@@ -1,8 +1,7 @@
 <template>
   <VBtn
-    color="primary"
     medium
-    variant="tonal"
+    variant="outline"
     @click="emitActualDate"
   >
     Today
