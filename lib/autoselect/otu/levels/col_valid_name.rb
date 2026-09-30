@@ -56,7 +56,7 @@ module Autoselect
           super
         end
 
-        def record_label_html(record)
+        def record_label_html(record, term = nil)
           return record.name.to_s if record.respond_to?(:_col_extension)
           super
         end

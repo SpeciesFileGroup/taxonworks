@@ -436,9 +436,17 @@ describe Vendor::Colrapi, type: :model do
       end
     end
 
-    context 'when the top hit is an ambiguous synonym with no single accepted target' do
+    # CoL attaches an `accepted` usage to ambiguous synonyms too, but it's only
+    # one of several possible targets.
+    context 'when the top hit is an ambiguous synonym' do
       let(:ambiguous_result) do
-        col_nameusage_result(id: 'AMB1', scientific_name: 'Crayracion', status: 'ambiguous synonym')
+        col_nameusage_result(id: 'AMB1', scientific_name: 'Crayracion', status: 'ambiguous synonym').merge(
+          'accepted' => {
+            'id'     => 'ACC2',
+            'status' => 'accepted',
+            'name'   => { 'scientificName' => 'Sphoeroides', 'authorship' => 'Anonymous, 1798' }
+          }
+        )
       end
 
       before do
@@ -451,6 +459,24 @@ describe Vendor::Colrapi, type: :model do
         expect(result[:valid_col_key]).to eq('AMB1')
         expect(result[:valid_status]).to eq('ambiguous synonym')
         expect(result[:valid_col_result]).to eq(ambiguous_result)
+      end
+    end
+
+    context 'when the top hit is a misapplied name' do
+      before do
+        allow(::Colrapi).to receive(:nameusage).and_return(
+          { 'total' => 1, 'result' => [
+            col_nameusage_result(id: 'MIS1', scientific_name: 'Felis leo', status: 'misapplied').merge(
+              'accepted' => { 'id' => 'ACC3', 'status' => 'accepted', 'name' => { 'scientificName' => 'Panthera leo' } }
+            )
+          ] }
+        )
+      end
+
+      it 'resolves to itself' do
+        result = described_class.resolve_accepted_name('Felis leo')
+        expect(result[:valid_col_key]).to eq('MIS1')
+        expect(result[:valid_status]).to eq('misapplied')
       end
     end
 

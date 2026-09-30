@@ -310,9 +310,10 @@ module Vendor
     # synonymy by hand before searching TaxonWorks.
     #
     # Takes CoL's top-ranked search hit for name_string as-is (no re-scoring here). When
-    # that hit is a synonym with a single accepted target, follows it; an accepted hit, or
-    # a synonym with no single accepted target (e.g. an ambiguous synonym), resolves to
-    # itself.
+    # that hit is a plain synonym, follows it to its accepted target; anything else
+    # resolves to itself. Ambiguous synonyms and misapplied names also carry an
+    # `accepted` usage in CoL, but it's only one of several possible targets, so
+    # following it would present an arbitrary pick as the valid name.
     #
     # @param name_string [String]
     # @param dataset_id [String, nil] CoL dataset ID; falls back to the default hardwired ID when nil
@@ -330,7 +331,7 @@ module Vendor
       matched_name   = top.dig('name', 'scientificName') || top['label']
       matched_status = top['status']
       target_dataset_id = dataset_id.presence || DATASETS[:col]
-      accepted = top['accepted'] if matched_status.present? && matched_status != 'accepted'
+      accepted = top['accepted'] if matched_status == 'synonym'
 
       # The full nameusage hash for the *valid* name — CoL nests the accepted usage
       # (a complete nameusage record, same shape as a search result) right on the

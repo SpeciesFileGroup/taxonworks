@@ -10,13 +10,14 @@
 #     clear the result came through CoL resolution, not a plain local match;
 #   * a status badge, but only when CoL's status isn't 'accepted'. The level's
 #     name promises a valid name, yet Vendor::Colrapi.resolve_accepted_name
-#     resolves a top hit to itself unless it's a synonym with a single accepted
-#     target (ambiguous synonyms, misapplied names, ...) — those must not look
-#     like accepted names. An 'accepted' badge on every row would be noise;
+#     resolves a top hit to itself unless it's a plain synonym (ambiguous
+#     synonyms, misapplied names, ...) — those must not look like accepted
+#     names. An 'accepted' badge on every row would be noise;
 #   * a rank badge, as on the catalogue_of_life levels;
-#   * a "valid name for X" note, but only when CoL actually *changed* the name.
-#     When what was typed already is the accepted name the note would imply a
-#     difference that isn't there, so it's left off.
+#   * a "valid name for X" note, but only when CoL actually followed synonymy,
+#     X being the synonym CoL matched (`_col_extension[:resolved_synonym]`).
+#     What was typed is a poor stand-in: a partial, authored, or subgenus-form
+#     term differs from the result without any synonymy involved.
 #
 # The source mark comes first: without it, a note sitting next to whatever
 # project-local info the record already carries gives no cue where it came from.
@@ -28,8 +29,8 @@ module Autoselect
       include ::Autoselect::Levels::ColSourceMark
 
       # @return [Array<String>] source tag ("TW"/"CoL"), then any non-accepted
-      #   status, the rank, and a "valid name for X" note when CoL changed the
-      #   name. Falls back to the ancestor's info for anything without CoL
+      #   status, the rank, and a "valid name for X" note when CoL followed
+      #   synonymy. Falls back to the ancestor's info for anything without CoL
       #   provenance.
       def record_info(record)
         return super if resolved_from(record).nil?
@@ -65,35 +66,24 @@ module Autoselect
           badges << [rank, :light]
         end
 
-        if resolved_and_renamed?(record)
-          badges << [%(valid name for "#{resolved_from(record)}"), :warning]
+        if (synonym = resolved_synonym(record))
+          badges << [%(valid name for "#{synonym}"), :warning]
         end
 
         badges
       end
 
-      # True when CoL actually changed the name — #resolved_from (what was typed)
-      # differs from #valid_name_for (what the result shows). False both for
-      # records with no CoL provenance and for the "typed exactly the accepted
-      # name" case, where a "valid name for X" note would just be noise.
-      def resolved_and_renamed?(record)
-        input = resolved_from(record)
-        valid = valid_name_for(record)
-        return false if input.nil? || valid.nil?
-        !input.casecmp?(valid)
+      # The synonym CoL matched and followed to this record's valid name. nil
+      # when CoL didn't follow synonymy, or for anything without CoL provenance.
+      def resolved_synonym(record)
+        return nil if resolved_from(record).nil?
+        record._col_extension[:resolved_synonym].presence
       end
 
       # The raw text CoL resolved to produce this record. nil for anything
       # without CoL provenance.
       def resolved_from(record)
         return record._col_extension[:resolved_from] if record.respond_to?(:_col_extension)
-        nil
-      end
-
-      # The name CoL actually resolved to (what the record shows, already set to
-      # the resolved valid name).
-      def valid_name_for(record)
-        return record.name if record.respond_to?(:_col_extension)
         nil
       end
 

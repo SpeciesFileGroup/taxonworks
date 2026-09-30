@@ -98,47 +98,57 @@ RSpec.describe Autoselect::Otu::Levels::ColValidName, type: :model do
     end
   end
 
+  # Autoselect::Otu::Autoselect#format_results passes the term.
+  describe '#record_label_html' do
+    it 'accepts the search term' do
+      record = OpenStruct.new(name: 'Panthera leo', _col_extension: {})
+      expect(level.record_label_html(record, 'Panthera')).to eq('Panthera leo')
+    end
+  end
+
   describe '#record_info / #record_info_html' do
-    def result(resolved_from:, existing_id: nil)
+    # Called with the synonym CoL followed, or nil when it followed none.
+    def result(resolved_synonym:, existing_id: nil)
       OpenStruct.new(
         name: 'Panthera leo',
         _col_extension: {
-          col_status: 'accepted', col_rank: 'species', resolved_from:,
+          col_status: 'accepted', col_rank: 'species',
+          resolved_from: 'Panthera leo pers', resolved_synonym:,
           hook: { create_url: '/otus/autoselect_col_create', yields: 'otu_id', existing_id: }
         }
       )
     end
 
     it 'tags the TW source when the name already has an OTU' do
-      expect(level.record_info(result(resolved_from: 'Panthera leo persica', existing_id: 1)))
+      expect(level.record_info(result(resolved_synonym: 'Panthera leo persica', existing_id: 1)))
         .to eq(['TW', 'species', 'valid name for "Panthera leo persica"'])
     end
 
     it 'tags the CoL source when an OTU would be created' do
-      expect(level.record_info(result(resolved_from: 'Panthera leo persica')))
+      expect(level.record_info(result(resolved_synonym: 'Panthera leo persica')))
         .to eq(['CoL', 'species', 'valid name for "Panthera leo persica"'])
     end
 
-    it 'omits the note when the typed term already is the valid name' do
-      expect(level.record_info(result(resolved_from: 'Panthera leo')))
+    it 'omits the note when CoL followed no synonymy' do
+      expect(level.record_info(result(resolved_synonym: nil)))
         .to eq(['CoL', 'species'])
     end
 
     it 'renders the TW icon in front of the "valid name for" badge' do
-      html = level.record_info_html(result(resolved_from: 'Panthera leo persica', existing_id: 1))
+      html = level.record_info_html(result(resolved_synonym: 'Panthera leo persica', existing_id: 1))
       expect(html).to start_with(described_class::TW_ICON)
       expect(html).to include('<span class="feedback feedback-thin feedback-warning">valid name for &quot;Panthera leo persica&quot;</span>')
       expect(html).not_to include(described_class::COL_ICON)
     end
 
     it 'renders the CoL icon in front of the "valid name for" badge' do
-      html = level.record_info_html(result(resolved_from: 'Panthera leo persica'))
+      html = level.record_info_html(result(resolved_synonym: 'Panthera leo persica'))
       expect(html).to start_with(described_class::COL_ICON)
       expect(html).not_to include(described_class::TW_ICON)
     end
 
     it 'renders just the icon and rank when nothing was renamed' do
-      expect(level.record_info_html(result(resolved_from: 'Panthera leo')))
+      expect(level.record_info_html(result(resolved_synonym: nil)))
         .to eq(described_class::COL_ICON +
           '<span class="feedback feedback-thin feedback-light">species</span>')
     end

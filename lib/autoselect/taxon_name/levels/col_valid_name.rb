@@ -51,8 +51,8 @@ module Autoselect
           ::Autoselect::TaxonName::Levels::CatalogueOfLife.new.record_label(record)
         end
 
-        def record_label_html(record)
-          ::Autoselect::TaxonName::Levels::CatalogueOfLife.new.record_label_html(record)
+        def record_label_html(record, term = nil)
+          ::Autoselect::TaxonName::Levels::CatalogueOfLife.new.record_label_html(record, term)
         end
 
         # @param term [String]
@@ -78,14 +78,24 @@ module Autoselect
         # data plus build_pseudo_record's existing-TaxonName check — before #call's
         # real-record-vs-creation-offer decision. nil when CoL resolves nothing usable.
         #
+        # When CoL followed synonymy, the extension's `resolved_synonym` holds the
+        # synonym it matched (nil otherwise).
+        #
         # @return [OpenStruct, nil]
         def resolve_target(term, project_id: nil, dataset_id: nil)
           resolved = ::Vendor::Colrapi.resolve_accepted_name(term, dataset_id:)
           return nil if resolved.nil? || resolved[:valid_name].blank? || resolved[:valid_col_result].blank?
 
-          ::Autoselect::TaxonName::Levels::CatalogueOfLife.new.build_pseudo_record(
+          target = ::Autoselect::TaxonName::Levels::CatalogueOfLife.new.build_pseudo_record(
             resolved[:valid_col_result], project_id:, dataset_id: resolved[:dataset_id]
           )
+          return nil if target.nil?
+
+          followed = resolved[:matched_col_key] != resolved[:valid_col_key]
+          target._col_extension = target._col_extension.merge(
+            resolved_synonym: (resolved[:matched_name] if followed)
+          )
+          target
         end
 
       end

@@ -13,6 +13,14 @@ RSpec.describe Autoselect::TaxonName::Levels::ColValidName, type: :model do
     end
   end
 
+  # Autoselect::TaxonName::Autoselect#format_results passes the term.
+  describe '#record_label_html' do
+    it 'accepts the search term' do
+      record = OpenStruct.new(cached: 'Panthera leo', _col_extension: { col_name: 'leo' })
+      expect { level.record_label_html(record, 'Panthera') }.not_to raise_error
+    end
+  end
+
   describe '#call' do
     context 'when CoL has no match for the term' do
       before { allow(::Vendor::Colrapi).to receive(:resolve_accepted_name).and_return(nil) }
@@ -68,6 +76,29 @@ RSpec.describe Autoselect::TaxonName::Levels::ColValidName, type: :model do
         expect(result.first._col_extension[:resolved_from]).to eq('Panthera leo persica')
       end
 
+      it 'records the synonym CoL followed' do
+        result = level.call(term: 'Panthera leo persica', project_id:, user_id:)
+        expect(result.first._col_extension[:resolved_synonym]).to eq('Panthera leo persica')
+      end
+
+      context 'and CoL followed no synonymy' do
+        before do
+          allow(::Vendor::Colrapi).to receive(:resolve_accepted_name)
+            .with('Panthera le', dataset_id: nil)
+            .and_return(
+              input: 'Panthera le', matched_name: 'Panthera leo', matched_status: 'accepted',
+              matched_col_key: 'VALID1', valid_name: 'Panthera leo', valid_col_key: 'VALID1',
+              valid_authorship: 'Linnaeus, 1758', valid_status: 'accepted',
+              valid_col_result:, dataset_id: '3LR'
+            )
+        end
+
+        it 'records no synonym' do
+          result = level.call(term: 'Panthera le', project_id:, user_id:)
+          expect(result.first._col_extension[:resolved_synonym]).to be_nil
+        end
+      end
+
       it 'preserves the rest of the underlying _col_extension (e.g. col_authorship)' do
         result = level.call(term: 'Panthera leo persica', project_id:, user_id:)
         expect(result.first._col_extension[:col_authorship]).to eq('Linnaeus, 1758')
@@ -111,19 +142,26 @@ RSpec.describe Autoselect::TaxonName::Levels::ColValidName, type: :model do
   # TaxonName (target_taxonworks_id) shows the TW source, else the CoL source.
   describe '#record_info / #record_info_html' do
     let(:renamed) do
-      OpenStruct.new(name: 'Panthera leo', _col_extension: { resolved_from: 'Panthera leo persica' })
+      OpenStruct.new(
+        name: 'Panthera leo',
+        _col_extension: { resolved_from: 'Panthera leo pers', resolved_synonym: 'Panthera leo persica' }
+      )
     end
+    # Typed text differs from the result, but no synonymy was followed.
     let(:unchanged) do
-      OpenStruct.new(name: 'Panthera leo', _col_extension: { resolved_from: 'Panthera leo' })
+      OpenStruct.new(name: 'Panthera leo', _col_extension: { resolved_from: 'Panthera le' })
     end
     let(:existing) do
       OpenStruct.new(
         name: 'Panthera leo',
-        _col_extension: { resolved_from: 'Panthera leo persica', target_taxonworks_id: 1 }
+        _col_extension: {
+          resolved_from: 'Panthera leo persica', resolved_synonym: 'Panthera leo persica',
+          target_taxonworks_id: 1
+        }
       )
     end
 
-    it 'tags the CoL source and notes what was typed when CoL changed the name' do
+    it 'tags the CoL source and notes the synonym CoL followed' do
       expect(level.record_info(renamed)).to eq(['CoL', 'valid name for "Panthera leo persica"'])
     end
 
@@ -131,7 +169,7 @@ RSpec.describe Autoselect::TaxonName::Levels::ColValidName, type: :model do
       expect(level.record_info(existing)).to eq(['TW', 'valid name for "Panthera leo persica"'])
     end
 
-    it 'omits the note when the typed term already is the valid name' do
+    it 'omits the note when CoL followed no synonymy' do
       expect(level.record_info(unchanged)).to eq(['CoL'])
     end
 
@@ -152,10 +190,13 @@ RSpec.describe Autoselect::TaxonName::Levels::ColValidName, type: :model do
     end
 
     context 'with CoL status and rank' do
-      def result(col_status:, resolved_from: 'Panthera leo')
+      def result(col_status:, resolved_synonym: nil)
         OpenStruct.new(
           name: 'Panthera leo',
-          _col_extension: { col_status:, col_rank: 'species', resolved_from: }
+          _col_extension: {
+            col_status:, col_rank: 'species', resolved_from: 'Panthera leo',
+            resolved_synonym:
+          }
         )
       end
 
@@ -164,8 +205,8 @@ RSpec.describe Autoselect::TaxonName::Levels::ColValidName, type: :model do
           .to eq(['CoL', 'species'])
       end
 
-      # resolve_accepted_name only follows a synonym with a single accepted
-      # target; anything else resolves to itself, still not accepted.
+      # resolve_accepted_name only follows a plain synonym; anything else
+      # resolves to itself, still not accepted.
       it 'flags a status other than accepted' do
         expect(level.record_info(result(col_status: 'ambiguous synonym')))
           .to eq(['CoL', 'ambiguous synonym', 'species'])
@@ -173,11 +214,12 @@ RSpec.describe Autoselect::TaxonName::Levels::ColValidName, type: :model do
 
       it 'orders status and rank badges before the note' do
         html = level.record_info_html(
-          result(col_status: 'misapplied', resolved_from: 'Felis leo')
+          result(col_status: 'provisionally accepted', resolved_synonym: 'Felis leo')
         )
         expect(html).to eq(
           described_class::COL_ICON +
-          '<span class="feedback feedback-thin feedback-warning">misapplied</span> ' \
+          '<span class="feedback feedback-thin feedback-warning">' \
+          'provisionally accepted</span> ' \
           '<span class="feedback feedback-thin feedback-light">species</span> ' \
           '<span class="feedback feedback-thin feedback-warning">' \
           'valid name for &quot;Felis leo&quot;</span>'
