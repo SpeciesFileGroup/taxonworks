@@ -73,10 +73,11 @@ module Vendor
     #
     # @param name_string [String]
     # @param dataset_id [String, nil] CoL dataset ID; falls back to the default hardwired ID when nil
+    # @param limit [Integer] maximum number of results
     # @return [Hash] raw Colrapi nameusage response (keys 'total', 'result')
-    def self.search(name_string, dataset_id: nil)
+    def self.search(name_string, dataset_id: nil, limit: 20)
       target = dataset_id.presence || DATASETS[:col]
-      ::Colrapi.nameusage(target, q: name_string, limit: 20)
+      ::Colrapi.nameusage(target, q: name_string, limit:)
     rescue => e
       Rails.logger.warn "Vendor::Colrapi.search error: #{e.message}"
       { 'total' => 0, 'result' => [] }
@@ -322,7 +323,7 @@ module Vendor
     #     valid_name:, valid_col_key:, valid_authorship:, valid_status:,
     #     valid_col_result:, dataset_id: }
     def self.resolve_accepted_name(name_string, dataset_id: nil)
-      top = search(name_string, dataset_id:)['result']&.first
+      top = search(name_string, dataset_id:, limit: 1)['result']&.first
       return nil if top.nil?
 
       # Full scientific name (e.g. "Homo sapiens"), not the single-word component

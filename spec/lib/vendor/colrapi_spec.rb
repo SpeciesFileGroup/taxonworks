@@ -381,6 +381,12 @@ describe Vendor::Colrapi, type: :model do
       end
     end
 
+    it 'fetches only the top hit' do
+      allow(::Colrapi).to receive(:nameusage).and_return({ 'total' => 0, 'result' => [] })
+      described_class.resolve_accepted_name('Homo sapiens')
+      expect(::Colrapi).to have_received(:nameusage).with('3LR', hash_including(limit: 1))
+    end
+
     context 'when the top hit is accepted' do
       before do
         allow(::Colrapi).to receive(:nameusage)
