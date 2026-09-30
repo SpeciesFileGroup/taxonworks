@@ -3,73 +3,60 @@
     <div v-if="!editing">
       <span
         v-html="displayLabel"
-        @click="setEdit(true)"/>
+        v-tooltip="modelValue ? legend : ''"
+        @click="setEdit(true)"
+      />
     </div>
     <div v-else>
       <input
-        ref="inputtext"
+        ref="inputRef"
         @blur="setEdit(false)"
         @keypress.enter="setEdit(false)"
         v-model="inputField"
-        type="text"/>
+        type="text"
+      />
     </div>
   </div>
 </template>
 
-<script>
-export default {
-  props: {
-    modelValue: {
-      type: String,
-    },
+<script setup>
+import { computed, nextTick, ref, watch } from 'vue'
+import { vTooltip } from '@/directives'
 
-    legend: {
-      type: String,
-      default: 'Click to edit'
-    }
+const props = defineProps({
+  modelValue: {
+    type: String
   },
 
-  emits: [
-    'update:modelValue',
-    'end'
-  ],
-
-  computed: {
-    inputField: {
-      get() {
-        return this.modelValue
-      },
-      set(value) {
-        this.$emit('update:modelValue', value)
-      }
-    },
-    displayLabel () {
-      return this.modelValue ? this.modelValue : this.legend
-    }
-  },
-
-  watch: {
-    editing(newVal) {
-      if(newVal) {
-        this.$nextTick(() => {
-          this.$refs.inputtext.focus()
-        })
-      }
-      else {
-        this.$emit('end', this.value)
-      }
-    }
-  },
-
-  data () {
-    return {
-      editing: false,
-    }
-  },
-  methods: {
-    setEdit (value) {
-      this.editing = value
-    }
+  legend: {
+    type: String,
+    default: 'Click to edit'
   }
+})
+
+const emit = defineEmits(['update:modelValue', 'end'])
+
+const editing = ref(false)
+const inputRef = ref(null)
+
+const inputField = computed({
+  get: () => props.modelValue,
+  set: (value) => emit('update:modelValue', value)
+})
+
+const displayLabel = computed(() => props.modelValue || props.legend)
+
+watch(editing, (newVal) => {
+  if (newVal) {
+    nextTick(() => {
+      inputRef.value.focus()
+    })
+  } else {
+    emit('end', props.modelValue)
+  }
+})
+
+function setEdit(value) {
+  editing.value = value
 }
 </script>
