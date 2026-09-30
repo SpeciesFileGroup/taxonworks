@@ -219,9 +219,7 @@ module Autoselect
         def rank_resolvable?(rank_string)
           return false if rank_string.blank?
           r = rank_string.to_s.downcase
-          [:ICZN_LOOKUP, :ICN_LOOKUP, :ICNP_LOOKUP, :ICVCN_LOOKUP].any? do |key|
-            Object.const_get("::#{key}")[r].present?
-          end
+          ::Vendor::Colrapi::COL_CODE_LOOKUP_MAP.values.any? { |lookup| lookup[r].present? }
         end
 
       end

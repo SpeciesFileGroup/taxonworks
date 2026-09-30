@@ -369,11 +369,13 @@ module Vendor
         name_hash['scientificName']
     end
 
+    # Maps a CoL nomenclatural code string to the TaxonWorks rank-name lookup
+    # (rank name => rank_class string) for that code.
     COL_CODE_LOOKUP_MAP = {
-      'zoological' => :ICZN_LOOKUP,
-      'botanical'  => :ICN_LOOKUP,
-      'bacterial'  => :ICNP_LOOKUP,
-      'viral'      => :ICVCN_LOOKUP
+      'zoological' => ::ICZN_LOOKUP,
+      'botanical'  => ::ICN_LOOKUP,
+      'bacterial'  => ::ICNP_LOOKUP,
+      'viral'      => ::ICVCN_LOOKUP
     }.freeze
 
     # Maps a CoL nomenclatural code string to the TaxonWorks nomenclature_code symbol
@@ -398,16 +400,10 @@ module Vendor
       return nil if rank_string.blank?
       r = rank_string.to_s.downcase
 
-      primary_key = COL_CODE_LOOKUP_MAP[col_code]
-
-      if primary_key
-        result = Object.const_get("::#{primary_key}")[r]
-        return result if result
-      end
-
-      fallbacks = [:ICZN_LOOKUP, :ICN_LOOKUP, :ICNP_LOOKUP, :ICVCN_LOOKUP].reject { |k| k == primary_key }
-      fallbacks.each do |key|
-        result = Object.const_get("::#{key}")[r]
+      primary = COL_CODE_LOOKUP_MAP[col_code]
+      lookups = [primary, *COL_CODE_LOOKUP_MAP.values.excluding(primary)].compact
+      lookups.each do |lookup|
+        result = lookup[r]
         return result if result
       end
 
@@ -417,15 +413,13 @@ module Vendor
     # Maps a CoL rank name ('genus', 'family', …) and CoL nomenclatural code
     # ('zoological', 'botanical', 'bacterial', 'viral') to the TaxonWorks RANK_SORT
     # index. Higher index = more specific rank. Returns nil when unresolvable.
+    #
+    # Unlike rank_class_for, doesn't fall back through the other codes: callers
+    # compare these indices against each other, so all must come from one code.
+    # An unrecognized col_code is treated as zoological.
     def self.col_rank_sort(rank_name, col_code)
       return nil if rank_name.blank?
-      lookup = case col_code
-               when 'zoological' then ::ICZN_LOOKUP
-               when 'botanical'  then ::ICN_LOOKUP
-               when 'bacterial'  then ::ICNP_LOOKUP
-               when 'viral'      then ::ICVCN_LOOKUP
-               else ::ICZN_LOOKUP
-               end
+      lookup = COL_CODE_LOOKUP_MAP[col_code] || ::ICZN_LOOKUP
       rank_class = lookup[rank_name]
       rank_class ? ::RANK_SORT[rank_class] : nil
     end

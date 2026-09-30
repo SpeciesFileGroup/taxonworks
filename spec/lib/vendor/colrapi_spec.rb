@@ -368,6 +368,31 @@ describe Vendor::Colrapi, type: :model do
     end
   end
 
+  # ── col_rank_sort ────────────────────────────────────────────────────────────
+
+  describe '.col_rank_sort' do
+    it 'uses the lookup for the given code' do
+      expect(described_class.col_rank_sort('genus', 'botanical'))
+        .to eq(::RANK_SORT[::ICN_LOOKUP['genus']])
+    end
+
+    it 'treats an unrecognized code as zoological' do
+      expect(described_class.col_rank_sort('genus', nil))
+        .to eq(::RANK_SORT[::ICZN_LOOKUP['genus']])
+    end
+
+    it 'does not fall back to another code' do
+      expect(::ICZN_LOOKUP['variety']).to be_nil
+      expect(::ICN_LOOKUP['variety']).to be_present
+      expect(described_class.col_rank_sort('variety', 'zoological')).to be_nil
+    end
+
+    it 'orders a more specific rank higher' do
+      expect(described_class.col_rank_sort('species', 'zoological'))
+        .to be > described_class.col_rank_sort('genus', 'zoological')
+    end
+  end
+
   # ── resolve_accepted_name ────────────────────────────────────────────────────
 
   describe '.resolve_accepted_name' do
