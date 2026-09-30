@@ -155,7 +155,7 @@ module Vendor
     #
     # Returns entries in the same format as the classification subresource used by ancestors():
     #   { 'id', 'name' (String uninomial), 'rank', 'authorship', 'label', 'labelHtml' }
-    # Order is proximal-first (immediate parent first) matching ancestors() behavior.
+    # Order is distal-first (kingdom before immediate parent), matching ancestors().
     # The starting taxon itself is NOT included; only its ancestors are.
     #
     # @param dataset_id [String] the external dataset to query

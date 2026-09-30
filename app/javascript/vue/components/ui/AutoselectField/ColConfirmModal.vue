@@ -27,10 +27,10 @@
           </tr>
         </thead>
         <tbody>
-          <!-- Ancestor rows: distal first (array is proximal→distal, so reversed) -->
+          <!-- Ancestor rows: distal first -->
           <tr
-            v-for="row in ancestorRowsDistalFirst"
-            :key="row.col_name + row.rank"
+            v-for="(row, index) in ancestorRowsDistalFirst"
+            :key="rowKey(row, index)"
             :class="rowClass(row)"
           >
             <td>
@@ -48,8 +48,8 @@
               <input
                 v-else-if="row.match === 'none'"
                 type="checkbox"
-                :checked="checkedNames.has(row.col_name)"
-                @change="toggleRow(row.col_name)"
+                :checked="checkedRowKeys.has(rowKey(row, index))"
+                @change="toggleRow(rowKey(row, index))"
               />
               <!-- 'extra' rows (TaxonWorks-only ancestors) get no checkbox — always
                    sent to the server as parent anchors, never user-toggleable -->
@@ -173,14 +173,23 @@ const ext = computed(() => props.item.extension)
 // comes back from Vendor::Colrapi.build_extension.
 const ancestorRowsDistalFirst = computed(() => ext.value.alignment ?? [])
 
-// Set of col_name values the user has checked for creation (match==='none' rows).
+// Identifies an alignment row. Not col_name: a subgenus row carries only its
+// epithet, so a nominotypical genus 'Aus' and subgenus 'Aus (Aus)' share one,
+// and TaxonWorks-only ('extra') rows have none. Those 'extra' rows also have no
+// col_id, so they fall back to their position in the (fixed) alignment.
+function rowKey(row, index) {
+  return row.col_id ?? `${row.rank}:${index}`
+}
+
+// Set of rowKey values the user has checked for creation (match==='none' rows).
 // Ranks above GenusGroup (family-group and higher) default to unchecked — creating
 // higher classification is rarely wanted, unlike genus/species-group ancestors.
-const checkedNames = ref(
+const checkedRowKeys = ref(
   new Set(
     (ext.value.alignment ?? [])
-      .filter((r) => r.match === 'none' && !r.above_genus_group)
-      .map((r) => r.col_name)
+      .map((r, i) => [r, rowKey(r, i)])
+      .filter(([r]) => r.match === 'none' && !r.above_genus_group)
+      .map(([, key]) => key)
   )
 )
 
@@ -202,7 +211,7 @@ const existingRecord = computed(() =>
 // True when nothing needs to be created: the record this result yields already
 // exists and no ancestor rows are checked for creation.
 const nothingToCreate = computed(
-  () => checkedNames.value.size === 0 && !!existingRecord.value.id
+  () => checkedRowKeys.value.size === 0 && !!existingRecord.value.id
 )
 
 // True when the target rank is unsupported by TaxonWorks AND no ancestor rows are
@@ -210,7 +219,7 @@ const nothingToCreate = computed(
 const cannotCreate = computed(
   () =>
     !nothingToCreate.value &&
-    checkedNames.value.size === 0 &&
+    checkedRowKeys.value.size === 0 &&
     !!ext.value.target_rank_unknown
 )
 
@@ -243,18 +252,18 @@ function clbTaxonUrl(datasetId, taxonId) {
   return `https://www.catalogueoflife.org/data/taxon/${taxonId}`
 }
 
-function toggleRow(colName) {
-  if (checkedNames.value.has(colName)) {
-    checkedNames.value.delete(colName)
+function toggleRow(key) {
+  if (checkedRowKeys.value.has(key)) {
+    checkedRowKeys.value.delete(key)
   } else {
-    checkedNames.value.add(colName)
+    checkedRowKeys.value.add(key)
   }
   // Force reactivity on Set mutation
-  checkedNames.value = new Set(checkedNames.value)
+  checkedRowKeys.value = new Set(checkedRowKeys.value)
 }
 
 function rowClass(row) {
-  if (errorColName.value !== null && row.col_name === errorColName.value) return 'col-confirm-modal__row--error'
+  if (errorColId.value !== null && row.col_id === errorColId.value) return 'col-confirm-modal__row--error'
   if (row.match === 'exact') return 'col-confirm-modal__row--exact'
   if (row.match === 'extra') return 'col-confirm-modal__row--extra'
   if (row.match === 'conflict') return 'col-confirm-modal__row--conflict'
@@ -263,7 +272,7 @@ function rowClass(row) {
 
 const confirmBtn = ref(null)
 const isCreating = ref(false)
-const errorColName = ref(null)
+const errorColId = ref(null)
 
 onMounted(() => {
   nextTick(() => confirmBtn.value?.$el?.focus())
@@ -280,7 +289,7 @@ function doConfirm() {
 async function doCreate() {
   if (isCreating.value) return
   isCreating.value = true
-  errorColName.value = null
+  errorColId.value = null
 
   // Build distal→proximal rows for the server — alignment already comes back in that
   // order (kingdom-first) from Vendor::Colrapi.build_extension.
@@ -293,11 +302,11 @@ async function doCreate() {
   // Unchecked 'none' rows are the only alignment rows left out.
   const ancestorRows = (ext.value.alignment ?? [])
     .filter(
-      (r) =>
+      (r, i) =>
         r.match === 'exact' ||
         r.match === 'extra' ||
         r.match === 'conflict' ||
-        checkedNames.value.has(r.col_name)
+        checkedRowKeys.value.has(rowKey(r, i))
     )
     .map((r) => ({
       col_name: r.col_name,
@@ -337,7 +346,7 @@ async function doCreate() {
     })
     emit('confirm', { id: body[yieldsKey], global_id: body.global_id ?? null })
   } catch (err) {
-    errorColName.value = err.response?.body?.failed_col_name ?? null
+    errorColId.value = err.response?.body?.failed_col_id ?? null
   } finally {
     isCreating.value = false
   }
