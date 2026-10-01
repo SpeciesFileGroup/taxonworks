@@ -10,7 +10,7 @@
         </div>
         <div class="tw-card-body">
           <% if @projects.length > 8 -%>
-            <input type="search" class="normal-input full_width project-filter-input" placeholder="Filter projects..." autocomplete="off">
+            <input type="search" class="normal-input full_width project-filter-input" placeholder="Filter projects..." autocomplete="off" autofocus="true">
           <% end -%>
           <ul class="project-list no_bullets">
             <%= projects_list(@projects) -%>
