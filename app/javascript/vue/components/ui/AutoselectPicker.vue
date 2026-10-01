@@ -8,10 +8,9 @@
   calls `getObject` — as sensible per-model defaults/lookups. Still no broadcast/lock,
   no tabs: this is not a full SmartSelector clone.
 
-  Props not declared here (placeholder, disabled, level-delay, id, autofocus,
-  visible-levels) fall through automatically onto the inner
-  AutoselectField via Vue's single-root attrs inheritance — as do their listeners,
-  so `v-model:visible-levels` on the picker works without a passthrough here.
+  Props not declared here (placeholder, disabled, level-delay, id, autofocus)
+  fall through automatically onto the inner AutoselectField via Vue's
+  single-root attrs inheritance — as do their listeners.
   `select` and `update:modelValue` are declared explicitly (see below) so they can
   be intercepted for the getObject upgrade, so they do NOT rely on fallthrough.
 -->

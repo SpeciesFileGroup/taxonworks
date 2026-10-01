@@ -227,31 +227,6 @@ without needing a stored preference, while everything else starts out checked.
 Once the user toggles a level's checkbox, the stored `hide` value takes over and
 `is_default` is no longer consulted for that level/instance.
 
-### Controlled level visibility (`v-model:visibleLevels`)
-
-By default each `AutoselectField` owns its own level visibility (the localStorage
-`hide` flags above). A parent that needs to drive visibility itself — e.g. one
-task-wide checkbox toggling a niche level across every field at once, rather than
-the user opening `!p` on each — binds `v-model:visibleLevels` (an array of level
-keys):
-
-```
-<AutoselectField v-model:visible-levels="visibleLevels" ... />
-```
-
-While bound, that array (not the stored `hide` flags) decides which segments show,
-and the `!p` modal's level checkboxes emit `update:visibleLevels` instead of
-persisting `hide`. `show_info`, `auto_jump` and per-level `options` still persist
-to localStorage regardless. Treat the array as immutable — replace it, don't
-mutate in place. Leave the prop unbound (`null`, the default) for the standard
-per-instance behaviour. The prop falls through `AutoselectPicker` unchanged.
-
-Changing the array mid-session is supported: if the active level drops out, the
-field switches to the leftmost remaining segment (fuse-bar order, not the array's
-order), drops any pending/in-flight search, and re-runs the current term there.
-Bind with `v-model` (not a one-way `:visible-levels`) if users should still be
-able to change levels via `!p`; a one-way binding ignores those checkboxes.
-
 ### `id` attribute
 
 Every `<div class="autoselect">` element should carry a globally unique `id`
