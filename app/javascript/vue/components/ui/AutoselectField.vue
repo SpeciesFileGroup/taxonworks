@@ -117,10 +117,7 @@
     </teleport>
 
     <!-- Help overlay (!?) — teleported to escape any scrollable/clipping
-         ancestor (e.g. a table wrapper with overflow-x: auto), same reason
-         the dropdown and fuse tooltip are teleported. Position is computed
-         in JS (updateHelpOverlayPosition) from the input's own bounding
-         rect, same technique as those. -->
+         ancestor. -->
     <teleport to="body">
       <div
         v-if="showHelp"
@@ -372,9 +369,6 @@ const spinnerTitle = computed(() => {
 })
 
 // ── Lifecycle ──────────────────────────────────────────────────────────────────
-// Both the dropdown and the (teleported, page-absolute) help overlay are positioned
-// from the input's bounding rect, so both go stale on a window resize. The help
-// overlay otherwise only repositions when `!?` is (re)typed.
 function repositionTeleportedOverlays() {
   updateDropdownPosition()
   if (showHelp.value) updateHelpOverlayPosition()
@@ -742,22 +736,18 @@ function itemClicked(idx) {
 function completeSelection(item) {
   pendingExtensionItem.value = null
 
-  // Captured before inputText is overwritten/cleared below — the raw text the
-  // user typed to arrive at this item, for callers that want to flag when the
-  // matched result isn't what was searched for (e.g. a synonym resolution).
-  const searchText = inputText.value
+  // Emitted before inputText changes, so `select` also carries the text the
+  // user typed to reach this item (e.g. to flag a synonym resolution).
+  emit('update:modelValue', props.resetOnSelect ? null : item)
+  emit('select', item, inputText.value)
 
   if (props.resetOnSelect) {
-    emit('select', item, searchText)
-    emit('update:modelValue', null)
     inputText.value = ''
     currentLevel.value = getFirstVisibleLevelKey()
     clearResults()
     nextTick(() => inputEl.value?.focus())
   } else {
     inputText.value = item.label ?? ''
-    emit('update:modelValue', item)
-    emit('select', item, searchText)
   }
 }
 
@@ -829,30 +819,6 @@ function closeHelp() {
     el.setSelectionRange(len, len)
   })
 }
-
-// Fill the field from the outside, run the search, and leave the caret at the end so the
-// text can be trimmed straight away. Used where a caller already knows a good starting term.
-// @param text [String]
-function prefill(text) {
-  inputText.value = text ?? ''
-  onInput()
-
-  nextTick(() => {
-    const el = inputEl.value
-    if (!el) return
-    el.focus()
-    const len = el.value.length
-    el.setSelectionRange(len, len)
-  })
-}
-
-// @return {String} current input text — the complement of prefill(), for a
-// caller that swaps this field out and wants to carry the term to its replacement.
-function getSearchText() {
-  return inputText.value
-}
-
-defineExpose({ prefill, getSearchText })
 
 // Fire an operator from the help list: close overlay, inject trigger, run onInput
 function fireOperator(op) {
@@ -943,6 +909,33 @@ function clearResults() {
   showList.value = false
   searchEnd.value = false
 }
+
+// ── Exposed ────────────────────────────────────────────────────────────────────
+
+// Fill the field from the outside, run the search, and leave the caret at the
+// end so the text can be trimmed straight away. Used where a caller already
+// knows a good starting term.
+// @param text [String]
+function prefill(text) {
+  inputText.value = text ?? ''
+  onInput()
+
+  nextTick(() => {
+    const el = inputEl.value
+    if (!el) return
+    el.focus()
+    const len = el.value.length
+    el.setSelectionRange(len, len)
+  })
+}
+
+// @return {String} current input text — the complement of prefill(), for a
+// caller that swaps this field out and wants to carry the term to its replacement.
+function getSearchText() {
+  return inputText.value
+}
+
+defineExpose({ prefill, getSearchText })
 </script>
 
 <style scoped>
@@ -1190,10 +1183,6 @@ function clearResults() {
   outline: none;
 }
 
-/* Non-linkable operators (e.g. !n with no newRecordComponent) render as plain
-   <code> instead of a <button> — same size as the clickable ones, but muted,
-   so it's visually clear before you try arrow-navigating to it that this one
-   isn't part of that focus order. */
 .autoselect__help-trigger-muted {
   color: var(--text-muted-color);
 }

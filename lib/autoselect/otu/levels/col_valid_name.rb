@@ -12,14 +12,7 @@ module Autoselect
       # make clear this is the accepted name for what was typed, not a literal
       # match on it. The one thing with no TaxonName-level equivalent: the hook
       # carries the resolved name's existing Otu, if any (see
-      # Autoselect::Otu::ColExistingOtu) — Smart already searched the raw
-      # (pre-resolution) term and came up empty, but hasn't tried the name CoL
-      # actually accepts.
-      #
-      # Always the last level in Autoselect::Otu::Autoselect#levels, but `is_default`
-      # false (see Autoselect::Level#is_default) — it stays present-but-unchecked in
-      # the preferences modal for every OTU field until a user opts in, since
-      # fast/smart/catalogue_of_life cover the common cases on their own.
+      # Autoselect::Otu::ColExistingOtu).
       class ColValidName < ::Autoselect::Level
         # Source mark + "valid name for X" note rendering, shared with the
         # TaxonName-level equivalent this delegates to.
@@ -63,10 +56,14 @@ module Autoselect
 
         # @param term [String]
         # @param project_id [Integer, nil]
-        # @param dataset_id [String, nil] CoL dataset ID from user preferences; falls back to default when nil
+        # @param dataset_id [String, nil] CoL dataset ID from user preferences;
+        #   falls back to default when nil
         # @return [Array<OpenStruct>] a single CoL result for the resolved valid
         #   name, whose hook carries the name's existing Otu, if any
-        def call(term:, operator: nil, project_id: nil, user_id: nil, dataset_id: nil, **_kwargs)
+        def call(
+          term:, operator: nil, project_id: nil, user_id: nil, dataset_id: nil,
+          **_kwargs
+        )
           # The raw resolved pseudo-record, which carries the CoL alignment data
           # the confirmation modal shows.
           target = ::Autoselect::TaxonName::Levels::ColValidName.new.resolve_target(
@@ -82,7 +79,15 @@ module Autoselect
             resolved_from: term,
             hook: ::Autoselect::Otu::ColExistingOtu.hook(existing_otu)
           )
-          [OpenStruct.new(id: nil, name: target.cached, taxon_name: nil, _col_extension: extension)]
+
+          [
+            OpenStruct.new(
+              id: nil,
+              name: target.cached,
+              taxon_name: nil,
+              _col_extension: extension
+            )
+          ]
         end
 
       end

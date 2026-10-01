@@ -1,9 +1,7 @@
-/**
- * useAutoselect.js
- *
- * Composable for fetching and caching Autoselect config from a given endpoint URL.
- * Deduplicates config fetches across component instances using a module-level Map.
- */
+// useAutoselect.js
+//
+// Composable for fetching and caching Autoselect config from a given endpoint URL.
+// Deduplicates config fetches across component instances using a module-level Map.
 
 import { ref } from 'vue'
 import AjaxCall from '@/helpers/ajaxCall'

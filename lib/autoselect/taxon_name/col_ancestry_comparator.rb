@@ -1,36 +1,39 @@
 module Autoselect
   module TaxonName
-    # Diffs TaxonWorks' real ancestor chain for a matched "anchor" TaxonName against
-    # Catalogue of Life's classification for the same lineage, producing one unified,
-    # kingdom-first row list — instead of matching each CoL rank to TaxonWorks
-    # independently by name (see Vendor::Colrapi.build_extension), which can silently
-    # stitch together matches from genuinely unrelated lineages.
+    # Diffs TaxonWorks' real ancestor chain for a matched "anchor" TaxonName
+    # against Catalogue of Life's classification for the same lineage,
+    # producing one unified, kingdom-first row list.
     #
-    # Ranks are compared by their CoL-rank NAME (e.g. 'family'), not by TaxonWorks
-    # rank_class string, and ordered via Vendor::Colrapi.col_rank_sort against a single
-    # nomenclatural code throughout — this keeps ordering comparisons meaningful even
-    # though TaxonWorks concatenates each code's ranks into one non-comparable numbering
-    # (see RANK_SORT), and lets e.g. an ICN-coded TaxonWorks family compare correctly
-    # against an ICZN-translated CoL family.
+    # Ranks are matched by plain rank name (e.g. 'family'), which both sides
+    # share, not by TaxonWorks rank_class, which differs by nomenclatural code
+    # (an ICZN Family and an ICN Family are different classes).
+    #
+    # To decide which of two different ranks is more specific, both names are
+    # looked up under one code - CoL's, via Vendor::Colrapi.col_rank_sort.
+    # RANK_SORT numbers every code's ranks in a single sequence, so a
+    # zoological index can't be compared with a botanical one; looking both
+    # names up under the same code keeps the comparison valid even when the
+    # TaxonWorks name was entered under a different code than CoL's.
     class ColAncestryComparator
 
-      # @param tw_chain [Array<TaxonName>] kingdom-first, the anchor and its real
-      #   ancestors (excluding the project root / non-taxonomic node)
-      # @param col_chain [Array<Hash>] kingdom-first, CoL's classification up to and
-      #   including the anchor's own rank; each hash has :col_name, :rank (human
-      #   rank name, e.g. 'family'), :col_id, :dataset_id, :col_authorship,
-      #   :above_genus_group (passed through on 'none' rows only — the client only
-      #   needs it to default those rows' checkboxes)
-      # @param col_code [String, nil] CoL nomenclatural code ('zoological', 'botanical', …)
+      # @param tw_chain [Array<TaxonName>] kingdom-first, the anchor and its
+      #   real ancestors (excluding the project root / non-taxonomic node)
+      # @param col_chain [Array<Hash>] kingdom-first, CoL's classification up
+      #   to and including the anchor's own rank; each hash has :col_name,
+      #   :rank (human rank name, e.g. 'family'), :col_id, :dataset_id,
+      #   :col_authorship, :above_genus_group
+      # @param col_code [String, nil] CoL nomenclatural code ('zoological',
+      #   'botanical', …)
       def initialize(tw_chain:, col_chain:, col_code: nil)
         @tw_chain = tw_chain
         @col_chain = col_chain
         @col_code = col_code
       end
 
-      # @return [Array<Hash>] kingdom-first, each row tagged :match => 'exact' | 'none'
-      #   (CoL-only, to be created) | 'extra' (TaxonWorks-only) | 'conflict' (same rank,
-      #   different name — the actual disagreement)
+      # @return [Array<Hash>] kingdom-first, each row tagged
+      #   :match => 'exact' | 'none' (CoL-only, to be created) | 'extra'
+      #   (TaxonWorks-only) | 'conflict' (same rank, different name — the
+      #   actual disagreement)
       def call
         result = []
         tw_i = @tw_chain.length - 1
@@ -71,20 +74,18 @@ module Autoselect
       private
 
       def rank_name_for(rank_class)
-        # TaxonName#rank_class returns the constantized Class, not the string RANKS_LOOKUP
-        # is keyed by (Rails happens to print a Class identically to its name, which is easy
-        # to mistake for a String at a glance — confirm with #class, not just #inspect/puts).
         ::RANKS_LOOKUP[rank_class.to_s]
       end
 
-      # @return [Boolean] true when tw_rank_name is a narrower (more specific) rank than
-      #   col_rank_name, i.e. TaxonWorks' pointer hasn't reached CoL's rank yet. Unresolvable
-      #   ranks (nil sort) are treated as not-more-specific, so the CoL side advances instead
-      #   — that just means the row shows up as a plain 'none' rather than blocking the diff.
+      # @return [Boolean] true when tw_rank_name is a narrower (more specific)
+      #   rank than col_rank_name, i.e. TaxonWorks' pointer hasn't reached
+      #   CoL's rank yet. Unresolvable ranks (nil sort) are treated as
+      #   not-more-specific.
       def more_specific?(tw_rank_name, col_rank_name)
         tw_sort = ::Vendor::Colrapi.col_rank_sort(tw_rank_name, @col_code)
         col_sort = ::Vendor::Colrapi.col_rank_sort(col_rank_name, @col_code)
         return false if tw_sort.nil? || col_sort.nil?
+
         tw_sort > col_sort
       end
 
@@ -93,6 +94,7 @@ module Autoselect
         translation = ::Vendor::Colrapi::NameTranslation
         exact = translation.taxon_name_key(tw_entry) ==
           translation.col_key(col_entry[:col_name], col_entry[:rank])
+
         {
           rank: rank_name,
           col_name: col_entry[:col_name],

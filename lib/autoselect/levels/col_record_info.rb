@@ -2,7 +2,7 @@
 #
 # Shared mixin for CoL level classes. Provides styled record_info_html using
 # TaxonWorks feedback CSS classes to communicate CoL status at a glance, led by
-# a TW/CoL source mark (see ColSourceMark).
+# a TaxonWorks/CoL source mark (see ColSourceMark).
 module Autoselect
   module Levels
     module ColRecordInfo

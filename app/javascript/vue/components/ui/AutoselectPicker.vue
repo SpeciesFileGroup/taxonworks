@@ -7,12 +7,6 @@
   section, the !n create flow, and (opt-in) the id->full-object upgrade SmartSelector
   calls `getObject` — as sensible per-model defaults/lookups. Still no broadcast/lock,
   no tabs: this is not a full SmartSelector clone.
-
-  Props not declared here (placeholder, disabled, level-delay, id, autofocus)
-  fall through automatically onto the inner AutoselectField via Vue's
-  single-root attrs inheritance — as do their listeners.
-  `select` and `update:modelValue` are declared explicitly (see below) so they can
-  be intercepted for the getObject upgrade, so they do NOT rely on fallthrough.
 -->
 <template>
   <AutoselectField
@@ -23,7 +17,6 @@
     :new-record-component="effectiveNewRecordComponent"
     :preferences-options-component="preferencesOptionsComponent"
     @select="onSelect"
-    @update:model-value="onModelValueUpdate"
   />
 </template>
 
@@ -54,7 +47,7 @@ const props = defineProps({
   // catalogue_of_life level); pass null to omit the Options section, or a different
   // component to replace it.
   preferencesOptionsComponent: { type: Object, default: () => ColDatasetPicker },
-  // When true, `select`/`update:modelValue` receive the full fetched record
+  // When true, `select` receives the full fetched record
   // (GET `/${model}/${id}.json`, or `getUrl` if given) instead of the lightweight
   // autoselect response item. Mirrors SmartSelector's `getObject`. Off by default —
   // most callers only need `response_values`, not a full record round trip.
@@ -65,7 +58,7 @@ const props = defineProps({
   fetchParams: { type: Object, default: () => ({}) }
 })
 
-const emit = defineEmits(['select', 'update:modelValue'])
+const emit = defineEmits(['select'])
 
 const url = computed(() => `/${props.model}/autoselect`)
 
@@ -77,7 +70,6 @@ const effectiveNewRecordComponent = computed(() => {
 function onSelect(item, searchText) {
   if (!props.getObject || !item?.id) {
     emit('select', item, searchText)
-    emit('update:modelValue', item)
     return
   }
 
@@ -86,17 +78,8 @@ function onSelect(item, searchText) {
   AjaxCall('get', `${prefix}${item.id}.json`, { params: props.fetchParams })
     .then(({ body }) => {
       emit('select', body, searchText)
-      emit('update:modelValue', body)
     })
     .catch(() => {})
-}
-
-// AutoselectField also emits update:modelValue(null) on clear, independent of select.
-// A real selection is handled by onSelect above (possibly after an async upgrade), so
-// only forward the clear case here to avoid a stale/duplicate emit racing the fetch.
-function onModelValueUpdate(item) {
-  if (item !== null) return
-  emit('update:modelValue', null)
 }
 
 const autoselectFieldRef = useTemplateRef('autoselectFieldRef')

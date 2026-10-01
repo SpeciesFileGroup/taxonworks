@@ -182,8 +182,7 @@ function rowKey(row, index) {
 }
 
 // Set of rowKey values the user has checked for creation (match==='none' rows).
-// Ranks above GenusGroup (family-group and higher) default to unchecked — creating
-// higher classification is rarely wanted, unlike genus/species-group ancestors.
+// Ranks above GenusGroup (family-group and higher) default to unchecked.
 const checkedRowKeys = ref(
   new Set(
     (ext.value.alignment ?? [])
@@ -385,8 +384,8 @@ async function doCreate() {
   background-color: rgba(0, 128, 0, 0.06);
 }
 
-/* A real TaxonWorks ancestor CoL's chain doesn't mention here — informational only,
-   nothing to select or create. */
+/* An ancestor that exists in TaxonWorks at a rank where CoL's chain has
+   nothing - shown for context only, nothing to select or create. */
 .col-confirm-modal__row--extra {
   background-color: rgba(0, 90, 200, 0.06);
 }
