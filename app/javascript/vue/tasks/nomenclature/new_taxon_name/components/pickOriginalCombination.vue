@@ -300,8 +300,9 @@ export default {
     width: 400px;
   }
   .original-combination-name {
-    margin-right: 35px;
+    padding-left: 32px;
     width: 400px;
+    margin-right: 32px;
   }
 }
 </style>
