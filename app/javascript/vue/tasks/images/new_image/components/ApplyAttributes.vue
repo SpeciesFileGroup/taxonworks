@@ -3,11 +3,9 @@
     <h2>
       Use the options below to build attributions and depictions, then
       <i>Apply</i> them to your images.
-      <VIcon
+      <IconWarning
         v-if="!isAllApplied"
-        small
-        name="attention"
-        color="attention"
+        class="w-4 h-4 text-attention-color"
         title="You have some images without applying changes."
       />
     </h2>
@@ -109,11 +107,11 @@
 import { GetterNames } from '../store/getters/getters.js'
 import { ActionNames } from '../store/actions/actions.js'
 import validateSqed from '../helpers/validateSqed'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconWarning from '@/components/Icon/IconWarning.vue'
 
 export default {
   components: {
-    VIcon
+    IconWarning
   },
 
   computed: {

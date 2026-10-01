@@ -9,11 +9,7 @@
     <div class="body">
       <ul class="no_bullets">
         <li v-for="item in softValidation">
-          <VIcon
-            name="attention"
-            color="attention"
-            small
-          />
+          <IconWarning class="w-4 h-4 text-attention-color" />
           <span v-html="item.message" />
         </li>
       </ul>
@@ -25,7 +21,7 @@
 import { computed } from 'vue'
 import { useStore } from 'vuex'
 import { GetterNames } from '../store/getters/getters'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconWarning from '@/components/Icon/IconWarning.vue'
 
 const store = useStore()
 

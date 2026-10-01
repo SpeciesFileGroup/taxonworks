@@ -44,15 +44,12 @@
           >
             <span>
               <span v-html="shape.name" />
-              <VIcon
+              <IconWarning
                 v-if="
                   geoMode === GEOGRAPHIC_OPTIONS.Spatial && !shape.has_shape
                 "
-                color="attention"
-                name="attention"
-                small
+                class="w-4 h-4 text-attention-color separate-left center_text"
                 title="This has no shape and so won't participate in spatial search"
-                class="separate-left center_text"
               />
             </span>
             <VBtn
@@ -103,7 +100,7 @@ import VMap from '@/components/ui/VMap/VMap.vue'
 import RadialFilterAttribute from '@/components/radials/linker/RadialFilterAttribute.vue'
 import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconWarning from '@/components/Icon/IconWarning.vue'
 import IconTrash from '@/components/Icon/IconTrash.vue'
 import { GeographicArea, Gazetteer } from '@/routes/endpoints'
 import { computed, ref, watch, onBeforeMount } from 'vue'

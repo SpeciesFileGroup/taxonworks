@@ -6,11 +6,9 @@
       <h3>Shape</h3>
     </template>
     <template #options>
-      <VIcon
+      <IconWarning
         v-if="store.shape && !store.citation.source_id"
-        name="attention"
-        color="attention"
-        small
+        class="w-4 h-4 text-attention-color"
         title="A source is required to save an asserted distribution."
       />
     </template>
@@ -48,7 +46,7 @@ import { useStore } from '../../store/store'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 import VLock from '@/components/ui/VLock/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconWarning from '@/components/Icon/IconWarning.vue'
 import ShapePicker from '@/components/ui/SmartSelector/ShapePicker.vue'
 
 const store = useStore()

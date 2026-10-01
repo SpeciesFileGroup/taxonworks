@@ -19,11 +19,7 @@
             v-model="fieldValue"
           />
           <div class="margin-small-top middle">
-            <VIcon
-              name="attention"
-              color="attention"
-              x-small
-            />
+            <IconWarning class="w-4 h-4 text-attention-color" />
             <span class="margin-small-left">
               {{ collectionObjects.length }} linked collection objects
             </span>
@@ -66,7 +62,7 @@ import { useStore } from 'vuex'
 import { ActionNames } from '../../store/actions/actions'
 import { GetterNames } from '../../store/getters/getters'
 import VModal from '@/components/ui/Modal.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconWarning from '@/components/Icon/IconWarning.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import ConfirmationModal from '@/components/ConfirmationModal.vue'

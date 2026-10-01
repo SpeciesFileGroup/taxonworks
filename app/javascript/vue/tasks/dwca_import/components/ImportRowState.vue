@@ -55,11 +55,7 @@
                 v-for="(messages, typeError) in importedErrors.messages"
                 :key="typeError"
               >
-                <VIcon
-                  name="attention"
-                  color="attention"
-                  small
-                />
+                <IconWarning class="w-4 h-4 text-attention-color" />
                 <span>
                   {{ typeError }}
                 </span>
@@ -90,13 +86,13 @@
 </template>
 
 <script>
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconWarning from '@/components/Icon/IconWarning.vue'
 import ButtonMixin from './shared/browseMixin'
 import importColors from '../const/importColors'
 
 export default {
   components: {
-    VIcon
+    IconWarning
   },
 
   mixins: [ButtonMixin],

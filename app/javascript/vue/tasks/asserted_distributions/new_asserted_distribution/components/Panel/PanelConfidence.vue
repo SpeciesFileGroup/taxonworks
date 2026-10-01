@@ -5,11 +5,7 @@
         <h3>Confidence</h3>
         <div v-if="store.autosave">
           <div class="flex-row gap-small middle">
-            <VIcon
-              name="attention"
-              color="attention"
-              small
-            />
+            <IconWarning class="w-4 h-4 text-attention-color" />
             <span class="text-warning-color">
               Autosave is enabled. Complete this section first to add confidence
               levels
@@ -95,7 +91,7 @@ import { useStore } from '../../store/store'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconWarning from '@/components/Icon/IconWarning.vue'
 import IconTrash from '@/components/Icon/IconTrash.vue'
 import VLock from '@/components/ui/VLock/index.vue'
 

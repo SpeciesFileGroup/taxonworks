@@ -31,11 +31,7 @@
           Update
         </VBtn>
         <template v-if="nameHasChanged">
-          <VIcon
-            name="attention"
-            color="attention"
-            small
-          />
+          <IconWarning class="w-4 h-4 text-attention-color" />
           <span class="text-warning-color">
             The name corresponds to the sound used for this conveyance. If the
             same sound is used in other conveyances, the name change will also
@@ -68,7 +64,7 @@
 
 <script setup>
 import { computed, ref } from 'vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconWarning from '@/components/Icon/IconWarning.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import ConveyanceMoveTo from './ConveyanceMoveTo.vue'
 import AudioPlayer from '@/components/audio/AudioPlayer.vue'

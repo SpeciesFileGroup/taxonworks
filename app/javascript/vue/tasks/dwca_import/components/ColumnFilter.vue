@@ -16,12 +16,10 @@
             ▼
           </button>
         </div>
-        <VIcon
+        <IconWarning
           v-if="ignored"
-          name="attention"
-          color="attention"
+          class="w-4 h-4 text-attention-color"
           title="This column will be ignored."
-          small
         />
       </div>
     </div>
@@ -76,12 +74,12 @@
 import VAutocomplete from '@/components/ui/Autocomplete'
 import { GetterNames } from '../store/getters/getters'
 import ColumnMixin from './shared/columnMixin.js'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconWarning from '@/components/Icon/IconWarning.vue'
 
 export default {
   mixins: [ColumnMixin],
 
-  components: { VAutocomplete, VIcon },
+  components: { VAutocomplete, IconWarning },
 
   props: {
     columnIndex: {

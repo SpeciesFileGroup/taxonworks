@@ -2,11 +2,7 @@
   <div id="vue_new_combination">
     <h1>New combination</h1>
     <div class="horizontal-left-content gap-small middle margin-small-bottom">
-      <VIcon
-        name="attention"
-        color="attention"
-        small
-      />
+      <IconWarning class="w-4 h-4 text-attention-color" />
       <i>At present this task is only configured for ICZN names.</i>
     </div>
     <VSpinner
@@ -46,7 +42,7 @@ import NewCombination from './components/newCombination.vue'
 import InputSearch from './components/inputSearch.vue'
 import DisplayList from './components/displayList.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconWarning from '@/components/Icon/IconWarning.vue'
 import { addToArray } from '@/helpers/arrays.js'
 import { Combination, TaxonName } from '@/routes/endpoints'
 import { EXTEND_PARAMS } from './constants/extend'
@@ -57,7 +53,7 @@ export default {
     NewCombination,
     InputSearch,
     VSpinner,
-    VIcon
+    IconWarning
   },
 
   data() {

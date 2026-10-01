@@ -28,11 +28,7 @@
         v-if="removeAuthorsWarn && text"
         class="vertical-center margin-small-left"
       >
-        <VIcon
-          small
-          name="attention"
-          color="attention"
-        />
+        <IconWarning class="w-4 h-4 text-attention-color" />
         Only {{ REMOVE_AUTHORS_LIMIT }} records processed
       </span>
     </div>
@@ -43,7 +39,7 @@
 import { ref } from 'vue'
 import { TaxonName } from '@/routes/endpoints'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconWarning from '@/components/Icon/IconWarning.vue'
 
 const REMOVE_AUTHORS_LIMIT = 5000
 

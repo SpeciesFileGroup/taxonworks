@@ -22,11 +22,7 @@
     </div>
 
     <p class="horizontal-left-content middle gap-small margin-medium-bottom">
-      <VIcon
-        small
-        name="attention"
-        color="attention"
-      />
+      <IconWarning class="w-4 h-4 text-attention-color" />
       <span class="subtle">Applies only to checked rows</span>
     </p>
 
@@ -202,6 +198,7 @@
 import { STRIP_PRESETS } from '../constants'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
+import IconWarning from '@/components/Icon/IconWarning.vue'
 import Autocomplete from '@/components/ui/Autocomplete.vue'
 
 defineProps({

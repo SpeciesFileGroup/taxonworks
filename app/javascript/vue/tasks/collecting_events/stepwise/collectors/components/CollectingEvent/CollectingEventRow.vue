@@ -55,13 +55,10 @@
     <td>
       <div class="horizontal-left-content middle">
         <span v-html="collectingEvent.verbatimCollector" />
-        <VIcon
+        <IconWarning
           v-if="selectedCollectorString.value !== collectingEvent.verbatim_collectors"
-          class="margin-small-left"
+          class="w-4 h-4 text-attention-color margin-small-left"
           title="Whitespace difference"
-          name="attention"
-          color="attention"
-          small
         />
       </div>
     </td>
@@ -79,6 +76,7 @@ import CollectingEventDwc from './CollectingEventDwc.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
+import IconWarning from '@/components/Icon/IconWarning.vue'
 
 const { selectedCollectorString } = useStore()
 

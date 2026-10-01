@@ -5,11 +5,7 @@
         class="horizontal-left-content gap-small middle"
         v-if="leadId"
       >
-        <VIcon
-          name="attention"
-          color="attention"
-          small
-        />
+        <IconWarning class="w-4 h-4 text-attention-color" />
         <span>The task is being used in service of a key</span>
       </div>
       <autocomplete
@@ -115,7 +111,7 @@ import EliminateUnknowns from './Filters/EliminateUnknowns'
 import RefreshComponent from './Filters/Refresh'
 import KeywordsComponent from './Filters/Keywords'
 import scrollToTop from '../utils/scrollToTop.js'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconWarning from '@/components/Icon/IconWarning.vue'
 import { RouteNames } from '@/routes/routes'
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
@@ -134,7 +130,7 @@ export default {
     LanguageComponent,
     SortingComponent,
     RefreshComponent,
-    VIcon
+    IconWarning
   },
 
   computed: {

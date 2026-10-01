@@ -20,11 +20,7 @@
             v-if="data.async"
             class="horizontal-left-content middle gap-small"
           >
-            <VIcon
-              name="attention"
-              color="warning"
-              small
-            />
+            <IconWarning class="w-4 h-4 text-attention-color" />
             <span class="text-warning-color"
               >Yes. Records will not be updated immediately, they will be
               updated asynchronously.</span
@@ -95,7 +91,7 @@
 
 <script setup>
 import { computed } from 'vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconWarning from '@/components/Icon/IconWarning.vue'
 
 const props = defineProps({
   data: {

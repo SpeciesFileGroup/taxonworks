@@ -1,18 +1,13 @@
 <template>
   <span class="middle">
-    <VIcon
-      class="margin-small-right"
-      name="attention"
-      color="attention"
-      small
-    />
+    <IconWarning class="w-4 h-4 text-attention-color margin-small-right" />
     Warning, {{ count }} additional specimens identical except for whitespace are
     included.
   </span>
 </template>
 
 <script setup>
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconWarning from '@/components/Icon/IconWarning.vue'
 
 defineProps({
   count: {

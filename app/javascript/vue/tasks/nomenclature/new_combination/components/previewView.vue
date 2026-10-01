@@ -28,12 +28,7 @@
         v-if="verbatimField"
         content="Verbatim representations are for display purposes only, only use them as a last resort. Legitimate reasons may include gender agreement errors. You should likely create a new name and treat it as a misspelling or low level synonym. Creating a new name gives you more power and flexibility in downstream search and display. Do NOT use this to include comon, or temporary names whose use was not intended to be governed by a code of nomenclature"
       >
-        <v-icon
-          class="margin-small-left"
-          name="attention"
-          color="attention"
-          small
-        />
+        <IconWarning class="w-4 h-4 text-attention-color margin-small-left" />
       </VTooltip>
     </h3>
   </div>
@@ -41,13 +36,13 @@
 <script>
 import EditInPlace from '@/components/editInPlace.vue'
 import VTooltip from '@/components/ui/VTooltip/VTooltip.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconWarning from '@/components/Icon/IconWarning.vue'
 
 export default {
   components: {
     VTooltip,
     EditInPlace,
-    VIcon
+    IconWarning
   },
 
   props: {

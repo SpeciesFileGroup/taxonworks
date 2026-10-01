@@ -54,11 +54,9 @@
           :key="attr"
         >
           <div class="flex-separate middle gap-small">
-            <VIcon
+            <IconWarning
               v-if="noEditable.includes(attr)"
-              name="attention"
-              color="attention"
-              small
+              class="w-4 h-4 text-attention-color"
               title="This attribute is not editable"
             />
             <a
@@ -305,7 +303,7 @@ import { computed, ref } from 'vue'
 import { isEmpty, parseClipboardTable } from '@/helpers'
 import { RouteNames } from '@/routes/routes'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconWarning from '@/components/Icon/IconWarning.vue'
 import IconPencil from '@/components/Icon/IconPencil.vue'
 import IconTrash from '@/components/Icon/IconTrash.vue'
 import ConfirmationModal from '@/components/ConfirmationModal.vue'

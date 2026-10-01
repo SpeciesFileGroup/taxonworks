@@ -27,11 +27,7 @@
       v-if="sound.metadata.error"
       class="horizontal-left-content middle gap-small text-warning-color"
     >
-      <VIcon
-        name="attention"
-        color="attention"
-        small
-      />
+      <IconWarning class="w-4 h-4 text-attention-color" />
       <span>{{ sound.metadata.error }}</span>
     </div>
 
@@ -66,7 +62,7 @@ import { secondsToTimeString } from '@/helpers'
 import { fragmentConveyances, regionFillFor } from '../../utils/regionColors.js'
 import AudioPlayer from '@/components/audio/AudioPlayer.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconWarning from '@/components/Icon/IconWarning.vue'
 
 const KEY_SHOW_REGIONS = 'Task::BrowseSound::ShowRegions'
 const KEY_SHOW_SPECTROGRAM = 'Task::BrowseSound::ShowSpectrogram'

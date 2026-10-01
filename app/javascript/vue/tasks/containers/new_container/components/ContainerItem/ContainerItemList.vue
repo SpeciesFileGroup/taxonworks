@@ -43,11 +43,9 @@
         </td>
         <td>
           <div class="horizontal-right-content gap-small">
-            <VIcon
+            <IconWarning
               v-if="item.errorOnSave"
-              name="attention"
-              color="attention"
-              small
+              class="w-4 h-4 text-attention-color"
               :title="item.errorOnSave"
             />
             <template v-if="!store.isItemInside(item)">
@@ -85,7 +83,7 @@
 import { computed } from 'vue'
 import { useContainerStore } from '../../store'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconWarning from '@/components/Icon/IconWarning.vue'
 import IconPencil from '@/components/Icon/IconPencil.vue'
 import IconTrash from '@/components/Icon/IconTrash.vue'
 import FillContainerModal from './ContainerItemFill.vue'

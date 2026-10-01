@@ -14,11 +14,9 @@
         <td>
           <div class="horizontal-left-content middle gap-small">
             <span>{{ name }}</span>
-            <VIcon
+            <IconWarning
               v-if="response[key]?.errors"
-              name="attention"
-              color="attention"
-              x-small
+              class="w-4 h-4 text-attention-color"
             />
           </div>
         </td>
@@ -30,7 +28,7 @@
 
 <script setup>
 import { computed } from 'vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconWarning from '@/components/Icon/IconWarning.vue'
 
 const props = defineProps({
   keepMetadata: {
