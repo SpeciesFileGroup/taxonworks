@@ -4,13 +4,12 @@
       <h3>Collecting event</h3>
     </template>
     <template #options>
-      <VIcon
+      <VTooltip
         v-if="!isFilled"
-        color="attention"
-        name="attention"
-        small
-        title="You need to fill out this form in order to save"
-      />
+        content="You need to fill out this form in order to save"
+      >
+        <IconWarning class="w-4 h-4 text-attention-color" />
+      </VTooltip>
     </template>
     <template #body>
       <fieldset class="separate-bottom">
@@ -38,11 +37,8 @@
         </div>
         <hr class="divisor" />
         <div class="horizontal-left-content middle gap-small">
-          <VIcon
-            color="attention"
-            name="attention"
-            small
-          />
+          <IconWarning class="w-4 h-4 text-attention-color" />
+
           <span v-if="ceStore.collectingEvent.id">
             Modifying existing ({{ ceStore.totalUsed }} uses)
           </span>
@@ -115,8 +111,9 @@ import VLock from '@/components/ui/VLock/index.vue'
 import useCEStore from '@/components/Form/FormCollectingEvent/store/collectingEvent.js'
 import useSettingStore from '../store/settings.js'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
 import IconReset from '@/components/Icon/IconReset.vue'
+import IconWarning from '@/components/Icon/IconWarning.vue'
+import VTooltip from '@/components/ui/VTooltip/VTooltip.vue'
 import { ComponentMap } from '@/components/Form/FormCollectingEvent/const/components.js'
 import { COLLECTING_EVENT, FIELD_OCCURRENCE } from '@/constants'
 import { computed } from 'vue'

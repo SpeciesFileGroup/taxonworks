@@ -4,13 +4,12 @@
       <h3>Taxon determination</h3>
     </template>
     <template #options>
-      <VIcon
+      <VTooltip
         v-if="!isFilled"
-        color="attention"
-        name="attention"
-        small
-        title="You need to fill out this form in order to save"
-      />
+        content="You need to fill out this form in order to save"
+      >
+        <IconWarning class="w-4 h-4 text-attention-color" />
+      </VTooltip>
     </template>
     <template #body>
       <TaxonDetermination
@@ -35,7 +34,7 @@ import TaxonDetermination from '@/components/TaxonDetermination/TaxonDeterminati
 import TaxonDeterminationList from '@/components/TaxonDetermination/TaxonDeterminationList.vue'
 import useStore from '../store/determinations.js'
 import useSettingStore from '../store/settings.js'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import VTooltip from '@/components/ui/VTooltip/VTooltip.vue'
 
 const settings = useSettingStore()
 const determinationStore = useStore()

@@ -27,11 +27,7 @@
             v-model="fieldValue"
           />
           <div class="margin-small-top middle">
-            <VIcon
-              name="attention"
-              color="attention"
-              x-small
-            />
+            <IconWarning class="w-4 h-4 text-warning-color" />
             <span class="margin-small-left">
               {{ fieldOccurrences.length }} linked field occurrences
             </span>
@@ -64,7 +60,7 @@ import { FieldOccurrence } from '@/routes/endpoints'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import useStore from '../../store/collectingEvent.js'
 import VModal from '@/components/ui/Modal.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconWarning from '@/components/Icon/IconWarning.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import ConfirmationModal from '@/components/ConfirmationModal.vue'
 
