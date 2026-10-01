@@ -273,7 +273,7 @@ async function doCreate() {
 .tn-new-modal__label {
   font-weight: 600;
   font-size: 11px;
-  color: var(--text-muted-color, #666);
+  color: var(--text-muted-color);
   margin-bottom: 1px;
 }
 
@@ -300,8 +300,8 @@ async function doCreate() {
   align-items: center;
   gap: 6px;
   padding: 3px 8px;
-  background: var(--input-bg-color, #f9f9f9);
-  border: 1px solid var(--border-color, #ccc);
+  background: var(--input-bg-color);
+  border: 1px solid var(--border-color);
   border-radius: 3px;
   font-size: 12px;
   flex: 1;
@@ -313,23 +313,23 @@ async function doCreate() {
   border: none;
   cursor: pointer;
   font-size: 11px;
-  color: var(--text-muted-color, #888);
+  color: var(--text-muted-color);
   padding: 0 2px;
   line-height: 1;
 }
 
 .tn-new-modal__clear:hover {
-  color: var(--color-destroy, #c00);
+  color: var(--color-destroy);
 }
 
 .tn-new-modal__searching {
   font-size: 11px;
-  color: var(--text-muted-color, #888);
+  color: var(--text-muted-color);
   white-space: nowrap;
 }
 
 .tn-new-modal__error {
-  color: var(--color-destroy, #c00);
+  color: var(--color-destroy);
   font-size: 12px;
   margin: 4px 0 0;
 }

@@ -190,7 +190,7 @@ function emitOptions(datasetId, datasetTitle) {
 .col-dataset-picker__label {
     font-size: 11px;
     font-weight: 600;
-    color: var(--text-muted-color, #666);
+    color: var(--text-muted-color);
 }
 
 .col-dataset-picker__selected {
@@ -198,14 +198,14 @@ function emitOptions(datasetId, datasetTitle) {
     align-items: center;
     gap: 6px;
     padding: 3px 8px;
-    background: var(--input-bg-color, #f9f9f9);
-    border: 1px solid var(--border-color, #ccc);
+    background: var(--input-bg-color);
+    border: 1px solid var(--border-color);
     border-radius: 3px;
 }
 
 .col-dataset-picker__selected-alias {
     font-size: 10px;
-    color: var(--text-muted-color, #888);
+    color: var(--text-muted-color);
 }
 
 .col-dataset-picker__clear {
@@ -213,18 +213,18 @@ function emitOptions(datasetId, datasetTitle) {
     border: none;
     cursor: pointer;
     font-size: 11px;
-    color: var(--text-muted-color, #888);
+    color: var(--text-muted-color);
     margin-left: auto;
     padding: 0 2px;
 }
 
 .col-dataset-picker__clear:hover {
-    color: var(--color-destroy, #c00);
+    color: var(--color-destroy);
 }
 
 .col-dataset-picker__default-note {
     font-size: 11px;
-    color: var(--text-muted-color, #888);
+    color: var(--text-muted-color);
     margin: 0;
 }
 
@@ -243,11 +243,11 @@ function emitOptions(datasetId, datasetTitle) {
     list-style: none;
     margin: 0;
     padding: 0;
-    border: 1px solid var(--border-color, #ccc);
+    border: 1px solid var(--border-color);
     border-radius: 3px;
     max-height: 180px;
     overflow-y: auto;
-    background: var(--panel-bg-color, #fff);
+    background: var(--panel-bg-color);
 }
 
 .col-dataset-picker__result {
@@ -255,7 +255,7 @@ function emitOptions(datasetId, datasetTitle) {
     align-items: baseline;
     gap: 6px;
     padding: 5px 8px;
-    border-top: 1px solid var(--border-color, #eee);
+    border-top: 1px solid var(--border-color);
     cursor: pointer;
 }
 
@@ -264,19 +264,19 @@ function emitOptions(datasetId, datasetTitle) {
 }
 
 .col-dataset-picker__result:hover {
-    background: var(--border-color, #f0f0f0);
+    background: var(--border-color);
 }
 
 .col-dataset-picker__result-alias,
 .col-dataset-picker__result-id {
     font-size: 10px;
-    color: var(--text-muted-color, #888);
+    color: var(--text-muted-color);
     white-space: nowrap;
 }
 
 .col-dataset-picker__none {
     font-size: 11px;
-    color: var(--text-muted-color, #888);
+    color: var(--text-muted-color);
     margin: 2px 0 0;
 }
 </style>

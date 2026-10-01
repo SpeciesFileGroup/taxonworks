@@ -370,14 +370,14 @@ async function doCreate() {
 
 .col-confirm-modal__table th,
 .col-confirm-modal__table td {
-  border: 1px solid var(--border-color, #ccc);
+  border: 1px solid var(--border-color);
   padding: 2px 5px;
   text-align: left;
   vertical-align: middle;
 }
 
 .col-confirm-modal__table th {
-  background: var(--input-bg-color, #f5f5f5);
+  background: var(--input-bg-color);
   font-weight: 600;
 }
 
@@ -397,7 +397,7 @@ async function doCreate() {
 
 .col-confirm-modal__row--target {
   font-weight: 600;
-  border-top: 2px solid var(--border-color, #ccc);
+  border-top: 2px solid var(--border-color);
 }
 
 .col-confirm-modal__row--error {
@@ -406,16 +406,16 @@ async function doCreate() {
 
 .col-confirm-modal__note {
   font-size: 11px;
-  color: var(--text-muted-color, #777);
+  color: var(--text-muted-color);
   margin: 4px 0 0;
 }
 
 .col-confirm-modal__note--warning {
-  color: var(--color-destroy, #c00);
+  color: var(--color-destroy);
 }
 
 .col-confirm-modal__error {
-  color: var(--color-destroy, #c00);
+  color: var(--color-destroy);
   font-size: 12px;
   margin-top: 6px;
 }

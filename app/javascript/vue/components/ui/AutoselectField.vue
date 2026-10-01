@@ -1019,11 +1019,11 @@ function clearResults() {
 
 .autoselect__fuse-tooltip-label {
   font-weight: 600;
-  color: var(--text-color, #333);
+  color: var(--text-color);
 }
 
 .autoselect__fuse-tooltip-desc {
-  color: var(--text-muted-color, #666);
+  color: var(--text-muted-color);
 }
 
 /* ── Input row ── */
@@ -1104,7 +1104,7 @@ function clearResults() {
   padding: 6px 12px;
   border-top: 1px solid var(--border-color);
   font-size: 12px;
-  color: var(--text-muted-color, #888);
+  color: var(--text-muted-color);
 }
 
 @keyframes autoselect-none-fade {
@@ -1128,9 +1128,9 @@ function clearResults() {
      against the page's containing block, not a parent that might clip it. */
   position: absolute;
   z-index: 999998;
-  background: var(--panel-bg-color, #fff);
-  border: 1px solid var(--border-color, #ccc);
-  padding: var(--standard-padding, 8px);
+  background: var(--panel-bg-color);
+  border: 1px solid var(--border-color);
+  padding: var(--spacing-xs);
   border-radius: 3px;
   font-size: 12px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
@@ -1145,12 +1145,12 @@ function clearResults() {
   cursor: pointer;
   font-size: 13px;
   line-height: 1;
-  color: var(--text-muted-color, #888);
+  color: var(--text-muted-color);
   padding: 0 2px;
 }
 
 .autoselect__help-close:hover {
-  color: var(--color-destroy, #c00);
+  color: var(--color-destroy);
 }
 
 .autoselect__help-overlay h4 {
@@ -1186,7 +1186,7 @@ function clearResults() {
 
 .autoselect__help-btn:hover,
 .autoselect__help-btn:focus {
-  border-color: var(--color-primary, #2563eb);
+  border-color: var(--color-primary);
   outline: none;
 }
 
@@ -1195,10 +1195,10 @@ function clearResults() {
    so it's visually clear before you try arrow-navigating to it that this one
    isn't part of that focus order. */
 .autoselect__help-trigger-muted {
-  color: var(--text-muted-color, #666);
+  color: var(--text-muted-color);
 }
 
 .autoselect__help-desc {
-  color: var(--text-color, #333);
+  color: var(--text-color);
 }
 </style>
