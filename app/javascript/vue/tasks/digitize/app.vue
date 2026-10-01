@@ -1,11 +1,5 @@
 <template>
   <div id="vue-all-in-one">
-    <VSpinner
-      v-if="saving || loading"
-      full-screen
-      :logo-size="{ width: '100px', height: '100px' }"
-      :legend="saving ? 'Saving changes...' : 'Loading...'"
-    />
     <task-header />
     <collection-object />
     <div class="horizontal-left-content align-start main-panel">
@@ -15,6 +9,12 @@
       />
       <collecting-event-layout class="separate-left item ce-section" />
     </div>
+    <VSpinner
+      v-if="saving || loading"
+      full-screen
+      :logo-size="{ width: '100px', height: '100px' }"
+      :legend="saving ? 'Saving changes...' : 'Loading...'"
+    />
   </div>
 </template>
 

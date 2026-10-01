@@ -9,13 +9,12 @@
         rows="5"
       />
       <div>
-        <lock-component
+        <VLock
           v-model="locked"
           class="margin-small-bottom"
         />
         <VBtn
           type="button"
-          color="primary"
           variant="outline"
           @click="setInline(inputText || '')"
         >
@@ -27,7 +26,7 @@
 </template>
 
 <script setup>
-import LockComponent from '@/components/ui/VLock/index.vue'
+import VLock from '@/components/ui/VLock/index.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import { stringInline } from '@/helpers/strings'
 

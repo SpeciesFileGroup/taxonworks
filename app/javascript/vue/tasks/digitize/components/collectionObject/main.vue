@@ -282,9 +282,9 @@ function handleRadialCreate({ slice, item }) {
   display: grid;
   grid-template-columns: repeat(
     auto-fill,
-    minmax(min(100%, max(500px, calc((100% - 1em) / 3))), 1fr)
+    minmax(min(100%, max(500px, calc((100% - 2 * var(--spacing-xs)) / 3))), 1fr)
   );
-  gap: 0.5em;
+  gap: var(--spacing-xs);
   grid-auto-flow: dense;
 }
 

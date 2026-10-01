@@ -14,13 +14,13 @@
         </div>
         <fieldset>
           <legend>Namespace</legend>
-          <div
-            class="horizontal-left-content align-start separate-bottom gap-small"
-          >
+          <div class="horizontal-left-content align-start gap-small">
             <SmartSelector
               class="full_width"
               ref="smartSelectorRef"
               model="namespaces"
+              placeholder="Search namespace..."
+              hide-when-selected
               input-id="record-number-namespace-autocomplete"
               target="CollectionObject"
               klass="CollectionObject"
@@ -37,39 +37,19 @@
                 </div>
               </template>
             </SmartSelector>
-            <WidgetNamespace
-              ref="widgetNamespaceRef"
-              @create="setNamespace"
-              @close="() => smartSelectorRef.setTab('quick')"
-            >
-              <div />
-            </WidgetNamespace>
           </div>
           <template v-if="namespace">
-            <hr class="divisor" />
-            <div
-              class="middle flex-separate gap-small padding-medium-top padding-medium-bottom"
-            >
-              <span v-html="namespace.name" />
-              <VBtn
-                v-if="store.identifier.id"
-                color="destroy"
-                icon
-                variant="tonal"
-                @click="store.remove"
-              >
-                <IconTrash class="w-4 h-4" />
-              </VBtn>
-              <VBtn
-                v-else
-                color="primary"
-                icon
-                variant="tonal"
-                @click="() => (store.identifier.namespaceId = id)"
-              >
-                <IconTrash class="w-4 h-4" />
-              </VBtn>
-            </div>
+            <SmartSelectorItem
+              :item="namespace"
+              label="name"
+              :unset-color="store.identifier.id ? 'destroy' : 'primary'"
+              @unset="
+                () =>
+                  store.identifier.id
+                    ? store.remove()
+                    : (store.identifier.namespaceId = undefined)
+              "
+            />
           </template>
         </fieldset>
       </div>
@@ -117,6 +97,12 @@
         />
       </div>
     </div>
+    <WidgetNamespace
+      ref="widgetNamespaceRef"
+      hide-label
+      @create="setNamespace"
+      @close="() => smartSelectorRef.setTab('quick')"
+    />
   </div>
   <ConfirmationModal ref="confirmationModalRef" />
 </template>
@@ -131,12 +117,11 @@ import { MutationNames } from '../../store/mutations/mutations.js'
 import { ActionNames } from '../../store/actions/actions.js'
 import { IDENTIFIER_LOCAL_RECORD_NUMBER } from '@/constants/index.js'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
-import VBtn from '@/components/ui/VBtn/index.vue'
+import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 import VLock from '@/components/ui/VLock/index.vue'
 import WidgetNamespace from '@/components/ui/Widget/WidgetNamespace.vue'
 import ConfirmationModal from '@/components/ConfirmationModal.vue'
 import ExistingIdentifier from '../shared/ExistingIdentifier.vue'
-import IconTrash from '@/components/Icon/IconTrash.vue'
 import IconWarning from '@/components/Icon/IconWarning.vue'
 import { vTooltip } from '@/directives/tooltip.js'
 

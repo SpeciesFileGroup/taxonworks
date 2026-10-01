@@ -50,8 +50,7 @@
       <VBtn
         v-if="!isStartDateEmpty && !isStartDateCloned"
         medium
-        color="primary"
-        variant="tonal"
+        variant="outline"
         @click="cloneDate"
       >
         Clone

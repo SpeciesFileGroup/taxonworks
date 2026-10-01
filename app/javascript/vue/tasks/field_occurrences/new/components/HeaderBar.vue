@@ -42,7 +42,6 @@
           <VBtn
             medium
             color="create"
-            variant="tonal"
             :disabled="!validateSave"
             @click="saveAndNew"
           >

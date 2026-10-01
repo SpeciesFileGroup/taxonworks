@@ -8,7 +8,6 @@
           class="horizontal-left-content gap-small middle"
         >
           <IconWarning class="w-4 h-4 text-warning-color" />
-          />
           <span
             >More than one identifier exists! Use annotator to edit
             others.</span
@@ -16,11 +15,13 @@
         </div>
         <fieldset>
           <legend>Namespace</legend>
-          <div class="horizontal-left-content align-start separate-bottom">
+          <div class="horizontal-left-content align-start">
             <SmartSelector
               class="full_width"
               ref="smartSelectorRef"
               model="namespaces"
+              placeholder="Search namespace..."
+              hide-when-selected
               input-id="namespace-autocomplete"
               target="CollectionObject"
               klass="CollectionObject"
@@ -39,37 +40,23 @@
             </SmartSelector>
             <WidgetNamespace
               ref="widgetNamespaceRef"
+              hide-label
               @create="setNamespace"
               @close="() => smartSelectorRef.setTab('quick')"
-            >
-              <div />
-            </WidgetNamespace>
+            />
           </div>
           <template v-if="namespace">
-            <hr class="divisor" />
-            <div
-              class="middle flex-separate gap-small padding-medium-top padding-medium-bottom"
-            >
-              <span v-html="namespace.name" />
-              <VBtn
-                v-if="store.identifier.id"
-                color="destroy"
-                icon
-                variant="tonal"
-                @click="store.remove"
-              >
-                <IconTrash class="w-4 h-4" />
-              </VBtn>
-              <VBtn
-                v-else
-                color="primary"
-                icon
-                variant="tonal"
-                @click="() => (store.identifier.namespaceId = id)"
-              >
-                <IconTrash class="w-4 h-4" />
-              </VBtn>
-            </div>
+            <SmartSelectorItem
+              :item="namespace"
+              label="name"
+              :unset-color="store.identifier.id ? 'destroy' : 'primary'"
+              @unset="
+                () =>
+                  store.identifier.id
+                    ? store.remove()
+                    : (store.identifier.namespaceId = undefined)
+              "
+            />
           </template>
         </fieldset>
       </div>
@@ -128,14 +115,13 @@ import { ActionNames } from '../../store/actions/actions.js'
 import { IDENTIFIER_LOCAL_CATALOG_NUMBER } from '@/constants/index.js'
 import { Namespace } from '@/routes/endpoints'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
+import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 import validateIdentifier from '../../validations/namespace.js'
 import LockComponent from '@/components/ui/VLock/index.vue'
 import WidgetNamespace from '@/components/ui/Widget/WidgetNamespace.vue'
-import VBtn from '@/components/ui/VBtn/index.vue'
 import ConfirmationModal from '@/components/ConfirmationModal.vue'
 import ExistingIdentifier from '../shared/ExistingIdentifier.vue'
 import IconWarning from '@/components/Icon/IconWarning.vue'
-import IconTrash from '@/components/Icon/IconTrash.vue'
 import { useIdentifierStore } from '../../store/pinia/identifiers'
 import { vTooltip } from '@/directives/tooltip.js'
 import { computed, ref, watch } from 'vue'

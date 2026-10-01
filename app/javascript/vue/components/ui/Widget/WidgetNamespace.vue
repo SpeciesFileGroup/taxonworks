@@ -25,12 +25,15 @@
       </VBtn>
     </template>
   </VModal>
-  <slot :open="open">
+  <slot
+    v-if="!hideLabel"
+    :open="open"
+  >
     <span
       class="link cursor-pointer"
+      v-text="label"
       @click="open"
-      >{{ label }}</span
-    >
+    />
   </slot>
 </template>
 
@@ -47,6 +50,11 @@ defineProps({
   label: {
     type: String,
     default: 'New'
+  },
+
+  hideLabel: {
+    type: Boolean,
+    default: false
   }
 })
 

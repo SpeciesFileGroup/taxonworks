@@ -1,11 +1,13 @@
 <template>
   <fieldset class="fieldset">
     <legend>Repository</legend>
-    <div class="horizontal-left-content align-start separate-bottom">
+    <div class="horizontal-left-content align-start">
       <smart-selector
         class="full_width"
         ref="smartSelector"
         model="repositories"
+        placeholder="Search repository..."
+        hide-when-selected
         target="CollectionObject"
         klass="CollectionObject"
         pin-section="Repositories"
@@ -21,9 +23,7 @@
       </smart-selector>
     </div>
     <template v-if="repositorySelected">
-      <hr class="divisor" />
       <SmartSelectorItem
-        class="padding-medium-top padding-medium-bottom"
         :item="repositorySelected"
         @unset="setRepository(null)"
       />

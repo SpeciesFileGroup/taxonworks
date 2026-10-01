@@ -12,31 +12,36 @@
       class="flex-separate"
     >
       <div class="horizontal-left-content gap-medium">
-        <AutocompletePopover
-          ref="autocomplete"
-          url="/collection_objects/autocomplete"
-          placeholder="Search"
-          label="label_html"
-          param="term"
-          clear-after
-          min="1"
-          medium
-          title="Search a collection object"
-          @select="(item) => loadAssessionCode(item.id)"
-        />
+        <div class="horizontal-left-content gap-small">
+          <AutocompletePopover
+            ref="autocomplete"
+            url="/collection_objects/autocomplete"
+            placeholder="Search"
+            label="label_html"
+            param="term"
+            clear-after
+            min="1"
+            medium
+            variant="tonal"
+            title="Search a collection object"
+            @select="(item) => loadAssessionCode(item.id)"
+          />
+          <RecentComponent @selected="loadCollectionObject($event)" />
+        </div>
         <template v-if="collectionObject.id">
           <SoftValidation v-if="collectionObject.id" />
           <a
             :href="`${RouteNames.BrowseCollectionObject}?collection_object_id=${collectionObject.id}`"
             v-html="collectionObject.object_tag"
           />
-          <div
+          <VBadge
             v-if="collectionObject?.dwc_occurrence?.rebuild_set"
-            class="horizontal-left-content gap-small middle text-warning-color"
+            class="horizontal-left-content gap-xsmall middle line-nowrap"
+            color="yellow"
           >
-            <IconWarning class="w-5 h-5" />
+            <IconWarning class="w-4 h-4" />
             DwcOccurrence re-index is pending.
-          </div>
+          </VBadge>
         </template>
         <span v-else>New record</span>
       </div>
@@ -86,7 +91,6 @@
         <VBtn
           medium
           color="create"
-          variant="tonal"
           @click="saveAndNew"
         >
           Save and new
@@ -100,7 +104,6 @@
         >
           New
         </VBtn>
-        <RecentComponent @selected="loadCollectionObject($event)" />
         <SettingsCollectionObject />
       </div>
       <ConfirmationModal ref="confirmationModalRef" />
@@ -127,6 +130,7 @@ import NavBar from '@/components/layout/NavBar'
 import AjaxCall from '@/helpers/ajaxCall'
 import SoftValidation from './softValidation'
 import IconWarning from '@/components/Icon/IconWarning.vue'
+import VBadge from '@/components/ui/VBadge/VBadge.vue'
 import useCollectingEventStore from '@/components/Form/FormCollectingEvent/store/collectingEvent.js'
 import useBiologicalAssociationStore from '@/components/Form/FormBiologicalAssociation/store/biologicalAssociations.js'
 import useBiocurationStore from '@/tasks/field_occurrences/new/store/biocurations.js'
@@ -207,7 +211,11 @@ const navigation = ref({
 watch(
   collectionObject,
   (newVal, oldVal) => {
-    settings.value.lastChange = Date.now()
+    // Replacing the object (new, load, save) is not an unsaved edit
+    if (newVal === oldVal) {
+      settings.value.lastChange = Date.now()
+    }
+
     if (newVal.id && oldVal.id != newVal.id) {
       if (!loadingNavigation.value) {
         loadingNavigation.value = true

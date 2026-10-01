@@ -4,6 +4,7 @@
     <smart-selector
       ref="smartSelector"
       model="taxon_names"
+      placeholder="Search taxon name..."
       klass="TypeMaterial"
       target="TypeMaterial"
       :params="{ 'nomenclature_group[]': 'SpeciesGroup' }"
@@ -15,20 +16,17 @@
         store.dispatch(ActionNames.SetTypeMaterialTaxonName, $event.id)
       "
     />
-    <template v-if="typeMaterial.taxon">
-      <hr class="divisor" />
-      <div class="flex-separate middle">
+    <SmartSelectorItem
+      :item="typeMaterial.taxon"
+      @unset="store.dispatch(ActionNames.SetTypeMaterialTaxonName, null)"
+    >
+      <template #label="{ item }">
         <a
-          :href="`/tasks/nomenclature/new_taxon_name?taxon_name_id=${typeMaterial.taxon.id}`"
-          v-html="typeMaterial.taxon.object_tag"
+          :href="`/tasks/nomenclature/new_taxon_name?taxon_name_id=${item.id}`"
+          v-html="item.object_tag"
         />
-        <button
-          type="button"
-          class="button circle-button btn-undo button-default"
-          @click="store.dispatch(ActionNames.SetTypeMaterialTaxonName, null)"
-        />
-      </div>
-    </template>
+      </template>
+    </SmartSelectorItem>
   </fieldset>
 </template>
 
@@ -38,6 +36,7 @@ import { useStore } from 'vuex'
 import { GetterNames } from '../../store/getters/getters'
 import { ActionNames } from '../../store/actions/actions'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
+import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 
 const store = useStore()
 const typeMaterial = computed(() => store.getters[GetterNames.GetTypeMaterial])

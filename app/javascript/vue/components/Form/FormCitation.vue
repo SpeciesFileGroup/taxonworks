@@ -52,6 +52,7 @@
       <slot name="footer" />
     </div>
     <SmartSelectorItem
+      class="margin-small-top margin-small-bottom"
       :item="source"
       label="cached"
       @unset="setSource({})"

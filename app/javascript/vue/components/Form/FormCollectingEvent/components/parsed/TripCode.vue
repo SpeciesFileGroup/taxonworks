@@ -18,23 +18,18 @@
             <WidgetNamespace @create="setNamespace" />
           </div>
           <template v-if="store.namespace">
-            <div class="middle separate-top">
-              <span data-icon="ok" />
-              <p
-                class="separate-right"
-                v-html="store.namespace.name"
-              />
-              <span
-                v-if="store.identifier.id"
-                class="circle-button btn-delete"
-                @click="store.remove"
-              />
-              <span
-                v-else
-                class="circle-button button-default btn-undo"
-                @click="() => (store.namespace = undefined)"
-              />
-            </div>
+            <SmartSelectorItem
+              class="separate-top"
+              :item="store.namespace"
+              label="name"
+              :unset-color="store.identifier.id ? 'destroy' : 'primary'"
+              @unset="
+                () =>
+                  store.identifier.id
+                    ? store.remove()
+                    : (store.namespace = undefined)
+              "
+            />
           </template>
         </fieldset>
       </div>
@@ -67,6 +62,7 @@
 
 <script setup>
 import SmartSelector from '@/components/ui/SmartSelector.vue'
+import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 import WidgetNamespace from '@/components/ui/Widget/WidgetNamespace.vue'
 import useStore from '../../store/identifier.js'
 
