@@ -68,9 +68,8 @@
         <VBtn
           v-for="(label, key) in DEFAULT_BTN_VALUES"
           :key="key"
-          color="primary"
           medium
-          variant="tonal"
+          variant="outline"
           @click="setOffset(key)"
         >
           {{ label }}

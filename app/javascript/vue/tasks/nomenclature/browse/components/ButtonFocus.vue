@@ -1,7 +1,7 @@
 <template>
   <VBtn
     v-if="protonym"
-    :class="[{ 'button-focus--active': isFocus }, 'margin-xsmall-right']"
+    :class="[{ 'button-focus--active': isFocus }, 'margin-small-right']"
     icon
     color="primary"
     variant="tonal"
@@ -90,7 +90,7 @@ function toggleFocus() {
 .empty-focus-container {
   width: 24px;
   height: 24px;
-  margin-right: var(--spacing-xxs);
+  margin-right: var(--spacing-xs);
 }
 
 .button-focus--active {

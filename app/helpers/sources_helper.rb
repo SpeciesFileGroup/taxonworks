@@ -167,7 +167,7 @@ module SourcesHelper
           radial_annotator(source),
           radial_navigation_tag(source)
         ]),
-        class: 'flex-row gap-xsmall'
+        class: 'flex-row gap-small'
       ) +
       t.flatten.compact.join(' ').html_safe,
       class: 'inline gap-medium'

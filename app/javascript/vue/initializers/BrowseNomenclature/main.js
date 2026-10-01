@@ -21,7 +21,13 @@ function initFocusButtons() {
 
     container.setAttribute('data-focus-button', true)
 
-    el.prepend(container)
+    const radialAnnotator = el.querySelector(':scope > [data-radial-annotator]')
+
+    if (radialAnnotator) {
+      radialAnnotator.after(container)
+    } else {
+      el.prepend(container)
+    }
 
     app.mount(container)
   })

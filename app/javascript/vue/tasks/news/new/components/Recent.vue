@@ -5,10 +5,12 @@
       full-screen
     />
     <VBtn
+      icon
+      variant="tonal"
       color="primary"
       @click="() => (isModalVisible = true)"
     >
-      Recent
+      <IconFileClock class="w-4 h-4" />
     </VBtn>
     <VModal
       v-if="isModalVisible"
@@ -51,6 +53,7 @@ import VSpinner from '@/components/ui/VSpinner.vue'
 import VSwitch from '@/components/ui/VSwitch.vue'
 import VList from './List.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import IconFileClock from '@/components/Icon/IconFileClock.vue'
 
 const LISTS = {
   PROJECT: 'Project',

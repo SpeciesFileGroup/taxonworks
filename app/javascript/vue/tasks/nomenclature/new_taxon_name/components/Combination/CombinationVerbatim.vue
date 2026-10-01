@@ -1,5 +1,7 @@
 <template>
-  <div class="horizontal-left-content gap-xsmall">
+  <div
+    class="horizontal-left-content gap-xsmall subsequent-combination-verbatim"
+  >
     <edit-in-place
       legend="Click to edit verbatim"
       v-model="verbatimName"
@@ -31,3 +33,9 @@ const verbatimName = computed({
   set: (value) => emit('update:modelValue', value)
 })
 </script>
+
+<style scoped>
+.subsequent-combination-verbatim {
+  padding-left: 34px;
+}
+</style>
