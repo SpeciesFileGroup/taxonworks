@@ -2,6 +2,7 @@
   <transition name="fade">
     <UnsavedIndicator
       v-if="unsavedChanges"
+      class="w-full"
       :saving="isSaving"
       size="medium"
     />

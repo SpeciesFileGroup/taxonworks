@@ -29,9 +29,14 @@ const radiusClass = computed(() => `v-badge--radius-${props.radius}`)
 
 <style>
 .v-badge {
+  box-sizing: border-box;
   padding: var(--spacing-xxs) var(--spacing-xs);
   border-radius: var(--border-radius-xsmall);
   font-size: var(--font-size-xs);
+}
+
+/* Zero specificity so width utilities (e.g. .w-full) can override it. */
+:where(.v-badge) {
   width: min-content;
 }
 
