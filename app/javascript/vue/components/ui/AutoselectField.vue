@@ -398,6 +398,25 @@ onBeforeUnmount(() => {
   cancelPinboardNoneFlash()
 })
 
+// Another instance sharing these prefs (same preferencesKey/id) saved them.
+// Pick up the new snapshot; if the active level was just hidden, drop any
+// pending/in-flight search and move to the leftmost visible level. The term
+// isn't re-run — this field isn't the one the user is working in.
+prefs.onChange(() => {
+  currentPrefs.value = prefs.getPrefs()
+  if (!ready.value) return
+  if (visibleFuseSegments.value.some((s) => s.key === currentLevel.value)) {
+    return
+  }
+
+  if (getRequest) clearTimeout(getRequest)
+  controller.value?.abort()
+  isSearching.value = false
+  cancelFuse()
+  clearResults()
+  currentLevel.value = getFirstVisibleLevelKey()
+})
+
 // ── Level helpers ──────────────────────────────────────────────────────────────
 function getFirstVisibleLevelKey() {
   return visibleFuseSegments.value[0]?.key ?? getFirstLevelKey()

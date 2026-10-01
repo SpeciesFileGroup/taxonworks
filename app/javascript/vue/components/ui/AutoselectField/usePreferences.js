@@ -22,9 +22,15 @@
  * }
  */
 
+import { onScopeDispose } from 'vue'
 import { getCurrentProjectId } from '@/helpers/project.js'
 
 const STORAGE_KEY = 'tw_autoselect_prefs'
+
+// Same-tab notification of a save. The window `storage` event only reaches
+// other tabs, so instances on this page sharing a preferences key would
+// otherwise keep the snapshot they read at setup.
+const CHANGE_EVENT = 'tw:autoselect-prefs-change'
 
 function loadAll() {
   try {
@@ -50,6 +56,9 @@ export function usePreferences(url, id) {
   // Derive the resource segment from the URL: '/taxon_names/autoselect' → 'taxon_names'
   const resource = url.replace(/^\//, '').split('/')[0]
 
+  // Identifies saves made through this instance, so it isn't told about its own.
+  const source = Symbol('autoselect-prefs')
+
   function getPrefs() {
     const all = loadAll()
     return all[projectKey()]?.[resource]?.[id] || { levels: {} }
@@ -62,6 +71,41 @@ export function usePreferences(url, id) {
     all[pk][resource] ??= {}
     all[pk][resource][id] = prefs
     saveAll(all)
+    window.dispatchEvent(
+      new CustomEvent(CHANGE_EVENT, {
+        detail: { project: pk, resource, id, source }
+      })
+    )
+  }
+
+  /**
+   * Calls `callback` when these prefs (same project, resource and id) are saved
+   * by another instance on this page, or by any instance in another tab.
+   * Listeners are removed when the calling component's scope is disposed.
+   * @param {Function} callback
+   */
+  function onChange(callback) {
+    function onLocalChange({ detail }) {
+      if (
+        detail.source !== source &&
+        detail.project === projectKey() &&
+        detail.resource === resource &&
+        detail.id === id
+      ) {
+        callback()
+      }
+    }
+
+    function onStorage(event) {
+      if (event.key === STORAGE_KEY) callback()
+    }
+
+    window.addEventListener(CHANGE_EVENT, onLocalChange)
+    window.addEventListener('storage', onStorage)
+    onScopeDispose(() => {
+      window.removeEventListener(CHANGE_EVENT, onLocalChange)
+      window.removeEventListener('storage', onStorage)
+    })
   }
 
   /**
@@ -99,5 +143,5 @@ export function usePreferences(url, id) {
     return getPrefs().auto_jump !== false
   }
 
-  return { getPrefs, savePrefs, isLevelVisible, getLevelOptions, getShowInfo, toggleShowInfo, getAutoJump }
+  return { getPrefs, savePrefs, onChange, isLevelVisible, getLevelOptions, getShowInfo, toggleShowInfo, getAutoJump }
 }
