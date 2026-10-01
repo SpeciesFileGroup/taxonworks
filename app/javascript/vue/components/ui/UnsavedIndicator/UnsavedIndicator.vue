@@ -8,21 +8,23 @@
   >
     <IconWarning class="w-4 h-4" />
   </VTooltip>
-  <div
+  <VBadge
     v-else
+    color="yellow"
     :class="['unsaved-indicator', `unsaved-indicator--${size}`]"
     role="status"
     aria-live="polite"
   >
     <IconWarning class="w-4 h-4" />
     <span>{{ message }}</span>
-  </div>
+  </VBadge>
 </template>
 
 <script setup>
 import { computed } from 'vue'
 import IconWarning from '@/components/Icon/IconWarning.vue'
 import VTooltip from '@/components/ui/VTooltip/VTooltip.vue'
+import VBadge from '@/components/ui/VBadge/VBadge.vue'
 
 defineOptions({ name: 'UnsavedIndicator' })
 
@@ -55,22 +57,14 @@ const message = computed(
 </script>
 
 <style scoped>
+/* Colors, radius and font size come from VBadge (color="yellow"). */
 .unsaved-indicator {
   display: inline-flex;
   align-items: center;
   flex-shrink: 0;
   gap: var(--spacing-xxs);
-  border: 1px solid var(--color-soft-warning-border);
-  border-radius: var(--border-radius-small);
-  background-color: var(--color-soft-warning-bg);
-  color: var(--color-warning-on-surface);
-  font-size: var(--font-size-xs);
   line-height: 1;
   white-space: nowrap;
-}
-
-.unsaved-indicator--small {
-  padding: var(--spacing-xxs) var(--spacing-xs);
 }
 
 .unsaved-indicator--medium {
