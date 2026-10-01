@@ -329,6 +329,11 @@ const props = defineProps({
   wrap: {
     type: Number,
     default: undefined
+  },
+
+  hideWhenSelected: {
+    type: Boolean,
+    default: false
   }
 })
 
@@ -353,7 +358,9 @@ const rootRef = useTemplateRef('rootRef')
 
 const lists = ref([])
 const view = ref()
-const options = ref([])
+const options = ref(
+  OrderSmart(['quick', 'recent', 'pinboard', ...props.addTabs])
+)
 const lastSelected = ref()
 const elementSize = useOnResize(rootRef)
 const isLoading = ref(false)
@@ -374,6 +381,10 @@ const selectedItem = computed({
   }
 })
 
+const hasSelectedValue = computed(
+  () => props.hideWhenSelected && !!props.modelValue?.id
+)
+
 const isImageModel = computed(() => props.model === 'images')
 
 const getObject = (id) => {
@@ -391,6 +402,10 @@ const getObject = (id) => {
 }
 
 const sendObject = (item) => {
+  if (props.hideWhenSelected) {
+    view.value = undefined
+  }
+
   lastSelected.value = item
   selectedItem.value = item
 
@@ -436,7 +451,9 @@ const refresh = (forceUpdate = false) => {
       options.value = Object.keys(lists.value).concat(props.addTabs)
       options.value = OrderSmart(options.value)
 
-      if (props.default) {
+      if (hasSelectedValue.value) {
+        view.value = undefined
+      } else if (props.default) {
         view.value = props.default
       } else if (!lists.value[view.value]?.length) {
         view.value = SelectFirst(lists.value, options.value)
@@ -475,7 +492,7 @@ const addCustomElements = () => {
     })
   }
 
-  if (!props.lockView) {
+  if (!props.lockView && !hasSelectedValue.value) {
     view.value = SelectFirst(lists.value, options.value)
   }
 }
@@ -510,6 +527,15 @@ function setTab(tab) {
 watch(view, (newVal) => {
   emit('onTabSelected', newVal)
 })
+
+watch(
+  () => props.modelValue?.id,
+  (id) => {
+    if (props.hideWhenSelected) {
+      view.value = id ? undefined : SelectFirst(lists.value, options.value)
+    }
+  }
+)
 
 watch(
   () => props.customList,

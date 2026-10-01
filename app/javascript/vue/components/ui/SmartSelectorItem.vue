@@ -1,20 +1,25 @@
 <template>
   <div
     v-if="item"
-    class="middle flex-separate gap-small"
+    class="smart-selector-item middle flex-separate gap-small"
   >
-    <span
-      v-if="label"
-      v-html="item[label]"
-    />
-    <span
-      v-else
-      v-html="item"
-    />
+    <slot
+      name="label"
+      :item="item"
+    >
+      <span
+        v-if="label"
+        v-html="item[label]"
+      />
+      <span
+        v-else
+        v-html="item"
+      />
+    </slot>
     <div class="horizontal-left-content middle gap-small">
       <slot name="options-left" />
       <VBtn
-        color="primary"
+        :color="unsetColor"
         icon
         variant="tonal"
         @click="emit('unset')"
@@ -38,7 +43,21 @@ defineProps({
   label: {
     type: [String, Boolean],
     default: 'object_tag'
+  },
+
+  unsetColor: {
+    type: String,
+    default: 'primary'
   }
 })
 const emit = defineEmits(['unset'])
 </script>
+<style scoped>
+.smart-selector-item {
+  padding: var(--spacing-xxs) var(--spacing-xxs) var(--spacing-xxs)
+    var(--spacing-xs);
+  border: 1px solid var(--border-weak-color);
+  border-radius: var(--border-radius-medium);
+  background-color: var(--bg-muted);
+}
+</style>
