@@ -4,16 +4,13 @@ module Autoselect
     # against Catalogue of Life's classification for the same lineage,
     # producing one unified, kingdom-first row list.
     #
-    # Ranks are matched by plain rank name (e.g. 'family'), which both sides
-    # share, not by TaxonWorks rank_class, which differs by nomenclatural code
-    # (an ICZN Family and an ICN Family are different classes).
+    # CoL gives ranks as plain names (e.g. 'family'), so each TaxonWorks
+    # rank_class is converted to its plain name (via RANKS_LOOKUP) to see
+    # whether two rows are at the same rank.
     #
     # To decide which of two different ranks is more specific, both names are
-    # looked up under one code - CoL's, via Vendor::Colrapi.col_rank_sort.
-    # RANK_SORT numbers every code's ranks in a single sequence, so a
-    # zoological index can't be compared with a botanical one; looking both
-    # names up under the same code keeps the comparison valid even when the
-    # TaxonWorks name was entered under a different code than CoL's.
+    # looked up under one code. When CoL gives a code, the TaxonWorks chain is
+    # already in it, so that code is used; otherwise the anchor's own code is.
     class ColAncestryComparator
 
       # @param tw_chain [Array<TaxonName>] kingdom-first, the anchor and its
@@ -27,7 +24,12 @@ module Autoselect
       def initialize(tw_chain:, col_chain:, col_code: nil)
         @tw_chain = tw_chain
         @col_chain = col_chain
-        @col_code = col_code
+        @rank_code =
+          if ::Vendor::Colrapi::COL_CODE_LOOKUP_MAP.key?(col_code)
+            col_code
+          else
+            anchor_col_code
+          end
       end
 
       # @return [Array<Hash>] kingdom-first, each row tagged
@@ -48,7 +50,7 @@ module Autoselect
             result.unshift(matched_row(tw_entry, col_entry, tw_rank_name))
             tw_i -= 1
             col_i -= 1
-          elsif more_specific?(tw_rank_name, col_entry[:rank])
+          elsif more_specific?(tw_entry, col_entry[:rank])
             result.unshift(extra_row(tw_entry, tw_rank_name))
             tw_i -= 1
           else
@@ -77,16 +79,27 @@ module Autoselect
         ::RANKS_LOOKUP[rank_class.to_s]
       end
 
-      # @return [Boolean] true when tw_rank_name is a narrower (more specific)
-      #   rank than col_rank_name, i.e. TaxonWorks' pointer hasn't reached
-      #   CoL's rank yet. Unresolvable ranks (nil sort) are treated as
-      #   not-more-specific.
-      def more_specific?(tw_rank_name, col_rank_name)
-        tw_sort = ::Vendor::Colrapi.col_rank_sort(tw_rank_name, @col_code)
-        col_sort = ::Vendor::Colrapi.col_rank_sort(col_rank_name, @col_code)
-        return false if tw_sort.nil? || col_sort.nil?
+      # @return [String, nil] the anchor's nomenclatural code as a CoL code
+      #   string, e.g. 'botanical'; nil leaves col_rank_sort on its zoological
+      #   default
+      def anchor_col_code
+        code = @tw_chain.last&.rank_class&.nomenclatural_code
+        ::Vendor::Colrapi::COL_CODE_TO_NOMENCLATURE_CODE.key(code)
+      end
 
-        tw_sort > col_sort
+      # The TaxonWorks chain is always in @rank_code's code (see the class
+      # comment), so tw_entry's own rank_class indexes RANK_SORT directly; only
+      # CoL's rank name can fail to resolve under that code.
+      #
+      # @return [Boolean] true when tw_entry's rank is narrower (more specific)
+      #   than col_rank_name, i.e. TaxonWorks' pointer hasn't reached CoL's
+      #   rank yet. An unresolvable CoL rank is treated as not-more-specific,
+      #   so CoL's side advances and the row shows up as 'none'.
+      def more_specific?(tw_entry, col_rank_name)
+        col_sort = ::Vendor::Colrapi.col_rank_sort(col_rank_name, @rank_code)
+        return false if col_sort.nil?
+
+        ::RANK_SORT[tw_entry.rank_class.to_s] > col_sort
       end
 
       def matched_row(tw_entry, col_entry, rank_name)

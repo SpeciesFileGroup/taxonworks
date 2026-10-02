@@ -224,6 +224,43 @@ RSpec.describe Autoselect::TaxonName::ColAncestryComparator, type: :model do
       end
     end
 
+    context 'when CoL gives no nomenclatural code' do
+      # Real TaxonNames carry a Class in rank_class, which the code-fallback
+      # reads `nomenclatural_code` from.
+      let(:icn_genus_rank) { Ranks.lookup(:icn, 'genus').constantize }
+      let(:icn_section_rank) { Ranks.lookup(:icn, 'section').constantize }
+      let(:icn_species_rank) { Ranks.lookup(:icn, 'species').constantize }
+
+      let(:tw_chain) do
+        [
+          tw_node(id: 1, cached: 'Aus', rank_class: icn_genus_rank),
+          tw_node(id: 2, cached: 'Aus sect. Bus', name: 'Bus',
+            rank_class: icn_section_rank),
+          tw_node(id: 3, cached: 'Aus cus', name: 'cus',
+            rank_class: icn_species_rank)
+        ]
+      end
+      let(:col_chain) do
+        [
+          col_node(col_name: 'Aus', col_rank: 'genus'),
+          col_node(col_name: 'Aus cus', col_rank: 'species')
+        ]
+      end
+
+      subject(:comparator) do
+        described_class.new(tw_chain:, col_chain:, col_code: nil)
+      end
+
+      it "orders ranks under the anchor's own code" do
+        result = comparator.call
+        expect(result.map { |r| [r[:rank], r[:match]] }).to eq([
+          ['genus', 'exact'],
+          ['section', 'extra'],
+          ['species', 'exact']
+        ])
+      end
+    end
+
     context 'mixed: extra TW rank and extra CoL rank both present' do
       let(:tw_chain) do
         [
