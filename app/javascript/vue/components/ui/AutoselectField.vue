@@ -124,11 +124,18 @@
         class="autoselect__help-overlay"
         :style="helpOverlayStyle"
       >
-        <button
+        <VBtn
           class="autoselect__help-close"
-          title='Use "Esc" to close'
+          circle
+          variant="ghost"
+          title='Close (use "Esc" to close)'
           @click="closeHelp"
-        >&#x2715;</button>
+        >
+          <VIcon
+            name="close"
+            xx-small
+          />
+        </VBtn>
         <h4>Available operators</h4>
         <ul class="autoselect__help-list">
           <li
@@ -199,6 +206,8 @@ import { randomUUID } from '@/helpers'
 import { useAutoselect } from '@/components/ui/AutoselectField/useAutoselect'
 import { usePreferences } from '@/components/ui/AutoselectField/usePreferences'
 import VTooltip from '@/components/ui/VTooltip/VTooltip.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 import ColConfirmModal from '@/components/ui/AutoselectField/ColConfirmModal.vue'
 import PreferencesModal from '@/components/ui/AutoselectField/PreferencesModal.vue'
 import CatalogueOfLifeSpinner from '@/components/ui/AutoselectField/CatalogueOfLifeSpinner.vue'
@@ -1129,21 +1138,11 @@ defineExpose({ prefill, getSearchText })
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 }
 
+/* Placement only - the button itself is a shared VBtn. */
 .autoselect__help-close {
   position: absolute;
   top: 5px;
   right: 6px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 13px;
-  line-height: 1;
-  color: var(--text-muted-color);
-  padding: 0 2px;
-}
-
-.autoselect__help-close:hover {
-  color: var(--color-destroy);
 }
 
 .autoselect__help-overlay h4 {

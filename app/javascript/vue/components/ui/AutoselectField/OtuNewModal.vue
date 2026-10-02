@@ -33,11 +33,17 @@
           <template v-if="selectedTaxonName">
             <span class="otu-new-modal__taxon-selected">
               <span v-html="selectedTaxonName.label_html || selectedTaxonName.label" />
-              <button
-                class="otu-new-modal__taxon-clear"
+              <VBtn
+                circle
+                variant="ghost"
                 title="Clear taxon name"
                 @click="clearTaxonName"
-              >&#x2715;</button>
+              >
+                <VIcon
+                  name="close"
+                  xx-small
+                />
+              </VBtn>
             </span>
           </template>
           <template v-else>
@@ -126,6 +132,7 @@
 import { ref, onMounted, nextTick } from 'vue'
 import Modal from '@/components/ui/Modal.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 import Autocomplete from '@/components/ui/Autocomplete.vue'
 import AjaxCall from '@/helpers/ajaxCall'
 
@@ -306,20 +313,6 @@ async function doCreate() {
   font-size: 12px;
   flex: 1;
   min-width: 0;
-}
-
-.otu-new-modal__taxon-clear {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 11px;
-  color: var(--text-muted-color);
-  padding: 0 2px;
-  line-height: 1;
-}
-
-.otu-new-modal__taxon-clear:hover {
-  color: var(--color-destroy);
 }
 
 .otu-new-modal__searching {

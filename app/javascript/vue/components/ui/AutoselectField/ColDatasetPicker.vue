@@ -28,13 +28,18 @@
                 class="col-dataset-picker__selected-alias"
                 >{{ selectedDataset.alias }}</span
             >
-            <button
+            <VBtn
                 class="col-dataset-picker__clear"
+                circle
+                variant="ghost"
                 title="Clear — use default dataset"
                 @click="clearDataset"
             >
-                &#x2715;
-            </button>
+                <VIcon
+                    name="close"
+                    xx-small
+                />
+            </VBtn>
         </div>
         <p v-else class="col-dataset-picker__default-note">
             Using default dataset (Catalogue of Life).
@@ -87,6 +92,8 @@
 import { ref, computed } from "vue";
 import AjaxCall from "@/helpers/ajaxCall";
 import CatalogueOfLifeSpinner from "@/components/ui/AutoselectField/CatalogueOfLifeSpinner.vue";
+import VBtn from "@/components/ui/VBtn/index.vue";
+import VIcon from "@/components/ui/VIcon/index.vue";
 
 const props = defineProps({
     levels: { type: Array, required: true },
@@ -208,18 +215,9 @@ function emitOptions(datasetId, datasetTitle) {
     color: var(--text-muted-color);
 }
 
+/* Placement only - the button itself is a shared VBtn. */
 .col-dataset-picker__clear {
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 11px;
-    color: var(--text-muted-color);
     margin-left: auto;
-    padding: 0 2px;
-}
-
-.col-dataset-picker__clear:hover {
-    color: var(--color-destroy);
 }
 
 .col-dataset-picker__default-note {

@@ -172,7 +172,7 @@
       <div class="col-confirm-modal__footer">
         <VBtn
           ref="confirmBtn"
-          :color="nothingToCreate ? 'default' : 'create'"
+          :color="nothingToCreate ? 'primary' : 'create'"
           :disabled="isCreating || cannotCreate || chainConflict || otuBlocked"
           @click="doConfirm"
           @keydown.enter.prevent="doConfirm"
