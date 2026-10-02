@@ -33,12 +33,15 @@ class HubController < ApplicationController
 
   protected
 
+  # Appends default tabs missing from the user's order, e.g. an empty order
+  # after a reset, or tabs added since the order was saved.
   def handle_bad_tab_order
-    # This is preventative only, it should never happen in real data, and may only occur when 
-    # we reset tab performance.
-    if @sessions_current_user.hub_tab_order.empty?
+    missing = DEFAULT_HUB_TAB_ORDER - @sessions_current_user.hub_tab_order
+    if missing.any?
       # TODO: update_column likely
-      @sessions_current_user.update_attribute(:hub_tab_order, DEFAULT_HUB_TAB_ORDER)
+      @sessions_current_user.update_attribute(
+        :hub_tab_order, @sessions_current_user.hub_tab_order + missing
+      )
     end
     true
   end
