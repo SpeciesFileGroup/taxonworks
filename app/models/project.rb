@@ -47,6 +47,7 @@ class Project < ApplicationRecord
      Confidence
      Role
      Label
+     Composition
      Attribution
      DwcOccurrence
      BiologicalAssociationIndex

@@ -39,9 +39,11 @@
             </ul>
             <ul class="context-menu">
               <%= yield :icon_navigation -%> 
-              <li><%= radial_annotator(object, annotations_exist(object)) %></li>
-              <li><%= tag_default_icon(object) %></li>
-              <li><%= pin_item_to_pinboard_link(object, sessions_current_user) %></li>
+              <% if object.class < Shared::IsData %>
+                <li><%= radial_annotator(object, annotations_exist(object)) %></li>
+                <li><%= tag_default_icon(object) %></li>
+                <li><%= pin_item_to_pinboard_link(object, sessions_current_user) %></li>
+              <% end %>
               <li><%= radial_navigation_tag(object) %></li>
             </ul>
           </div>
@@ -105,7 +107,7 @@
             <% end %>
 
             <%= render(partial: '/shared/data/all/show/soft_validation', locals: {object: object}) if object.class.respond_to?(:soft_validates?) -%>
-            <%= annotations_summary_tag(object) -%>
+            <%= annotations_summary_tag(object) if object.class < Shared::IsData -%>
 
           </div>
         </div>

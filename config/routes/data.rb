@@ -236,6 +236,10 @@ resources :common_names do
   concerns [:data_routes]
 end
 
+resources :compositions do
+  concerns [:data_routes]
+end
+
 get 'confidences/exists', to: 'confidences#exists', defaults: {format: :json}
 resources :confidences do # , except: [:edit, :show]
   concerns [:data_routes]

@@ -100,6 +100,7 @@ module ProjectUnification
     SLOW_TRACK = %w[
       ObservationMatrix
       ImportDataset
+      Composition
     ].freeze
 
     # Special handling required - custom migration logic.

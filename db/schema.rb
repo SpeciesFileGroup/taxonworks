@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_17_190742) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_02_130529) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -569,6 +569,25 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_17_190742) do
     t.index ["otu_id"], name: "index_common_names_on_otu_id"
     t.index ["project_id"], name: "index_common_names_on_project_id"
     t.index ["updated_by_id"], name: "index_common_names_on_updated_by_id"
+  end
+
+  create_table "compositions", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "created_by_id", null: false
+    t.text "description"
+    t.boolean "is_community"
+    t.text "name", null: false
+    t.bigint "project_id"
+    t.string "type", null: false
+    t.datetime "updated_at", null: false
+    t.integer "updated_by_id", null: false
+    t.text "version"
+    t.index ["created_by_id"], name: "index_compositions_on_created_by_id"
+    t.index ["is_community"], name: "index_compositions_on_is_community"
+    t.index ["project_id", "type", "name", "version"], name: "composition_unique_name_index", unique: true, nulls_not_distinct: true
+    t.index ["project_id"], name: "index_compositions_on_project_id"
+    t.index ["updated_by_id"], name: "index_compositions_on_updated_by_id"
+    t.check_constraint "(is_community IS TRUE) = (project_id IS NULL)", name: "composition_community_project_check"
   end
 
   create_table "confidences", id: :serial, force: :cascade do |t|
@@ -2509,6 +2528,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_17_190742) do
   add_foreign_key "common_names", "projects"
   add_foreign_key "common_names", "users", column: "created_by_id"
   add_foreign_key "common_names", "users", column: "updated_by_id"
+  add_foreign_key "compositions", "projects"
+  add_foreign_key "compositions", "users", column: "created_by_id"
+  add_foreign_key "compositions", "users", column: "updated_by_id"
   add_foreign_key "confidences", "controlled_vocabulary_terms", column: "confidence_level_id"
   add_foreign_key "confidences", "projects"
   add_foreign_key "confidences", "users", column: "created_by_id"

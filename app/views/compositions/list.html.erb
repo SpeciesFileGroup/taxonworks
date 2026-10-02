@@ -1,0 +1,28 @@
+<%= render("/shared/data/all/list/list_header", objects: @compositions) -%>
+
+<table class="tablesorter">
+  <thead>
+  <tr>
+    <%= fancy_th_tag(name: 'Type') -%>
+    <%= fancy_th_tag(name: 'Name') -%>
+    <%= fancy_th_tag(name: 'Version') -%>
+    <%= fancy_th_tag(name: 'Community') -%>
+    <%= fancy_th_tag(name: 'Description') -%>
+    <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
+    <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
+  </tr>
+  </thead>
+
+  <tbody>
+  <% @compositions.each do |composition| %>
+    <%= content_tag(:tr, class: :contextMenuCells) do -%>
+      <td><%= composition.type %></td>
+      <td><%= composition.name %></td>
+      <td><%= composition.version %></td>
+      <td><%= composition.is_community? %></td>
+      <td><%= composition.description %></td>
+      <%= fancy_metadata_cells_tag(composition) -%>
+    <% end %>
+  <% end %>
+  </tbody>
+</table>

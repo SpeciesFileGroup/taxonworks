@@ -435,3 +435,6 @@ Annotations:
 Communication:
   News:
     status: :prototype
+Render:
+  Composition:
+    status: :prototype
