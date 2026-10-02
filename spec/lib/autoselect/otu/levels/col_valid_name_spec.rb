@@ -58,7 +58,8 @@ RSpec.describe Autoselect::Otu::Levels::ColValidName, type: :model do
         expect(ext[:resolved_from]).to eq('Panthera leo persica')
         expect(ext[:hook]).to eq(
           create_url: '/otus/autoselect_col_create', yields: 'otu_id',
-          existing_id: nil, existing_global_id: nil
+          existing_id: nil, existing_global_id: nil, existing_named: false,
+          taxon_name_id: nil, otu_count: 0, otu_label: nil
         )
       end
     end
@@ -86,7 +87,8 @@ RSpec.describe Autoselect::Otu::Levels::ColValidName, type: :model do
 
         expect(result.length).to eq(1)
         expect(result.first._col_extension[:hook]).to include(
-          existing_id: otu.id, existing_global_id: otu.to_global_id.to_s
+          existing_id: otu.id, existing_global_id: otu.to_global_id.to_s,
+          otu_count: 1
         )
       end
 
@@ -114,7 +116,7 @@ RSpec.describe Autoselect::Otu::Levels::ColValidName, type: :model do
         _col_extension: {
           col_status: 'accepted', col_rank: 'species',
           resolved_from: 'Panthera leo pers', resolved_synonym:,
-          hook: { create_url: '/otus/autoselect_col_create', yields: 'otu_id', existing_id: }
+          hook: { create_url: '/otus/autoselect_col_create', yields: 'otu_id', existing_id:, otu_count: existing_id ? 1 : 0 }
         }
       )
     end

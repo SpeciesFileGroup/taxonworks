@@ -2,9 +2,11 @@
 #
 # Source mark for the results of the Catalogue of Life levels: TW_ICON when
 # selecting the result yields a record already in TaxonWorks (CoL only helped
-# find it), COL_ICON when it would be created from CoL. A CoL result yields an
-# existing record when its hook names one (e.g. an existing Otu for the OTU
-# levels), or, without a hook, when its target TaxonName already exists.
+# find it), COL_ICON when it would be created from CoL. A CoL result counts as
+# existing when, with a hook, its TaxonName already has an Otu (for the OTU
+# levels - even one the user has to pick directly, see
+# Autoselect::Otu::ColExistingOtu), or, without a hook, when its target
+# TaxonName already exists.
 #
 # Icons are inlined SVG rather than <img src=...> so they render as ordinary page
 # content. COL_ICON reuses the four-square mark from
@@ -36,14 +38,14 @@ module Autoselect
 
       private
 
-      # @return [Boolean] true when selecting record yields a record already in
-      #   TaxonWorks (always, for a record that isn't a CoL result)
+      # @return [Boolean] true when record is already in TaxonWorks (always,
+      #   for a record that isn't a CoL result)
       def col_existing_record?(record)
         return true if !record.respond_to?(:_col_extension)
 
         extension = record._col_extension || {}
         if (hook = extension[:hook])
-          hook[:existing_id].present?
+          hook[:otu_count].to_i > 0
         else
           extension[:target_taxonworks_id].present?
         end

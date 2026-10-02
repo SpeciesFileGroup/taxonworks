@@ -71,13 +71,14 @@ module Autoselect
           )
           return [] if target.nil?
 
-          existing_otu = ::Autoselect::Otu::ColExistingOtu.for_taxon_name(
-            target._col_extension[:target_taxonworks_id], project_id:
-          )
+          taxon_name_id = target._col_extension[:target_taxonworks_id]
+          otus = ::Autoselect::Otu::ColExistingOtu.otus_by_taxon_name(
+            [taxon_name_id], project_id:
+          )[taxon_name_id] || []
 
           extension = target._col_extension.merge(
             resolved_from: term,
-            hook: ::Autoselect::Otu::ColExistingOtu.hook(existing_otu)
+            hook: ::Autoselect::Otu::ColExistingOtu.hook(otus)
           )
 
           [

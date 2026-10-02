@@ -43,8 +43,23 @@ RSpec.describe Autoselect::Otu::Levels::CatalogueOfLife, type: :model do
       expect(result.length).to eq(1)
       expect(result.first._col_extension[:hook]).to eq(
         create_url: '/otus/autoselect_col_create', yields: 'otu_id',
-        existing_id: otu.id, existing_global_id: otu.to_global_id.to_s
+        existing_id: otu.id, existing_global_id: otu.to_global_id.to_s,
+        existing_named: false, taxon_name_id: species.id, otu_count: 1,
+        otu_label: ApplicationController.helpers.label_for_otu(otu)
       )
+    end
+
+    it 'has no existing OTU, but the count, when the name has several ' \
+      'named ones' do
+      ::Otu.create!(taxon_name: species, name: 'one', project_id:, by: user_id)
+      ::Otu.create!(taxon_name: species, name: 'other', project_id:, by: user_id)
+      stub_col_records(
+        col_record('Erythroneura vitis', target_taxonworks_id: species.id)
+      )
+
+      result = level.call(term: 'Erythroneura vitis', project_id:, user_id:)
+      expect(result.first._col_extension[:hook])
+        .to include(existing_id: nil, otu_count: 2)
     end
 
     it 'has no existing OTU in the hook for a name without one' do
@@ -65,7 +80,7 @@ RSpec.describe Autoselect::Otu::Levels::CatalogueOfLife, type: :model do
         name: 'Aus bus',
         _col_extension: {
           col_status: 'accepted',
-          hook: { create_url: '/otus/autoselect_col_create', yields: 'otu_id', existing_id: }
+          hook: { create_url: '/otus/autoselect_col_create', yields: 'otu_id', existing_id:, otu_count: existing_id ? 1 : 0 }
         }
       )
     end

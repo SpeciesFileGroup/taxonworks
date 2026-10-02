@@ -101,10 +101,48 @@
       </table>
 
       <p
+        v-if="ext.hook?.existing_id && ext.hook.existing_named"
         class="col-confirm-modal__note"
-        :class="{ 'col-confirm-modal__note--warning': chainConflict || isAmbiguous }"
       >
-        <template v-if="isAmbiguous">
+        Will use OTU <strong>{{ ext.hook.otu_label }}</strong>.
+      </p>
+
+      <p
+        v-else-if="ext.hook?.existing_id && ext.hook.otu_count > 1"
+        class="col-confirm-modal__note"
+      >
+        Will use the OTU with no name of its own,
+        <strong>{{ ext.hook.otu_label }}</strong>.
+        <span class="col-confirm-modal__note--warning">
+          There {{ otherOtuCount === 1 ? 'is' : 'are' }}
+          <a
+            :href="otuFilterUrl"
+            target="_blank"
+            rel="noopener noreferrer"
+            >{{ otherOtuCount }} other OTU{{ otherOtuCount === 1 ? '' : 's' }}</a
+          >
+          on this name.
+        </span>
+      </p>
+
+      <p
+        class="col-confirm-modal__note"
+        :class="{
+          'col-confirm-modal__note--warning':
+            otuBlocked || chainConflict || isAmbiguous
+        }"
+      >
+        <template v-if="otuBlocked">
+          This name has
+          <a
+            :href="otuFilterUrl"
+            target="_blank"
+            rel="noopener noreferrer"
+            >{{ ext.hook.otu_count }} OTUs</a
+          >
+          — select the one you want directly.
+        </template>
+        <template v-else-if="isAmbiguous">
           {{ ext.ambiguous_match.count }} TaxonWorks records are named
           <em>{{ ext.ambiguous_match.col_name }}</em> at rank <em>{{ ext.ambiguous_match.rank }}</em> —
           there's no way to tell which one this lineage should use. Resolve this manually before creating.
@@ -135,11 +173,11 @@
         <VBtn
           ref="confirmBtn"
           :color="nothingToCreate ? 'default' : 'create'"
-          :disabled="isCreating || cannotCreate || chainConflict"
+          :disabled="isCreating || cannotCreate || chainConflict || otuBlocked"
           @click="doConfirm"
           @keydown.enter.prevent="doConfirm"
         >
-          {{ nothingToCreate ? 'Select' : (isCreating ? 'Creating…' : 'Create') }}
+          {{ confirmLabel }}
         </VBtn>
         <button
           class="button circle-button btn-undo button-default"
@@ -159,6 +197,8 @@ import { ref, computed, onMounted, nextTick } from 'vue'
 import Modal from '@/components/ui/Modal.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import AjaxCall from '@/helpers/ajaxCall'
+import { RouteNames } from '@/routes/routes'
+import qs from 'qs'
 
 const props = defineProps({
   item: { type: Object, required: true }
@@ -168,6 +208,26 @@ const emit = defineEmits(['confirm', 'cancel'])
 
 // Shorthand for the extension hash
 const ext = computed(() => props.item.extension)
+
+// A hook result whose TaxonName has OTUs, none of which it can yield without
+// the user choosing (several named ones, or several unnamed): neither Select
+// nor Create - the user picks the OTU directly. The server refuses it too
+// (see Autoselect::Otu::ColExistingOtu).
+const otuBlocked = computed(
+  () => ext.value.hook?.otu_count > 0 && !ext.value.hook.existing_id
+)
+
+// The named OTUs beside the unnamed one a hook result yields.
+const otherOtuCount = computed(() => (ext.value.hook?.otu_count ?? 1) - 1)
+
+// The OTU filter, listing every OTU on a hook result's TaxonName.
+const otuFilterUrl = computed(
+  () =>
+    `${RouteNames.FilterOtus}?${qs.stringify(
+      { taxon_name_id: [ext.value.hook?.taxon_name_id] },
+      { arrayFormat: 'brackets' }
+    )}`
+)
 
 // Ancestor rows in distal→proximal (kingdom-first) order — already how alignment
 // comes back from Vendor::Colrapi.build_extension.
@@ -212,6 +272,14 @@ const existingRecord = computed(() =>
 const nothingToCreate = computed(
   () => checkedRowKeys.value.size === 0 && !!existingRecord.value.id
 )
+
+// 'Create & select' when checked ancestors are created and the record this
+// result yields already exists, so both happen.
+const confirmLabel = computed(() => {
+  if (nothingToCreate.value) return 'Select'
+  if (isCreating.value) return 'Creating…'
+  return existingRecord.value.id ? 'Create & select' : 'Create'
+})
 
 // True when the target rank is unsupported by TaxonWorks AND no ancestor rows are
 // checked — clicking Create would create nothing, so the button should be disabled.
