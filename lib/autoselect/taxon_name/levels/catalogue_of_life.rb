@@ -115,6 +115,23 @@ module Autoselect
           candidates_by_key =
             translation.candidates_by_key(full_chain, project_id:)
 
+          # TODO: a CoL name only matches a TaxonWorks name in its *current*
+          # form, so a taxon TaxonWorks already has under another form is
+          # missed and the walk falls through to an ancestor, offering to
+          # create a duplicate. Missed today:
+          #   * Combinations - found by candidates_by_key but dropped below,
+          #     they have no rank_class (e.g. CoL "Erythroneura pura" ->
+          #     TaxonWorks Combination, valid name Erythridula acicularis)
+          #   * a Protonym's original combination - cached_original_combination
+          #     is never searched (e.g. CoL "Deltocephalus pumilicans" ->
+          #     TaxonWorks Vilargus pumilicans, orig. Deltocephalus pumilicans)
+          #   * the same genus-group name at another genus-group rank (CoL
+          #     genus Erasmoneura vs TaxonWorks subgenus Erythroneura
+          #     (Erasmoneura))
+          # Such a hit shouldn't become the anchor (its TaxonWorks lineage is
+          # the current placement, which conflicts with CoL's); report it as
+          # "TaxonWorks already has this as X" and block Create instead.
+
           # When CoL tells us the code, require candidates to match it too — same-name,
           # same-rank homonyms do occur across codes (e.g. a zoological vs a botanical
           # genus sharing a name), and this is the only point that needs the check: once

@@ -213,6 +213,55 @@ RSpec.describe Autoselect::TaxonName::ColCreator, type: :model do
       end
     end
 
+    context 'when two consecutive new rows are inserted between two existing taxonworks_id rows' do
+      let!(:family) { FactoryBot.create(:valid_taxon_name, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Family', name: 'Hominidae') }
+      # See the single-insert context above for why genus is reparented after create.
+      let!(:genus) do
+        g = FactoryBot.create(:valid_taxon_name, rank_class: 'NomenclaturalRank::Iczn::GenusGroup::Genus', name: 'Homo')
+        g.update!(parent: family)
+        g
+      end
+
+      let(:rows) do
+        [
+          row(col_name: family.cached, col_rank: 'family', taxonworks_id: family.id),
+          row(col_name: 'Homininae', col_rank: 'subfamily', col_authorship: 'Gray, 1825', col_year: '1825'),
+          row(col_name: 'Hominini', col_rank: 'tribe', col_authorship: 'Gray, 1825', col_year: '1825'),
+          row(col_name: genus.cached, col_rank: 'genus', taxonworks_id: genus.id)
+        ]
+      end
+
+      subject(:result) {
+        described_class.new(rows:, project_id:, user_id:, col_code: 'zoological').call
+      }
+
+      let(:subfamily) { ::TaxonName.find_by(name: 'Homininae', project_id:) }
+      let(:tribe) { ::TaxonName.find_by(name: 'Hominini', project_id:) }
+
+      it 'creates only the two inserted rows' do
+        expect { result }.to change(::TaxonName, :count).by(2)
+      end
+
+      it 'parents the first inserted row on the existing row above it' do
+        result
+        expect(subfamily.parent_id).to eq(family.id)
+      end
+
+      it 'parents the second inserted row on the first' do
+        result
+        expect(tribe.parent_id).to eq(subfamily.id)
+      end
+
+      it 'reparents the existing row below onto the last inserted row' do
+        result
+        expect(genus.reload.parent_id).to eq(tribe.id)
+      end
+
+      it 'does not touch the parent of the row above the inserted rows' do
+        expect { result }.not_to change { family.reload.parent_id }
+      end
+    end
+
     context 'when two consecutive rows already have taxonworks_ids and are already correctly linked' do
       let!(:family) { FactoryBot.create(:valid_taxon_name, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Family', name: 'Hominidae') }
       # valid_taxon_name's :parent_is_root trait forces parent to the project root on
