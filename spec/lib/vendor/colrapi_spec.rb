@@ -197,6 +197,30 @@ describe Vendor::Colrapi, type: :model do
 
   # ── build_extension ───────────────────────────────────────────────────────────
 
+  describe '.protonym_name_from' do
+    specify 'a subgenus is its infragenericEpithet' do
+      name = {
+        'scientificName' => 'Aedes (Stegomyia)', 'genus' => 'Aedes',
+        'infragenericEpithet' => 'Stegomyia', 'rank' => 'subgenus'
+      }
+      expect(described_class.protonym_name_from(name)).to eq('Stegomyia')
+    end
+
+    specify 'a species in a subgenus is its specificEpithet' do
+      name = {
+        'scientificName' => 'Aedes (Stegomyia) aegypti', 'genus' => 'Aedes',
+        'infragenericEpithet' => 'Stegomyia', 'specificEpithet' => 'aegypti',
+        'rank' => 'species'
+      }
+      expect(described_class.protonym_name_from(name)).to eq('aegypti')
+    end
+
+    specify 'a genus is its uninomial' do
+      name = { 'scientificName' => 'Aedes', 'uninomial' => 'Aedes' }
+      expect(described_class.protonym_name_from(name)).to eq('Aedes')
+    end
+  end
+
   describe '.build_extension' do
     let(:col_result) { col_nameusage_result }
 
@@ -278,14 +302,16 @@ describe Vendor::Colrapi, type: :model do
       end
     end
 
-    context 'when result is subgenus rank with paren-wrapped combination' do
+    context 'when result is subgenus rank' do
+      # As CoL parses it: genus + infragenericEpithet, no uninomial
       let(:subgenus_result) {
         {
           'id'     => 'SG1',
           'status' => 'accepted',
           'name'   => {
             'scientificName' => 'Cicadula (Cyperana)',
-            'uninomial'      => 'Cicadula (Cyperana)',
+            'genus' => 'Cicadula',
+            'infragenericEpithet' => 'Cyperana',
             'rank'           => 'subgenus',
             'authorship'     => 'Ribaut, 1946'
           },
@@ -300,7 +326,7 @@ describe Vendor::Colrapi, type: :model do
 
       subject(:ext) { described_class.build_extension(subgenus_result) }
 
-      it 'col_name extracts the epithet from inside the parentheses' do
+      it 'col_name is the subgenus epithet' do
         expect(ext[:col_name]).to eq('Cyperana')
       end
 
@@ -832,6 +858,18 @@ describe Vendor::Colrapi, type: :model do
         .with(q: 'Erythroneura vitis', dataset_id: '3LR', rank: 'species')
         .and_return(col_search_result)
       described_class.name_status(species)
+    end
+
+    specify 'a Combination is looked up at its own rank, not its ' \
+      'protonym\'s' do
+      # "Erythroneura vitata": the subspecies vitata, published as a species
+      combination = Combination.create!(
+        genus: species.parent.parent, species: subspecies
+      )
+      expect(::Colrapi).to receive(:nameusage_search)
+        .with(q: 'Erythroneura vitata', dataset_id: '3LR', rank: 'species')
+        .and_return(col_search_result)
+      described_class.name_status(combination.reload)
     end
 
     specify 'takes a name string when there\'s no TaxonName' do
