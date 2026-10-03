@@ -47,6 +47,7 @@ class Project < ApplicationRecord
      Confidence
      Role
      Label
+     CompositionItem
      Composition
      Attribution
      DwcOccurrence

@@ -85,6 +85,7 @@ module ProjectUnification
       SledImage
       CitationTopic
       BiologicalAssociationsBiologicalAssociationsGraph
+      CompositionItem
     ].freeze
 
     # Per-record validation required to detect uniqueness conflicts against

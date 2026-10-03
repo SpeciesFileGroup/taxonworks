@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_02_130529) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_02_202328) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -569,6 +569,42 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_02_130529) do
     t.index ["otu_id"], name: "index_common_names_on_otu_id"
     t.index ["project_id"], name: "index_common_names_on_project_id"
     t.index ["updated_by_id"], name: "index_common_names_on_updated_by_id"
+  end
+
+  create_table "composition_items", force: :cascade do |t|
+    t.bigint "composition_id"
+    t.bigint "composition_item_object_id"
+    t.string "composition_item_object_type"
+    t.datetime "created_at", null: false
+    t.integer "created_by_id", null: false
+    t.text "css_style"
+    t.integer "height"
+    t.boolean "is_visible"
+    t.float "opacity"
+    t.bigint "parent_id"
+    t.integer "position"
+    t.bigint "project_id"
+    t.float "rotation_x"
+    t.float "rotation_y"
+    t.xml "svg_clip"
+    t.string "svg_view_box"
+    t.text "text"
+    t.integer "total"
+    t.string "type", null: false
+    t.datetime "updated_at", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "width"
+    t.float "x"
+    t.float "y"
+    t.float "z"
+    t.float "zoom"
+    t.index ["composition_id"], name: "index_composition_items_on_composition_id"
+    t.index ["composition_item_object_type", "composition_item_object_id"], name: "index_composition_items_on_composition_item_object"
+    t.index ["created_by_id"], name: "index_composition_items_on_created_by_id"
+    t.index ["parent_id"], name: "index_composition_items_on_parent_id"
+    t.index ["project_id"], name: "index_composition_items_on_project_id"
+    t.index ["updated_by_id"], name: "index_composition_items_on_updated_by_id"
+    t.check_constraint "opacity >= 0::double precision AND opacity <= 100::double precision", name: "composition_item_opacity_check"
   end
 
   create_table "compositions", force: :cascade do |t|
@@ -2528,6 +2564,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_02_130529) do
   add_foreign_key "common_names", "projects"
   add_foreign_key "common_names", "users", column: "created_by_id"
   add_foreign_key "common_names", "users", column: "updated_by_id"
+  add_foreign_key "composition_items", "composition_items", column: "parent_id"
+  add_foreign_key "composition_items", "compositions"
+  add_foreign_key "composition_items", "projects"
+  add_foreign_key "composition_items", "users", column: "created_by_id"
+  add_foreign_key "composition_items", "users", column: "updated_by_id"
   add_foreign_key "compositions", "projects"
   add_foreign_key "compositions", "users", column: "created_by_id"
   add_foreign_key "compositions", "users", column: "updated_by_id"

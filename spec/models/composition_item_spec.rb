@@ -1,0 +1,146 @@
+require 'rails_helper'
+
+RSpec.describe CompositionItem, type: :model do
+  let(:composition_item) { CompositionItem.new }
+  let(:layout) { FactoryBot.create(:valid_layout) }
+
+  specify 'is a render class' do
+    expect(CompositionItem < Shared::IsRender).to be_truthy
+  end
+
+  specify 'type is required' do
+    composition_item.valid?
+    expect(composition_item.errors.include?(:type)).to be_truthy
+  end
+
+  specify 'composition is not required' do
+    composition_item.valid?
+    expect(composition_item.errors.include?(:composition)).to be_falsey
+  end
+
+  context 'opacity' do
+    let(:item) { FactoryBot.build(:valid_layout_item) }
+
+    specify 'may be nil' do
+      expect(item.valid?).to be_truthy
+    end
+
+    specify 'may be 0..100' do
+      item.opacity = 50.5
+      expect(item.valid?).to be_truthy
+    end
+
+    specify 'may not be > 100' do
+      item.opacity = 100.1
+      item.valid?
+      expect(item.errors.include?(:opacity)).to be_truthy
+    end
+
+    specify 'may not be < 0' do
+      item.opacity = -1
+      item.valid?
+      expect(item.errors.include?(:opacity)).to be_truthy
+    end
+  end
+
+  context 'parent' do
+    let(:parent) { FactoryBot.create(:valid_layout_item, composition: layout) }
+    let(:item) { FactoryBot.build(:valid_layout_item, composition: layout, parent:) }
+
+    specify 'may be in the same composition' do
+      expect(item.valid?).to be_truthy
+    end
+
+    specify 'may not be in a different composition' do
+      item.composition = FactoryBot.create(:valid_layout)
+      item.valid?
+      expect(item.errors.include?(:parent)).to be_truthy
+    end
+
+    specify 'may not be self' do
+      parent.parent = parent
+      parent.valid?
+      expect(parent.errors.include?(:parent)).to be_truthy
+    end
+
+    specify 'may not be a descendant' do
+      item.save!
+      parent.parent = item
+      parent.valid?
+      expect(parent.errors.include?(:parent)).to be_truthy
+    end
+
+    specify 'destroying a parent destroys its children' do
+      item.save!
+      parent.destroy!
+      expect(CompositionItem.where(id: item.id).exists?).to be_falsey
+    end
+  end
+
+  context 'position' do
+    specify 'is ordered within composition and parent' do
+      a = FactoryBot.create(:valid_layout_item, composition: layout)
+      b = FactoryBot.create(:valid_layout_item, composition: layout)
+      c = FactoryBot.create(:valid_layout_item, composition: layout, parent: a)
+      d = FactoryBot.create(:valid_layout_item)
+
+      expect([a, b, c, d].map(&:position)).to eq([1, 2, 1, 1])
+    end
+  end
+
+  context 'project' do
+    specify 'is the composition project' do
+      i = FactoryBot.create(:valid_layout_item, composition: layout)
+      expect(i.project_id).to eq(layout.project_id)
+    end
+
+    context 'when the composition is community' do
+      before { allow(Template).to receive(:community_permitted?).and_return(true) }
+      let(:template) { FactoryBot.create(:valid_template, is_community: true) }
+
+      specify 'is nil' do
+        i = FactoryBot.create(:valid_template_item, composition: template)
+        expect(i.reload.project_id).to eq(nil)
+      end
+
+      specify 'composition_item_object is not permitted' do
+        i = FactoryBot.build(:valid_template_item, composition: template, composition_item_object: FactoryBot.create(:valid_otu))
+        i.valid?
+        expect(i.errors.include?(:composition_item_object)).to be_truthy
+      end
+
+      specify 'composition may not become community when items reference objects' do
+        t = FactoryBot.create(:valid_template)
+        FactoryBot.create(:valid_template_item, composition: t, composition_item_object: FactoryBot.create(:valid_otu))
+        t.is_community = true
+        t.valid?
+        expect(t.errors.include?(:is_community)).to be_truthy
+      end
+
+      specify 'follows the composition becoming community' do
+        t = FactoryBot.create(:valid_template)
+        i = FactoryBot.create(:valid_template_item, composition: t)
+        t.update!(is_community: true)
+        expect(i.reload.project_id).to eq(nil)
+      end
+
+      specify 'follows the composition becoming project' do
+        i = FactoryBot.create(:valid_template_item, composition: template)
+        template.update!(is_community: false)
+        expect(i.reload.project_id).to eq(Current.project_id)
+      end
+    end
+  end
+
+  specify 'composition_item_object may be any object' do
+    i = FactoryBot.create(:valid_layout_item, composition_item_object: FactoryBot.create(:valid_otu))
+    expect(i.reload.composition_item_object).to be_a(Otu)
+  end
+
+  specify 'destroying the composition destroys its items' do
+    i = FactoryBot.create(:valid_layout_item, composition: layout)
+    c = FactoryBot.create(:valid_layout_item, composition: layout, parent: i)
+    layout.destroy!
+    expect(CompositionItem.where(id: [i.id, c.id]).exists?).to be_falsey
+  end
+end
