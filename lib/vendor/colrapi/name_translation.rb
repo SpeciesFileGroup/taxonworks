@@ -2,7 +2,7 @@ module Vendor
   module Colrapi
 
     # Translates between how the Catalogue of Life writes a name and how
-    # TaxonWorks stores it.
+    # TaxonWorks stores its names.
     #
     # CoL's formatting depends on the source dataset (sector) a name came from,
     # and isn't always consistent within one source. What has been seen so far
@@ -39,8 +39,11 @@ module Vendor
     #     subsp. africana"), same as TaxonWorks #cached.
     #   * [sic] is TaxonWorks-only (#cached), CoL doesn't send it.
     #
-    # Names are compared by a "key" computed the same way from both sides; the
-    # key is never displayed or used to create anything, though it is what
+    # Names are compared by a "key" computed the same way from both sides:
+    #  * col_name_key - for a name as CoL gives it
+    #  * taxonworks_name_keys - for each form of a TaxonName (see .forms)
+    #  * name_key - for a naked/unassociated name
+    # The key is never displayed or used to create anything, though it is what
     # CoL is searched with (.search_term).
     #
     # TODO: ICN section, subsection, series, subseries (and ICZN
@@ -93,7 +96,7 @@ module Vendor
       #   already be reduced to its epithet)
       # @param rank [String, nil] CoL rank name, e.g. 'subgenus'
       # @return [String, nil] the comparison key for col_name
-      def self.col_key(col_name, rank)
+      def self.col_name_key(col_name, rank)
         return nil if col_name.nil?
         return subgenus_epithet(col_name) if rank == 'subgenus'
 
@@ -101,7 +104,7 @@ module Vendor
       end
 
       # The comparison key for a name given as text on the TaxonWorks side -
-      # use only when there's no TaxonName (else see .current_form_key).
+      # use only when there's no TaxonName (else see .taxonworks_name_keys).
       #
       # @param name [String, nil]
       # @return [String, nil]
@@ -112,59 +115,57 @@ module Vendor
         comparable(name)
       end
 
-      # The form of a TaxonName to look it up in CoL by. An invalid Protonym is
-      # its original combination: TaxonWorks moves a synonym under its valid
-      # name's parent, so its #cached can be a combination that was never
-      # published, while CoL lists synonyms as they were published. (Compare
-      # .current_form_key, which is always the current form.)
+      # A TaxonName found by .candidates_by_key, and which of its forms (see
+      # .forms) matched: :current or :published.
+      Candidate = Struct.new(:taxon_name, :form)
+
+      # The two forms a TaxonWorks name can be written in, which CoL also uses:
+      #   * current - #cached, the name as TaxonWorks places it now. Compare
+      #     it to CoL names in their current placement, e.g. CoL's accepted
+      #     classification.
+      #   * published - the name as published: a Protonym's original
+      #     combination, or a Combination itself (which has no current form
+      #     of its own). CoL lists synonyms this way, while TaxonWorks moves a
+      #     synonym under its valid name's parent, so a synonym's #cached can
+      #     be a combination that was never published.
+      # Which to compare is the caller's decision, and depends on what it's
+      # comparing against.
       #
       # @param taxon_name [TaxonName]
-      # @return [String, nil]
-      def self.col_lookup_name(taxon_name)
-        if taxon_name.is_a?(::Protonym) && !taxon_name.cached_is_valid
-          taxon_name.cached_original_combination.presence || taxon_name.cached
+      # @return [Hash] { current: String or nil, published: String or nil }
+      def self.forms(taxon_name)
+        if taxon_name.is_a?(::Combination)
+          { current: nil, published: taxon_name.cached }
         else
-          taxon_name.cached
+          {
+            current: taxon_name.cached,
+            published: taxon_name.cached_original_combination.presence
+          }
         end
       end
 
-      # The comparison key for a TaxonName's current form: #cached, i.e. the
-      # name as TaxonWorks places it now (a subgenus by its epithet). Compare
-      # it to CoL names in their current placement too, e.g. CoL's accepted
-      # classification. It is not how CoL lists a synonym: CoL gives
-      # synonyms as published, while TaxonWorks moves a synonym under its
-      # valid name's parent - use .col_lookup_name for that form.
+      # The comparison key of each of a TaxonName's .forms (a subgenus by its
+      # epithet).
       #
       # @param taxon_name [TaxonName]
-      # @return [String, nil]
-      def self.current_form_key(taxon_name)
-        if ::RANKS_LOOKUP[taxon_name.rank_class.to_s] == 'subgenus'
-          taxon_name.name
-        else
-          comparable(taxon_name.cached)
-        end
+      # @return [Hash] { current: String or nil, published: String or nil }
+      def self.taxonworks_name_keys(taxon_name)
+        forms(taxon_name).transform_values { |name| name_key(name) }
       end
 
-      # Finds the TaxonNames in project_id whose current form (see
-      # .current_form_key) matches the key of one of col_rows. Callers still
-      # need to check rank (and code) themselves.
-      #
-      # TODO: a CoL row for a name as published (e.g. a synonym CoL lists in
-      # its original combination, "Aphrodes dobrogicus") misses the
-      # TaxonName whose current form differs (TaxonWorks "Planaphrodes
-      # dobrogica") - #cached_original_combination is never searched, valid
-      # and invalid names alike (e.g. valid "Vilargus pumilicans", orig.
-      # "Deltocephalus pumilicans"). See the duplicate-creation TODO in
-      # Autoselect::TaxonName::Levels::CatalogueOfLife#match_against_taxonworks:
-      # such a hit should be reported, not become an anchor.
+      # Finds the TaxonNames in project_id one of whose .forms has the key of
+      # one of col_rows - which form matched is reported (a name whose two
+      # forms share a key is listed once, as :current). Callers still need to
+      # check rank (and code) themselves, and decide what a :published match
+      # means for them.
       #
       # @param col_rows [Array<Hash>] each with :col_name and :rank
       # @param project_id [Integer]
-      # @return [Hash{String => Array<TaxonName>}] keyed by comparison key,
+      # @return [Hash{String => Array<Candidate>}] keyed by comparison key,
       #   only keys of col_rows that have candidates
       def self.candidates_by_key(col_rows, project_id:)
         keys = col_rows
-          .map { |row| col_key(row[:col_name], row[:rank]) }
+          .map { |row| col_name_key(row[:col_name], row[:rank]) }
           .compact
           .uniq
         return {} if keys.empty?
@@ -172,25 +173,40 @@ module Vendor
         t = ::TaxonName.arel_table
         single_word, multi_word = keys.partition { |k| !k.include?(' ') }
 
-        # Exact #cached catches most names; #name catches a subgenus by its
-        # epithet.
+        # Exact #cached catches most names (Combinations included); #name
+        # catches a subgenus by its epithet, and a misspelled uninomial whose
+        # #cached carries [sic].
         condition = t[:cached].in(keys)
+          .or(t[:cached_original_combination].in(keys))
         condition = condition.or(t[:name].in(single_word)) if single_word.any?
 
-        # A species-group #cached may carry a subgenus or [sic] the key
-        # doesn't, so match on the last epithet (#name) within the genus.
+        # A species-group name may carry a subgenus or [sic] the key doesn't:
+        # match #cached on the last epithet (#name) within the genus, and
+        # either form on "Genus ... epithet". (A superset - the keys below
+        # decide.)
         multi_word.each do |k|
           words = k.split(' ')
-          genus_prefix =
-            "#{::ActiveRecord::Base.sanitize_sql_like(words.first)} %"
-          condition = condition.or(
-            t[:name].eq(words.last).and(t[:cached].matches(genus_prefix))
-          )
+          genus = ::ActiveRecord::Base.sanitize_sql_like(words.first)
+          epithet = ::ActiveRecord::Base.sanitize_sql_like(words.last)
+          condition = condition
+            .or(t[:name].eq(words.last).and(t[:cached].matches("#{genus} %")))
+            .or(t[:cached].matches("#{genus} %#{epithet}"))
+            .or(t[:cached_original_combination].matches("#{genus} %#{epithet}"))
         end
 
-        ::TaxonName.where(project_id:).where(condition)
-          .group_by { |taxon_name| current_form_key(taxon_name) }
-          .slice(*keys)
+        candidates = Hash.new { |h, k| h[k] = [] }
+        ::TaxonName.where(project_id:).where(condition).each do |taxon_name|
+          current, published = taxonworks_name_keys(taxon_name)
+            .values_at(:current, :published)
+          if current
+            candidates[current] << Candidate.new(taxon_name, :current)
+          end
+          if published && published != current
+            candidates[published] << Candidate.new(taxon_name, :published)
+          end
+        end
+
+        candidates.slice(*keys)
       end
 
       # @param name [String, nil]

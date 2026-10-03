@@ -25,10 +25,17 @@ module Vendor
     # in that order of precedence. With no matching usage it's
     # :undeterminable.
     #
+    # A TaxonName is looked up by one of its NameTranslation.forms: an
+    # invalid Protonym by its published form (original combination), since
+    # CoL lists synonyms as published while TaxonWorks moves a synonym under
+    # its valid name's parent (project 13 sample, 2026-10: of 40 synonyms whose
+    # two forms differ, CoL had the original combination for 38 and #cached
+    # for 7, never #cached alone); anything else by its current form (a
+    # Combination, which has none, by its published one).
+    #
     # @param target [TaxonName, String, nil] the name to check: a TaxonName
-    #   when there is one (looked up by NameTranslation.col_lookup_name, at
-    #   its own rank), else a name string, searched as a species - see
-    #   .collection_object_name_target
+    #   when there is one (searched at its own rank), else a name string,
+    #   searched as a species - see .collection_object_name_target
     # @return [Hash]
     #   { taxonworks_name: String,
     #     col_usages: [ { usage: { name:, status: },
@@ -36,21 +43,19 @@ module Vendor
     #     provisional_status: Symbol }
     def self.name_status(target)
       if target.is_a?(::TaxonName)
-        name = NameTranslation.col_lookup_name(target)
+        forms = NameTranslation.forms(target)
+        invalid_protonym =
+          target.is_a?(::Protonym) && !target.cached_is_valid
+        name =
+          (forms[:published] if invalid_protonym) ||
+          forms[:current] ||
+          forms[:published]
         rank = ::RANKS_LOOKUP[target.rank_class.to_s]
-        # A subgenus keys by its epithet, which the name string can't give
-        # when it's an original combination
-        key =
-          if rank == 'subgenus'
-            NameTranslation.current_form_key(target)
-          else
-            NameTranslation.name_key(name)
-          end
       else
         name = target
-        key = NameTranslation.name_key(name)
         rank = 'species'
       end
+      key = NameTranslation.name_key(name)
 
       results =
         if key.present?
@@ -93,7 +98,7 @@ module Vendor
     # @param usage [Hash] a nameusage_search usage
     # @return [String, nil] its comparison key
     def self.usage_key(usage)
-      NameTranslation.col_key(
+      NameTranslation.col_name_key(
         usage.dig('name', 'scientificName'), usage.dig('name', 'rank')
       )
     end
@@ -107,7 +112,7 @@ module Vendor
       when *COL_ACCEPTED_STATUSES
         :accepted
       when 'synonym'
-        accepted_key = NameTranslation.col_key(
+        accepted_key = NameTranslation.col_name_key(
           usage.dig('accepted', 'name', 'scientificName'),
           usage.dig('accepted', 'name', 'rank')
         )

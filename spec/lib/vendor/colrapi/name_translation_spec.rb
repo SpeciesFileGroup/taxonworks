@@ -69,29 +69,6 @@ describe Vendor::Colrapi::NameTranslation, type: :model do
     end
   end
 
-  context '.col_lookup_name' do
-    specify 'a valid name is its #cached' do
-      expect(t.col_lookup_name(species))
-        .to eq('Erythroneura (Erythroneura) vitis')
-    end
-
-    specify 'an invalid Protonym is its original combination' do
-      species.update_columns(
-        cached_is_valid: false,
-        cached_original_combination: 'Typhlocyba vitis'
-      )
-      expect(t.col_lookup_name(species)).to eq('Typhlocyba vitis')
-    end
-
-    specify 'an invalid Protonym without an original combination is #cached' do
-      species.update_columns(
-        cached_is_valid: false, cached_original_combination: nil
-      )
-      expect(t.col_lookup_name(species))
-        .to eq('Erythroneura (Erythroneura) vitis')
-    end
-  end
-
   context '.name_key' do
     specify 'a TaxonWorks #cached under a subgenus drops it' do
       expect(t.name_key('Aphrophora (Aphrophora) binomoriensis'))
@@ -104,12 +81,12 @@ describe Vendor::Colrapi::NameTranslation, type: :model do
 
     specify 'matches the key of the same name as CoL gives it' do
       expect(t.name_key('Aedes (Stegomyia) aegypti'))
-        .to eq(t.col_key('Aedes aegypti', 'species'))
+        .to eq(t.col_name_key('Aedes aegypti', 'species'))
     end
 
     specify 'a subgenus ("Genus (Subgenus)" alone) is keyed by its epithet' do
       expect(t.name_key('Carabus (Megodontus)'))
-        .to eq(t.col_key('Carabus (Megodontus)', 'subgenus'))
+        .to eq(t.col_name_key('Carabus (Megodontus)', 'subgenus'))
     end
 
     specify 'nil is nil' do
@@ -117,47 +94,77 @@ describe Vendor::Colrapi::NameTranslation, type: :model do
     end
   end
 
-  context '.col_key' do
+  context '.col_name_key' do
     specify 'a subgenus is keyed by its epithet' do
-      expect(t.col_key('Carabus (Megodontus)', 'subgenus')).to eq('Megodontus')
+      expect(t.col_name_key('Carabus (Megodontus)', 'subgenus'))
+        .to eq('Megodontus')
     end
 
     specify 'a species with a subgenus drops it' do
-      expect(t.col_key('Aedes (Stegomyia) aegypti', 'species'))
+      expect(t.col_name_key('Aedes (Stegomyia) aegypti', 'species'))
         .to eq('Aedes aegypti')
     end
 
     specify 'a species without a subgenus is unchanged' do
-      expect(t.col_key('Bombus terrestris', 'species'))
+      expect(t.col_name_key('Bombus terrestris', 'species'))
         .to eq('Bombus terrestris')
     end
 
     specify 'an ICN infraspecific name is unchanged' do
-      expect(t.col_key('Olea europaea subsp. africana', 'subspecies'))
+      expect(t.col_name_key('Olea europaea subsp. africana', 'subspecies'))
         .to eq('Olea europaea subsp. africana')
     end
 
     specify 'nil is nil' do
-      expect(t.col_key(nil, 'species')).to be_nil
+      expect(t.col_name_key(nil, 'species')).to be_nil
     end
   end
 
-  context '.current_form_key' do
-    specify 'a subgenus is keyed by its name, not its cached combination' do
+  context '.forms' do
+    specify 'a Protonym\'s current form is #cached, published its original ' \
+      'combination' do
+      species.update_column(:cached_original_combination, 'Typhlocyba vitis')
+      expect(t.forms(species)).to eq(
+        current: 'Erythroneura (Erythroneura) vitis',
+        published: 'Typhlocyba vitis'
+      )
+    end
+
+    specify 'a Protonym without an original combination has no published ' \
+      'form' do
+      species.update_column(:cached_original_combination, nil)
+      expect(t.forms(species)[:published]).to be_nil
+    end
+
+    specify 'a Combination is only a published form' do
+      other_genus = Protonym.create!(
+        name: 'Otheronoma', rank_class: Ranks.lookup(:iczn, :genus),
+        parent: genus.root
+      )
+      combination = Combination.create!(genus: other_genus, species:)
+      expect(t.forms(combination))
+        .to eq(current: nil, published: 'Otheronoma vitis')
+    end
+  end
+
+  context '.taxonworks_name_keys' do
+    specify 'a subgenus is keyed by its epithet, not its cached combination' do
       expect(subgenus.cached).to eq('Erythroneura (Erythroneura)')
-      expect(t.current_form_key(subgenus)).to eq('Erythroneura')
+      expect(t.taxonworks_name_keys(subgenus)[:current]).to eq('Erythroneura')
     end
 
     specify 'a species under a subgenus drops the subgenus' do
-      expect(t.current_form_key(species)).to eq('Erythroneura vitis')
+      expect(t.taxonworks_name_keys(species)[:current])
+        .to eq('Erythroneura vitis')
     end
 
     specify 'a subspecies under a subgenus drops the subgenus' do
-      expect(t.current_form_key(subspecies)).to eq('Erythroneura vitis vitata')
+      expect(t.taxonworks_name_keys(subspecies)[:current])
+        .to eq('Erythroneura vitis vitata')
     end
 
     specify 'a genus is keyed by its cached name' do
-      expect(t.current_form_key(genus)).to eq('Erythroneura')
+      expect(t.taxonworks_name_keys(genus)[:current]).to eq('Erythroneura')
     end
 
     specify '[sic] is dropped' do
@@ -166,7 +173,15 @@ describe Vendor::Colrapi::NameTranslation, type: :model do
         name: 'sinuata',
         rank_class: Ranks.lookup(:iczn, :species)
       )
-      expect(t.current_form_key(misspelled)).to eq('Zoraida sinuata')
+      expect(t.taxonworks_name_keys(misspelled)[:current])
+        .to eq('Zoraida sinuata')
+    end
+
+    specify 'the published form drops a subgenus and [sic] too' do
+      species.update_column(
+        :cached_original_combination, 'Jassus [sic] (Athysanus) vitis'
+      )
+      expect(t.taxonworks_name_keys(species)[:published]).to eq('Jassus vitis')
     end
   end
 
@@ -175,16 +190,28 @@ describe Vendor::Colrapi::NameTranslation, type: :model do
       t.candidates_by_key(rows, project_id:)
     end
 
+    # [taxon_name, form] pairs for key
+    def found(result, key)
+      (result[key] || []).map { |c| [c.taxon_name, c.form] }
+    end
+
     specify 'finds a subgenus from its bare CoL epithet' do
       subgenus
       result = keyed([{ col_name: 'Erythroneura', rank: 'subgenus' }])
-      expect(result['Erythroneura']).to include(subgenus)
+      expect(found(result, 'Erythroneura')).to include([subgenus, :current])
+    end
+
+    specify 'finds a misspelled genus, whose #cached carries [sic]' do
+      genus.update_column(:cached, 'Erythroneura [sic]')
+      result = keyed([{ col_name: 'Erythroneura', rank: 'genus' }])
+      expect(found(result, 'Erythroneura')).to include([genus, :current])
     end
 
     specify 'finds a species under a subgenus from a CoL name without it' do
       species
       result = keyed([{ col_name: 'Erythroneura vitis', rank: 'species' }])
-      expect(result['Erythroneura vitis']).to contain_exactly(species)
+      expect(found(result, 'Erythroneura vitis'))
+        .to contain_exactly([species, :current])
     end
 
     specify 'finds a species directly under a genus from a CoL name with a ' \
@@ -195,7 +222,8 @@ describe Vendor::Colrapi::NameTranslation, type: :model do
       result = keyed(
         [{ col_name: 'Erythroneura (Erythroneura) novus', rank: 'species' }]
       )
-      expect(result['Erythroneura novus']).to contain_exactly(novus)
+      expect(found(result, 'Erythroneura novus'))
+        .to contain_exactly([novus, :current])
     end
 
     specify 'does not return the same epithet under a different genus' do
@@ -210,7 +238,37 @@ describe Vendor::Colrapi::NameTranslation, type: :model do
       )
       result = keyed([{ col_name: 'Erythroneura vitis', rank: 'species' }])
       expect(result.keys).to contain_exactly('Erythroneura vitis')
-      expect(result['Erythroneura vitis']).to contain_exactly(species)
+      expect(found(result, 'Erythroneura vitis'))
+        .to contain_exactly([species, :current])
+    end
+
+    specify 'finds a Protonym by its original combination, as published' do
+      species.update_column(
+        :cached_original_combination, 'Typhlocyba (Zygina) vitis'
+      )
+      result = keyed([{ col_name: 'Typhlocyba vitis', rank: 'species' }])
+      expect(found(result, 'Typhlocyba vitis'))
+        .to contain_exactly([species, :published])
+    end
+
+    specify 'lists a name once, as current, when both forms share a key' do
+      species.update_column(
+        :cached_original_combination, 'Erythroneura vitis'
+      )
+      result = keyed([{ col_name: 'Erythroneura vitis', rank: 'species' }])
+      expect(found(result, 'Erythroneura vitis'))
+        .to contain_exactly([species, :current])
+    end
+
+    specify 'finds a Combination, as published' do
+      other_genus = Protonym.create!(
+        name: 'Otheronoma', rank_class: Ranks.lookup(:iczn, :genus),
+        parent: genus.root
+      )
+      combination = Combination.create!(genus: other_genus, species:)
+      result = keyed([{ col_name: 'Otheronoma vitis', rank: 'species' }])
+      expect(found(result, 'Otheronoma vitis'))
+        .to contain_exactly([combination, :published])
     end
 
     specify 'is scoped to the project' do

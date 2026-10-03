@@ -115,22 +115,17 @@ module Autoselect
           candidates_by_key =
             translation.candidates_by_key(full_chain, project_id:)
 
-          # TODO: a CoL name only matches a TaxonWorks name in its *current*
-          # form, so a taxon TaxonWorks already has under another form is
-          # missed and the walk falls through to an ancestor, offering to
-          # create a duplicate. Missed today:
-          #   * Combinations - found by candidates_by_key but dropped below,
-          #     they have no rank_class (e.g. CoL "Erythroneura pura" ->
-          #     TaxonWorks Combination, valid name Erythridula acicularis)
-          #   * a Protonym's original combination - cached_original_combination
-          #     is never searched (e.g. CoL "Deltocephalus pumilicans" ->
-          #     TaxonWorks Vilargus pumilicans, orig. Deltocephalus pumilicans)
-          #   * the same genus-group name at another genus-group rank (CoL
-          #     genus Erasmoneura vs TaxonWorks subgenus Erythroneura
-          #     (Erasmoneura))
-          # Such a hit shouldn't become the anchor (its TaxonWorks lineage is
-          # the current placement, which conflicts with CoL's); report it as
-          # "TaxonWorks already has this as X" and block Create instead.
+          # A CoL name can also match a TaxonWorks name in its *published* form
+          # (a Protonym's original combination, or a Combination) - a taxon
+          # TaxonWorks already has but places differently. Such a hit never
+          # becomes the anchor (its TaxonWorks lineage is the current
+          # placement, which conflicts with CoL's): when the target has no
+          # current-form match it's reported as :possible_duplicates and the
+          # modal blocks Create.
+          #
+          # TODO: still missed - the same genus-group name at another
+          # genus-group rank (CoL genus Erasmoneura vs TaxonWorks subgenus
+          # Erythroneura (Erasmoneura)): rank must match exactly below.
 
           # When CoL tells us the code, require candidates to match it too — same-name,
           # same-rank homonyms do occur across codes (e.g. a zoological vs a botanical
@@ -145,8 +140,10 @@ module Autoselect
 
           (full_chain.length - 1).downto(0) do |i|
             row = full_chain[i]
-            row_key = translation.col_key(row[:col_name], row[:rank])
+            row_key = translation.col_name_key(row[:col_name], row[:rank])
             rank_matched = (candidates_by_key[row_key] || [])
+              .select { |candidate| candidate.form == :current }
+              .map(&:taxon_name)
               .select { |candidate| rank_name_for(candidate.rank_class) == row[:rank] }
 
             if expected_nomenclature_code
@@ -162,9 +159,24 @@ module Autoselect
             end
           end
 
+          target_row = full_chain.last
+          target_key =
+            translation.col_name_key(target_row[:col_name], target_row[:rank])
+          duplicates = possible_duplicates(
+            candidates_by_key[target_key] || [],
+            target_row,
+            expected_nomenclature_code
+          )
+          duplicates_entry =
+            duplicates.any? ? { possible_duplicates: duplicates } : {}
+
           if anchor.nil?
             none_alignment = extension[:alignment].map { |row| row.merge(taxonworks_id: nil, taxonworks_name: nil, match: 'none') }
-            return { alignment: none_alignment, chain_consistent: true }
+            return {
+              alignment: none_alignment,
+              chain_consistent: true,
+              **duplicates_entry
+            }
           end
 
           # self_and_ancestors carries its own baked-in default order, which .order()
@@ -192,7 +204,59 @@ module Autoselect
           {
             alignment: merged[0...-1],
             chain_consistent: merged.none? { |row| row[:match] == 'conflict' },
-            **(target_matched ? { target_taxonworks_id: anchor.id, target_global_id: anchor.to_global_id.to_s } : {})
+            **(
+              if target_matched
+                {
+                  target_taxonworks_id: anchor.id,
+                  target_global_id: anchor.to_global_id.to_s
+                }
+              else
+                duplicates_entry
+              end
+            )
+          }
+        end
+
+        # TaxonWorks names whose *published* form (see
+        # Vendor::Colrapi::NameTranslation.forms) is the CoL target: a
+        # Combination, or a Protonym at the target's rank (and code, when CoL
+        # gives one) whose original combination it is.
+        #
+        # @param candidates [Array<NameTranslation::Candidate>] the target's
+        # @return [Array<Hash>] { id:, global_id:, cached:, via:
+        #   'original_combination' | 'combination', published:, valid_id:,
+        #   valid_cached: (nil when it's its own valid name) }
+        def possible_duplicates(candidates, target_row, expected_code)
+          candidates
+            .select { |candidate| candidate.form == :published }
+            .map(&:taxon_name)
+            .select do |taxon_name|
+              next true if taxon_name.is_a?(::Combination)
+
+              rank_name_for(taxon_name.rank_class) == target_row[:rank] &&
+                (expected_code.nil? ||
+                  taxon_name.rank_class.nomenclatural_code == expected_code)
+            end
+            .map { |taxon_name| duplicate_entry(taxon_name) }
+        end
+
+        def duplicate_entry(taxon_name)
+          valid_id = taxon_name.cached_valid_taxon_name_id
+          if valid_id && valid_id != taxon_name.id
+            valid = ::TaxonName.find_by(id: valid_id)
+          end
+          combination = taxon_name.is_a?(::Combination)
+          published =
+            ::Vendor::Colrapi::NameTranslation.forms(taxon_name)[:published]
+
+          {
+            id: taxon_name.id,
+            global_id: taxon_name.to_global_id.to_s,
+            cached: taxon_name.cached,
+            via: combination ? 'combination' : 'original_combination',
+            published:,
+            valid_id: valid&.id,
+            valid_cached: valid&.cached
           }
         end
 

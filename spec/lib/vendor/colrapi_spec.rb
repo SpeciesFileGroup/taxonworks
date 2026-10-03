@@ -808,6 +808,32 @@ describe Vendor::Colrapi, type: :model do
       described_class.name_status(species)
     end
 
+    specify 'an invalid Protonym is looked up by its original combination' do
+      species.update_columns(
+        cached_is_valid: false,
+        cached_original_combination: 'Typhlocyba vitis'
+      )
+      expect(::Colrapi).to receive(:nameusage_search)
+        .with(q: 'Typhlocyba vitis', dataset_id: '3LR', rank: 'species')
+        .and_return(col_search_result(
+          col_search_usage(
+            name: 'Typhlocyba vitis', status: 'synonym',
+            accepted: 'Erythroneura (Erythroneura) ontari'
+          )
+        ))
+      r = described_class.name_status(species)
+      expect(r[:taxonworks_name]).to eq('Typhlocyba vitis')
+      expect(r[:provisional_status]).to eq(:synonym)
+    end
+
+    specify 'a valid Protonym is looked up by its current form' do
+      species.update_column(:cached_original_combination, 'Typhlocyba vitis')
+      expect(::Colrapi).to receive(:nameusage_search)
+        .with(q: 'Erythroneura vitis', dataset_id: '3LR', rank: 'species')
+        .and_return(col_search_result)
+      described_class.name_status(species)
+    end
+
     specify 'takes a name string when there\'s no TaxonName' do
       r = status_for(
         col_search_usage(

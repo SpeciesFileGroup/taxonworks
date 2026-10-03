@@ -272,6 +272,80 @@ RSpec.describe Autoselect::TaxonName::Levels::CatalogueOfLife, type: :model do
         ext = result.first._col_extension
         expect(ext[:target_taxonworks_id]).to eq(species.id)
         expect(ext[:chain_consistent]).to be true
+        expect(ext[:possible_duplicates]).to be_nil
+      end
+    end
+
+    context 'when the target is only a TaxonWorks name\'s original ' \
+      'combination (a name TaxonWorks has since moved)' do
+      let(:species) { subspecies.parent }
+      let(:col_result) do
+        col_result_for_target(
+          id: 'TGT1', scientific_name: 'Typhlocyba vitis', rank: 'species'
+        )
+      end
+
+      before do
+        species.update_column(
+          :cached_original_combination, 'Typhlocyba (Zygina) vitis'
+        )
+        allow(::Vendor::Colrapi).to receive(:search)
+          .and_return('result' => [col_result])
+        allow(::Vendor::Colrapi).to receive(:ancestors).and_return([
+          col_classification_entry(id: 'A1', name: 'Typhlocyba', rank: 'genus')
+        ])
+      end
+
+      it 'reports the existing name instead of matching it' do
+        result = level.call(term: 'Typhlocyba vitis', project_id:, user_id:)
+        ext = result.first._col_extension
+        expect(ext[:target_taxonworks_id]).to be_nil
+        expect(ext[:possible_duplicates]).to contain_exactly(
+          hash_including(
+            id: species.id,
+            cached: 'Erythroneura (Erythroneura) vitis',
+            via: 'original_combination',
+            published: 'Typhlocyba (Zygina) vitis'
+          )
+        )
+      end
+    end
+
+    context 'when the target is only a TaxonWorks Combination' do
+      let(:species) { subspecies.parent }
+      let!(:other_genus) do
+        Protonym.create!(
+          name: 'Otheronoma', rank_class: Ranks.lookup(:iczn, :genus),
+          parent: tribe
+        )
+      end
+      let!(:combination) { Combination.create!(genus: other_genus, species:) }
+      let(:col_result) do
+        col_result_for_target(
+          id: 'TGT1', scientific_name: 'Otheronoma vitis', rank: 'species'
+        )
+      end
+
+      before do
+        allow(::Vendor::Colrapi).to receive(:search)
+          .and_return('result' => [col_result])
+        allow(::Vendor::Colrapi).to receive(:ancestors).and_return([
+          col_classification_entry(id: 'A1', name: 'Otheronoma', rank: 'genus')
+        ])
+      end
+
+      it 'reports the Combination, with its valid name' do
+        result = level.call(term: 'Otheronoma vitis', project_id:, user_id:)
+        ext = result.first._col_extension
+        expect(ext[:target_taxonworks_id]).to be_nil
+        expect(ext[:possible_duplicates]).to contain_exactly(
+          hash_including(
+            id: combination.id,
+            cached: 'Otheronoma vitis',
+            via: 'combination',
+            valid_cached: species.cached
+          )
+        )
       end
     end
 
