@@ -6,18 +6,39 @@ namespace :tw do
   namespace :audit do
 
     # Emit a TSV of per-project record counts and last-touched timestamps per
-    # model. Run before and after a mutating operation and `diff` the two TSVs
-    # to see which projects/models were touched.
+    # model. Run before and after a mutating operation, then compare the two
+    # TSVs to see which projects/models were touched.
     #
     #   rake tw:audit:project_stats LABEL=pre_import
     #   rake tw:audit:project_stats LABEL=post_import
-    #   diff tmp/project_audit/pre_import.tsv tmp/project_audit/post_import.tsv
+    #   rake tw:audit:project_stats START=tmp/project_audit/pre_import.tsv END=tmp/project_audit/post_import.tsv
     #
     # Env:
-    #   LABEL  optional filename stem. Falls back to a timestamp.
-    #   OUT    optional explicit output path. Overrides LABEL.
-    desc 'Emit per-project record counts / max timestamps / max id per model as TSV. LABEL=<name>, OUT=<path>.'
+    #   LABEL       optional filename stem. Falls back to a timestamp.
+    #   OUT         optional explicit output path. Overrides LABEL. With START/END, the report path.
+    #   START, END  compare two earlier TSVs instead of auditing: row count changes,
+    #               emptied/new tables, projects gone/added. See Support::ProjectStatsDiff.
+    #   PROJECT_ID  optional, with START/END; limit the comparison to one project.
+    desc 'Emit per-project record counts / max timestamps / max id per model as TSV, or compare two. LABEL=<name>, OUT=<path>, START=<tsv> END=<tsv> [PROJECT_ID=<id>].'
     task project_stats: [:environment] do
+      if ENV['START'].present? || ENV['END'].present?
+        raise ArgumentError, 'START and END are both required to compare' unless ENV['START'].present? && ENV['END'].present?
+
+        report = Support::ProjectStatsDiff.from_files(
+          ENV['START'], ENV['END'], project_id: ENV['PROJECT_ID'].presence&.to_i
+        ).report
+
+        puts report
+
+        if (out_path = ENV['OUT'].presence)
+          FileUtils.mkdir_p(File.dirname(out_path))
+          File.write(out_path, report)
+          puts "Wrote report to #{out_path}"
+        end
+
+        next
+      end
+
       Rails.application.eager_load!
 
       label = ENV['LABEL'].presence
