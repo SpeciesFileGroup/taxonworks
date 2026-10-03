@@ -26,6 +26,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 ### Fixed
 
+- DwC-A Workbench ignored the selected string delimiter, causing text imports with literal double quotes to fail even when `None` was selected [#5120]
 - DwC importer incorrectly applied `CollectionObject` project predicates with DwC URIs to `HumanObservation` records, missed `FieldOccurrence` DwC predicate mappings, and failed to flag unused model-specific columns as ignored
 - `controlled_vocabulary_term_id` param is not working on the controlled vocabulary terms endpoint
 - `New taxon name`: browser back/forward buttons left the form out of sync with the URL
@@ -45,6 +46,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 [#5097]: https://github.com/SpeciesFileGroup/taxonworks/issues/5097
 [#5107]: https://github.com/SpeciesFileGroup/taxonworks/issues/5107
 [#5106]: https://github.com/SpeciesFileGroup/taxonworks/issues/5106
+[#5120]: https://github.com/SpeciesFileGroup/taxonworks/issues/5120
 
 ## [0.65.0] - 2026-09-04
 

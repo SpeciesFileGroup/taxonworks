@@ -52,7 +52,7 @@
             <input
               type="radio"
               v-model="stringDelimiter"
-              :value="undefined"
+              :value="NO_STRING_DELIMITER"
             />
             None
           </label>
@@ -60,9 +60,9 @@
       </ul>
       <div class="margin-large-top feedback feedback-warning">
         <i>
-          This is a new feature for selecting file delimiters. If you need to
-          use the settings prior to this change, use TAB and NONE for field and
-          string delimiters respectively.
+          Choose None to preserve quote characters literally in field values.
+          Choose a quote delimiter when the file uses quotes to enclose fields
+          containing field delimiters or line breaks.
         </i>
       </div>
     </template>
@@ -81,7 +81,11 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import { FIELD_DELIMITER, STRING_DELIMITER } from '../const/delimiters.js'
+import {
+  FIELD_DELIMITER,
+  STRING_DELIMITER,
+  NO_STRING_DELIMITER
+} from '../const/delimiters.js'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VModal from '@/components/ui/Modal'
 
