@@ -114,6 +114,24 @@ module ApplicationEnumeration
     a
   end
 
+  # .klass_reflections for an STI base class *and* all its descendants.
+  # Reflections only see associations declared on the class itself (or
+  # inherited), so a base class misses subclass-only associations, e.g.
+  # ObservationMatrixColumnItem misses
+  # ObservationMatrixColumnItem::Single::Descriptor#descriptor. Use this
+  # when operating on a whole table rather than a single instance.
+  #
+  # !! Relies on descendants being loaded, i.e. call Rails.application.eager_load! first in rake tasks.
+  #
+  # @return Array of AR associations
+  #   unique by macro, name, foreign key and target class, base class
+  #   reflections first
+  def self.sti_reflections(klass, relationship_type = :all)
+    ([klass] + klass.descendants)
+      .flat_map { |k| klass_reflections(k, relationship_type) }
+      .uniq { |r| [r.macro, r.name, r.foreign_key.to_s, r.polymorphic? ? nil : r.class_name] }
+  end
+
   def self.relation_targets_community?(relation)
     case relationship_type(relation)
     when :has_many
@@ -225,7 +243,7 @@ module ApplicationEnumeration
   # invisible if `klass` is the base class. Callers working with an STI model
   # should determine which concrete type(s) are actually present in `ids` and
   # call this once per type, merging results — this method does not guess at
-  # descendants itself.
+  # descendants itself. .sti_reflections lists the subclass-only associations.
   #
   # @param klass [Class] an ActiveRecord model class (e.g. TaxonName, Otu)
   # @param ids [ActiveRecord::Relation, Array<Integer>]

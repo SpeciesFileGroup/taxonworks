@@ -98,7 +98,10 @@ namespace :tw do
         src_cols = src_klass.column_names
         puts "→ #{src_klass.name}"
 
-        src_klass.reflect_on_all_associations(:belongs_to).each do |ref|
+        # Subclasses may alias the same foreign key and target, check each pair once.
+        checked = Set.new
+
+        ApplicationEnumeration.sti_reflections(src_klass, :belongs_to).each do |ref|
           fk_column = ref.foreign_key.to_s
           next unless src_cols.include?(fk_column)
 
@@ -118,6 +121,7 @@ namespace :tw do
               tgt_klass = type_name.safe_constantize
               next unless tgt_klass.is_a?(Class) && tgt_klass < ApplicationRecord
               next unless project_scoped_tables.include?(tgt_klass.table_name)
+              next unless checked.add?([fk_column, type_name])
 
               check.call(src_klass, tgt_klass, ref.name, fk_column,
                          type_column: type_column, type_value: type_name)
@@ -130,6 +134,7 @@ namespace :tw do
             end
             next unless tgt_klass
             next unless project_scoped_tables.include?(tgt_klass.table_name)
+            next unless checked.add?([fk_column, tgt_klass.table_name])
 
             check.call(src_klass, tgt_klass, ref.name, fk_column)
           end
