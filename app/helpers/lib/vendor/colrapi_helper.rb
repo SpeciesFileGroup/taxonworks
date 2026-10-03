@@ -8,6 +8,8 @@ module Lib::Vendor::ColrapiHelper
       tag.span('undeterminable', class: [:feedback, 'feedback-warning', 'feedback-thin'])
     when :synonym
       tag.span('synonym', class: [:feedback, 'feedback-danger', 'feedback-thin'])
+    when :ambiguous_synonym
+      tag.span('ambiguous synonym', class: [:feedback, 'feedback-warning', 'feedback-thin'])
     end
   end
 

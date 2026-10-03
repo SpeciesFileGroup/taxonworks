@@ -50,6 +50,73 @@ describe Vendor::Colrapi::NameTranslation, type: :model do
     end
   end
 
+  context '.search_term' do
+    specify 'a TaxonWorks species under a subgenus drops it' do
+      expect(t.search_term('Aphrophora (Aphrophora) binomoriensis'))
+        .to eq('Aphrophora binomoriensis')
+    end
+
+    specify '[sic] is dropped' do
+      expect(t.search_term('Aus bvs [sic]')).to eq('Aus bvs')
+    end
+
+    specify 'a name without a subgenus is unchanged' do
+      expect(t.search_term('Bombus terrestris')).to eq('Bombus terrestris')
+    end
+
+    specify 'nil is nil' do
+      expect(t.search_term(nil)).to be_nil
+    end
+  end
+
+  context '.col_lookup_name' do
+    specify 'a valid name is its #cached' do
+      expect(t.col_lookup_name(species))
+        .to eq('Erythroneura (Erythroneura) vitis')
+    end
+
+    specify 'an invalid Protonym is its original combination' do
+      species.update_columns(
+        cached_is_valid: false,
+        cached_original_combination: 'Typhlocyba vitis'
+      )
+      expect(t.col_lookup_name(species)).to eq('Typhlocyba vitis')
+    end
+
+    specify 'an invalid Protonym without an original combination is #cached' do
+      species.update_columns(
+        cached_is_valid: false, cached_original_combination: nil
+      )
+      expect(t.col_lookup_name(species))
+        .to eq('Erythroneura (Erythroneura) vitis')
+    end
+  end
+
+  context '.name_key' do
+    specify 'a TaxonWorks #cached under a subgenus drops it' do
+      expect(t.name_key('Aphrophora (Aphrophora) binomoriensis'))
+        .to eq('Aphrophora binomoriensis')
+    end
+
+    specify '[sic] is dropped' do
+      expect(t.name_key('Aus bvs [sic]')).to eq('Aus bvs')
+    end
+
+    specify 'matches the key of the same name as CoL gives it' do
+      expect(t.name_key('Aedes (Stegomyia) aegypti'))
+        .to eq(t.col_key('Aedes aegypti', 'species'))
+    end
+
+    specify 'a subgenus ("Genus (Subgenus)" alone) is keyed by its epithet' do
+      expect(t.name_key('Carabus (Megodontus)'))
+        .to eq(t.col_key('Carabus (Megodontus)', 'subgenus'))
+    end
+
+    specify 'nil is nil' do
+      expect(t.name_key(nil)).to be_nil
+    end
+  end
+
   context '.col_key' do
     specify 'a subgenus is keyed by its epithet' do
       expect(t.col_key('Carabus (Megodontus)', 'subgenus')).to eq('Megodontus')
@@ -75,22 +142,22 @@ describe Vendor::Colrapi::NameTranslation, type: :model do
     end
   end
 
-  context '.taxon_name_key' do
+  context '.current_form_key' do
     specify 'a subgenus is keyed by its name, not its cached combination' do
       expect(subgenus.cached).to eq('Erythroneura (Erythroneura)')
-      expect(t.taxon_name_key(subgenus)).to eq('Erythroneura')
+      expect(t.current_form_key(subgenus)).to eq('Erythroneura')
     end
 
     specify 'a species under a subgenus drops the subgenus' do
-      expect(t.taxon_name_key(species)).to eq('Erythroneura vitis')
+      expect(t.current_form_key(species)).to eq('Erythroneura vitis')
     end
 
     specify 'a subspecies under a subgenus drops the subgenus' do
-      expect(t.taxon_name_key(subspecies)).to eq('Erythroneura vitis vitata')
+      expect(t.current_form_key(subspecies)).to eq('Erythroneura vitis vitata')
     end
 
     specify 'a genus is keyed by its cached name' do
-      expect(t.taxon_name_key(genus)).to eq('Erythroneura')
+      expect(t.current_form_key(genus)).to eq('Erythroneura')
     end
 
     specify '[sic] is dropped' do
@@ -99,7 +166,7 @@ describe Vendor::Colrapi::NameTranslation, type: :model do
         name: 'sinuata',
         rank_class: Ranks.lookup(:iczn, :species)
       )
-      expect(t.taxon_name_key(misspelled)).to eq('Zoraida sinuata')
+      expect(t.current_form_key(misspelled)).to eq('Zoraida sinuata')
     end
   end
 

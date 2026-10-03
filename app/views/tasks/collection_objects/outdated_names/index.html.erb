@@ -4,9 +4,10 @@
 <%= tag.div(paginate @collection_objects) %>
 
 <% @collection_objects.find_each do |co| %>
-  <% n = collection_object_scientific_name(co)  %>
-  <% r = ::Colrapi.nameusage_search(q: n, dataset_id: ::Vendor::Colrapi::DATASETS[:col], rank: 'species') %>
-  <% d = ::Vendor::Colrapi.name_status(co, r) %>
+  <% d = ::Vendor::Colrapi.name_status(
+    ::Vendor::Colrapi.collection_object_name_target(co)
+  ) %>
+  <% n = d[:taxonworks_name] %>
 
 <table style="width: 50%;">
 

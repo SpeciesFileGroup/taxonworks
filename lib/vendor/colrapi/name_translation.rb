@@ -15,12 +15,33 @@ module Vendor
     #     one source can do both (Carabus: "Carabus (Megodontus) violaceus" but
     #     "Carabus violaceus violaceus"). TaxonWorks #cached includes the
     #     subgenus whenever the name is placed under one.
+    #   * synonyms can differ from their accepted name within one source: WAD
+    #     gives accepted "Aphrophora (Aphrophora) stictica" with the subgenus,
+    #     its synonym "Aphrophora binomoriensis" without it (2026-10).
+    #   * a name's original combination can be listed as a synonym of the
+    #     same species, differing only by subgenus ("Aphrophora ambigua" ->
+    #     "Aphrophora (Aphrophora) ambigua", WAD). So a CoL synonym whose
+    #     accepted name is the same name once the subgenus is ignored (both
+    #     have the same comparison key, see below) doesn't mean a TaxonWorks
+    #     name matching it is outdated.
+    #   * searching: a query including the subgenus doesn't return a name CoL
+    #     gives without it ("Aphrophora (Aphrophora) binomoriensis" misses
+    #     "Aphrophora binomoriensis"), while a query without it still returns
+    #     names CoL gives with it ("Aedes aegypti" finds "Aedes (Stegomyia)
+    #     aegypti", "Aphrophora ambigua" finds both forms) - see .search_term.
+    #     The single query in .search_term depends on that second half: it's
+    #     observed CoL search behavior (2026-10), not documented. If CoL ever
+    #     stops matching that way, names CoL gives with a subgenus silently go
+    #     missing (e.g. Outdated Names reports them :undeterminable) and specs,
+    #     which stub CoL, won't notice - a second query including the subgenus
+    #     would then be needed.
     #   * ICN infraspecific names include connecting terms ("Olea europaea
     #     subsp. africana"), same as TaxonWorks #cached.
     #   * [sic] is TaxonWorks-only (#cached), CoL doesn't send it.
     #
     # Names are compared by a "key" computed the same way from both sides; the
-    # key is never displayed or used to create anything.
+    # key is never displayed or used to create anything, though it is what
+    # CoL is searched with (.search_term).
     #
     # TODO: ICN section, subsection, series, subseries (and ICZN
     # supersubgenus/infragenus) - TaxonWorks #cached for these is just the
@@ -29,8 +50,20 @@ module Vendor
     #
     # TODO: author/year formats likely vary by source in the same way.
     #
-    # Claude (Anthropic) provided > 50% of the code for this module.
     module NameTranslation
+
+      # The string to search CoL with for a name (TaxonWorks #cached or free
+      # text) so that every form CoL may give it in comes back.
+      #
+      # !! One query covers both forms only because CoL's search returns names
+      # with a subgenus for a query without one - observed, not documented;
+      # see the search note above before relying on this elsewhere.
+      #
+      # @param name [String, nil]
+      # @return [String, nil]
+      def self.search_term(name)
+        comparable(name)
+      end
 
       # CoL gives a subgenus as "Genus (Subgenus)", TaxonWorks Protonym#name
       # takes just the epithet.
@@ -67,9 +100,44 @@ module Vendor
         comparable(col_name)
       end
 
+      # The comparison key for a name given as text on the TaxonWorks side -
+      # use only when there's no TaxonName (else see .current_form_key).
+      #
+      # @param name [String, nil]
+      # @return [String, nil]
+      def self.name_key(name)
+        return nil if name.nil?
+        return subgenus_epithet(name) if name.strip.match?(/\A\S+ \([^)]+\)\z/)
+
+        comparable(name)
+      end
+
+      # The form of a TaxonName to look it up in CoL by. An invalid Protonym is
+      # its original combination: TaxonWorks moves a synonym under its valid
+      # name's parent, so its #cached can be a combination that was never
+      # published, while CoL lists synonyms as they were published. (Compare
+      # .current_form_key, which is always the current form.)
+      #
       # @param taxon_name [TaxonName]
-      # @return [String, nil] the comparison key for taxon_name
-      def self.taxon_name_key(taxon_name)
+      # @return [String, nil]
+      def self.col_lookup_name(taxon_name)
+        if taxon_name.is_a?(::Protonym) && !taxon_name.cached_is_valid
+          taxon_name.cached_original_combination.presence || taxon_name.cached
+        else
+          taxon_name.cached
+        end
+      end
+
+      # The comparison key for a TaxonName's current form: #cached, i.e. the
+      # name as TaxonWorks places it now (a subgenus by its epithet). Compare
+      # it to CoL names in their current placement too, e.g. CoL's accepted
+      # classification. It is not how CoL lists a synonym: CoL gives
+      # synonyms as published, while TaxonWorks moves a synonym under its
+      # valid name's parent - use .col_lookup_name for that form.
+      #
+      # @param taxon_name [TaxonName]
+      # @return [String, nil]
+      def self.current_form_key(taxon_name)
         if ::RANKS_LOOKUP[taxon_name.rank_class.to_s] == 'subgenus'
           taxon_name.name
         else
@@ -77,8 +145,18 @@ module Vendor
         end
       end
 
-      # Finds the TaxonNames in project_id whose key matches the key of one of
-      # col_rows. Callers still need to check rank (and code) themselves.
+      # Finds the TaxonNames in project_id whose current form (see
+      # .current_form_key) matches the key of one of col_rows. Callers still
+      # need to check rank (and code) themselves.
+      #
+      # TODO: a CoL row for a name as published (e.g. a synonym CoL lists in
+      # its original combination, "Aphrodes dobrogicus") misses the
+      # TaxonName whose current form differs (TaxonWorks "Planaphrodes
+      # dobrogica") - #cached_original_combination is never searched, valid
+      # and invalid names alike (e.g. valid "Vilargus pumilicans", orig.
+      # "Deltocephalus pumilicans"). See the duplicate-creation TODO in
+      # Autoselect::TaxonName::Levels::CatalogueOfLife#match_against_taxonworks:
+      # such a hit should be reported, not become an anchor.
       #
       # @param col_rows [Array<Hash>] each with :col_name and :rank
       # @param project_id [Integer]
@@ -111,7 +189,7 @@ module Vendor
         end
 
         ::TaxonName.where(project_id:).where(condition)
-          .group_by { |taxon_name| taxon_name_key(taxon_name) }
+          .group_by { |taxon_name| current_form_key(taxon_name) }
           .slice(*keys)
       end
 

@@ -9,59 +9,114 @@ module Vendor
     }.freeze
 
 
-    # @params taxonworks_object
-    #   currently only a CollectionObject
-    #
-    # @return hash
-    #     { taxonworks_name: name }
-    #      col_results: [
-    #          { usage: {
-    #             name:
-    #             status:
-    # },
-    #          accepted: {}
-    #         }
-    #        ]
-    #      }
-    #
-    def self.name_status(taxonworks_object, colrapi_result)
-      o = taxonworks_object
+    # CoL usage statuses under which a name is in use.
+    COL_ACCEPTED_STATUSES = ['accepted', 'provisionally accepted'].freeze
 
-      r = {
-          taxonworks_name: collection_object_scientific_name(o),
-          col_usages: [],
-          provisional_status: :accepted,
-      }
-
-      if colrapi_result.dig('total') == 0
-        r[:provisional_status] = :undeterminable
-        return r
+    # What CoL says about the status of a name.
+    #
+    # CoL is searched with NameTranslation.search_term, and its usages are
+    # compared to the name by NameTranslation key, not exact string - CoL
+    # doesn't write a name the same way TaxonWorks does, or even consistently
+    # (see NameTranslation). A usage whose key matches makes the name
+    #   * :accepted - accepted, or a synonym of a name with the same key (e.g.
+    #     an original combination CoL lists under its own species)
+    #   * :synonym - a synonym of a different name, i.e. outdated
+    #   * :ambiguous_synonym - an ambiguous synonym (several possible targets)
+    # in that order of precedence. With no matching usage it's
+    # :undeterminable.
+    #
+    # @param target [TaxonName, String, nil] the name to check: a TaxonName
+    #   when there is one (looked up by NameTranslation.col_lookup_name, at
+    #   its own rank), else a name string, searched as a species - see
+    #   .collection_object_name_target
+    # @return [Hash]
+    #   { taxonworks_name: String,
+    #     col_usages: [ { usage: { name:, status: },
+    #                     accepted: { name:, status: } } ],
+    #     provisional_status: Symbol }
+    def self.name_status(target)
+      if target.is_a?(::TaxonName)
+        name = NameTranslation.col_lookup_name(target)
+        rank = ::RANKS_LOOKUP[target.rank_class.to_s]
+        # A subgenus keys by its epithet, which the name string can't give
+        # when it's an original combination
+        key =
+          if rank == 'subgenus'
+            NameTranslation.current_form_key(target)
+          else
+            NameTranslation.name_key(name)
+          end
+      else
+        name = target
+        key = NameTranslation.name_key(name)
+        rank = 'species'
       end
 
-      colrapi_result['result'].each do |u|
-        i = u['usage']
+      results =
+        if key.present?
+          ::Colrapi.nameusage_search(
+            q: NameTranslation.search_term(name),
+            dataset_id: DATASETS[:col],
+            rank:
+          )['result']
+        end
 
-        d = {
-          usage: {},
-          accepted: {}
+      statuses = []
+      col_usages = (results || []).map do |result|
+        usage = result['usage']
+        statuses << usage_status(usage, key) if usage_key(usage) == key
+
+        accepted = {}
+        if usage['accepted']
+          accepted = {
+            name: usage.dig('accepted', 'name', 'scientificName'),
+            status: usage.dig('accepted', 'status')
+          }
+        end
+
+        {
+          usage: {
+            name: usage.dig('name', 'scientificName'),
+            status: usage['status']
+          },
+          accepted:
         }
-
-        d[:usage][:name] = i.dig *%w{name scientificName}
-        d[:usage][:status] = i['status']
-
-        if i['accepted']
-          d[:accepted][:name] = i.dig *%w{accepted name scientificName}
-          d[:accepted][:status] = i.dig *%w{accepted status}
-        end
-
-        if d[:usage][:status] == 'synonym' && (d[:usage][:name] == r[:taxonworks_name])
-          r[:provisional_status] = :synonym
-        end
-
-        r[:col_usages].push d
       end
-      r
+
+      provisional_status =
+        [:accepted, :synonym, :ambiguous_synonym]
+          .find { |status| statuses.include?(status) } || :undeterminable
+
+      { taxonworks_name: name, col_usages:, provisional_status: }
     end
+
+    # @param usage [Hash] a nameusage_search usage
+    # @return [String, nil] its comparison key
+    def self.usage_key(usage)
+      NameTranslation.col_key(
+        usage.dig('name', 'scientificName'), usage.dig('name', 'rank')
+      )
+    end
+    private_class_method :usage_key
+
+    # @param usage [Hash] a nameusage_search usage whose key matches key
+    # @param key [String] the TaxonWorks name's comparison key
+    # @return [Symbol, nil] what the usage says about the name, see .name_status
+    def self.usage_status(usage, key)
+      case usage['status']
+      when *COL_ACCEPTED_STATUSES
+        :accepted
+      when 'synonym'
+        accepted_key = NameTranslation.col_key(
+          usage.dig('accepted', 'name', 'scientificName'),
+          usage.dig('accepted', 'name', 'rank')
+        )
+        accepted_key == key ? :accepted : :synonym
+      when 'ambiguous synonym'
+        :ambiguous_synonym
+      end
+    end
+    private_class_method :usage_status
 
     # Searches the Catalogue of Life by name string.
     #
@@ -456,20 +511,19 @@ module Vendor
       rank_class ? ::FAMILY_AND_ABOVE_RANK_NAMES.include?(rank_class) : false
     end
 
-    # Extend to buffered with GNA in middle layer?
-    # Text only, taxon name cached or OTU name for the
-    # most recent determination
-    def self.collection_object_scientific_name(collection_object)
-      return nil if collection_object.nil?
-      if a = collection_object.taxon_determinations.order(:position)&.first
-        if a.otu.taxon_name
-          a.otu.taxon_name.cached
-        else
-          a.otu.name
-        end
-      else
-        nil
-      end
+    # What CoL is asked about for a CollectionObject (.name_status): its
+    # current determination's TaxonName, else (no TaxonName) the Otu's name.
+    # An Otu's own name alongside a TaxonName (e.g. a morphospecies code, "Aus
+    # sp. 3") is deliberately left out - CoL can't know it.
+    #
+    # @param collection_object [CollectionObject, nil]
+    # @return [TaxonName, String, nil]
+    def self.collection_object_name_target(collection_object)
+      otu = collection_object&.taxon_determinations
+        &.order(:position)&.first&.otu
+      return nil if otu.nil?
+
+      otu.taxon_name || otu.name
     end
   end
 

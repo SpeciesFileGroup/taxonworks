@@ -57,21 +57,6 @@ module CollectionObjectsHelper
     ].join(' ').html_safe
   end
 
-  # Text only, taxon name cached or OTU name for the
-  # most recent determination
-  def collection_object_scientific_name(collection_object)
-    return nil if collection_object.nil?
-    if a = collection_object.taxon_determinations.order(:position)&.first
-      if a.otu.taxon_name
-        a.otu.taxon_name.cached
-      else
-        a.otu.name
-      end
-    else
-      nil
-    end
-  end
-
   def collection_objects_search_form
     render('/collection_objects/quick_search_form')
   end

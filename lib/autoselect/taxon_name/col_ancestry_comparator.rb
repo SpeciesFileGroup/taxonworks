@@ -105,7 +105,7 @@ module Autoselect
       def matched_row(tw_entry, col_entry, rank_name)
         # Compared by key, not raw name - see Vendor::Colrapi::NameTranslation.
         translation = ::Vendor::Colrapi::NameTranslation
-        exact = translation.taxon_name_key(tw_entry) ==
+        exact = translation.current_form_key(tw_entry) ==
           translation.col_key(col_entry[:col_name], col_entry[:rank])
 
         {

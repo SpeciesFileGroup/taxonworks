@@ -736,4 +736,176 @@ describe Vendor::Colrapi, type: :model do
     end
   end
 
+  # ── Outdated Names (name_status) ─────────────────────────────────────────────
+
+  # nameusage_search result entries wrap the usage: { 'usage' => { ... } }
+  def col_search_usage(name:, status:, accepted: nil, rank: 'species')
+    usage = {
+      'name' => { 'scientificName' => name, 'rank' => rank },
+      'status' => status
+    }
+    if accepted
+      usage['accepted'] = {
+        'name' => { 'scientificName' => accepted, 'rank' => rank },
+        'status' => 'accepted'
+      }
+    end
+    { 'usage' => usage }
+  end
+
+  def col_search_result(*usages)
+    { 'total' => usages.size, 'result' => usages }
+  end
+
+  # Erythroneura > Erythroneura (Erythroneura) > vitis > vitata
+  let(:subspecies) { FactoryBot.create(:iczn_subspecies) }
+  let(:species) { subspecies.parent }
+
+  def determined_specimen(otu)
+    FactoryBot.create(:valid_taxon_determination, otu:)
+      .taxon_determination_object
+  end
+
+  let(:specimen) do
+    determined_specimen(FactoryBot.create(:valid_otu, taxon_name: species))
+  end
+
+  describe '.collection_object_name_target' do
+    specify 'is the determination\'s TaxonName' do
+      expect(described_class.collection_object_name_target(specimen))
+        .to eq(species)
+    end
+
+    specify 'ignores the Otu\'s own name (e.g. a morphospecies code)' do
+      otu = FactoryBot.create(:valid_otu, taxon_name: species, name: 'sp. 3')
+      co = determined_specimen(otu)
+      expect(described_class.collection_object_name_target(co)).to eq(species)
+    end
+
+    specify 'is the Otu name when there\'s no TaxonName' do
+      otu = FactoryBot.create(:valid_otu, name: 'Aus bus')
+      co = determined_specimen(otu)
+      expect(described_class.collection_object_name_target(co)).to eq('Aus bus')
+    end
+
+    specify 'is nil without a determination' do
+      co = FactoryBot.create(:valid_specimen)
+      expect(described_class.collection_object_name_target(co)).to be_nil
+    end
+  end
+
+  describe '.name_status' do
+    def status_for(*usages, target: species)
+      allow(::Colrapi).to receive(:nameusage_search)
+        .and_return(col_search_result(*usages))
+      described_class.name_status(target)
+    end
+
+    specify 'queries CoL without the subgenus' do
+      expect(::Colrapi).to receive(:nameusage_search)
+        .with(q: 'Erythroneura vitis', dataset_id: '3LR', rank: 'species')
+        .and_return(col_search_result)
+      described_class.name_status(species)
+    end
+
+    specify 'takes a name string when there\'s no TaxonName' do
+      r = status_for(
+        col_search_usage(
+          name: 'Aus bus', status: 'synonym', accepted: 'Aus (Aus) cus'
+        ),
+        target: 'Aus (Aus) bus'
+      )
+      expect(r[:taxonworks_name]).to eq('Aus (Aus) bus')
+      expect(r[:provisional_status]).to eq(:synonym)
+    end
+
+    specify 'a subgenus TaxonName is matched by its epithet' do
+      subgenus = species.parent
+      r = status_for(
+        col_search_usage(
+          name: 'Erythroneura (Erythroneura)', status: 'accepted',
+          rank: 'subgenus'
+        ),
+        target: subgenus
+      )
+      expect(r[:provisional_status]).to eq(:accepted)
+    end
+
+    specify 'no name is undeterminable, without a query' do
+      expect(::Colrapi).not_to receive(:nameusage_search)
+      expect(described_class.name_status(nil)[:provisional_status])
+        .to eq(:undeterminable)
+    end
+
+    specify 'a synonym without the subgenus is outdated' do
+      r = status_for(
+        col_search_usage(
+          name: 'Erythroneura vitis', status: 'synonym',
+          accepted: 'Erythroneura (Erythroneura) ontari'
+        )
+      )
+      expect(r[:provisional_status]).to eq(:synonym)
+    end
+
+    specify 'a synonym of the same name (e.g. its original combination) ' \
+      'is accepted' do
+      r = status_for(
+        col_search_usage(
+          name: 'Erythroneura vitis', status: 'synonym',
+          accepted: 'Erythroneura (Erythroneura) vitis'
+        )
+      )
+      expect(r[:provisional_status]).to eq(:accepted)
+    end
+
+    specify 'an accepted usage wins over ambiguous synonyms of the name' do
+      r = status_for(
+        col_search_usage(
+          name: 'Erythroneura vitis', status: 'ambiguous synonym',
+          accepted: 'Aus bus'
+        ),
+        col_search_usage(
+          name: 'Erythroneura (Erythroneura) vitis', status: 'accepted'
+        )
+      )
+      expect(r[:provisional_status]).to eq(:accepted)
+    end
+
+    specify 'only ambiguous synonyms is ambiguous' do
+      r = status_for(
+        col_search_usage(
+          name: 'Erythroneura vitis', status: 'ambiguous synonym',
+          accepted: 'Aus bus'
+        )
+      )
+      expect(r[:provisional_status]).to eq(:ambiguous_synonym)
+    end
+
+    specify 'results that never match the name are undeterminable' do
+      r = status_for(
+        col_search_usage(name: 'Erythroneura vitisii', status: 'accepted')
+      )
+      expect(r[:provisional_status]).to eq(:undeterminable)
+    end
+
+    specify 'no results are undeterminable' do
+      expect(status_for[:provisional_status]).to eq(:undeterminable)
+    end
+
+    specify 'reports the TaxonWorks name and every usage CoL returned' do
+      r = status_for(
+        col_search_usage(name: 'Erythroneura vitisii', status: 'accepted'),
+        col_search_usage(
+          name: 'Erythroneura vitis', status: 'synonym',
+          accepted: 'Erythroneura (Erythroneura) ontari'
+        )
+      )
+      expect(r[:taxonworks_name]).to eq('Erythroneura (Erythroneura) vitis')
+      expect(r[:col_usages].map { |u| u.dig(:usage, :name) })
+        .to eq(['Erythroneura vitisii', 'Erythroneura vitis'])
+      expect(r[:col_usages].last[:accepted])
+        .to eq(name: 'Erythroneura (Erythroneura) ontari', status: 'accepted')
+    end
+  end
+
 end
