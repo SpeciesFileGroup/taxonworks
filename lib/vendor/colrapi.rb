@@ -155,8 +155,8 @@ module Vendor
 
     # Searches CoL datasets by name string.
     #
-    # Returns an array of dataset summaries, each containing at least 'id', 'title', and 'alias'.
-    # Used by the preferences UI to let users pick a target dataset.
+    # Returns an array of dataset summaries, each containing at least
+    # 'id', 'title', and 'alias'.
     #
     # @param q [String] dataset name search string
     # @param limit [Integer]
@@ -240,7 +240,8 @@ module Vendor
     #
     # Returns entries in the same format as the classification subresource used
     # by ancestors():
-    #   { 'id', 'name' (String uninomial), 'rank', 'authorship', 'label', 'labelHtml' }
+    #   { 'id', 'name' (String, the full scientificName), 'rank', 'authorship',
+    #     'label', 'labelHtml' }
     # Order is distal-first (kingdom before immediate parent), matching
     # ancestors().
     # !! The starting taxon itself is NOT included; only its ancestors are.
@@ -268,7 +269,7 @@ module Vendor
 
         chain << {
           'id'         => current_id,
-          'name'       => protonym_name_from(taxon['name']).to_s,
+          'name'       => taxon.dig('name', 'scientificName').to_s,
           'rank'       => taxon.dig('name', 'rank'),
           'authorship' => taxon.dig('name', 'authorship'),
           'label'      => taxon.fetch('label', '').to_s,
@@ -298,7 +299,8 @@ module Vendor
     #
     # Classification entries from ancestors() have:
     #   { 'id' => '636X2', 'name' => 'Homo', 'rank' => 'genus', 'label' => 'Homo', … }
-    # Note: in classification entries 'name' is a plain String, not a hash.
+    # Note: in classification entries 'name' is a plain String, not a hash: the
+    # full scientific name ('Olea europaea', 'Aedes (Stegomyia)').
     #
     # @param col_result [Hash] a single entry from search['result']
     # @param dataset_id [String, nil] the dataset that was searched; falls back
@@ -351,10 +353,11 @@ module Vendor
         ancestor_chain = ancestor_chain.reject { |a| a['id'] == accepted_id }
       end
 
-      # For any non-accepted name, strip ancestors at or below the name's own rank.
-      # CoL places non-accepted names under their accepted name, so the accepted name's
-      # classification chain can include same- or lower-ranked entries that are not valid
-      # parents of the queried name (e.g. a genus synonym whose accepted name is a subgenus).
+      # For any non-accepted name, strip ancestors at or below the name's own
+      # rank. CoL places non-accepted names under their accepted name, so the
+      # accepted name's classification chain can include same- or lower-ranked
+      # entries that are not valid parents of the queried name (e.g. a genus
+      # synonym whose accepted name is a subgenus).
       if non_accepted && col_rank.present?
         target_sort = col_rank_sort(col_rank, col_code)
         if target_sort
@@ -371,23 +374,17 @@ module Vendor
       # Viruses, 'parvphylum') are kept and flagged :rank_unknown below, and
       # virus 'realm', above kingdom, is a TaxonWorks (ICVCN) rank.
       # Both ancestor sources are already distal→proximal (kingdom before
-      # genus): the classification subresource used by ancestors() returns it
-      # in that order natively, and ancestors_via_parent_id() explicitly
-      # reverses its own proximal-built walk to match. No reversal needed here.
+      # genus).
       ancestor_chain =
         ancestor_chain.reject { |a| a['rank']&.downcase == 'domain' }
 
       alignment = ancestor_chain.map do |ancestor|
-        rank     = ancestor['rank']&.downcase
-        # In classification entries 'name' is a plain String (the uninomial name)
-        anc_name = ancestor['name'].is_a?(String) ? ancestor['name'] : ancestor.dig('name', 'scientificName')
-        if rank == 'subgenus'
-          anc_name = NameTranslation.subgenus_epithet(anc_name)
-        end
+        rank = ancestor['rank']&.downcase
 
         {
           rank:,
-          col_name: anc_name,
+          # As CoL gives it ("Aedes (Stegomyia)", "Olea europaea").
+          col_name: ancestor['name'],
           col_id: ancestor['id'],
           dataset_id: ancestor_dataset_id,
           col_authorship: ancestor['authorship'].presence,
@@ -397,7 +394,10 @@ module Vendor
         }
       end
 
-      { col_key:, col_name:, col_status:, col_authorship:, col_year:, col_rank:, col_code:, col_dataset_id:, alignment: }
+      {
+        col_key:, col_name:, col_status:, col_authorship:, col_year:, col_rank:,
+        col_code:, col_dataset_id:, alignment:
+      }
     end
 
     # Resolves a free-text name (e.g. transcribed from a specimen label) to the

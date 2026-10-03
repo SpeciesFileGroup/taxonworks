@@ -262,10 +262,9 @@ const otuFilterUrl = computed(
 // comes back from Vendor::Colrapi.build_extension.
 const ancestorRowsDistalFirst = computed(() => ext.value.alignment ?? [])
 
-// Identifies an alignment row. Not col_name: a subgenus row carries only its
-// epithet, so a nominotypical genus 'Aus' and subgenus 'Aus (Aus)' share one,
-// and TaxonWorks-only ('extra') rows have none. Those 'extra' rows also have no
-// col_id, so they fall back to their position in the (fixed) alignment.
+// Identifies an alignment row by CoL's id, not col_name, which TaxonWorks-only
+// ('extra') rows don't have. Those 'extra' rows also have no col_id, so they
+// fall back to their position in the (fixed) alignment.
 function rowKey(row, index) {
   return row.col_id ?? `${row.rank}:${index}`
 }

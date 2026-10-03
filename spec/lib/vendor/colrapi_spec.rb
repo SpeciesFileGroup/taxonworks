@@ -344,6 +344,22 @@ describe Vendor::Colrapi, type: :model do
       end
     end
 
+    context 'with a subgenus ancestor' do
+      let(:classification) {
+        [
+          col_classification_entry(id: 'G1', name: 'Aedes', rank: 'genus'),
+          col_classification_entry(
+            id: 'SG1', name: 'Aedes (Stegomyia)', rank: 'subgenus'
+          )
+        ]
+      }
+
+      it 'keeps its name as CoL gives it (keys and creation reduce it)' do
+        expect(extension[:alignment].map { |a| a[:col_name] })
+          .to eq(['Aedes', 'Aedes (Stegomyia)'])
+      end
+    end
+
     context 'when col_key is blank' do
       let(:col_result_no_id) { col_nameusage_result(id: nil) }
 
@@ -609,6 +625,45 @@ describe Vendor::Colrapi, type: :model do
 
     it 'stops when parentId is blank' do
       expect(chain.length).to eq(2)
+    end
+
+    context 'with species-group and subgenus ancestors' do
+      # As CoL parses them: genus/infragenericEpithet/specificEpithet
+      def record(id, parent_id, rank, name_fields)
+        {
+          'id' => id, 'parentId' => parent_id, 'status' => 'accepted',
+          'name' => name_fields.merge('rank' => rank)
+        }
+      end
+
+      before do
+        {
+          'SSP1' => record('SSP1', 'SP1', 'subspecies',
+            'scientificName' => 'Aedes (Stegomyia) aegypti formosus',
+            'genus' => 'Aedes', 'infragenericEpithet' => 'Stegomyia',
+            'specificEpithet' => 'aegypti',
+            'infraspecificEpithet' => 'formosus'),
+          'SP1' => record('SP1', 'SG1', 'species',
+            'scientificName' => 'Aedes (Stegomyia) aegypti',
+            'genus' => 'Aedes', 'infragenericEpithet' => 'Stegomyia',
+            'specificEpithet' => 'aegypti'),
+          'SG1' => record('SG1', 'G1', 'subgenus',
+            'scientificName' => 'Aedes (Stegomyia)', 'genus' => 'Aedes',
+            'infragenericEpithet' => 'Stegomyia'),
+          'G1' => record('G1', nil, 'genus',
+            'scientificName' => 'Aedes', 'uninomial' => 'Aedes')
+        }.each do |id, r|
+          allow(::Colrapi).to receive(:taxon)
+            .with('9802', taxon_id: id).and_return(r)
+        end
+      end
+
+      it 'names them as CoL gives them, like the classification subresource' do
+        names = described_class.ancestors_via_parent_id('9802', 'SSP1')
+          .map { |e| e['name'] }
+        expect(names)
+          .to eq(['Aedes', 'Aedes (Stegomyia)', 'Aedes (Stegomyia) aegypti'])
+      end
     end
 
     context 'when the initial taxon has no parentId' do
