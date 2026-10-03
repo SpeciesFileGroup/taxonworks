@@ -10,7 +10,7 @@ module Vendor
 
 
     # @params taxonworks_object
-    #   currently only an CollectionObject
+    #   currently only a CollectionObject
     #
     # @return hash
     #     { taxonworks_name: name }
@@ -156,7 +156,8 @@ module Vendor
     #
     # Returns entries in the same format as the classification subresource used by ancestors():
     #   { 'id', 'name' (String uninomial), 'rank', 'authorship', 'label', 'labelHtml' }
-    # Order is distal-first (kingdom before immediate parent), matching ancestors().
+    # Order is distal-first (kingdom before immediate parent), matching
+    # ancestors().
     # The starting taxon itself is NOT included; only its ancestors are.
     #
     # @param dataset_id [String] the external dataset to query
@@ -200,10 +201,12 @@ module Vendor
       []
     end
 
-    # Builds CoL's own classification chain for a nameusage result — pure CoL data, no
-    # TaxonWorks matching (see Autoselect::TaxonName::Levels::CatalogueOfLife#call and
-    # Autoselect::TaxonName::ColAncestryComparator for how that's done, and why matching
-    # each ancestor independently by name here used to be a source of bugs).
+    # Builds CoL's own classification chain for a nameusage result — pure CoL
+    # data, no TaxonWorks matching (see
+    # Autoselect::TaxonName::Levels::CatalogueOfLife#call and
+    # Autoselect::TaxonName::ColAncestryComparator for how that's done, and why
+    # matching each ancestor independently by name here used to be a source of
+    # bugs).
     #
     # col_result is a flat nameusage hash as returned by search (no 'usage' wrapper):
     #   { 'id' => '6MB3T', 'status' => 'accepted',
@@ -217,16 +220,20 @@ module Vendor
     # Note: in classification entries 'name' is a plain String, not a hash.
     #
     # @param col_result [Hash] a single entry from search['result']
-    # @param dataset_id [String, nil] the dataset that was searched; falls back to DATASETS[:col]
-    # @return [Hash] extension hash with :col_key, :col_name, :col_status, :col_authorship,
-    #   :col_year, :col_rank, :col_code, :col_dataset_id, and :alignment (Array of ancestor
-    #   hashes, kingdom-first, each with :rank, :col_name, :col_id, :dataset_id, :col_authorship,
-    #   :above_genus_group, :rank_unknown)
+    # @param dataset_id [String, nil] the dataset that was searched; falls back
+    #   to DATASETS[:col]
+    # @return [Hash] extension hash with :col_key, :col_name, :col_status,
+    #   :col_authorship, :col_year, :col_rank, :col_code, :col_dataset_id, and
+    #   :alignment (Array of ancestor hashes, kingdom-first, each with :rank,
+    #   :col_name, :col_id, :dataset_id, :col_authorship, :above_genus_group,
+    #   :rank_unknown)
     def self.build_extension(col_result, dataset_id: nil)
       col_key        = col_result['id']
       col_name       = uninomial_name(col_result['name'])
       col_rank       = col_result.dig('name', 'rank')&.downcase
-      col_name       = NameTranslation.subgenus_epithet(col_name) if col_rank == 'subgenus'
+      if col_rank == 'subgenus'
+        col_name     = NameTranslation.subgenus_epithet(col_name)
+      end
       col_status     = col_result['status']
       col_authorship = col_result.dig('name', 'authorship')
       col_year       = col_result.dig('name', 'combinationAuthorship', 'year') ||
@@ -281,17 +288,20 @@ module Vendor
 
       # Drop suprakingdom ranks (e.g. 'domain') that have no equivalent in TaxonWorks
       # nomenclatural codes.  Kingdom is the highest rank we include.
-      # Both ancestor sources are already distal→proximal (kingdom before genus): the
-      # classification subresource used by ancestors() returns it in that order natively,
-      # and ancestors_via_parent_id() explicitly reverses its own proximal-built walk to
-      # match. No reversal needed here.
-      ancestor_chain = ancestor_chain.reject { |a| a['rank']&.downcase == 'domain' }
+      # Both ancestor sources are already distal→proximal (kingdom before
+      # genus): the classification subresource used by ancestors() returns it
+      # in that order natively, and ancestors_via_parent_id() explicitly
+      # reverses its own proximal-built walk to match. No reversal needed here.
+      ancestor_chain =
+        ancestor_chain.reject { |a| a['rank']&.downcase == 'domain' }
 
       alignment = ancestor_chain.map do |ancestor|
         rank     = ancestor['rank']&.downcase
         # In classification entries 'name' is a plain String (the uninomial name)
         anc_name = ancestor['name'].is_a?(String) ? ancestor['name'] : ancestor.dig('name', 'scientificName')
-        anc_name = NameTranslation.subgenus_epithet(anc_name) if rank == 'subgenus'
+        if rank == 'subgenus'
+          anc_name = NameTranslation.subgenus_epithet(anc_name)
+        end
 
         {
           rank:,
@@ -308,18 +318,20 @@ module Vendor
       { col_key:, col_name:, col_status:, col_authorship:, col_year:, col_rank:, col_code:, col_dataset_id:, alignment: }
     end
 
-    # Resolves a free-text name (e.g. transcribed from a specimen label) to the name
-    # currently accepted by the Catalogue of Life, so a caller doesn't have to look up
-    # synonymy by hand before searching TaxonWorks.
+    # Resolves a free-text name (e.g. transcribed from a specimen label) to the
+    # name currently accepted by the Catalogue of Life, so a caller doesn't have
+    # to look up synonymy by hand before searching TaxonWorks.
     #
-    # Takes CoL's top-ranked search hit for name_string as-is (no re-scoring here). When
-    # that hit is a plain synonym, follows it to its accepted target; anything else
-    # resolves to itself. Ambiguous synonyms and misapplied names also carry an
-    # `accepted` usage in CoL, but it's only one of several possible targets, so
-    # following it would present an arbitrary pick as the valid name.
+    # Takes CoL's top-ranked search hit for name_string as-is (no re-scoring
+    # here). When that hit is a plain synonym, follows it to its accepted
+    # target; anything else resolves to itself. Ambiguous synonyms and
+    # misapplied names also carry an `accepted` usage in CoL, but it's only one
+    # of several possible targets, so following it would present an arbitrary
+    # pick as the valid name.
     #
     # @param name_string [String]
-    # @param dataset_id [String, nil] CoL dataset ID; falls back to the default hardwired ID when nil
+    # @param dataset_id [String, nil] CoL dataset ID; falls back to the default
+    #   hardwired ID when nil
     # @return [Hash, nil] nil when CoL has no results, else
     #   { input:, matched_name:, matched_status:, matched_col_key:,
     #     valid_name:, valid_col_key:, valid_authorship:, valid_status:,
@@ -328,31 +340,35 @@ module Vendor
       top = search(name_string, dataset_id:, limit: 1)['result']&.first
       return nil if top.nil?
 
-      # Full scientific name (e.g. "Homo sapiens"), not the single-word component
-      # uninomial_name extracts for building TW Protonym trees — TaxonName/Otu#cached
-      # holds the full combination, so that's what a caller needs to search against.
+      # Full scientific name (e.g. "Homo sapiens"), not the single-word
+      # component uninomial_name extracts for building TW Protonym trees —
+      # TaxonName/Otu#cached holds the full combination, so that's what a caller
+      # needs to search against.
       matched_name   = top.dig('name', 'scientificName') || top['label']
       matched_status = top['status']
       target_dataset_id = dataset_id.presence || DATASETS[:col]
       accepted = top['accepted'] if matched_status == 'synonym'
 
-      # The full nameusage hash for the *valid* name — CoL nests the accepted usage
-      # (a complete nameusage record, same shape as a search result) right on the
-      # synonym hit, so a caller that needs the alignment/extension for the valid
-      # name can hand this straight to build_extension instead of searching again.
+      # The full nameusage hash for the *valid* name — CoL nests the accepted
+      # usage (a complete nameusage record, same shape as a search result) right
+      # on the synonym hit, so a caller that needs the alignment/extension for
+      # the valid name can hand this straight to build_extension instead of
+      # searching again.
       valid_col_result = accepted || top
 
       {
-        input:            name_string,
+        input: name_string,
         matched_name:,
         matched_status:,
-        matched_col_key:  top['id'],
-        valid_name:       accepted ? accepted.dig('name', 'scientificName') : matched_name,
-        valid_col_key:    accepted ? accepted['id'] : top['id'],
-        valid_authorship: accepted ? accepted.dig('name', 'authorship') : top.dig('name', 'authorship'),
-        valid_status:     accepted ? (accepted['status'] || 'accepted') : matched_status,
+        matched_col_key: top['id'],
+        valid_name:
+          accepted ? accepted.dig('name', 'scientificName') : matched_name,
+        valid_col_key: accepted ? accepted['id'] : top['id'],
+        valid_authorship: valid_col_result.dig('name', 'authorship'),
+        valid_status:
+          accepted ? (accepted['status'] || 'accepted') : matched_status,
         valid_col_result:,
-        dataset_id:       target_dataset_id
+        dataset_id: target_dataset_id
       }
     end
 
@@ -380,8 +396,9 @@ module Vendor
       'viral'      => ::ICVCN_LOOKUP
     }.freeze
 
-    # Maps a CoL nomenclatural code string to the TaxonWorks nomenclature_code symbol
-    # (NomenclaturalRank.nomenclatural_code / rank_class.nomenclatural_code) it corresponds to.
+    # Maps a CoL nomenclatural code string to the TaxonWorks nomenclature_code
+    # symbol (NomenclaturalRank.nomenclatural_code /
+    # rank_class.nomenclatural_code) it corresponds to.
     COL_CODE_TO_NOMENCLATURE_CODE = {
       'zoological' => :iczn,
       'botanical'  => :icn,
@@ -391,19 +408,23 @@ module Vendor
 
     # Maps a human-readable CoL rank string to a TaxonWorks rank_class string.
     #
-    # When col_code is recognized (e.g. 'botanical' → ICN_LOOKUP), that lookup is tried
-    # first so that plant names get ICN rank classes rather than ICZN ones. Falls back
-    # through all four codes in order so any rank resolves if possible.
+    # When col_code is recognized (e.g. 'botanical' → ICN_LOOKUP), that lookup
+    # is tried first so that plant names get ICN rank classes rather than ICZN
+    # ones. Falls back through all four codes in order so any rank resolves if
+    # possible.
     #
     # @param rank_string [String, nil] e.g. 'genus', 'family'
-    # @param col_code [String, nil] 'zoological', 'botanical', 'bacterial', 'viral'
-    # @return [String, nil] a TaxonWorks rank_class string, or nil for an unknown rank
+    # @param col_code [String, nil] 'zoological', 'botanical', 'bacterial',
+    #   'viral'
+    # @return [String, nil] a TaxonWorks rank_class string, or nil for an
+    #   unknown rank
     def self.rank_class_for(rank_string, col_code: nil)
       return nil if rank_string.blank?
       r = rank_string.to_s.downcase
 
       primary = COL_CODE_LOOKUP_MAP[col_code]
-      lookups = [primary, *COL_CODE_LOOKUP_MAP.values.excluding(primary)].compact
+      lookups =
+        [primary, *COL_CODE_LOOKUP_MAP.values.excluding(primary)].compact
       lookups.each do |lookup|
         result = lookup[r]
         return result if result
@@ -426,9 +447,10 @@ module Vendor
       rank_class ? ::RANK_SORT[rank_class] : nil
     end
 
-    # True when rank_name resolves to FamilyGroup or above (HigherClassificationGroup)
-    # — i.e. strictly coarser than GenusGroup — for the given CoL nomenclatural code.
-    # Unresolvable ranks are treated as not-above (false).
+    # True when rank_name resolves to FamilyGroup or above
+    # (HigherClassificationGroup) — i.e. strictly coarser than GenusGroup — for
+    # the given CoL nomenclatural code. Unresolvable ranks are treated as
+    # not-above (false).
     def self.above_genus_group?(rank_name, col_code)
       rank_class = rank_class_for(rank_name, col_code:)
       rank_class ? ::FAMILY_AND_ABOVE_RANK_NAMES.include?(rank_class) : false
