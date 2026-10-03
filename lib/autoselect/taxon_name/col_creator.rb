@@ -20,7 +20,7 @@ module Autoselect
     #     the target row only. A non-'accepted' status tags the created name with the nearest
     #     synonym TaxonNameClassification for its code (see NOMENCLATURE_CODE_TO_SYNONYM_CLASSIFICATION).
     # @param col_code [String, nil] CoL nomenclatural code string: 'zoological', 'botanical',
-    #   'bacterial', 'viral'. When present, rank resolution uses the corresponding lookup first.
+    #   'bacterial', 'virus'. When present, rank resolution uses the corresponding lookup first.
     #   Falls back to trying all codes when nil or unrecognised.
     # @param project_id [Integer]
     # @param user_id [Integer]

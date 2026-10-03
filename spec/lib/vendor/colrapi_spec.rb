@@ -176,6 +176,11 @@ describe Vendor::Colrapi, type: :model do
       expect(result).to include('Icnp')
     end
 
+    it 'resolves genus as ICVCN for virus code (CoL\'s name for it)' do
+      result = described_class.rank_class_for('genus', col_code: 'virus')
+      expect(result).to include('Icvcn')
+    end
+
     it 'falls back through all codes when col_code is nil' do
       expect(described_class.rank_class_for('species')).to include('Iczn')
     end

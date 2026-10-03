@@ -317,7 +317,7 @@ module Vendor
       col_year = col_result.dig('name', 'combinationAuthorship', 'year') ||
         col_result.dig('name', 'basionymOrCombinationAuthorship', 'year')
 
-      # CoL nomenclatural code: 'zoological', 'botanical', 'bacterial', 'viral'
+      # CoL nomenclatural code: 'zoological', 'botanical', 'bacterial', 'virus'
       col_code = col_result.dig('name', 'code')
 
       # Dataset used for the search (target row).
@@ -365,8 +365,11 @@ module Vendor
         end
       end
 
-      # Drop suprakingdom ranks (e.g. 'domain') that have no equivalent in TaxonWorks
-      # nomenclatural codes.  Kingdom is the highest rank we include.
+      # Drop 'domain', which CoL's backbone puts above kingdom in every
+      # cellular lineage (Eukaryota, Bacteria, Archaea) and TaxonWorks has no
+      # rank for. Other ranks TaxonWorks can't resolve (e.g. 'unranked'
+      # Viruses, 'parvphylum') are kept and flagged :rank_unknown below, and
+      # virus 'realm', above kingdom, is a TaxonWorks (ICVCN) rank.
       # Both ancestor sources are already distal→proximal (kingdom before
       # genus): the classification subresource used by ancestors() returns it
       # in that order natively, and ancestors_via_parent_id() explicitly
@@ -476,7 +479,7 @@ module Vendor
       'zoological' => ::ICZN_LOOKUP,
       'botanical'  => ::ICN_LOOKUP,
       'bacterial'  => ::ICNP_LOOKUP,
-      'viral'      => ::ICVCN_LOOKUP
+      'virus'      => ::ICVCN_LOOKUP
     }.freeze
 
     # Maps a CoL nomenclatural code string to the TaxonWorks nomenclature_code
@@ -486,7 +489,7 @@ module Vendor
       'zoological' => :iczn,
       'botanical'  => :icn,
       'bacterial'  => :icnp,
-      'viral'      => :icvcn
+      'virus'      => :icvcn
     }.freeze
 
     # Maps a human-readable CoL rank string to a TaxonWorks rank_class string.
@@ -498,7 +501,7 @@ module Vendor
     #
     # @param rank_string [String, nil] e.g. 'genus', 'family'
     # @param col_code [String, nil] 'zoological', 'botanical', 'bacterial',
-    #   'viral'
+    #   'virus'
     # @return [String, nil] a TaxonWorks rank_class string, or nil for an
     #   unknown rank
     def self.rank_class_for(rank_string, col_code: nil)
@@ -517,7 +520,7 @@ module Vendor
     end
 
     # Maps a CoL rank name ('genus', 'family', …) and CoL nomenclatural code
-    # ('zoological', 'botanical', 'bacterial', 'viral') to the TaxonWorks RANK_SORT
+    # ('zoological', 'botanical', 'bacterial', 'virus') to the TaxonWorks RANK_SORT
     # index. Higher index = more specific rank. Returns nil when unresolvable.
     #
     # Unlike rank_class_for, doesn't fall back through the other codes: callers
