@@ -298,15 +298,53 @@ let pinboardNoneTimer = null
 
 const helpOverlayStyle = ref({})
 
+// Narrow inputs (e.g. a table cell) would otherwise squeeze the operator list
+// into a tall, thin column.
+const HELP_OVERLAY_MIN_WIDTH = 360
+// Gap kept between a teleported overlay and the viewport's left/right edges.
+const OVERLAY_VIEWPORT_MARGIN = 8
+
+// @return {Number} widest a teleported overlay may be
+function maxOverlayWidth() {
+  // clientWidth excludes a vertical scrollbar, innerWidth doesn't
+  return document.documentElement.clientWidth - 2 * OVERLAY_VIEWPORT_MARGIN
+}
+
+// Horizontal placement for a teleported overlay under the input: aligned with
+// the input's left edge, but shifted left (and narrowed if it has to be) so it
+// never runs off the viewport - an input near the right edge would otherwise
+// leave it almost no room.
+// @param {DOMRect} rect - the input's bounding rect
+// @param {Number} width - the overlay's preferred width
+// @return {{ left: Number, width: Number }} page-absolute left, and width
+function placeInViewport(rect, width) {
+  const margin = OVERLAY_VIEWPORT_MARGIN
+  const viewportWidth = document.documentElement.clientWidth
+  const placedWidth = Math.min(width, maxOverlayWidth())
+  const left = Math.max(
+    margin,
+    Math.min(rect.left, viewportWidth - margin - placedWidth)
+  )
+
+  return { left: left + window.scrollX, width: placedWidth }
+}
+
 // Page-absolute coordinates so the teleported overlay isn't clipped by a
-// scrollable ancestor (e.g. a table wrapper with overflow-x: auto).
+// scrollable ancestor (e.g. a table wrapper with overflow-x: auto). At least
+// HELP_OVERLAY_MIN_WIDTH wide.
 function updateHelpOverlayPosition() {
   const rect = inputEl.value?.getBoundingClientRect()
   if (!rect) return
+
+  const { left, width } = placeInViewport(
+    rect,
+    Math.max(rect.width, HELP_OVERLAY_MIN_WIDTH)
+  )
+
   helpOverlayStyle.value = {
     top: `${rect.bottom + window.scrollY}px`,
-    left: `${rect.left + window.scrollX}px`,
-    width: `${rect.width}px`
+    left: `${left}px`,
+    width: `${width}px`
   }
 }
 
@@ -643,36 +681,42 @@ function updateDropdownPosition() {
 
     const rect = input.getBoundingClientRect()
     const viewportHeight = window.innerHeight
-    const viewportWidth = window.innerWidth
     const spaceBelow = viewportHeight - rect.bottom
     const spaceAbove = rect.top
     const showAbove = spaceBelow < 150 && spaceAbove > spaceBelow
-    const maxWidth = viewportWidth - rect.left - 32
+    const maxWidth = maxOverlayWidth()
     const maxHeight = Math.min(
       showAbove ? spaceAbove - 12 : spaceBelow - 12,
       500
     )
 
+    // Measure the content's natural width from the viewport's left edge: at
+    // its current left an absolutely positioned box only shrink-wraps to the
+    // room left of it, which near the right edge is almost none.
     dropdown.style.removeProperty('width')
     dropdown.style.minWidth = '0'
+    dropdown.style.left = '0px'
     dropdown.style.maxHeight = maxHeight + 'px'
     dropdown.style.maxWidth = maxWidth + 'px'
 
     const contentWidth = dropdown.scrollWidth
-    dropdown.style.minWidth = rect.width + 'px'
 
-    const finalWidth = Math.min(contentWidth + 20, maxWidth)
+    const { left, width } = placeInViewport(
+      rect,
+      Math.max(contentWidth + 20, rect.width)
+    )
+    // Height at the final width, since text may wrap differently there.
+    dropdown.style.width = width + 'px'
     const dropdownH = dropdown.offsetHeight || maxHeight
     const top = showAbove
       ? rect.top + window.scrollY - dropdownH - 6
       : rect.bottom + window.scrollY + 2
-    const left = rect.left + window.scrollX
 
     dropdownStyle.value = {
       top: `${Math.max(top, 0)}px`,
-      left: `${Math.max(left, 0)}px`,
-      width: finalWidth + 'px',
-      minWidth: rect.width + 'px',
+      left: `${left}px`,
+      width: width + 'px',
+      minWidth: width + 'px',
       maxWidth: maxWidth + 'px'
     }
   })
@@ -1129,6 +1173,8 @@ defineExpose({ prefill, getSearchText })
      updateHelpOverlayPosition) — teleported to body, so this positions
      against the page's containing block, not a parent that might clip it. */
   position: absolute;
+  /* width from updateHelpOverlayPosition includes padding and border */
+  box-sizing: border-box;
   z-index: 999998;
   background: var(--panel-bg-color);
   border: 1px solid var(--border-color);
