@@ -9,7 +9,12 @@ module Vendor
     # (live CoL, 3LR, 2026-09):
     #   * subgenus: always "Genus (Subgenus)", in search results and
     #     classifications. TaxonWorks stores the bare epithet in #name and
-    #     "Genus (Subgenus)" in #cached (ICZN and ICN alike).
+    #     "Genus (Subgenus)" in #cached (ICZN and ICN alike). The parentheses
+    #     are ICZN's rule (Art. 6.1). The ICN writes a subgenus "Genus subg.
+    #     Epithet" (Art. 21.1) and only recommends parentheses (Rec. 21A.1)
+    #     for showing it inside a species name. The parsing here relies on
+    #     CoL and TaxonWorks both using parentheses; it isn't a general
+    #     nomenclatural rule.
     #   * species group: some sources include the subgenus ("Aedes (Stegomyia)
     #     aegypti", mosquitoes), some omit it ("Bombus terrestris", bees), and
     #     one source can do both (Carabus: "Carabus (Megodontus) violaceus" but
@@ -74,7 +79,9 @@ module Vendor
       # @param col_name [String, nil]
       # @return [String, nil]
       def self.subgenus_epithet(col_name)
-        ::Utilities::Nomenclature.infrageneric_epithet(col_name)
+        return nil if col_name.nil?
+
+        col_name[/\(([^)]+)\)/, 1] || col_name
       end
 
       # CoL classification entries give species-group names in full ("Olea
@@ -214,11 +221,19 @@ module Vendor
       def self.comparable(name)
         return nil if name.nil?
 
-        ::Utilities::Nomenclature.without_infrageneric_epithet(
-          ::Utilities::Nomenclature.unmisspell_name(name)
-        )
+        without_subgenus(::Utilities::Nomenclature.unmisspell_name(name))
       end
       private_class_method :comparable
+
+      # Drops every parenthetical, not just a subgenus (an ICZN interpolated
+      # species-group name, Art. 6.2, goes too) - fine for a comparison key.
+      #
+      # @param name [String]
+      # @return [String] e.g. "Aedes (Stegomyia) aegypti" => "Aedes aegypti"
+      def self.without_subgenus(name)
+        name.gsub(/\s*\([^)]*\)/, '').squeeze(' ').strip
+      end
+      private_class_method :without_subgenus
 
     end
   end

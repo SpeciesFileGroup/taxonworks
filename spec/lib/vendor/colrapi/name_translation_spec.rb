@@ -14,6 +14,14 @@ describe Vendor::Colrapi::NameTranslation, type: :model do
     specify 'extracts the epithet from CoL\'s "Genus (Subgenus)"' do
       expect(t.subgenus_epithet('Carabus (Megodontus)')).to eq('Megodontus')
     end
+
+    specify 'returns a bare epithet as is' do
+      expect(t.subgenus_epithet('Megodontus')).to eq('Megodontus')
+    end
+
+    specify 'nil is nil' do
+      expect(t.subgenus_epithet(nil)).to be_nil
+    end
   end
 
   context '.protonym_name' do
@@ -56,8 +64,18 @@ describe Vendor::Colrapi::NameTranslation, type: :model do
         .to eq('Aphrophora binomoriensis')
     end
 
+    specify 'a subspecies under a subgenus drops it' do
+      expect(t.search_term('Carabus (Megodontus) violaceus violaceus'))
+        .to eq('Carabus violaceus violaceus')
+    end
+
     specify '[sic] is dropped' do
       expect(t.search_term('Aus bvs [sic]')).to eq('Aus bvs')
+    end
+
+    specify 'ICN infraspecific connecting terms are kept' do
+      expect(t.search_term('Olea europaea subsp. africana'))
+        .to eq('Olea europaea subsp. africana')
     end
 
     specify 'a name without a subgenus is unchanged' do
