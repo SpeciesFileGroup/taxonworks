@@ -42,6 +42,8 @@
               <% if object.class < Shared::IsData %>
                 <li><%= radial_annotator(object, annotations_exist(object)) %></li>
                 <li><%= tag_default_icon(object) %></li>
+              <% end %>
+              <% if object.class < Shared::IsData::Pinnable %>
                 <li><%= pin_item_to_pinboard_link(object, sessions_current_user) %></li>
               <% end %>
               <li><%= radial_navigation_tag(object) %></li>
