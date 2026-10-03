@@ -384,73 +384,64 @@ RSpec.describe Autoselect::TaxonName::ColCreator, type: :model do
     end
   end
 
-  describe 'synonym (non-accepted) status classification' do
-    context 'ICZN target reported as a synonym' do
+  describe 'non-accepted target' do
+    # CoL gives a non-accepted name only its accepted name's classification,
+    # nothing of its own, so it isn't created from CoL (the modal blocks it;
+    # this is the server's guard).
+    def creator(rows)
+      described_class.new(rows:, project_id:, user_id:, col_code: 'zoological')
+    end
+
+    context 'that would be created' do
       let(:rows) do
         [
           row(col_name: 'Animalia', col_rank: 'kingdom'),
-          row(col_name: 'Homo',     col_rank: 'genus'),
-          row(col_name: 'erectus',  col_rank: 'species', col_authorship: 'Dubois, 1893', col_year: '1893',
-              col_status: 'synonym')
+          row(col_name: 'Homo', col_rank: 'genus'),
+          row(col_name: 'erectus', col_rank: 'species',
+            col_authorship: 'Dubois, 1893', col_year: '1893',
+            col_status: 'synonym')
         ]
       end
 
-      subject(:result) {
-        described_class.new(rows:, project_id:, user_id:, col_code: 'zoological').call
-      }
-
-      it 'assigns Iczn::Available::Invalid to the target name' do
-        result
-        species = ::TaxonName.find_by(name: 'erectus', project_id:)
-        expect(species.taxon_name_classifications.map(&:type))
-          .to include('TaxonNameClassification::Iczn::Available::Invalid')
-      end
-
-      it 'does not classify the accepted ancestor rows' do
-        result
-        genus = ::TaxonName.find_by(name: 'Homo', project_id:)
-        expect(genus.taxon_name_classifications).to be_empty
+      it 'raises CreationError and creates nothing' do
+        count = ::TaxonName.count
+        expect { creator(rows).call }
+          .to raise_error(described_class::CreationError, /synonym/)
+        expect(::TaxonName.count).to eq(count)
       end
     end
 
-    context 'ICN target reported as a synonym' do
-      let(:rows) do
-        [
-          row(col_name: 'Plantae',  col_rank: 'kingdom'),
-          row(col_name: 'Quercus',  col_rank: 'genus', col_authorship: 'L.'),
-          row(col_name: 'pedunculata', col_rank: 'species', col_authorship: 'Ehrh., 1789', col_year: '1789',
-              col_status: 'synonym')
+    context 'that already exists in TaxonWorks' do
+      let(:genus) do
+        FactoryBot.create(:valid_taxon_name, name: 'Homo',
+          rank_class: 'NomenclaturalRank::Iczn::GenusGroup::Genus')
+      end
+      let(:species) do
+        Protonym.create!(name: 'erectus', parent: genus,
+          rank_class: Ranks.lookup(:iczn, :species))
+      end
+
+      it 'is used, not rejected' do
+        rows = [
+          row(col_name: 'Homo', col_rank: 'genus', taxonworks_id: genus.id),
+          row(col_name: 'erectus', col_rank: 'species',
+            taxonworks_id: species.id, col_status: 'synonym')
         ]
-      end
-
-      subject(:result) {
-        described_class.new(rows:, project_id:, user_id:, col_code: 'botanical').call
-      }
-
-      it 'assigns the nearest ICN synonym classification to the target name' do
-        result
-        species = ::TaxonName.find_by(name: 'pedunculata', project_id:)
-        expect(species.taxon_name_classifications.map(&:type))
-          .to include('TaxonNameClassification::Icn::EffectivelyPublished::InvalidlyPublished::AsSynonym')
+        expect(creator(rows).call[:taxon_name_id]).to eq(species.id)
       end
     end
 
-    context 'target reported as accepted' do
+    context 'provisionally accepted' do
       let(:rows) do
         [
           row(col_name: 'Animalia', col_rank: 'kingdom'),
-          row(col_name: 'Homo',     col_rank: 'genus'),
-          row(col_name: 'sapiens',  col_rank: 'species', col_authorship: 'Linnaeus, 1758', col_year: '1758',
-              col_status: 'accepted')
+          row(col_name: 'Homo', col_rank: 'genus',
+            col_status: 'provisionally accepted')
         ]
       end
 
-      subject(:result) {
-        described_class.new(rows:, project_id:, user_id:, col_code: 'zoological').call
-      }
-
-      it 'creates no status classification' do
-        expect { result }.not_to change(::TaxonNameClassification, :count)
+      it 'is created like an accepted name' do
+        expect { creator(rows).call }.to change(::TaxonName, :count).by(2)
       end
     end
 
@@ -458,16 +449,12 @@ RSpec.describe Autoselect::TaxonName::ColCreator, type: :model do
       let(:rows) do
         [
           row(col_name: 'Animalia', col_rank: 'kingdom'),
-          row(col_name: 'Homo',     col_rank: 'genus', col_status: 'Accepted')
+          row(col_name: 'Homo', col_rank: 'genus', col_status: 'Accepted')
         ]
       end
 
-      subject(:result) {
-        described_class.new(rows:, project_id:, user_id:, col_code: 'zoological').call
-      }
-
-      it 'creates no status classification' do
-        expect { result }.not_to change(::TaxonNameClassification, :count)
+      it 'is created' do
+        expect { creator(rows).call }.to change(::TaxonName, :count).by(2)
       end
     end
   end

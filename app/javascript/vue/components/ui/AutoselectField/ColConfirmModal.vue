@@ -136,7 +136,11 @@
         class="col-confirm-modal__note"
         :class="{
           'col-confirm-modal__note--warning':
-            otuBlocked || chainConflict || isAmbiguous || duplicateBlocked
+            otuBlocked ||
+            chainConflict ||
+            isAmbiguous ||
+            duplicateBlocked ||
+            nonAcceptedBlocked
         }"
       >
         <template v-if="otuBlocked">
@@ -170,6 +174,14 @@
           >
           — select it directly instead of creating a duplicate.
         </template>
+        <template v-else-if="nonAcceptedBlocked">
+          Catalogue of Life status: <em>{{ ext.col_status }}</em
+          ><template v-if="ext.accepted">
+            of <em>{{ ext.accepted.col_name }}</em>
+            {{ ext.accepted.col_authorship }}</template
+          >. Catalogue of Life gives the name no classification of its own, so
+          it can't be created from here. Search with a different level instead.
+        </template>
         <template v-else-if="chainConflict">
           TaxonWorks and Catalogue of Life disagree at
           <template v-for="(row, i) in conflictRows" :key="row.rank">
@@ -201,7 +213,8 @@
             cannotCreate ||
             chainConflict ||
             otuBlocked ||
-            duplicateBlocked
+            duplicateBlocked ||
+            nonAcceptedBlocked
           "
           @click="doConfirm"
           @keydown.enter.prevent="doConfirm"
@@ -348,6 +361,14 @@ const chainConflict = computed(() => !chainConsistent.value && !nothingToCreate.
 const duplicateBlocked = computed(
   () =>
     (ext.value.possible_duplicates ?? []).length > 0 && !nothingToCreate.value
+)
+
+// Server-computed (Vendor::Colrapi.build_extension): CoL doesn't accept the
+// target (synonym, misapplied, ...) and has no classification of its own for
+// it, so it can't be created (ColCreator refuses it too). Selecting it when
+// TaxonWorks already has the name is fine.
+const nonAcceptedBlocked = computed(
+  () => !!ext.value.non_accepted && !ext.value.target_taxonworks_id
 )
 
 // e.g. "originally Deltocephalus pumilicans, valid name Vilargus pumilicans"

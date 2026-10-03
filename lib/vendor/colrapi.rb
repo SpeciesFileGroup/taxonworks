@@ -306,10 +306,12 @@ module Vendor
     # @param dataset_id [String, nil] the dataset that was searched; falls back
     #   to DATASETS[:col]
     # @return [Hash] extension hash with :col_key, :col_name, :col_status,
-    #   :col_authorship, :col_year, :col_rank, :col_code, :col_dataset_id, and
-    #   :alignment (Array of ancestor hashes, kingdom-first, each with :rank,
-    #   :col_name, :col_id, :dataset_id, :col_authorship, :above_genus_group,
-    #   :rank_unknown)
+    #   :col_authorship, :col_year, :col_rank, :col_code, :col_dataset_id,
+    #   :non_accepted, :accepted (a synonym's accepted name: :col_name,
+    #   :col_authorship) and :alignment (Array of ancestor hashes,
+    #   kingdom-first, each with :rank, :col_name, :col_id, :dataset_id,
+    #   :col_authorship, :above_genus_group, :rank_unknown; empty for a
+    #   non-accepted name)
     def self.build_extension(col_result, dataset_id: nil)
       col_key = col_result['id']
       col_name = protonym_name_from(col_result['name'])
@@ -325,48 +327,28 @@ module Vendor
       # Dataset used for the search (target row).
       col_dataset_id = dataset_id.presence || DATASETS[:col]
 
-      # For synonyms with a single accepted target, CoL attaches the synonym
-      # under its accepted name in the tree, so fetching classification via the
-      # synonym's own ID returns the accepted name in the chain.  Use the
-      # accepted name's ID for the lookup instead, then strip it out by ID
-      # (CoL's classification endpoint includes the queried taxon itself as the
-      # most proximal entry).
-      # Ambiguous synonyms have no single accepted target, so we look up via
-      # their own ID.
-      non_accepted = col_status.present? && col_status != 'accepted'
-      accepted_id = col_status == 'synonym' ?
-        col_result.dig('accepted', 'id').presence : nil
-      ancestor_lookup_key = accepted_id || col_key
-
-      ancestor_chain, ancestor_dataset_id =
-        if ancestor_lookup_key.present?
-          if col_backbone_dataset?(col_dataset_id)
-            [ancestors(ancestor_lookup_key), DATASETS[:col]]
-          else
-            [ancestors_via_parent_id(col_dataset_id, ancestor_lookup_key), col_dataset_id]
-          end
-        else
-          [[], col_dataset_id]
-        end
-
-      if accepted_id
-        ancestor_chain = ancestor_chain.reject { |a| a['id'] == accepted_id }
-      end
-
-      # For any non-accepted name, strip ancestors at or below the name's own
-      # rank. CoL places non-accepted names under their accepted name, so the
-      # accepted name's classification chain can include same- or lower-ranked
-      # entries that are not valid parents of the queried name (e.g. a genus
-      # synonym whose accepted name is a subgenus).
-      if non_accepted && col_rank.present?
-        target_sort = col_rank_sort(col_rank, col_code)
-        if target_sort
-          ancestor_chain = ancestor_chain.reject { |a|
-            anc_sort = col_rank_sort(a['rank']&.downcase, col_code)
-            anc_sort && anc_sort >= target_sort
+      # A non-accepted name (synonym, ambiguous synonym, misapplied, ...) gets
+      # no alignment. CoL hangs it off its accepted taxon, so the only
+      # classification CoL has for it is the accepted name's - which says
+      # where the taxon is now, nothing about the name's own genus or family.
+      non_accepted = col_status.present? &&
+        !COL_ACCEPTED_STATUSES.include?(col_status.downcase)
+      accepted =
+        if col_status == 'synonym' && col_result['accepted']
+          {
+            col_name: col_result.dig('accepted', 'name', 'scientificName'),
+            col_authorship: col_result.dig('accepted', 'name', 'authorship')
           }
         end
-      end
+
+      ancestor_chain, ancestor_dataset_id =
+        if non_accepted || col_key.blank?
+          [[], col_dataset_id]
+        elsif col_backbone_dataset?(col_dataset_id)
+          [ancestors(col_key), DATASETS[:col]]
+        else
+          [ancestors_via_parent_id(col_dataset_id, col_key), col_dataset_id]
+        end
 
       # Drop 'domain', which CoL's backbone puts above kingdom in every
       # cellular lineage (Eukaryota, Bacteria, Archaea) and TaxonWorks has no
@@ -396,7 +378,8 @@ module Vendor
 
       {
         col_key:, col_name:, col_status:, col_authorship:, col_year:, col_rank:,
-        col_code:, col_dataset_id:, alignment:
+        col_code:, col_dataset_id:, alignment:, non_accepted:,
+        **(accepted ? { accepted: } : {})
       }
     end
 

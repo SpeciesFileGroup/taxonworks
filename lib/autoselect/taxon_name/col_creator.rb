@@ -17,8 +17,7 @@ module Autoselect
     #   col_authorship [String, nil] — combined author+year string from CoL (e.g. 'Linnaeus, 1758')
     #   col_year      [String, nil]  — year string extracted from CoL combinationAuthorship (target row only)
     #   col_status    [String, nil]  — CoL nomenclatural status (e.g. 'accepted', 'synonym'); present on
-    #     the target row only. A non-'accepted' status tags the created name with the nearest
-    #     synonym TaxonNameClassification for its code (see NOMENCLATURE_CODE_TO_SYNONYM_CLASSIFICATION).
+    #     the target row only. A non-accepted target is never created (see #refuse_non_accepted).
     # @param col_code [String, nil] CoL nomenclatural code string: 'zoological', 'botanical',
     #   'bacterial', 'virus'. When present, rank resolution uses the corresponding lookup first.
     #   Falls back to trying all codes when nil or unrecognised.
@@ -74,6 +73,8 @@ module Autoselect
           raise CreationError.new("Unknown TaxonName id(s) for this project: #{unknown_ids.join(', ')}")
         end
 
+        refuse_non_accepted
+
         ::ActiveRecord::Base.transaction do
           @rows.each do |row|
             if row[:taxonworks_id].present?
@@ -128,9 +129,6 @@ module Autoselect
               )
             end
 
-            # Tag non-accepted names (synonym, misapplied, …) with a status classification.
-            assign_synonym_classification(tn, row)
-
             if row[:col_id].present?
               begin
                 ::Identifier::Global::Uri::ChecklistBank.create!(
@@ -164,31 +162,24 @@ module Autoselect
         ::Project.find(@project_id).root_taxon_name.id
       end
 
-      # Assigns a "not the accepted name" TaxonNameClassification to a freshly-created name when
-      # CoL reports a non-'accepted' status. The class is chosen by the created name's own
-      # nomenclatural code (see NOMENCLATURE_CODE_TO_SYNONYM_CLASSIFICATION), which is guaranteed to
-      # satisfy TaxonNameClassification's code-match validation.
-      #
-      # Only the target row carries a col_status; accepted names and ancestor rows are left untagged.
-      def assign_synonym_classification(taxon_name, row)
-        status = row[:col_status].to_s
-        return if status.blank? || status.casecmp?('accepted')
+      # CoL gives a non-accepted name (synonym, misapplied, ...) only its
+      # accepted name's classification, nothing of its own, so there's no
+      # sound place to create it. Using it when it already exists in
+      # TaxonWorks (taxonworks_id) is fine. The modal blocks this too.
+      def refuse_non_accepted
+        row = @rows.find do |r|
+          r[:taxonworks_id].blank? && r[:col_status].present? &&
+            !::Vendor::Colrapi::COL_ACCEPTED_STATUSES
+              .include?(r[:col_status].to_s.downcase)
+        end
+        return if row.nil?
 
-        code = taxon_name.rank_class.nomenclatural_code
-        classification_type = ::NOMENCLATURE_CODE_TO_SYNONYM_CLASSIFICATION[code]
-        return if classification_type.nil?
-
-        ::TaxonNameClassification.create!(
-          taxon_name: taxon_name,
-          type:       classification_type,
-          project_id: @project_id,
-          by:         @user_id
-        )
-      rescue ::ActiveRecord::RecordInvalid => e
         raise CreationError.new(
-          "Status for #{row[:col_name]}: #{e.record.errors.full_messages.join(', ')}",
+          "#{row[:col_name]} is a #{row[:col_status]} in Catalogue of Life, " \
+            "which has no classification of its own for it - it can't be " \
+            'created from here.',
           col_name: row[:col_name],
-          col_id:   row[:col_id]
+          col_id: row[:col_id]
         )
       end
 

@@ -344,6 +344,66 @@ describe Vendor::Colrapi, type: :model do
       end
     end
 
+    context 'when the result is not accepted' do
+      # CoL hangs a synonym off its accepted taxon, so the only classification
+      # it has is the accepted name's - nothing about the synonym's own genus
+      # or family (e.g. "Cercopis aptera", a cercopid genus, -> Falcidius
+      # aptera in Issidae).
+      let(:col_result) {
+        col_nameusage_result(
+          id: '9XJPQ', scientific_name: 'Cercopis aptera', status: 'synonym'
+        ).merge(
+          'accepted' => {
+            'id' => '3DT8H',
+            'name' => {
+              'scientificName' => 'Falcidius aptera',
+              'authorship' => '(Fabricius, 1794)', 'rank' => 'species'
+            }
+          }
+        )
+      }
+
+      it 'has no alignment, and fetches none' do
+        expect(extension[:alignment]).to eq([])
+        expect(described_class).not_to have_received(:ancestors)
+      end
+
+      it 'is flagged non_accepted' do
+        expect(extension[:non_accepted]).to be true
+      end
+
+      it 'carries the accepted name' do
+        expect(extension[:accepted]).to eq(
+          col_name: 'Falcidius aptera', col_authorship: '(Fabricius, 1794)'
+        )
+      end
+
+      context 'as an ambiguous synonym' do
+        let(:col_result) {
+          col_nameusage_result(
+            id: 'AMB1', scientific_name: 'Crayracion',
+            status: 'ambiguous synonym'
+          )
+        }
+
+        it 'is flagged non_accepted, with no accepted name' do
+          expect(extension[:non_accepted]).to be true
+          expect(extension[:accepted]).to be_nil
+        end
+      end
+
+      context 'as provisionally accepted' do
+        let(:col_result) {
+          col_nameusage_result(status: 'provisionally accepted')
+        }
+
+        it 'is treated as accepted' do
+          expect(extension[:non_accepted]).to be false
+          expect(extension[:alignment]).not_to be_empty
+        end
+      end
+    end
+
     context 'with a subgenus ancestor' do
       let(:classification) {
         [
@@ -765,7 +825,7 @@ describe Vendor::Colrapi, type: :model do
   end
 
   context 'VCR integration — Crayracion ambiguous synonym against default CoL dataset (3LR)' do
-    it 'alignment does not contain a genus-rank ancestor for the ambiguous synonym Crayracion' do
+    it 'has no alignment and no accepted name' do
       VCR.use_cassette('colrapi_build_extension_crayracion_ambiguous_synonym') do
         search_result = ::Vendor::Colrapi.search('Crayracion')
         crayracion_result = search_result['result'].find { |r|
@@ -776,22 +836,15 @@ describe Vendor::Colrapi, type: :model do
         ext = described_class.build_extension(crayracion_result)
 
         expect(ext[:col_status]).to eq('ambiguous synonym')
-        expect(ext[:col_rank]).to eq('genus')
-
-        alignment_ranks = ext[:alignment].map { |r| r[:rank] }
-        alignment_col_names = ext[:alignment].map { |r| r[:col_name] }
-
-        expect(alignment_ranks).not_to include('genus'),
-          "genus-rank ancestor must not appear in alignment for genus-rank ambiguous synonym; got: #{ext[:alignment].map { |r| [r[:rank], r[:col_name]] }.inspect}"
-
-        expect(alignment_col_names).to include('Tetraodontidae'),
-          "Tetraodontidae (family) should appear as the proximal ancestor; got: #{alignment_col_names.inspect}"
+        expect(ext[:non_accepted]).to be true
+        expect(ext[:alignment]).to eq([])
+        expect(ext[:accepted]).to be_nil
       end
     end
   end
 
   context 'VCR integration — Campa synonym against default CoL dataset (3LR)' do
-    it 'alignment does not contain the accepted genus as an ancestor of the synonym' do
+    it 'has no alignment, and carries its accepted name' do
       VCR.use_cassette('colrapi_build_extension_campa_synonym') do
         search_result = ::Vendor::Colrapi.search('Campa')
         campa_result  = search_result['result'].find { |r|
@@ -799,25 +852,13 @@ describe Vendor::Colrapi, type: :model do
         }
         skip 'No synonym result for Campa found in CoL 3LR' if campa_result.nil?
 
-        accepted_name = campa_result.dig('accepted', 'name', 'scientificName')
-        accepted_id   = campa_result.dig('accepted', 'id')
-
         ext = described_class.build_extension(campa_result)
 
         expect(ext[:col_status]).to eq('synonym')
-
-        alignment_col_names = ext[:alignment].map { |r| r[:col_name] }
-        alignment_col_ids   = ext[:alignment].map { |r| r[:col_id] }
-        alignment_ranks     = ext[:alignment].map { |r| r[:rank] }
-
-        expect(alignment_col_names).not_to include(accepted_name),
-          "Accepted name '#{accepted_name}' must not appear in alignment for synonym 'Campa'"
-        expect(alignment_col_ids).not_to include(accepted_id),
-          "Accepted name ID '#{accepted_id}' must not appear in alignment for synonym 'Campa'"
-
-        # No ancestor may be at the same rank as the synonym itself (genus cannot parent genus).
-        expect(alignment_ranks).not_to include(ext[:col_rank]),
-          "Ancestor at same rank '#{ext[:col_rank]}' must not appear for synonym 'Campa'; got ranks: #{alignment_ranks.inspect}"
+        expect(ext[:non_accepted]).to be true
+        expect(ext[:alignment]).to eq([])
+        expect(ext[:accepted][:col_name])
+          .to eq(campa_result.dig('accepted', 'name', 'scientificName'))
       end
     end
   end
