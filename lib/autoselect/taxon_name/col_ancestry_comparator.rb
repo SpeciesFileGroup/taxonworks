@@ -18,7 +18,7 @@ module Autoselect
       # @param col_chain [Array<Hash>] kingdom-first, CoL's classification up
       #   to and including the anchor's own rank; each hash has :col_name,
       #   :rank (human rank name, e.g. 'family'), :col_id, :dataset_id,
-      #   :col_authorship, :above_genus_group
+      #   :col_authorship, :above_genus_group, :rank_unknown
       # @param col_code [String, nil] CoL nomenclatural code ('zoological',
       #   'botanical', …)
       def initialize(tw_chain:, col_chain:, col_code: nil)
@@ -141,6 +141,7 @@ module Autoselect
           dataset_id: col_entry[:dataset_id],
           col_authorship: col_entry[:col_authorship],
           above_genus_group: col_entry[:above_genus_group],
+          rank_unknown: col_entry[:rank_unknown],
           taxonworks_id: nil,
           taxonworks_name: nil,
           match: 'none'

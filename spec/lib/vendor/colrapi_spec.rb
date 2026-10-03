@@ -264,6 +264,20 @@ describe Vendor::Colrapi, type: :model do
       expect(entry[:rank]).to eq('family')
     end
 
+    context 'when an ancestor rank has no TaxonWorks equivalent' do
+      let(:classification) {
+        [
+          col_classification_entry(id: '8VVWB', name: 'Osteichthyes', rank: 'parvphylum'),
+          col_classification_entry(id: '6256T', name: 'Hominidae', rank: 'family')
+        ]
+      }
+
+      it 'flags that row rank_unknown' do
+        expect(extension[:alignment].map { |r| [r[:rank], r[:rank_unknown]] })
+          .to eq([['parvphylum', true], ['family', false]])
+      end
+    end
+
     context 'when result is subgenus rank with paren-wrapped combination' do
       let(:subgenus_result) {
         {

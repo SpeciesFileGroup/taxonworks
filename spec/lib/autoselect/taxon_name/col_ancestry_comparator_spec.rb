@@ -116,6 +116,25 @@ RSpec.describe Autoselect::TaxonName::ColAncestryComparator, type: :model do
       end
     end
 
+    context 'when a CoL-only rank has no TaxonWorks equivalent' do
+      let(:tw_chain) do
+        [tw_node(id: 2, cached: 'Homo', rank_class: genus_rank)]
+      end
+      let(:col_chain) do
+        [
+          col_node(col_name: 'Osteichthyes', col_rank: 'parvphylum')
+            .merge(rank_unknown: true),
+          col_node(col_name: 'Homo', col_rank: 'genus')
+        ]
+      end
+
+      it 'carries rank_unknown onto its none row' do
+        none_row = comparator.call.find { |r| r[:match] == 'none' }
+        expect(none_row[:rank]).to eq('parvphylum')
+        expect(none_row[:rank_unknown]).to be(true)
+      end
+    end
+
     context 'when the same rank has a genuinely different name in each (the real conflict)' do
       let(:tw_chain) do
         [

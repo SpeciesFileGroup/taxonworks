@@ -221,7 +221,7 @@ module Vendor
     # @return [Hash] extension hash with :col_key, :col_name, :col_status, :col_authorship,
     #   :col_year, :col_rank, :col_code, :col_dataset_id, and :alignment (Array of ancestor
     #   hashes, kingdom-first, each with :rank, :col_name, :col_id, :dataset_id, :col_authorship,
-    #   :above_genus_group)
+    #   :above_genus_group, :rank_unknown)
     def self.build_extension(col_result, dataset_id: nil)
       col_key        = col_result['id']
       col_name       = uninomial_name(col_result['name'])
@@ -299,7 +299,9 @@ module Vendor
           col_id: ancestor['id'],
           dataset_id: ancestor_dataset_id,
           col_authorship: ancestor['authorship'].presence,
-          above_genus_group: above_genus_group?(rank, col_code)
+          above_genus_group: above_genus_group?(rank, col_code),
+          # e.g. 'parvphylum' - can't be created (ColCreator skips it)
+          rank_unknown: rank_class_for(rank, col_code:).nil?
         }
       end
 

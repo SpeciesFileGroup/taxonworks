@@ -45,6 +45,13 @@
                 type="checkbox"
                 disabled
               />
+              <!-- A rank TaxonWorks has no equivalent for can't be created -->
+              <input
+                v-else-if="row.match === 'none' && row.rank_unknown"
+                type="checkbox"
+                disabled
+                title="Not a TaxonWorks rank - can't be created"
+              />
               <input
                 v-else-if="row.match === 'none'"
                 type="checkbox"
@@ -242,12 +249,15 @@ function rowKey(row, index) {
 }
 
 // Set of rowKey values the user has checked for creation (match==='none' rows).
-// Ranks above GenusGroup (family-group and higher) default to unchecked.
+// Ranks above GenusGroup (family-group and higher) default to unchecked; ranks
+// TaxonWorks doesn't recognize are never checked.
 const checkedRowKeys = ref(
   new Set(
     (ext.value.alignment ?? [])
       .map((r, i) => [r, rowKey(r, i)])
-      .filter(([r]) => r.match === 'none' && !r.above_genus_group)
+      .filter(
+        ([r]) => r.match === 'none' && !r.above_genus_group && !r.rank_unknown
+      )
       .map(([, key]) => key)
   )
 )
