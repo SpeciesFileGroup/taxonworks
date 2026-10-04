@@ -122,6 +122,59 @@ module Vendor
         comparable(name)
       end
 
+      # Splits a CoL authorship string into [verbatim_author, year_of_publication].
+      #
+      # TaxonWorks Protonym validates that verbatim_author contains no digits,
+      # so the year must be stored separately in year_of_publication.
+      #
+      # CoL provides authorship in two forms:
+      #   "Linnaeus, 1758" → author "Linnaeus", year 1758
+      #   "(Chatton, 1925) Whittaker & Margulis, 1978" → author "Chatton", year 1925
+      #     (basionym takes precedence when no explicit col_year is given)
+      #
+      # An explicit col_year (from the target row's combinationAuthorship.year)
+      # takes precedence. If no year can be extracted the author string is
+      # returned as-is with year nil.
+      def self.split_authorship(col_authorship, col_year)
+        return [nil, nil] if col_authorship.blank?
+
+        # Prefer the explicit year already extracted server-side (present for
+        # the target row).
+        year = col_year.presence&.to_i
+
+        # When authorship leads with "(Basionym Author, YYYY)" and no explicit
+        # year was supplied, take author and year from the basionym
+        # parenthetical — not the trailing combination authorship.
+        if year.nil? && (m = col_authorship.match(/\A\(([^)]+),\s*(\d{4})\)/))
+          basionym_author = m[1].gsub(/,?\s*\b\d{4}\b/, '').strip
+          basionym_author = nil if basionym_author.blank?
+          return [basionym_author, m[2].to_i]
+        end
+
+        # Strip any trailing ", YYYY" or " YYYY" from the authorship string.
+        # Also strip years embedded inside parenthetical groups, e.g.
+        # "(Chatton, 1925)".
+        author = col_authorship
+          .gsub(/,?\s*\b\d{4}\b/, '')   # remove ", 1925" and " 1925" occurrences
+          .gsub(/\(\s*\)/, '')          # clean up empty parens left behind
+          .gsub(/,\s*\z/, '')           # strip trailing comma
+          .strip
+          .then { |a|
+            a.match?(/\A\([^)]*\)\z/) ? a : a.gsub(/\([^)]*\)\s*/, '').strip
+          }
+
+        # If no explicit year was given, extract the last 4-digit year from the
+        # string (the combination year, not the basionym year in parentheses).
+        if year.nil?
+          if (m = col_authorship.scan(/\b(\d{4})\b/).last)
+            year = m[0].to_i
+          end
+        end
+
+        author = nil if author.blank?
+        [author, year]
+      end
+
       # A TaxonName found by .candidates_by_key, and which of its forms (see
       # .forms) matched: :current or :published.
       Candidate = Struct.new(:taxon_name, :form)

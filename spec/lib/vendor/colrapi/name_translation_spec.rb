@@ -58,6 +58,30 @@ describe Vendor::Colrapi::NameTranslation, type: :model do
     end
   end
 
+  context '.split_authorship' do
+    specify 'splits "Linnaeus, 1758" into author and year' do
+      expect(t.split_authorship('Linnaeus, 1758', nil))
+        .to eq(['Linnaeus', 1758])
+    end
+
+    specify 'prefers an explicit col_year over the extracted year' do
+      _author, year = t.split_authorship('L., 1753', '1753')
+      expect(year).to eq(1753)
+    end
+
+    specify 'takes the basionym author and year from "(Chatton, 1925) ' \
+      'Whittaker & Margulis, 1978"' do
+      expect(
+        t.split_authorship('(Chatton, 1925) Whittaker & Margulis, 1978', nil)
+      ).to eq(['Chatton', 1925])
+    end
+
+    specify 'blank authorship is [nil, nil]' do
+      expect(t.split_authorship(nil, nil)).to eq([nil, nil])
+      expect(t.split_authorship('', nil)).to eq([nil, nil])
+    end
+  end
+
   context '.search_term' do
     specify 'a TaxonWorks species under a subgenus drops it' do
       expect(t.search_term('Aphrophora (Aphrophora) binomoriensis'))

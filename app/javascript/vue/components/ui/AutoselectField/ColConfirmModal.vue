@@ -325,13 +325,11 @@ const confirmLabel = computed(() => {
   return existingRecord.value.id ? 'Create & select' : 'Create'
 })
 
-// True when the target rank is unsupported by TaxonWorks AND no ancestor rows are
-// checked — clicking Create would create nothing, so the button should be disabled.
+// True when the target would have to be created but its rank isn't a TaxonWorks
+// rank — checked ancestors don't help, the target itself can't be made
+// (ColCreator refuses it too).
 const cannotCreate = computed(
-  () =>
-    !nothingToCreate.value &&
-    checkedRowKeys.value.size === 0 &&
-    !!ext.value.target_rank_unknown
+  () => !!ext.value.target_rank_unknown && !ext.value.target_taxonworks_id
 )
 
 // Server-computed (Autoselect::TaxonName::Levels::CatalogueOfLife#call, via

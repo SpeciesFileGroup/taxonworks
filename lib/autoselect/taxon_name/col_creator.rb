@@ -69,7 +69,9 @@ module Autoselect
         # reparenting) then costs zero additional queries in the loop below.
         # Scoped to the project so a taxonworks_id from another project can't be
         # walked into the anchor/reparent logic.
-        matched_ids = @rows.filter_map { |row| row[:taxonworks_id].presence&.to_i }
+        matched_ids = @rows.filter_map { |row|
+          row[:taxonworks_id].presence&.to_i
+        }
         current_parent_ids = ::TaxonName
           .where(id: matched_ids, project_id: @project_id)
           .pluck(:id, :parent_id).to_h
@@ -77,13 +79,18 @@ module Autoselect
         # A client-supplied taxonworks_id that doesn't resolve within this
         # project (stale UI state, another project's id, a hand-crafted request)
         # would otherwise surface as an uncaught RecordNotFound mid-transaction
-        # (HTTP 500). Reject it up front ase an ordinary creation failure instead.
+        # (HTTP 500). Reject it up front ase an ordinary creation failure
+        # instead.
         unknown_ids = matched_ids - current_parent_ids.keys
-        unless unknown_ids.empty?
+        if unknown_ids.any?
           raise CreationError.new("Unknown TaxonName id(s) for this project: #{unknown_ids.join(', ')}")
         end
 
-        refuse_non_accepted
+        refuse_non_accepted()
+        # An ancestor at a rank TaxonWorks doesn't have is skipped below, but
+        # the target can't be: the result is whatever was created last, so
+        # skipping it would hand back its parent as the record.
+        refuse_unknown_target_rank()
 
         ::ActiveRecord::Base.transaction do
           @rows.each do |row|
@@ -103,7 +110,7 @@ module Autoselect
                   raise CreationError.new(
                     "Reparenting #{existing.cached}: #{e.record.errors.full_messages.join(', ')}",
                     col_name: row[:col_name],
-                    col_id:   row[:col_id]
+                    col_id: row[:col_id]
                   )
                 end
               end
@@ -119,42 +126,43 @@ module Autoselect
             # like 'domain').
             next if rank_class.nil?
 
-            author, year = split_authorship(row[:col_authorship], row[:col_year])
+            author, year = ::Vendor::Colrapi::NameTranslation
+              .split_authorship(row[:col_authorship], row[:col_year])
 
             begin
               tn = ::TaxonName.create!(
-                type:                'Protonym',
+                type: 'Protonym',
                 name: ::Vendor::Colrapi::NameTranslation
                   .protonym_name(row[:col_name], row[:col_rank]),
                 parent_id:,
                 rank_class:,
-                verbatim_author:     author,
+                verbatim_author: author,
                 year_of_publication: year,
-                project_id:          @project_id,
+                project_id: @project_id,
                 by: @user_id,
               )
             rescue ::ActiveRecord::RecordInvalid => e
               raise CreationError.new(
                 e.record.errors.full_messages.join(', '),
                 col_name: row[:col_name],
-                col_id:   row[:col_id]
+                col_id: row[:col_id]
               )
             end
 
             if row[:col_id].present?
               begin
                 ::Identifier::Global::Uri::ChecklistBank.create!(
-                  taxon_id:          row[:col_id],
-                  dataset_id:        row[:dataset_id],
+                  taxon_id: row[:col_id],
+                  dataset_id: row[:dataset_id],
                   identifier_object: tn,
-                  project_id:        @project_id,
-                  by:                @user_id
+                  project_id: @project_id,
+                  by: @user_id
                 )
               rescue ::ActiveRecord::RecordInvalid => e
                 raise CreationError.new(
                   "CoL identifier for #{row[:col_name]}: #{e.record.errors.full_messages.join(', ')}",
                   col_name: row[:col_name],
-                  col_id:   row[:col_id]
+                  col_id: row[:col_id]
                 )
               end
             end
@@ -176,8 +184,9 @@ module Autoselect
 
       # CoL gives a non-accepted name (synonym, misapplied, ...) only its
       # accepted name's classification, nothing of its own, so there's no
-      # sound place to create it. Using it when it already exists in
-      # TaxonWorks (taxonworks_id) is fine. The modal blocks this too.
+      # sound place to create it. The modal already disables Create for it;
+      # this is the server-side guard. A row with a taxonworks_id isn't
+      # created, so an existing name is still used.
       def refuse_non_accepted
         row = @rows.find do |r|
           r[:taxonworks_id].blank? && r[:col_status].present? &&
@@ -195,6 +204,18 @@ module Autoselect
         )
       end
 
+      def refuse_unknown_target_rank
+        target = @rows.last
+        return if target.nil? || target[:taxonworks_id].present?
+        return if resolve_rank_class(target[:col_rank])
+
+        raise CreationError.new(
+          "Rank #{target[:col_rank]} isn't a TaxonWorks rank - " \
+            "#{target[:col_name]} can't be created.",
+          col_name: target[:col_name],
+          col_id: target[:col_id]
+        )
+      end
 
       # Maps a human-readable CoL rank string to a TaxonWorks rank_class string.
       # Returns nil for unknown ranks; callers should skip creation for those rows.
@@ -202,61 +223,6 @@ module Autoselect
         ::Vendor::Colrapi.rank_class_for(rank_string, col_code: @col_code)
       end
 
-      #
-      # TODO: Needs to be in an isolated library
-      #
-      # Splits a CoL authorship string into [verbatim_author, year_of_publication].
-      #
-      # TaxonWorks Protonym validates that verbatim_author contains no digits,
-      # so the year must be stored separately in year_of_publication.
-      #
-      # CoL provides authorship in two forms:
-      #   "Linnaeus, 1758" → author "Linnaeus", year 1758
-      #   "(Chatton, 1925) Whittaker & Margulis, 1978" → author "Chatton", year 1925
-      #     (basionym takes precedence when no explicit col_year is given)
-      #
-      # An explicit col_year (from the target row's combinationAuthorship.year)
-      # takes precedence. If no year can be extracted the author string is
-      # returned as-is with year nil.
-      def split_authorship(col_authorship, col_year)
-        return [nil, nil] if col_authorship.blank?
-
-        # Prefer the explicit year already extracted server-side (present for
-        # the target row).
-        year = col_year.presence&.to_i
-
-        # When authorship leads with "(Basionym Author, YYYY)" and no explicit
-        # year was supplied, take author and year from the basionym
-        # parenthetical — not the trailing combination authorship.
-        if year.nil? && (m = col_authorship.match(/\A\(([^)]+),\s*(\d{4})\)/))
-          basionym_author = m[1].gsub(/,?\s*\b\d{4}\b/, '').strip
-          basionym_author = nil if basionym_author.blank?
-          return [basionym_author, m[2].to_i]
-        end
-
-        # Strip any trailing ", YYYY" or " YYYY" from the authorship string.
-        # Also strip years embedded inside parenthetical groups, e.g.
-        # "(Chatton, 1925)".
-        author = col_authorship
-          .gsub(/,?\s*\b\d{4}\b/, '')   # remove ", 1925" and " 1925" occurrences
-          .gsub(/\(\s*\)/, '')          # clean up empty parens left behind
-          .gsub(/,\s*\z/, '')           # strip trailing comma
-          .strip
-          .then { |a|
-            a.match?(/\A\([^)]*\)\z/) ? a : a.gsub(/\([^)]*\)\s*/, '').strip
-          }
-
-        # If no explicit year was given, extract the last 4-digit year from the
-        # string (the combination year, not the basionym year in parentheses).
-        if year.nil?
-          if (m = col_authorship.scan(/\b(\d{4})\b/).last)
-            year = m[0].to_i
-          end
-        end
-
-        author = nil if author.blank?
-        [author, year]
-      end
 
     end
   end

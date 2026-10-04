@@ -382,6 +382,26 @@ RSpec.describe Autoselect::TaxonName::ColCreator, type: :model do
         expect { result }.to change(::TaxonName, :count).by(2)
       end
     end
+
+    context 'when the target has an unknown rank' do
+      # Skipping it would return the last ancestor as the created record.
+      let(:rows) do
+        [
+          row(col_name: 'Animalia', col_rank: 'kingdom'),
+          row(col_name: 'Osteichthyes', col_rank: 'megaclass')
+        ]
+      end
+
+      it 'raises CreationError and creates nothing' do
+        count = ::TaxonName.count
+        expect {
+          described_class.new(
+            rows:, project_id:, user_id:, col_code: 'zoological'
+          ).call
+        }.to raise_error(described_class::CreationError, /megaclass/)
+        expect(::TaxonName.count).to eq(count)
+      end
+    end
   end
 
   describe 'non-accepted target' do
@@ -502,32 +522,6 @@ RSpec.describe Autoselect::TaxonName::ColCreator, type: :model do
     it 'returns nil for blank rank' do
       creator = described_class.new(rows: [], project_id:, user_id:)
       expect(creator.send(:resolve_rank_class, '')).to be_nil
-    end
-  end
-
-  describe '#split_authorship' do
-    subject(:creator) { described_class.new(rows: [], project_id:, user_id:) }
-
-    it 'splits "Linnaeus, 1758" into author and year' do
-      author, year = creator.send(:split_authorship, 'Linnaeus, 1758', nil)
-      expect(author).to eq('Linnaeus')
-      expect(year).to eq(1758)
-    end
-
-    it 'prefers explicit col_year over extracted year' do
-      _author, year = creator.send(:split_authorship, 'L., 1753', '1753')
-      expect(year).to eq(1753)
-    end
-
-    it 'handles parenthetical basionym authorship "(Chatton, 1925) Whittaker & Margulis, 1978"' do
-      author, year = creator.send(:split_authorship, '(Chatton, 1925) Whittaker & Margulis, 1978', nil) # Year would not be picked up in the Eukaryota case as presently defined
-      expect(author).to eq('Chatton')
-      expect(year).to eq(1925)
-    end
-
-    it 'returns [nil, nil] for blank authorship' do
-      expect(creator.send(:split_authorship, nil, nil)).to eq([nil, nil])
-      expect(creator.send(:split_authorship, '', nil)).to  eq([nil, nil])
     end
   end
 end
