@@ -409,7 +409,7 @@ module Vendor
       # component protonym_name_from extracts for building TW Protonym trees —
       # TaxonName/Otu#cached holds the full combination, so that's what a caller
       # needs to search against.
-      matched_name   = top.dig('name', 'scientificName') || top['label']
+      matched_name = top.dig('name', 'scientificName') || top['label']
       matched_status = top['status']
       target_dataset_id = dataset_id.presence || DATASETS[:col]
       accepted = top['accepted'] if matched_status == 'synonym'

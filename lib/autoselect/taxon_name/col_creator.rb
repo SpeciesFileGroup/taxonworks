@@ -1,26 +1,33 @@
 module Autoselect
   module TaxonName
-    # Creates TaxonName records (and CoL URI identifiers) from a Catalog of Life selection.
+    # Creates TaxonName records (and CoL URI identifiers) from a Catalog of Life
+    # selection.
     #
-    # Receives an ordered list of rows (distal → proximal, i.e. kingdom first, target last).
-    # Each row represents one name to be created or an existing TaxonName to be used as a parent.
-    # Rows with a taxonworks_id are already in the project; if the row immediately above
-    # them was just inserted (a rank CoL reports that TaxonWorks' real chain skipped),
-    # the existing record is reparented onto it. Otherwise it's used as-is as a parent
-    # anchor and left untouched.
+    # Receives an ordered list of rows (distal → proximal, i.e. kingdom first,
+    # target last).
+    # Each row represents one name to be created or an existing TaxonName to be
+    # used as a parent. Rows with a taxonworks_id are already in the project; if
+    # the row immediately above them was just inserted (a rank CoL reports that
+    # TaxonWorks' real chain skipped), the existing record is reparented onto
+    # it. Otherwise it's used as-is as a parent anchor and left untouched.
     #
     # @param rows [Array<Hash>] ordered distal→proximal; each hash has:
-    #   col_name      [String]  — scientific name string from CoL
-    #   col_rank      [String]  — human-readable rank (e.g. 'genus', 'species')
-    #   col_id        [String]  — CoL taxon ID used to build the identifier URI
-    #   taxonworks_id [Integer, nil] — existing TaxonName ID; if present, no creation occurs for this row
-    #   col_authorship [String, nil] — combined author+year string from CoL (e.g. 'Linnaeus, 1758')
-    #   col_year      [String, nil]  — year string extracted from CoL combinationAuthorship (target row only)
-    #   col_status    [String, nil]  — CoL nomenclatural status (e.g. 'accepted', 'synonym'); present on
-    #     the target row only. A non-accepted target is never created (see #refuse_non_accepted).
-    # @param col_code [String, nil] CoL nomenclatural code string: 'zoological', 'botanical',
-    #   'bacterial', 'virus'. When present, rank resolution uses the corresponding lookup first.
-    #   Falls back to trying all codes when nil or unrecognised.
+    #   col_name [String] — scientific name string from CoL
+    #   col_rank [String] — human-readable rank (e.g. 'genus', 'species')
+    #   col_id [String] — CoL taxon ID used to build the identifier URI
+    #   taxonworks_id [Integer, nil] — existing TaxonName ID; if present, no
+    #     creation occurs for this row
+    #   col_authorship [String, nil] — combined author+year string from CoL
+    #     (e.g. 'Linnaeus, 1758')
+    #   col_year [String, nil] — year string extracted from CoL
+    #     combinationAuthorship (target row only)
+    #   col_status [String, nil] — CoL nomenclatural status (e.g. 'accepted',
+    #     'synonym'); present on the target row only. A non-accepted target is
+    #     never created (see #refuse_non_accepted).
+    # @param col_code [String, nil] CoL nomenclatural code string: 'zoological',
+    #   'botanical', 'bacterial', 'virus'. When present, rank resolution uses
+    #   the corresponding lookup first. Falls back to trying all codes when nil
+    #   or unrecognised.
     # @param project_id [Integer]
     # @param user_id [Integer]
     #
@@ -51,23 +58,26 @@ module Autoselect
       end
 
       # @return [Hash] { taxon_name_id: Integer, created_ids: Array<Integer> }
-      # @raise [CreationError] if any record fails validation; the transaction is fully rolled back.
+      # @raise [CreationError] if any record fails validation; the transaction
+      #   is fully rolled back.
       def call
         parent_id = project_root_id
         created_ids = []
 
-        # One batched lookup for every matched row's real current parent_id, instead of
-        # a find per row — the common case (nothing needs reparenting) then costs zero
-        # additional queries in the loop below. Scoped to the project so a taxonworks_id
-        # from another project can't be walked into the anchor/reparent logic.
+        # One batched lookup for every matched row's real current parent_id,
+        # instead of a find per row — the common case (nothing needs
+        # reparenting) then costs zero additional queries in the loop below.
+        # Scoped to the project so a taxonworks_id from another project can't be
+        # walked into the anchor/reparent logic.
         matched_ids = @rows.filter_map { |row| row[:taxonworks_id].presence&.to_i }
-        current_parent_ids = ::TaxonName.where(id: matched_ids, project_id: @project_id)
+        current_parent_ids = ::TaxonName
+          .where(id: matched_ids, project_id: @project_id)
           .pluck(:id, :parent_id).to_h
 
-        # A client-supplied taxonworks_id that doesn't resolve within this project (stale
-        # UI state, another project's id, a hand-crafted request) would otherwise surface
-        # as an uncaught RecordNotFound mid-transaction (HTTP 500). Reject it up front as
-        # an ordinary creation failure instead.
+        # A client-supplied taxonworks_id that doesn't resolve within this
+        # project (stale UI state, another project's id, a hand-crafted request)
+        # would otherwise surface as an uncaught RecordNotFound mid-transaction
+        # (HTTP 500). Reject it up front ase an ordinary creation failure instead.
         unknown_ids = matched_ids - current_parent_ids.keys
         unless unknown_ids.empty?
           raise CreationError.new("Unknown TaxonName id(s) for this project: #{unknown_ids.join(', ')}")
@@ -80,10 +90,11 @@ module Autoselect
             if row[:taxonworks_id].present?
               existing_id = row[:taxonworks_id].to_i
 
-              # A row directly above this one may have just been inserted (a rank CoL
-              # reports that TaxonWorks' real chain skipped) — reattach this existing
-              # record onto it. When nothing was inserted above, current_parent_ids
-              # already agrees with parent_id, so no query or update happens at all.
+              # A row directly above this one may have just been inserted (a
+              # rank CoL reports that TaxonWorks' real chain skipped) —
+              # reattach this existing record onto it. When nothing was inserted
+              # above, current_parent_ids already agrees with parent_id, so no
+              # query or update happens at all.
               if current_parent_ids[existing_id] != parent_id
                 existing = ::TaxonName.where(project_id: @project_id).find(existing_id)
                 begin
@@ -103,8 +114,9 @@ module Autoselect
 
             rank_class = resolve_rank_class(row[:col_rank])
 
-            # Skip rows whose rank is entirely unknown to TaxonWorks — we cannot create a
-            # valid Protonym without a rank_class (e.g. CoL-only ranks like 'domain').
+            # Skip rows whose rank is entirely unknown to TaxonWorks — we cannot
+            # create a valid Protonym without a rank_class (e.g. CoL-only ranks
+            # like 'domain').
             next if rank_class.nil?
 
             author, year = split_authorship(row[:col_authorship], row[:col_year])
@@ -195,25 +207,27 @@ module Autoselect
       #
       # Splits a CoL authorship string into [verbatim_author, year_of_publication].
       #
-      # TaxonWorks Protonym validates that verbatim_author contains no digits, so the year
-      # must be stored separately in year_of_publication.
+      # TaxonWorks Protonym validates that verbatim_author contains no digits,
+      # so the year must be stored separately in year_of_publication.
       #
       # CoL provides authorship in two forms:
-      #   "Linnaeus, 1758"                        → author "Linnaeus", year 1758
+      #   "Linnaeus, 1758" → author "Linnaeus", year 1758
       #   "(Chatton, 1925) Whittaker & Margulis, 1978" → author "Chatton", year 1925
       #     (basionym takes precedence when no explicit col_year is given)
       #
-      # An explicit col_year (from the target row's combinationAuthorship.year) takes precedence.
-      # If no year can be extracted the author string is returned as-is with year nil.
+      # An explicit col_year (from the target row's combinationAuthorship.year)
+      # takes precedence. If no year can be extracted the author string is
+      # returned as-is with year nil.
       def split_authorship(col_authorship, col_year)
         return [nil, nil] if col_authorship.blank?
 
-        # Prefer the explicit year already extracted server-side (present for the target row).
+        # Prefer the explicit year already extracted server-side (present for
+        # the target row).
         year = col_year.presence&.to_i
 
-        # When authorship leads with "(Basionym Author, YYYY)" and no explicit year was
-        # supplied, take author and year from the basionym parenthetical — not the trailing
-        # combination authorship.
+        # When authorship leads with "(Basionym Author, YYYY)" and no explicit
+        # year was supplied, take author and year from the basionym
+        # parenthetical — not the trailing combination authorship.
         if year.nil? && (m = col_authorship.match(/\A\(([^)]+),\s*(\d{4})\)/))
           basionym_author = m[1].gsub(/,?\s*\b\d{4}\b/, '').strip
           basionym_author = nil if basionym_author.blank?
@@ -221,16 +235,19 @@ module Autoselect
         end
 
         # Strip any trailing ", YYYY" or " YYYY" from the authorship string.
-        # Also strip years embedded inside parenthetical groups, e.g. "(Chatton, 1925)".
+        # Also strip years embedded inside parenthetical groups, e.g.
+        # "(Chatton, 1925)".
         author = col_authorship
           .gsub(/,?\s*\b\d{4}\b/, '')   # remove ", 1925" and " 1925" occurrences
           .gsub(/\(\s*\)/, '')          # clean up empty parens left behind
           .gsub(/,\s*\z/, '')           # strip trailing comma
           .strip
-          .then { |a| a.match?(/\A\([^)]*\)\z/) ? a : a.gsub(/\([^)]*\)\s*/, '').strip }
+          .then { |a|
+            a.match?(/\A\([^)]*\)\z/) ? a : a.gsub(/\([^)]*\)\s*/, '').strip
+          }
 
-        # If no explicit year was given, extract the last 4-digit year from the string
-        # (the combination year, not the basionym year in parentheses).
+        # If no explicit year was given, extract the last 4-digit year from the
+        # string (the combination year, not the basionym year in parentheses).
         if year.nil?
           if (m = col_authorship.scan(/\b(\d{4})\b/).last)
             year = m[0].to_i
