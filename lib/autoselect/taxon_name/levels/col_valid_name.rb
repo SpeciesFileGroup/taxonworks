@@ -1,10 +1,9 @@
 # lib/autoselect/taxon_name/levels/col_valid_name.rb
 # Resolves a term through Catalogue of Life synonymy to its accepted name,
-# then reuses Levels::CatalogueOfLife#build_pseudo_record for the actual
-# alignment/extension data and existing-TaxonName check — feeding it the
-# accepted nameusage hash that resolve_accepted_name already returned, so
-# no second CoL search (and no per-result classification fetch) is
-# needed.
+# then reuses ColMatch for the actual alignment/extension data and
+# existing-TaxonName check — feeding it the accepted nameusage hash that
+# resolve_accepted_name already returned, so no second CoL search (and no
+# per-result classification fetch) is needed.
 #
 # Returns at most one record — a CoL pseudo-record for the resolved valid
 # name, flagged with `resolved_from:` so the confirmation UI can show
@@ -83,7 +82,7 @@ class Autoselect::TaxonName::Levels::ColValidName < ::Autoselect::Level
   end
 
   # The raw resolved pseudo-record — the accepted name's CoL
-  # alignment/extension data plus build_pseudo_record's existing-TaxonName
+  # alignment/extension data plus ColMatch's existing-TaxonName
   # check — before #call's real-record-vs-creation-offer decision. nil
   # when CoL resolves nothing usable.
   #
@@ -97,12 +96,11 @@ class Autoselect::TaxonName::Levels::ColValidName < ::Autoselect::Level
       resolved[:valid_name].blank? ||
       resolved[:valid_col_result].blank?
 
-    target = ::Autoselect::TaxonName::Levels::CatalogueOfLife.new
-      .build_pseudo_record(
-        resolved[:valid_col_result],
-        project_id:,
-        dataset_id: resolved[:dataset_id]
-      )
+    target = ::Autoselect::TaxonName::ColMatch.new(
+      resolved[:valid_col_result],
+      project_id:,
+      dataset_id: resolved[:dataset_id]
+    ).call
     return nil if target.nil?
 
     followed = resolved[:matched_col_key] != resolved[:valid_col_key]

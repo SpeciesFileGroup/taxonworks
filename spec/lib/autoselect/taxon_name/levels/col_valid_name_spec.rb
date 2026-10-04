@@ -42,7 +42,9 @@ RSpec.describe Autoselect::TaxonName::Levels::ColValidName, type: :model do
           _col_extension: { col_key: 'VALID1', col_name: 'leo', col_status: 'accepted', col_rank: 'species', col_authorship: 'Linnaeus, 1758' }
         )
       end
-      let(:fake_catalogue_of_life_level) { instance_double(::Autoselect::TaxonName::Levels::CatalogueOfLife) }
+      let(:fake_col_match) do
+        instance_double(::Autoselect::TaxonName::ColMatch, call: built_record)
+      end
 
       before do
         allow(::Vendor::Colrapi).to receive(:resolve_accepted_name)
@@ -53,16 +55,16 @@ RSpec.describe Autoselect::TaxonName::Levels::ColValidName, type: :model do
             valid_authorship: 'Linnaeus, 1758', valid_status: 'accepted',
             valid_col_result:, dataset_id: '3LR'
           )
-        allow(::Autoselect::TaxonName::Levels::CatalogueOfLife).to receive(:new).and_return(fake_catalogue_of_life_level)
-        allow(fake_catalogue_of_life_level).to receive(:build_pseudo_record)
+        allow(::Autoselect::TaxonName::ColMatch).to receive(:new)
           .with(valid_col_result, hash_including(dataset_id: '3LR'))
-          .and_return(built_record)
+          .and_return(fake_col_match)
       end
 
       it 'builds the extension from the resolved accepted usage, with no second CoL search' do
         expect(::Vendor::Colrapi).not_to receive(:search)
         level.call(term: 'Panthera leo persica', project_id:, user_id:)
-        expect(fake_catalogue_of_life_level).to have_received(:build_pseudo_record).with(valid_col_result, anything)
+        expect(::Autoselect::TaxonName::ColMatch).to have_received(:new)
+          .with(valid_col_result, anything)
       end
 
       it 'returns a single record for the resolved valid name' do

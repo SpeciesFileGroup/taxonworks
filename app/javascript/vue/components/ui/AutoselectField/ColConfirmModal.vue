@@ -352,10 +352,10 @@ const isAmbiguous = computed(() => !!ext.value.ambiguous_match)
 // isn't this action's problem to block.
 const chainConflict = computed(() => !chainConsistent.value && !nothingToCreate.value)
 
-// Server-computed (Autoselect::TaxonName::Levels::CatalogueOfLife
-// #possible_duplicates): TaxonWorks names CoL's target is the published form
-// of (an original combination, or a Combination) - the taxon is already in
-// TaxonWorks, placed differently, so creating it would duplicate it.
+// Server-computed (Autoselect::TaxonName::ColMatch#possible_duplicates):
+// TaxonWorks names CoL's target is the published form of (an original
+// combination, or a Combination) - the taxon is already in TaxonWorks, placed
+// differently, so creating it would duplicate it.
 const duplicateBlocked = computed(
   () =>
     (ext.value.possible_duplicates ?? []).length > 0 && !nothingToCreate.value
