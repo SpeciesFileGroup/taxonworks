@@ -18,6 +18,7 @@ class Autoselect::TaxonName::Levels::ColValidName < ::Autoselect::Level
   # Source mark + "valid name for X" note, shared with the Otu-level
   # equivalent.
   include ::Autoselect::Levels::ColResolvedName
+  include ::Autoselect::Levels::ColRecordLabel
 
   def key
     :col_valid_name
@@ -46,16 +47,6 @@ class Autoselect::TaxonName::Levels::ColValidName < ::Autoselect::Level
   # user opts in.
   def is_default
     false
-  end
-
-  def record_label(record)
-    ::Autoselect::TaxonName::Levels::CatalogueOfLife.new
-      .record_label(record)
-  end
-
-  def record_label_html(record, term = nil)
-    ::Autoselect::TaxonName::Levels::CatalogueOfLife.new
-      .record_label_html(record, term)
   end
 
   # @param term [String]
