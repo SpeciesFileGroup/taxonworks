@@ -200,16 +200,16 @@ class Autoselect::TaxonName::ColMatch
   end
 
   # TaxonWorks names whose *published* form (see
-  # Vendor::Colrapi::NameTranslation.forms) is a CoL row: a Combination, or
-  # a Protonym at the row's rank (and code, when CoL gives one) whose
-  # original combination it is.
+  # Vendor::Colrapi::NameTranslation.forms) is a CoL row, at the row's rank
+  # (and code, when CoL gives one): a Protonym whose original combination it
+  # is, or a Combination. Mostly species-group names, but a family-group
+  # name's original form ("Aphrophorides" for Aphrophoridae) counts too.
   #
-  # Only species-group rows (multi-word keys) are checked. Above that, a
-  # published form's key is the current one (a genus's original combination
-  # is its own name; a subgenus is keyed by its epithet either way), so no
-  # real duplicate turns up. What does differ there is noise: family-group
-  # original spellings ("Aphrophorides"), keys that [sic] throws off, and
-  # genus-only Combinations.
+  # TODO: authorship isn't compared, so a primary homonym (CoL Aus bus Jones,
+  # 1950 vs TaxonWorks Cus bus (Smith, 1900), originally Aus bus) is reported
+  # and Create is blocked with no override. Options: show authorship in the
+  # modal; filter on author/year; or downgrade to a warning when authorship
+  # clearly differs.
   #
   # @param candidates_by_key [Hash] from NameTranslation.candidates_by_key
   # @param row [Hash] a row of the CoL alignment chain
@@ -220,19 +220,35 @@ class Autoselect::TaxonName::ColMatch
   def possible_duplicates(candidates_by_key, row, expected_code)
     key = ::Vendor::Colrapi::NameTranslation
       .col_name_key(row[:col_name], row[:rank])
-    return [] if key.nil? || !key.include?(' ')
 
     (candidates_by_key[key] || [])
       .select { |candidate| candidate.form == :published }
       .map(&:taxon_name)
       .select do |taxon_name|
-        next true if taxon_name.is_a?(::Combination)
-
-        rank_name_for(taxon_name.rank_class) == row[:rank] &&
-          (expected_code.nil? ||
-            taxon_name.rank_class.nomenclatural_code == expected_code)
+        rank_name, code = rank_name_and_code(taxon_name)
+        rank_name == row[:rank] &&
+          (expected_code.nil? || code == expected_code)
       end
       .map { |taxon_name| duplicate_entry(taxon_name) }
+  end
+
+  # A Combination has no rank_class of its own: its rank is that of its
+  # finest element (Combination#inferred_rank), its code that element's
+  # Protonym's.
+  #
+  # @return [Array] [rank name, nomenclatural code symbol], or [nil, nil]
+  def rank_name_and_code(taxon_name)
+    if taxon_name.is_a?(::Combination)
+      protonym = taxon_name.finest_protonym
+      return [nil, nil] if protonym.nil?
+
+      [taxon_name.inferred_rank, protonym.rank_class.nomenclatural_code]
+    else
+      [
+        rank_name_for(taxon_name.rank_class),
+        taxon_name.rank_class.nomenclatural_code
+      ]
+    end
   end
 
   def duplicate_entry(taxon_name)

@@ -142,12 +142,25 @@ describe Vendor::Colrapi::NameTranslation, type: :model do
         .to eq('Marsupellopsis')
     end
 
+    specify 'a misspelled subgenus is keyed by its corrected epithet' do
+      expect(t.name_key('Aphrophora (Aprophora [sic])')).to eq('Aprophora')
+    end
+
+    specify 'a subgenus under a misspelled genus is keyed by its epithet' do
+      expect(t.name_key('Jassus [sic] (Athysanus)')).to eq('Athysanus')
+    end
+
     specify 'nil is nil' do
       expect(t.name_key(nil)).to be_nil
     end
   end
 
   context '.col_name_key' do
+    specify 'a misspelled subgenus is keyed by its corrected epithet' do
+      expect(t.col_name_key('Aphrophora (Aprophora [sic])', 'subgenus'))
+        .to eq('Aprophora')
+    end
+
     specify 'a subgenus is keyed by its epithet' do
       expect(t.col_name_key('Carabus (Megodontus)', 'subgenus'))
         .to eq('Megodontus')

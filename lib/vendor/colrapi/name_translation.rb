@@ -110,7 +110,11 @@ module Vendor
       # @return [String, nil] the comparison key for col_name
       def self.col_name_key(col_name, rank)
         return nil if col_name.nil?
-        return subgenus_epithet(col_name) if rank == 'subgenus'
+        if rank == 'subgenus'
+          return subgenus_epithet(
+            ::Utilities::Nomenclature.unmisspell_name(col_name)
+          )
+        end
 
         comparable(col_name)
       end
@@ -122,7 +126,12 @@ module Vendor
       # @return [String, nil]
       def self.name_key(name)
         return nil if name.nil?
-        return subgenus_epithet(name) if name.strip.match?(SUBGENUS_NAME)
+
+        # [sic] goes first: anywhere in the name it stops SUBGENUS_NAME
+        # matching ("Jassus [sic] (Athysanus)"), or stays in the epithet
+        # ("Aphrophora (Aprophora [sic])").
+        name = ::Utilities::Nomenclature.unmisspell_name(name)
+        return subgenus_epithet(name) if name.match?(SUBGENUS_NAME)
 
         comparable(name)
       end

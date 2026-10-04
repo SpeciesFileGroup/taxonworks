@@ -396,6 +396,74 @@ RSpec.describe Autoselect::TaxonName::Levels::CatalogueOfLife, type: :model do
       end
     end
 
+    context 'when a new family-group ancestor is only a TaxonWorks name\'s ' \
+      'original form' do
+      let(:col_result) do
+        col_result_for_target(id: 'TGT1', scientific_name: 'Brandnewonoma')
+      end
+
+      before do
+        family.update_column(:cached_original_combination, 'Brandnewides')
+        allow(::Vendor::Colrapi).to receive(:search)
+          .and_return('result' => [col_result])
+        allow(::Vendor::Colrapi).to receive(:ancestors).and_return([
+          col_classification_entry(
+            id: 'A1', name: 'Brandnewides', rank: 'family'
+          )
+        ])
+      end
+
+      it 'reports the existing family' do
+        result = level.call(term: 'Brandnewonoma', project_id:, user_id:)
+        ext = result.first._col_extension
+        expect(ext[:possible_duplicates_of]).to eq(
+          rank: 'family', col_name: 'Brandnewides'
+        )
+        expect(ext[:possible_duplicates]).to contain_exactly(
+          hash_including(id: family.id, via: 'original_combination')
+        )
+      end
+    end
+
+    context 'when a Combination has the name at another rank' do
+      let!(:other_genus) do
+        Protonym.create!(
+          name: 'Otheronoma', rank_class: Ranks.lookup(:iczn, :genus),
+          parent: tribe
+        )
+      end
+      let!(:combination) do
+        c = Combination.new(genus: other_genus)
+        c.disable_combination_relationship_check = true
+        c.save!
+        c
+      end
+      let(:col_result) do
+        col_result_for_target(
+          id: 'TGT1', scientific_name: 'Brandnewonoma (Otheronoma)',
+          rank: 'subgenus'
+        )
+      end
+
+      before do
+        allow(::Vendor::Colrapi).to receive(:search)
+          .and_return('result' => [col_result])
+        allow(::Vendor::Colrapi).to receive(:ancestors).and_return([
+          col_classification_entry(
+            id: 'A1', name: 'Brandnewonoma', rank: 'genus'
+          )
+        ])
+      end
+
+      it 'does not report it' do
+        expect(combination.cached).to eq('Otheronoma')
+        result = level.call(
+          term: 'Brandnewonoma (Otheronoma)', project_id:, user_id:
+        )
+        expect(result.first._col_extension[:possible_duplicates]).to be_nil
+      end
+    end
+
     context 'when CoL includes a subgenus TaxonWorks does not place the ' \
       'species in' do
       let!(:novus) do
