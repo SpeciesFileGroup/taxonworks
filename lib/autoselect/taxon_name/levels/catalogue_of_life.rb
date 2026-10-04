@@ -66,10 +66,6 @@ class Autoselect::TaxonName::Levels::CatalogueOfLife < ::Autoselect::Level
     return nil if col_name.blank?
 
     col_rank = col_result.dig('name', 'rank')&.downcase
-    if col_rank == 'subgenus'
-      col_name =
-        ::Vendor::Colrapi::NameTranslation.subgenus_epithet(col_name)
-    end
     extension = ::Vendor::Colrapi.build_extension(col_result, dataset_id:)
 
     # Flag when the target's rank is not resolvable in TaxonWorks (e.g.

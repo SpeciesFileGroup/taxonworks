@@ -246,6 +246,11 @@ RSpec.describe Autoselect::TaxonName::Levels::CatalogueOfLife, type: :model do
         expect(ext[:target_taxonworks_id]).to eq(subgenus.id)
         expect(ext[:chain_consistent]).to be true
       end
+
+      it "keeps CoL's full subgenus name on the record" do
+        result = level.call(term: subgenus.name, project_id:, user_id:)
+        expect(result.first.cached).to eq(subgenus.cached)
+      end
     end
 
     # CoL includes or omits the subgenus in species-group names depending on

@@ -99,8 +99,7 @@ module Vendor
         col_name.split(' ').last
       end
 
-      # @param col_name [String, nil] a name as CoL gives it (a subgenus may
-      #   already be reduced to its epithet)
+      # @param col_name [String, nil] a name as CoL gives it
       # @param rank [String, nil] CoL rank name, e.g. 'subgenus'
       # @return [String, nil] the comparison key for col_name
       def self.col_name_key(col_name, rank)
