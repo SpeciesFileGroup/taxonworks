@@ -91,7 +91,7 @@ class Autoselect::TaxonName::Levels::ColValidName < ::Autoselect::Level
   # the synonym it matched (nil otherwise).
   #
   # @return [OpenStruct, nil]
-  def resolve_target(term, project_id: nil, dataset_id: nil)
+  def resolve_target(term, project_id:, dataset_id: nil)
     resolved = ::Vendor::Colrapi.resolve_accepted_name(term, dataset_id:)
     return nil if resolved.nil? ||
       resolved[:valid_name].blank? ||

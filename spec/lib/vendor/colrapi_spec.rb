@@ -200,7 +200,7 @@ describe Vendor::Colrapi, type: :model do
     end
   end
 
-  # ── build_extension ───────────────────────────────────────────────────────────
+  # ── classified_usage ─────────────────────────────────────────────────────────
 
   describe '.protonym_name_from' do
     specify 'a subgenus is its infragenericEpithet' do
@@ -226,7 +226,7 @@ describe Vendor::Colrapi, type: :model do
     end
   end
 
-  describe '.build_extension' do
+  describe '.classified_usage' do
     let(:col_result) { col_nameusage_result }
 
     # ancestors() (the real classification subresource) returns kingdom-first
@@ -244,7 +244,7 @@ describe Vendor::Colrapi, type: :model do
       .and_return(classification)
     end
 
-    subject(:extension) { described_class.build_extension(col_result) }
+    subject(:extension) { described_class.classified_usage(col_result) }
 
     it 'extracts col_key from top-level id' do
       expect(extension[:col_key]).to eq('6MB3T')
@@ -278,7 +278,7 @@ describe Vendor::Colrapi, type: :model do
     end
 
     it 'extension col_dataset_id reflects the searched dataset when provided' do
-      ext = described_class.build_extension(col_result, dataset_id: '3LXR')
+      ext = described_class.classified_usage(col_result, dataset_id: '3LXR')
       expect(ext[:col_dataset_id]).to eq('3LXR')
     end
 
@@ -329,7 +329,7 @@ describe Vendor::Colrapi, type: :model do
         allow(described_class).to receive(:ancestors).with('SG1').and_return([])
       end
 
-      subject(:ext) { described_class.build_extension(subgenus_result) }
+      subject(:ext) { described_class.classified_usage(subgenus_result) }
 
       it 'col_name is the subgenus epithet' do
         expect(ext[:col_name]).to eq('Cyperana')
@@ -424,7 +424,7 @@ describe Vendor::Colrapi, type: :model do
       let(:col_result_no_id) { col_nameusage_result(id: nil) }
 
       it 'skips the ancestors call and returns empty alignment' do
-        ext = described_class.build_extension(col_result_no_id)
+        ext = described_class.classified_usage(col_result_no_id)
         expect(described_class).not_to have_received(:ancestors)
         expect(ext[:alignment]).to eq([])
       end
@@ -445,7 +445,7 @@ describe Vendor::Colrapi, type: :model do
           ])
       end
 
-      subject(:ext) { described_class.build_extension(denormed_result, dataset_id: '9802') }
+      subject(:ext) { described_class.classified_usage(denormed_result, dataset_id: '9802') }
 
       it 'calls ancestors_via_parent_id rather than ancestors' do
         ext
@@ -783,7 +783,7 @@ describe Vendor::Colrapi, type: :model do
         }
         skip 'No accepted result for Lepisma found in CoL 3LR' if lepisma_result.nil?
 
-        ext = described_class.build_extension(lepisma_result)
+        ext = described_class.classified_usage(lepisma_result)
 
         expect(ext[:col_authorship]).to be_nil
         expect(ext[:col_name]).to eq('Lepisma')
@@ -799,7 +799,7 @@ describe Vendor::Colrapi, type: :model do
         }
         skip 'No synonym result for Lepisma found in CoL 3LR' if botanical_result.nil?
 
-        ext = described_class.build_extension(botanical_result)
+        ext = described_class.classified_usage(botanical_result)
 
         expect(ext[:col_authorship]).to eq('E.Mey.')
       end
@@ -815,7 +815,7 @@ describe Vendor::Colrapi, type: :model do
         }
         skip 'No subgenus result for Cicadula (Cyperana) found in CoL 3LR' if subgenus_result.nil?
 
-        ext = described_class.build_extension(subgenus_result)
+        ext = described_class.classified_usage(subgenus_result)
 
         expect(ext[:col_rank]).to eq('subgenus')
         expect(ext[:col_name]).to eq('Cyperana'),
@@ -833,7 +833,7 @@ describe Vendor::Colrapi, type: :model do
         }
         skip 'No ambiguous synonym result for Crayracion found in CoL 3LR' if crayracion_result.nil?
 
-        ext = described_class.build_extension(crayracion_result)
+        ext = described_class.classified_usage(crayracion_result)
 
         expect(ext[:col_status]).to eq('ambiguous synonym')
         expect(ext[:non_accepted]).to be true
@@ -852,7 +852,7 @@ describe Vendor::Colrapi, type: :model do
         }
         skip 'No synonym result for Campa found in CoL 3LR' if campa_result.nil?
 
-        ext = described_class.build_extension(campa_result)
+        ext = described_class.classified_usage(campa_result)
 
         expect(ext[:col_status]).to eq('synonym')
         expect(ext[:non_accepted]).to be true

@@ -55,18 +55,20 @@ class Autoselect::TaxonName::Levels::CatalogueOfLife < ::Autoselect::Level
   # from a raw CoL nameusage hash.
   #
   # @param col_result [Hash] a flat CoL nameusage hash (search-result shape)
-  # @param project_id [Integer, nil]
+  # @param project_id [Integer]
   # @param dataset_id [String, nil]
   # @return [OpenStruct, nil] pseudo-record compatible with TaxonName
   #   autoselect format_results; nil when the usage has no scientificName
-  def build_pseudo_record(col_result, project_id: nil, dataset_id: nil)
+  def build_pseudo_record(col_result, project_id:, dataset_id: nil)
+    raise ArgumentError, 'project_id is required' if project_id.blank?
+
     # Flat nameusage structure: 'id', 'status', 'name' hash, 'label',
     # 'labelHtml'
     col_name = col_result.dig('name', 'scientificName')
     return nil if col_name.blank?
 
     col_rank = col_result.dig('name', 'rank')&.downcase
-    extension = ::Vendor::Colrapi.build_extension(col_result, dataset_id:)
+    extension = ::Vendor::Colrapi.classified_usage(col_result, dataset_id:)
 
     # Flag when the target's rank is not resolvable in TaxonWorks (e.g.
     # 'domain'). ColCreator silently skips such rows, so the modal needs
@@ -75,13 +77,9 @@ class Autoselect::TaxonName::Levels::CatalogueOfLife < ::Autoselect::Level
       extension = extension.merge(target_rank_unknown: true)
     end
 
-    if project_id.present?
-      extension = extension.merge(
-        match_against_taxonworks(
-          extension, col_name, col_rank, project_id
-        )
-      )
-    end
+    extension = extension.merge(
+      match_against_taxonworks(extension, col_name, col_rank, project_id)
+    )
 
     OpenStruct.new(
       id: nil,

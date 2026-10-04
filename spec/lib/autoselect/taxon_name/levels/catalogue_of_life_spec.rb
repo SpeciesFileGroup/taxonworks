@@ -572,6 +572,21 @@ RSpec.describe Autoselect::TaxonName::Levels::CatalogueOfLife, type: :model do
         expect(result.map(&:cached)).to eq(['Brandnewonoma'])
       end
     end
+
+    context 'without a project_id' do
+      before do
+        allow(::Vendor::Colrapi).to receive(:search).and_return(
+          'result' => [
+            col_result_for_target(id: 'TGT1', scientific_name: 'Brandnewonoma')
+          ]
+        )
+      end
+
+      it 'raises instead of matching against no project' do
+        expect { level.call(term: 'Brandnewonoma', project_id: nil) }
+          .to raise_error(ArgumentError, /project_id/)
+      end
+    end
   end
   describe '#record_info_html' do
     def result(target_taxonworks_id)

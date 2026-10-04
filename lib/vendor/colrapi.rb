@@ -312,7 +312,7 @@ module Vendor
     #   kingdom-first, each with :rank, :col_name, :col_id, :dataset_id,
     #   :col_authorship, :above_genus_group, :rank_unknown; empty for a
     #   non-accepted name)
-    def self.build_extension(col_result, dataset_id: nil)
+    def self.classified_usage(col_result, dataset_id: nil)
       col_key = col_result['id']
       col_name = protonym_name_from(col_result['name'])
       col_rank = col_result.dig('name', 'rank')&.downcase
@@ -417,7 +417,7 @@ module Vendor
       # The full nameusage hash for the *valid* name — CoL nests the accepted
       # usage (a complete nameusage record, same shape as a search result) right
       # on the synonym hit, so a caller that needs the alignment/extension for
-      # the valid name can hand this straight to build_extension instead of
+      # the valid name can hand this straight to classified_usage instead of
       # searching again.
       valid_col_result = accepted || top
 

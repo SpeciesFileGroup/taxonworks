@@ -272,7 +272,7 @@ const otuFilterUrl = computed(
 )
 
 // Ancestor rows in distal→proximal (kingdom-first) order — already how alignment
-// comes back from Vendor::Colrapi.build_extension.
+// comes back from Vendor::Colrapi.classified_usage.
 const ancestorRowsDistalFirst = computed(() => ext.value.alignment ?? [])
 
 // Identifies an alignment row by CoL's id, not col_name, which TaxonWorks-only
@@ -361,7 +361,7 @@ const duplicateBlocked = computed(
     (ext.value.possible_duplicates ?? []).length > 0 && !nothingToCreate.value
 )
 
-// Server-computed (Vendor::Colrapi.build_extension): CoL doesn't accept the
+// Server-computed (Vendor::Colrapi.classified_usage): CoL doesn't accept the
 // target (synonym, misapplied, ...) and has no classification of its own for
 // it, so it can't be created (ColCreator refuses it too). Selecting it when
 // TaxonWorks already has the name is fine.
@@ -433,7 +433,7 @@ async function doCreate() {
   errorColId.value = null
 
   // Build distal→proximal rows for the server — alignment already comes back in that
-  // order (kingdom-first) from Vendor::Colrapi.build_extension.
+  // order (kingdom-first) from Vendor::Colrapi.classified_usage.
   // 'exact', 'extra' and 'conflict' ancestors all pass their taxonworks_id (for a
   // 'conflict' row that's TaxonWorks' own record at that rank): the server walks them
   // as parent anchors so the chain it sees is a faithful, contiguous picture of the

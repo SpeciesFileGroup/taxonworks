@@ -222,7 +222,7 @@ RSpec.describe Autoselect::Otu::Levels::CatalogueOfLife do
 
     before do
       allow(::Vendor::Colrapi).to receive(:search).and_return({ 'total' => 1, 'result' => [col_result] })
-      allow(::Vendor::Colrapi).to receive(:build_extension).and_return({
+      allow(::Vendor::Colrapi).to receive(:classified_usage).and_return({
         col_key: 'abc123', col_name: 'Homo sapiens', col_status: 'accepted', alignment: []
       })
     end
