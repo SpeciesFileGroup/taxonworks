@@ -214,11 +214,9 @@ RSpec.describe Autoselect::Otu::Levels::CatalogueOfLife do
   context 'when CoL returns results' do
     let(:col_result) {
       {
-        'usage' => {
-          'id' => 'abc123',
-          'name' => { 'scientificName' => 'Homo sapiens' },
-          'status' => 'accepted'
-        }
+        'id' => 'abc123',
+        'name' => { 'scientificName' => 'Homo sapiens' },
+        'status' => 'accepted'
       }
     }
 

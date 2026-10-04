@@ -40,7 +40,10 @@ class Autoselect::Base
   # @param user_id [Integer, nil]
   # @param show_info [Boolean, String] when false/'false', record_info_html is skipped
   # @param kwargs [Hash] any level-specific filter params
-  def initialize(term: nil, level: nil, project_id: nil, user_id: nil, show_info: true, **kwargs)
+  def initialize(
+    term: nil, level: nil, project_id: nil, user_id: nil, show_info: true,
+    **kwargs
+  )
     @raw_term = term.presence
     @requested_level = level.presence
     @project_id = project_id

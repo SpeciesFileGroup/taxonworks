@@ -546,6 +546,27 @@ RSpec.describe Autoselect::TaxonName::Levels::CatalogueOfLife, type: :model do
         expect(ext[:ambiguous_match]).to be_nil
       end
     end
+
+    context 'when a CoL usage has no scientificName' do
+      let(:nameless) do
+        col_result_for_target(id: 'TGT0', scientific_name: nil)
+          .merge('label' => 'Brandnewonoma Smith, 1900')
+      end
+      let(:named) do
+        col_result_for_target(id: 'TGT1', scientific_name: 'Brandnewonoma')
+      end
+
+      before do
+        allow(::Vendor::Colrapi).to receive(:search)
+          .and_return('result' => [nameless, named])
+        allow(::Vendor::Colrapi).to receive(:ancestors).and_return([])
+      end
+
+      it 'skips it rather than falling back to the authored label' do
+        result = level.call(term: 'Brandnewonoma', project_id:, user_id:)
+        expect(result.map(&:cached)).to eq(['Brandnewonoma'])
+      end
+    end
   end
   describe '#record_info_html' do
     def result(target_taxonworks_id)

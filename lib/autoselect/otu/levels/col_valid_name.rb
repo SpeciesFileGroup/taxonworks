@@ -2,10 +2,10 @@
 module Autoselect
   module Otu
     module Levels
-      # Delegates to the TaxonName ColValidName level (which resolves the term through
-      # Catalogue of Life synonymy to its accepted name) — e.g. a label was transcribed
-      # with an outdated/synonymized name, and the curator wants the OTU CoL now
-      # recognizes.
+      # Delegates to the TaxonName ColValidName level (which resolves the term
+      # through Catalogue of Life synonymy to its accepted name) — e.g. a label
+      # was transcribed with an outdated/synonymized name, and the curator wants
+      # the OTU CoL now recognizes.
       #
       # Wraps TaxonName::ColValidName#resolve_target's pseudo-record with the OTU
       # creation hook — flagged with `resolved_from:` so the confirmation UI can
