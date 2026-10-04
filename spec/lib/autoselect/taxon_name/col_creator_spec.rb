@@ -170,6 +170,59 @@ RSpec.describe Autoselect::TaxonName::ColCreator, type: :model do
       end
     end
 
+    context 'when an unknown-rank row sits between an inserted row and an existing one' do
+      # CoL: Hominidae > Homininae > (a rank TW lacks) > Homo. The skipped row
+      # creates nothing, so Homininae is still the row just inserted above
+      # Homo, and Homo moves onto it.
+      let!(:family) { FactoryBot.create(:valid_taxon_name, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Family', name: 'Hominidae') }
+      let!(:genus) do
+        g = FactoryBot.create(:valid_taxon_name, rank_class: 'NomenclaturalRank::Iczn::GenusGroup::Genus', name: 'Homo')
+        g.update!(parent: family)
+        g
+      end
+
+      let(:rows) do
+        [
+          row(col_name: family.cached, col_rank: 'family', taxonworks_id: family.id),
+          row(col_name: 'Homininae', col_rank: 'subfamily'),
+          row(col_name: 'Unrankedia', col_rank: 'unranked'),
+          row(col_name: genus.cached, col_rank: 'genus', taxonworks_id: genus.id)
+        ]
+      end
+
+      it 'still reparents the existing row onto the inserted one' do
+        described_class.new(
+          rows:, project_id:, user_id:, col_code: 'zoological'
+        ).call
+        subfamily = ::TaxonName.find_by(name: 'Homininae', project_id:)
+        expect(genus.reload.parent_id).to eq(subfamily.id)
+      end
+    end
+
+    context 'when two consecutive existing rows are not parent and child' do
+      # e.g. a stale modal, or a hand-made request: nothing was inserted, so
+      # the mismatch must not move the curated record.
+      let!(:family) { FactoryBot.create(:valid_taxon_name, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Family', name: 'Hominidae') }
+      let!(:genus) { FactoryBot.create(:valid_taxon_name, rank_class: 'NomenclaturalRank::Iczn::GenusGroup::Genus', name: 'Homo') }
+
+      let(:rows) do
+        [
+          row(col_name: family.cached, col_rank: 'family', taxonworks_id: family.id),
+          row(col_name: genus.cached, col_rank: 'genus', taxonworks_id: genus.id)
+        ]
+      end
+
+      it 'raises CreationError and leaves the existing record where it is' do
+        parent_id = genus.parent_id
+        expect {
+          described_class.new(
+            rows:, project_id:, user_id:, col_code: 'zoological'
+          ).call
+        }.to raise_error(described_class::CreationError, /Homo/)
+        expect(genus.reload.parent_id).to eq(parent_id)
+      end
+    end
+
     context 'when a new row is inserted between two existing taxonworks_id rows' do
       let!(:family) { FactoryBot.create(:valid_taxon_name, rank_class: 'NomenclaturalRank::Iczn::FamilyGroup::Family', name: 'Hominidae') }
       # valid_taxon_name's :parent_is_root trait forces parent to the project root on

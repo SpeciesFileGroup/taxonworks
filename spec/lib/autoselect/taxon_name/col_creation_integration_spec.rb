@@ -94,7 +94,7 @@ RSpec.describe 'CatalogueOfLife matching + ColCreator creation, end to end', typ
   # TW: Cicadellidae > Deltocephalinae > Athysanini > Aus > Aus bus
   # CoL puts Aus in Paralimnini instead. The conflicting tribe row must still be
   # sent (with TW's own record), otherwise ColCreator sees Aus directly below
-  # Deltocephalinae and reparents it there.
+  # Deltocephalinae with nothing inserted between - and refuses the request.
   context 'when the existing target\'s lineage conflicts with CoL' do
     let!(:root) { ::TaxonName.where(project_id:, parent_id: nil).first }
     let!(:family) { Protonym.create!(name: 'Cicadellidae', rank_class: Ranks.lookup(:iczn, 'family'), parent: root, project_id:, by: user_id) }
@@ -134,14 +134,15 @@ RSpec.describe 'CatalogueOfLife matching + ColCreator creation, end to end', typ
       expect(::TaxonName.where(name: 'Paralimnini', project_id:)).to be_empty
     end
 
-    it 'would reparent the genus if the conflict row were left out (the old modal behavior)' do
+    it 'refuses, rather than reparenting the genus, if the conflict row is left out (the old modal behavior)' do
       ext = level.call(term: 'Aus bus', project_id:, user_id:).first._col_extension
       rows = rows_from_level_result(ext, target_col_name: ext[:col_name], target_rank: 'species')
       rows = rows.reject { |r| r[:col_rank] == 'tribe' && r[:taxonworks_id] == tribe.id }
 
-      Autoselect::TaxonName::ColCreator.new(rows:, project_id:, user_id:, col_code: 'zoological').call
-
-      expect(genus.reload.parent_id).to eq(subfamily.id)
+      expect {
+        Autoselect::TaxonName::ColCreator.new(rows:, project_id:, user_id:, col_code: 'zoological').call
+      }.to raise_error(Autoselect::TaxonName::ColCreator::CreationError, /Aus/)
+      expect(genus.reload.parent_id).to eq(tribe.id)
     end
   end
 

@@ -9,7 +9,9 @@ module Autoselect
     # used as a parent. Rows with a taxonworks_id are already in the project; if
     # the row immediately above them was just inserted (a rank CoL reports that
     # TaxonWorks' real chain skipped), the existing record is reparented onto
-    # it. Otherwise it's used as-is as a parent anchor and left untouched.
+    # it. Otherwise it's used as-is as a parent anchor and left untouched, and
+    # it must already be under the row above it - if not, the rows don't
+    # describe TaxonWorks' real lineage and the request is refused.
     #
     # @param rows [Array<Hash>] ordered distal→proximal; each hash has:
     #   col_name [String] — scientific name string from CoL
@@ -62,13 +64,11 @@ module Autoselect
       #   is fully rolled back.
       def call
         parent_id = project_root_id
+        # Whether parent_id is a row created in this call (a skipped
+        # unknown-rank row leaves it as it was).
+        parent_created = false
         created_ids = []
 
-        # One batched lookup for every matched row's real current parent_id,
-        # instead of a find per row — the common case (nothing needs
-        # reparenting) then costs zero additional queries in the loop below.
-        # Scoped to the project so a taxonworks_id from another project can't be
-        # walked into the anchor/reparent logic.
         matched_ids = @rows.filter_map { |row|
           row[:taxonworks_id].presence&.to_i
         }
@@ -76,11 +76,6 @@ module Autoselect
           .where(id: matched_ids, project_id: @project_id)
           .pluck(:id, :parent_id).to_h
 
-        # A client-supplied taxonworks_id that doesn't resolve within this
-        # project (stale UI state, another project's id, a hand-crafted request)
-        # would otherwise surface as an uncaught RecordNotFound mid-transaction
-        # (HTTP 500). Reject it up front ase an ordinary creation failure
-        # instead.
         unknown_ids = matched_ids - current_parent_ids.keys
         if unknown_ids.any?
           raise CreationError.new("Unknown TaxonName id(s) for this project: #{unknown_ids.join(', ')}")
@@ -97,13 +92,24 @@ module Autoselect
             if row[:taxonworks_id].present?
               existing_id = row[:taxonworks_id].to_i
 
-              # A row directly above this one may have just been inserted (a
-              # rank CoL reports that TaxonWorks' real chain skipped) —
-              # reattach this existing record onto it. When nothing was inserted
-              # above, current_parent_ids already agrees with parent_id, so no
-              # query or update happens at all.
               if current_parent_ids[existing_id] != parent_id
                 existing = ::TaxonName.where(project_id: @project_id).find(existing_id)
+
+                # Only a row just created directly above (a rank CoL reports
+                # that TaxonWorks' real chain skipped) reattaches this existing
+                # record. Any other mismatch means the rows don't describe
+                # TaxonWorks' real lineage (a stale modal, a hand-made
+                # request) - refuse rather than move a curated record.
+                if !parent_created
+                  raise CreationError.new(
+                    "#{existing.cached} isn't under the record above it in " \
+                      'this request; the classification may have changed - ' \
+                      'reopen and try again.',
+                    col_name: row[:col_name],
+                    col_id: row[:col_id]
+                  )
+                end
+
                 begin
                   existing.update!(parent_id:)
                 rescue ::ActiveRecord::RecordInvalid => e
@@ -116,6 +122,7 @@ module Autoselect
               end
 
               parent_id = existing_id
+              parent_created = false
               next
             end
 
@@ -169,6 +176,7 @@ module Autoselect
 
             created_ids << tn.id
             parent_id = tn.id
+            parent_created = true
           end
         end
 
@@ -218,11 +226,10 @@ module Autoselect
       end
 
       # Maps a human-readable CoL rank string to a TaxonWorks rank_class string.
-      # Returns nil for unknown ranks; callers should skip creation for those rows.
+      # Returns nil for unknown ranks.
       def resolve_rank_class(rank_string)
         ::Vendor::Colrapi.rank_class_for(rank_string, col_code: @col_code)
       end
-
 
     end
   end

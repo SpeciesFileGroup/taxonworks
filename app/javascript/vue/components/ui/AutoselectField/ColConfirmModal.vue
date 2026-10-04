@@ -437,9 +437,10 @@ async function doCreate() {
   // 'exact', 'extra' and 'conflict' ancestors all pass their taxonworks_id (for a
   // 'conflict' row that's TaxonWorks' own record at that rank): the server walks them
   // as parent anchors so the chain it sees is a faithful, contiguous picture of the
-  // real TaxonWorks lineage. Dropping any of them here would leave a gap the server
-  // can't see, making its "was a row inserted above this existing record?" reparent
-  // check fire against the wrong parent and silently move a curated record.
+  // real TaxonWorks lineage. Dropping any of them here would leave a gap: the
+  // server would see an existing record under the wrong row above it with nothing
+  // inserted between, and refuse the request (ColCreator only reparents onto a row
+  // it just created).
   // Unchecked 'none' rows are the only alignment rows left out.
   const ancestorRows = (ext.value.alignment ?? [])
     .filter(

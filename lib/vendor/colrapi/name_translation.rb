@@ -122,19 +122,20 @@ module Vendor
         comparable(name)
       end
 
-      # Splits a CoL authorship string into [verbatim_author, year_of_publication].
+      # Splits a CoL authorship string into
+      # [verbatim_author, year_of_publication].
       #
       # TaxonWorks Protonym validates that verbatim_author contains no digits,
       # so the year must be stored separately in year_of_publication.
       #
       # CoL provides authorship in two forms:
       #   "Linnaeus, 1758" → author "Linnaeus", year 1758
-      #   "(Chatton, 1925) Whittaker & Margulis, 1978" → author "Chatton", year 1925
+      #   "(Chatton, 1925) Whittaker & Margulis, 1978" → author "Chatton",
+      #     year 1925
       #     (basionym takes precedence when no explicit col_year is given)
       #
-      # An explicit col_year (from the target row's combinationAuthorship.year)
-      # takes precedence. If no year can be extracted the author string is
-      # returned as-is with year nil.
+      # If no year can be extracted the author string is returned as-is with
+      # year nil.
       def self.split_authorship(col_authorship, col_year)
         return [nil, nil] if col_authorship.blank?
 
@@ -155,9 +156,9 @@ module Vendor
         # Also strip years embedded inside parenthetical groups, e.g.
         # "(Chatton, 1925)".
         author = col_authorship
-          .gsub(/,?\s*\b\d{4}\b/, '')   # remove ", 1925" and " 1925" occurrences
-          .gsub(/\(\s*\)/, '')          # clean up empty parens left behind
-          .gsub(/,\s*\z/, '')           # strip trailing comma
+          .gsub(/,?\s*\b\d{4}\b/, '') # ", 1925" and " 1925"
+          .gsub(/\(\s*\)/, '') # empty parens left behind
+          .gsub(/,\s*\z/, '') # trailing comma
           .strip
           .then { |a|
             a.match?(/\A\([^)]*\)\z/) ? a : a.gsub(/\([^)]*\)\s*/, '').strip
