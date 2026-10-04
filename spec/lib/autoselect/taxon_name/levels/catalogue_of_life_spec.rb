@@ -313,6 +313,9 @@ RSpec.describe Autoselect::TaxonName::Levels::CatalogueOfLife, type: :model do
             published: 'Typhlocyba (Zygina) vitis'
           )
         )
+        expect(ext[:possible_duplicates_of]).to eq(
+          rank: 'species', col_name: 'Typhlocyba vitis'
+        )
       end
     end
 
@@ -350,6 +353,45 @@ RSpec.describe Autoselect::TaxonName::Levels::CatalogueOfLife, type: :model do
             via: 'combination',
             valid_cached: species.cached
           )
+        )
+      end
+    end
+
+    context 'when a new ancestor of the target is only a TaxonWorks name\'s ' \
+      'original combination' do
+      let(:species) { subspecies.parent }
+      let(:col_result) do
+        col_result_for_target(
+          id: 'TGT1', scientific_name: 'Typhlocyba vitis novus',
+          rank: 'subspecies'
+        )
+      end
+
+      before do
+        species.update_column(
+          :cached_original_combination, 'Typhlocyba (Zygina) vitis'
+        )
+        allow(::Vendor::Colrapi).to receive(:search)
+          .and_return('result' => [col_result])
+        allow(::Vendor::Colrapi).to receive(:ancestors).and_return([
+          col_classification_entry(id: 'A1', name: tribe.cached, rank: 'tribe'),
+          col_classification_entry(id: 'A2', name: 'Typhlocyba', rank: 'genus'),
+          col_classification_entry(
+            id: 'A3', name: 'Typhlocyba vitis', rank: 'species'
+          )
+        ])
+      end
+
+      it 'reports the existing name as a duplicate of that ancestor' do
+        result =
+          level.call(term: 'Typhlocyba vitis novus', project_id:, user_id:)
+        ext = result.first._col_extension
+        expect(ext[:target_taxonworks_id]).to be_nil
+        expect(ext[:possible_duplicates_of]).to eq(
+          rank: 'species', col_name: 'Typhlocyba vitis'
+        )
+        expect(ext[:possible_duplicates]).to contain_exactly(
+          hash_including(id: species.id, via: 'original_combination')
         )
       end
     end

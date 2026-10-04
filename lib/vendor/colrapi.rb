@@ -465,6 +465,8 @@ module Vendor
 
     # Maps a CoL nomenclatural code string to the TaxonWorks rank-name lookup
     # (rank name => rank_class string) for that code.
+    #
+    # Lookups can return nil, see COL_CODE_TO_NOMENCLATURE_CODE.
     COL_CODE_LOOKUP_MAP = {
       'zoological' => ::ICZN_LOOKUP,
       'botanical'  => ::ICN_LOOKUP,
@@ -475,6 +477,11 @@ module Vendor
     # Maps a CoL nomenclatural code string to the TaxonWorks nomenclature_code
     # symbol (NomenclaturalRank.nomenclatural_code /
     # rank_class.nomenclatural_code) it corresponds to.
+    #
+    # Lookups can return nil: CoL may give no code for a name (name.code
+    # absent), or a code not mapped here (e.g. 'cultivars',
+    # 'phytosociological'). Callers must treat nil as "code unknown", not as
+    # a mismatch.
     COL_CODE_TO_NOMENCLATURE_CODE = {
       'zoological' => :iczn,
       'botanical'  => :icn,

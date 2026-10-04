@@ -159,7 +159,13 @@
           there's no way to tell which one this lineage should use. Resolve this manually before creating.
         </template>
         <template v-else-if="duplicateBlocked">
-          TaxonWorks already has this name as
+          TaxonWorks already has
+          <template v-if="duplicateOfAncestor">
+            <em>{{ ext.possible_duplicates_of.col_name }}</em>
+            ({{ ext.possible_duplicates_of.rank }})
+          </template>
+          <template v-else>this name</template>
+          as
           <span
             v-for="(duplicate, i) in ext.possible_duplicates"
             :key="duplicate.id"
@@ -353,12 +359,17 @@ const isAmbiguous = computed(() => !!ext.value.ambiguous_match)
 const chainConflict = computed(() => !chainConsistent.value && !nothingToCreate.value)
 
 // Server-computed (Autoselect::TaxonName::ColMatch#possible_duplicates):
-// TaxonWorks names CoL's target is the published form of (an original
-// combination, or a Combination) - the taxon is already in TaxonWorks, placed
-// differently, so creating it would duplicate it.
+// TaxonWorks names that a name Create would make (the target, or a missing
+// ancestor of it - possible_duplicates_of says which) is the published form
+// of (an original combination, or a Combination) - the taxon is already in
+// TaxonWorks, placed differently, so creating it would duplicate it.
 const duplicateBlocked = computed(
   () =>
     (ext.value.possible_duplicates ?? []).length > 0 && !nothingToCreate.value
+)
+
+const duplicateOfAncestor = computed(
+  () => ext.value.possible_duplicates_of?.rank !== ext.value.col_rank
 )
 
 // Server-computed (Vendor::Colrapi.classified_usage): CoL doesn't accept the
