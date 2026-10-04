@@ -1,13 +1,10 @@
 # lib/autoselect/taxon_name/col_match.rb
+
 # Matches one Catalogue of Life nameusage against a project's TaxonNames and
 # builds the autoselect pseudo-record for it: CoL's own data and
 # classification (Vendor::Colrapi.classified_usage) plus how each row lines
 # up with TaxonWorks, whether the target already exists, and anything that
 # blocks Create (conflicts, homonyms, possible duplicates).
-#
-# Shared by Levels::CatalogueOfLife (one per search result) and
-# Levels::ColValidName (the resolved accepted usage), and through them the
-# Otu levels.
 class Autoselect::TaxonName::ColMatch
 
   # @param col_result [Hash] a flat CoL nameusage hash (search-result shape)
@@ -35,8 +32,7 @@ class Autoselect::TaxonName::ColMatch
     )
 
     # Flag when the target's rank is not resolvable in TaxonWorks (e.g.
-    # 'domain'). ColCreator silently skips such rows, so the modal needs
-    # to know up-front.
+    # 'domain').
     if !rank_resolvable?(col_rank)
       extension = extension.merge(target_rank_unknown: true)
     end
@@ -76,11 +72,10 @@ class Autoselect::TaxonName::ColMatch
   # guaranteed a coherent chain) — that stops the walk and blocks Create, same
   # as a real conflict.
   #
-  # @return [Hash] merges into the extension: :alignment (kingdom-first,
-  #   ancestors only — the target is reported separately below),
-  #   :chain_consistent, :target_taxonworks_id, :target_global_id (only when the
-  #   target itself matched), :ambiguous_match (only when the walk was stopped
-  #   by a homonym)
+  # @return [Hash] :alignment (kingdom-first, ancestors only — the target is
+  #   reported separately below), :chain_consistent, :target_taxonworks_id,
+  #   :target_global_id (only when the target itself matched), :ambiguous_match
+  #   (only when the walk was stopped by a homonym)
   def match_against_taxonworks(extension, col_name, col_rank)
     full_chain = extension[:alignment] + [{
       rank: col_rank,

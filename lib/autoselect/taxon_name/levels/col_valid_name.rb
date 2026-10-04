@@ -56,8 +56,8 @@ class Autoselect::TaxonName::Levels::ColValidName < ::Autoselect::Level
   # @return [Array<OpenStruct>] a single CoL result for the resolved valid
   #   name (its target_taxonworks_id set when the name already exists)
   def call(
-    term:, operator: nil, project_id: nil, user_id: nil,
-    dataset_id: nil, **_kwargs
+    term:, operator: nil, project_id: nil, user_id: nil, dataset_id: nil,
+    **_kwargs
   )
     target = resolve_target(term, project_id:, dataset_id:)
     return [] if target.nil?

@@ -7,14 +7,14 @@ module Vendor
     # CoL's formatting depends on the source dataset (sector) a name came from,
     # and isn't always consistent within one source. What has been seen so far
     # (live CoL, 3LR, 2026-09):
-    #   * subgenus: always "Genus (Subgenus)", in search results and
-    #     classifications. TaxonWorks stores the bare epithet in #name and
-    #     "Genus (Subgenus)" in #cached (ICZN and ICN alike). The parentheses
-    #     are ICZN's rule (Art. 6.1). The ICN writes a subgenus "Genus subg.
-    #     Epithet" (Art. 21.1) and only recommends parentheses (Rec. 21A.1)
-    #     for showing it inside a species name. The parsing here relies on
-    #     CoL and TaxonWorks both using parentheses; it isn't a general
-    #     nomenclatural rule.
+    #   * subgenus: "Genus (Subgenus)" for zoological names, in search
+    #     results and classifications, but "Genus subgen. Subgenus" for
+    #     botanical ones (all 183 botanical subgenera in the backbone, every
+    #     one a synonym, 2026-10). TaxonWorks stores the bare epithet in #name
+    #     and "Genus (Subgenus)" in #cached (ICZN and ICN alike). The
+    #     parentheses are ICZN's rule (Art. 6.1). The ICN writes a subgenus
+    #     "Genus subg. Epithet" (Art. 21.1) and only recommends parentheses
+    #     (Rec. 21A.1) for showing it inside a species name.
     #   * species group: some sources include the subgenus ("Aedes (Stegomyia)
     #     aegypti", mosquitoes), some omit it ("Bombus terrestris", bees), and
     #     one source can do both (Carabus: "Carabus (Megodontus) violaceus" but
@@ -73,15 +73,21 @@ module Vendor
         comparable(name)
       end
 
-      # CoL gives a subgenus as "Genus (Subgenus)", TaxonWorks Protonym#name
-      # takes just the epithet.
+      # A whole subgenus name: "Genus (Subgenus)" (CoL zoological, and
+      # TaxonWorks #cached for any code) or "Genus subgen. Subgenus" (CoL
+      # botanical). The epithet is in group 1 or 2.
+      SUBGENUS_NAME = /\A\S+ (?:\(([^)]+)\)|subgen\. (\S+))\z/
+
+      # TaxonWorks Protonym#name for a subgenus: just the epithet.
       #
-      # @param col_name [String, nil]
+      # @param col_name [String, nil] a subgenus name (see SUBGENUS_NAME) or
+      #   a bare epithet, which is returned as is
       # @return [String, nil]
       def self.subgenus_epithet(col_name)
         return nil if col_name.nil?
 
-        col_name[/\(([^)]+)\)/, 1] || col_name
+        match = col_name.strip.match(SUBGENUS_NAME)
+        match ? (match[1] || match[2]) : col_name
       end
 
       # CoL classification entries give species-group names in full ("Olea
@@ -116,7 +122,7 @@ module Vendor
       # @return [String, nil]
       def self.name_key(name)
         return nil if name.nil?
-        return subgenus_epithet(name) if name.strip.match?(/\A\S+ \([^)]+\)\z/)
+        return subgenus_epithet(name) if name.strip.match?(SUBGENUS_NAME)
 
         comparable(name)
       end

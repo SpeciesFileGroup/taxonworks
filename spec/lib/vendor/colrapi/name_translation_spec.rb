@@ -15,6 +15,11 @@ describe Vendor::Colrapi::NameTranslation, type: :model do
       expect(t.subgenus_epithet('Carabus (Megodontus)')).to eq('Megodontus')
     end
 
+    specify 'extracts the epithet from CoL\'s botanical "Genus subgen. Subgenus"' do
+      expect(t.subgenus_epithet('Acrobolbus subgen. Marsupellopsis'))
+        .to eq('Marsupellopsis')
+    end
+
     specify 'returns a bare epithet as is' do
       expect(t.subgenus_epithet('Megodontus')).to eq('Megodontus')
     end
@@ -131,6 +136,12 @@ describe Vendor::Colrapi::NameTranslation, type: :model do
         .to eq(t.col_name_key('Carabus (Megodontus)', 'subgenus'))
     end
 
+    specify 'a botanical subgenus ("Genus subgen. Subgenus") is keyed by its ' \
+      'epithet' do
+      expect(t.name_key('Acrobolbus subgen. Marsupellopsis'))
+        .to eq('Marsupellopsis')
+    end
+
     specify 'nil is nil' do
       expect(t.name_key(nil)).to be_nil
     end
@@ -140,6 +151,11 @@ describe Vendor::Colrapi::NameTranslation, type: :model do
     specify 'a subgenus is keyed by its epithet' do
       expect(t.col_name_key('Carabus (Megodontus)', 'subgenus'))
         .to eq('Megodontus')
+    end
+
+    specify 'a botanical subgenus has the same key as TaxonWorks\' form' do
+      expect(t.col_name_key('Populus subgen. Tacamahaca', 'subgenus'))
+        .to eq(t.name_key('Populus (Tacamahaca)'))
     end
 
     specify 'a species with a subgenus drops it' do
