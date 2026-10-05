@@ -75,6 +75,37 @@ RSpec.describe ImportDatasetsController, type: :controller do
   end
 
   describe "POST #create" do
+    context 'with literal quotes in a TSV' do
+      let(:quoted_attributes) do
+        {
+          source: fixture_file_upload(Rails.root.join('spec/files/import_datasets/literal_quotes.tsv'), 'text/tab-separated-values'),
+          description: 'Literal quotes regression',
+          import_settings: { col_sep: "\t", quote_char: 'none' }
+        }
+      end
+
+      it 'creates an occurrence dataset when quoting is disabled' do
+        expect {
+          post :create, params: { import_dataset: quoted_attributes }, format: :json
+        }.to change(ImportDataset, :count).by(1)
+
+        expect(response).to have_http_status(:created)
+        expect(ImportDataset.last).to be_a(ImportDataset::DarwinCore::Occurrences)
+        expect(ImportDataset.last.metadata.dig('import_settings', 'quote_char')).to eq('none')
+      end
+
+      it 'rejects illegal quoting when the double quote delimiter is selected' do
+        quoted_attributes[:import_settings][:quote_char] = '"'
+
+        expect {
+          post :create, params: { import_dataset: quoted_attributes }, format: :json
+        }.not_to change(ImportDataset, :count)
+
+        expect(response).to have_http_status(422)
+        expect(JSON.parse(response.body)['source'].join(' ')).to include('Illegal quoting')
+      end
+    end
+
     context "with valid params" do
       it "creates a new ImportDataset" do
         expect {
