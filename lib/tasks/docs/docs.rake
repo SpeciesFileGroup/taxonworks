@@ -370,7 +370,7 @@ namespace :tw do
       add_node(m.name, graphs[k], nodes, ER_NODE_STYLES[:target] )
 
       [:has_many, :belongs_to, :has_one].each do |t|
-        ApplicationEnumeration.sti_reflections(m, t).each do |r|
+        ApplicationEnumeration.klass_reflections(m, t).each do |r|
 
           k = nil # klass of the right node
           left_name = m.name # TODO: overriddennil
@@ -599,7 +599,7 @@ namespace :tw do
       edges = [ ]
       ApplicationEnumeration.data_models.each do |m|
         [:has_many].each do |t|
-          ApplicationEnumeration.sti_reflections(m, t).each do |r|
+          ApplicationEnumeration.klass_reflections(m, t).each do |r|
             next if r.polymorphic? or r.options.include?(:through)
             next if nodes[m.name].nil?
             next if nodes[r.klass.name].nil?
