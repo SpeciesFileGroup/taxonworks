@@ -17,6 +17,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Taxon Determination facet to Filter Field Occurrences [#5090]
 - Status (i.e. Classification) slice to Filter Taxon Names radial (ids side only); replaces/extends separate Fossil slice [#5088]
 - Filter descriptors: Modal to update descriptors position
+- Filter field occurrences: Add mass delete (Up to a maximun of 25 records)
 
 ### Changed
 
