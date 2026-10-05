@@ -117,13 +117,6 @@ Our general approach to AR based models uses the pattern below.  Please use it.
 * Use uppercase `TODO` when referencing
 * Do not use comments to define sections, rather organize code consistently as above
 
-# STI and model enumeration
-* `ApplicationEnumeration` class lists (`superclass_models`, `project_data_classes`, `data_models` etc.) return one base class per table, never STI subclasses.
-* Reflections on a base class do not include associations declared only on its subclasses (e.g. `TaxonName` does not see `Protonym#type_materials`).
-* When operating on a whole table (audits, exports, docs) use `ApplicationEnumeration.sti_reflections(klass, type)` rather than `reflect_on_all_associations` or `klass_reflections`.
-* When operating on an instance, `object.class` already sees inherited and subclass associations.
-* `descendants` only lists loaded classes, call `Rails.application.eager_load!` first in rake tasks (rake does not eager load).
-
 # AR overrides
 * Patching AR methods is discouraged and extremely rare!
 * We've patched three AR methods:

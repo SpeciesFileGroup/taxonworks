@@ -100,6 +100,8 @@ module ApplicationEnumeration
   end
 
   # @return Array of AR associations
+  # !! Does NOT return associations on subtypes of klass - see sti_reflections
+  # for that.
   def self.klass_reflections(klass, relationship_type = :all)
     relationship_types = relationship_type == :all ?
       [:belongs_to, :has_one, :has_many] : [relationship_type]
@@ -121,7 +123,8 @@ module ApplicationEnumeration
   # ObservationMatrixColumnItem::Single::Descriptor#descriptor. Use this
   # when operating on a whole table rather than a single instance.
   #
-  # !! Relies on descendants being loaded, i.e. call Rails.application.eager_load! first in rake tasks.
+  # !! Relies on descendants being loaded, i.e. call
+  # Rails.application.eager_load! first in rake tasks.
   #
   # @return Array of AR associations
   #   unique by macro, name, foreign key and target class, base class
@@ -129,7 +132,9 @@ module ApplicationEnumeration
   def self.sti_reflections(klass, relationship_type = :all)
     ([klass] + klass.descendants)
       .flat_map { |k| klass_reflections(k, relationship_type) }
-      .uniq { |r| [r.macro, r.name, r.foreign_key.to_s, r.polymorphic? ? nil : r.class_name] }
+      .uniq { |r|
+        [r.macro, r.name, r.foreign_key.to_s, r.polymorphic? ? nil : r.class_name]
+      }
   end
 
   def self.relation_targets_community?(relation)
