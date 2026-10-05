@@ -2,14 +2,12 @@
   <div>
     <v-btn
       color="primary"
+      icon
+      variant="tonal"
+      title="Add biocuration classes"
       @click="showModal = true"
-      circle
     >
-      <v-icon
-        color="white"
-        name="plus"
-        x-small
-      />
+      <IconPlus class="w-4 h-4" />
     </v-btn>
 
     <v-modal
@@ -60,7 +58,7 @@ import { ref, computed } from 'vue'
 import useStore from '../composables/useStore'
 import VModal from '@/components/ui/Modal.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconPlus from '@/components/Icon/IconPlus.vue'
 import makeTooltip from '../utils/makeTooltip.js'
 
 const { getters } = useStore()
