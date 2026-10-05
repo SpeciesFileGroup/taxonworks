@@ -28,6 +28,7 @@
                       icon
                       variant="tonal"
                       title="New serial"
+                      medium
                       @click="open"
                     >
                       <IconPlus class="w-4 h-4" />
@@ -42,25 +43,16 @@
             </template>
           </SmartSelector>
         </div>
-        <div
-          class="middle separate-top"
-          v-if="selected"
+        <SmartSelectorItem
+          class="separate-top"
+          :item="selected"
+          label="name"
+          @unset="unset"
         >
-          <div class="flex-separate middle gap-small">
-            <span v-html="selected.name" />
-            <div class="horizontal-right-content middle gap-small">
-              <RadialObject :global-id="selected.global_id" />
-              <VBtn
-                color="primary"
-                icon
-                variant="tonal"
-                @click="unset"
-              >
-                <IconReset class="w-4 h-4" />
-              </VBtn>
-            </div>
-          </div>
-        </div>
+          <template #options-left>
+            <RadialObject :global-id="selected.global_id" />
+          </template>
+        </SmartSelectorItem>
       </fieldset>
     </div>
   </div>
@@ -72,9 +64,9 @@ import { useSettingStore } from '../../store'
 import { Serial } from '@/routes/endpoints'
 import VLock from '@/components/ui/VLock/index.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import IconReset from '@/components/Icon/IconReset.vue'
 import IconPlus from '@/components/Icon/IconPlus.vue'
 import SmartSelector from '@/components/ui/SmartSelector'
+import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 import WidgetSerial from '@/components/ui/Widget/WidgetSerial.vue'
 import RadialObject from '@/components/radials/navigation/radial'
 

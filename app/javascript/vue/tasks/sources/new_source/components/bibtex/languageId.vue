@@ -22,23 +22,12 @@
             </template>
           </SmartSelector>
         </div>
-        <div
-          class="middle margin-medium-top flex-separate"
-          v-if="selected"
-        >
-          <span
-            class="separate-right"
-            v-html="selected.english_name"
-          />
-          <VBtn
-            color="primary"
-            icon
-            variant="tonal"
-            @click="unset"
-          >
-            <IconTrash class="w-4 h-4" />
-          </VBtn>
-        </div>
+        <SmartSelectorItem
+          class="margin-medium-top"
+          :item="selected"
+          label="english_name"
+          @unset="unset"
+        />
       </fieldset>
     </div>
   </div>
@@ -49,9 +38,8 @@ import { ref, watch } from 'vue'
 import { useSettingStore } from '../../store'
 import { Language } from '@/routes/endpoints'
 import VLock from '@/components/ui/VLock/index.vue'
-import VBtn from '@/components/ui/VBtn/index.vue'
-import IconTrash from '@/components/Icon/IconTrash.vue'
 import SmartSelector from '@/components/ui/SmartSelector'
+import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 
 const source = defineModel({
   type: Object,

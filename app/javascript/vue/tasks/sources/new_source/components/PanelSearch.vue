@@ -7,6 +7,7 @@
     label="label_html"
     clear-after
     medium
+    variant="tonal"
     autofocus
     @select="({ id }) => store.loadSource(id)"
   />

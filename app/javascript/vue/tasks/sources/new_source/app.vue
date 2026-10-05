@@ -4,21 +4,22 @@
       class="relative"
       navbar-class="panel content rounded-tl-none rounded-tr-none"
     >
-      <div class="flex-separate full_width">
+      <div class="flex-separate full_width gap-medium">
         <div class="middle gap-small">
-          <div class="margin-small-right">
+          <div class="horizontal-left-content gap-small margin-small-right">
             <PanelSearch ref="panelSearch" />
+            <VRecent />
           </div>
-          <template v-if="store.source.id">
+          <div
+            v-if="store.source.id"
+            class="nav__source gap-small"
+          >
             <span
               class="word_break"
               v-html="store.source.cached"
             />
 
-            <div
-              class="horizontal-right-content gap-small"
-              v-if="store.source.id"
-            >
+            <div class="horizontal-left-content gap-small">
               <CitationTotal :source-id="store.source.id" />
               <VPin
                 type="Source"
@@ -31,60 +32,66 @@
               <RadialAnnotator :global-id="store.source.global_id" />
               <RadialObject :global-id="store.source.global_id" />
             </div>
-          </template>
+          </div>
           <span v-else>New record</span>
         </div>
-        <div class="nav__buttons gap-small">
-          <UnsavedIndicator v-if="isUnsaved" />
-          <VBtn
-            medium
-            color="create"
-            :disabled="!store.isSaveAvailable"
-            @click="saveSource"
-          >
-            Save
-          </VBtn>
-          <CloneSource />
-          |
-          <VBtn
-            v-if="store.source.type === SOURCE_VERBATIM && store.source.id"
-            medium
-            color="primary"
-            @click="convert"
-          >
-            To BibTeX
-          </VBtn>
-          <VBtn
-            medium
-            color="primary"
-            v-help.section.navBar.crossRef
-            @click="showCrossRefForm"
-          >
-            CrossRef
-          </VBtn>
-          <VBtn
-            medium
-            color="primary"
-            @click="showBibTexForm"
-          >
-            BibTeX
-          </VBtn>
-
-          <VBtn
-            medium
-            color="primary"
-            @click="reset"
-          >
-            New
-          </VBtn>
-          |
-          <VRecent />
-          <SourceSettings />
-          <VMenu title="Menu">
-            <VMenuItem :href="RouteNames.SourceHub">
-              Back to source hub
-            </VMenuItem>
-          </VMenu>
+        <div class="nav__buttons gap-medium">
+          <div class="horizontal-left-content gap-small">
+            <UnsavedIndicator v-if="isUnsaved" />
+            <VBtn
+              medium
+              color="create"
+              :disabled="!store.isSaveAvailable"
+              @click="saveSource"
+            >
+              Save
+            </VBtn>
+            <CloneSource />
+          </div>
+          <div class="horizontal-left-content gap-small">
+            <VBtn
+              v-if="store.source.type === SOURCE_VERBATIM && store.source.id"
+              medium
+              color="primary"
+              variant="tonal"
+              @click="convert"
+            >
+              To BibTeX
+            </VBtn>
+            <VBtn
+              medium
+              color="primary"
+              variant="tonal"
+              v-help.section.navBar.crossRef
+              @click="showCrossRefForm"
+            >
+              CrossRef
+            </VBtn>
+            <VBtn
+              medium
+              color="primary"
+              variant="tonal"
+              @click="showBibTexForm"
+            >
+              BibTeX
+            </VBtn>
+            <VBtn
+              medium
+              color="primary"
+              variant="tonal"
+              @click="reset"
+            >
+              New
+            </VBtn>
+          </div>
+          <div class="horizontal-left-content gap-small">
+            <SourceSettings />
+            <VMenu title="Menu">
+              <VMenuItem :href="RouteNames.SourceHub">
+                Back to source hub
+              </VMenuItem>
+            </VMenu>
+          </div>
         </div>
       </div>
       <Autosave
@@ -292,13 +299,20 @@ async function convert() {
   align-items: center;
 }
 
+.nav__source {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
 @media (min-width: 1520px) {
   .nav__buttons {
-    min-width: 800px;
+    flex-shrink: 0;
   }
 
-  .nav__source-buttons {
-    min-width: 150px;
+  .nav__source {
+    flex-direction: row;
+    align-items: center;
   }
 }
 

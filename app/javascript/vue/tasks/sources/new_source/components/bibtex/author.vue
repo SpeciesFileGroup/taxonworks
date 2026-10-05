@@ -26,18 +26,20 @@
               :role-type="ROLE_SOURCE_AUTHOR"
               @update:model-value="() => (source.isUnsaved = true)"
             />
-            <VBtn
-              v-if="source.author"
-              color="primary"
-              icon
-              medium
-              variant="tonal"
-              title="Match authors from BibTeX string"
-              @click="showMatchModal = true"
-            >
-              <IconUserRoundArrowLeft class="w-4 h-4" />
-            </VBtn>
           </div>
+        </template>
+        <template #tabs-right>
+          <VBtn
+            v-if="source.author"
+            color="primary"
+            icon
+            medium
+            variant="tonal"
+            title="Match authors from BibTeX string"
+            @click="showMatchModal = true"
+          >
+            <IconUserRoundArrowLeft class="w-4 h-4" />
+          </VBtn>
         </template>
         <RolePicker
           v-model="source.roles_attributes"

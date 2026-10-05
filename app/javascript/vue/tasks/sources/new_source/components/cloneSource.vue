@@ -2,6 +2,7 @@
   <VBtn
     medium
     color="primary"
+    variant="tonal"
     :disabled="!store.source.id"
     @click="cloneSource"
   >
