@@ -1,4 +1,5 @@
 require 'csv'
+require 'time'
 
 module Support
 
@@ -11,7 +12,8 @@ module Support
   # so "signals" report only what those prove:
   #   :inserted - max_id grew
   #   :deleted  - count fell, or rows were inserted without the count rising
-  #   :updated  - max_updated_at moved without any inserts
+  #   :updated  - max_updated_at got later without any inserts (deleting
+  #               the newest rows moves it earlier, which is not an update)
   #
   # Written mostly by Claude.
   class ProjectStatsDiff
@@ -55,7 +57,7 @@ module Support
         s = []
         s << :inserted if inserted
         s << :deleted if delta < 0 || (inserted && delta <= 0 && end_count > 0)
-        s << :updated if !inserted && value(start_row, 'max_updated_at') != value(end_row, 'max_updated_at')
+        s << :updated if !inserted && later?(time(start_row, 'max_updated_at'), time(end_row, 'max_updated_at'))
         s
       end
 
@@ -67,6 +69,15 @@ module Support
 
       def value(row, column)
         row && row[column].to_s
+      end
+
+      def time(row, column)
+        v = value(row, column)
+        v.nil? || v.empty? ? nil : Time.parse(v)
+      end
+
+      def later?(start_time, end_time)
+        !end_time.nil? && (start_time.nil? || end_time > start_time)
       end
     end
 
@@ -193,7 +204,7 @@ module Support
       end
 
       out << 'Signals state only what the snapshots prove: inserted = max_id grew; ' \
-             'deleted = count fell, or did not rise despite inserts; updated = max_updated_at moved with no inserts.'
+             'deleted = count fell, or did not rise despite inserts; updated = max_updated_at got later with no inserts.'
 
       out.join("\n") + "\n"
     end
@@ -272,7 +283,9 @@ module Support
 
     def percent(change)
       p = change.percent
-      p.nil? ? '' : "#{p > 0 ? '+' : ''}#{p}%"
+      return '' if p.nil?
+      sign = change.delta > 0 ? '+' : '-'
+      p.zero? ? "#{sign}<0.1%" : "#{sign}#{p.abs}%"
     end
 
     def delimit(number)

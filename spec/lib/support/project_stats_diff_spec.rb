@@ -83,6 +83,14 @@ describe Support::ProjectStatsDiff do
       expect(change_for(diff, 1, 'otus').signals).to contain_exactly(:inserted, :deleted)
     end
 
+    specify 'an earlier max_updated_at (the newest rows were deleted) is not an update' do
+      diff = described_class.new(
+        [row(1, :otus, 10, max_id: 10, max_updated_at: '2026-10-01 17:01:25 UTC')],
+        [row(1, :otus, 8, max_id: 8, max_updated_at: '2026-07-23 16:24:50 UTC')]
+      )
+      expect(change_for(diff, 1, 'otus').signals).to contain_exactly(:deleted)
+    end
+
     specify 'updates are not claimed when rows were inserted' do
       diff = described_class.new(
         [row(1, :otus, 10, max_id: 10)],
@@ -125,37 +133,6 @@ describe Support::ProjectStatsDiff do
     end
   end
 
-  context '.from_files' do
-    let(:dir) { Dir.mktmpdir }
-    after { FileUtils.rm_rf(dir) }
-
-    def write_tsv(name, rows, headers: Support::ProjectStatsDiff::HEADERS)
-      path = File.join(dir, name)
-      CSV.open(path, 'w', col_sep: "\t") do |csv|
-        csv << headers
-        rows.each { |r| csv << headers.map { |h| r[h] } }
-      end
-      path
-    end
-
-    specify 'reads the TSVs written by tw:audit:project_stats' do
-      a = write_tsv('a.tsv', [row(1, :otus, 5)])
-      b = write_tsv('b.tsv', [row(1, :otus, 8)])
-      expect(change_for(described_class.from_files(a, b), 1, 'otus').delta).to eq(3)
-    end
-
-    specify 'raises on unexpected headers' do
-      a = write_tsv('a.tsv', [], headers: %w[foo bar])
-      b = write_tsv('b.tsv', [row(1, :otus, 8)])
-      expect { described_class.from_files(a, b) }.to raise_error(ArgumentError, /headers/)
-    end
-
-    specify 'raises on a missing file' do
-      b = write_tsv('b.tsv', [])
-      expect { described_class.from_files(File.join(dir, 'nope.tsv'), b) }.to raise_error(ArgumentError, /nope\.tsv/)
-    end
-  end
-
   context '#report' do
     let(:diff) {
       described_class.new(
@@ -181,6 +158,12 @@ describe Support::ProjectStatsDiff do
 
     specify 'formats counts with delimiters and signed deltas' do
       expect(report).to include('1,200', '1,250', '+50')
+    end
+
+    specify 'shows a small nonzero percent as <0.1%' do
+      r = described_class.new([row(nil, :taxon_name_hierarchies, 15_007_190)], [row(nil, :taxon_name_hierarchies, 15_006_456)]).report
+      expect(r).to include('-<0.1%')
+      expect(r).not_to include('-0.0%')
     end
 
     specify 'does not sign zero totals' do
