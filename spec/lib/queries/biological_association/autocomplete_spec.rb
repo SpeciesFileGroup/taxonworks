@@ -210,4 +210,34 @@ describe Queries::BiologicalAssociation::Autocomplete, type: :model do
     expect(q.collection_object_autocomplete(:object).limit).to eq(Queries::BiologicalAssociation::Autocomplete::RESULTS_LIMIT)
   end
 
+  specify '#otu_matches returns no more than the results allowed, best ranked first' do
+    o = FactoryBot.create(:valid_otu, name: 'Zzyzxmanybas')
+    bas = 3.times.map { FactoryBot.create(:valid_biological_association, biological_association_subject: o) }
+
+    q = Queries::BiologicalAssociation::Autocomplete.new('Zzyzxmanybas', project_id:)
+    expect(q.otu_matches(:subject, 2)).to eq(bas.first(2))
+  end
+
+  specify '#biological_relationship_matches returns no more than the results allowed, in order' do
+    r = FactoryBot.create(:valid_biological_relationship, name: 'Zzyzxmanyrelationship')
+    bas = 3.times.map { FactoryBot.create(:valid_biological_association, biological_relationship: r) }
+
+    q = Queries::BiologicalAssociation::Autocomplete.new('Zzyzxmanyrelationship', project_id:)
+    expect(q.biological_relationship_matches(2)).to eq(bas.first(2))
+  end
+
+  specify '#autocomplete exact id is scoped to the project' do
+    other_project = FactoryBot.create(:valid_project, name: 'other')
+    other_ba = FactoryBot.create(
+      :biological_association,
+      biological_relationship: FactoryBot.create(:valid_biological_relationship, project: other_project),
+      biological_association_subject: FactoryBot.create(:valid_otu, project: other_project),
+      biological_association_object: FactoryBot.create(:valid_otu, project: other_project),
+      project: other_project
+    )
+
+    q = Queries::BiologicalAssociation::Autocomplete.new(other_ba.id.to_s, project_id:)
+    expect(q.autocomplete).to_not include(other_ba)
+  end
+
 end

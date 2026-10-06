@@ -9,6 +9,15 @@ module Queries
         super(string, project_id:, restrict_to:)
       end
 
+      # @return [Scope]
+      #   scoped to the project, so that queries that aren't joined to
+      #   project-scoped records (e.g. #autocomplete_exact_id) are
+      def base_query
+        q = super
+        q = q.where(project_id:) if project_id.any?
+        q
+      end
+
       # @return [ActiveRecord::Relation, nil]
       #   the klass records that are the `side` (:subject or :object) of a
       #   restrict_to biological_association, nil when there is no restriction
@@ -62,8 +71,9 @@ module Queries
 
       # @return [Array<BiologicalAssociation>]
       #   biological_associations where the subject or object (on `side`) is one of the
-      #   related_klass records identified by `ids`, in `ids` order
-      def joined_matches(related_table_name, related_type, side, ids)
+      #   related_klass records identified by `ids`, in `ids` order, at most
+      #   results_allowed
+      def joined_matches(related_table_name, related_type, side, ids, results_allowed)
         return [] if ids.empty?
 
         foreign_key_column = "biological_association_#{side}_id"
@@ -80,37 +90,43 @@ module Queries
           .order(Arel.sql(
             "array_position(ARRAY[#{ids.map(&:to_i).join(',')}], #{related_table_name}.id), biological_associations.id"
           ))
+          .limit(results_allowed)
 
         apply_restriction(q).to_a
       end
 
       def otu_matches(side, results_allowed)
         ids = otu_autocomplete(side).autocomplete_base.limit(results_allowed).pluck(:id)
-        joined_matches('otus', 'Otu', side, ids)
+        joined_matches('otus', 'Otu', side, ids, results_allowed)
       end
 
       def collection_object_matches(collection_object_query, side, results_allowed)
         ids = collection_object_query.limit(results_allowed).pluck(:id)
-        joined_matches('collection_objects', 'CollectionObject', side, ids)
+        joined_matches('collection_objects', 'CollectionObject', side, ids, results_allowed)
       end
 
       def field_occurrence_matches(field_occurrence_query, side, results_allowed)
         ids = field_occurrence_query.limit(results_allowed).pluck(:id)
-        joined_matches('field_occurrences', 'FieldOccurrence', side, ids)
+        joined_matches('field_occurrences', 'FieldOccurrence', side, ids, results_allowed)
       end
 
       def anatomical_part_matches(anatomical_part_query, side, results_allowed)
         ids = anatomical_part_query.limit(results_allowed).pluck(:id)
-        joined_matches('anatomical_parts', 'AnatomicalPart', side, ids)
+        joined_matches('anatomical_parts', 'AnatomicalPart', side, ids, results_allowed)
       end
 
       def biological_relationship_matches(results_allowed)
         ids = biological_relationship_autocomplete.all.limit(results_allowed).pluck(:id)
         return [] if ids.empty?
 
-        q = ::BiologicalAssociation
-          .joins(:biological_relationship)
-          .where(biological_relationship: { id: ids })
+        q = base_query
+          .where(biological_relationship_id: ids)
+          # Keep the relationship autocomplete's ranking, so that the
+          # results cap keeps the best matches
+          .order(Arel.sql(
+            "array_position(ARRAY[#{ids.map(&:to_i).join(',')}], biological_associations.biological_relationship_id), biological_associations.id"
+          ))
+          .limit(results_allowed)
 
         apply_restriction(q).to_a
       end

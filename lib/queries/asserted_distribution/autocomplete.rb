@@ -62,6 +62,8 @@ module Queries
         # subquery is cheaper.
         ids = biological_association_ads.distinct
           .limit(LITERAL_RESTRICTION_MAX + 1).pluck(:asserted_distribution_object_id)
+        return nil if ids.empty?
+
         if ids.size <= LITERAL_RESTRICTION_MAX
           asserted_biological_associations = ::BiologicalAssociation.where(id: ids)
         end
@@ -69,9 +71,16 @@ module Queries
         biological_association_ids = Queries::BiologicalAssociation::Autocomplete
           .new(query_string, project_id:, restrict_to: asserted_biological_associations)
           .autocomplete.map(&:id)
+        return nil if biological_association_ids.empty?
 
+        # Keep the BA autocomplete's ranking, so that the results cap keeps
+        # the best matches
         biological_association_ads
           .where(asserted_distribution_object_id: biological_association_ids)
+          .order(Arel.sql(
+            "array_position(ARRAY[#{biological_association_ids.map(&:to_i).join(',')}], " \
+            'asserted_distributions.asserted_distribution_object_id), asserted_distributions.id'
+          ))
       end
 
       def autocomplete_biological_associations_graph
