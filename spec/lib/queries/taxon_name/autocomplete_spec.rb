@@ -235,6 +235,53 @@ describe Queries::TaxonName::Autocomplete, type: :model do
       q = Queries::TaxonName::Autocomplete.new('Erasmoneura', limit: 1)
       expect(q.autocomplete.size).to eq(1)
     end
+
+    specify '#cut_off? is false when every match fits' do
+      q = Queries::TaxonName::Autocomplete.new('Erasmoneura')
+      q.autocomplete
+      expect(q.cut_off?).to be false
+    end
+
+    specify '#cut_off? is true when a query reaches the limit' do
+      q = Queries::TaxonName::Autocomplete.new('Erasmoneura', limit: 1)
+      q.autocomplete
+      expect(q.cut_off?).to be true
+    end
+
+    specify '#cut_off? is true when the limit is reached by a query before the last' do
+      # 'Erasmoneura' and 'Erasmoneura vulnerata' match the first (end
+      # wildcard) query, with later queries left to run
+      q = Queries::TaxonName::Autocomplete.new('Erasmoneura', limit: 2)
+      q.autocomplete
+      expect(q.cut_off?).to be true
+    end
+
+    specify '#cut_off? raises before #autocomplete is run' do
+      expect { Queries::TaxonName::Autocomplete.new('Erasmoneura').cut_off? }.to raise_error(RuntimeError)
+    end
+  end
+
+  context 'ordering' do
+    specify 'every query is ordered, with the id as the final tie-breaker' do
+      [true, false].each do |exact|
+        q = Queries::TaxonName::Autocomplete.new('Erasmoneura vulnerata', exact:)
+        q.strategy_queries.each do |s|
+          expect(s.to_sql).to match(/ORDER BY .*"taxon_names"\."id"( ASC)?( LIMIT \d+)?\z/)
+        end
+      end
+    end
+
+    specify 'names with the same cached value are returned in id order' do
+      combination = FactoryBot.create(:valid_combination)
+      combination.reload
+      same = Protonym.find(combination.cached_valid_taxon_name_id)
+      # a Protonym and a Combination can share `cached`
+      expect(same.cached).to eq(combination.cached)
+
+      r = Queries::TaxonName::Autocomplete.new(combination.cached).autocomplete
+      tied = r.select { |n| n.cached == combination.cached }.map(&:id)
+      expect(tied).to eq(tied.sort)
+    end
   end
 
   context 'restrict_to' do

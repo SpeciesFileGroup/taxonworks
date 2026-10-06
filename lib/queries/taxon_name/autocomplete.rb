@@ -405,16 +405,17 @@ module Queries
         ]
       end
 
-      # @return [Array]
-      def autocomplete
+      # @return [Array<ActiveRecord::Relation>]
+      #   the queries #autocomplete runs, in priority order, each ordered with
+      #   the id as the final tie-breaker so that results (and how deep a
+      #   limit reaches) are deterministic
+      def strategy_queries
         # exact, unified, comprehensive
 
         queries = (exact ? exact_autocomplete : comprehensive_autocomplete )
         queries.compact!
 
-        result = []
-
-        queries.each_with_index do |q,i|
+        queries.map do |q|
           a = q
           a = q.where(project_id:) if project_id.present? # strange here, concept is global autocomplete, doesn't exist in API
           a = a.where(and_clauses.to_sql) if and_clauses
@@ -426,8 +427,27 @@ module Queries
           a = a.not_leaves if no_leaves
           a = apply_restriction(a)
 
-          result += a.limit(limit).to_a
-          break if result.count >= limit
+          a.order(table[:id])
+        end
+      end
+
+      # @return [Array]
+      #   see Query::Autocomplete#cut_off? for whether this is every match
+      def autocomplete
+        queries = strategy_queries
+
+        result = []
+        @cut_off = false
+
+        queries.each_with_index do |a, i|
+          rows = a.limit(limit).to_a
+          @cut_off = true if rows.size >= limit # there may be more rows
+
+          result += rows
+          if result.count >= limit
+            @cut_off = true if i < queries.size - 1 # queries left unrun
+            break
+          end
         end
 
         result.uniq!

@@ -263,54 +263,67 @@ describe Queries::Otu::Autocomplete, type: :model do
   end
 
   context 'restrict_to taxon names' do
-    specify '#taxon_name_restriction is nil when there is no restriction' do
-      expect(Queries::Otu::Autocomplete.new('Erasmoneura').taxon_name_restriction).to be_nil
-    end
-
-    specify '#taxon_name_restriction includes the taxon names of the restricted Otus' do
-      q = Queries::Otu::Autocomplete.new('Erasmoneura', restrict_to: Otu.where(id: otu2.id))
-      expect(q.taxon_name_restriction).to contain_exactly(species)
-    end
-
-    specify '#taxon_name_restriction includes Combinations whose valid name is that of a restricted Otu' do
-      combination = FactoryBot.create(:valid_combination)
-      combination.reload
-      o = Otu.create!(taxon_name_id: combination.cached_valid_taxon_name_id)
-
-      q = Queries::Otu::Autocomplete.new('Aus bus', restrict_to: Otu.where(id: o.id))
-      expect(q.taxon_name_restriction).to include(combination)
-    end
-
-    specify 'takes deep, unrestricted TaxonName results, filtered by the Otu restriction' do
+    specify 'takes unrestricted TaxonName results, filtered by the Otu restriction' do
       expect(Queries::TaxonName::Autocomplete).to receive(:new)
-        .with('Erasmoneura', hash_including(restrict_to: nil, limit: Queries::Otu::Autocomplete::TAXON_NAME_DEPTH))
+        .with('Erasmoneura', hash_excluding(:restrict_to))
         .and_call_original
 
       q = Queries::Otu::Autocomplete.new('Erasmoneura', restrict_to: Otu.where(id: otu2.id))
       expect(q.autocomplete).to contain_exactly(otu2)
     end
 
-    specify 'extended takes deep, unrestricted TaxonName results, filtered by the Otu restriction' do
+    specify 'extended takes unrestricted TaxonName results, filtered by the Otu restriction' do
       expect(Queries::TaxonName::Autocomplete).to receive(:new)
-        .with('Erasmoneura', hash_including(restrict_to: nil, limit: Queries::Otu::Autocomplete::TAXON_NAME_DEPTH))
+        .with('Erasmoneura', hash_excluding(:restrict_to))
         .and_call_original
 
       q = Queries::Otu::Autocomplete.new('Erasmoneura', restrict_to: Otu.where(id: otu2.id))
       expect(q.autocomplete_taxon_name_extended).to contain_exactly(otu2)
     end
 
-    specify 'falls back to a restricted TaxonName autocomplete when deep results are cut off with too few allowed' do
-      stub_const('Queries::Otu::Autocomplete::TAXON_NAME_DEPTH', 1)
+    specify 'keeps a Combination whose valid name is that of a restricted Otu' do
+      combination = FactoryBot.create(:valid_combination)
+      combination.reload
+      o = Otu.create!(taxon_name_id: combination.cached_valid_taxon_name_id)
 
-      expect(Queries::TaxonName::Autocomplete).to receive(:new)
-        .with('Erasmoneura', hash_including(restrict_to: nil, limit: 1))
-        .and_call_original
-      expect(Queries::TaxonName::Autocomplete).to receive(:new)
-        .with('Erasmoneura', hash_including(restrict_to: satisfy { |r| r.to_a == [species] }))
-        .and_call_original
+      q = Queries::Otu::Autocomplete.new(combination.cached, restrict_to: Otu.where(id: o.id))
+      expect(q.taxon_name_autocomplete).to include(combination)
+      expect(q.autocomplete_taxon_name).to include(o)
+    end
 
-      q = Queries::Otu::Autocomplete.new('Erasmoneura', restrict_to: Otu.where(id: otu2.id))
-      expect(q.autocomplete).to contain_exactly(otu2)
+    context 'when the TaxonName results are cut off' do
+      let(:crowd_genus) { Protonym.create!(name: 'Zzyzxdeep', rank_class: Ranks.lookup(:iczn, 'genus'), parent: root) }
+      let!(:target_otu) {
+        # Shorter names sort first in TaxonName autocomplete
+        ('aa'..'az').each do |n|
+          Protonym.create!(name: n, rank_class: Ranks.lookup(:iczn, 'species'), parent: crowd_genus)
+        end
+        Otu.create!(taxon_name: Protonym.create!(name: 'zzzzzzzz', rank_class: Ranks.lookup(:iczn, 'species'), parent: crowd_genus))
+      }
+
+      let(:depths) { [] }
+
+      before do
+        stub_const('Queries::Query::Autocomplete::DELEGATED_DEPTH_FACTOR', 1)
+        allow_any_instance_of(Queries::TaxonName::Autocomplete).to receive(:autocomplete).and_wrap_original do |m|
+          depths << m.receiver.limit
+          m.call
+        end
+      end
+
+      specify 'deepens until enough are kept' do
+        q = Queries::Otu::Autocomplete.new('Zzyzxdeep', restrict_to: Otu.where(id: target_otu.id))
+        expect(q.autocomplete).to contain_exactly(target_otu)
+        expect(depths).to eq([20, 80])
+      end
+
+      specify 'stops at DELEGATED_MAX_DEPTH, keeping what was found' do
+        stub_const('Queries::Query::Autocomplete::DELEGATED_MAX_DEPTH', 20)
+
+        q = Queries::Otu::Autocomplete.new('Zzyzxdeep', restrict_to: Otu.where(id: target_otu.id))
+        expect(q.taxon_name_autocomplete).to eq([])
+        expect(depths).to eq([20])
+      end
     end
 
     specify 'finds a restricted Otu whose taxon name is crowded out of the default TaxonName limit' do
@@ -354,9 +367,9 @@ describe Queries::Otu::Autocomplete, type: :model do
       expect(q.autocomplete_taxon_name.map(&:id)).to include(*crowd_otus.map(&:id))
     end
 
-    specify 'restricted, keeps no more names than a restricted TaxonName autocomplete could return' do
+    specify 'restricted, keeps no more names than the limit' do
       q = Queries::Otu::Autocomplete.new('Zzyzxlimit', limit: 5, restrict_to: Otu.where(id: crowd_otus.map(&:id)))
-      expect(q.taxon_name_autocomplete.size).to be <= 2 * 5
+      expect(q.taxon_name_autocomplete.size).to eq(5)
     end
   end
 

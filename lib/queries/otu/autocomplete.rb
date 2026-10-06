@@ -39,10 +39,6 @@ module Queries
       # Only applied pertinent to the TaxonName autocomplete
       attr_accessor :include_taxon_name
 
-      # How deep to take unrestricted TaxonName autocomplete results when
-      # restricted, see #taxon_name_autocomplete
-      TAXON_NAME_DEPTH = 1000
-
       # Keys are method names. Existence of method is checked
       # before requesting the query
       QUERIES = {
@@ -133,20 +129,6 @@ module Queries
           .order('taxon_names.cached, otus.name, length(taxon_names.cached), length(otus.name)')
       end
 
-      # @return [ActiveRecord::Relation, nil]
-      #   the TaxonNames that resolve to a restrict_to Otu in
-      #   #autocomplete_taxon_name (a name resolves to Otus on its id, or, for
-      #   a Combination, on its cached_valid_taxon_name_id), nil when there is
-      #   no restriction
-      def taxon_name_restriction
-        return nil if restrict_to.nil?
-
-        otu_taxon_name_ids = apply_restriction(::Otu.all).select(:taxon_name_id)
-
-        ::TaxonName.where(id: otu_taxon_name_ids)
-          .or(::TaxonName.where(type: 'Combination', cached_valid_taxon_name_id: otu_taxon_name_ids))
-      end
-
       # @return [Integer]
       #   the id of the TaxonName whose Otus a TaxonName autocomplete result
       #   resolves to
@@ -155,43 +137,19 @@ module Queries
       end
 
       # @return [Array<TaxonName>]
-      #   the TaxonName autocomplete results for #autocomplete_taxon_name(_extended),
-      #   #limit (when given) deep.
-      #
-      #   When restricted, pushing #taxon_name_restriction into every
-      #   TaxonName query is expensive for large restrictions (it's re-built
-      #   in each query). Instead take the unrestricted results
-      #   TAXON_NAME_DEPTH deep and keep those that resolve to a restrict_to
-      #   Otu, using one query. Restricted, TaxonName autocomplete returns
-      #   fewer than 2 * its limit names, always the first ones of the
-      #   unrestricted order that survive the restriction, so the kept names
-      #   (trimmed to that size) start with exactly those results unless the
-      #   deep results were cut off before that many survived - then fall
-      #   back to the restricted TaxonName autocomplete.
+      #   the TaxonName autocomplete results for
+      #   #autocomplete_taxon_name(_extended), when restricted only those that
+      #   resolve to a restrict_to Otu, see #delegated_autocomplete
       def taxon_name_autocomplete
-        @taxon_name_autocomplete ||= begin
-          if restrict_to.nil?
-            Queries::TaxonName::Autocomplete.new(query_string, exact:, project_id:, limit:).autocomplete
-          else
-            names = Queries::TaxonName::Autocomplete
-              .new(query_string, exact:, project_id:, restrict_to: nil, limit: TAXON_NAME_DEPTH)
-              .autocomplete
-
+        @taxon_name_autocomplete ||= delegated_autocomplete(
+          build: ->(l) { Queries::TaxonName::Autocomplete.new(query_string, exact:, project_id:, limit: l) },
+          keep: ->(names) {
             allowed = apply_restriction(::Otu.where(taxon_name_id: names.map { otu_taxon_name_id(_1) }))
               .distinct.pluck(:taxon_name_id).to_set
 
-            kept = names.select { allowed.include?(otu_taxon_name_id(_1)) }
-
-            restricted_size = 2 * (limit || Queries::TaxonName::Autocomplete::DEFAULT_LIMIT)
-
-            if names.size < TAXON_NAME_DEPTH || kept.size >= restricted_size
-              kept.first(restricted_size)
-            else
-              Queries::TaxonName::Autocomplete
-                .new(query_string, exact:, project_id:, restrict_to: taxon_name_restriction, limit:).autocomplete
-            end
-          end
-        end
+            names.select { allowed.include?(otu_taxon_name_id(_1)) }
+          }
+        )
       end
 
       # @return [Scope]
