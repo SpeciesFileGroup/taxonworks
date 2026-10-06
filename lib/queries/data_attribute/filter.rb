@@ -101,6 +101,10 @@ module Queries
         controlled_vocabulary_term_id.empty? ? nil : table[:controlled_vocabulary_term_id].in(controlled_vocabulary_term_id)
       end
 
+      def asserted_environment_query_facet
+        polymorphic_annotation_object_query_facet(asserted_environment_query, 'AssertedEnvironment', 'query_ae_da')
+      end
+
       def collecting_event_query_facet
         polymorphic_annotation_object_query_facet(collecting_event_query, 'CollectingEvent', 'query_ce_da')
       end
@@ -123,6 +127,7 @@ module Queries
 
       def merge_clauses
         [
+          asserted_environment_query_facet,
           collecting_event_query_facet,
           collection_object_query_facet,
           field_occurrence_query_facet,

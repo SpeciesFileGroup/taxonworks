@@ -128,4 +128,17 @@ describe Queries::Citation::Filter, type: :model do
       expect(q.all).to contain_exactly(cited_with_source)
     end
   end
+
+  specify '#asserted_environment_query matches citations annotating AssertedEnvironments in the subquery' do
+    ae = FactoryBot.create(:valid_asserted_environment)
+    other_ae = FactoryBot.create(:valid_asserted_environment)
+
+    on_ae = FactoryBot.create(:valid_citation, citation_object: ae)
+    FactoryBot.create(:valid_citation, citation_object: other_ae)
+
+    q = Queries::Citation::Filter.new(asserted_environment_query: { asserted_environment_id: [ae.id] })
+    expect(q.all).to contain_exactly(on_ae)
+  end
+
+
 end

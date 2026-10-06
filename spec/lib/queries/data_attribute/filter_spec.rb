@@ -64,4 +64,14 @@ describe Queries::DataAttribute::Filter, type: :model do
     expect(query.all).to contain_exactly(i1)
   end
 
+  specify '#asserted_environment_query_facet' do
+    ae = FactoryBot.create(:valid_asserted_environment)
+    other_ae = FactoryBot.create(:valid_asserted_environment)
+    da = ::InternalAttribute.create!(attribute_subject: ae, value: 'ae', predicate: p1)
+    ::InternalAttribute.create!(attribute_subject: other_ae, value: 'other', predicate: p1)
+
+    q = Queries::DataAttribute::Filter.new(asserted_environment_query: { asserted_environment_id: [ae.id] })
+    expect(q.all).to contain_exactly(da)
+  end
+
 end

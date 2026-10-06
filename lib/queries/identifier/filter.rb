@@ -200,6 +200,10 @@ module Queries
         polymorphic_annotation_object_query_facet(asserted_distribution_query, 'AssertedDistribution', 'query_ad_i')
       end
 
+      def asserted_environment_query_facet
+        polymorphic_annotation_object_query_facet(asserted_environment_query, 'AssertedEnvironment', 'query_ae_i')
+      end
+
       def biological_association_query_facet
         polymorphic_annotation_object_query_facet(biological_association_query, 'BiologicalAssociation', 'query_ba_i')
       end
@@ -250,6 +254,7 @@ module Queries
           matching_namespace(:name),
           anatomical_part_query_facet,
           asserted_distribution_query_facet,
+          asserted_environment_query_facet,
           biological_association_query_facet,
           collecting_event_query_facet,
           collection_object_query_facet,
