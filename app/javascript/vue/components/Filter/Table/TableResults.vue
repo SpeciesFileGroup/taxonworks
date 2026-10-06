@@ -212,6 +212,7 @@
               />
               <RadialAnnotator
                 v-if="radialAnnotator"
+                class="table-row-radial"
                 :global-id="item.global_id"
                 reload
                 teleport
@@ -219,12 +220,14 @@
               />
               <RadialObject
                 v-if="radialObject"
+                class="table-row-radial"
                 :global-id="item.global_id"
                 teleport
                 @click="() => (lastRadialOpenedRow = item.id)"
               />
               <RadialNavigation
                 v-if="radialNavigator"
+                class="table-row-radial"
                 :global-id="item.global_id"
                 :redirect="false"
                 teleport

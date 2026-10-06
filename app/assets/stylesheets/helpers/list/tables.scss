@@ -211,3 +211,15 @@ table {
 .row-action + .row-action {
   margin-left: var(--spacing-xxs);
 }
+
+@media (hover: hover) {
+  .table-row-radial {
+    opacity: 0;
+  }
+
+  tr:hover .table-row-radial,
+  tr:focus-within .table-row-radial,
+  .cell-selected-border .table-row-radial {
+    opacity: 1;
+  }
+}
