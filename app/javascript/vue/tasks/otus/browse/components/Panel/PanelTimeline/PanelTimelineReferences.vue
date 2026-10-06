@@ -97,17 +97,11 @@ const allReferences = computed(() =>
   }))
 )
 
-const visibleReferences = computed(() => {
-  const matching = allReferences.value.filter((ref) =>
-    citedIds.value.has(ref.id)
+const visibleReferences = computed(() =>
+  allReferences.value.filter(
+    (ref) => citedIds.value.has(ref.id) || selectedIds.value.includes(ref.id)
   )
-
-  if (!selectedIds.value.length) return matching
-
-  const selected = new Set(selectedIds.value)
-
-  return matching.filter((ref) => selected.has(ref.id))
-})
+)
 </script>
 
 <style scoped>

@@ -18,7 +18,7 @@
         :otus="otus"
       />
 
-      <template v-else-if="filteredItems.length">
+      <template v-else-if="matchingItems.length">
         <div
           v-if="timeline"
           :class="hideClasses"
@@ -35,7 +35,7 @@
             v-model="selectedReferenceIds"
             :sources="timeline.sources.list"
             :topics-list="timeline.topics.list"
-            :filtered-items="visibleCitations"
+            :filtered-items="matchingItems"
             :show-topics="showReferencesTopic"
           />
         </div>
@@ -119,31 +119,28 @@ const alwaysShowAllCitations = computed({
       alwaysShowAllCitations: value
     }
 
-    // A deep plain copy: `setPreference` skips the reference it already holds,
-    // and reactive proxies cannot cross the preferences BroadcastChannel.
     userPref.setPreference(KEY_STORAGE, copyObject(preferences.value))
   }
 })
 
 const isBiologyTab = computed(() => tab.value?.kind === TIMELINE_TAB_BIOLOGY)
 
-const itemsForSelectedRefs = computed(() => {
-  if (!timeline.value) return []
-  if (!selectedReferenceIds.value.length) return timeline.value.items
-
-  return itemsForSources(selectedReferenceIds.value, timeline.value.items)
-})
-
-const filteredItems = computed(() => {
+const matchingItems = computed(() => {
   if (!preferences.value || !timeline.value) return []
 
-  return itemsForSelectedRefs.value.filter((item) =>
+  return timeline.value.items.filter((item) =>
     matchItem(item, {
       tab: tab.value,
       filterSections: preferences.value.filterSections,
       selectedTopics: selectedTopics.value
     })
   )
+})
+
+const filteredItems = computed(() => {
+  if (!selectedReferenceIds.value.length) return matchingItems.value
+
+  return itemsForSources(selectedReferenceIds.value, matchingItems.value)
 })
 
 // A long history is trimmed to its first and last citations, which are the ones
