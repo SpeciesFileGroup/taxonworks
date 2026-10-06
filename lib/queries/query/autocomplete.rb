@@ -157,9 +157,8 @@ module Queries
     # #autocomplete_wildcard_joined_strings is unordered).
     #
     # @param build [Proc]
-    #   given a limit (nil, when none was given to this autocomplete, for
-    #   the inner autocomplete's default), returns the unrestricted inner
-    #   autocomplete
+    #   given a limit (this autocomplete's #limit, not the inner
+    #   autocomplete's default), returns the unrestricted inner autocomplete
     # @param keep [Proc]
     #   given inner results, returns those usable under #restrict_to, in
     #   order (e.g. those that map to an #apply_restriction record)
@@ -167,17 +166,103 @@ module Queries
     #   everything, other than the limit, that `build` passes the inner
     #   autocomplete, i.e. what its results depend on
     # @return [Array]
-    #   inner results, when restricted at most the inner autocomplete's
-    #   #limit of them
+    #   inner results, when restricted at most #limit of them
     def delegated_autocomplete(build:, keep:, key:)
-      inner = build.call(@limit)
+      inner = build.call(limit)
       return inner.autocomplete if restrict_to.nil?
       return [] if query_string.to_s.length < DELEGATED_MINIMUM_LENGTH
 
-      wanted = inner.limit
       inner.limit = DELEGATED_DEPTH
       results = (delegated_results || {})[[inner.class, *key]] ||= inner.autocomplete
-      keep.call(results).first(wanted)
+      keep.call(results).first(limit)
+    end
+
+    # Order query by the position of `column` in `ids`, e.g. another
+    # autocomplete's ranked results, so that a limit keeps the best matches.
+    # Ties (e.g. several records per id) are broken by #table id.
+    #
+    # @param query [ActiveRecord::Relation] of referenced_klass
+    # @param column [String]
+    #   a qualified column holding the ids, e.g. 'otus.id'
+    # @param ids [Array]
+    #   not empty, in rank order
+    # @return [ActiveRecord::Relation]
+    def order_by_id_rank(query, column, ids)
+      query.order(Arel.sql(
+        "array_position(ARRAY[#{ids.map(&:to_i).join(',')}], #{column}), #{table.name}.id"
+      ))
+    end
+
+    # The most ids #asserted_object_restriction passes literally
+    LITERAL_RESTRICTION_MAX = 1000
+
+    # @param asserted [ActiveRecord::Relation]
+    #   of referenced_klass, the asserted records of one object type
+    # @param object_klass [Class]
+    # @param object_id_column [String]
+    #   the column of `asserted` holding the object ids
+    # @return [ActiveRecord::Relation, nil]
+    #   the object_klass records that have an `asserted` record, nil if
+    #   there are none
+    def asserted_object_restriction(asserted, object_klass, object_id_column)
+      # The restriction is re-applied in every query of the object
+      # autocomplete, and of those it delegates to (e.g. BA -> Otu/CO/... ->
+      # TaxonName, dozens of queries): when there are few ids, passing them
+      # literally is much cheaper than re-evaluating the subquery in each;
+      # when there are many, the subquery is cheaper. Only the caller can
+      # tell cheaply (one pluck here); checking the size at every level of
+      # the chain costs more than it saves.
+      ids = asserted.distinct
+        .limit(LITERAL_RESTRICTION_MAX + 1).pluck(object_id_column)
+      return nil if ids.empty?
+
+      if ids.size <= LITERAL_RESTRICTION_MAX
+        object_klass.where(id: ids)
+      else
+        object_klass.where(id: asserted.select(object_id_column))
+      end
+    end
+
+    # For autocompletes of records asserting something about a polymorphic
+    # object (e.g. AssertedDistribution, AssertedEnvironment): match the
+    # objects of `object_type` with their own autocomplete, then return the
+    # asserted records of those objects, in the object autocomplete's rank
+    # order.
+    #
+    # The combinatorics are not great for joining each object autocomplete
+    # option with the asserted records directly, so the object autocomplete
+    # is run restricted to objects that have asserted records (in
+    # #project_id, within #restrict_to). This keeps it fast and keeps
+    # objects without (usable) asserted records from filling its result
+    # limit: every one has one, so #limit of them can fill the results.
+    #
+    # @param object_type [String]
+    #   e.g. 'BiologicalAssociation'
+    # @param object_autocomplete_class [Class]
+    #   accepting `restrict_to:` and `limit:`
+    # @param object_association [Symbol]
+    #   the polymorphic association, e.g. :asserted_distribution_object
+    # @return [ActiveRecord::Relation, nil]
+    #   of referenced_klass, at most #limit, nil if there are no matches
+    def asserted_object_autocomplete(object_type:, object_autocomplete_class:, object_association:)
+      type_column = "#{object_association}_type"
+      id_column = "#{object_association}_id"
+
+      asserted = referenced_klass.where(type_column => object_type)
+      asserted = asserted.where(project_id:) if project_id.present?
+      asserted = apply_restriction(asserted)
+
+      objects = asserted_object_restriction(asserted, object_type.constantize, id_column)
+      return nil if objects.nil?
+
+      object_ids = object_autocomplete_class
+        .new(query_string, project_id:, restrict_to: objects, limit:)
+        .autocomplete.map(&:id)
+      return nil if object_ids.empty?
+
+      order_by_id_rank(
+        asserted.where(id_column => object_ids), "#{table.name}.#{id_column}", object_ids
+      ).limit(limit)
     end
 
     # @return [Scope]

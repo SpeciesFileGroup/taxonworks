@@ -116,6 +116,33 @@ describe Queries::AssertedEnvironment::Autocomplete, type: :model do
     expect(r).to contain_exactly(ae)
   end
 
+  specify '#autocomplete_otu_object keeps the Otu autocomplete ranking' do
+    # Created first, so likely first in an unordered result
+    weaker_otu = FactoryBot.create(:valid_otu, name: 'Zzyzxrankedotu weaker')
+    weaker_ae = FactoryBot.create(:asserted_environment, uri_label: 'planned burn', asserted_environment_object: weaker_otu)
+
+    exact_otu = FactoryBot.create(:valid_otu, name: 'Zzyzxrankedotu')
+    exact_ae = FactoryBot.create(:asserted_environment, uri_label: 'planned burn', asserted_environment_object: exact_otu)
+
+    expect(
+      Queries::Otu::Autocomplete.new('Zzyzxrankedotu', project_id:).autocomplete
+    ).to eq([exact_otu, weaker_otu])
+
+    q = described_class.new('Zzyzxrankedotu', project_id:)
+    expect(q.autocomplete_otu_object.to_a).to eq([exact_ae, weaker_ae])
+  end
+
+  specify '#autocomplete does not run the object autocompletes once earlier queries fill the limit' do
+    otu = FactoryBot.create(:valid_otu, name: 'Zzyzxlazy otu')
+    FactoryBot.create(:asserted_environment, uri_label: 'planned burn', asserted_environment_object: otu)
+    ae = FactoryBot.create(:valid_asserted_environment, uri_label: 'Zzyzxlazy forest')
+
+    expect(Queries::Otu::Autocomplete).to_not receive(:new)
+
+    q = described_class.new('Zzyzxlazy', project_id:, limit: 1)
+    expect(q.autocomplete).to eq([ae])
+  end
+
   context 'restrict_to' do
     let!(:ae1) { FactoryBot.create(:valid_asserted_environment, uri_label: 'Zzyzxrestrict forest') }
     let!(:ae2) { FactoryBot.create(:valid_asserted_environment, uri_label: 'Zzyzxrestrict forest') }
@@ -123,6 +150,20 @@ describe Queries::AssertedEnvironment::Autocomplete, type: :model do
     specify 'restricts results to the given AssertedEnvironments' do
       q = described_class.new('Zzyzxrestrict', project_id:, restrict_to: ::AssertedEnvironment.where(id: ae2.id))
       expect(q.autocomplete).to contain_exactly(ae2)
+    end
+
+    specify 'restricts the object autocomplete to objects of the given AssertedEnvironments' do
+      excluded_otu = FactoryBot.create(:valid_otu, name: 'Zzyzxrestrictotu')
+      included_otu = FactoryBot.create(:valid_otu, name: 'Zzyzxrestrictotu')
+      FactoryBot.create(:asserted_environment, uri_label: 'planned burn', asserted_environment_object: excluded_otu)
+      included_ae = FactoryBot.create(:asserted_environment, uri_label: 'planned burn', asserted_environment_object: included_otu)
+
+      expect(Queries::Otu::Autocomplete).to receive(:new)
+        .with('Zzyzxrestrictotu', hash_including(restrict_to: satisfy { |r| r.to_a == [included_otu] }))
+        .and_call_original
+
+      q = described_class.new('Zzyzxrestrictotu', project_id:, restrict_to: ::AssertedEnvironment.where(id: included_ae.id))
+      expect(q.autocomplete_otu_object.to_a).to contain_exactly(included_ae)
     end
 
     specify 'raises on a relation of another model' do

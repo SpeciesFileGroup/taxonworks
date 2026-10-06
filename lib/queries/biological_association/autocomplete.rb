@@ -88,12 +88,10 @@ module Queries
             "AND biological_associations.#{type_column} = '#{related_type}'"
           )
           .where(related_table_name.to_sym => { id: ids })
-          # Keep the related autocomplete's ranking, so that the results cap
-          # keeps the best matches
-          .order(Arel.sql(
-            "array_position(ARRAY[#{ids.map(&:to_i).join(',')}], #{related_table_name}.id), biological_associations.id"
-          ))
-          .limit(results_allowed)
+
+        # Keep the related autocomplete's ranking, so that the results cap
+        # keeps the best matches
+        q = order_by_id_rank(q, "#{related_table_name}.id", ids).limit(results_allowed)
 
         apply_restriction(q).to_a
       end
@@ -122,14 +120,12 @@ module Queries
         ids = biological_relationship_autocomplete.all.limit(results_allowed).pluck(:id)
         return [] if ids.empty?
 
-        q = base_query
-          .where(biological_relationship_id: ids)
-          # Keep the relationship autocomplete's ranking, so that the
-          # results cap keeps the best matches
-          .order(Arel.sql(
-            "array_position(ARRAY[#{ids.map(&:to_i).join(',')}], biological_associations.biological_relationship_id), biological_associations.id"
-          ))
-          .limit(results_allowed)
+        # Keep the relationship autocomplete's ranking, so that the results
+        # cap keeps the best matches
+        q = order_by_id_rank(
+          base_query.where(biological_relationship_id: ids),
+          'biological_associations.biological_relationship_id', ids
+        ).limit(results_allowed)
 
         apply_restriction(q).to_a
       end

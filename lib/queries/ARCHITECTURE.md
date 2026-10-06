@@ -67,6 +67,11 @@ TODO:
   `result[0..39]`).
 * An autocomplete that delegates to another passes its `limit` on, with its
   restriction.
+* Build queries that run SQL when built (e.g. ones that run another
+  autocomplete) only when earlier queries have not filled `#limit`: list
+  method names (or thunks) and build each in turn, not an Array of built
+  queries. See `Queries::AssertedDistribution::Autocomplete#autocomplete`
+  and `Queries::BiologicalAssociation::Autocomplete#ordered_lazy_queries`.
 
 ### Restricting results (`restrict_to`)
 * `restrict_to:` is a relation of the referenced model (or a subclass), or
@@ -78,7 +83,7 @@ TODO:
   `Queries::CollectingEvent::Autocomplete#autocomplete`.
 * A caller that can cheaply tell its restriction is small may pass literal
   ids (`::Model.where(id: ids)`) instead of a subquery. See
-  `Queries::AssertedDistribution::Autocomplete#autocomplete_biological_association`.
+  `Queries::Query::Autocomplete#asserted_object_restriction`.
 
 ### Delegating to another model's autocomplete
 * Use `delegated_autocomplete(build:, keep:, key:)`, don't translate the
@@ -97,5 +102,12 @@ TODO:
 
 ### Keep the ranking
 * When candidates are turned into results by a join, order by candidate rank
-  (`array_position(ARRAY[<ids>], ...)`). See
+  with `order_by_id_rank(query, column, ids)`. See
   `Queries::BiologicalAssociation::Autocomplete#joined_matches`.
+
+### Asserted objects
+* An autocomplete of records asserting something about a polymorphic object
+  (e.g. AssertedDistribution, AssertedEnvironment) matches the objects with
+  `asserted_object_autocomplete(object_type:, object_autocomplete_class:,
+  object_association:)`, don't join the object autocomplete's queries. See
+  `Queries::AssertedEnvironment::Autocomplete#autocomplete_object`.

@@ -369,6 +369,11 @@ describe Queries::Otu::Autocomplete, type: :model do
       expect(Queries::Otu::Autocomplete.new('Zzyzxlimit').limit).to eq(40)
     end
 
+    specify 'fills its own default limit (not TaxonName\'s) from taxon name matches' do
+      expect(crowd_otus.size).to be > Queries::TaxonName::Autocomplete::DEFAULT_LIMIT
+      expect(Queries::Otu::Autocomplete.new('Zzyzxlimit').autocomplete).to match_array(crowd_otus)
+    end
+
     specify 'caps results' do
       expect(Queries::Otu::Autocomplete.new('Zzyzxlimit').autocomplete.size).to be > 5
       # TaxonName names count towards the limit, and not all have an Otu
@@ -410,9 +415,9 @@ describe Queries::Otu::Autocomplete, type: :model do
       end
     end
 
-    specify 'when not given, the TaxonName autocomplete uses its own default' do
+    specify 'when not given, the TaxonName autocomplete is given the Otu default' do
       expect(Queries::TaxonName::Autocomplete).to receive(:new)
-        .with('Zzyzxlimit', hash_including(limit: nil))
+        .with('Zzyzxlimit', hash_including(limit: Queries::Otu::Autocomplete::DEFAULT_LIMIT))
         .and_call_original
 
       Queries::Otu::Autocomplete.new('Zzyzxlimit').autocomplete_taxon_name

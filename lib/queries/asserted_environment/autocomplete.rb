@@ -35,70 +35,41 @@ module Queries
         autocomplete_object('Gazetteer', ::Queries::Gazetteer::Autocomplete)
       end
 
-      # The object's Autocomplete is restricted to only those objects that
-      # have an AssertedEnvironment in this project. This keeps it fast and
-      # prevents matching objects without asserted environments from filling the
-      # object Autocomplete's own result limit. Every one has an asserted
-      # environment, so #limit of them can fill the results.
       # @param object_type [String]
       # @param object_autocomplete_class [Class]
       # @return [Scope, nil]
       def autocomplete_object(object_type, object_autocomplete_class)
         return nil if query_string.length < 3
 
-        asserted_object_ids = ::AssertedEnvironment
-          .where(asserted_environment_object_type: object_type)
-        if project_id.present?
-          asserted_object_ids = asserted_object_ids.where(project_id:)
-        end
-        asserted_objects = object_type.constantize.where(
-          id: asserted_object_ids.select(:asserted_environment_object_id)
+        asserted_object_autocomplete(
+          object_type:,
+          object_autocomplete_class:,
+          object_association: :asserted_environment_object
         )
-
-        ids = object_autocomplete_class
-          .new(query_string, project_id:, restrict_to: asserted_objects, limit:)
-          .autocomplete.map(&:id)
-
-        return nil if ids.empty?
-        base_query.where(
-          asserted_environment_object_type: object_type,
-          asserted_environment_object_id: ids
-        ).limit(limit)
-      end
-
-      def updated_queries
-        queries = [
-          autocomplete_exact_id,
-          autocomplete_uri_label_contains_match,
-          autocomplete_uri_exact,
-          autocomplete_uri_ends_with,
-          autocomplete_collecting_event_object,
-          autocomplete_otu_object,
-          autocomplete_gazetteer_object
-        ]
-
-        queries.compact!
-
-        return [] if queries.empty?
-
-        project_queries = []
-
-        queries.each do |q|
-          a = project_id.present? ? q.where(project_id:) : q
-          project_queries.push apply_restriction(a)
-        end
-
-        project_queries
       end
 
       # @return [Array]
       def autocomplete
-        queries = updated_queries
+        # Method names, built in turn, so that later queries (e.g. the object
+        # ones, which run the object autocompletes) don't run once the
+        # results are filled
+        queries = %i[
+          autocomplete_exact_id
+          autocomplete_uri_label_contains_match
+          autocomplete_uri_exact
+          autocomplete_uri_ends_with
+          autocomplete_collecting_event_object
+          autocomplete_otu_object
+          autocomplete_gazetteer_object
+        ]
 
         result = []
+        queries.each do |m|
+          q = send(m)
+          next if q.nil?
 
-        queries.each do |q|
-          result += q.to_a
+          q = q.where(project_id:) if project_id.present?
+          result += apply_restriction(q).to_a
           result.uniq!
           break if result.count >= limit
         end

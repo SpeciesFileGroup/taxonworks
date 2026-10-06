@@ -235,6 +235,22 @@ describe Queries::TaxonName::Autocomplete, type: :model do
       q = Queries::TaxonName::Autocomplete.new('Erasmoneura', limit: 1)
       expect(q.autocomplete.size).to eq(1)
     end
+
+    specify 'caps results when a later query overshoots the limit' do
+      q = Queries::TaxonName::Autocomplete.new('Erasmoneura', limit: 2)
+      allow(q).to receive(:strategy_queries) {
+        [TaxonName.where(id: root.id), TaxonName.where(id: [genus.id, species.id]).order(:id)]
+      }
+      expect(q.autocomplete).to eq([root, genus])
+    end
+
+    specify 'does not count duplicates towards the limit' do
+      q = Queries::TaxonName::Autocomplete.new('Erasmoneura', limit: 2)
+      allow(q).to receive(:strategy_queries) {
+        [TaxonName.where(id: genus.id), TaxonName.where(id: genus.id), TaxonName.where(id: species.id)]
+      }
+      expect(q.autocomplete).to eq([genus, species])
+    end
   end
 
   context 'restrict_to' do

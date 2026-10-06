@@ -21,7 +21,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 ### Changed
 
-- Biological Association autocomplete is faster and finds more matches, e.g. genus-level searches in large projects
+- Biological Association autocomplete is faster and finds more matches
 - Updated attribution label in `/api/v1/leads/key/<id>`
 - Radial annotator: Replace background color by badge when citation is original [#4979]
 - Add support for setting a Taxon Determination for a batch import of iNaturalist observations [#4912]

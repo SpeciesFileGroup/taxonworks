@@ -4,9 +4,6 @@ module Queries
 
       DEFAULT_LIMIT = 50
 
-      # See #autocomplete_biological_association
-      LITERAL_RESTRICTION_MAX = 1000
-
       def initialize(string, project_id: nil, restrict_to: nil, limit: nil)
         super(string, project_id:, restrict_to:, limit:)
       end
@@ -44,50 +41,11 @@ module Queries
       end
 
       def autocomplete_biological_association
-        # The combinatorics are not great for joining each BA autocomplete
-        # option with AD directly, so match on the BA autocomplete results,
-        # restricted to BAs that have asserted distributions.
-        biological_association_ads = ::AssertedDistribution
-          .where(asserted_distribution_object_type: 'BiologicalAssociation')
-        if project_id.present?
-          biological_association_ads = biological_association_ads.where(project_id:)
-        end
-
-        asserted_biological_associations = ::BiologicalAssociation.where(
-          id: biological_association_ads.select(:asserted_distribution_object_id)
+        asserted_object_autocomplete(
+          object_type: 'BiologicalAssociation',
+          object_autocomplete_class: Queries::BiologicalAssociation::Autocomplete,
+          object_association: :asserted_distribution_object
         )
-
-        # The restriction is re-applied in every query down the
-        # BA -> Otu/CO/... -> TaxonName chain (dozens of queries): when there
-        # are few ids, passing them literally is much cheaper than
-        # re-evaluating the subquery in each; when there are many, the
-        # subquery is cheaper. Only the caller can tell cheaply (one pluck
-        # here); checking the size at every level of the chain costs more
-        # than it saves.
-        ids = biological_association_ads.distinct
-          .limit(LITERAL_RESTRICTION_MAX + 1).pluck(:asserted_distribution_object_id)
-        return nil if ids.empty?
-
-        if ids.size <= LITERAL_RESTRICTION_MAX
-          asserted_biological_associations = ::BiologicalAssociation.where(id: ids)
-        end
-
-        # Every one has an asserted distribution, so #limit of them can fill
-        # the results
-        biological_association_ids = Queries::BiologicalAssociation::Autocomplete
-          .new(query_string, project_id:, restrict_to: asserted_biological_associations, limit:)
-          .autocomplete.map(&:id)
-        return nil if biological_association_ids.empty?
-
-        # Keep the BA autocomplete's ranking, so that the results cap keeps
-        # the best matches
-        biological_association_ads
-          .where(asserted_distribution_object_id: biological_association_ids)
-          .order(Arel.sql(
-            "array_position(ARRAY[#{biological_association_ids.map(&:to_i).join(',')}], " \
-            'asserted_distributions.asserted_distribution_object_id), asserted_distributions.id'
-          ))
-          .limit(limit)
       end
 
       def autocomplete_biological_associations_graph
@@ -154,35 +112,31 @@ module Queries
 
       # @return [Array]
       def autocomplete
-        queries = [
-          autocomplete_matching_source,
-          autocomplete_matching_otu_name,
-          autocomplete_matching_taxon_name,
-          autocomplete_biological_association,
-          autocomplete_observation_otu_name,
-          autocomplete_observation_taxon_name,
-          autocomplete_conveyance_otu_name,
-          autocomplete_conveyance_taxon_name,
-          autocomplete_depiction_otu_name,
-          autocomplete_depiction_taxon_name,
-          autocomplete_matching_geographic_area,
-          autocomplete_matching_gazetteer,
-          autocomplete_biological_associations_graph,
+        # Method names, built in turn, so that later queries (e.g. the
+        # biological association one, which runs the BA autocomplete) don't
+        # run once the results are filled
+        queries = %i[
+          autocomplete_matching_source
+          autocomplete_matching_otu_name
+          autocomplete_matching_taxon_name
+          autocomplete_biological_association
+          autocomplete_observation_otu_name
+          autocomplete_observation_taxon_name
+          autocomplete_conveyance_otu_name
+          autocomplete_conveyance_taxon_name
+          autocomplete_depiction_otu_name
+          autocomplete_depiction_taxon_name
+          autocomplete_matching_geographic_area
+          autocomplete_matching_gazetteer
+          autocomplete_biological_associations_graph
         ]
 
-        queries = queries.compact
-
-        return [] if queries.empty?
-        updated_queries = []
-
-        queries.each_with_index do |q ,i|
-          a = q.where(asserted_distributions: {project_id:})
-          updated_queries[i] = apply_restriction(a)
-        end
-
         result = []
-        updated_queries.each do |q|
-          result += q.to_a
+        queries.each do |m|
+          q = send(m)
+          next if q.nil?
+
+          result += apply_restriction(q.where(asserted_distributions: {project_id:})).to_a
           result.uniq!
           break if result.count >= limit
         end

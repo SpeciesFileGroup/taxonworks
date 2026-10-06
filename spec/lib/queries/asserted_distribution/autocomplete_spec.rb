@@ -40,7 +40,7 @@ describe Queries::AssertedDistribution::Autocomplete, type: :model do
   end
 
   specify '#autocomplete_biological_association with more restricting ids than LITERAL_RESTRICTION_MAX' do
-    stub_const('Queries::AssertedDistribution::Autocomplete::LITERAL_RESTRICTION_MAX', 0)
+    stub_const('Queries::Query::Autocomplete::LITERAL_RESTRICTION_MAX', 0)
     subject_otu = FactoryBot.create(:valid_otu, name: 'Zzyzxbasubjectotu')
     FactoryBot.create(:valid_biological_association, biological_association_subject: subject_otu)
     ba = FactoryBot.create(:valid_biological_association, biological_association_subject: subject_otu)
@@ -78,6 +78,18 @@ describe Queries::AssertedDistribution::Autocomplete, type: :model do
     expect(q.autocomplete_biological_association.to_a).to eq([exact_ad, weaker_ad])
   end
 
+  specify '#autocomplete does not run the BA autocomplete once earlier queries fill the limit' do
+    ba = FactoryBot.create(:valid_biological_association)
+    FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object: ba)
+    otu = FactoryBot.create(:valid_otu, name: 'Zzyzxlazyotu')
+    ad = FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object: otu)
+
+    expect(Queries::BiologicalAssociation::Autocomplete).to_not receive(:new)
+
+    q = Queries::AssertedDistribution::Autocomplete.new('Zzyzxlazyotu', project_id:, limit: 1)
+    expect(q.autocomplete).to eq([ad])
+  end
+
   context 'restrict_to' do
     let(:otu) { FactoryBot.create(:valid_otu, name: 'Zzyzxrestrictotu') }
     let!(:ad1) { FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object: otu) }
@@ -86,6 +98,47 @@ describe Queries::AssertedDistribution::Autocomplete, type: :model do
     specify 'restricts results to the given AssertedDistributions' do
       q = Queries::AssertedDistribution::Autocomplete.new('Zzyzxrestrictotu', project_id:, restrict_to: ::AssertedDistribution.where(id: ad2.id))
       expect(q.autocomplete).to contain_exactly(ad2)
+    end
+
+    context 'biological associations' do
+      let(:subject_otu) { FactoryBot.create(:valid_otu, name: 'Zzyzxbasubjectotu') }
+      let(:excluded_ba) { FactoryBot.create(:valid_biological_association, biological_association_subject: subject_otu) }
+      let(:included_ba) { FactoryBot.create(:valid_biological_association, biological_association_subject: subject_otu) }
+      let!(:excluded_ad) { FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object: excluded_ba) }
+      let!(:included_ad) { FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object: included_ba) }
+
+      let(:q) {
+        Queries::AssertedDistribution::Autocomplete.new(
+          'Zzyzxbasubjectotu', project_id:, restrict_to: ::AssertedDistribution.where(id: included_ad.id)
+        )
+      }
+
+      specify 'restricts the BA autocomplete to BAs of the given AssertedDistributions' do
+        expect(Queries::BiologicalAssociation::Autocomplete).to receive(:new)
+          .with('Zzyzxbasubjectotu', hash_including(restrict_to: satisfy { |r| r.to_a == [included_ba] }))
+          .and_call_original
+
+        expect(q.autocomplete_biological_association.to_a).to contain_exactly(included_ad)
+      end
+
+      specify 'restricts the BA autocomplete with more restricting ids than LITERAL_RESTRICTION_MAX' do
+        stub_const('Queries::Query::Autocomplete::LITERAL_RESTRICTION_MAX', 0)
+
+        expect(Queries::BiologicalAssociation::Autocomplete).to receive(:new)
+          .with('Zzyzxbasubjectotu', hash_including(restrict_to: satisfy { |r| r.to_a == [included_ba] }))
+          .and_call_original
+
+        q.autocomplete_biological_association
+      end
+
+      specify 'does not run the BA autocomplete when no given AssertedDistribution is of a BA' do
+        q = Queries::AssertedDistribution::Autocomplete.new(
+          'Zzyzxbasubjectotu', project_id:, restrict_to: ::AssertedDistribution.where(id: ad1.id)
+        )
+
+        expect(Queries::BiologicalAssociation::Autocomplete).to_not receive(:new)
+        expect(q.autocomplete_biological_association).to be_nil
+      end
     end
 
     specify 'raises on a relation of another model' do

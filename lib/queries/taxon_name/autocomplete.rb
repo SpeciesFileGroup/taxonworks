@@ -426,12 +426,11 @@ module Queries
 
         strategy_queries.each do |a|
           result += a.limit(limit).to_a
+          result.uniq!
           break if result.count >= limit
         end
 
-        result.uniq!
-        # result[0..19]
-        result
+        result.first(limit)
       end
 
       # @return [String, nil]
