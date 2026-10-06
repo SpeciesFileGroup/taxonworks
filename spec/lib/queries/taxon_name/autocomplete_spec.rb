@@ -235,30 +235,6 @@ describe Queries::TaxonName::Autocomplete, type: :model do
       q = Queries::TaxonName::Autocomplete.new('Erasmoneura', limit: 1)
       expect(q.autocomplete.size).to eq(1)
     end
-
-    specify '#cut_off? is false when every match fits' do
-      q = Queries::TaxonName::Autocomplete.new('Erasmoneura')
-      q.autocomplete
-      expect(q.cut_off?).to be false
-    end
-
-    specify '#cut_off? is true when a query reaches the limit' do
-      q = Queries::TaxonName::Autocomplete.new('Erasmoneura', limit: 1)
-      q.autocomplete
-      expect(q.cut_off?).to be true
-    end
-
-    specify '#cut_off? is true when the limit is reached by a query before the last' do
-      # 'Erasmoneura' and 'Erasmoneura vulnerata' match the first (end
-      # wildcard) query, with later queries left to run
-      q = Queries::TaxonName::Autocomplete.new('Erasmoneura', limit: 2)
-      q.autocomplete
-      expect(q.cut_off?).to be true
-    end
-
-    specify '#cut_off? raises before #autocomplete is run' do
-      expect { Queries::TaxonName::Autocomplete.new('Erasmoneura').cut_off? }.to raise_error(RuntimeError)
-    end
   end
 
   context 'restrict_to' do

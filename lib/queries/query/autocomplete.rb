@@ -97,13 +97,9 @@ module Queries
       query.where(table[:id].in(r.reselect(:id).arel))
     end
 
-    # Starting depth of a restricted #delegated_autocomplete, as a multiple of
-    # the number of results wanted
-    DELEGATED_DEPTH_FACTOR = 20
-
-    # The deepest a restricted #delegated_autocomplete takes its inner
+    # How deep a restricted #delegated_autocomplete takes its inner
     # autocomplete
-    DELEGATED_MAX_DEPTH = 5000
+    DELEGATED_DEPTH = 5000
 
     # Run another model's (inner) autocomplete on behalf of this one. Use
     # it when an autocomplete delegates to another, instead of translating
@@ -113,15 +109,16 @@ module Queries
     #
     # Restricted, pushing a translated restriction into each of the inner
     # autocomplete's queries is expensive for large restrictions (it's
-    # re-built in each query), so instead the inner autocomplete is run
-    # unrestricted, deeper, and its results filtered by `keep` (one query).
-    # It deepens until enough are kept, or the inner results weren't
-    # #cut_off? (nothing usable was missed); past DELEGATED_MAX_DEPTH it
-    # keeps what it found (best effort, the least relevant matches are
-    # missed).
+    # re-built in each query), so instead the inner autocomplete is run once,
+    # unrestricted, DELEGATED_DEPTH deep, and its results filtered by `keep`
+    # (one query). Best effort: usable matches ranked below DELEGATED_DEPTH
+    # (the least relevant) are missed. A LIMIT costs nothing for terms that
+    # match fewer rows, so only broad terms pay for the depth; one deep fetch
+    # was faster overall than starting shallower and deepening.
     #
-    # The inner autocomplete must accept `limit:`, order each of its
-    # queries deterministically, and report #cut_off?.
+    # The inner autocomplete must accept `limit:` and give its queries that
+    # can return many rows a ranking order (see lib/queries/ARCHITECTURE.md).
+    # So far only TaxonName autocomplete does.
     #
     # @param build [Proc]
     #   given a limit (nil for the inner autocomplete's default), returns
@@ -137,37 +134,8 @@ module Queries
       return inner.autocomplete if restrict_to.nil?
 
       wanted = inner.limit
-      depth = [wanted * DELEGATED_DEPTH_FACTOR, DELEGATED_MAX_DEPTH].min
-
-      loop do
-        inner.limit = depth
-        kept = keep.call(inner.autocomplete)
-
-        return kept.first(wanted) if kept.size >= wanted || !inner.cut_off?
-
-        if depth >= DELEGATED_MAX_DEPTH
-          Rails.logger.info(
-            "#{self.class.name}#delegated_autocomplete kept #{kept.size} of #{wanted} " \
-            "#{inner.class.name} results at DELEGATED_MAX_DEPTH (#{depth}) for '#{query_string}'"
-          )
-          return kept
-        end
-
-        depth = [depth * 4, DELEGATED_MAX_DEPTH].min
-      end
-    end
-
-    # @return [Boolean]
-    #   true if the last #autocomplete stopped before returning every match
-    #   (a query reached #limit, or queries were left unrun), i.e. deeper
-    #   results may exist. Autocompletes report it by setting @cut_off in
-    #   #autocomplete; it is required of an inner autocomplete used by
-    #   #delegated_autocomplete.
-    def cut_off?
-      if @cut_off.nil?
-        raise "cut_off? is unknown: #autocomplete has not run, or #{self.class.name} does not report it"
-      end
-      @cut_off
+      inner.limit = DELEGATED_DEPTH
+      keep.call(inner.autocomplete).first(wanted)
     end
 
     # @return [Scope]

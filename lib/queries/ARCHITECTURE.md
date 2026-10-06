@@ -115,23 +115,24 @@ It does not translate the restriction for the inner model (e.g. Otus -> the
 TaxonNames, and Combinations, they resolve to). That translation is
 relation-specific and easy to get subtly wrong, and pushing it into each of
 the inner autocomplete's queries is expensive for large restrictions (see
-Cost). Instead the inner autocomplete is run unrestricted, deeper, and its
-results filtered; it deepens until enough are kept or the inner results
-weren't cut off. Past `DELEGATED_MAX_DEPTH` it keeps what it found - best
-effort, the least relevant matches are missed.
+Cost). Instead the inner autocomplete is run once, unrestricted,
+`DELEGATED_DEPTH` (5000) deep, and its results filtered. Best effort: usable
+matches ranked below that depth - the least relevant - are missed. A LIMIT
+costs nothing for terms that match fewer rows, so only broad terms (short
+prefixes) pay for the depth; one deep fetch was faster overall than
+starting shallower and deepening when too few were kept, with identical
+results.
 
 The inner autocomplete must (once, then every caller can use it):
 * accept `limit:` and limit each of its queries with it,
 * give its queries that can return many rows a ranking ORDER BY of their
-  own, so that going deeper goes further down the ranking (the first N of
-  an unordered query are an arbitrary N). Ties don't matter: tied rows are
-  equally ranked. Don't add an order just for determinism - an id order
+  own, so that the first `DELEGATED_DEPTH` are the best ranked (the first N
+  of an unordered query are an arbitrary N). Ties don't matter: tied rows
+  are equally ranked. Don't add an order just for determinism - an id order
   with a limit can make PostgreSQL walk the primary key instead of using the
-  match (wildcard identifier queries went from ~10ms to ~2s),
-* report `cut_off?` (set `@cut_off` in `autocomplete`): whether any query
-  reached the limit, or queries were left unrun.
+  match (wildcard identifier queries went from ~10ms to ~2s).
 
-See `Queries::TaxonName::Autocomplete#strategy_queries` and `#autocomplete`.
+See `Queries::TaxonName::Autocomplete`.
 
 The exception is when the delegating autocomplete consumes the inner
 autocomplete's individual queries rather than its results, as

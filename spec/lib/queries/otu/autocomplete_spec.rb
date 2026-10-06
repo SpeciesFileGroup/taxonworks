@@ -291,7 +291,7 @@ describe Queries::Otu::Autocomplete, type: :model do
       expect(q.autocomplete_taxon_name).to include(o)
     end
 
-    context 'when the TaxonName results are cut off' do
+    context 'deep TaxonName results' do
       let(:crowd_genus) { Protonym.create!(name: 'Zzyzxdeep', rank_class: Ranks.lookup(:iczn, 'genus'), parent: root) }
       let!(:target_otu) {
         # Shorter names sort first in TaxonName autocomplete
@@ -304,21 +304,20 @@ describe Queries::Otu::Autocomplete, type: :model do
       let(:depths) { [] }
 
       before do
-        stub_const('Queries::Query::Autocomplete::DELEGATED_DEPTH_FACTOR', 1)
         allow_any_instance_of(Queries::TaxonName::Autocomplete).to receive(:autocomplete).and_wrap_original do |m|
           depths << m.receiver.limit
           m.call
         end
       end
 
-      specify 'deepens until enough are kept' do
+      specify 'are fetched once, DELEGATED_DEPTH deep' do
         q = Queries::Otu::Autocomplete.new('Zzyzxdeep', restrict_to: Otu.where(id: target_otu.id))
         expect(q.autocomplete).to contain_exactly(target_otu)
-        expect(depths).to eq([20, 80])
+        expect(depths).to eq([Queries::Query::Autocomplete::DELEGATED_DEPTH])
       end
 
-      specify 'stops at DELEGATED_MAX_DEPTH, keeping what was found' do
-        stub_const('Queries::Query::Autocomplete::DELEGATED_MAX_DEPTH', 20)
+      specify 'beyond DELEGATED_DEPTH are not found (best effort)' do
+        stub_const('Queries::Query::Autocomplete::DELEGATED_DEPTH', 20)
 
         q = Queries::Otu::Autocomplete.new('Zzyzxdeep', restrict_to: Otu.where(id: target_otu.id))
         expect(q.taxon_name_autocomplete).to eq([])

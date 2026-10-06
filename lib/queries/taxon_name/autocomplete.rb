@@ -428,22 +428,12 @@ module Queries
       end
 
       # @return [Array]
-      #   see Query::Autocomplete#cut_off? for whether this is every match
       def autocomplete
-        queries = strategy_queries
-
         result = []
-        @cut_off = false
 
-        queries.each_with_index do |a, i|
-          rows = a.limit(limit).to_a
-          @cut_off = true if rows.size >= limit # there may be more rows
-
-          result += rows
-          if result.count >= limit
-            @cut_off = true if i < queries.size - 1 # queries left unrun
-            break
-          end
+        strategy_queries.each do |a|
+          result += a.limit(limit).to_a
+          break if result.count >= limit
         end
 
         result.uniq!
