@@ -21,12 +21,14 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 ### Changed
 
+- Biological Association autocomplete is faster and finds more matches
 - Updated attribution label in `/api/v1/leads/key/<id>`
 - Radial annotator: Replace background color by badge when citation is original [#4979]
 - Add support for setting a Taxon Determination for a batch import of iNaturalist observations [#4912]
 
 ### Fixed
 
+- Asserted Distribution autocomplete raised an error when searching on biological association matches
 - DwC-A Workbench ignored the selected string delimiter, causing text imports with literal double quotes to fail even when `None` was selected [#5120]
 - DwC importer incorrectly applied `CollectionObject` project predicates with DwC URIs to `HumanObservation` records, missed `FieldOccurrence` DwC predicate mappings, and failed to flag unused model-specific columns as ignored
 - `controlled_vocabulary_term_id` param is not working on the controlled vocabulary terms endpoint
