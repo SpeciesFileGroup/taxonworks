@@ -145,6 +145,7 @@ module Queries
       def taxon_name_autocomplete
         @taxon_name_autocomplete ||= delegated_autocomplete(
           build: ->(l) { Queries::TaxonName::Autocomplete.new(query_string, exact:, project_id:, limit: l) },
+          key: [query_string, exact, project_id],
           keep: ->(names) {
             allowed = apply_restriction(::Otu.where(taxon_name_id: names.map { otu_taxon_name_id(_1) }))
               .distinct.pluck(:taxon_name_id).to_set

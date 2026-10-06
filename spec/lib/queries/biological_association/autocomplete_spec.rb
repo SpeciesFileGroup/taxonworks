@@ -284,4 +284,33 @@ describe Queries::BiologicalAssociation::Autocomplete, type: :model do
     expect(q.autocomplete).to_not include(other_ba)
   end
 
+  context 'the subject and object Otu autocompletes' do
+    let(:genus) { Protonym.create!(name: 'Zzyzxshared', rank_class: Ranks.lookup(:iczn, 'genus'), parent: FactoryBot.create(:root_taxon_name)) }
+    let(:subject_otu) { Otu.create!(taxon_name: Protonym.create!(name: 'aus', rank_class: Ranks.lookup(:iczn, 'species'), parent: genus)) }
+    let(:object_otu) { Otu.create!(taxon_name: Protonym.create!(name: 'bus', rank_class: Ranks.lookup(:iczn, 'species'), parent: genus)) }
+    let!(:ba) { FactoryBot.create(:valid_biological_association, biological_association_subject: subject_otu, biological_association_object: object_otu) }
+
+    specify 'share one TaxonName autocomplete fetch' do
+      fetches = 0
+      allow_any_instance_of(Queries::TaxonName::Autocomplete).to receive(:autocomplete).and_wrap_original do |m|
+        fetches += 1
+        m.call
+      end
+
+      q = Queries::BiologicalAssociation::Autocomplete.new('Zzyzxshared', project_id:)
+      expect(q.otu_matches(:subject, 50)).to contain_exactly(ba)
+      expect(q.otu_matches(:object, 50)).to contain_exactly(ba)
+      expect(fetches).to eq(1)
+    end
+
+    specify 'still keep only the names usable on each side' do
+      other_otu = Otu.create!(taxon_name: Protonym.create!(name: 'cus', rank_class: Ranks.lookup(:iczn, 'species'), parent: genus))
+      FactoryBot.create(:valid_biological_association, biological_association_subject: other_otu)
+
+      q = Queries::BiologicalAssociation::Autocomplete.new('Zzyzxshared', project_id:)
+      expect(q.otu_autocomplete(:object).taxon_name_autocomplete).to contain_exactly(object_otu.taxon_name)
+      expect(q.otu_autocomplete(:subject).taxon_name_autocomplete).to contain_exactly(subject_otu.taxon_name, other_otu.taxon_name)
+    end
+  end
+
 end

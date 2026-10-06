@@ -110,9 +110,16 @@ in only one or two). So it travels down with the restriction.
 
 #### Delegating to another model's autocomplete
 Use `delegated_autocomplete` (`Query::Autocomplete`), giving it how to build
-the inner autocomplete (for a limit) and how to keep the inner results usable
+the inner autocomplete (for a limit), how to keep the inner results usable
 under the restriction (e.g. those that map to an `apply_restriction` record,
-one query). See `Queries::Otu::Autocomplete#taxon_name_autocomplete`.
+one query), and a `key`: what, other than the limit, the inner results depend
+on. See `Queries::Otu::Autocomplete#taxon_name_autocomplete`.
+
+An autocomplete that creates several delegating autocompletes with different
+restrictions (e.g. one per side of a biological association) gives them all
+the same `delegated_results` Hash, so that the deep inner fetch, which
+doesn't depend on the restriction, runs once per `key`. See
+`Queries::BiologicalAssociation::Autocomplete#side_autocomplete`.
 
 It does not translate the restriction for the inner model (e.g. Otus -> the
 TaxonNames, and Combinations, they resolve to). That translation is
@@ -159,13 +166,14 @@ own queries are generally fine; a large restriction translated down a
 delegation chain is what `delegated_autocomplete` avoids (2-6x faster for
 biological association autocomplete in large projects).
 
-When the caller can cheaply tell its restriction is small (a few hundred
-ids), pass literal ids, `::BiologicalAssociation.where(id: ids)` (still a
-relation of the referenced model), rather than the subquery: 3-7x faster
-when the restriction is pushed into many queries. See
+When the caller can cheaply tell its restriction is small, pass literal ids,
+`::BiologicalAssociation.where(id: ids)` (still a relation of the referenced
+model), rather than the subquery: 3-7x faster when the restriction is pushed
+into many queries (measured at 5 and 191 ids; no difference at 145). See
 `Queries::AssertedDistribution::Autocomplete#autocomplete_biological_association`,
-which plucks at most `LITERAL_RESTRICTION_MAX` ids and otherwise passes the
-subquery. This is deliberately the caller's choice, not `apply_restriction`'s:
+which plucks at most `LITERAL_RESTRICTION_MAX` (1000) ids and otherwise passes
+the subquery. Sizes between ~200 and 1000 weren't measured, so treat that
+cutoff as a ceiling, not a tuned value. This is deliberately the caller's choice, not `apply_restriction`'s:
 checking the size of a large restriction at every level of a chain costs
 more than it saves (2-5x slower biological association autocomplete).
 

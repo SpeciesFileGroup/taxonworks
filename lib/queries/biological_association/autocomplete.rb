@@ -36,11 +36,14 @@ module Queries
       # @return [Query::Autocomplete]
       #   an autocomplete_klass autocomplete restricted to klass records on
       #   `side` (see #side_restriction), and limited to #limit, so
-      #   that it returns enough candidates to fill the results
+      #   that it returns enough candidates to fill the results. Both sides
+      #   share delegated results (e.g. the Otu autocompletes' TaxonName
+      #   fetch), see Query::Autocomplete#delegated_results.
       def side_autocomplete(autocomplete_klass, klass, side)
         @side_autocompletes ||= {}
         @side_autocompletes[[autocomplete_klass, side]] ||= autocomplete_klass
           .new(query_string, project_id:, restrict_to: side_restriction(klass, side), limit:)
+          .tap { |a| a.delegated_results = (@delegated_results ||= {}) }
       end
 
       # @return [Queries::Otu::Autocomplete]

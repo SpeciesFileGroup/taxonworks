@@ -27,7 +27,8 @@ describe Queries::Query do
       expect(
         q.delegated_autocomplete(
           build: ->(l) { Queries::Source::Autocomplete.new('Zzyzx') },
-          keep: ->(results) { results }
+          keep: ->(results) { results },
+          key: ['Zzyzx']
         )
       ).to eq([])
     end

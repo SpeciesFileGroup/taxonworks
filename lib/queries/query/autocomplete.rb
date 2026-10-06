@@ -55,6 +55,14 @@ module Queries
     #   returns enough candidates for the outer one to fill its results.
     attr_writer :limit
 
+    # @return [Hash, nil]
+    #   optional, a store for the inner results of restricted
+    #   #delegated_autocomplete calls. An autocomplete that creates several
+    #   autocompletes delegating to the same inner autocomplete (e.g. one per
+    #   side of a biological association) gives them all the same Hash, so
+    #   the DELEGATED_DEPTH fetch runs once. nil (default) is no sharing.
+    attr_accessor :delegated_results
+
     # @param [Hash] args
     def initialize(string, project_id: nil, restrict_to: nil, limit: nil, **keyword_args)
       @query_string = ::ApplicationRecord.sanitize_sql(string)&.delete("\u0000") # remove null bytes
@@ -135,6 +143,10 @@ module Queries
     # fetched are an arbitrary sample (largely unordered wildcard matches),
     # and the slowest to fetch.
     #
+    # The DELEGATED_DEPTH results depend only on the inner autocomplete, not
+    # on #restrict_to, so autocompletes given the same #delegated_results
+    # share them, by `key`.
+    #
     # The inner autocomplete must accept `limit:` and give its queries that
     # can return many rows a ranking order (see lib/queries/ARCHITECTURE.md).
     # So far only TaxonName autocomplete does.
@@ -146,17 +158,21 @@ module Queries
     # @param keep [Proc]
     #   given inner results, returns those usable under #restrict_to, in
     #   order (e.g. those that map to an #apply_restriction record)
+    # @param key [Array]
+    #   everything, other than the limit, that `build` passes the inner
+    #   autocomplete, i.e. what its results depend on
     # @return [Array]
     #   inner results, when restricted at most the inner autocomplete's
     #   #limit of them
-    def delegated_autocomplete(build:, keep:)
+    def delegated_autocomplete(build:, keep:, key:)
       inner = build.call(@limit)
       return inner.autocomplete if restrict_to.nil?
       return [] if query_string.to_s.length < DELEGATED_MINIMUM_LENGTH
 
       wanted = inner.limit
       inner.limit = DELEGATED_DEPTH
-      keep.call(inner.autocomplete).first(wanted)
+      results = (delegated_results || {})[[inner.class, *key]] ||= inner.autocomplete
+      keep.call(results).first(wanted)
     end
 
     # @return [Scope]
