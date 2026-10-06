@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_17_190742) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_06_173526) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -1297,6 +1297,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_17_190742) do
     t.index ["identifier"], name: "index_identifiers_on_identifier"
     t.index ["identifier_object_id", "identifier_object_type"], name: "index_identifiers_on_identifier_object_id_and_type"
     t.index ["namespace_id"], name: "index_identifiers_on_namespace_id"
+    t.index ["project_id", "identifier_object_type"], name: "index_identifiers_on_project_id_and_object_type"
     t.index ["project_id"], name: "index_identifiers_on_project_id"
     t.index ["type"], name: "index_identifiers_on_type"
     t.index ["updated_at"], name: "index_identifiers_on_updated_at"
