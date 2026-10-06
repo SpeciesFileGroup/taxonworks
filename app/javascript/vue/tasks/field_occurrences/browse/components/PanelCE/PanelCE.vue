@@ -5,6 +5,7 @@
         <h3>Collecting event</h3>
         <div class="horizontal-right-content gap-small">
           <RadialAnnotator :global-id="store.collectingEvent.global_id" />
+          <RadialObject :global-id="store.collectingEvent.global_id" />
           <RadialNavigator :global-id="store.collectingEvent.global_id" />
         </div>
       </div>
@@ -30,6 +31,7 @@ import BlockLayout from '@/components/layout/BlockLayout.vue'
 import PanelCEAttributes from './PanelCEAttributes.vue'
 import PanelCEModal from './PanelCEModal.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
+import RadialObject from '@/components/radials/object/radial.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import TableGrid from '@/components/layout/Table/TableGrid.vue'
 import { ref } from 'vue'

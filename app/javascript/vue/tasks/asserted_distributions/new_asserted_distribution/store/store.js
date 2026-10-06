@@ -195,6 +195,11 @@ export const useStore = defineStore('NewAssertedDistribution', {
       }
     },
 
+    clearConfidences() {
+      this.confidences = []
+      this.lock.confidences = false
+    },
+
     removeAssertedDistribution(item) {
       AssertedDistribution.destroy(item.id).then(() => {
         removeFromArray(this.assertedDistributions, item)
@@ -213,6 +218,10 @@ export const useStore = defineStore('NewAssertedDistribution', {
       Citation.destroy(citation.id)
         .then(() => {
           removeFromArray(ad.citations, citation)
+          TW.workbench.alert.create(
+            'Citation was successfully destroyed.',
+            'notice'
+          )
         })
         .catch(() => {})
     },
@@ -239,7 +248,7 @@ export const useStore = defineStore('NewAssertedDistribution', {
     reset() {
       this.assertedDistribution = makeAssertedDistribution()
 
-      if (!this.lock.citation) {
+      if (!this.lock.source) {
         this.citation = makeCitation()
       } else {
         this.citation.id = null

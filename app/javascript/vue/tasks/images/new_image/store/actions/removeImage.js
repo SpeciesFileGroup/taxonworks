@@ -6,6 +6,7 @@ export default ({ state }, image) => {
       state.imagesCreated.findIndex((item) => item.id === image.id),
       1
     )
+    delete state.settings.appliedByImage[image.id]
     TW.workbench.alert.create('Image was successfully destroyed.', 'notice')
   })
 }

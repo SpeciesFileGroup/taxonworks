@@ -87,6 +87,7 @@ import ImageGallery from './components/gallery/Main'
 import ContentComponent from './components/Content'
 import ConveyanceComponent from './components/Conveyance/PanelConveyance.vue'
 import AssertedDistribution from './components/AssertedDistribution'
+import AssertedEnvironments from './components/AssertedEnvironments'
 import BiologicalAssociations from './components/BiologicalAssociations'
 import AnnotationsComponent from './components/Annotations'
 import NomenclatureHistory from './components/timeline/Timeline.vue'
@@ -120,6 +121,7 @@ export default {
     ConveyanceComponent,
     DescriptionComponent,
     AssertedDistribution,
+    AssertedEnvironments,
     BiologicalAssociations,
     AnnotationsComponent,
     NomenclatureHistory,

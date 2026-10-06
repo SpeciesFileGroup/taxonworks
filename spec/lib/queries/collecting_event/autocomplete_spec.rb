@@ -143,4 +143,63 @@ describe Queries::CollectingEvent::Autocomplete, type: :model do
     expect(query.autocomplete_verbatim_habitat.map(&:id)).to contain_exactly(ce2.id)
   end
 
+
+  context 'georeferences' do
+    let!(:georeference) { FactoryBot.create(:valid_georeference, collecting_event: ce2) }
+
+    specify 'unrestricted by default' do
+      q = Queries::CollectingEvent::Autocomplete.new('there')
+      expect(q.autocomplete.map(&:id)).to contain_exactly(ce1.id, ce2.id)
+    end
+
+    specify 'true restricts to collecting events with a georeference' do
+      q = Queries::CollectingEvent::Autocomplete.new('there', georeferences: true)
+      expect(q.autocomplete.map(&:id)).to contain_exactly(ce2.id)
+    end
+
+    specify 'false restricts to collecting events without a georeference' do
+      q = Queries::CollectingEvent::Autocomplete.new('there', georeferences: false)
+      expect(q.autocomplete.map(&:id)).to contain_exactly(ce1.id)
+    end
+
+    specify 'a string param is cast' do
+      q = Queries::CollectingEvent::Autocomplete.new('there', georeferences: 'true')
+      expect(q.autocomplete.map(&:id)).to contain_exactly(ce2.id)
+    end
+  end
+
+  context 'restrict_to' do
+    specify 'restricts results to the given CollectingEvents (relation)' do
+      q = Queries::CollectingEvent::Autocomplete.new('there', restrict_to: CollectingEvent.where(id: ce2.id))
+      expect(q.autocomplete.map(&:id)).to contain_exactly(ce2.id)
+    end
+
+    specify 'raises when given an Array' do
+      q = Queries::CollectingEvent::Autocomplete.new('there', restrict_to: [ce1.id])
+      expect { q.autocomplete }.to raise_error(ArgumentError)
+    end
+
+    specify 'restricts identifier matches, which are not built from base_query' do
+      Identifier::Local::FieldNumber.create!(identifier_object: ce2, identifier: '124', namespace:)
+      q = Queries::CollectingEvent::Autocomplete.new('oo 12', restrict_to: CollectingEvent.where(id: ce2.id))
+      expect(q.autocomplete.map(&:id)).to contain_exactly(ce2.id)
+    end
+
+    specify 'accepts a relation with an existing multi-column select' do
+      r = CollectingEvent.select('collecting_events.*').where(id: ce2.id)
+      q = Queries::CollectingEvent::Autocomplete.new('there', restrict_to: r)
+      expect(q.autocomplete.map(&:id)).to contain_exactly(ce2.id)
+    end
+
+    specify 'raises when the relation is of another model' do
+      q = Queries::CollectingEvent::Autocomplete.new('there', restrict_to: Otu.all)
+      expect { q.autocomplete }.to raise_error(ArgumentError, /Otu/)
+    end
+
+    specify 'is not applied when nil' do
+      q = Queries::CollectingEvent::Autocomplete.new('there', restrict_to: nil)
+      expect(q.autocomplete.map(&:id)).to include(ce1.id, ce2.id)
+    end
+  end
+
 end

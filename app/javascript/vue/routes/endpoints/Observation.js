@@ -29,12 +29,6 @@ const permitParams = {
     month_made: Number,
     year_made: Number,
     time_made: String,
-    images_attributes: {
-      id: Number,
-      _destroy: Boolean,
-      image_file: String,
-      rotate: Number
-    },
     depictions_attributes: {
       id: Number,
       _destroy: Boolean,

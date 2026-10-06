@@ -54,11 +54,20 @@ Object.assign(TW.workbench.alert, {
     this.play(type);
   },
 
+  audio: {},
+
   play: function (type) {
-      if (!document.hidden) {
-        const sound = new Audio(this.audioFile[type] || this.audioFile.default);
-        sound.play().catch((e) => { console.log(e) });
+      if (document.hidden) return;
+
+      if (!this.audio[type]) {
+        this.audio[type] = new Audio(this.audioFile[type] || this.audioFile.default);
       }
+
+      const sound = this.audio[type];
+
+      if (!sound.paused) return;
+
+      sound.play().catch((e) => { console.log(e) });
   }
 });
 

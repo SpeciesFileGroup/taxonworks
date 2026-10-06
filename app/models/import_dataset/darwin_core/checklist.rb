@@ -92,18 +92,20 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
     original_combination_groups = {}
 
     core_records.each_with_index do |record, index|
-
-      # TODO handle when originalNameUsageID is not present
-
       if record[:data]['originalNameUsageID'].blank?
         record[:data]['originalNameUsageID'] = record[:data]['taxonID']
         record[:create_original_combination] = false # we assumed, don't make the relationship during import
       end
 
-      if records_lut[record[:data]['originalNameUsageID']].nil?
-        add_error_message(record, :originalNameUsageID, 'originalNameUsageID not found in dataset')
-        next
+      has_error = false
+      ['acceptedNameUsageID', 'parentNameUsageID', 'originalNameUsageID'].each do |field|
+        if !(id = record[:data][field]).nil? && records_lut[id].nil?
+          add_error_message(record, field.to_sym, "No record with taxonID #{id} found in dataset")
+          has_error = true
+        end
       end
+      next if has_error
+
       oc_index = records_lut[record[:data]['originalNameUsageID']][:index]
 
       # misspellings are treated as separate protonyms, so don't bundle them in original combination with the correct spelling
@@ -242,13 +244,6 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
     end
 
     core_records.each_with_index do |record, index|
-      accepted_name_usage = records_lut[record[:data]['acceptedNameUsageID']]
-
-      unless accepted_name_usage
-        # TODO are we already checking this higher up?
-        add_error_message(record, :acceptedNameUsageID, "acceptedNameUsageID '#{record[:data]["acceptedNameUsageID"]}' not found")
-      end
-
       record[:parent] = nil if record[:parent].blank?
 
       parse_results = parse_results_ary[index]
@@ -267,7 +262,7 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
           record[:dependencies] << parent_index
           core_records[parent_index][:dependants] << record[:index]
         else
-          add_error_message(record, :parentNameUsageID, 'parentNameUsageID not found in dataset')
+          add_error_message(record, :parentNameUsageID, 'parentNameUsageID not found in dataset') if record&.dig(:error_data, :messages, :parentNameUsageID).nil?
         end
       end
     end

@@ -1,40 +1,55 @@
 <template>
-  <div id="vue-simple-new-specimen-container">
-    <h1>Simple new specimen</h1>
+  <div
+    id="vue-simple-new-specimen-container"
+    class="gap-medium"
+    ref="root"
+  >
     <BlockLayout>
       <template #header>
-        <h3>Information</h3>
+        <h3>Collection object</h3>
       </template>
       <template #body>
-        <div
-          class="margin-medium-bottom"
-          id="collection-object-form"
-          ref="root"
-        >
-          <div>
-            <FormCatalogNumber class="margin-medium-bottom" />
-            <FormPreparationType class="margin-medium-bottom" />
-            <FormDetermination class="margin-medium-bottom" />
-            <FormCE />
+        <div id="collection-object-form">
+          <div class="flex-col gap-small">
+            <FormCatalogNumber />
+            <FormPreparationType />
+            <FormTotal />
+            <FormDetermination />
           </div>
-          <div>
+          <div class="flex-col gap-medium">
             <FormDepictions />
             <FormScalebar />
-          </div>
-          <div>
-            <FormCreateTotal />
-            <VBtn
-              color="create"
-              medium
-              @click="store.createNewSpecimen()"
-              @keydown.tab.prevent="setFristAutofocusElement"
-            >
-              Create
-            </VBtn>
           </div>
         </div>
       </template>
     </BlockLayout>
+
+    <BlockLayout>
+      <template #header>
+        <h3>Collecting event</h3>
+      </template>
+      <template #options>
+        <VLock v-model="store.settings.lock.collectingEvent" />
+      </template>
+      <template #body>
+        <FormCE />
+      </template>
+    </BlockLayout>
+
+    <div class="panel create-panel">
+      <div class="flex-separate middle gap-medium">
+        <FormCreateTotal />
+        <VBtn
+          class="create-button"
+          color="create"
+          medium
+          @click="store.createNewSpecimen()"
+          @keydown.tab.prevent="setFristAutofocusElement"
+        >
+          Create
+        </VBtn>
+      </div>
+    </div>
   </div>
   <RecentTable />
 </template>
@@ -46,8 +61,10 @@ import FormCatalogNumber from './components/FormCatalogNumber.vue'
 import FormDepictions from './components/FormDepictions.vue'
 import FormDetermination from './components/FormDetermination.vue'
 import FormCreateTotal from './components/FormCreateTotal.vue'
+import FormTotal from './components/FormTotal.vue'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import VLock from '@/components/ui/VLock/index.vue'
 import RecentTable from './components/RecentTable.vue'
 import { useHotkey } from '@/composables'
 import platformKey from '@/helpers/getPlatformKey'
@@ -123,7 +140,8 @@ TW.workbench.keyboard.createLegend(
 
 <style lang="scss">
 #vue-simple-new-specimen-container {
-  flex-direction: column-reverse;
+  display: flex;
+  flex-direction: column;
   margin: 0 auto;
   margin-top: 1em;
   max-width: 1240px;
@@ -133,6 +151,14 @@ TW.workbench.keyboard.createLegend(
     grid-template-columns: repeat(2, minmax(250px, 1fr));
     gap: 1.5em;
     grid-auto-flow: dense;
+  }
+
+  .create-panel {
+    padding: 1em 1.5em;
+
+    .create-button {
+      min-width: 120px;
+    }
   }
 
   hr {

@@ -4,6 +4,7 @@ import setConveyances from './setConveyances'
 import setGeoreferences from './setGeoreferences'
 import setPreferences from './setPreferences'
 import setAssertedDistributions from './setAssertedDistributions'
+import setAssertedEnvironments from './setAssertedEnvironments'
 import setCurrentOtu from './setCurrentOtu'
 import setDescendants from './setDescendants'
 import setLoadState from './setLoadState'
@@ -25,6 +26,7 @@ const MutationNames = {
   SetGeoreferences: 'setGeoreferences',
   SetPreferences: 'setPreferences',
   SetAssertedDistributions: 'setAssertedDistributions',
+  SetAssertedEnvironments: 'setAssertedEnvironments',
   SetCurrentOtu: 'setCurrentOtu',
   SetDescendants: 'setDescendants',
   SetFieldOccurrences: 'setFieldOccurrences',
@@ -45,6 +47,7 @@ const MutationFunctions = {
   [MutationNames.SetGeoreferences]: setGeoreferences,
   [MutationNames.SetPreferences]: setPreferences,
   [MutationNames.SetAssertedDistributions]: setAssertedDistributions,
+  [MutationNames.SetAssertedEnvironments]: setAssertedEnvironments,
   [MutationNames.SetCurrentOtu]: setCurrentOtu,
   [MutationNames.SetDescendants]: setDescendants,
   [MutationNames.SetFieldOccurrences]: setFieldOccurrences,

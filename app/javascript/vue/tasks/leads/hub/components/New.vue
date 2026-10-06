@@ -1,12 +1,22 @@
 <template>
   <h3 class="title-section">New</h3>
-  <div class="panel content card-new">
-    <a
-      :href="RouteNames.NewLead"
-      target="_blank"
-    >
-      Create a new key
-    </a>
+  <div class="d-flex flex-wrap-row gap-medium">
+    <div class="panel content card-new">
+      <a
+        :href="RouteNames.NewLead"
+        target="_blank"
+      >
+        Create a new key
+      </a>
+    </div>
+    <div class="panel content card-new">
+      <a
+        :href="RouteNames.CiteKey"
+        target="_blank"
+      >
+        Add a new simple key
+      </a>
+    </div>
   </div>
 </template>
 

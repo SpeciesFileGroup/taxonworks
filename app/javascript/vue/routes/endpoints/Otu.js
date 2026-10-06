@@ -21,6 +21,10 @@ export const Otu = {
   distribution: (id) =>
     AjaxCall('get', `/otus/${id}/inventory/distribution.json`),
 
+  // POST, not GET: a page of curator-refined match strings overruns the request URI.
+  assignTaxonNameData: (params) =>
+    AjaxCall('post', `/tasks/otus/assign_taxon_name/data.json`, params),
+
   duplicates: (params) =>
     AjaxCall('get', `/tasks/otus/duplicates/data`, { params }),
 
@@ -41,5 +45,8 @@ export const Otu = {
   taxonomy: (otuId, params) =>
     AjaxCall('get', `/${controller}/${otuId}/inventory/taxonomy.json`, {
       params
-    })
+    }),
+
+  createMorphospeciesOtu: (params) =>
+    AjaxCall('post', `/${controller}/create_morphospecies_otu.json`, params)
 }

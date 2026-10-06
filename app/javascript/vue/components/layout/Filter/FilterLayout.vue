@@ -16,14 +16,17 @@
             >
               Filter
             </VBtn>
-            <label>
+            <label v-if="buttonAppend">
               <input
                 type="checkbox"
                 v-model="appendValue"
               />
               Append
             </label>
-            <ModalNestedParameters :parameters="parameters" />
+            <ModalNestedParameters
+              v-if="buttonNestedParameters"
+              :parameters="parameters"
+            />
             <slot name="nav-query-left" />
           </div>
           <div class="horizontal-left-content gap-small">
@@ -267,6 +270,16 @@ const props = defineProps({
   },
 
   buttonUnify: {
+    type: Boolean,
+    default: true
+  },
+
+  buttonAppend: {
+    type: Boolean,
+    default: true
+  },
+
+  buttonNestedParameters: {
     type: Boolean,
     default: true
   }

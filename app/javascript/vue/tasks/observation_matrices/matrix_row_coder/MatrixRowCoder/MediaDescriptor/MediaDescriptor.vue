@@ -128,7 +128,7 @@ export default {
     return {
       filterList: [],
       dropzoneObservation: {
-        paramName: 'observation[images_attributes][][image_file]',
+        paramName: 'observation[depictions_attributes][][image_attributes][image_file]',
         url: '/observations',
         autoProcessQueue: true,
         headers: {

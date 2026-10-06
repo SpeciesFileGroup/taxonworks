@@ -44,6 +44,7 @@
       <AuthorYearTable
         @cite="openSourceModal"
         @preview="openPreviewModal"
+        @page-numbers="openPageNumbersModal"
       />
     </div>
 
@@ -59,6 +60,15 @@
       :year="previewYear"
       @close="closePreviewModal"
     />
+
+    <PageNumbersModal
+      v-if="showPageNumbersModal"
+      :author="pageNumbersRow.verbatim_author"
+      :year="pageNumbersRow.year_of_publication"
+      :taxon-name-ids="pageNumbersRow.citedTaxonNameIds"
+      :source-id="pageNumbersRow.citedSourceId"
+      @close="showPageNumbersModal = false"
+    />
   </div>
 </template>
 
@@ -72,6 +82,7 @@ import VSpinner from '@/components/ui/VSpinner.vue'
 import AuthorYearTable from './components/AuthorYearTable.vue'
 import SourceSelectionModal from './components/SourceSelectionModal.vue'
 import PreviewModal from './components/PreviewModal.vue'
+import PageNumbersModal from './components/PageNumbersModal.vue'
 
 defineOptions({
   name: 'TaxonNameVerbatimWihtoutCitations'
@@ -81,10 +92,12 @@ const store = useStore()
 
 const showSourceModal = ref(false)
 const showPreviewModal = ref(false)
+const showPageNumbersModal = ref(false)
 const previewAuthor = ref(null)
 const previewYear = ref(null)
 const currentAuthor = ref(null)
 const currentYear = ref(null)
+const pageNumbersRow = ref(null)
 
 onMounted(() => {
   const urlParams = URLParamsToJSON(window.location.href)
@@ -140,6 +153,11 @@ function closePreviewModal() {
   previewAuthor.value = null
   previewYear.value = null
   store.resetPreview()
+}
+
+function openPageNumbersModal(row) {
+  pageNumbersRow.value = row
+  showPageNumbersModal.value = true
 }
 
 async function handleSourceSelect(sourceId) {

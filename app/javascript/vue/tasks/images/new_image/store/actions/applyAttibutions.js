@@ -63,6 +63,10 @@ export default ({ state, commit }) => {
       })
         .then(({ body }) => {
           commit(MutationNames.AddAttribution, body)
+          commit(MutationNames.MarkApplied, {
+            imageIds: [item.id],
+            key: 'attribution'
+          })
         })
         .catch(() => {})
     }
@@ -70,6 +74,10 @@ export default ({ state, commit }) => {
     return Attribution.create({ attribution: payload })
       .then(({ body }) => {
         commit(MutationNames.AddAttribution, body)
+        commit(MutationNames.MarkApplied, {
+          imageIds: [item.id],
+          key: 'attribution'
+        })
       })
       .catch(() => {})
   }
@@ -82,9 +90,8 @@ export default ({ state, commit }) => {
     }
   })
 
-  Promise.all(promises)
+  return Promise.all(promises)
     .then(() => {
-      state.settings.applied.attribution = true
       TW.workbench.alert.create(
         `Attribution(s) were successfully saved.`,
         'notice'

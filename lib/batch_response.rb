@@ -46,6 +46,8 @@ class BatchResponse
     @errors = Hash.new(0)
     @validation_errors = Hash.new(0)
     @total_attempted = params[:total_attempted] || 0
+    @cap = params[:cap]
+    @cap_reason = params[:cap_reason]
   end
 
   def to_json

@@ -1,14 +1,15 @@
 <template>
-  <div class="field">
-    <label>Create total</label>
-    <br>
+  <div class="horizontal-left-content middle gap-small">
+    <label for="create-total">Create</label>
     <input
+      id="create-total"
       class="input-xsmall-width"
       type="text"
       pattern="\d*"
       maxlength="2"
       v-model.number="total"
-    >
+    />
+    <span>{{ label }}</span>
   </div>
 </template>
 
@@ -22,7 +23,7 @@ const store = useStore()
 
 const total = computed({
   get: () => store.createTotal,
-  set: value => {
+  set: (value) => {
     if (value > MAX_TOTAL) {
       store.createTotal = MAX_TOTAL
     } else if (value < 1) {
@@ -33,4 +34,9 @@ const total = computed({
   }
 })
 
+const label = computed(() => {
+  const noun = store.total > 1 ? 'lot' : 'specimen'
+
+  return store.createTotal > 1 ? `${noun}s` : noun
+})
 </script>

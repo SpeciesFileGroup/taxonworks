@@ -13,8 +13,8 @@ module ObservationsHelper
     "#{a}: #{b} on #{c}".html_safe
   end
 
-  def observation_autocomplete_tag(observation)
-    observation_tag(observation)
+  def observation_autocomplete_tag(observation, term = nil)
+    mark_tag(observation_tag(observation), term)
   end
 
   def label_for_observation(observation)
@@ -69,6 +69,9 @@ module ObservationsHelper
         # TODO
         ''
       end
+    when 'Observation::Media'
+      # do nothing, the label comes from the image matrix
+      ''
     else
       '!! display not done !!'
     end

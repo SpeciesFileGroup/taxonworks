@@ -80,6 +80,16 @@ class OrganizationsController < ApplicationController
     @organizations = Organization.page(params[:page])
   end
 
+  # GET /organizations/search
+  def search
+    if params[:id].blank?
+      redirect_to organizations_path, notice: 'You must select an item from the list with a click ' \
+        'or tab press before clicking show.'
+    else
+      redirect_to organization_path(params[:id])
+    end
+  end
+
   # GET /organizations/select_options
   def select_options
     @organizations = Organization.select_optimized(sessions_current_user_id, sessions_current_project_id, params[:target])
@@ -95,7 +105,8 @@ class OrganizationsController < ApplicationController
     params.require(:organization).permit(
       :name, :alternate_name, :description, :disambiguating_description,
       :same_as_id, :address, :email, :telephone, :duns, :global_location_number,
-      :legal_name, :area_served_id, :department_id, :parent_organization_id
+      :legal_name, :area_served_id, :department_id, :parent_organization_id,
+      :geographic_area_id
     )
   end
 end

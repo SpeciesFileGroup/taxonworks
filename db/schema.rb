@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_12_104248) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_17_190742) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -113,6 +113,26 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_12_104248) do
     t.index ["updated_by_id"], name: "index_asserted_distributions_on_updated_by_id"
   end
 
+  create_table "asserted_environments", force: :cascade do |t|
+    t.bigint "asserted_environment_object_id", null: false
+    t.string "asserted_environment_object_type", null: false
+    t.text "cached"
+    t.datetime "created_at", null: false
+    t.integer "created_by_id", null: false
+    t.integer "position"
+    t.bigint "project_id", null: false
+    t.datetime "updated_at", null: false
+    t.integer "updated_by_id", null: false
+    t.text "uri", null: false
+    t.text "uri_label", null: false
+    t.index ["asserted_environment_object_id", "asserted_environment_object_type"], name: "asserted_environment_polymorphic_object_index"
+    t.index ["created_by_id"], name: "index_asserted_environments_on_created_by_id"
+    t.index ["project_id"], name: "index_asserted_environments_on_project_id"
+    t.index ["updated_by_id"], name: "index_asserted_environments_on_updated_by_id"
+    t.index ["uri"], name: "index_asserted_environments_on_uri"
+    t.index ["uri_label"], name: "ae_uri_label_gin_trgm", opclass: :gin_trgm_ops, using: :gin
+  end
+
   create_table "attributions", force: :cascade do |t|
     t.bigint "attribution_object_id", null: false
     t.string "attribution_object_type", null: false
@@ -153,7 +173,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_12_104248) do
 
   create_table "biological_association_indices", force: :cascade do |t|
     t.bigint "biological_association_id", null: false
-    t.integer "biological_association_uuid"
+    t.string "biological_association_uuid"
     t.bigint "biological_relationship_id", null: false
     t.string "biological_relationship_uri"
     t.string "citation_year"
@@ -844,6 +864,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_12_104248) do
     t.index ["document_file_file_name"], name: "index_documents_on_document_file_file_name"
     t.index ["document_file_file_size"], name: "index_documents_on_document_file_file_size"
     t.index ["document_file_updated_at"], name: "index_documents_on_document_file_updated_at"
+    t.index ["project_id", "document_file_fingerprint"], name: "index_documents_on_project_id_and_fingerprint"
   end
 
   create_table "downloads", force: :cascade do |t|
@@ -1300,6 +1321,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_12_104248) do
     t.integer "width"
     t.index ["created_by_id"], name: "index_images_on_created_by_id"
     t.index ["image_file_content_type"], name: "index_images_on_image_file_content_type"
+    t.index ["image_file_fingerprint", "project_id"], name: "index_images_on_fingerprint_and_project_id"
     t.index ["project_id"], name: "index_images_on_project_id"
     t.index ["updated_by_id"], name: "index_images_on_updated_by_id"
   end
@@ -1394,6 +1416,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_12_104248) do
     t.integer "created_by_id", null: false
     t.text "description"
     t.boolean "is_public"
+    t.boolean "is_virtual"
     t.text "link_out"
     t.string "link_out_text"
     t.bigint "observation_matrix_id"
@@ -1657,6 +1680,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_12_104248) do
     t.text "disambiguating_description"
     t.string "duns"
     t.string "email"
+    t.bigint "geographic_area_id"
     t.string "global_location_number"
     t.string "legal_name"
     t.string "name", null: false
@@ -1666,6 +1690,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_12_104248) do
     t.datetime "updated_at", precision: nil, null: false
     t.integer "updated_by_id", null: false
     t.index ["created_by_id"], name: "index_organizations_on_created_by_id"
+    t.index ["geographic_area_id"], name: "index_organizations_on_geographic_area_id"
     t.index ["name"], name: "index_organizations_on_name"
     t.index ["updated_by_id"], name: "index_organizations_on_updated_by_id"
   end
@@ -1822,6 +1847,20 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_12_104248) do
     t.index ["project_id"], name: "index_project_members_on_project_id"
     t.index ["updated_by_id"], name: "index_project_members_on_updated_by_id"
     t.index ["user_id"], name: "index_project_members_on_user_id"
+  end
+
+  create_table "project_organizations", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "created_by_id", null: false
+    t.bigint "organization_id", null: false
+    t.bigint "project_id", null: false
+    t.datetime "updated_at", null: false
+    t.integer "updated_by_id", null: false
+    t.index ["created_by_id"], name: "index_project_organizations_on_created_by_id"
+    t.index ["organization_id"], name: "index_project_organizations_on_organization_id"
+    t.index ["project_id", "organization_id"], name: "index_project_organizations_on_project_id_and_organization_id", unique: true
+    t.index ["project_id"], name: "index_project_organizations_on_project_id"
+    t.index ["updated_by_id"], name: "index_project_organizations_on_updated_by_id"
   end
 
   create_table "project_sources", id: :serial, force: :cascade do |t|
@@ -2399,6 +2438,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_12_104248) do
   add_foreign_key "asserted_distributions", "projects", name: "asserted_distributions_project_id_fkey"
   add_foreign_key "asserted_distributions", "users", column: "created_by_id", name: "asserted_distributions_created_by_id_fkey"
   add_foreign_key "asserted_distributions", "users", column: "updated_by_id", name: "asserted_distributions_updated_by_id_fkey"
+  add_foreign_key "asserted_environments", "projects"
+  add_foreign_key "asserted_environments", "users", column: "created_by_id"
+  add_foreign_key "asserted_environments", "users", column: "updated_by_id"
   add_foreign_key "attributions", "projects"
   add_foreign_key "attributions", "users", column: "created_by_id"
   add_foreign_key "attributions", "users", column: "updated_by_id"
@@ -2614,6 +2656,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_12_104248) do
   add_foreign_key "observations", "projects"
   add_foreign_key "observations", "users", column: "created_by_id"
   add_foreign_key "observations", "users", column: "updated_by_id"
+  add_foreign_key "organizations", "geographic_areas"
   add_foreign_key "organizations", "geographic_areas", column: "area_served_id"
   add_foreign_key "organizations", "organizations", column: "department_id"
   add_foreign_key "organizations", "organizations", column: "parent_organization_id"
@@ -2652,6 +2695,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_12_104248) do
   add_foreign_key "project_members", "users", column: "created_by_id", name: "project_members_created_by_id_fkey"
   add_foreign_key "project_members", "users", column: "updated_by_id", name: "project_members_updated_by_id_fkey"
   add_foreign_key "project_members", "users", name: "project_members_user_id_fkey"
+  add_foreign_key "project_organizations", "organizations"
+  add_foreign_key "project_organizations", "projects"
+  add_foreign_key "project_organizations", "users", column: "created_by_id"
+  add_foreign_key "project_organizations", "users", column: "updated_by_id"
   add_foreign_key "project_sources", "projects", name: "project_sources_project_id_fkey"
   add_foreign_key "project_sources", "sources", name: "project_sources_source_id_fkey"
   add_foreign_key "project_sources", "users", column: "created_by_id", name: "project_sources_created_by_id_fkey"

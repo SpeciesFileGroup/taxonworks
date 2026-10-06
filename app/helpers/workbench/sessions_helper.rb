@@ -128,15 +128,15 @@ module Workbench::SessionsHelper
   end
 
   def is_project_member?(user, project)
-    project.project_members.include?(user) # TODO - change to ID
+    project.project_members.exists?(user:)
   end
 
   def is_project_member_by_id?(user_id, project_id)
-    ProjectMember.where(user_id:, project_id:).any?
+    ProjectMember.exists?(user_id:, project_id:)
   end
 
   def authorize_project_selection(user, project)
-    project.project_members.where(user:, project:)
+    project.project_members.exists?(user:)
   end
 
   def require_sign_in

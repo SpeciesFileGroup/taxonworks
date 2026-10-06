@@ -14,7 +14,7 @@
         </select>
       </div>
       <div
-        v-if="data.type?.includes('Project')"
+        v-if="isPublishable"
         class="flex-row middle gap-small"
       >
         <div>Public access</div>
@@ -80,9 +80,10 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { News } from '@/routes/endpoints'
 import { isCurrentUserAdministrator } from '@/helpers'
+import { NEWS_PROJECT_BLOGPOST } from '@/constants/news'
 import DateNow from '@/components/ui/Date/DateNow.vue'
 import MarkdownEditor from '@/components/markdown-editor.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
@@ -107,6 +108,8 @@ const data = defineModel({
   type: Object,
   required: true
 })
+
+const isPublishable = computed(() => data.value.type === NEWS_PROJECT_BLOGPOST)
 
 News.types().then(({ body }) => {
   const arrTypes = isAdmin

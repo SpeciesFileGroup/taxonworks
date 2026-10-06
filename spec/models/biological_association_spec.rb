@@ -76,7 +76,8 @@ describe BiologicalAssociation, type: :model do
       biological_association_query: { biological_association_id: [  b.id ] }
     )
 
-    expect(m.errors).to eq( { "Validation failed: Biological association object has already been taken" => 1 } )
+    expect(m.errors).to eq({})
+    expect(m.validation_errors).to eq( { "Validation failed: Biological association object has already been taken" => 1 } )
   end
 
   specify '#rotate' do

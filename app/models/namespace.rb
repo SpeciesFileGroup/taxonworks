@@ -91,7 +91,7 @@ class Namespace < ApplicationRecord
         .used_recently
         .distinct.limit(6).to_a +
       Namespace.where(created_by_id: user_id, created_at: (3.hours.ago..Time.now)).limit(5)).uniq,
-      pinboard: Namespace.pinned_by(user_id).pinned_in_project(project_id).to_a
+      pinboard: Namespace.pinned_by(user_id).pinned_in_project(project_id).pinboard_ordered.to_a
     }
 
     h[:quick] = (Namespace.pinned_by(user_id).pinboard_inserted.pinned_in_project(project_id).to_a  + h[:recent][0..3]).uniq

@@ -13,13 +13,7 @@ function makeInitialState() {
         taxon_determination: false,
         taxon_determinations: false
       },
-      applied: {
-        depiction: false,
-        source: false,
-        attribution: false,
-        tags: false,
-        pixel: false
-      }
+      appliedByImage: {}
     },
     collection_object: {
       preparation_type_id: undefined,

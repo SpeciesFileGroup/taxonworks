@@ -1,5 +1,5 @@
 <template>
-  <FacetContainer>
+  <FacetContainer data-help="All objects tagged with ALL 'AND' tags or ANY 'OR' tag; take the complement of that result if 'Exclude' is checked.">
     <h3>Tags</h3>
 
     <SmartSelector
@@ -70,6 +70,13 @@
         </template>
       </transition-group>
     </table>
+    <label v-if="keywords.length">
+      <input
+        type="checkbox"
+        v-model="params.exclude_tags"
+      />
+      Exclude
+    </label>
   </FacetContainer>
 </template>
 
@@ -122,6 +129,7 @@ watch(
       keywords.value.length
     ) {
       keywords.value = []
+      params.value.exclude_tags = undefined
     }
   }
 )

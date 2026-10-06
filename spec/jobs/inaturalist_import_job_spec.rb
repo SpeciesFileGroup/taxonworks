@@ -100,6 +100,93 @@ RSpec.describe InaturalistImportJob, type: :model, group: :field_occurrences do
     end
   end
 
+  context 'observer Person deduplication' do
+    let(:georeferenced_result) {
+      base_result.merge(
+        'geojson' => { 'coordinates' => [-88.0, 41.0], 'type' => 'Point' },
+        'positional_accuracy' => 10
+      )
+    }
+
+    specify 'builds one Person for georeferencer and determiner of the same observation' do
+      expect { perform(results: [georeferenced_result], use_community_taxon: false) }
+        .to change { Person.where(last_name: 'Doe').count }.by(1)
+    end
+
+    specify 'the georeferencer and determiner are the same Person' do
+      perform(results: [georeferenced_result], use_community_taxon: false)
+      fo = FieldOccurrence.last
+      georeferencer = fo.collecting_event.georeferences.first.georeference_authors.first
+      determiner = fo.taxon_determinations.first.determiners.first
+      expect(determiner.id).to eq(georeferencer.id)
+    end
+
+    specify 'reuses one Person across observations by the same user in a single run' do
+      r1 = georeferenced_result.merge('uuid' => '00000000-0000-0000-0000-0000000000a1')
+      r2 = georeferenced_result.merge('uuid' => '00000000-0000-0000-0000-0000000000a2')
+      expect { perform(results: [r1, r2]) }
+        .to change { Person.where(last_name: 'Doe').count }.by(1)
+    end
+  end
+
+  context 'with a taxon_determination for all results' do
+    let(:otu) { FactoryBot.create(:valid_otu) }
+    let(:first_result) {
+      base_result.merge(
+        'identifications' => [{
+          'uuid' => '661f9511-f30c-52e5-b827-557766551111',
+          'user' => { 'id' => 42 },
+          'current' => true
+        }]
+      )
+    }
+    let(:second_result) {
+      base_result.merge(
+        'id' => '99182857',
+        'uuid' => '550e8400-e29b-41d4-a716-446655440001',
+        'taxon' => nil,
+        'community_taxon' => nil
+      )
+    }
+    let(:determiner) { FactoryBot.create(:valid_person) }
+    let(:taxon_determination) {
+      {
+        otu_id: otu.id,
+        year_made: 2024,
+        roles_attributes: [{ type: 'Determiner', person_id: determiner.id }]
+      }
+    }
+
+    def perform_determined
+      perform(
+        results: [first_result, second_result],
+        taxon_determination:,
+        match_otu_by_name: true,
+        use_community_taxon: false
+      )
+    end
+
+    specify 'determines every result as given, creating no OTU' do
+      otu
+      expect { perform_determined }.not_to change(Otu, :count)
+      expect(FieldOccurrence.all.map(&:current_otu)).to eq([otu, otu])
+      expect(FieldOccurrence.all.map { |fo|
+        fo.current_taxon_determination.year_made
+      }).to eq([2024, 2024])
+    end
+
+    specify 'imports results that have no iNat taxon' do
+      expect { perform_determined }.to change(FieldOccurrence, :count).by(2)
+    end
+
+    specify 'does not attach the iNat observer or identification' do
+      perform_determined
+      td = FieldOccurrence.first.current_taxon_determination
+      expect(td.determiners.map(&:id)).to eq([determiner.id])
+      expect(td.identifiers).to be_empty
+    end
+  end
+
   specify 'skips results with no taxon name and continues remaining imports' do
     no_taxon = base_result.merge('taxon' => nil, 'community_taxon' => nil, 'uuid' => '00000000-0000-0000-0000-000000000001')
     with_taxon = base_result.merge('uuid' => '00000000-0000-0000-0000-000000000002')

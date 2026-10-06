@@ -552,4 +552,101 @@ describe Queries::BiologicalAssociation::Filter, type: :model, group: [:filter] 
     expect(query.new(biological_associations_graph_id: [g.id]).all.map(&:id)).to contain_exactly(ba1.id)
   end
 
+  specify 'biological_association_subject_type is applied' do
+    q = query.new({ biological_association_subject_type: ['Otu'] })
+
+    expect(q.all).to contain_exactly(ba1, ba2, ba3)
+  end
+
+  specify 'biological_association_subject_type excludes other types' do
+    q = query.new({ biological_association_subject_type: ['CollectionObject'] })
+
+    expect(q.all).to be_empty
+  end
+
+  context 'anatomical_part_query, by origin object' do
+    let(:field_occurrence) { FactoryBot.create(:valid_field_occurrence) }
+
+    let(:anatomical_part) {
+      FactoryBot.create(:valid_anatomical_part, ancestor: field_occurrence)
+    }
+
+    let!(:ba_subject) {
+      BiologicalAssociation.create!(
+        biological_association_subject: anatomical_part,
+        biological_association_object: o2,
+        biological_relationship: r1
+      )
+    }
+
+    let(:origin_params) {
+      { field_occurrence_id: [field_occurrence.id] }
+    }
+
+    specify 'finds the association on the AnatomicalPart' do
+      q = query.new({ anatomical_part_query: origin_params })
+
+      expect(q.all).to contain_exactly(ba_subject)
+    end
+
+    specify 'the facet matches both sides' do
+      ba_object = BiologicalAssociation.create!(
+        biological_association_subject: o2,
+        biological_association_object:
+          FactoryBot.create(:valid_anatomical_part, ancestor: field_occurrence),
+        biological_relationship: r1
+      )
+
+      q = query.new({ anatomical_part_query: origin_params })
+
+      expect(q.all).to contain_exactly(ba_subject, ba_object)
+    end
+
+    specify 'biological_association_subject_type narrows it to the subject side' do
+      BiologicalAssociation.create!(
+        biological_association_subject: o2,
+        biological_association_object:
+          FactoryBot.create(:valid_anatomical_part, ancestor: field_occurrence),
+        biological_relationship: r1
+      )
+
+      q = query.new({
+        anatomical_part_query: origin_params,
+        biological_association_subject_type: ['AnatomicalPart']
+      })
+
+      expect(q.all).to contain_exactly(ba_subject)
+    end
+
+    # The shape the task actually sends.
+    specify 'through ActionController::Parameters, with scalars' do
+      p = ActionController::Parameters.new(
+        anatomical_part_query: { field_occurrence_id: field_occurrence.id },
+        biological_association_subject_type: ['AnatomicalPart']
+      )
+
+      expect(query.new(p).all).to contain_exactly(ba_subject)
+    end
+
+    specify 'excludes AnatomicalParts of another FieldOccurrence' do
+      other = FactoryBot.create(:valid_field_occurrence)
+      BiologicalAssociation.create!(
+        biological_association_subject:
+          FactoryBot.create(:valid_anatomical_part, ancestor: other),
+        biological_association_object: o2,
+        biological_relationship: r1
+      )
+
+      q = query.new({ anatomical_part_query: origin_params })
+
+      expect(q.all).to contain_exactly(ba_subject)
+    end
+
+    specify 'excludes associations that do not involve an AnatomicalPart' do
+      q = query.new({ anatomical_part_query: origin_params })
+
+      expect(q.all).not_to include(ba1, ba2, ba3)
+    end
+  end
+
 end

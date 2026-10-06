@@ -129,7 +129,7 @@ function sending(file, xhr, formData) {
       delimiterParams.value.col_sep
     )
   }
-  if (delimiterParams.value?.quote_char) {
+  if (delimiterParams.value?.quote_char != null) {
     formData.append(
       'import_dataset[import_settings][quote_char]',
       delimiterParams.value.quote_char

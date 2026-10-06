@@ -9,29 +9,29 @@
     @focusout="hide"
   >
     <slot />
-  </component>
 
-  <Teleport to="body">
-    <div
-      v-if="isMounted"
-      ref="floating"
-      class="tw-tooltip"
-      role="tooltip"
-      :data-placement="side"
-      :data-show="isVisible ? '' : null"
-      :style="floatingStyles"
-    >
-      <div class="tw-tooltip__content">
-        <slot name="content">{{ content }}</slot>
-      </div>
+    <Teleport to="body">
       <div
-        v-if="arrow"
-        ref="floatingArrow"
-        class="tw-tooltip__arrow"
-        :style="arrowStyle"
-      />
-    </div>
-  </Teleport>
+        v-if="isMounted"
+        ref="floating"
+        :class="['tw-tooltip', tooltipClass]"
+        role="tooltip"
+        :data-placement="side"
+        :data-show="isVisible ? '' : null"
+        :style="floatingStyles"
+      >
+        <div class="tw-tooltip__content">
+          <slot name="content">{{ content }}</slot>
+        </div>
+        <div
+          v-if="arrow"
+          ref="floatingArrow"
+          class="tw-tooltip__arrow"
+          :style="arrowStyle"
+        />
+      </div>
+    </Teleport>
+  </component>
 </template>
 
 <script setup>
@@ -84,6 +84,11 @@ const props = defineProps({
   tag: {
     type: String,
     default: 'span'
+  },
+
+  tooltipClass: {
+    type: [String, Array, Object],
+    default: ''
   }
 })
 

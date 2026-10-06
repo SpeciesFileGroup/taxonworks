@@ -37,21 +37,27 @@ module Vendor
       end
     end
 
-    def self.taxon_name(result, use_community_taxon: true)
-      if use_community_taxon
-        result.dig('community_taxon', 'name').presence || result.dig('taxon', 'name')
+    # @return [Hash, nil] the iNat taxon (community_taxon, falling back to
+    #   taxon, or just taxon when use_community_taxon is false)
+    def self.taxon(result, use_community_taxon: true)
+      if use_community_taxon && result.dig('community_taxon', 'name').present?
+        result['community_taxon']
       else
-        result.dig('taxon', 'name')
+        result['taxon']
       end
     end
 
-    def self.stub_collecting_event(result, guess_as_locality: true)
+    def self.taxon_name(result, use_community_taxon: true)
+      taxon(result, use_community_taxon:)&.dig('name')
+    end
+
+    def self.stub_collecting_event(result, guess_as_locality: true, person_cache: nil)
       return nil if result.blank?
 
       d = result['observed_on_details']
 
       p = {
-        verbatim_collectors: result.dig('user', 'name').presence,
+        verbatim_collectors: result.dig('user', 'name').presence || result.dig('user', 'login').presence,
         verbatim_date: result['observed_on_string'].presence,
         start_date_day: d['day'],
         start_date_month: d['month'],
@@ -75,30 +81,70 @@ module Vendor
         )
       )
 
-      collector = stub_collector(result)
+      collector = stub_collector(result, person_cache:)
       ce.collector_roles.build(person: collector) if collector
 
       ce
     end
 
-    # Attempt to find a Person in TW by ORCID. Returns nil if iNat provides no ORCID,
-    # or if no matching Person exists.
+    # iNat has no notion of a "collector" distinct from the observer — the
+    # observation's own user is the collector.
     #
     # @param result [Hash] a Nasturtium result
-    # @return [Person, nil]
-    def self.stub_collector(result)
-      person_by_orcid(result)
+    # @param person_cache [Hash, nil] per-import-run cache (see .dedupe_person)
+    # @return [Person]
+    def self.stub_collector(result, person_cache: nil)
+      stub_observer_person(result, person_cache:)
     end
 
     # Find or build the observer as a Person.
     # Strategy: ORCID match first, then Person::Unvetted from user.name or user.login.
-    # Used as determiner on TaxonDetermination and georeferencer on Georeference.
+    # Used as collector on CollectingEvent, determiner on TaxonDetermination, and
+    # georeferencer on Georeference.
     #
     # @param result [Hash] a Nasturtium result
+    # @param person_cache [Hash, nil] per-import-run cache (see .dedupe_person)
     # @return [Person]
-    def self.stub_observer_person(result)
-      person_by_orcid(result) ||
+    def self.stub_observer_person(result, person_cache: nil)
+      person = person_by_orcid(result) ||
         person_from_display_name(result.dig('user', 'name').presence || result.dig('user', 'login'))
+
+      dedupe_person(person, person_cache, result)
+    end
+
+    # Reuse a single Person within one import run for an observer / copyright holder
+    # that would otherwise be built repeatedly (e.g. the same person as both
+    # georeferencer and copyright holder, or across multiple photos in the batch).
+    # Deduplication across separate import runs is intentionally not attempted.
+    #
+    # @param person [Person] a matched (persisted) or freshly built (new) Person
+    # @param cache [Hash, nil] the run cache; when nil no deduplication is done
+    # @param result [Hash, nil] the Nasturtium result `person` was built directly from
+    #   (i.e. `person` *is* that result's `user`), used for an exact cache key. Omit
+    #   when `person` has no such structured identity at all — e.g. a third-party
+    #   photo credit (see .stub_copyright_person) — falls back to name-based matching,
+    #   the only option left in that case.
+    # @return [Person]
+    def self.dedupe_person(person, cache, result = nil)
+      return person if cache.nil?
+
+      key = person_identity_key(person, result)
+      cached = cache[key]
+      return cached if cached && (cached.new_record? || Person.exists?(cached.id))
+
+      cache[key] = person
+    end
+
+    # @param person [Person]
+    # @param result [Hash, nil] the Nasturtium result `person` was built directly from
+    # @return [String] a within-run identity key
+    def self.person_identity_key(person, result)
+      return "id:#{person.id}" if person.persisted?
+
+      user_id = result&.dig('user', 'id')
+      return "inat_user:#{user_id}" if user_id.present?
+
+      "name:#{[person.first_name, person.last_name].filter_map { |s| s&.strip&.downcase&.presence }.join(' ')}"
     end
 
     # Attempt to find a Person in TW by the observer's ORCID.
@@ -174,26 +220,90 @@ module Vendor
     # @param result [Hash] a Nasturtium result
     # @param project_id [Integer]
     # @param match_by_name [Boolean]
-    #   if true, look for an existing OTU with matching name in the project first
+    #   if true, look for an existing OTU in the project first:
+    #     1. an OTU on a TaxonName matching the iNat name - subgenus ignored, see
+    #        .match_taxon_name - or a new OTU on that TaxonName if it has none
+    #     2. an OTU whose name is the iNat name
     # @param use_community_taxon [Boolean]
     #   if true, use the community consensus taxon (community_taxon, falling back to
     #   taxon); if false, use the observation taxon (taxon), which is the observer's
     #   own most recent ID when no community consensus exists
     # @return [Otu, nil]
     def self.stub_otu(result, project_id:, match_by_name: false, use_community_taxon: true)
-      taxon_name = self.taxon_name(result, use_community_taxon:)
+      taxon = self.taxon(result, use_community_taxon:)
+      taxon_name = taxon&.dig('name')
       return nil if taxon_name.blank?
 
       if match_by_name
-        existing = Otu.where(project_id:)
-          .left_joins(:taxon_name)
-          .where('otus.name = ? OR taxon_names.cached = ?', taxon_name, taxon_name)
-          .order(Arel.sql('taxon_names.id IS NULL ASC'))
-          .first
+        matched_taxon_name = match_taxon_name(taxon_name, rank: taxon['rank'], project_id:)
+
+        if matched_taxon_name
+          otu = otu_for_taxon_name(matched_taxon_name, project_id:)
+          return otu if otu
+        end
+
+        existing = Otu.where(project_id:, name: taxon_name).order(:id).first
         return existing if existing
       end
 
       Otu.new(name: taxon_name)
+    end
+
+    SUBGENUS_RANK_CLASSES = CODES_WITH_SUBGENUS.map { |code| Ranks.lookup(code, :subgenus) }.freeze
+
+    # High enough that an ambiguous match's candidates are never truncated.
+    MATCH_CANDIDATES_LIMIT = 100
+
+    # iNat names never include a subgenus, while TaxonName#cached does
+    # ('Aus bus' vs 'Aus (Bus) bus'), so species-group names are matched with
+    # the subgenus ignored, and an iNat subgenus ('Bus') by its bare name.
+    #
+    # When the name matches more than one taxon (e.g. a valid name and a junior
+    # homonym), the one valid name is taken, as iNat names are (almost always)
+    # meant as the current valid name.
+    #
+    # @param name [String] the iNat taxon name
+    # @param rank [String, nil] the iNat taxon rank
+    # @param project_id [Integer]
+    # @return [TaxonName, nil] nil when there is no match, or an ambiguous match
+    #   without exactly one valid name
+    def self.match_taxon_name(name, rank:, project_id:)
+      candidates = if rank == 'subgenus'
+        ::TaxonName.where(project_id:, name:, rank_class: SUBGENUS_RANK_CLASSES).to_a
+      else
+        match = ::Match::Otu::TaxonName.new(
+          names: [name], project_id:,
+          try_without_subgenus: true, try_without_subgenus_after_exact_match: true,
+          candidates: MATCH_CANDIDATES_LIMIT
+        ).call.first
+        return nil if !match[:matched]
+        return match[:taxon_name] if !match[:ambiguous]
+
+        match[:candidates]
+      end
+
+      return candidates.first if candidates.one?
+
+      valid = candidates.select { |tn| tn.cached_valid_taxon_name_id == tn.id }
+      valid.one? ? valid.first : nil
+    end
+
+    # @param taxon_name [TaxonName]
+    # @param project_id [Integer]
+    # @return [Otu, nil] the TaxonName's only OTU, else its only unnamed OTU, else
+    #   a new OTU on it when it has none; nil when there is no single choice
+    def self.otu_for_taxon_name(taxon_name, project_id:)
+      otus = Otu.where(project_id:, taxon_name_id: taxon_name.id).to_a
+
+      case otus.size
+      when 0
+        Otu.new(taxon_name:)
+      when 1
+        otus.first
+      else
+        unnamed = otus.select { |o| o.name.blank? }
+        unnamed.one? ? unnamed.first : nil
+      end
     end
 
     # Find BiocurationClass records in the project that match iNat annotations on
@@ -270,12 +380,13 @@ module Vendor
     # @param obs_sound [Hash] the outer observation_sound object (carries uuid)
     # @param result [Hash] the full Nasturtium observation result (for ORCID matching)
     # @param observed_year [Integer, nil] year of observation, used as copyright year
+    # @param person_cache [Hash, nil] per-import-run cache (see .dedupe_person)
     # @return [Sound]
-    def self.build_sound!(obs_sound, result:, observed_year: nil)
+    def self.build_sound!(obs_sound, result:, observed_year: nil, person_cache: nil)
       sound_data  = obs_sound['sound']
       license_key = INAT_LICENSE_CODE_TO_TW_LICENSE[sound_data['license_code']]
 
-      copyright_person = stub_copyright_person(result, media: sound_data)
+      copyright_person = stub_copyright_person(result, media: sound_data, person_cache:)
       copyright_person.save! if copyright_person.new_record?
 
       attribution = Attribution.new(
@@ -317,27 +428,67 @@ module Vendor
 
     # Find or build the copyright holder Person for a photo or sound.
     #
-    # Strategy (in order):
-    #   1. ORCID match — if the observer has an ORCID and a matching Person exists in TW, use them.
-    #   2. Name fallback — parse the attribution string for a name and create a new Person::Unvetted.
+    # iNat auto-generates `attribution` from the uploader's account in every case we've
+    # observed against the live API — *except* for photos imported into iNat from an
+    # external source (e.g. Flickr), where iNat's own `attribution_name` uses that
+    # source's `native_realname`/`native_username` instead, crediting the original
+    # photographer rather than the iNat account that imported it. Those two fields are
+    # deliberately excluded from the public API's JSON output, so the rendered
+    # `attribution` string is the *only* way to recover that identity — there's no
+    # structured field we could use instead. So we check whether the parsed name
+    # actually is the observer rather than assuming it.
     #
-    # @param result [Hash] the full Nasturtium observation result (used for ORCID lookup)
+    # Strategy (in order):
+    #   1. If the attribution names the observer (or gives no name at all, e.g. CC0's
+    #      "no rights reserved") — ORCID match first, then key off the observer's exact
+    #      iNat identity.
+    #   2. Otherwise, the attribution names someone else Nasturtium has no ORCID/id
+    #      for (a native_realname/native_username credit) — build a Person::Unvetted
+    #      from that name, weakly deduped by name within this run since that's all we
+    #      have to go on.
+    #
+    # @param result [Hash] the full Nasturtium observation result (used for ORCID/user id lookup)
     # @param media [Hash] the photo or sound hash (used for attribution string fallback)
+    # @param person_cache [Hash, nil] per-import-run cache (see .dedupe_person)
     # @return [Person]
-    def self.stub_copyright_person(result, media:)
-      # 1. Try ORCID
-      matched = person_by_orcid(result)
-      return matched if matched
+    def self.stub_copyright_person(result, media:, person_cache: nil)
+      copyright_name = parse_attribution_name(media['attribution'])
+      observer_names = [result.dig('user', 'name'), result.dig('user', 'login')].map(&:presence).compact
 
-      # 2. Name fallback from attribution string, e.g.
-      #    "(c) username, some rights reserved (CC BY-NC)" → "username"
-      copyright_name = if media['attribution'] =~ /\(c\)\s+(.+?),/
-        $1.strip
-      else
-        media['attribution'].presence || 'Unknown'
+      names_someone_else = copyright_name.present? &&
+        observer_names.none? { |n| n.casecmp?(copyright_name) }
+
+      if names_someone_else
+        # Attribution names someone other than the observer (a native_realname/
+        # native_username credit) — no exact identity available, weak name dedup only.
+        return dedupe_person(person_from_display_name(copyright_name), person_cache)
       end
 
-      person_from_display_name(copyright_name)
+      matched = person_by_orcid(result)
+      return dedupe_person(matched, person_cache, result) if matched
+
+      # Neither the attribution nor the observer's own account gives us a name at
+      # all (e.g. CC0 with a blank user.name/login) - person_from_display_name
+      # falls back to a placeholder in that case.
+      person = person_from_display_name(copyright_name || observer_names.first)
+
+      dedupe_person(person, person_cache, result)
+    end
+
+    # Parse the photographer's name out of an iNat-generated attribution string, e.g.
+    #   "(c) Kim, Hyun-tae, some rights reserved (CC BY-NC-SA)" => "Kim, Hyun-tae"
+    #   "(c) Jane Doe, all rights reserved" => "Jane Doe"
+    #   "no rights reserved" (CC0 - no name given) => nil
+    #
+    # @param attribution [String, nil]
+    # @return [String, nil]
+    def self.parse_attribution_name(attribution)
+      return nil if attribution.blank?
+
+      m = attribution.match(/\A\(c\)\s+(.+),\s*(?:some|all)\s+rights reserved/)
+      return nil unless m
+
+      m[1].squeeze(' ').strip
     end
 
     # Build and save an Image (with Attribution, copyright holder Person, and iNat identifier)
@@ -346,12 +497,13 @@ module Vendor
     # @param photo [Hash] the 'photo' object from an iNat observation_photo
     # @param result [Hash] the full Nasturtium observation result (for ORCID matching)
     # @param observed_year [Integer, nil] year of observation, used as copyright year
+    # @param person_cache [Hash, nil] per-import-run cache (see .dedupe_person)
     # @return [Image]
-    def self.build_image!(obs_photo, result:, observed_year: nil)
+    def self.build_image!(obs_photo, result:, observed_year: nil, person_cache: nil)
       photo = obs_photo['photo']
       license_key = INAT_LICENSE_CODE_TO_TW_LICENSE[photo['license_code']]
 
-      copyright_person = stub_copyright_person(result, media: photo)
+      copyright_person = stub_copyright_person(result, media: photo, person_cache:)
       copyright_person.save! if copyright_person.new_record?
 
       attribution = Attribution.new(
@@ -387,13 +539,10 @@ module Vendor
     end
 
     # Build a Person::Unvetted from a display name string.
-    # Multi-word names (e.g. "Greg Lasley") are parsed via BibTeX so that
-    # first/last are split correctly.  Single-word strings (login slugs or
-    # single-name users) go directly into last_name unchanged.
-    #
-    # @param name [String]
+    # @param name [String, nil]
     # @return [Person::Unvetted]
     def self.person_from_display_name(name)
+      return Person::Unvetted.new(last_name: 'Undetermined iNaturalist user') if name.blank?
       return Person::Unvetted.new(last_name: name) unless name.include?(' ')
 
       Person.parse_to_people(name).first || Person::Unvetted.new(last_name: name)

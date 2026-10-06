@@ -52,7 +52,7 @@
         placeholder="Search a taxon name..."
         :add-params="{
           'type[]': 'Protonym',
-          'nomenclature_group[]': 'SpeciesGroup'
+          nomenclature_group: ['SpeciesGroup', 'SpeciesAndInfraspeciesGroup']
         }"
         @get-item="({ id }) => setTaxonName(id)"
       />

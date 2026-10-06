@@ -1,3 +1,5 @@
+import { randomUUID } from '@/helpers'
+
 export function makeCollectionObject(data = {}) {
   return {
     id: data.id,
@@ -15,6 +17,7 @@ export function makeCollectionObject(data = {}) {
 export function makeTypeMaterial(data = {}) {
   return {
     id: data.id,
+    uuid: randomUUID(),
     globalId: data.global_id,
     protonymId: data.protonym_id,
     collectionObjectId: data.collection_object_id,
@@ -28,6 +31,7 @@ export function makeTypeMaterial(data = {}) {
       source_id: data.origin_citation?.source?.id,
       label: data.origin_citation?.object_tag
     },
+    dataAttributes: [],
     isUnsaved: false
   }
 }

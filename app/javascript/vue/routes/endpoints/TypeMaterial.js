@@ -35,6 +35,13 @@ const permitParams = {
       collecting_event_id: Number,
       preparation_type_id: Number,
       repository_id: Number
+    },
+    data_attributes_attributes: {
+      id: Number,
+      _destroy: Boolean,
+      controlled_vocabulary_term_id: Number,
+      type: String,
+      value: String
     }
   }
 }

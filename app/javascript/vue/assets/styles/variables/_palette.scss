@@ -1,3 +1,4 @@
+@use 'sass:map';
 @use './primitives';
 @use '../utils/functions' as fn;
 
@@ -244,7 +245,8 @@ $tw-dark-colors: (
   'warning': #f97316,
   'white': #ffffff,
   'border': #f5f5f5,
-  'toggle-active': #beae00
+  'toggle-active': #beae00,
+  'muted': #c6c6c6
 );
 
 $tw-colors: (
@@ -266,7 +268,7 @@ $tw-colors: (
   'white': #ffffff,
   'border': #f5f5f5,
   'toggle-active': #cebd5d,
-  'muted': 'var(--text-muted-color)'
+  'muted': #6b7280
 );
 
 $tw-map-colors: (
@@ -301,10 +303,19 @@ $tw-map-colors: (
   }
 }
 
-@each $key, $value in $tw-colors {
+// Excludes 'muted': this loop has no dark-theme counterpart (there's no
+// equivalent pass over $tw-dark-colors), so any key here is permanently
+// locked to its light value even under .dark. --text-muted-color already
+// carries a correct value in both themes, so .text-muted-color reads from
+// that directly below instead of from the (light-only) literal in $tw-colors.
+@each $key, $value in map.remove($tw-colors, 'muted') {
   .text-#{$key}-color {
     color: #{$value};
   }
+}
+
+.text-muted-color {
+  color: var(--text-muted-color);
 }
 
 @each $key, $value in $tw-map-colors {

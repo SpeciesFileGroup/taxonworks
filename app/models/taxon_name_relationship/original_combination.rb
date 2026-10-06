@@ -75,7 +75,26 @@ class TaxonNameRelationship::OriginalCombination < TaxonNameRelationship
   protected
 
   def set_cached_names_for_taxon_names
-    object_taxon_name.reload
+    # The taxon name object_taxon_name points to may have been destroyed
+    # elsewhere in the same unify chain (e.g. as the duplicate being merged
+    # away) by the time this deferred after_commit fires. Depending on
+    # whether the association was already cached before that happened,
+    # that shows up two different ways: the belongs_to reader returns nil
+    # outright (never cached, now legitimately missing), or an
+    # already-cached instance's #reload raises RecordNotFound. Guard both
+    # into a no-op rather than crashing the after_commit. Reload (rather
+    # than a separate TaxonName.find_by) so the already-memoized
+    # object_taxon_name association is refreshed in place, not left stale
+    # for any caller that reads it off this same relationship instance
+    # afterward.
+    return if object_taxon_name.nil?
+
+    begin
+      object_taxon_name.reload
+    rescue ActiveRecord::RecordNotFound
+      return
+    end
+
     object_taxon_name.update_cached_original_combinations
   end
 

@@ -1,9 +1,10 @@
 import ActionNames from './actionNames.js'
+import incrementIdentifier from '@/tasks/digitize/helpers/incrementIdentifier'
 
 export default async function () {
   const promises = []
 
-  const createObjects = async () => {
+  const createObjects = async (index) => {
     if (
       !this.createdCE &&
       (
@@ -22,7 +23,12 @@ export default async function () {
       this.namespace &&
       !this.createdIdentifiers.length
     ) {
-      promises.push(this[ActionNames.CreateIdentifier](co.id))
+      promises.push(
+        this[ActionNames.CreateIdentifier](
+          co.id,
+          incrementIdentifier(this.identifier, index)
+        )
+      )
     }
 
     if (this.otu) {
@@ -33,7 +39,7 @@ export default async function () {
   }
 
   for (let i = 0; i < this.createTotal; i++) {
-    await createObjects()
+    await createObjects(i)
   }
 
   Promise.allSettled(promises).then(_ => {

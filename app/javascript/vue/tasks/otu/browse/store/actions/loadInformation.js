@@ -52,4 +52,8 @@ export default async ({ dispatch, commit, state }, otus) => {
     ActionNames.LoadAssertedDistributions,
     state.otus.map((otu) => otu.id)
   )
+  dispatch(
+    ActionNames.LoadAssertedEnvironments,
+    state.otus.map((otu) => otu.id)
+  )
 }

@@ -21,16 +21,17 @@ module LoansHelper
     (recipients.presence || 'No recipients defined!')
   end
 
-  def loan_autocomplete_tag(loan)
+  def loan_autocomplete_tag(loan, term = nil)
     return nil if loan.nil?
-    [
+    s = [
       content_tag(:span, (identifier_tag(loan_identifier(loan)) || loan.id), class: [:feedback, 'feedback-thin', 'feedback-primary']),
       loan.loan_recipients.collect{|a| a.name}.join(', '),
       loan.recipient_email,
       loan.date_sent,
       loan.recipient_address,
       loan_status_tag(loan)
-    ].delete_if{|b| b.blank? }.join(' - ').gsub(/\n/, '; ').html_safe
+    ].delete_if{|b| b.blank? }.join(' - ').gsub(/\n/, '; ')
+    mark_tag(s, term)
   end
 
   def loan_identifier(loan)

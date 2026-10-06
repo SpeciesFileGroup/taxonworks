@@ -14,11 +14,7 @@
         :key="citation.id"
       >
         <component
-          :is="
-            citation.citation_object_type === TAXON_NAME
-              ? TableCitationTaxonRow
-              : TableCitationRow
-          "
+          :is="ROW_COMPONENTS[citation.citation_object_type] || TableCitationRow"
           :citation="citation"
         />
       </template>
@@ -29,10 +25,21 @@
 <script setup>
 import TableCitationRow from './TableCitationRow.vue'
 import TableCitationTaxonRow from './TableCitationTaxonRow.vue'
-import { TAXON_NAME } from '@/constants/index.js'
+import TableCitationOtuRow from './TableCitationOtuRow.vue'
+import {
+  ASSERTED_DISTRIBUTION,
+  BIOLOGICAL_ASSOCIATION,
+  TAXON_NAME
+} from '@/constants/index.js'
 import { ActionNames } from '../../store/actions/actions'
 import { ref } from 'vue'
 import { useStore } from 'vuex'
+
+const ROW_COMPONENTS = {
+  [TAXON_NAME]: TableCitationTaxonRow,
+  [ASSERTED_DISTRIBUTION]: TableCitationOtuRow,
+  [BIOLOGICAL_ASSOCIATION]: TableCitationOtuRow
+}
 
 const props = defineProps({
   list: {

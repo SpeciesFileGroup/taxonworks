@@ -135,21 +135,21 @@ describe TaxonNameClassificationsController, type: :controller do
       )
     }
 
-    context ':add' do
-      it 'returns ok and creates a fossil classification' do
+    context ':add_status' do
+      it 'returns ok and creates a status classification' do
         q = Queries::TaxonName::Filter.new(taxon_name_id: iczn_name.id)
         expect {
           post :batch_by_filter_scope, params: {
             filter_query: { taxon_name_query: q.params },
-            mode: 'add',
-            params: {}
+            mode: 'add_status',
+            params: { type: 'TaxonNameClassification::Iczn::Fossil' }
           }, session: valid_session
         }.to change(TaxonNameClassification, :count).by(1)
         expect(response).to have_http_status(:ok)
       end
     end
 
-    context ':remove' do
+    context ':remove_status' do
       before {
         TaxonNameClassification.create!(
           taxon_name: iczn_name,
@@ -157,13 +157,13 @@ describe TaxonNameClassificationsController, type: :controller do
         )
       }
 
-      it 'returns ok and removes the fossil classification' do
+      it 'returns ok and removes the status classification' do
         q = Queries::TaxonName::Filter.new(taxon_name_id: iczn_name.id)
         expect {
           post :batch_by_filter_scope, params: {
             filter_query: { taxon_name_query: q.params },
-            mode: 'remove',
-            params: {}
+            mode: 'remove_status',
+            params: { type: 'TaxonNameClassification::Iczn::Fossil' }
           }, session: valid_session
         }.to change(TaxonNameClassification, :count).by(-1)
         expect(response).to have_http_status(:ok)

@@ -108,7 +108,7 @@ class Content < ApplicationRecord
 
     h = {
       quick: Content.pinned_by(user_id).pinboard_inserted.where(project_id:).to_a,
-      pinboard: Content.pinned_by(user_id).where(project_id:).to_a,
+      pinboard: Content.pinned_by(user_id).where(project_id:).pinboard_ordered.to_a,
       recent: used_recently(user_id, project_id)
     }
 

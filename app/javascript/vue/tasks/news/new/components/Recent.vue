@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="options.length">
     <VSpinner
       v-if="isLoading"
       full-screen
@@ -8,7 +8,7 @@
       color="primary"
       @click="() => (isModalVisible = true)"
     >
-      {{ title }}
+      Recent
     </VBtn>
     <VModal
       v-if="isModalVisible"
@@ -16,12 +16,18 @@
       @close="() => (isModalVisible = false)"
     >
       <template #header>
-        <h3>{{ title }}</h3>
+        <h3>Recent news</h3>
       </template>
       <template #body>
+        <VSwitch
+          v-if="options.length > 1"
+          class="margin-medium-bottom"
+          :options="options"
+          v-model="currentList"
+        />
         <VList
           :list="list"
-          project
+          :project="currentList === LISTS.PROJECT"
           @update:public="updateAccess"
           @edit="selectItem"
           @remove="removeNews"
@@ -33,36 +39,56 @@
 
 <script setup>
 import { News } from '@/routes/endpoints'
-import { ref, watch } from 'vue'
-import { removeFromArray } from '@/helpers'
+import { ref, computed, watch } from 'vue'
+import {
+  getCurrentProjectId,
+  isCurrentUserAdministrator,
+  removeFromArray
+} from '@/helpers'
 import { makeNews } from '../adapters'
 import VModal from '@/components/ui/Modal.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
+import VSwitch from '@/components/ui/VSwitch.vue'
 import VList from './List.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 
-const props = defineProps({
-  service: {
-    type: Function,
-    required: true
-  },
+const LISTS = {
+  PROJECT: 'Project',
+  ADMINISTRATION: 'Administration'
+}
 
-  title: {
-    type: String,
-    required: true
-  },
-
-  project: {
-    type: Boolean,
-    default: false
-  }
-})
+const SERVICES = {
+  [LISTS.PROJECT]: () => News.where({}),
+  [LISTS.ADMINISTRATION]: () => News.administration()
+}
 
 const emit = defineEmits(['edit'])
 
+const projectId = getCurrentProjectId()
+const isAdministrator = isCurrentUserAdministrator()
+
+const options = computed(() => [
+  ...(projectId ? [LISTS.PROJECT] : []),
+  ...(isAdministrator ? [LISTS.ADMINISTRATION] : [])
+])
+
+const currentList = ref(options.value[0])
+const list = ref([])
 const isLoading = ref(false)
 const isModalVisible = ref(false)
-const list = ref([])
+
+function loadList(listType) {
+  isLoading.value = true
+  list.value = []
+
+  SERVICES[listType]()
+    .then(({ body }) => {
+      list.value = body.map(makeNews)
+    })
+    .finally(() => {
+      isLoading.value = false
+    })
+}
 
 function removeNews(item) {
   News.destroy(item.id)
@@ -78,8 +104,7 @@ function selectItem(item) {
   isModalVisible.value = false
 }
 
-function updateAccess({ isPublic, index }) {
-  const item = list.value[index]
+function updateAccess({ item, isPublic }) {
   const payload = {
     news: {
       is_public: isPublic
@@ -94,17 +119,13 @@ function updateAccess({ isPublic, index }) {
     .catch(() => {})
 }
 
-watch(isModalVisible, (newVal) => {
-  if (newVal) {
-    isLoading.value = true
-    props
-      .service({})
-      .then(({ body }) => {
-        list.value = body.map(makeNews)
-      })
-      .finally(() => {
-        isLoading.value = false
-      })
+watch(isModalVisible, (isVisible) => {
+  if (isVisible) {
+    loadList(currentList.value)
   }
+})
+
+watch(currentList, (listType) => {
+  loadList(listType)
 })
 </script>

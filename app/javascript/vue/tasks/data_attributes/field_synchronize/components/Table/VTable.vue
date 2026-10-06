@@ -174,7 +174,7 @@
     </thead>
     <tbody>
       <tr
-        v-for="item in list"
+        v-for="(item, rowIndex) in list"
         :key="item.uuid"
       >
         <td>{{ item.id }}</td>
@@ -188,8 +188,10 @@
           :key="key"
           :attribute="key"
           :item="item"
+          :row-index="rowIndex"
           :save-attribute-function="saveAttributeFunction"
           :disabled="noEditable.includes(key)"
+          @paste="pasteColumns"
         />
         <VTableCellDataAttribute
           v-for="(predicate, index) in predicates"
@@ -197,7 +199,9 @@
           :class="{ 'cell-left-border': !index }"
           :item="item"
           :predicate="predicate"
+          :row-index="rowIndex"
           :save-data-attribute-function="saveDataAttributeFunction"
+          @paste="pasteColumns"
         >
         </VTableCellDataAttribute>
         <template v-if="previewHeader.length">
@@ -297,17 +301,22 @@
     </tbody>
   </table>
   <EditColumn ref="editColumnRef" />
+  <PasteColumns
+    ref="pasteColumnsRef"
+    :max-records-without-confirmation="MAX_RECORDS_WITHOUT_CONFIRMATION"
+  />
   <ConfirmationModal ref="confirmationRef" />
 </template>
 
 <script setup>
 import { computed, ref } from 'vue'
-import { isEmpty } from '@/helpers'
+import { isEmpty, parseClipboardTable } from '@/helpers'
 import { RouteNames } from '@/routes/routes'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import ConfirmationModal from '@/components/ConfirmationModal.vue'
 import EditColumn from './EditColumn.vue'
+import PasteColumns from './PasteColumns.vue'
 import VTableCellAttribute from './VTableCellAttribute.vue'
 import VTableCellDataAttribute from './VTableCellDataAttribute.vue'
 
@@ -368,6 +377,7 @@ const emit = defineEmits([
   'update:predicate-column',
   'update:data-attribute',
   'update:preview',
+  'paste:columns',
   'refresh',
   'sort:preview',
   'sort:property'
@@ -375,6 +385,130 @@ const emit = defineEmits([
 
 const confirmationRef = ref(null)
 const editColumnRef = ref(null)
+const pasteColumnsRef = ref(null)
+
+const tableColumns = computed(() => [
+  ...props.attributes.map((attr) => ({
+    kind: 'attribute',
+    key: attr,
+    label: attr,
+    isEditable: !props.noEditable.includes(attr)
+  })),
+  ...props.predicates.map((predicate) => ({
+    kind: 'predicate',
+    key: predicate.id,
+    label: predicate.name,
+    isEditable: true
+  }))
+])
+
+async function pasteColumns({ text, rowIndex, columnKey, kind }) {
+  const rows = parseClipboardTable(text)
+  const columnIndex = tableColumns.value.findIndex(
+    (column) => column.kind === kind && column.key === columnKey
+  )
+
+  if (!rows.length || columnIndex < 0) {
+    return
+  }
+
+  const availableRows = props.list.length - rowIndex
+  const candidates = []
+  const skipped = {
+    rows: Math.max(rows.length - availableRows, 0),
+    columns: 0,
+    noEditable: 0,
+    ambiguous: 0
+  }
+
+  rows.slice(0, availableRows).forEach((cells, index) => {
+    const item = props.list[rowIndex + index]
+
+    cells.forEach((cell, cellIndex) => {
+      const column = tableColumns.value[columnIndex + cellIndex]
+      const value = cell.trim()
+
+      if (!column) {
+        skipped.columns++
+        return
+      }
+
+      if (column.kind === 'attribute') {
+        if (!column.isEditable) {
+          skipped.noEditable++
+          return
+        }
+
+        candidates.push({
+          column,
+          item,
+          value,
+          currentValue: item.attributes[column.key]
+        })
+      } else {
+        const dataAttributes = item.dataAttributes[column.key]
+
+        if (dataAttributes?.length !== 1) {
+          skipped.ambiguous++
+          return
+        }
+
+        const [dataAttribute] = dataAttributes
+
+        candidates.push({
+          column,
+          item,
+          value,
+          dataAttribute,
+          currentValue: dataAttribute.value
+        })
+      }
+    })
+  })
+
+  const changed = candidates.filter(
+    (candidate) => candidate.value !== String(candidate.currentValue ?? '')
+  )
+  const onlyEmpty = changed.filter((candidate) =>
+    isEmpty(candidate.currentValue)
+  )
+  const columnLabels = [
+    ...new Set(candidates.map((candidate) => candidate.column.label))
+  ]
+
+  try {
+    const payload = await pasteColumnsRef.value.show({
+      rowCount: Math.min(rows.length, availableRows),
+      columnLabels,
+      totalReplace: changed.length,
+      totalFillEmpty: onlyEmpty.length,
+      skipped
+    })
+
+    if (payload) {
+      const attributeRecords = []
+      const dataAttributeRecords = []
+
+      ;(payload.replace ? changed : onlyEmpty).forEach(
+        ({ column, item, value, dataAttribute }) => {
+          if (column.kind === 'attribute') {
+            attributeRecords.push({ item, attribute: column.key, value })
+          } else {
+            dataAttributeRecords.push({
+              ...dataAttribute,
+              objectId: item.id,
+              value
+            })
+          }
+        }
+      )
+
+      emit('paste:columns', { attributeRecords, dataAttributeRecords })
+    }
+  } catch {
+    /* empty */
+  }
+}
 
 const totalChanges = computed(
   () =>

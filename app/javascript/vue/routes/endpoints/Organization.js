@@ -13,7 +13,8 @@ const permitParams = {
     duns: String,
     global_location_number: String,
     legal_name: String,
-    area_served_id: Number, 
+    area_served_id: Number,
+    geographic_area_id: Number,
     department_id: Number,
     parent_organization_id: Number
   }

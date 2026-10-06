@@ -19,7 +19,12 @@
 <script setup>
 import VSwitch from '@/components/ui/VSwitch.vue'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
-import { OTU, COLLECTION_OBJECT, FIELD_OCCURRENCE } from '@/constants'
+import {
+  OTU,
+  COLLECTION_OBJECT,
+  FIELD_OCCURRENCE,
+  ANATOMICAL_PART
+} from '@/constants'
 import { ref, useTemplateRef } from 'vue'
 
 defineProps({
@@ -43,7 +48,8 @@ const TAB = {
     autocomplete: false
   },
   [COLLECTION_OBJECT]: { model: 'collection_objects' },
-  [FIELD_OCCURRENCE]: { model: 'field_occurrences' }
+  [FIELD_OCCURRENCE]: { model: 'field_occurrences' },
+  [ANATOMICAL_PART]: { model: 'anatomical_parts' }
 }
 
 const emit = defineEmits(['select'])

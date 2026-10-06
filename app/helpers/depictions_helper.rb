@@ -15,8 +15,8 @@ module DepictionsHelper
     end
   end
 
-  def depiction_autocomplete_tag(depiction)
-    depiction_tag(depiction)
+  def depiction_autocomplete_tag(depiction, term = nil)
+    mark_tag(depiction_tag(depiction), term)
   end
 
   # Only text, no HTML

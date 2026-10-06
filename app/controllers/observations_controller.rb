@@ -175,7 +175,6 @@ class ObservationsController < ApplicationController
       :type,
       :year_made,
       :year_made,
-      images_attributes: [:id, :_destroy, :image_file, :rotate],
       depictions_attributes: [
         :id,
         :_destroy,

@@ -136,6 +136,7 @@ class TypeMaterialsController < ApplicationController
       :protonym_id, :collection_object_id, :type_type,
       roles_attributes: [:id, :_destroy, :type, :person_id, :position, person_attributes: [:last_name, :first_name, :suffix, :prefix]],
       origin_citation_attributes: [:id, :_destroy, :source_id, :pages],
+      data_attributes_attributes: [:id, :_destroy, :controlled_vocabulary_term_id, :type, :value],
       collection_object_attributes: [
         :id, :buffered_collecting_event, :buffered_other_labels, :buffered_determinations,
         :total, :collecting_event_id, :preparation_type_id, :repository_id]

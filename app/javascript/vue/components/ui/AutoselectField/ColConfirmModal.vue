@@ -251,7 +251,8 @@ async function doCreate() {
     dataset_id: ext.value.col_dataset_id ?? null,
     taxonworks_id: null,
     col_authorship: ext.value.col_authorship ?? null,
-    col_year: ext.value.col_year ?? null
+    col_year: ext.value.col_year ?? null,
+    col_status: ext.value.col_status ?? null
   }
 
   const createUrl =

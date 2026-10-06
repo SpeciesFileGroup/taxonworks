@@ -11,6 +11,7 @@
     :target="DESCRIPTOR"
   />
   <FacetIdentifiers v-model="params" />
+  <FacetDataAttribute v-model="params" />
   <FacetUsers v-model="params" />
   <FacetNotes v-model="params" />
   <FacetWith
@@ -34,6 +35,7 @@ import FacetObservationMatrix from '@/components/Filter/Facets/shared/FacetObser
 import FacetDescriptorType from '@/components/Filter/Facets/shared/FacetDescriptorType.vue'
 import FacetNotes from '@/components/Filter/Facets/shared/FacetNotes.vue'
 import FacetDescriptorTerm from '@/components/Filter/Facets/shared/FacetDescriptorTerm.vue'
+import FacetDataAttribute from '@/components/Filter/Facets/shared/FacetDataAttribute/FacetDataAttribute.vue'
 import FacetDiffModel from '@/components/Filter/Facets/shared/FacetDiffMode.vue'
 import FacetConfidence from '@/components/Filter/Facets/shared/FacetConfidence.vue'
 

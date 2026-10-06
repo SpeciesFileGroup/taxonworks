@@ -1,7 +1,7 @@
 import { TypeMaterial, Citation } from '@/routes/endpoints'
 import { MutationNames } from '../mutations/mutations'
 import { TYPE_MATERIAL } from '@/constants'
-import makeTypeMaterial from '@/factory/TypeMaterial.js'
+import makeTypeMaterial from '../../helpers/makeTypeMaterial.js'
 import makeCitation from '@/factory/Citation.js'
 
 export default async ({ commit }, id) => {

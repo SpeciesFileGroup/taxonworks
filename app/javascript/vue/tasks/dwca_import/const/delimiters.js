@@ -13,6 +13,8 @@ export const STRING_DELIMITER = {
   DoubleQuote: '"'
 }
 
+export const NO_STRING_DELIMITER = 'none'
+
 export const TYPES_OPTS = {
   [FILE_TYPE.TXT]: {
     field: FIELD_DELIMITER.Tab,

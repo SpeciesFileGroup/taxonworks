@@ -1,5 +1,5 @@
 <template>
-  <NavBar>
+  <NavBar navbar-class="panel content rounded-tl-none rounded-tr-none">
     <div class="flex-separate full_width">
       <div class="middle gap-small">
         <RecentButton @select="openGridDigitizer" />
@@ -49,7 +49,7 @@
 <script setup>
 import { GetterNames } from '../store/getters/getters'
 import { MutationNames } from '../store/mutations/mutations'
-import { NavigationSled } from '../request/resource'
+import { Metadata } from '@/routes/endpoints'
 import { computed, watch } from 'vue'
 import { useStore } from 'vuex'
 import { RouteNames } from '@/routes/routes'
@@ -70,7 +70,7 @@ const navigation = computed({
 
 watch(sledImage, (newVal, oldVal) => {
   if (newVal.id && oldVal.id != newVal.id) {
-    NavigationSled(sledImage.value.global_id).then(({ headers }) => {
+    Metadata.objectNavigation(sledImage.value.global_id).then(({ headers }) => {
       navigation.value.next = headers['navigation-next']?.[0]
       navigation.value.previous = headers['navigation-previous']?.[0]
     })

@@ -60,6 +60,7 @@
         </td>
         <td>
           <a
+            v-if="!row.isCited"
             :href="filterUrl(row.verbatim_author, row.year_of_publication)"
             target="_blank"
           >
@@ -68,6 +69,7 @@
         </td>
         <td>
           <VBtn
+            v-if="!row.isCited"
             color="primary"
             medium
             @click="
@@ -75,6 +77,14 @@
             "
           >
             Taxon names
+          </VBtn>
+          <VBtn
+            v-else
+            color="primary"
+            medium
+            @click="$emit('page-numbers', row)"
+          >
+            Page numbers
           </VBtn>
         </td>
         <td class="batch-cite-cell">
@@ -139,7 +149,7 @@ const store = useStore()
 const sortColumn = ref('year_of_publication')
 const sortDirection = ref('desc')
 
-defineEmits(['cite', 'preview'])
+defineEmits(['cite', 'preview', 'page-numbers'])
 
 const sortedData = computed(() => {
   const data = [...store.authorYearData]
@@ -177,8 +187,7 @@ function sortBy(column) {
 
 function filterUrl(author, year) {
   const params = new URLSearchParams({
-    author: author,
-    author_exact: true,
+    verbatim_author: author,
     year: year
   })
   return `${RouteNames.FilterNomenclature}?${params.toString()}`

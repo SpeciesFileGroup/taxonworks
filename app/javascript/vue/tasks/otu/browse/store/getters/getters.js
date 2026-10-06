@@ -9,6 +9,7 @@ import getGeoreferences from './getGeoreferences'
 import getPreferences from './getPreferences'
 import getUserId from './getUserId'
 import getAssertedDistributions from './getAssertedDistributions'
+import getAssertedEnvironments from './getAssertedEnvironments'
 import getCurrentOtu from './getCurrentOtu'
 import getFieldOccurrences from './getFieldOccurrences'
 import getLoadState from './getLoadState'
@@ -33,6 +34,7 @@ const GetterNames = {
   GetPreferences: 'getPreferences',
   GetUserId: 'getUserId',
   GetAssertedDistributions: 'getAssertedDistributions',
+  GetAssertedEnvironments: 'getAssertedEnvironments',
   GetRelatedBiologicalAssociations: 'getRelatedBiologicalAssociations',
   GetObservationsDepictions: 'getObservationsDepictions',
   GetCurrentOtu: 'getCurrentOtu',
@@ -56,6 +58,7 @@ const GetterFunctions = {
   [GetterNames.GetPreferences]: getPreferences,
   [GetterNames.GetUserId]: getUserId,
   [GetterNames.GetAssertedDistributions]: getAssertedDistributions,
+  [GetterNames.GetAssertedEnvironments]: getAssertedEnvironments,
   [GetterNames.GetCurrentOtu]: getCurrentOtu,
   [GetterNames.GetLegend]: getLegend,
   [GetterNames.GetLoadState]: getLoadState,

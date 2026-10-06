@@ -92,6 +92,8 @@ function updatePredicate() {
         controlled_vocabulary_term_id: props.predicateObject.id,
         _destroy: true
       })
+    } else {
+      emit('onUpdate', dataAttribute.value)
     }
   } else {
     emit('onUpdate', dataAttribute.value)

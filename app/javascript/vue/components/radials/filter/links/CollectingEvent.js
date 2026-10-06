@@ -1,5 +1,6 @@
 // Update corresponding at SUBQUERIES in /lib/queries/query/filter.rb
 import {
+  FILTER_ASSERTED_ENVIRONMENT,
   FILTER_BIOLOGICAL_ASSOCIATION,
   FILTER_CITATION,
   FILTER_COLLECTION_OBJECT,
@@ -18,6 +19,7 @@ import {
 } from '../constants/filterLinks'
 
 export const CollectingEvent = [
+  FILTER_ASSERTED_ENVIRONMENT,
   FILTER_BIOLOGICAL_ASSOCIATION,
   FILTER_CITATION,
   FILTER_COLLECTION_OBJECT,

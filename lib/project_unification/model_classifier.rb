@@ -41,6 +41,7 @@ module ProjectUnification
       CollectionObjectObservation
       AnatomicalPart
       AssertedDistribution
+      AssertedEnvironment
       BiologicalRelationshipType
       BiologicalAssociation
       BiologicalRelationship
@@ -105,6 +106,7 @@ module ProjectUnification
     SPECIAL_HANDLING = %w[
       TaxonName
       CollectingEvent
+      ProjectOrganization
       ProjectSource
       RangedLotCategory
       OtuPageLayout

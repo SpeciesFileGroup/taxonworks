@@ -175,10 +175,10 @@ class Georeference < ApplicationRecord
   before_validation :set_geographic_item, unless: -> { self.geographic_item_id.blank? }
   before_destroy :capture_geographic_items_for_cleanup
   after_save :set_cached, unless: -> { self.no_cached || (self.collecting_event && self.collecting_event.no_cached == true) }
+  # !! Run this first since it may destroy associated data; subsequent hooks
+  # then see the updated state.
   after_destroy :destroy_geographic_items_if_orphaned
   after_destroy :set_cached_collecting_event
-
-
 
   def otus
     ::Queries.union(Otu, [collection_object_otus, field_occurrence_otus])
@@ -433,9 +433,19 @@ class Georeference < ApplicationRecord
   end
 
   def destroy_geographic_items_if_orphaned
+    cache_reset_needed = false
     [geographic_item_id_for_cleanup, error_geographic_item_id_for_cleanup].compact.uniq.each do |id|
       item = GeographicItem.find_by(id:)
-      item&.destroy! if item&.unreferenced_for_cleanup?
+      if item&.unreferenced_for_cleanup?
+        item.destroy!
+        cache_reset_needed = true
+      end
+    end
+
+    if cache_reset_needed
+      # Reset the in-memory georeferences collection on the collecting_event so
+      # that subsequent handlers see updated state.
+      collecting_event.association(:georeferences).reset
     end
   end
 

@@ -1081,6 +1081,14 @@ describe 'Geo', group: :geo do
                    'text, 35.1026ºN  85.2718ºW, text'         => '35.1026///N/85.2718///W', # double space
                    "text, 35.1026ºN\n85.2718ºW, text"         => '35.1026///N/85.2718///W', # line break
                    'text, 12, -123, text'                     => '12///N/123///W',
+                   'text, Lat: 4.604134 N, Long: -74.065800 W, text'    => '4.604134///N/74.065800///W',
+                   'text, Lat. 4.604134 N, Long. 74.065800 W, text'     => '4.604134///N/74.065800///W',
+                   'text, Latitude 4.604134 N Longitude 74.065800 W, text' => '4.604134///N/74.065800///W',
+                   'text, Latitud 4.604134 N, Longitud 74.065800 W, text'  => '4.604134///N/74.065800///W',
+                   'text, 4.604134 N, -74.065800 W, text'     => '4.604134///N/74.065800///W',
+                   'text, 42.18°s88.34°w, text'               => '42.18///S/88.34///W',
+                   'text, Lat = -24.7859, Long = -65.4117, text'        => '24.7859///S/65.4117///W',
+                   'text, Lat: -0.6742, Lon: -76.3970, text'            => '0.6742///S/76.3970///W',
       }
 
       @entry = 0
@@ -1123,6 +1131,32 @@ describe 'Geo', group: :geo do
         use_case = Utilities::Geo.coordinates_regex_from_verbatim_label(str)
         u = use_case[:decimal][:decimal_latitude] + '/' + use_case[:decimal][:decimal_longitude]
         expect(u).to eq("-42.088361/-88.195361")
+      end
+
+      specify 'a full label with labelled, signed decimal degrees' do
+        str = "COLOMBIA, Cundinamarca Department, Bogota Distrito Capital, nearby Centro Deportivo\nUniandes La Gata Golosa, 2600 masl, Lat: 4.604134 N, Long: -74.065800 W collected manually, Sept 19–20, 2023, E. Realpe & P. Realpe leg."
+        use_case = Utilities::Geo.coordinates_regex_from_verbatim_label(str)
+        u = use_case[:decimal][:decimal_latitude] + '/' + use_case[:decimal][:decimal_longitude]
+        expect(u).to eq('4.604134/-74.0658')
+      end
+
+      specify 'a lowercase hemisphere still signs the longitude' do
+        str = 'text, 42.18°s88.34°w, text'
+        use_case = Utilities::Geo.coordinates_regex_from_verbatim_label(str)
+        u = use_case[:decimal][:decimal_latitude] + '/' + use_case[:decimal][:decimal_longitude]
+        expect(u).to eq('-42.18/-88.34')
+      end
+    end
+
+    context 'does not invent coordinates' do
+      [
+        'Peru, Cusco, 12, 5 km N of town, 2023, Lopez leg.',
+        'Ecuador, Napo, Sept 19–20, 2023, Smith leg.',
+        'Brazil, Para, 3 specimens, 45 m, Silva leg.',
+      ].each do |label|
+        specify "'#{label}' yields no coordinates" do
+          expect(Utilities::Geo.coordinates_regex_from_verbatim_label(label)).to eq({})
+        end
       end
     end
   end

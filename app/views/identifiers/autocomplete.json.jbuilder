@@ -1,5 +1,5 @@
 json.array! @identifiers do |i|
-  v = identifier_autocomplete_tag(i)
+  v = identifier_autocomplete_tag(i, params[:term])
   json.id i.id
   json.label i.cached
   json.label_html v

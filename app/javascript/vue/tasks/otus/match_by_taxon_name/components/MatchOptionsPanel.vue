@@ -4,16 +4,17 @@
       <h3>Match options</h3>
       <VBtn
         color="primary"
-        @click="emit('clear-all')"
+        title="Reset all options and match strings to defaults and re-run matching"
+        @click="handleClearAll"
       >
-        Clear all matches
+        Restart
       </VBtn>
     </div>
 
     <!-- Scope to TaxonName -->
     <div class="flex-col gap-medium">
       <div class="field margin-medium-bottom">
-        <label>Scope to TaxonName</label>
+        <label>Restrict matches to children of</label>
 
         <Autocomplete
           url="/taxon_names/autocomplete"
@@ -44,21 +45,29 @@
         </div>
       </div>
 
-      <!-- Try without subgenus -->
-      <div class="field margin-medium-bottom">
-        <label class="middle">
-          <input
-            type="checkbox"
-            :checked="tryWithoutSubgenus"
-            @change="handleTryWithoutSubgenusChange"
-          />
-          Try without subgenus
-        </label>
-        <span class="subtle">
-          When checked and cached match fails, tries cached_secondary_homonym
-          then cached_primary_homonym.
-        </span>
-      </div>
+      <!-- Subgenus matching -->
+      <fieldset class="margin-medium-bottom">
+        <legend :data-help="SUBGENUS_MATCHING_HELP">
+          Subgenus
+        </legend>
+        <div
+          v-for="option in SUBGENUS_MATCHING_OPTIONS"
+          :key="option.value"
+          class="margin-small-bottom"
+        >
+          <label class="middle">
+            <input
+              type="radio"
+              name="subgenus-matching"
+              :value="option.value"
+              :checked="subgenusMatching === option.value"
+              @change="handleSubgenusMatchingChange(option.value)"
+            />
+            {{ option.label }}
+          </label>
+          <span class="subtle">{{ option.description }}</span>
+        </div>
+      </fieldset>
 
       <!-- Fuzzy match slider -->
       <div class="field margin-medium-bottom">
@@ -97,7 +106,7 @@
 
       <!-- Modifiers -->
       <div class="field">
-        <label>Modifiers</label>
+        <label data-help="Regex find-and-replace rules applied to the match string before searching. Each active row is applied in sequence.">Modifiers</label>
         <div class="modifier-header">
           <span />
           <span class="subtle">Replace this</span>
@@ -174,6 +183,11 @@
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import Autocomplete from '@/components/ui/Autocomplete.vue'
+import {
+  SUBGENUS_MATCHING,
+  SUBGENUS_MATCHING_HELP,
+  SUBGENUS_MATCHING_OPTIONS
+} from '../constants.js'
 
 const emit = defineEmits(['clear-all', 'update-options'])
 
@@ -185,9 +199,9 @@ const levenshteinDistance = defineModel('levenshteinDistance', {
   type: Number,
   default: 0
 })
-const tryWithoutSubgenus = defineModel('tryWithoutSubgenus', {
-  type: Boolean,
-  default: false
+const subgenusMatching = defineModel('subgenusMatching', {
+  type: String,
+  default: SUBGENUS_MATCHING.WITH
 })
 const resolveSynonyms = defineModel('resolveSynonyms', {
   type: Boolean,
@@ -212,6 +226,11 @@ function debouncedUpdate() {
   }, 500)
 }
 
+function handleClearAll() {
+  clearTimeout(debounceTimer)
+  emit('clear-all')
+}
+
 function handleScopeSelect(item) {
   scopeTaxonName.value = {
     ...item,
@@ -230,8 +249,8 @@ function handleLevenshteinChange(event) {
   debouncedUpdate()
 }
 
-function handleTryWithoutSubgenusChange(event) {
-  tryWithoutSubgenus.value = event.target.checked
+function handleSubgenusMatchingChange(value) {
+  subgenusMatching.value = value
   emit('update-options')
 }
 

@@ -77,7 +77,7 @@ class BiologicalRelationship < ApplicationRecord
 
     h = {
       quick: [],
-      pinboard: BiologicalRelationship.pinned_by(user_id).where(project_id: project_id).to_a,
+      pinboard: BiologicalRelationship.pinned_by(user_id).where(project_id: project_id).pinboard_ordered.to_a,
       recent: []
     }
 

@@ -57,6 +57,7 @@
 class Lead < ApplicationRecord
   include Housekeeping
   include Shared::Citations
+  include Shared::DataAttributes
   include Shared::Depictions
   include Shared::Attributions
   include Shared::Tags
@@ -84,6 +85,7 @@ class Lead < ApplicationRecord
   validate :node_parent_doesnt_have_redirect
   validate :root_has_no_redirect
   validate :redirect_isnt_ancestor_or_self
+
   validates :text, uniqueness: { scope: [:otu_id, :parent_id], unless: -> { otu_id.nil? } }
 
   def future
@@ -322,11 +324,37 @@ class Lead < ApplicationRecord
   # !! Note, the relation is a join, check your results when changing order
   # or plucking, most of want you want is on the table joined to, which is
   # not the default table for ordering and plucking.
-  def self.roots_with_data(project_id, load_root_otus = false)
-    # The updated_at subquery computes key_updated_at (and others), the second
-    # query uses that to compute key_updated_by (by finding which node has the
-    # corresponding key_updated_at).
-    updated_at = Lead
+  # `is_virtual` (default: nil) scopes the returned roots:
+  #   * nil    -> excludes virtual roots
+  #   * true   -> only virtual roots (simple/cite_key keys)
+  #   * false  -> excludes virtual roots (same as nil, explicit)
+  #   * :all   -> includes both virtual and non-virtual roots
+  def self.roots_with_data(project_id, load_root_otus = false, is_virtual: nil)
+    scope =
+      case is_virtual
+      when true
+        virtual_roots_with_data(project_id).order('text')
+      when :all
+        nv = nonvirtual_roots_with_data(project_id).reorder(nil).to_sql
+        v = virtual_roots_with_data(project_id).reorder(nil).to_sql
+        Lead
+          .from("((#{nv}) UNION ALL (#{v})) AS leads")
+          .order('leads.text')
+      else
+        nonvirtual_roots_with_data(project_id).order('leads.text')
+      end
+
+    load_root_otus ? scope.includes(:otu) : scope
+  end
+
+  # Heavy path used for non-virtual. Walks lead_hierarchies + lead_items to
+  # compute otus_count and key_updated_at across the whole tree.
+  def self.nonvirtual_roots_with_data(project_id)
+    # Computes, per root, otus_count, key_updated_at, and key_updated_by_id
+    # (the updated_by_id of whichever node in the tree, root or descendant,
+    # has the max updated_at). See roots_from_data for how this is joined
+    # back to the root.
+    data = Lead
       .joins('JOIN lead_hierarchies AS lh
         ON leads.id = lh.ancestor_id')
       .joins('JOIN leads AS otus_source
@@ -336,10 +364,11 @@ class Lead < ApplicationRecord
       .where("
         leads.parent_id IS NULL
         AND leads.project_id = #{project_id}
+        AND (leads.is_virtual IS NOT TRUE)
       ")
       .group(:id)
       .select("
-        leads.*,
+        leads.id,
         -- PG-specific functions to handle the otu count here:
         (SELECT COUNT(DISTINCT u.otu_id)
           -- explode combined array into rows with values in an 'otu_id' column
@@ -352,23 +381,71 @@ class Lead < ApplicationRecord
           WHERE u.otu_id IS NOT NULL
         ) AS otus_count,
         MAX(otus_source.updated_at) AS key_updated_at,
-        0 AS couplets_count" # count is now computed in views
-      )
+        0 AS couplets_count, -- count is now computed in views
+        (ARRAY_AGG(otus_source.updated_by_id ORDER BY otus_source.updated_at DESC, otus_source.id DESC))[1] AS key_updated_by_id
+      ")
 
-    root_leads = Lead
-      .joins("JOIN (#{updated_at.to_sql}) AS leads_updated_at
-        ON leads_updated_at.key_updated_at = leads.updated_at")
+    roots_from_data(data)
+  end
+
+  # Cheap path for simple/cite_key roots (is_virtual = TRUE). Simple keys are
+  # flat (root + direct children), so otus_count is a direct COUNT DISTINCT
+  # over children and key_updated_at is GREATEST(root, MAX(children)). Skips
+  # the lead_hierarchies + lead_items walk entirely.
+  #
+  # key_updated_by_id/key_updated_by are attributed to whichever of the root
+  # or its children was updated most recently, not just the root itself (a
+  # child edited by someone else than the root's own last editor must still
+  # be reflected).
+  def self.virtual_roots_with_data(project_id)
+    # Computes key_updated_by_id per root (root or child, whichever was
+    # updated most recently). See roots_from_data for how this is joined
+    # back to the root.
+    data = Lead
+      .joins('LEFT JOIN leads AS c ON c.parent_id = leads.id')
+      .where(
+        'leads.parent_id IS NULL AND leads.project_id = ? AND leads.is_virtual = TRUE',
+        project_id
+      )
+      .group(:id)
+      .select("
+        leads.id,
+        COUNT(DISTINCT c.otu_id) FILTER (WHERE c.otu_id IS NOT NULL) AS otus_count,
+        GREATEST(leads.updated_at, COALESCE(MAX(c.updated_at), leads.updated_at)) AS key_updated_at,
+        0 AS couplets_count,
+        CASE
+          WHEN MAX(c.updated_at) IS NOT NULL AND MAX(c.updated_at) > leads.updated_at
+          THEN (ARRAY_AGG(c.updated_by_id ORDER BY c.updated_at DESC, c.id DESC))[1]
+          ELSE leads.updated_by_id
+        END AS key_updated_by_id
+      ")
+
+    roots_from_data(data)
+  end
+
+  # Shared outer join used by both nonvirtual_roots_with_data and
+  # virtual_roots_with_data: joins a per-root `data` subquery (which must
+  # select leads.id, otus_count, key_updated_at, couplets_count, and
+  # key_updated_by_id) back onto leads.id and users, keeping the outer query
+  # keyed on the root's own id so callers can safely add conditions (e.g.
+  # `where(is_public: true)`) or eager-load associations (e.g.
+  # `includes(:otu)`) and have them apply to the root.
+  def self.roots_from_data(data)
+    Lead
+      .joins("JOIN (#{data.to_sql}) AS leads_data
+        ON leads_data.id = leads.id")
       .joins('JOIN users
-        ON users.id = leads.updated_by_id')
+        ON users.id = leads_data.key_updated_by_id')
       .select('
-        leads_updated_at.*,
-        leads.updated_by_id AS key_updated_by_id,
+        leads.*,
+        leads_data.otus_count,
+        leads_data.key_updated_at,
+        leads_data.couplets_count,
+        leads_data.key_updated_by_id,
         users.name AS key_updated_by
       ')
-      .order('leads_updated_at.text')
-
-    return load_root_otus ? root_leads.includes(:otu) : root_leads
   end
+  private_class_method :roots_from_data
 
   def redirect_options(project_id)
     leads = Lead
@@ -456,6 +533,7 @@ class Lead < ApplicationRecord
       .where('l_h2.descendant_id IN (SELECT id FROM l_o_l)')
       .where(parent_id: nil)
       .where(is_public: true)
+      .where('leads.is_virtual IS NOT TRUE')
   end
 
   # Returns nil when no children are provided, otherwise a hash of

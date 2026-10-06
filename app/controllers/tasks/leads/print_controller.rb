@@ -1,7 +1,9 @@
 class Tasks::Leads::PrintController < ApplicationController
   include TaskControllerConfiguration
+  include LeadTaskRedirection
 
   before_action :set_lead
+  before_action :redirect_if_virtual
 
   def index
   end

@@ -11,7 +11,10 @@ headers to be used in the call. Using it will override the common headers
     </autocomplete>
 */
 <template>
-  <div class="vue-autocomplete">
+  <div
+    class="vue-autocomplete"
+    :data-help="helpText"
+  >
     <input
       type="text"
       ref="autofocus"
@@ -82,9 +85,10 @@ headers to be used in the call. Using it will override the common headers
 </template>
 
 <script>
-import { sanitizeHtml } from '@/helpers'
+import { sanitizeHtml, stripMarkTags } from '@/helpers'
 import AjaxCall from '@/helpers/ajaxCall'
 import AutocompleteSpinner from './Autocomplete/AutocompleteSpinner.vue'
+import { AUTOCOMPLETE_HELP } from './Autocomplete/autocompleteHelp'
 import Qs from 'qs'
 
 export default {
@@ -233,6 +237,18 @@ export default {
     }
   },
 
+  computed: {
+    // TODO: a caller passing its own `data-help` attribute will silently
+    // overwrite this computed value (Vue attrs fallthrough is last-write-wins
+    // for plain attributes, unlike class/style/events). Merge instead of
+    // overwrite if one ever needs to.
+    helpText() {
+      const resource = this.url?.match(/\/([^/]+)\/autocomplete/)?.[1]
+
+      return resource && AUTOCOMPLETE_HELP[resource]
+    }
+  },
+
   mounted() {
     if (this.autofocus) {
       this.$nextTick(() => {
@@ -308,9 +324,17 @@ export default {
     },
 
     sendItem(item) {
-      this.$emit('update:modelValue', item)
-      this.$emit('getItem', item)
-      this.$emit('select', item)
+      // label_html is only meant to carry the <mark>-highlighted search term
+      // while rendering the dropdown; consumers that persist/display the
+      // selected item from this event should never see that highlight.
+      const cleanItem =
+        item && typeof item.label_html === 'string'
+          ? { ...item, label_html: stripMarkTags(item.label_html) }
+          : item
+
+      this.$emit('update:modelValue', cleanItem)
+      this.$emit('getItem', cleanItem)
+      this.$emit('select', cleanItem)
     },
 
     sendKeyEvent(e) {

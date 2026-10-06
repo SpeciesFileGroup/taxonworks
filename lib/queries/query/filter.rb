@@ -42,11 +42,12 @@ module Queries
       alternate_value: [:descriptor, :otu, :taxon_name],
       anatomical_part: [:collection_object, :field_occurrence, :otu, :observation, :extract, :sound, :biological_association],
       asserted_distribution: [:source, :otu, :biological_association, :taxon_name, :dwc_occurrence, :observation],
+      asserted_environment: [:collecting_event, :otu],
       attribution: [:content, :image, :sound],
       biological_association: [:source, :collecting_event, :otu, :collection_object, :field_occurrence, :taxon_name, :asserted_distribution, :anatomical_part],
       biological_associations_graph: [:biological_association, :source],
       citation: [:anatomical_part, :asserted_distribution, :biological_association, :collecting_event, :collection_object, :content, :descriptor, :extract, :field_occurrence, :image, :observation, :otu, :sound, :source, :taxon_name, :taxon_name_relationship],
-      collecting_event: [:source, :collection_object, :field_occurrence, :biological_association, :otu, :image, :taxon_name, :dwc_occurrence],
+      collecting_event: [:source, :collection_object, :field_occurrence, :biological_association, :otu, :image, :taxon_name, :dwc_occurrence, :asserted_environment],
       collection_object: [:source, :loan, :otu, :taxon_name, :collecting_event, :biological_association, :extract, :image, :observation, :dwc_occurrence, :anatomical_part],
       confidence: [:anatomical_part, :asserted_distribution, :biological_association, :collecting_event, :collection_object, :content, :descriptor, :extract, :field_occurrence, :observation, :otu, :sound, :taxon_name],
       content: [:source, :otu, :taxon_name, :image],
@@ -64,7 +65,7 @@ module Queries
       loan: [:collection_object, :otu],
       note: [:anatomical_part, :asserted_distribution, :biological_association, :collecting_event, :collection_object, :descriptor, :field_occurrence, :image, :observation, :otu, :sound, :taxon_name, :taxon_name_relationship],
       observation: [:asserted_distribution, :collection_object, :descriptor, :extract, :field_occurrence, :image, :otu, :sound, :source, :taxon_name, :anatomical_part],
-      otu: [:asserted_distribution, :biological_association, :collection_object, :dwc_occurrence, :field_occurrence, :collecting_event, :content, :descriptor, :extract, :image, :loan, :observation, :source, :taxon_name, :anatomical_part, :sound ],
+      otu: [:asserted_distribution, :biological_association, :collection_object, :dwc_occurrence, :field_occurrence, :collecting_event, :content, :descriptor, :extract, :image, :loan, :observation, :source, :taxon_name, :anatomical_part, :sound, :asserted_environment ],
       person: [],
       source: [:asserted_distribution,  :biological_association, :collecting_event, :collection_object, :content, :descriptor, :extract, :image, :observation, :otu, :taxon_name, :taxon_name_relationship],
       sound: [:observation, :anatomical_part, :otu, :taxon_name],
@@ -102,6 +103,7 @@ module Queries
       alternate_value_query: '::Queries::AlternateValue::Filter',
       anatomical_part_query: '::Queries::AnatomicalPart::Filter',
       asserted_distribution_query: '::Queries::AssertedDistribution::Filter',
+      asserted_environment_query: '::Queries::AssertedEnvironment::Filter',
       attribution_query: '::Queries::Attribution::Filter',
       biological_association_query: '::Queries::BiologicalAssociation::Filter',
       biological_associations_graph_query: '::Queries::BiologicalAssociationsGraph::Filter',
@@ -174,6 +176,9 @@ module Queries
 
     # @return [Query::AssertedDistribution::Filter, nil]
     attr_accessor :asserted_distribution_query
+
+    # @return [Query::AssertedEnvironment::Filter, nil]
+    attr_accessor :asserted_environment_query
 
     # @return [Query::BiologicalAssociation::Filter, nil]
     attr_accessor :biological_association_query
@@ -471,6 +476,7 @@ module Queries
         f.push ::Queries::Concerns::Notes if self < ::Queries::Concerns::Notes
         f.push ::Queries::Concerns::Protocols if self < ::Queries::Concerns::Protocols
         f.push ::Queries::Concerns::Tags if self < ::Queries::Concerns::Tags
+        f.push ::Queries::Concerns::TaxonDetermination if self < ::Queries::Concerns::TaxonDetermination
         f.push ::Queries::Concerns::Verifiers if self < ::Queries::Concerns::Verifiers
         f.push ::Queries::Concerns::PreparationTypes if self < ::Queries::Concerns::PreparationTypes
       end

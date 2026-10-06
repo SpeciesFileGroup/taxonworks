@@ -8,19 +8,19 @@ describe Vendor::Serrano, type: :model, group: [:sources] do
       let(:citation) { 'Yoder, M. J., A. A. Valerio, A. Polaszek, L. Masner, and N. F. Johnson. 2009. Revision of Scelio pulchripennis - group species (Hymenoptera, Platygastroidea, Platygastridae). ZooKeys 20:53-118.' }
 
       specify 'when citation is < 6 characters false is returned' do
-        VCR.use_cassette('source_citation_abc') {
+        use_cassette_with_retry('source_citation_abc') {
           expect(Vendor::Serrano.new_from_citation(citation: 'ABC')).to eq(false)
         }
       end
 
       specify 'when citation is > than 5 characters but unresolvable a Source::Verbatim instance is returned' do
-        VCR.use_cassette('source_citation_xyz') {
+        use_cassette_with_retry('source_citation_xyz') {
           expect(Vendor::Serrano.new_from_citation(citation: 'ABCDE XYZ').class).to eq(Source::Verbatim)
         }
       end
 
       specify 'when citation is resolvable a Source::Bibtex instance is returned' do
-        VCR.use_cassette('source_citation_polaszek') {
+        use_cassette_with_retry('source_citation_polaszek') {
           s = Vendor::Serrano.new_from_citation(citation: citation)
           expect(s.class).to eq(Source::Bibtex)
         }
@@ -102,35 +102,35 @@ describe Vendor::Serrano, type: :model, group: [:sources] do
       let(:http_doi) {'http://dx.doi.org/' + naked_doi}
 
       specify 'some stupid string' do
-        VCR.use_cassette('source_from_some_stupid_doi') do
+        use_cassette_with_retry('source_from_some_stupid_doi') do
           s = Vendor::Serrano.new_from_citation(citation: 'Some.stupid/string')
           expect(s.class).to eq(Source::Verbatim)
         end
       end
 
       specify 'naked_doi 1' do
-        VCR.use_cassette('source_from_naked_doi') do
+        use_cassette_with_retry('source_from_naked_doi') do
           s = Vendor::Serrano.new_from_citation(citation: naked_doi)
           expect(s.class).to eq(Source::Bibtex)
         end
       end
 
       specify 'naked_doi sets DOI' do
-        VCR.use_cassette('source_from_naked_doi') do
+        use_cassette_with_retry('source_from_naked_doi') do
           s = Vendor::Serrano.new_from_citation(citation: naked_doi)
           expect(s.doi).to eq(naked_doi)
         end
       end
 
       specify 'https' do
-        VCR.use_cassette('source_from_https_doi') do
+        use_cassette_with_retry('source_from_https_doi') do
           s = Vendor::Serrano.new_from_citation(citation: https_doi)
           expect(s.class).to eq(Source::Bibtex)
         end
       end
 
       specify 'http' do
-        VCR.use_cassette('source_from_http_doi') do
+        use_cassette_with_retry('source_from_http_doi') do
           s = Vendor::Serrano.new_from_citation(citation: http_doi)
           expect(s.class).to eq(Source::Bibtex)
         end
@@ -138,7 +138,7 @@ describe Vendor::Serrano, type: :model, group: [:sources] do
 
       # TODO: Find new example
       xspecify 'remove html tags with special pseudo-LaTeX encodings except for <em>/<i>' do
-        VCR.use_cassette('source_from_naked_doi') do
+        use_cassette_with_retry('source_from_naked_doi') do
           s = Vendor::Serrano.new_from_citation(citation: naked_doi)
           expect(s.title).to include('<i>Tachycines</i>')
         end
@@ -149,14 +149,14 @@ describe Vendor::Serrano, type: :model, group: [:sources] do
   context '#cached_string correctly formats ' do
     # Expected result is a resolved citation of Source::Bibtex
     let(:src1) {
-      VCR.use_cassette('source_citation_brauer') {
+      use_cassette_with_retry('source_citation_brauer') {
         Vendor::Serrano.new_from_citation(citation: 'Brauer, A. (1909) Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer. Smithsonian Institution.')
       }
     }
 
     # Expected result is a resolved citation of Source::Bibtex
     let(:src2) {
-      VCR.use_cassette('source_citation_kevan') {
+      use_cassette_with_retry('source_citation_kevan') {
         Vendor::Serrano.new_from_citation(citation: 'Kevan, D.K.M. & Wighton. 1981. Paleocene orthopteroids from south-central Alberta, Canada. Canadian Journal of Earth Sciences. 18(12):1824-1837')
       }
     }
@@ -190,6 +190,23 @@ describe Vendor::Serrano, type: :model, group: [:sources] do
       expect(src2.cached_string('html')).to start_with(
         'Kevan, D.K.M.E. &amp; Wighton, D.C. (1981) Paleocene orthopteroids from south-central Alberta, Canada.'
       )
+    end
+  end
+
+
+  #TODO: Improve this, retry on network problems, not any exception.
+  def use_cassette_with_retry(name, &block)
+    attempts = 0
+
+    begin
+      attempts += 1
+
+      VCR.use_cassette(name, record_on_error: false, &block)
+    rescue => e
+      raise if attempts >= 6
+
+      sleep(2**(attempts - 1))
+      retry
     end
   end
 

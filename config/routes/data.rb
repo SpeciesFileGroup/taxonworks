@@ -69,6 +69,18 @@ resources :asserted_distributions do
   resources :origin_relationships, shallow: true, only: [:index], defaults: {format: :json}
 end
 
+resources :asserted_environments, except: [:update] do
+  collection do
+    get :list
+    get :download
+    get :search
+    get :autocomplete, defaults: {format: :json}
+    get :autoselect, defaults: {format: :json}
+    get :object_types, defaults: {format: :json}
+    match :filter, to: 'asserted_environments#index', via: [:get, :post]
+  end
+end
+
 resources :biocuration_classifications, only: [:create, :update, :destroy] do
   collection do
     get :index, defaults: {format: :json}
@@ -323,6 +335,7 @@ resources :descriptors do
   end
   collection do
     match :filter, to: 'descriptors#index', via: [:get, :post]
+    patch :sort, defaults: {format: :json}
     get :units
     post :preview_modify_gene_descriptor_batch_load
     post :create_modify_gene_descriptor_batch_load
@@ -360,6 +373,12 @@ resources :documents do
     get :select_options, defaults: {format: :json}
     match :filter, to: 'documents#index', via: [:get, :post]
     get :file_extensions, defaults: {format: :json}
+  end
+end
+
+resources :biological_association_indices, only: [] do
+  collection do
+    get 'download'
   end
 end
 
@@ -535,6 +554,7 @@ resources :leads do
     post :insert_couplet, defaults: {format: :json}
     post :destroy_children, defaults: {format: :json}
     post :delete_children, defaults: {format: :json}
+    delete :destroy_simple_lead, defaults: {format: :json}
     post :duplicate
     get :redirect_option_texts, defaults: {format: :json}
     get :otus, defaults: {format: :json}
@@ -548,6 +568,7 @@ resources :leads do
   end
   collection do
     post :batch_create_lead_items, defaults: {format: :json}
+    get :cite_key_bootstrap, defaults: {format: :json}
   end
 end
 
@@ -724,6 +745,7 @@ resources :otus do
     get :autoselect, defaults: { format: :json }
     get :select_options, defaults: {format: :json}
     post :autoselect_col_create, defaults: { format: :json }
+    post :create_morphospecies_otu, defaults: { format: :json }
 
     patch :batch_update
   end
@@ -799,6 +821,9 @@ end
 
 resources :preparation_types do
   concerns [:data_routes]
+  collection do
+    get :select_options, defaults: {format: :json}
+  end
 end
 
 resources :projects, only: [] do
@@ -821,6 +846,14 @@ resources :projects, only: [] do
     scope :dwc_export_preferences, controller: 'tasks/projects/dwc_export_preferences' do
       post :validate_eml, defaults: {format: :json}
     end
+  end
+end
+
+resources :project_organizations, only: [:index, :show, :create, :destroy] do
+  collection do 
+    get 'list'
+    get 'autocomplete'
+    get 'download'
   end
 end
 

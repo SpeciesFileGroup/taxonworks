@@ -1,6 +1,7 @@
 import {
   ANATOMICAL_PART,
   ASSERTED_DISTRIBUTION,
+  ASSERTED_ENVIRONMENT,
   BIOLOGICAL_ASSOCIATION,
   CHARACTER_STATE,
   COLLECTING_EVENT,
@@ -26,6 +27,7 @@ import {
 export const ID_PARAM_FOR = {
   [ANATOMICAL_PART]: 'anatomical_part_id',
   [ASSERTED_DISTRIBUTION]: 'asserted_distribution_id',
+  [ASSERTED_ENVIRONMENT]: 'asserted_environment_id',
   [BIOLOGICAL_ASSOCIATION]: 'biological_association_id',
   [CHARACTER_STATE]: 'character_state_id',
   [COLLECTING_EVENT]: 'collecting_event_id',
