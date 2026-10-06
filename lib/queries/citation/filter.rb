@@ -200,6 +200,10 @@ module Queries
         polymorphic_annotation_object_query_facet(asserted_environment_query, 'AssertedEnvironment', 'query_ae_c')
       end
 
+      def lead_query_facet
+        polymorphic_annotation_object_query_facet(lead_query, 'Lead', 'query_le_c')
+      end
+
       def biological_association_query_facet
         polymorphic_annotation_object_query_facet(biological_association_query, 'BiologicalAssociation', 'query_ba_c')
       end
@@ -270,6 +274,7 @@ module Queries
           anatomical_part_query_facet,
           asserted_distribution_query_facet,
           asserted_environment_query_facet,
+          lead_query_facet,
           biological_association_query_facet,
           collecting_event_query_facet,
           collection_object_query_facet,

@@ -150,4 +150,13 @@ describe Queries::Citation::Filter, type: :model do
     expect(q.all).to contain_exactly(c1)
   end
 
+  specify '#lead_query_facet' do
+    key = FactoryBot.create(:valid_lead)
+    other_key = FactoryBot.create(:valid_lead, text: 'Other key')
+    c = FactoryBot.create(:valid_citation, citation_object: key)
+    FactoryBot.create(:valid_citation, citation_object: other_key)
+
+    q = Queries::Citation::Filter.new(lead_query: { lead_id: [key.id] })
+    expect(q.all).to contain_exactly(c)
+  end
 end

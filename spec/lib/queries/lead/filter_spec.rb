@@ -204,6 +204,30 @@ describe Queries::Lead::Filter, type: :model do
     expect(q.all.pluck(:id)).to contain_exactly(simple_key.id)
   end
 
+  context 'annotation filter subqueries' do
+    let(:keyword) { FactoryBot.create(:valid_keyword, name: 'female') }
+
+    specify '#tag_query' do
+      Tag.create!(tag_object: simple_key, keyword:)
+      Tag.create!(tag_object: otu1, keyword:) # not a key
+      q = Queries::Lead::Filter.new(tag_query: { keyword_id: [keyword.id] })
+      expect(q.all.pluck(:id)).to contain_exactly(simple_key.id)
+    end
+
+    specify '#citation_query' do
+      c = FactoryBot.create(:valid_citation, citation_object: dichotomous_key)
+      q = Queries::Lead::Filter.new(citation_query: { citation_id: [c.id] })
+      expect(q.all.pluck(:id)).to contain_exactly(dichotomous_key.id)
+    end
+
+    specify '#data_attribute_query' do
+      predicate = FactoryBot.create(:valid_predicate, name: 'sex')
+      da = ::InternalAttribute.create!(attribute_subject: simple_key, value: 'female', predicate:)
+      q = Queries::Lead::Filter.new(data_attribute_query: { data_attribute_id: [da.id] })
+      expect(q.all.pluck(:id)).to contain_exactly(simple_key.id)
+    end
+  end
+
   specify '#api excludes non-public keys' do
     q = Queries::Lead::Filter.new(api: true)
     expect(q.all.pluck(:id)).to contain_exactly(dichotomous_key.id)

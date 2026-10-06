@@ -13,4 +13,14 @@ describe Queries::Tag::Filter, type: :model do
     q = Queries::Tag::Filter.new(asserted_environment_query: { asserted_environment_id: [ae.id] })
     expect(q.all).to contain_exactly(t)
   end
+
+  specify '#lead_query_facet' do
+    key = FactoryBot.create(:valid_lead)
+    other_key = FactoryBot.create(:valid_lead, text: 'Other key')
+    t = Tag.create!(tag_object: key, keyword:)
+    Tag.create!(tag_object: other_key, keyword:)
+
+    q = Queries::Tag::Filter.new(lead_query: { lead_id: [key.id] })
+    expect(q.all).to contain_exactly(t)
+  end
 end

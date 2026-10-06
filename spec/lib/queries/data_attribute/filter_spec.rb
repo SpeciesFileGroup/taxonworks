@@ -74,4 +74,13 @@ describe Queries::DataAttribute::Filter, type: :model do
     expect(q.all).to contain_exactly(da)
   end
 
+  specify '#lead_query_facet' do
+    key = FactoryBot.create(:valid_lead)
+    other_key = FactoryBot.create(:valid_lead, text: 'Other key')
+    da = ::InternalAttribute.create!(attribute_subject: key, value: 'adult', predicate: p1)
+    ::InternalAttribute.create!(attribute_subject: other_key, value: 'nymph', predicate: p1)
+
+    q = Queries::DataAttribute::Filter.new(lead_query: { lead_id: [key.id] })
+    expect(q.all).to contain_exactly(da)
+  end
 end
