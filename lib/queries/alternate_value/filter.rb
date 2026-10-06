@@ -15,7 +15,9 @@ module Queries
         :alternate_value_object_attribute,
         :alternate_value_object_id,
         :alternate_value_object_type,
-        alternate_value_id: []
+        alternate_value_id: [],
+        alternate_value_object_id: [],
+        alternate_value_object_type: []
       ].freeze
 
       # @return [Array]

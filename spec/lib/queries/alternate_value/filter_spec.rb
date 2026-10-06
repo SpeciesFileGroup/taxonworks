@@ -53,4 +53,15 @@ describe Queries::AlternateValue::Filter, type: :model, group: :alternate_values
       expect(q.all.to_a).to contain_exactly(community_annotation)
     end
   end
+
+  specify '#alternate_value_object_type as an Array' do
+    tn = FactoryBot.create(:valid_protonym)
+    descriptor = FactoryBot.create(:valid_descriptor)
+    a1 = AlternateValue::Abbreviation.create!(alternate_value_object: tn, alternate_value_object_attribute: 'name', value: 'A.')
+    AlternateValue::Abbreviation.create!(alternate_value_object: descriptor, alternate_value_object_attribute: 'name', value: 'B.')
+
+    q = Queries::AlternateValue::Filter.new(p.merge(alternate_value_object_type: ['TaxonName']))
+    expect(q.all).to contain_exactly(a1)
+  end
+
 end

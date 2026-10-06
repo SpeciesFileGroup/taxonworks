@@ -11,6 +11,8 @@ module Queries
         :documentation_object_id,
         :documentation_object_type,
         documentation_id: [],
+        documentation_object_id: [],
+        documentation_object_type: [],
       ].freeze
 
       attr_accessor :documentation_id

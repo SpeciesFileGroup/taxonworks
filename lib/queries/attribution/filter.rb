@@ -11,6 +11,8 @@ module Queries
         :attribution_object_id,
         :attribution_object_type,
         attribution_id: [],
+        attribution_object_id: [],
+        attribution_object_type: [],
       ].freeze
 
       attr_accessor :attribution_id

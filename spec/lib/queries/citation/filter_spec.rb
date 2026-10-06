@@ -141,4 +141,13 @@ describe Queries::Citation::Filter, type: :model do
   end
 
 
+  specify '#source_id as an Array (as sent by the Source facet)' do
+    s1 = FactoryBot.create(:valid_source_bibtex)
+    c1 = FactoryBot.create(:valid_citation, source: s1)
+    FactoryBot.create(:valid_citation)
+
+    q = Queries::Citation::Filter.new(ActionController::Parameters.new(source_id: [s1.id]))
+    expect(q.all).to contain_exactly(c1)
+  end
+
 end

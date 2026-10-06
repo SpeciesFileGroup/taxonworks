@@ -37,8 +37,10 @@ module Queries
         :citation_topic_pages_exact,
         :source_documents,
         role_id: [],
+        citation_id: [],
         citation_object_id: [],
         citation_object_type: [],
+        source_id: [],
         topic_id: [],
       ].freeze
 

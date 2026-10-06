@@ -9,9 +9,11 @@ module Queries
       PARAMS = [
         *::Tag.related_foreign_keys.map(&:to_sym),
         :keyword_id,
+        :tag_id,
         :tag_object_type,
         :tag_object_id,
         keyword_id: [],
+        tag_id: [],
         tag_object_type: [],
         tag_object_id: [],
       ].freeze
