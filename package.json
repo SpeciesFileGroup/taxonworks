@@ -25,6 +25,7 @@
     "leaflet": "^1.9.4",
     "leaflet.markercluster": "^1.5.3",
     "marked": "^18.0.14",
+    "npm": "^11.21.0",
     "parse-dms": "0.0.5",
     "pdfjs-dist": "6.3.289",
     "pinia": "^4.0.3",
