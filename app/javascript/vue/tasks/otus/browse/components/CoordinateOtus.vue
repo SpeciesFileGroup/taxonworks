@@ -47,6 +47,12 @@
           Select the OTUs to filter the data. Each panel will display
           information according to the selected OTUs.
         </p>
+        <input
+          v-model="searchText"
+          type="text"
+          class="full_width margin-medium-bottom"
+          placeholder="Filter OTUs..."
+        />
         <table class="full_width table-striped">
           <thead>
             <tr>
@@ -72,7 +78,7 @@
           </thead>
           <tbody>
             <tr
-              v-for="otu in store.coordinateOtus"
+              v-for="otu in filteredCoordinateOtus"
               :key="otu.id"
             >
               <td class="w-2">
@@ -128,6 +134,7 @@ const MAX_TOOLTIP_OTUS = 10
 
 const otus = ref([])
 const isModalVisible = ref(false)
+const searchText = ref('')
 const store = useOtuStore()
 
 const previewCoordinateOtus = computed(() =>
@@ -138,8 +145,18 @@ const hiddenCoordinateOtusCount = computed(() =>
   Math.max(store.coordinateOtus.length - MAX_TOOLTIP_OTUS, 0)
 )
 
+const filteredCoordinateOtus = computed(() => {
+  const term = searchText.value.trim().toLowerCase()
+
+  if (!term) return store.coordinateOtus
+
+  return store.coordinateOtus.filter((otu) =>
+    (otu.object_label || '').toLowerCase().includes(term)
+  )
+})
+
 const selectableOtus = computed(() =>
-  store.coordinateOtus.filter((otu) => otu.id !== store.otu?.id)
+  filteredCoordinateOtus.value.filter((otu) => otu.id !== store.otu?.id)
 )
 
 const isEverySelectableOtuSelected = computed(
@@ -149,14 +166,16 @@ const isEverySelectableOtuSelected = computed(
 )
 
 function toggleAllOtus(event) {
-  const currentOtu = otus.value.filter((otu) => otu.id === store.otu?.id)
+  const visibleIds = selectableOtus.value.map((otu) => otu.id)
+  const keptOtus = otus.value.filter((otu) => !visibleIds.includes(otu.id))
 
   otus.value = event.target.checked
-    ? [...currentOtu, ...selectableOtus.value]
-    : currentOtu
+    ? [...keptOtus, ...selectableOtus.value]
+    : keptOtus
 }
 
 watch(isModalVisible, () => {
   otus.value = [...store.selectedOtus]
+  searchText.value = ''
 })
 </script>
