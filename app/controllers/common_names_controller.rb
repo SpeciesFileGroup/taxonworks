@@ -2,13 +2,10 @@ class CommonNamesController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
   before_action :set_common_name, only: [:show, :edit, :update, :destroy, :api_show ]
 
-  after_action -> { set_pagination_headers(:common_names) }, only: [:api_index], if: :json_request?
+  after_action -> { set_pagination_headers(:common_names) }, only: [:index, :api_index], if: :json_request?
 
   # GET /common_names
   # GET /common_names.json
-  def index
-  end
-
   def index
     respond_to do |format|
       format.html do

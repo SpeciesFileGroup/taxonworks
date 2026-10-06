@@ -1,0 +1,119 @@
+<template>
+  <tr>
+    <td>
+      <div class="flex-row gap-small">
+        <RadialAnnotator :global-id="row.globalId" />
+        <RadialObject :global-id="row.globalId" />
+        <RadialNavigator :global-id="row.globalId" />
+        <VBtn
+          circle
+          color="primary"
+          title="View details"
+          @click="emit('open-detail', row)"
+        >
+          <VIcon
+            name="expand"
+            x-small
+          />
+        </VBtn>
+      </div>
+    </td>
+
+    <template v-if="showRanks">
+      <td v-html="row.subjectOrder" />
+      <td v-html="row.subjectFamily" />
+      <td v-html="row.subjectGenus" />
+    </template>
+    <td>
+      <a
+        :href="makeBrowseUrl({ id: row.subjectId, type: row.subjectType })"
+        v-html="row.subjectTag"
+      />
+    </td>
+    <td>
+      <a
+        :href="`/biological_associations/${row.id}`"
+        :title="`Edit`"
+        v-html="row.biologicalPropertySubject"
+      />
+    </td>
+
+    <td
+      class="table-cell-border-left-thick"
+      v-html="row.biologicalRelationship"
+    />
+    <td class="table-cell-border-left-thick">
+      <a
+        :href="`/biological_associations/${row.id}`"
+        :title="`Edit`"
+        v-html="row.biologicalPropertyObject"
+      />
+    </td>
+
+    <template v-if="showRanks">
+      <td v-html="row.objectOrder" />
+      <td v-html="row.objectFamily" />
+      <td v-html="row.objectGenus" />
+    </template>
+    <td>
+      <a
+        :href="makeBrowseUrl({ id: row.objectId, type: row.objectType })"
+        v-html="row.objectTag"
+      />
+    </td>
+    <td class="table-cell-border-left-thick">
+      <CitationsCount
+        v-if="row.citations.length > MAX_INLINE_CITATIONS"
+        :citations="row.citations"
+        :remove="false"
+      />
+      <template v-else>
+        <template
+          v-for="(citation, index) in row.citations"
+          :key="citation.id"
+        >
+          <a
+            :href="`${RouteNames.NomenclatureBySource}?source_id=${citation.source_id}`"
+            :title="`${citation.source.object_label}`"
+            v-html="citation.label"
+          />
+          <span v-if="index < row.citations.length - 1">; </span>
+        </template>
+      </template>
+    </td>
+    <td>
+      <span
+        v-for="tag in row.tags"
+        :key="tag.id"
+        v-html="tag.label"
+      />
+    </td>
+  </tr>
+</template>
+
+<script setup>
+import CitationsCount from '@/components/citations/CitationsCount.vue'
+import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
+import RadialNavigator from '@/components/radials/navigation/radial.vue'
+import RadialObject from '@/components/radials/object/radial.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
+import { RouteNames } from '@/routes/routes'
+import { makeBrowseUrl } from '@/helpers'
+
+const MAX_INLINE_CITATIONS = 1
+
+defineProps({
+  row: {
+    type: Object,
+    required: true
+  },
+
+  showRanks: {
+    type: Boolean,
+    default: false
+  }
+})
+
+const emit = defineEmits(['open-detail'])
+</script>
