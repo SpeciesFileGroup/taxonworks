@@ -202,4 +202,8 @@ describe Queries::CollectingEvent::Autocomplete, type: :model do
     end
   end
 
+  specify 'accepts limit' do
+    expect(Queries::CollectingEvent::Autocomplete.new('Zzyzx', project_id:, limit: 7).limit).to eq(7)
+  end
+
 end

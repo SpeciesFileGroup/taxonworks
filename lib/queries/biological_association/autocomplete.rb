@@ -2,11 +2,17 @@ module Queries
   module BiologicalAssociation
     class Autocomplete < Query::Autocomplete
 
-      # The maximum number of results #autocomplete returns
+      # The default maximum number of results #autocomplete returns
       RESULTS_LIMIT = 50
 
-      def initialize(string, project_id: nil, restrict_to: nil)
-        super(string, project_id:, restrict_to:)
+      def initialize(string, project_id: nil, restrict_to: nil, limit: nil)
+        super(string, project_id:, restrict_to:, limit:)
+      end
+
+      # @return [Integer]
+      #   the maximum number of results #autocomplete returns
+      def results_limit
+        limit || RESULTS_LIMIT
       end
 
       # @return [Scope]
@@ -18,29 +24,30 @@ module Queries
         q
       end
 
-      # @return [ActiveRecord::Relation, nil]
+      # @return [ActiveRecord::Relation]
       #   the klass records that are the `side` (:subject or :object) of a
-      #   restrict_to biological_association, nil when there is no restriction
+      #   biological_association in the project (and in restrict_to, when
+      #   given). A candidate on a side is only useful if it is on that side
+      #   of some biological association; unrestricted, candidates that
+      #   aren't fill the subject/object autocompletes' limits and matching
+      #   biological associations are missed (e.g. a genus search matching
+      #   hundreds of species, few of which are in one).
       def side_restriction(klass, side)
-        return nil if restrict_to.nil?
-
         klass.where(
-          id: apply_restriction(::BiologicalAssociation.all)
+          id: apply_restriction(base_query)
             .where("biological_association_#{side}_type": klass.base_class.name)
-            .select("biological_association_#{side}_id")
+            .reselect("biological_association_#{side}_id")
         )
       end
 
       # @return [Query::Autocomplete]
-      #   an autocomplete_klass autocomplete restricted to klass records that
-      #   can be on `side` of a restrict_to biological_association, so that
-      #   records that can't match don't use up its candidate limits, and
-      #   limited to RESULTS_LIMIT, so that it returns enough candidates to
-      #   fill the results
+      #   an autocomplete_klass autocomplete restricted to klass records on
+      #   `side` (see #side_restriction), and limited to #results_limit, so
+      #   that it returns enough candidates to fill the results
       def side_autocomplete(autocomplete_klass, klass, side)
         @side_autocompletes ||= {}
         @side_autocompletes[[autocomplete_klass, side]] ||= autocomplete_klass
-          .new(query_string, project_id:, restrict_to: side_restriction(klass, side), limit: RESULTS_LIMIT)
+          .new(query_string, project_id:, restrict_to: side_restriction(klass, side), limit: results_limit)
       end
 
       # @return [Queries::Otu::Autocomplete]
@@ -170,14 +177,14 @@ module Queries
       def autocomplete
         result = []
         ordered_lazy_queries.each do |q|
-          remaining = RESULTS_LIMIT - result.count
+          remaining = results_limit - result.count
           break if remaining <= 0
 
           result += q.call(remaining)
           result.uniq!
         end
 
-        result.first(RESULTS_LIMIT)
+        result.first(results_limit)
       end
 
     end

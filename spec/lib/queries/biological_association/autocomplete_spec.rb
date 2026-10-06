@@ -204,6 +204,50 @@ describe Queries::BiologicalAssociation::Autocomplete, type: :model do
     end
   end
 
+  context 'without restrict_to' do
+    specify 'subject/object candidates are restricted to records on that side of a biological association in the project' do
+      in_ba = FactoryBot.create(:valid_otu, name: 'Zzyzxdefaultside')
+      not_in_ba = FactoryBot.create(:valid_otu, name: 'Zzyzxdefaultside other')
+      FactoryBot.create(:valid_biological_association, biological_association_subject: in_ba)
+
+      q = Queries::BiologicalAssociation::Autocomplete.new('Zzyzxdefaultside', project_id:)
+
+      expect(q.otu_autocomplete(:subject).restrict_to).to include(in_ba)
+      expect(q.otu_autocomplete(:subject).restrict_to).to_not include(not_in_ba)
+      expect(q.otu_autocomplete(:object).restrict_to).to_not include(in_ba)
+    end
+
+    specify 'subject/object candidates exclude records only in another project\'s biological associations' do
+      other_project = FactoryBot.create(:valid_project, name: 'other')
+      other_otu = FactoryBot.create(:valid_otu, project: other_project)
+      FactoryBot.create(
+        :biological_association,
+        biological_relationship: FactoryBot.create(:valid_biological_relationship, project: other_project),
+        biological_association_subject: other_otu,
+        biological_association_object: FactoryBot.create(:valid_otu, project: other_project),
+        project: other_project
+      )
+
+      q = Queries::BiologicalAssociation::Autocomplete.new('Zzyzx', project_id:)
+      expect(q.otu_autocomplete(:subject).restrict_to).to_not include(other_otu)
+    end
+  end
+
+  context 'limit' do
+    specify 'caps results, default RESULTS_LIMIT' do
+      o = FactoryBot.create(:valid_otu, name: 'Zzyzxlimitba')
+      3.times { FactoryBot.create(:valid_biological_association, biological_association_subject: o) }
+
+      expect(Queries::BiologicalAssociation::Autocomplete.new('Zzyzxlimitba', project_id:).autocomplete.size).to eq(3)
+      expect(Queries::BiologicalAssociation::Autocomplete.new('Zzyzxlimitba', project_id:, limit: 2).autocomplete.size).to eq(2)
+    end
+
+    specify 'is passed to the subject/object autocompletes' do
+      q = Queries::BiologicalAssociation::Autocomplete.new('Zzyzx', project_id:, limit: 7)
+      expect(q.otu_autocomplete(:subject).limit).to eq(7)
+    end
+  end
+
   specify 'passes its results limit to the subject/object autocompletes' do
     q = Queries::BiologicalAssociation::Autocomplete.new('Zzyzx', project_id:)
     expect(q.otu_autocomplete(:subject).limit).to eq(Queries::BiologicalAssociation::Autocomplete::RESULTS_LIMIT)

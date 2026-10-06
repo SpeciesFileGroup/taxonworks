@@ -14,9 +14,9 @@ module Queries
 
       # @params string [String]
       # @params [Hash] args
-      def initialize(string, project_id: nil, georeferences: nil, restrict_to: nil)
+      def initialize(string, project_id: nil, georeferences: nil, restrict_to: nil, limit: nil)
         @georeferences = boolean_param({georeferences:}, :georeferences)
-        super(string, project_id:, restrict_to:)
+        super(string, project_id:, restrict_to:, limit:)
       end
 
       def autocomplete_verbatim_label_md5
