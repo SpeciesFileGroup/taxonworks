@@ -175,6 +175,7 @@ class TaxonNameClassificationsController < ApplicationController
   end
 
   def batch_by_filter_scope_params
-    params.fetch(:params, ActionController::Parameters.new).permit(:type)
+    params.fetch(:params, ActionController::Parameters.new)
+      .permit(:type, citation: [:source_id, :pages, :is_original])
   end
 end

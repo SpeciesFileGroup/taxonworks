@@ -1,5 +1,6 @@
 import PanelTimeline from '../components/Panel/PanelTimeline/PanelTimeline.vue'
 import PanelAssertedDistribution from '../components/Panel/PanelAssertedDistribution/PanelAssertedDistribution.vue'
+import PanelAssertedEnvironments from '../components/Panel/PanelAssertedEnvironments/PanelAssertedEnvironments.vue'
 import PanelDistribution from '../components/Panel/PanelDistribution/PanelDistribution.vue'
 import PanelDepictions from '../components/Panel/PanelDepictions/PanelDepictions.vue'
 import PanelDescendants from '../components/Panel/PanelDescendants/PanelDescendants.vue'
@@ -92,6 +93,11 @@ export const PANEL_COMPONENTS = {
   PanelAssertedDistribution: {
     component: PanelAssertedDistribution,
     title: 'Asserted distribution',
+    status: 'prototype'
+  },
+  PanelAssertedEnvironments: {
+    component: PanelAssertedEnvironments,
+    title: 'Asserted environments',
     status: 'prototype'
   },
   PanelDistribution: {

@@ -5,7 +5,7 @@ import {
   RENAMED_LAYOUTS
 } from './layouts.js'
 
-export const PREFERENCE_SCHEMA = 20260804
+export const PREFERENCE_SCHEMA = 20261006
 
 export const CITATIONS_PREVIEW_SIZE = 10
 

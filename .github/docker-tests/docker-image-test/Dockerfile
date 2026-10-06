@@ -1,4 +1,4 @@
-FROM ruby:3.2.1
+FROM ruby:3.4
 
 RUN apt-get update 
 RUN apt-get install -y curl bzip2 unzip default-jre \
@@ -10,6 +10,10 @@ RUN curl -sL 'https://download.mozilla.org/?product=firefox-latest-ssl&os=linux6
 RUN /usr/bin/firefox/firefox --version
 
 ENV PATH /usr/bin/firefox/:$PATH
+
+# BrowserUp Proxy 2.0.1 uses an old Guice/CGLIB stack that requires
+# reflective access to java.lang on modern Java runtimes.
+ENV JAVA_TOOL_OPTIONS="--add-opens=java.base/java.lang=ALL-UNNAMED"
 
 RUN mkdir /app
 

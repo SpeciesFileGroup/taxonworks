@@ -1,6 +1,7 @@
 import {
   ANATOMICAL_PART,
   ASSERTED_DISTRIBUTION,
+  ASSERTED_ENVIRONMENT,
   BIOLOGICAL_ASSOCIATION,
   COLLECTING_EVENT,
   COLLECTION_OBJECT,
@@ -23,6 +24,7 @@ import {
 export const QUERY_PARAM = {
   [ANATOMICAL_PART]: 'anatomical_part_query',
   [ASSERTED_DISTRIBUTION]: 'asserted_distribution_query',
+  [ASSERTED_ENVIRONMENT]: 'asserted_environment_query',
   [BIOLOGICAL_ASSOCIATION]: 'biological_association_query',
   [COLLECTING_EVENT]: 'collecting_event_query',
   [COLLECTION_OBJECT]: 'collection_object_query',

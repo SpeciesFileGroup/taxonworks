@@ -175,8 +175,13 @@ module Shared::Dwc::CollectingEventExtensions
     collecting_event&.verbatim_method
   end
 
-  def dwc_verbatim_habitat
-    collecting_event&.verbatim_habitat
+  # Prioritize the curated AssertedEnvironments (ENVO terms) over the free-text
+  # verbatim_habitat, falling back to the latter when none have been asserted.
+  def dwc_habitat
+    return nil unless collecting_event
+
+    collecting_event.asserted_environments.order(:position).pluck(:uri_label)
+      .join(Export::Dwca::DELIMITER).presence || collecting_event.verbatim_habitat
   end
 
   # See dwc_recorded_by

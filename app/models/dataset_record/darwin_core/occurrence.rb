@@ -241,7 +241,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
   end
 
   def get_mapped_fields(dwc_data_attributes = {})
-    project_dwc_data_attributes = dwc_data_attributes.slice('CollectingEvent', 'CollectionObject')
+    project_dwc_data_attributes = dwc_data_attributes.slice('CollectingEvent', 'CollectionObject', 'FieldOccurrence')
       .values.map(&:keys).flatten
       .map { |f| get_field_mapping(f) }.compact
     tw_namespaces = %w(catalogNumber eventID fieldNumber recordNumber).map { |f| get_field_mapping("TW:Namespace:#{f}") }.compact
@@ -274,7 +274,20 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
       get_tw_tag_fields_for(ignored_model)
     ).map { |f| f[:field] }
 
-    (fields + model_fields).map { |f| get_field_mapping(f) }.compact
+    dwc_data_attributes = import_dataset.dwc_data_attributes
+    active_fields = dwc_data_attributes.fetch(occurrence_model, {}).keys +
+      dwc_data_attributes.fetch('CollectingEvent', {}).keys
+    # A column can still be consumed by built-in handling or another target model.
+    built_in_fields = SUPPORTED_DWC_TERMS - fields
+    unused_fields = dwc_data_attributes.fetch(ignored_model, {}).keys - built_in_fields
+
+    ignored_indexes = (fields + model_fields + unused_fields).map { |f| get_field_mapping(f) }.compact
+    active_indexes = active_fields.map { |f| get_field_mapping(f) }.compact
+    ignored_indexes.uniq - active_indexes
+  end
+
+  def occurrence_model
+    human_observation? ? 'FieldOccurrence' : 'CollectionObject'
   end
 
   def get_otu_id
@@ -338,8 +351,8 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
         parse_tw_taxon_determination_attributes # Just for verification.
 
-        append_dwc_attributes(dwc_data_attributes['CollectionObject'], attributes[:specimen])
-        append_dwc_attributes(dwc_data_attributes['CollectingEvent'], attributes[:collecting_event])
+        append_dwc_attributes(dwc_data_attributes.fetch(occurrence_model, {}), attributes[:specimen])
+        append_dwc_attributes(dwc_data_attributes.fetch('CollectingEvent', {}), attributes[:collecting_event])
 
         Utilities::Hashes::set_unless_nil(attributes[:specimen], :biocuration_classifications,
           (parse_biocuration_group_fields.dig(:specimen, :biocuration_classifications) || []) +

@@ -1,6 +1,6 @@
 class LeadsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
-  after_action -> { set_pagination_headers(:leads) }, only: [:index], if: :json_request?
+  after_action -> { set_pagination_headers(:leads) }, only: [:index, :api_index], if: :json_request?
   before_action :set_lead, only: %i[
     edit add_children update destroy show
     redirect_option_texts destroy_children insert_couplet delete_children
@@ -65,6 +65,7 @@ class LeadsController < ApplicationController
     @leads = Lead
       .roots_with_data(sessions_current_project_id, true, is_virtual:)
       .where(is_public: true)
+      .page(params[:page]).per(params[:per])
 
     render '/leads/api/v1/index'
   end

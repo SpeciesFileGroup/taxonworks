@@ -195,6 +195,7 @@ class CollectingEvent < ApplicationRecord
   include Shared::Documentation
   include Shared::ProtocolRelationships
   include Shared::HasPapertrail
+  include Shared::AssertedEnvironments
   include SoftValidation
   include Shared::Labels
   include Shared::DwcOccurrenceHooks
@@ -210,6 +211,8 @@ class CollectingEvent < ApplicationRecord
   ignore_whitespace_on(:document_label, :verbatim_label, :print_label)
 
   is_origin_for 'Sound'
+
+  GRAPH_ENTRY_POINTS = [:asserted_environments].freeze
 
   NEARBY_DISTANCE = 5000
   MINIMUM_ELEVATION = -11000

@@ -2,6 +2,7 @@ import { COLLECTION_OBJECT } from '@/constants'
 import dataAttributes from '../components/data_attribute/data_attribute_annotator.vue'
 import biologicalAssociations from '../components/biological_relationships/biological_relationships_annotator.vue'
 import assertedDistributions from '../components/asserted_distributions/asserted_distributions_annotator.vue'
+import assertedEnvironments from '../components/asserted_environments/asserted_environments_annotator.vue'
 import commonNames from '../components/common_names/main.vue'
 import contents from '../components/contents/main.vue'
 import biocurationClassifications from '../components/biocurations/biocurations.vue'
@@ -18,6 +19,7 @@ export const SLICE = {
   data_attributes: dataAttributes,
   biological_associations: biologicalAssociations,
   asserted_distributions: assertedDistributions,
+  asserted_environments: assertedEnvironments,
   common_names: commonNames,
   contents,
   biocuration_classifications: biocurationClassifications,

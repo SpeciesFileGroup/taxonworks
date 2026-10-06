@@ -42,6 +42,15 @@ describe Queries::CollectingEvent::Filter, type: :model, group: [:collecting_eve
     expect(query.all).to be_empty
   end
 
+  specify '#asserted_environment_query_facet' do
+    FactoryBot.create(:asserted_environment, uri_label: 'temperate forest biome', asserted_environment_object: ce1)
+
+    query = Queries::CollectingEvent::Filter.new(
+      asserted_environment_query: {uri_label: 'temperate forest biome'}
+    )
+    expect(query.all).to contain_exactly(ce1)
+  end
+
   specify '#use_max 1' do
     Specimen.create!(collecting_event: ce2)
     query.use_max = 1

@@ -46,6 +46,12 @@ module Queries
       attr_accessor :name_exact
 
       # @return [Array]
+      #   Base class name(s) (e.g. 'CollectionObject', 'FieldOccurrence', 'Otu',
+      #   'AnatomicalPart') of the *immediate* parent in the OriginRelationship
+      #   chain, i.e. this AnatomicalPart's inbound_origin_relationship.old_object
+      #   type. Not the deep/ultimate taxonomic origin (see
+      #   AnatomicalPart#taxonomic_origin_object), which can never itself be an
+      #   AnatomicalPart.
       attr_accessor :origin_object_type
 
       # @return [Array]
@@ -146,15 +152,23 @@ module Queries
         end
       end
 
+      # Matches on the immediate parent's type, i.e. AnatomicalPart is the
+      # new_object side of the relationship, old_object_type is the origin.
       def origin_object_type_facet
         return nil if origin_object_type.empty?
 
         ::AnatomicalPart
           .joins(:related_origin_relationships)
-          .where(related_origin_relationships: { old_object_type: origin_object_type })
+          .where(origin_relationships: { old_object_type: origin_object_type })
           .distinct # remove if model adds validations to make this unnecessary
       end
 
+      # TODO: only matches AnatomicalParts that are a direct child of the
+      # CollectionObject; AP descendants of that AP (e.g. a punch taken from a
+      # feather removed from this CO) are not included. Unlike otu_query_facet,
+      # there is no cached top-origin id to check against, so this would need a
+      # recursive walk (or a new cached column) to cover the full depth. See
+      # taxonomic_origin_object in AnatomicalPart.
       def collection_object_id_facet
         return nil if collection_object_id.empty?
 
@@ -164,6 +178,7 @@ module Queries
           .distinct
       end
 
+      # TODO: same direct-child-only limitation as collection_object_id_facet.
       def field_occurrence_id_facet
         return nil if field_occurrence_id.empty?
 
@@ -179,6 +194,7 @@ module Queries
         table[:cached_otu_id].in(otu_id)
       end
 
+      # TODO: same direct-child-only limitation as collection_object_id_facet.
       def collection_object_query_facet
         return nil if collection_object_query.nil?
 
@@ -188,6 +204,7 @@ module Queries
           .where("origin_relationships.old_object_id IN (#{collection_object_query.all.select(:id).to_sql })")
       end
 
+      # TODO: same direct-child-only limitation as collection_object_id_facet.
       def field_occurrence_query_facet
         return nil if field_occurrence_query.nil?
 
@@ -197,20 +214,23 @@ module Queries
           .where("origin_relationships.old_object_id IN (#{field_occurrence_query.all.select(:id).to_sql })")
       end
 
+      # Matches the taxonomic origin OTU (the ancestor origin OTU or the
+      # CollectionObject/FieldOccurrence taxon determination), i.e. the same OTU
+      # targeted by :otu_id.
       def otu_query_facet
         return nil if otu_query.nil?
 
         ::AnatomicalPart
-          .joins(:related_origin_relationships)
-          .where("origin_relationships.old_object_id IN (#{otu_query.all.select(:id).to_sql })")
+          .where(cached_otu_id: otu_query.all.select(:id))
       end
 
       def observation_query_facet
         return nil if observation_query.nil?
 
         ::AnatomicalPart
-          .joins(:related_origin_relationships)
-          .where("origin_relationships.old_object_id IN (#{observation_query.all.select(:id).to_sql })")
+          .joins(:observations)
+          .where(observations: { id: observation_query.all.select(:id) })
+          .distinct
       end
 
       def extract_query_facet
@@ -218,7 +238,9 @@ module Queries
 
         ::AnatomicalPart
           .joins(:origin_relationships)
+          .where(origin_relationships: { new_object_type: 'Extract' })
           .where("origin_relationships.new_object_id IN (#{extract_query.all.select(:id).to_sql })")
+          .distinct
       end
 
       def sound_query_facet
@@ -226,7 +248,9 @@ module Queries
 
         ::AnatomicalPart
           .joins(:origin_relationships)
+          .where(origin_relationships: { new_object_type: 'Sound' })
           .where("origin_relationships.new_object_id IN (#{sound_query.all.select(:id).to_sql })")
+          .distinct
       end
 
       def biological_association_query_facet

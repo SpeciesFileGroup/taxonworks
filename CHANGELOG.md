@@ -7,14 +7,54 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 ## [unreleased]
 
-\-
+### Added
+
+- Autocomplete for Organization
+- `/api/v1/alternate_values` and `/api/v1/alternate_values/<id>` endpoints
+- Adds extend[]=citations to /api/v1/common_names endpoint
+- Asserted Environments (with terms from the ENVO ontology) for Collecting Events, Gazetteers, and OTUs [#114]
+- New Asserted Environment task [#5107]
+- Taxon Determination facet to Filter Field Occurrences [#5090]
+- Status (i.e. Classification) slice to Filter Taxon Names radial (ids side only); replaces/extends separate Fossil slice [#5088]
+- Filter descriptors: Modal to update descriptors position
+- Filter field occurrences: Add mass delete (Up to a maximun of 25 records)
+
+### Changed
+
+- Updated attribution label in `/api/v1/leads/key/<id>`
+- Radial annotator: Replace background color by badge when citation is original [#4979]
+- Add support for setting a Taxon Determination for a batch import of iNaturalist observations [#4912]
+
+### Fixed
+
+- DwC-A Workbench ignored the selected string delimiter, causing text imports with literal double quotes to fail even when `None` was selected [#5120]
+- DwC importer incorrectly applied `CollectionObject` project predicates with DwC URIs to `HumanObservation` records, missed `FieldOccurrence` DwC predicate mappings, and failed to flag unused model-specific columns as ignored
+- `controlled_vocabulary_term_id` param is not working on the controlled vocabulary terms endpoint
+- `New taxon name`: browser back/forward buttons left the form out of sync with the URL
+- `New taxon name`: returning with the browser back button from "Add new source" left the task with no taxon loaded
+- Fix error when searching Catalogue of Life level of OTU and Taxon Name autoselects [#5097]
+- Bug allowing to create more than one type genus, type family, etc. [#5106]
+- iNaturalist OTU matching fails on subgenera [#5086]
+- Match OTU to Taxon Name can fail to label ambiguity when an input name matches both a name with subgenus and a name without subgenus [#5066]
+
+[#114]: https://github.com/SpeciesFileGroup/taxonworks/issues/114
+[#4912]: https://github.com/SpeciesFileGroup/taxonworks/issues/4912
+[#4979]: https://github.com/SpeciesFileGroup/taxonworks/issues/4979
+[#5066]: https://github.com/SpeciesFileGroup/taxonworks/issues/5066
+[#5086]: https://github.com/SpeciesFileGroup/taxonworks/issues/5086
+[#5088]: https://github.com/SpeciesFileGroup/taxonworks/issues/5088
+[#5090]: https://github.com/SpeciesFileGroup/taxonworks/issues/5090
+[#5097]: https://github.com/SpeciesFileGroup/taxonworks/issues/5097
+[#5107]: https://github.com/SpeciesFileGroup/taxonworks/issues/5107
+[#5106]: https://github.com/SpeciesFileGroup/taxonworks/issues/5106
+[#5120]: https://github.com/SpeciesFileGroup/taxonworks/issues/5120
 
 ## [0.65.0] - 2026-09-04
 
 ### Added
 
 - `Add simple key` task for recording the OTUs and associated data like sex, life stage, locality covered by the key without needing to enter the entire key [#4965]
-- Autoselect replaces OTU smart selector in Comprehensive Specimen Management. 
+- Autoselect replaces OTU smart selector in Comprehensive Specimen Management.
 - Raw id search for Biological Association autocompletes
 - `New Collection Object`: Added a CO Total field to the CO form. Added a `identifier end` field that automatically increments based on the Identifier and the total number of specimens/lots being created. [#4873]
 - `New asserted distribution`: Added preferences modal, moved autosave there, and added option to hide Confidence panel
@@ -79,7 +119,6 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Report instead of erroring when a Sound file is missing [#5075]
 - Click on 'All tasks' menu from the Navigator radial in the Anatomical Parts graph task not working [#5078]
 - Add Autoselect CoL dataset picker for !p preferences to all autoselects that didn't have it [#5040]
-
 
 [#1998]: https://github.com/SpeciesFileGroup/taxonworks/issues/1998
 [#1060]: https://github.com/SpeciesFileGroup/taxonworks/issues/1060

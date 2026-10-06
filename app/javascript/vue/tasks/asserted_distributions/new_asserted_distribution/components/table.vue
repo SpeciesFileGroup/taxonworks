@@ -7,7 +7,7 @@
         <th>Shape</th>
         <th>Citations</th>
         <th class="w-2">OTU</th>
-        <th class="w-2">AD</th>
+        <th class="w-2">Asserted distribution</th>
       </tr>
     </thead>
     <tbody>
@@ -46,7 +46,7 @@
           <div class="middle">
             <a
               class="margin-small-right"
-              target="blank"
+              target="_blank"
               :href="nomenclatureBySourceRoute(item.citations[0].source_id)"
               v-html="item.citations[0].citation_source_body"
             />

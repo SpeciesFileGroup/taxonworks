@@ -30,6 +30,43 @@ export const OTU_FILTER_LABELS = {
   [OTU_FILTER.USER_SELECTED]: 'User selected'
 }
 
+// Values of the subgenus_matching param to /taxon_names/match
+export const SUBGENUS_MATCHING = {
+  WITH: 'with',
+  WITHOUT: 'without',
+  BOTH: 'both'
+}
+
+export const SUBGENUS_MATCHING_HELP =
+  'Without subgenus, any subgenus (or section, series...) between genus ' +
+  'and epithet is ignored; every species-group epithet present (species, ' +
+  'subspecies, variety, form...) may match any of its three predicted ' +
+  'gender-agreeing spellings — masculine, feminine, or neuter — instead of ' +
+  'the exact spelling stored; and the genus may be either the current one ' +
+  'or the genus a name was originally described in.'
+
+export const SUBGENUS_MATCHING_OPTIONS = [
+  {
+    value: SUBGENUS_MATCHING.WITH,
+    label: 'Try with subgenus',
+    description: 'Match names as given.'
+  },
+  {
+    value: SUBGENUS_MATCHING.WITHOUT,
+    label: 'Try without subgenus',
+    description:
+      'If there is no match as given, retry ignoring subgenus; match ' +
+      'against different gender endings and current/original genus.'
+  },
+  {
+    value: SUBGENUS_MATCHING.BOTH,
+    label: 'Try with and without subgenus',
+    description:
+      'Always try both, so a name matching different taxa with and ' +
+      'without subgenus is reported as ambiguous.'
+  }
+]
+
 // A fresh array/objects each call, so callers never share mutable state.
 export function defaultModifiers() {
   return [

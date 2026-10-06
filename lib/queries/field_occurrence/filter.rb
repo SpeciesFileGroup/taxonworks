@@ -9,6 +9,7 @@ module Queries
       include Queries::Concerns::Notes
       include Queries::Concerns::Protocols
       include Queries::Concerns::Tags
+      include Queries::Concerns::TaxonDetermination
 
       PARAMS = [
         *::Queries::CollectingEvent::Filter::BASE_PARAMS,
@@ -22,21 +23,16 @@ module Queries
         :determiner_id,
         :field_occurrence_id,
         # :collectors,
-        # :current_determinations,
         :dates,
-        :descendants,
         # :determiner_id_all,
         # :determiner_name_regex,
         # :determiners,
         # :dwc_indexed,
         :georeferences,
         # :import_dataset_id,
-        :otu_id,
         # :sled_image_id,
         :spatial_geographic_areas,
         # :taxon_determination_id,
-        :taxon_name_id,
-        # :validity,
         biocuration_class_id: [],
         biological_association_id: [],
         # biological_relationship_id: [],
@@ -45,8 +41,6 @@ module Queries
         determiner_id: [],
         # import_dataset_id: [],
         # is_type: [],
-        otu_id: [],
-        taxon_name_id: [],
       ].inject([{}]) { |ary, k| k.is_a?(Hash) ? ary.last.merge!(k) : ary.unshift(k); ary }.freeze
 
       # @return [Array]
@@ -73,30 +67,6 @@ module Queries
 
       # All params managed by CollectingEvent filter are available here as well
       attr_accessor :base_collecting_event_query
-
-      # @param [Array]
-      # @return [Array, nil]
-      #  Otu ids, matches on the TaxonDetermination, see also current_determinations
-      attr_accessor :otu_id
-
-      # @return [Array of Protonym.id, nil]
-      #   return all collection objects determined as an Otu that is self or descendant linked
-      #   to this TaxonName
-      attr_accessor :taxon_name_id
-
-      attr_accessor :descendants
-
-      # @return [Boolean, nil]
-      #   nil =  Match against all ancestors, valid or invalid
-      #   true = Match against only valid ancestors
-      #   false = Match against only invalid ancestors
-      attr_accessor :validity
-
-      # @return [Boolean, nil]
-      #   nil = TaxonDeterminations match regardless of current or historical
-      #   true = TaxonDetermination must be .current
-      #   false = TaxonDetermination must be .historical
-      attr_accessor :current_determinations
 
       # @return [Boolean, nil]
       #  true - A determiner role exists
@@ -186,9 +156,7 @@ module Queries
         @collectors = boolean_param(params, :collectors)
         @collecting_event_id = params[:collecting_event_id]
         @field_occurrence_id = params[:field_occurrence_id]
-        @current_determinations = boolean_param(params, :current_determinations)
         @dates = boolean_param(params, :dates)
-        @descendants = boolean_param(params, :descendants)
         @determiners = boolean_param(params, :determiners)
         @determiner_id = params[:determiner_id]
         @determiner_id_all = boolean_param(params, :determiner_id_all)
@@ -197,10 +165,7 @@ module Queries
         @import_dataset_id = params[:import_dataset_id]
         @is_type = params[:is_type] || []
         @otu_descendants = boolean_param(params, :otu_descendants)
-        @otu_id = params[:otu_id]
         @sled_image_id = (params[:sled_image_id].presence)
-        @taxon_name_id = params[:taxon_name_id]
-        @validity = boolean_param(params, :validity)
 
         set_citations_params(params)
         set_data_attributes_params(params)
@@ -208,21 +173,12 @@ module Queries
         set_notes_params(params)
         set_protocols_params(params)
         set_tags_params(params)
+        set_taxon_determination_params(params)
       end
 
       # @return [Arel::Table]
       def collecting_event_table
         ::CollectingEvent.arel_table
-      end
-
-      # @return [Arel::Table]
-      def otu_table
-        ::Otu.arel_table
-      end
-
-      # @return [Arel::Table]
-      def taxon_determination_table
-        ::TaxonDetermination.arel_table
       end
 
       def biological_association_id
@@ -251,14 +207,6 @@ module Queries
 
       def import_dataset_id
         [@import_dataset_id].flatten.compact
-      end
-
-      def otu_id
-        [@otu_id].flatten.compact.uniq
-      end
-
-      def taxon_name_id
-        [@taxon_name_id].flatten.compact.uniq
       end
 
       def field_occurrence_id_facet
@@ -345,70 +293,6 @@ module Queries
       def collecting_event_id_facet
         return nil if collecting_event_id.empty?
         table[:collecting_event_id].in(collecting_event_id)
-      end
-
-      def otu_id_facet
-        return nil if otu_id.empty?
-
-        w = taxon_determination_table[:taxon_determination_object_id].eq(table[:id])
-          .and(taxon_determination_table[:otu_id].in(otu_id))
-
-        if current_determinations
-          w = w.and(taxon_determination_table[:position].eq(1))
-        elsif current_determinations == false
-          w = w.and(taxon_determination_table[:position].gt(1))
-        end
-
-        ::FieldOccurrence.where(
-          ::TaxonDetermination.where(w).arel.exists
-        )
-      end
-
-      # TODO: use filter proxy
-      def taxon_name_id_facet
-        return nil if taxon_name_id.empty?
-
-        q = nil
-        z = nil
-
-        if descendants
-          h = Arel::Table.new(:taxon_name_hierarchies)
-          t = ::TaxonName.arel_table
-
-          q = table.join(taxon_determination_table, Arel::Nodes::InnerJoin).on(
-            table[:id].eq(taxon_determination_table[:taxon_determination_object_id])
-          ).join(otu_table, Arel::Nodes::InnerJoin).on(
-            taxon_determination_table[:otu_id].eq(otu_table[:id])
-          ).join(t, Arel::Nodes::InnerJoin).on(
-            otu_table[:taxon_name_id].eq(t[:id])
-          ).join(h, Arel::Nodes::InnerJoin).on(
-            t[:id].eq(h[:descendant_id])
-          )
-          z = h[:ancestor_id].in(taxon_name_id)
-
-          if validity == true
-            z = z.and(t[:cached_valid_taxon_name_id].eq(t[:id]))
-          elsif validity == false
-            z = z.and(t[:cached_valid_taxon_name_id].not_eq(t[:id]))
-          end
-
-          if current_determinations == true
-            z = z.and(taxon_determination_table[:position].eq(1))
-          elsif current_determinations == false
-            z = z.and(taxon_determination_table[:position].gt(1))
-          end
-        else
-          q = ::FieldOccurrence.joins(taxon_determinations: [:otu])
-            .where(otus: { taxon_name_id: })
-
-          if current_determinations
-            q = q.where(taxon_determinations: { position: 1 })
-          end
-
-          return q
-        end
-
-        ::FieldOccurrence.joins(q.join_sources).where(z).distinct
       end
 
       # TODO: Probably just move to CE
@@ -560,7 +444,9 @@ module Queries
 
         ::FieldOccurrence
           .joins(:origin_relationships)
+          .where(origin_relationships: { new_object_type: 'AnatomicalPart' })
           .where("origin_relationships.new_object_id IN (#{ anatomical_part_query.all.select(:id).to_sql })")
+          .distinct
       end
 
       def and_clauses
@@ -591,9 +477,7 @@ module Queries
           # determiner_name_regex_facet,
           determiners_facet,
           # dwc_indexed_facet,
-          otu_id_facet,
           # sled_image_facet,
-          taxon_name_id_facet,
         ]
       end
     end

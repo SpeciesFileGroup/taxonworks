@@ -114,6 +114,23 @@ class Citation < ApplicationRecord
     is_original ? true : false
   end
 
+  # @return [Set<Integer>]
+  #   the subset of `citation_object_ids` that already have a citation
+  #   identical to the one described by `source_id`, `pages`, and
+  #   `is_original` (nil and false are treated as equivalent).
+  def self.duplicate_citation_object_ids(
+    citation_object_type:, citation_object_ids:, source_id:, pages:, is_original:
+  )
+    return Set.new if citation_object_ids.empty?
+
+    # Stored pages are never blank (nilify_blanks), so match '' as nil.
+    where(citation_object_type:, citation_object_id: citation_object_ids, source_id:, pages: pages.presence)
+      .where(is_original: is_original ? true : [false, nil])
+      .distinct
+      .pluck(:citation_object_id)
+      .to_set
+  end
+
   # @return [String, nil]
   #    the first integer in the string, as a string
   def first_page

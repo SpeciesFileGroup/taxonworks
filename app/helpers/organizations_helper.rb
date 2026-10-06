@@ -19,4 +19,8 @@ module OrganizationsHelper
     mark_tag(organization_tag(organization), term)
   end
 
+  def organizations_search_form
+    render('/organizations/quick_search_form')
+  end
+
 end
