@@ -65,45 +65,11 @@
       </div>
       <div class="flex-separate middle">
         <div class="padding-large-top padding-large-bottom">
-          <div class="flex-row middle gap-small">
-            <h3
-              class="text-lg"
-              v-html="otu.object_tag"
-            />
-            <VBadge
-              v-if="isInvalid"
-              color="yellow"
-              size="sm"
-            >
-              Invalid
-            </VBadge>
-            <VBadge
-              v-else
-              class="d-inline"
-              color="green"
-              size="sm"
-            >
-              Valid
-            </VBadge>
-            <span
-              v-if="isInvalid"
-              v-help.section.header.validButton
-              class="horizontal-left-content middle gap-xsmall"
-            >
-              <span class="subtle">&middot; valid:</span>
-              <a
-                v-if="validTaxonName"
-                :href="validOtuUrl"
-                v-html="validTaxonName.cached_html"
-              />
-              <a
-                v-else
-                :href="validOtuUrl"
-              >
-                go to valid name
-              </a>
-            </span>
-          </div>
+          <h3
+            class="text-lg"
+            :class="{ 'browse-otu-invalid-name': isInvalid }"
+            v-html="otu.object_tag"
+          />
           <CoordinateOtus />
         </div>
         <div class="horizontal-left-content middle gap-small">
@@ -162,7 +128,6 @@ import { Otu } from '@/routes/endpoints'
 import { useHotkey } from '@/composables'
 import { useOtuStore } from '../../store'
 import { PANEL_COMPONENTS } from '../../constants'
-import VBadge from '@/components/ui/VBadge/VBadge.vue'
 import VAutocomplete from '@/components/ui/Autocomplete.vue'
 import CoordinateOtus from '../CoordinateOtus.vue'
 import platformKey from '@/helpers/getPlatformKey.js'
@@ -207,13 +172,6 @@ const isLoading = ref(true)
 const taxonName = computed(() => otuStore.taxonName)
 const isInvalid = computed(
   () => taxonName.value && !taxonName.value.cached_is_valid
-)
-const validTaxonName = computed(() =>
-  taxonName.value?.valid_name?.id ? taxonName.value.valid_name : undefined
-)
-const validOtuUrl = computed(
-  () =>
-    `${RouteNames.BrowseOtu}?taxon_name_id=${taxonName.value?.cached_valid_taxon_name_id}`
 )
 
 const shortcuts = ref([
@@ -344,6 +302,10 @@ function showForRanks(title) {
   position: absolute;
   padding: 12px;
   z-index: 200;
+}
+
+.browse-otu-invalid-name {
+  color: var(--taxon-name-invalid-color);
 }
 
 .dropdown-otu:hover {
