@@ -122,9 +122,12 @@ effort, the least relevant matches are missed.
 
 The inner autocomplete must (once, then every caller can use it):
 * accept `limit:` and limit each of its queries with it,
-* order each of its queries deterministically (end with a unique
-  tie-breaker, e.g. the id) - otherwise "the first N" of an unordered query
-  is an arbitrary N, and going deeper isn't going further down the ranking,
+* give its queries that can return many rows a ranking ORDER BY of their
+  own, so that going deeper goes further down the ranking (the first N of
+  an unordered query are an arbitrary N). Ties don't matter: tied rows are
+  equally ranked. Don't add an order just for determinism - an id order
+  with a limit can make PostgreSQL walk the primary key instead of using the
+  match (wildcard identifier queries went from ~10ms to ~2s),
 * report `cut_off?` (set `@cut_off` in `autocomplete`): whether any query
   reached the limit, or queries were left unrun.
 
@@ -146,6 +149,16 @@ not with the number of matching records. Restrictions on an autocomplete's
 own queries are generally fine; a large restriction translated down a
 delegation chain is what `delegated_autocomplete` avoids (2-6x faster for
 biological association autocomplete in large projects).
+
+When the caller can cheaply tell its restriction is small (a few hundred
+ids), pass literal ids, `::BiologicalAssociation.where(id: ids)` (still a
+relation of the referenced model), rather than the subquery: 3-7x faster
+when the restriction is pushed into many queries. See
+`Queries::AssertedDistribution::Autocomplete#autocomplete_biological_association`,
+which plucks at most `LITERAL_RESTRICTION_MAX` ids and otherwise passes the
+subquery. This is deliberately the caller's choice, not `apply_restriction`'s:
+checking the size of a large restriction at every level of a chain costs
+more than it saves (2-5x slower biological association autocomplete).
 
 #### Keep the ranking
 When candidates are turned into results by a join (e.g. Otus -> the

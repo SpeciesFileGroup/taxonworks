@@ -406,9 +406,7 @@ module Queries
       end
 
       # @return [Array<ActiveRecord::Relation>]
-      #   the queries #autocomplete runs, in priority order, each ordered with
-      #   the id as the final tie-breaker so that results (and how deep a
-      #   limit reaches) are deterministic
+      #   the queries #autocomplete runs, in priority order
       def strategy_queries
         # exact, unified, comprehensive
 
@@ -425,9 +423,7 @@ module Queries
           end
 
           a = a.not_leaves if no_leaves
-          a = apply_restriction(a)
-
-          a.order(table[:id])
+          apply_restriction(a)
         end
       end
 

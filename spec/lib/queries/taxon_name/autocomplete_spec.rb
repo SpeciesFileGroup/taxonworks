@@ -261,29 +261,6 @@ describe Queries::TaxonName::Autocomplete, type: :model do
     end
   end
 
-  context 'ordering' do
-    specify 'every query is ordered, with the id as the final tie-breaker' do
-      [true, false].each do |exact|
-        q = Queries::TaxonName::Autocomplete.new('Erasmoneura vulnerata', exact:)
-        q.strategy_queries.each do |s|
-          expect(s.to_sql).to match(/ORDER BY .*"taxon_names"\."id"( ASC)?( LIMIT \d+)?\z/)
-        end
-      end
-    end
-
-    specify 'names with the same cached value are returned in id order' do
-      combination = FactoryBot.create(:valid_combination)
-      combination.reload
-      same = Protonym.find(combination.cached_valid_taxon_name_id)
-      # a Protonym and a Combination can share `cached`
-      expect(same.cached).to eq(combination.cached)
-
-      r = Queries::TaxonName::Autocomplete.new(combination.cached).autocomplete
-      tied = r.select { |n| n.cached == combination.cached }.map(&:id)
-      expect(tied).to eq(tied.sort)
-    end
-  end
-
   context 'restrict_to' do
     specify 'restricts results to the given TaxonNames' do
       q = Queries::TaxonName::Autocomplete.new('Erasmoneura', restrict_to: TaxonName.where(id: species.id))
