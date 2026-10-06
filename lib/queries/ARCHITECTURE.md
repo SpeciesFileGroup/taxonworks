@@ -56,131 +56,46 @@ end
 ## Autocomplete
 TODO:
 
-### Restricting results (`restrict_to`)
-`Query::Autocomplete` accepts an optional `restrict_to:` - the set of the
-referenced model's records to restrict results to. `nil` (the default) is no
-restriction. It must be a relation OF THE REFERENCED MODEL (or a subclass);
-any `select` on it is replaced with `select(:id)`. Anything else (a relation
-of another model, an Array of ids, ...) raises `ArgumentError`.
-
-When the ids come from another table, wrap them in a relation of the
-referenced model. For example,
-`Queries::AssertedEnvironment::Autocomplete` matches by object label, so it
-runs `Queries::CollectingEvent::Autocomplete` restricted to CollectingEvents
-that have asserted environments:
-
-```ruby
-collecting_events = ::CollectingEvent.where(
-  id: ::AssertedEnvironment
-    .where(asserted_environment_object_type: 'CollectingEvent')
-    .select(:asserted_environment_object_id)
-)
-
-Queries::CollectingEvent::Autocomplete.new(
-  query_string, project_id:, restrict_to: collecting_events
-).autocomplete
-```
-
-Unrestricted, the inner autocomplete can fill its own result limit with
-records the caller can't use, crowding out the ones it can. In large projects
-this is common (e.g. a genus search matching hundreds of species, few of
-which are in a biological association) and the caller silently misses
-results.
-
-Implementing it in an autocomplete:
-* Call `apply_restriction(query)` where the individual queries are assembled,
-  alongside where `project_id` is applied - NOT in `base_query`. Not all
-  queries are built from `base_query` (e.g.
-  `referenced_klass.joins(:identifiers)`, `k.where(...)` in concerns);
-  applying it at assembly covers them all.
-* Subclasses with explicit keyword arguments in `initialize` must accept
+### Conventions
+* Subclasses with explicit keyword arguments in `initialize` accept
   `restrict_to:` and `limit:` and pass them to `super`.
-* That's all, unless the autocomplete delegates to another model's
-  autocomplete - see below.
 
-`limit:` is how many results the caller wants. `#limit` returns it, or the
-class's `DEFAULT_LIMIT` when nil (`Query::Autocomplete::DEFAULT_LIMIT` unless
-overridden). An autocomplete that honours it sets its own `DEFAULT_LIMIT` and
-caps `#autocomplete` with `#limit`, never a literal (e.g.
-`result.first(limit)`, not `result[0..39]`). A restriction keeps unusable candidates out of an inner
-autocomplete's results, but if the inner autocomplete still returns its own,
-smaller, default number of candidates the caller can't fill its results (e.g.
-20 TaxonNames can't fill 50 biological associations when each name's Otu is
-in only one or two). So it travels down with the restriction.
+### Limit (`limit`)
+* `#limit` is the `limit:` given, or the class's `DEFAULT_LIMIT`.
+* An autocomplete that honours it sets its own `DEFAULT_LIMIT` and caps
+  `#autocomplete` with `#limit`, never a literal (`result.first(limit)`, not
+  `result[0..39]`).
+* An autocomplete that delegates to another passes its `limit` on, with its
+  restriction.
 
-#### Delegating to another model's autocomplete
-Use `delegated_autocomplete` (`Query::Autocomplete`), giving it how to build
-the inner autocomplete (for a limit), how to keep the inner results usable
-under the restriction (e.g. those that map to an `apply_restriction` record,
-one query), and a `key`: what, other than the limit, the inner results depend
-on. See `Queries::Otu::Autocomplete#taxon_name_autocomplete`.
+### Restricting results (`restrict_to`)
+* `restrict_to:` is a relation of the referenced model (or a subclass), or
+  `nil` for no restriction. Anything else raises `ArgumentError`. Wrap ids
+  from another table in a relation of the referenced model, e.g.
+  `::CollectingEvent.where(id: ...select(:asserted_environment_object_id))`.
+* Apply it with `apply_restriction(query)` where the individual queries are
+  assembled, alongside `project_id` - not in `base_query`. See
+  `Queries::CollectingEvent::Autocomplete#autocomplete`.
+* A caller that can cheaply tell its restriction is small may pass literal
+  ids (`::Model.where(id: ids)`) instead of a subquery. See
+  `Queries::AssertedDistribution::Autocomplete#autocomplete_biological_association`.
 
-An autocomplete that creates several delegating autocompletes with different
-restrictions (e.g. one per side of a biological association) gives them all
-the same `delegated_results` Hash, so that the deep inner fetch, which
-doesn't depend on the restriction, runs once per `key`. See
-`Queries::BiologicalAssociation::Autocomplete#side_autocomplete`.
+### Delegating to another model's autocomplete
+* Use `delegated_autocomplete(build:, keep:, key:)`, don't translate the
+  restriction for the inner model. See
+  `Queries::Otu::Autocomplete#taxon_name_autocomplete`.
+* An autocomplete creating several delegating autocompletes (e.g. one per
+  side) gives them the same `delegated_results` Hash. See
+  `Queries::BiologicalAssociation::Autocomplete#side_autocomplete`.
+* The inner autocomplete honours `limit:`, and its queries that can return
+  many rows have a ranking ORDER BY. Don't add an id tie-breaker: tied rows
+  are equally ranked, and an id order with a limit can make PostgreSQL walk
+  the primary key instead of using the match.
+* Exception: an autocomplete consuming the inner autocomplete's individual
+  queries, not its results, translates the restriction and passes it on. See
+  `Queries::BiologicalAssociation::Autocomplete#side_restriction`.
 
-It does not translate the restriction for the inner model (e.g. Otus -> the
-TaxonNames, and Combinations, they resolve to). That translation is
-relation-specific and easy to get subtly wrong, and pushing it into each of
-the inner autocomplete's queries is expensive for large restrictions (see
-Cost). Instead the inner autocomplete is run once, unrestricted,
-`DELEGATED_DEPTH` (5000) deep, and its results filtered. Best effort: usable
-matches ranked below that depth - the least relevant - are missed. A LIMIT
-costs nothing for terms that match fewer rows, so only broad terms (short
-prefixes) pay for the depth; one deep fetch was faster overall than
-starting shallower and deepening when too few were kept, with identical
-results.
-
-Restricted, query strings shorter than `DELEGATED_MINIMUM_LENGTH` (3) skip
-the inner autocomplete. They match so broadly that the deep fetch is an
-arbitrary sample (e.g. TaxonName's unordered `cached ILIKE '%Ca%'` filled all
-5000 for "Ca"), and they are the slowest to fetch.
-
-The inner autocomplete must (once, then every caller can use it):
-* accept `limit:` and limit each of its queries with it,
-* give its queries that can return many rows a ranking ORDER BY of their
-  own, so that the first `DELEGATED_DEPTH` are the best ranked (the first N
-  of an unordered query are an arbitrary N). Ties don't matter: tied rows
-  are equally ranked. Don't add an order just for determinism - an id order
-  with a limit can make PostgreSQL walk the primary key instead of using the
-  match (wildcard identifier queries went from ~10ms to ~2s).
-
-See `Queries::TaxonName::Autocomplete`.
-
-The exception is when the delegating autocomplete consumes the inner
-autocomplete's individual queries rather than its results, as
-`Queries::BiologicalAssociation::Autocomplete` does (joining each to
-biological associations). Then translate the restriction for the inner
-model and pass it on, e.g. Otus that are the *subject* of a restricted BA
-for subject matching (`#side_restriction`).
-
-#### Cost
-`apply_restriction` adds `id IN (<restrict_to>)` to every query it is
-applied to, and PostgreSQL generally evaluates the whole restriction for
-each. An autocomplete chain runs dozens of queries, so the restriction's
-cost is paid dozens of times, and it grows with the size of the restriction,
-not with the number of matching records. Restrictions on an autocomplete's
-own queries are generally fine; a large restriction translated down a
-delegation chain is what `delegated_autocomplete` avoids (2-6x faster for
-biological association autocomplete in large projects).
-
-When the caller can cheaply tell its restriction is small, pass literal ids,
-`::BiologicalAssociation.where(id: ids)` (still a relation of the referenced
-model), rather than the subquery: 3-7x faster when the restriction is pushed
-into many queries (measured at 5 and 191 ids; no difference at 145). See
-`Queries::AssertedDistribution::Autocomplete#autocomplete_biological_association`,
-which plucks at most `LITERAL_RESTRICTION_MAX` (1000) ids and otherwise passes
-the subquery. Sizes between ~200 and 1000 weren't measured, so treat that
-cutoff as a ceiling, not a tuned value. This is deliberately the caller's choice, not `apply_restriction`'s:
-checking the size of a large restriction at every level of a chain costs
-more than it saves (2-5x slower biological association autocomplete).
-
-#### Keep the ranking
-When candidates are turned into results by a join (e.g. Otus -> the
-biological associations they are in), order the results by candidate rank
-(e.g. `array_position(ARRAY[<ids>], otus.id)`). Otherwise the database
-returns them in arbitrary order, and the caller's result limit keeps an
-arbitrary subset instead of the best matches. See
-`Queries::BiologicalAssociation::Autocomplete#joined_matches`.
+### Keep the ranking
+* When candidates are turned into results by a join, order by candidate rank
+  (`array_position(ARRAY[<ids>], ...)`). See
+  `Queries::BiologicalAssociation::Autocomplete#joined_matches`.

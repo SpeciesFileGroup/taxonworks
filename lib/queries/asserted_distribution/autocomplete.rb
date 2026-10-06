@@ -61,7 +61,9 @@ module Queries
         # BA -> Otu/CO/... -> TaxonName chain (dozens of queries): when there
         # are few ids, passing them literally is much cheaper than
         # re-evaluating the subquery in each; when there are many, the
-        # subquery is cheaper.
+        # subquery is cheaper. Only the caller can tell cheaply (one pluck
+        # here); checking the size at every level of the chain costs more
+        # than it saves.
         ids = biological_association_ads.distinct
           .limit(LITERAL_RESTRICTION_MAX + 1).pluck(:asserted_distribution_object_id)
         return nil if ids.empty?

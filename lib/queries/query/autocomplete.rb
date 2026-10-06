@@ -129,9 +129,12 @@ module Queries
     #
     # Unrestricted, the inner autocomplete is simply run, #limit deep.
     #
-    # Restricted, pushing a translated restriction into each of the inner
-    # autocomplete's queries is expensive for large restrictions (it's
-    # re-built in each query), so instead the inner autocomplete is run once,
+    # Restricted, translating the restriction for the inner model is
+    # relation-specific and easy to get subtly wrong (e.g. Otus -> the
+    # TaxonNames, and Combinations, they resolve to), and pushing it into
+    # each of the inner autocomplete's queries is expensive for large
+    # restrictions (it's re-built in each query), so instead the inner
+    # autocomplete is run once,
     # unrestricted, DELEGATED_DEPTH deep, and its results filtered by `keep`
     # (one query). Best effort: usable matches ranked below DELEGATED_DEPTH
     # (the least relevant) are missed. A LIMIT costs nothing for terms that
@@ -148,8 +151,10 @@ module Queries
     # share them, by `key`.
     #
     # The inner autocomplete must accept `limit:` and give its queries that
-    # can return many rows a ranking order (see lib/queries/ARCHITECTURE.md).
-    # So far only TaxonName autocomplete does.
+    # can return many rows a ranking order, so that the first
+    # DELEGATED_DEPTH are the best ranked (see lib/queries/ARCHITECTURE.md).
+    # So far only TaxonName autocomplete is used this way (its
+    # #autocomplete_wildcard_joined_strings is unordered).
     #
     # @param build [Proc]
     #   given a limit (nil, when none was given to this autocomplete, for
