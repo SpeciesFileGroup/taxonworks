@@ -96,7 +96,7 @@ module Queries
       end
 
       def otu_matches(side, results_allowed)
-        ids = otu_autocomplete(side).autocomplete_base.limit(results_allowed).pluck(:id)
+        ids = otu_autocomplete(side).distinct_autocomplete_base.limit(results_allowed).pluck(:id)
         joined_matches('otus', 'Otu', side, ids, results_allowed)
       end
 

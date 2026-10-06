@@ -371,8 +371,43 @@ describe Queries::Otu::Autocomplete, type: :model do
 
     specify 'caps results' do
       expect(Queries::Otu::Autocomplete.new('Zzyzxlimit').autocomplete.size).to be > 5
-      # The limit caps rows before duplicates are compacted, so it is a maximum
+      # TaxonName names count towards the limit, and not all have an Otu
+      # (e.g. the genus), so it is a maximum
       expect(Queries::Otu::Autocomplete.new('Zzyzxlimit', limit: 5).autocomplete.size).to be_between(1, 5)
+    end
+
+    context 'an Otu matched by more than one query' do
+      let!(:dup_otu) {
+        Otu.create!(name: 'Zzyzxdup', taxon_name: Protonym.create!(name: 'Zzyzxdup', rank_class: Ranks.lookup(:iczn, 'genus'), parent: root))
+      }
+      let!(:other_otus) { 3.times.map { |i| Otu.create!(name: "Zzyzxdup#{i}") } }
+
+      specify '#autocomplete_base has it more than once' do
+        ids = Queries::Otu::Autocomplete.new('Zzyzxdup').autocomplete_base.map(&:id)
+        expect(ids.count(dup_otu.id)).to be > 1
+      end
+
+      specify '#distinct_autocomplete_base has each Otu once, at its best priority, in priority order' do
+        rows = Queries::Otu::Autocomplete.new('Zzyzxdup').autocomplete_base.to_a
+        best = rows.group_by(&:id).transform_values { |r| r.map(&:priority).min }
+
+        distinct = Queries::Otu::Autocomplete.new('Zzyzxdup').distinct_autocomplete_base.to_a
+        expect(distinct.map { [_1.id, _1.priority] }.to_h).to eq(best)
+        expect(distinct.size).to eq(best.size)
+        expect(distinct.map(&:priority)).to eq(distinct.map(&:priority).sort)
+      end
+
+      specify '#autocomplete limit counts Otus, not matches' do
+        expect(Queries::Otu::Autocomplete.new('Zzyzxdup', limit: 4).autocomplete)
+          .to match_array([dup_otu] + other_otus)
+      end
+
+      specify 'BA subject candidates are each Otu once' do
+        ([dup_otu] + other_otus).each { |o| FactoryBot.create(:valid_biological_association, biological_association_subject: o) }
+
+        q = Queries::BiologicalAssociation::Autocomplete.new('Zzyzxdup', project_id:)
+        expect(q.otu_matches(:subject, 4).map(&:biological_association_subject)).to match_array([dup_otu] + other_otus)
+      end
     end
 
     specify 'when not given, the TaxonName autocomplete uses its own default' do

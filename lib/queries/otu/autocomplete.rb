@@ -329,9 +329,16 @@ module Queries
       end
 
       def autocomplete
-        compact_priorities( autocomplete_base.limit(limit) )
+        distinct_autocomplete_base.limit(limit).to_a
       end
 
+      # DEPRECATED
+      # API only (#api_autocomplete, #api_autocomplete_extended), otherwise
+      # use #distinct_autocomplete_base, which builds on it.
+      #
+      # @return [Scope]
+      #   an Otu once for each query it matches, at that query's priority, so
+      #   a limit on it counts matches, not Otus
       def autocomplete_base(targets = QUERIES)
         queries = []
 
@@ -355,12 +362,29 @@ module Queries
 
         queries.compact!
 
-        q = referenced_klass_union(queries).order('priority')
+        include_associations(referenced_klass_union(queries).order('priority'))
+      end
 
+      # @return [Scope]
+      #   #autocomplete_base with each Otu once, at its best (lowest)
+      #   priority, so that a limit on it counts Otus, not matches (an Otu can
+      #   match more than one query, e.g. by a Protonym and its Combination)
+      def distinct_autocomplete_base(targets = QUERIES)
+        matches = autocomplete_base(targets).unscope(:order)
+
+        include_associations(
+          ::Otu.from(<<~SQL.squish).order('priority')
+            (SELECT DISTINCT ON (otus.id) otus.*
+              FROM (#{matches.to_sql}) AS otus
+              ORDER BY otus.id, otus.priority) AS otus
+          SQL
+        )
+      end
+
+      # @return [Scope]
+      def include_associations(q)
         q = include_common_names ? q.includes(:common_names) : q
-        q = include_taxon_name ? q.includes(:taxon_name) : q
-
-        q
+        include_taxon_name ? q.includes(:taxon_name) : q
       end
 
       def scope_autocomplete(query)
