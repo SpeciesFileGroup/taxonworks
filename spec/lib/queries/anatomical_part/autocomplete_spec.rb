@@ -27,4 +27,17 @@ describe Queries::AnatomicalPart::Autocomplete, type: :model do
     end
   end
 
+  context 'limit' do
+    specify 'defaults to 20' do
+      expect(Queries::AnatomicalPart::Autocomplete.new('Zzyzx', project_id:).limit).to eq(20)
+    end
+
+    specify 'caps results' do
+      3.times { FactoryBot.create(:valid_anatomical_part, name: 'Zzyzxlimit') }
+
+      expect(Queries::AnatomicalPart::Autocomplete.new('Zzyzxlimit', project_id:).autocomplete.size).to eq(3)
+      expect(Queries::AnatomicalPart::Autocomplete.new('Zzyzxlimit', project_id:, limit: 2).autocomplete.size).to eq(2)
+    end
+  end
+
 end

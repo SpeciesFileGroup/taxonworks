@@ -2,6 +2,8 @@ module Queries
   module FieldOccurrence 
     class Autocomplete < Query::Autocomplete
 
+      DEFAULT_LIMIT = 40
+
       # @params string [String]
       # @params [Hash] args
       def initialize(string, project_id: nil, restrict_to: nil, limit: nil)
@@ -70,9 +72,9 @@ module Queries
         updated_queries.each do |q|
           result += q.to_a
           result.uniq!
-          break if result.count > 39
+          break if result.count >= limit
         end
-        result[0..39]
+        result.first(limit)
       end
 
     end

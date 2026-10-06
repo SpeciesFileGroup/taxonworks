@@ -6,6 +6,8 @@ module Queries
       include ::Queries::Concerns::DateRanges
       include ::Queries::Concerns::Roles
 
+      DEFAULT_LIMIT = 40
+
       # @return [Boolean, nil]
       #   true - only collecting events with a georeference
       #   false - only collecting events without a georeference
@@ -120,9 +122,9 @@ module Queries
         updated_queries.each do |q|
           result += q.to_a
           result.uniq!
-          break if result.count > 29
+          break if result.count >= limit
         end
-        result[0..39]
+        result.first(limit)
       end
 
       # @return [Scope]

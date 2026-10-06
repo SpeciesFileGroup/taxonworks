@@ -10,6 +10,8 @@ module Queries
     #
     class Autocomplete < Query::Autocomplete
 
+      DEFAULT_LIMIT = 40
+
       # @return Boolean, nil
       #   true - only return Otus with `name` = nil
       #   false,nil - no effect
@@ -327,7 +329,7 @@ module Queries
       end
 
       def autocomplete
-        compact_priorities( autocomplete_base.limit(40) )
+        compact_priorities( autocomplete_base.limit(limit) )
       end
 
       def autocomplete_base(targets = QUERIES)

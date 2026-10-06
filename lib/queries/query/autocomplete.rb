@@ -44,13 +44,16 @@ module Queries
     #   ArgumentError. See #apply_restriction.
     attr_accessor :restrict_to
 
-    # @return [Integer, nil]
-    #   optional, how many results the caller wants. nil (default) is the
-    #   autocomplete's own default. Like #restrict_to, an autocomplete that
-    #   delegates to another autocomplete passes it on, so that the inner
-    #   autocomplete returns enough candidates for the outer one to fill its
-    #   results.
-    attr_accessor :limit
+    # The default #limit. Subclasses whose #autocomplete honours #limit set
+    # their own.
+    DEFAULT_LIMIT = 20
+
+    # @param [Integer, nil]
+    #   optional, how many results the caller wants. nil (default) is
+    #   DEFAULT_LIMIT. Like #restrict_to, an autocomplete that delegates to
+    #   another autocomplete passes it on, so that the inner autocomplete
+    #   returns enough candidates for the outer one to fill its results.
+    attr_writer :limit
 
     # @param [Hash] args
     def initialize(string, project_id: nil, restrict_to: nil, limit: nil, **keyword_args)
@@ -66,6 +69,13 @@ module Queries
 
     def project_id
       [@project_id].flatten.compact
+    end
+
+    # @return [Integer]
+    #   the maximum number of results #autocomplete returns, the given
+    #   limit or the subclass' DEFAULT_LIMIT
+    def limit
+      @limit || self.class::DEFAULT_LIMIT
     end
 
     # Apply #restrict_to to query. Subclasses should call this where they
@@ -121,16 +131,17 @@ module Queries
     # So far only TaxonName autocomplete does.
     #
     # @param build [Proc]
-    #   given a limit (nil for the inner autocomplete's default), returns
-    #   the unrestricted inner autocomplete
+    #   given a limit (nil, when none was given to this autocomplete, for
+    #   the inner autocomplete's default), returns the unrestricted inner
+    #   autocomplete
     # @param keep [Proc]
     #   given inner results, returns those usable under #restrict_to, in
     #   order (e.g. those that map to an #apply_restriction record)
     # @return [Array]
-    #   inner results, when restricted at most #limit (or the inner
-    #   autocomplete's default limit) of them
+    #   inner results, when restricted at most the inner autocomplete's
+    #   #limit of them
     def delegated_autocomplete(build:, keep:)
-      inner = build.call(limit)
+      inner = build.call(@limit)
       return inner.autocomplete if restrict_to.nil?
 
       wanted = inner.limit

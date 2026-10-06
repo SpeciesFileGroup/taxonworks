@@ -349,8 +349,22 @@ describe Queries::Otu::Autocomplete, type: :model do
       end
     }
 
-    specify 'defaults to nil' do
-      expect(Queries::Otu::Autocomplete.new('Zzyzxlimit').limit).to be_nil
+    specify 'defaults to 40' do
+      expect(Queries::Otu::Autocomplete.new('Zzyzxlimit').limit).to eq(40)
+    end
+
+    specify 'caps results' do
+      expect(Queries::Otu::Autocomplete.new('Zzyzxlimit').autocomplete.size).to be > 5
+      # The limit caps rows before duplicates are compacted, so it is a maximum
+      expect(Queries::Otu::Autocomplete.new('Zzyzxlimit', limit: 5).autocomplete.size).to be_between(1, 5)
+    end
+
+    specify 'when not given, the TaxonName autocomplete uses its own default' do
+      expect(Queries::TaxonName::Autocomplete).to receive(:new)
+        .with('Zzyzxlimit', hash_including(limit: nil))
+        .and_call_original
+
+      Queries::Otu::Autocomplete.new('Zzyzxlimit').autocomplete_taxon_name
     end
 
     specify 'is passed to the TaxonName autocomplete' do

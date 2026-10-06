@@ -98,8 +98,11 @@ Implementing it in an autocomplete:
 * That's all, unless the autocomplete delegates to another model's
   autocomplete - see below.
 
-`limit:` is how many results the caller wants (nil is the autocomplete's own
-default). A restriction keeps unusable candidates out of an inner
+`limit:` is how many results the caller wants. `#limit` returns it, or the
+class's `DEFAULT_LIMIT` when nil (`Query::Autocomplete::DEFAULT_LIMIT` unless
+overridden). An autocomplete that honours it sets its own `DEFAULT_LIMIT` and
+caps `#autocomplete` with `#limit`, never a literal (e.g.
+`result.first(limit)`, not `result[0..39]`). A restriction keeps unusable candidates out of an inner
 autocomplete's results, but if the inner autocomplete still returns its own,
 smaller, default number of candidates the caller can't fill its results (e.g.
 20 TaxonNames can't fill 50 biological associations when each name's Otu is

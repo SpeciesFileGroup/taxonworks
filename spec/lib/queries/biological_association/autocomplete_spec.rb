@@ -234,7 +234,7 @@ describe Queries::BiologicalAssociation::Autocomplete, type: :model do
   end
 
   context 'limit' do
-    specify 'caps results, default RESULTS_LIMIT' do
+    specify 'caps results, default DEFAULT_LIMIT' do
       o = FactoryBot.create(:valid_otu, name: 'Zzyzxlimitba')
       3.times { FactoryBot.create(:valid_biological_association, biological_association_subject: o) }
 
@@ -250,8 +250,8 @@ describe Queries::BiologicalAssociation::Autocomplete, type: :model do
 
   specify 'passes its results limit to the subject/object autocompletes' do
     q = Queries::BiologicalAssociation::Autocomplete.new('Zzyzx', project_id:)
-    expect(q.otu_autocomplete(:subject).limit).to eq(Queries::BiologicalAssociation::Autocomplete::RESULTS_LIMIT)
-    expect(q.collection_object_autocomplete(:object).limit).to eq(Queries::BiologicalAssociation::Autocomplete::RESULTS_LIMIT)
+    expect(q.otu_autocomplete(:subject).limit).to eq(Queries::BiologicalAssociation::Autocomplete::DEFAULT_LIMIT)
+    expect(q.collection_object_autocomplete(:object).limit).to eq(Queries::BiologicalAssociation::Autocomplete::DEFAULT_LIMIT)
   end
 
   specify '#otu_matches returns no more than the results allowed, best ranked first' do

@@ -2,6 +2,8 @@ module Queries
   module AnatomicalPart
     class Autocomplete < Query::Autocomplete
 
+      DEFAULT_LIMIT = 20
+
       def initialize(string, project_id: nil, restrict_to: nil, limit: nil)
         super(string, project_id:, restrict_to:, limit:)
       end
@@ -72,10 +74,10 @@ module Queries
         queries.each do |q|
           result += q.to_a
           result.uniq!
-          break if result.count > 19
+          break if result.count >= limit
         end
 
-        result[0..19]
+        result.first(limit)
       end
 
     end

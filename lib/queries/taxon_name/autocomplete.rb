@@ -53,13 +53,6 @@ module Queries
         super
       end
 
-      # @return [Integer]
-      #   the (approximate) maximum number of names returned by #autocomplete,
-      #   default DEFAULT_LIMIT
-      def limit
-        @limit || DEFAULT_LIMIT
-      end
-
       def nomenclature_group
         [@nomenclature_group].flatten.compact.uniq.collect{|g| "%::#{g}%"}
       end

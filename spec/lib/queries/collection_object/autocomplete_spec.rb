@@ -34,4 +34,20 @@ describe Queries::CollectionObject::Autocomplete, type: :model do
     end
   end
 
+  context 'limit' do
+    specify 'defaults to 40' do
+      expect(Queries::CollectionObject::Autocomplete.new('Zzyzx', project_id:).limit).to eq(40)
+    end
+
+    specify 'caps results' do
+      otu = FactoryBot.create(:valid_otu, name: 'Zzyzxlimit')
+      3.times do
+        FactoryBot.create(:valid_taxon_determination, otu:, taxon_determination_object: FactoryBot.create(:valid_specimen))
+      end
+
+      expect(Queries::CollectionObject::Autocomplete.new('Zzyzxlimit', project_id:).autocomplete.size).to eq(3)
+      expect(Queries::CollectionObject::Autocomplete.new('Zzyzxlimit', project_id:, limit: 2).autocomplete.size).to eq(2)
+    end
+  end
+
 end
