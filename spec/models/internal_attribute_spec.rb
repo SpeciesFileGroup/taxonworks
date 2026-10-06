@@ -126,6 +126,23 @@ describe InternalAttribute, type: :model do
     expect(InternalAttribute.order(:id).map(&:value)).to eq([a.value, b.value, '22'])
   end
 
+  specify '.batch_update_or_create with lead_query' do
+    p1 = FactoryBot.create(:valid_controlled_vocabulary_term_predicate)
+    key1 = FactoryBot.create(:valid_lead, text: 'Key to first instars')
+    FactoryBot.create(:valid_lead, text: 'Key to adults')
+
+    h = {
+      lead_query: { text: 'instar' },
+      predicate_id: p1.id,
+      value_to: '1st instar'
+    }
+
+    InternalAttribute.batch_update_or_create(ActionController::Parameters.new(h))
+
+    expect(InternalAttribute.pluck(:attribute_subject_type, :attribute_subject_id, :value))
+      .to contain_exactly(['Lead', key1.id, '1st instar'])
+  end
+
 
   context 'validation' do
     before(:each) {

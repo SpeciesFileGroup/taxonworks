@@ -10,7 +10,6 @@
       :selected-ids="sortedSelectedIds"
       :button-unify="false"
       :radial-linker="false"
-      :radial-mass-annotator="false"
       :radial-navigator="false"
       v-model="parameters"
       v-model:append="append"
