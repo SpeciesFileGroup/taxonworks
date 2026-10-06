@@ -2,6 +2,9 @@ module Queries
   module BiologicalAssociation
     class Autocomplete < Query::Autocomplete
 
+      # The maximum number of results #autocomplete returns
+      RESULTS_LIMIT = 50
+
       def initialize(string, project_id: nil, restrict_to: nil)
         super(string, project_id:, restrict_to:)
       end
@@ -22,11 +25,13 @@ module Queries
       # @return [Query::Autocomplete]
       #   an autocomplete_klass autocomplete restricted to klass records that
       #   can be on `side` of a restrict_to biological_association, so that
-      #   records that can't match don't use up its candidate limits
+      #   records that can't match don't use up its candidate limits, and
+      #   limited to RESULTS_LIMIT, so that it returns enough candidates to
+      #   fill the results
       def side_autocomplete(autocomplete_klass, klass, side)
         @side_autocompletes ||= {}
         @side_autocompletes[[autocomplete_klass, side]] ||= autocomplete_klass
-          .new(query_string, project_id:, restrict_to: side_restriction(klass, side))
+          .new(query_string, project_id:, restrict_to: side_restriction(klass, side), limit: RESULTS_LIMIT)
       end
 
       # @return [Queries::Otu::Autocomplete]
@@ -149,14 +154,14 @@ module Queries
       def autocomplete
         result = []
         ordered_lazy_queries.each do |q|
-          remaining = 50 - result.count
+          remaining = RESULTS_LIMIT - result.count
           break if remaining <= 0
 
           result += q.call(remaining)
           result.uniq!
         end
 
-        result[0..49]
+        result.first(RESULTS_LIMIT)
       end
 
     end

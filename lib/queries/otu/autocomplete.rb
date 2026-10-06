@@ -74,10 +74,10 @@ module Queries
       def initialize(
         string, project_id: nil, having_taxon_name_only: false,
         with_taxon_name: nil, exact: 'false', include_common_names: false,
-        include_taxon_name: false, restrict_to: nil
+        include_taxon_name: false, restrict_to: nil, limit: nil
       )
 
-        super(string, project_id:, restrict_to:)
+        super(string, project_id:, restrict_to:, limit:)
         @having_taxon_name_only = boolean_param({having_taxon_name_only:}, :having_taxon_name_only)
         @with_taxon_name = boolean_param({with_taxon_name:}, :with_taxon_name)
 
@@ -155,7 +155,8 @@ module Queries
       end
 
       # @return [Array<TaxonName>]
-      #   the TaxonName autocomplete results for #autocomplete_taxon_name(_extended).
+      #   the TaxonName autocomplete results for #autocomplete_taxon_name(_extended),
+      #   #limit (when given) deep.
       #
       #   When restricted, pushing #taxon_name_restriction into every
       #   TaxonName query is expensive for large restrictions (it's re-built
@@ -164,13 +165,13 @@ module Queries
       #   Otu, using one query. Restricted, TaxonName autocomplete returns
       #   fewer than 2 * its limit names, always the first ones of the
       #   unrestricted order that survive the restriction, so the kept names
-      #   start with exactly those results unless the deep results were cut
-      #   off before that many survived - then fall back to the restricted
-      #   TaxonName autocomplete.
+      #   (trimmed to that size) start with exactly those results unless the
+      #   deep results were cut off before that many survived - then fall
+      #   back to the restricted TaxonName autocomplete.
       def taxon_name_autocomplete
         @taxon_name_autocomplete ||= begin
           if restrict_to.nil?
-            Queries::TaxonName::Autocomplete.new(query_string, exact:, project_id:).autocomplete
+            Queries::TaxonName::Autocomplete.new(query_string, exact:, project_id:, limit:).autocomplete
           else
             names = Queries::TaxonName::Autocomplete
               .new(query_string, exact:, project_id:, restrict_to: nil, limit: TAXON_NAME_DEPTH)
@@ -181,11 +182,13 @@ module Queries
 
             kept = names.select { allowed.include?(otu_taxon_name_id(_1)) }
 
-            if names.size < TAXON_NAME_DEPTH || kept.size >= 2 * Queries::TaxonName::Autocomplete::DEFAULT_LIMIT
-              kept
+            restricted_size = 2 * (limit || Queries::TaxonName::Autocomplete::DEFAULT_LIMIT)
+
+            if names.size < TAXON_NAME_DEPTH || kept.size >= restricted_size
+              kept.first(restricted_size)
             else
               Queries::TaxonName::Autocomplete
-                .new(query_string, exact:, project_id:, restrict_to: taxon_name_restriction).autocomplete
+                .new(query_string, exact:, project_id:, restrict_to: taxon_name_restriction, limit:).autocomplete
             end
           end
         end

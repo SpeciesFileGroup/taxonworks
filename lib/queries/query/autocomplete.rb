@@ -44,12 +44,21 @@ module Queries
     #   ArgumentError. See #apply_restriction.
     attr_accessor :restrict_to
 
+    # @return [Integer, nil]
+    #   optional, how many results the caller wants. nil (default) is the
+    #   autocomplete's own default. Like #restrict_to, an autocomplete that
+    #   delegates to another autocomplete passes it on, so that the inner
+    #   autocomplete returns enough candidates for the outer one to fill its
+    #   results.
+    attr_accessor :limit
+
     # @param [Hash] args
-    def initialize(string, project_id: nil, restrict_to: nil, **keyword_args)
+    def initialize(string, project_id: nil, restrict_to: nil, limit: nil, **keyword_args)
       @query_string = ::ApplicationRecord.sanitize_sql(string)&.delete("\u0000") # remove null bytes
 
       @project_id = project_id
       @restrict_to = restrict_to
+      @limit = limit
 
       # should not need this
       # build_terms # TODO - should remove this for accessors

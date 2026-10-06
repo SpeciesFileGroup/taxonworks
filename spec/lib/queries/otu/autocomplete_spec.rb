@@ -329,4 +329,35 @@ describe Queries::Otu::Autocomplete, type: :model do
     end
   end
 
+  context 'limit' do
+    let(:crowd_genus) { Protonym.create!(name: 'Zzyzxlimit', rank_class: Ranks.lookup(:iczn, 'genus'), parent: root) }
+    let!(:crowd_otus) {
+      ('aa'..'az').map do |n|
+        Otu.create!(taxon_name: Protonym.create!(name: n, rank_class: Ranks.lookup(:iczn, 'species'), parent: crowd_genus))
+      end
+    }
+
+    specify 'defaults to nil' do
+      expect(Queries::Otu::Autocomplete.new('Zzyzxlimit').limit).to be_nil
+    end
+
+    specify 'is passed to the TaxonName autocomplete' do
+      expect(Queries::TaxonName::Autocomplete).to receive(:new)
+        .with('Zzyzxlimit', hash_including(limit: 30))
+        .and_call_original
+
+      Queries::Otu::Autocomplete.new('Zzyzxlimit', limit: 30).autocomplete_taxon_name
+    end
+
+    specify 'restricted, finds as many names as the limit asks for' do
+      q = Queries::Otu::Autocomplete.new('Zzyzxlimit', limit: 30, restrict_to: Otu.where(id: crowd_otus.map(&:id)))
+      expect(q.autocomplete_taxon_name.map(&:id)).to include(*crowd_otus.map(&:id))
+    end
+
+    specify 'restricted, keeps no more names than a restricted TaxonName autocomplete could return' do
+      q = Queries::Otu::Autocomplete.new('Zzyzxlimit', limit: 5, restrict_to: Otu.where(id: crowd_otus.map(&:id)))
+      expect(q.taxon_name_autocomplete.size).to be <= 2 * 5
+    end
+  end
+
 end

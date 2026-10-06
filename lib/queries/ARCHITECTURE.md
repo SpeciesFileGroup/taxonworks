@@ -100,6 +100,14 @@ Implementing it in an autocomplete:
   compose down the chain. `Queries::BiologicalAssociation::Autocomplete`
   translates per side, e.g. Otus that are the *subject* of a restricted BA
   for subject matching (`#side_restriction`).
+* Pass `limit:` on with the restriction: how many results the caller wants.
+  A restriction keeps unusable candidates out of the inner autocomplete's
+  results, but if the inner autocomplete still returns its own (smaller)
+  default number of candidates, the caller can't fill its results (e.g.
+  20 TaxonNames can't fill 50 biological associations when each name's Otu
+  is in only one or two). Subclasses with explicit keyword arguments accept
+  `limit:` and pass it to `super`; an autocomplete that delegates uses it
+  for the inner autocomplete's limit (nil is the autocomplete's own default).
 
 #### Cost
 `apply_restriction` adds `id IN (<restrict_to>)` to every query it is

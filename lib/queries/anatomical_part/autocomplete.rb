@@ -2,8 +2,8 @@ module Queries
   module AnatomicalPart
     class Autocomplete < Query::Autocomplete
 
-      def initialize(string, project_id: nil, restrict_to: nil)
-        super(string, project_id:, restrict_to:)
+      def initialize(string, project_id: nil, restrict_to: nil, limit: nil)
+        super(string, project_id:, restrict_to:, limit:)
       end
 
       def autocomplete_uri_label_contains_match

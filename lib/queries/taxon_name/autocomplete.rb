@@ -40,11 +40,6 @@ module Queries
       # As determined by GlobalNames parser
       attr_accessor :authorship
 
-      # @return [Integer]
-      #   the (approximate) maximum number of names returned by #autocomplete,
-      #   default DEFAULT_LIMIT
-      attr_accessor :limit
-
       # @param [Hash] args
       def initialize(string, **params)
         @nomenclature_group = params[:nomenclature_group]
@@ -52,11 +47,17 @@ module Queries
         @type = params[:type]
         @parent_id = params[:parent_id]
         @no_leaves = boolean_param(params, :no_leaves)
-        @limit = params[:limit] || DEFAULT_LIMIT
 
         # TODO: move to mode
         @exact = boolean_param(params, :exact)
         super
+      end
+
+      # @return [Integer]
+      #   the (approximate) maximum number of names returned by #autocomplete,
+      #   default DEFAULT_LIMIT
+      def limit
+        @limit || DEFAULT_LIMIT
       end
 
       def nomenclature_group

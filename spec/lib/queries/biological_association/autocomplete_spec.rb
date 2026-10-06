@@ -204,4 +204,10 @@ describe Queries::BiologicalAssociation::Autocomplete, type: :model do
     end
   end
 
+  specify 'passes its results limit to the subject/object autocompletes' do
+    q = Queries::BiologicalAssociation::Autocomplete.new('Zzyzx', project_id:)
+    expect(q.otu_autocomplete(:subject).limit).to eq(Queries::BiologicalAssociation::Autocomplete::RESULTS_LIMIT)
+    expect(q.collection_object_autocomplete(:object).limit).to eq(Queries::BiologicalAssociation::Autocomplete::RESULTS_LIMIT)
+  end
+
 end

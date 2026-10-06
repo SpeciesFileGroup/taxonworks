@@ -4,8 +4,8 @@ module Queries
 
       # @params string [String]
       # @params [Hash] args
-      def initialize(string, project_id: nil, restrict_to: nil)
-        super(string, project_id:, restrict_to:)
+      def initialize(string, project_id: nil, restrict_to: nil, limit: nil)
+        super(string, project_id:, restrict_to:, limit:)
       end
 
       # @return [Arel::Table]
