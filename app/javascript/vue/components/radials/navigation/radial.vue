@@ -222,18 +222,24 @@ const defaultSlices = computed(() => {
 
 const isPinned = computed(() => metadata.value?.pinboard_item)
 
-const middleButton = computed(() => ({
-  name: CUSTOM_OPTIONS.CircleButton,
-  radius: 30,
-  icon: {
-    url: Icons.Pin,
-    width: '20',
-    height: '20'
-  },
-  svgAttributes: {
-    fill: isPinned.value ? 'var(--color-destroy)' : 'var(--color-create)'
+const middleButton = computed(() => {
+  const [colorKey, iconColor] = isPinned.value
+    ? ['destroy', '#dc2626']
+    : ['create', '#2e7d32']
+
+  return {
+    name: CUSTOM_OPTIONS.CircleButton,
+    radius: 30,
+    icon: {
+      url: Icons.Pin(iconColor),
+      width: '20',
+      height: '20'
+    },
+    svgAttributes: {
+      fill: `color-mix(in srgb, var(--color-${colorKey}) 12%, var(--bg-foreground))`
+    }
   }
-}))
+})
 
 const isLoading = ref(false)
 const isAlltaskSelected = ref(false)

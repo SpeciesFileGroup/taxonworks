@@ -101,6 +101,7 @@ import VIcon from '@/components/ui/VIcon/index.vue'
 import RadialHeader from '../shared/RadialHeader.vue'
 import makeRequest from '@/helpers/ajaxCall'
 import Icons from './images/icons.js'
+import tagButtonIcon from '../annotator/images/tagButton.js'
 import { useShortcuts } from '@/components/radials/composables'
 import { SLICE, SLICES_BY_OBJECT_TYPE } from './constants/slices.js'
 import { Tag } from '@/routes/endpoints'
@@ -246,18 +247,28 @@ const metadataCount = computed(() => {
   return values.reduce((acc, curr) => acc + curr.total, 0)
 })
 
-const middleButton = computed(() => ({
-  name: MIDDLE_RADIAL_BUTTON,
-  radius: 30,
-  icon: {
-    url: Icons.tags,
-    width: '20',
-    height: '20'
-  },
-  svgAttributes: {
-    fill: getDefault() ? (defaultTag.value ? '#F44336' : '#9ccc65') : '#CACACA'
+const middleButton = computed(() => {
+  const [colorKey, iconColor] = getDefault()
+    ? defaultTag.value
+      ? ['destroy', '#dc2626']
+      : ['create', '#2e7d32']
+    : ['muted', '#6b7280']
+  const fillColor =
+    colorKey === 'muted' ? 'var(--text-color)' : `var(--color-${colorKey})`
+
+  return {
+    name: MIDDLE_RADIAL_BUTTON,
+    radius: 30,
+    icon: {
+      url: tagButtonIcon(iconColor),
+      width: '20',
+      height: '20'
+    },
+    svgAttributes: {
+      fill: `color-mix(in srgb, ${fillColor} 12%, var(--bg-foreground))`
+    }
   }
-}))
+})
 
 onMounted(() => {
   if (props.showCount) {

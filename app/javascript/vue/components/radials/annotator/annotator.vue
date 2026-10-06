@@ -97,6 +97,7 @@ import VModal from '@/components/ui/Modal.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import Icons from './images/icons.js'
+import tagButtonIcon from './images/tagButton.js'
 import ContextMenu from './components/contextMenu'
 import IconRadialAnnotator from '@/components/Icon/IconRadialAnnotator.vue'
 import RadialHeader from '../shared/RadialHeader.vue'
@@ -245,25 +246,30 @@ const metadataCount = computed(() => {
 
 const isTagged = computed(() => !!defaultTag.value)
 
-const middleButton = computed(() => ({
-  name: MIDDLE_RADIAL_BUTTON,
-  radius: 30,
-  icon: {
-    url: Icons.tags,
-    width: '20',
-    height: '20'
-  },
-  svgAttributes: {
-    fontSize: 11,
-    fill: getDefault() ? (isTagged.value ? '#F44336' : '#9ccc65') : '#CACACA',
-    style: 'cursor: pointer'
-  },
-  backgroundHover: getDefault()
+const middleButton = computed(() => {
+  const [colorKey, iconColor] = getDefault()
     ? isTagged.value
-      ? '#CE3430'
-      : '#81a553'
-    : '#CACACA'
-}))
+      ? ['destroy', '#dc2626']
+      : ['create', '#2e7d32']
+    : ['muted', '#6b7280']
+  const fillColor =
+    colorKey === 'muted' ? 'var(--text-color)' : `var(--color-${colorKey})`
+
+  return {
+    name: MIDDLE_RADIAL_BUTTON,
+    radius: 30,
+    icon: {
+      url: tagButtonIcon(iconColor),
+      width: '20',
+      height: '20'
+    },
+    svgAttributes: {
+      fontSize: 11,
+      fill: `color-mix(in srgb, ${fillColor} 12%, var(--bg-foreground))`,
+      style: 'cursor: pointer'
+    }
+  }
+})
 
 const { removeListener, setShortcutsEvent } = useShortcuts({
   metadata,
