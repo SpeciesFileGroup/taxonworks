@@ -1,9 +1,4 @@
-import {
-  DEFAULT_LAYOUT,
-  LAYOUT_CUSTOM,
-  PANEL_KEYS,
-  RENAMED_LAYOUTS
-} from './layouts.js'
+import { DEFAULT_LAYOUT, PANEL_KEYS } from './layouts.js'
 
 export const PREFERENCE_SCHEMA = 20261006
 
@@ -108,60 +103,9 @@ export const DEFAULT_PREFERENCES = {
 }
 
 export function migrateTaskPreferences(stored) {
-  if (!stored) return structuredClone(DEFAULT_PREFERENCES)
-
-  if (stored.preferenceSchema >= PREFERENCE_SCHEMA) return stored
-
-  const sections = Array.isArray(stored.sections)
-    ? stored.sections.filter((key) => PANEL_KEYS.includes(key))
-    : [...PANEL_KEYS]
-
-  const customRows = customRowsFrom(stored, sections)
-
-  return {
-    ...structuredClone(DEFAULT_PREFERENCES),
-    ...(stored.filterSections ? { filterSections: stored.filterSections } : {}),
-    ...(stored.timeline ? { timeline: stored.timeline } : {}),
-    ...(stored.biologicalAssociations
-      ? { biologicalAssociations: stored.biologicalAssociations }
-      : {}),
-    ...(typeof stored.hideEmptyPanels === 'boolean'
-      ? { hideEmptyPanels: stored.hideEmptyPanels }
-      : {}),
-    preferenceSchema: PREFERENCE_SCHEMA,
-    sections,
-    layout: layoutFrom(stored, customRows),
-    customRows
-  }
-}
-
-function layoutFrom(stored, customRows) {
-  if (stored.layout) {
-    return RENAMED_LAYOUTS[stored.layout] || stored.layout
+  if (!stored || !(stored.preferenceSchema >= PREFERENCE_SCHEMA)) {
+    return structuredClone(DEFAULT_PREFERENCES)
   }
 
-  return customRows ? LAYOUT_CUSTOM : DEFAULT_LAYOUT
-}
-
-function customRowsFrom(stored, sections) {
-  if (Array.isArray(stored.customRows)) return stored.customRows
-
-  if (Array.isArray(stored.customColumns)) {
-    return [{ columns: stored.customColumns }]
-  }
-
-  return isOrderedLikeDefault(sections) ? null : [{ columns: [sections] }]
-}
-
-function isOrderedLikeDefault(sections) {
-  let cursor = -1
-
-  return sections.every((key) => {
-    const index = PANEL_KEYS.indexOf(key)
-    const isAfter = index > cursor
-
-    cursor = index
-
-    return isAfter
-  })
+  return stored
 }

@@ -1,22 +1,22 @@
 import { PANEL_COMPONENTS } from './components.js'
 
 export const LAYOUT_CLASSIC = 'classic'
-export const LAYOUT_OVERVIEW = 'overview'
+export const LAYOUT_TWO_COLUMN = 'twoColumn'
 export const LAYOUT_CUSTOM = 'custom'
 
-export const DEFAULT_LAYOUT = LAYOUT_OVERVIEW
+export const DEFAULT_LAYOUT = LAYOUT_TWO_COLUMN
 
 export const RENAMED_LAYOUTS = {
-  taxonPages: LAYOUT_OVERVIEW
+  taxonPages: LAYOUT_TWO_COLUMN
 }
 
 export const PANEL_KEYS = Object.keys(PANEL_COMPONENTS)
 
 export const MAX_COLUMNS_PER_ROW = 2
 
-const OVERVIEW_MAIN = ['PanelDepictions', 'PanelType', 'NomenclatureHistory']
+const TWO_COLUMN_MAIN = ['PanelDepictions', 'PanelType', 'NomenclatureHistory']
 
-const OVERVIEW_ASIDE = [
+const TWO_COLUMN_ASIDE = [
   'PanelDistribution',
   'PanelDescendants',
   'PanelCommonNames',
@@ -26,8 +26,8 @@ const OVERVIEW_ASIDE = [
   'PanelDescription'
 ]
 
-const OVERVIEW_BELOW = PANEL_KEYS.filter(
-  (key) => !OVERVIEW_MAIN.includes(key) && !OVERVIEW_ASIDE.includes(key)
+const TWO_COLUMN_BELOW = PANEL_KEYS.filter(
+  (key) => !TWO_COLUMN_MAIN.includes(key) && !TWO_COLUMN_ASIDE.includes(key)
 )
 
 export const LAYOUT_PRESETS = {
@@ -36,17 +36,20 @@ export const LAYOUT_PRESETS = {
     rows: [{ columns: [PANEL_KEYS] }]
   },
 
-  [LAYOUT_OVERVIEW]: {
-    label: 'Overview',
+  [LAYOUT_TWO_COLUMN]: {
+    label: 'Two-column',
     rows: [
-      { columns: [OVERVIEW_MAIN, OVERVIEW_ASIDE] },
-      { columns: [OVERVIEW_BELOW] }
+      { columns: [TWO_COLUMN_MAIN, TWO_COLUMN_ASIDE] },
+      { columns: [TWO_COLUMN_BELOW] }
     ]
   }
 }
 
 export const LAYOUT_OPTIONS = [
   { value: LAYOUT_CLASSIC, label: LAYOUT_PRESETS[LAYOUT_CLASSIC].label },
-  { value: LAYOUT_OVERVIEW, label: LAYOUT_PRESETS[LAYOUT_OVERVIEW].label },
+  {
+    value: LAYOUT_TWO_COLUMN,
+    label: LAYOUT_PRESETS[LAYOUT_TWO_COLUMN].label
+  },
   { value: LAYOUT_CUSTOM, label: 'Custom' }
 ]
