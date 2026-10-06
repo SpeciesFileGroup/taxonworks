@@ -123,22 +123,10 @@ const pagination = ref()
 const isLoading = ref(false)
 const otuIds = computed(() => props.otus.map((o) => o.id))
 
-const filterParams = computed(() => {
-  const taxonNameId = props.otu?.taxon_name_id
-  const params = {}
-
-  if (taxonNameId) {
-    params.taxon_name_id = taxonNameId
-    params.descendants = true
-  } else {
-    params.otu_id = otuIds.value
-  }
-
-  return {
-    ...params,
-    ...props.filter
-  }
-})
+const filterParams = computed(() => ({
+  otu_id: otuIds.value,
+  ...props.filter
+}))
 
 const urlFilter = computed(() => {
   const query = qs.stringify(
@@ -196,9 +184,9 @@ function loadCollectionObjects(page = 1) {
 }
 
 watch(
-  () => props.otu?.id,
+  () => props.otus,
   (newVal) => {
-    if (newVal) {
+    if (newVal.length > 0) {
       loadCollectionObjects()
     }
   },
