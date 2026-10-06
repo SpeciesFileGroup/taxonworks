@@ -10,6 +10,7 @@ import {
   EXTRACT,
   FIELD_OCCURRENCE,
   IMAGE,
+  LEAD,
   LOAN,
   OBSERVATION,
   OTU,
@@ -49,6 +50,7 @@ const RouteNames = {
   FilterDwcOccurrences: '/tasks/dwc_occurrences/filter',
   FilterExtracts: '/tasks/extracts/filter',
   FilterImages: '/tasks/images/filter',
+  FilterLeads: '/tasks/leads/filter',
   FilterFieldOccurrence: '/tasks/field_occurrences/filter',
   FilterLoans: '/tasks/loans/filter',
   FilterNomenclature: '/tasks/taxon_names/filter',
@@ -128,6 +130,7 @@ const FILTER_ROUTES = {
   [DESCRIPTOR]: RouteNames.FilterDescriptors,
   [OBSERVATION]: RouteNames.FilterObservations,
   [CONTENT]: RouteNames.FilterContents,
+  [LEAD]: RouteNames.FilterLeads,
   [LOAN]: RouteNames.FilterLoans,
   [TAXON_NAME]: RouteNames.FilterTaxonNames,
   [TAXON_NAME_RELATIONSHIP]: RouteNames.FilterTaxonNameRelationships

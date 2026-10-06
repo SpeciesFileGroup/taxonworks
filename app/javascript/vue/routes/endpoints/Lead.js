@@ -77,6 +77,12 @@ export const Lead = {
   depictions: (id, params) =>
     AjaxCall('post', `/${controller}/${id}/depictions.json`, params),
 
+  filter: (params) =>
+    AjaxCall('post', `/${controller}/filter.json`, {
+      ...params,
+      load_root_otus: true
+    }),
+
   citeKeyBootstrap: ({ otuIds, otuQuery } = {}) =>
     AjaxCall('get', `/${controller}/cite_key_bootstrap.json`, {
       params: { otu_ids: otuIds, otu_query: otuQuery }

@@ -1135,6 +1135,15 @@ filter_anatomical_parts_task:
     - biology
   status: prototype
   description: 'Filter anatomical parts by many different facets, download or visualize results.'
+filter_leads_task:
+  hub: true
+  name: 'Filter keys'
+  related:
+    - leads_hub_task
+  categories:
+    - filters
+  status: prototype
+  description: 'Filter keys (dichotomous and simple) by title, type, OTUs, citations, and other facets, or by the results of OTU, taxon name, and source filters.'
 filter_asserted_environments_task:
   hub: true
   name: 'Filter asserted environments'

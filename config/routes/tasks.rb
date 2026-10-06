@@ -120,6 +120,10 @@ scope :tasks do
   end
 
   scope :leads do
+    scope :filter, controller: 'tasks/leads/filter' do
+      get '/', action: :index, as: 'filter_leads_task'
+    end
+
     scope :cite_key, controller: 'tasks/leads/cite_key' do
       get '/', action: :index, as: 'cite_key_task'
     end

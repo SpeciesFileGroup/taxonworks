@@ -62,6 +62,7 @@ module Queries
       field_occurrence: [:collecting_event, :otu, :biological_association, :dwc_occurrence, :image, :observation, :taxon_name, :anatomical_part, :citation, :confidence, :data_attribute, :identifier, :note, :tag], # [:source, :otu, :collecting_event, :biological_association, :observation, :taxon_name, :extract],
       identifier: [:anatomical_part, :asserted_distribution, :asserted_environment, :biological_association, :collecting_event, :collection_object, :descriptor, :extract, :field_occurrence, :image, :observation, :otu, :sound, :taxon_name],
       image: [:content, :collection_object, :collecting_event, :field_occurrence, :otu, :observation, :source, :taxon_name, :attribution, :citation, :identifier, :note, :tag],
+      lead: [:otu, :source, :taxon_name],
       loan: [:collection_object, :otu],
       note: [:anatomical_part, :asserted_distribution, :asserted_environment, :biological_association, :collecting_event, :collection_object, :descriptor, :field_occurrence, :image, :observation, :otu, :sound, :taxon_name, :taxon_name_relationship],
       observation: [:asserted_distribution, :collection_object, :descriptor, :extract, :field_occurrence, :image, :otu, :sound, :source, :taxon_name, :anatomical_part, :citation, :confidence, :identifier, :note, :tag],
@@ -124,6 +125,7 @@ module Queries
       field_occurrence_query: '::Queries::FieldOccurrence::Filter',
       identifier_query: '::Queries::Identifier::Filter',
       image_query: '::Queries::Image::Filter',
+      lead_query: '::Queries::Lead::Filter',
       loan_query: '::Queries::Loan::Filter',
       note_query: '::Queries::Note::Filter',
       observation_query: '::Queries::Observation::Filter',
@@ -254,6 +256,9 @@ module Queries
 
     # @return [Query::Observation::Filter, nil]
     attr_accessor :observation_query
+
+    # @return [Query::Lead::Filter, nil]
+    attr_accessor :lead_query
 
     # @return [Query::Loan::Filter, nil]
     attr_accessor :loan_query

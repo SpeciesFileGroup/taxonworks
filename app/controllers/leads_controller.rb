@@ -1,6 +1,6 @@
 class LeadsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
-  after_action -> { set_pagination_headers(:leads) }, only: [:index, :api_index], if: :json_request?
+  after_action -> { set_pagination_headers(:leads) }, only: [:index, :api_index, :filter], if: :json_request?
   before_action :set_lead, only: %i[
     edit add_children update destroy show
     redirect_option_texts destroy_children insert_couplet delete_children
@@ -47,6 +47,22 @@ class LeadsController < ApplicationController
         @leads = @leads.page(params[:page]).per(params[:per])
       }
     end
+  end
+
+  # GET/POST /leads/filter.json
+  # Keys (root Leads) matching Queries::Lead::Filter, with the same per-key
+  # data as #index. Both dichotomous and simple keys are included unless
+  # is_virtual is passed.
+  def filter
+    query = ::Queries::Lead::Filter.new(params)
+    query.paginate = false # Paging is applied to the keys below
+
+    @leads = Lead
+      .roots_with_data(sessions_current_project_id, true, is_virtual: :all)
+      .where(id: query.all.select(:id))
+      .page(params[:page]).per(params[:per])
+
+    render '/leads/index'
   end
 
   def api_index
