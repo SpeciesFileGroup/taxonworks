@@ -2,26 +2,63 @@ module Queries
   module BiologicalAssociation
     class Autocomplete < Query::Autocomplete
 
-      def initialize(string, project_id: nil)
-        super
+      DEFAULT_LIMIT = 50
+
+      def initialize(string, project_id: nil, restrict_to: nil, limit: nil)
+        super(string, project_id:, restrict_to:, limit:)
+      end
+
+      # @return [Scope]
+      #   scoped to the project, so that queries that aren't joined to
+      #   project-scoped records (e.g. #autocomplete_exact_id) are
+      def base_query
+        q = super
+        q = q.where(project_id:) if project_id.any?
+        q
+      end
+
+      # @return [ActiveRecord::Relation]
+      #   the klass records that are the `side` (:subject or :object) of a
+      #   biological_association in the project (and in restrict_to, when
+      #   given). A candidate on a side is only useful if it is on that side
+      #   of some biological association; unrestricted, candidates that
+      #   aren't fill the subject/object autocompletes' limits and matching
+      #   biological associations are missed (e.g. a genus search matching
+      #   hundreds of species, few of which are in one).
+      def side_restriction(klass, side)
+        klass.where(
+          id: apply_restriction(base_query)
+            .where("biological_association_#{side}_type": klass.base_class.name)
+            .reselect("biological_association_#{side}_id")
+        )
+      end
+
+      # @return [Query::Autocomplete]
+      #   an autocomplete_klass autocomplete restricted to klass records on
+      #   `side` (see #side_restriction), and limited to #limit, so
+      #   that it returns enough candidates to fill the results. Both sides
+      #   share delegated results (e.g. the Otu autocompletes' TaxonName
+      #   fetch), see Query::Autocomplete#delegated_results.
+      def side_autocomplete(autocomplete_klass, klass, side)
+        @side_autocompletes ||= {}
+        @side_autocompletes[[autocomplete_klass, side]] ||= autocomplete_klass
+          .new(query_string, project_id:, restrict_to: side_restriction(klass, side), limit:)
+          .tap { |a| a.delegated_results = (@delegated_results ||= {}) }
       end
 
       # @return [Queries::Otu::Autocomplete]
-      def otu_autocomplete
-        @otu_autocomplete ||= Queries::Otu::Autocomplete
-          .new(query_string, project_id: project_id)
+      def otu_autocomplete(side)
+        side_autocomplete(Queries::Otu::Autocomplete, ::Otu, side)
       end
 
       # @return [Queries::CollectionObject::Autocomplete]
-      def collection_object_autocomplete
-        @collection_object_autocomplete ||= Queries::CollectionObject::Autocomplete
-          .new(query_string, project_id: project_id)
+      def collection_object_autocomplete(side)
+        side_autocomplete(Queries::CollectionObject::Autocomplete, ::CollectionObject, side)
       end
 
       # @return [Queries::FieldOccurrence::Autocomplete]
-      def field_occurrence_autocomplete
-        @field_occurrence_autocomplete ||= Queries::FieldOccurrence::Autocomplete
-          .new(query_string, project_id: project_id)
+      def field_occurrence_autocomplete(side)
+        side_autocomplete(Queries::FieldOccurrence::Autocomplete, ::FieldOccurrence, side)
       end
 
       # @return [Queries::BiologicalRelationship::Autocomplete]
@@ -31,57 +68,66 @@ module Queries
       end
 
       # @return [Queries::AnatomicalPart::Autocomplete]
-      def anatomical_part_autocomplete
-        @anatomical_part_autocomplete ||= Queries::AnatomicalPart::Autocomplete
-          .new(query_string, project_id: project_id)
+      def anatomical_part_autocomplete(side)
+        side_autocomplete(Queries::AnatomicalPart::Autocomplete, ::AnatomicalPart, side)
       end
 
       # @return [Array<BiologicalAssociation>]
       #   biological_associations where the subject or object (on `side`) is one of the
-      #   related_klass records identified by `ids`
-      def joined_matches(related_table_name, related_type, side, ids)
+      #   related_klass records identified by `ids`, in `ids` order, at most
+      #   results_allowed
+      def joined_matches(related_table_name, related_type, side, ids, results_allowed)
         return [] if ids.empty?
 
         foreign_key_column = "biological_association_#{side}_id"
         type_column = "biological_association_#{side}_type"
 
-        base_query
+        q = base_query
           .joins(
             "JOIN #{related_table_name} ON biological_associations.#{foreign_key_column} = #{related_table_name}.id " \
             "AND biological_associations.#{type_column} = '#{related_type}'"
           )
           .where(related_table_name.to_sym => { id: ids })
-          .to_a
+
+        # Keep the related autocomplete's ranking, so that the results cap
+        # keeps the best matches
+        q = order_by_id_rank(q, "#{related_table_name}.id", ids).limit(results_allowed)
+
+        apply_restriction(q).to_a
       end
 
       def otu_matches(side, results_allowed)
-        ids = otu_autocomplete.autocomplete_base.limit(results_allowed).pluck(:id)
-        joined_matches('otus', 'Otu', side, ids)
+        ids = otu_autocomplete(side).distinct_autocomplete_base.limit(results_allowed).pluck(:id)
+        joined_matches('otus', 'Otu', side, ids, results_allowed)
       end
 
       def collection_object_matches(collection_object_query, side, results_allowed)
         ids = collection_object_query.limit(results_allowed).pluck(:id)
-        joined_matches('collection_objects', 'CollectionObject', side, ids)
+        joined_matches('collection_objects', 'CollectionObject', side, ids, results_allowed)
       end
 
       def field_occurrence_matches(field_occurrence_query, side, results_allowed)
         ids = field_occurrence_query.limit(results_allowed).pluck(:id)
-        joined_matches('field_occurrences', 'FieldOccurrence', side, ids)
+        joined_matches('field_occurrences', 'FieldOccurrence', side, ids, results_allowed)
       end
 
       def anatomical_part_matches(anatomical_part_query, side, results_allowed)
         ids = anatomical_part_query.limit(results_allowed).pluck(:id)
-        joined_matches('anatomical_parts', 'AnatomicalPart', side, ids)
+        joined_matches('anatomical_parts', 'AnatomicalPart', side, ids, results_allowed)
       end
 
       def biological_relationship_matches(results_allowed)
         ids = biological_relationship_autocomplete.all.limit(results_allowed).pluck(:id)
         return [] if ids.empty?
 
-        ::BiologicalAssociation
-          .joins(:biological_relationship)
-          .where(biological_relationship: { id: ids })
-          .to_a
+        # Keep the relationship autocomplete's ranking, so that the results
+        # cap keeps the best matches
+        q = order_by_id_rank(
+          base_query.where(biological_relationship_id: ids),
+          'biological_associations.biological_relationship_id', ids
+        ).limit(results_allowed)
+
+        apply_restriction(q).to_a
       end
 
       # @return [Array<Proc>]
@@ -91,24 +137,30 @@ module Queries
       #   every branch, as this used to) so `autocomplete` can stop pulling further branches,
       #   and cap how many candidate ids a branch even asks for, once enough results are found.
       def ordered_lazy_queries
-        queries = [->(n) { [autocomplete_exact_id].compact.flat_map(&:to_a) }]
+        queries = [->(n) {
+          q = autocomplete_exact_id
+          q ? apply_restriction(q).to_a : []
+        }]
 
         queries << ->(n) { otu_matches(:subject, n) }
         queries << ->(n) { otu_matches(:object, n) }
 
-        co = collection_object_autocomplete.base_queries
-        co.each { |q| queries << ->(n) { collection_object_matches(q, :subject, n) } }
-        co.each { |q| queries << ->(n) { collection_object_matches(q, :object, n) } }
+        %i{subject object}.each do |side|
+          collection_object_autocomplete(side).base_queries
+            .each { |q| queries << ->(n) { collection_object_matches(q, side, n) } }
+        end
 
-        fo = field_occurrence_autocomplete.base_queries
-        fo.each { |q| queries << ->(n) { field_occurrence_matches(q, :subject, n) } }
-        fo.each { |q| queries << ->(n) { field_occurrence_matches(q, :object, n) } }
+        %i{subject object}.each do |side|
+          field_occurrence_autocomplete(side).base_queries
+            .each { |q| queries << ->(n) { field_occurrence_matches(q, side, n) } }
+        end
 
         queries << ->(n) { biological_relationship_matches(n) }
 
-        ap = anatomical_part_autocomplete.updated_queries
-        ap.each { |q| queries << ->(n) { anatomical_part_matches(q, :subject, n) } }
-        ap.each { |q| queries << ->(n) { anatomical_part_matches(q, :object, n) } }
+        %i{subject object}.each do |side|
+          anatomical_part_autocomplete(side).updated_queries
+            .each { |q| queries << ->(n) { anatomical_part_matches(q, side, n) } }
+        end
 
         queries
       end
@@ -117,14 +169,14 @@ module Queries
       def autocomplete
         result = []
         ordered_lazy_queries.each do |q|
-          remaining = 50 - result.count
+          remaining = limit - result.count
           break if remaining <= 0
 
           result += q.call(remaining)
           result.uniq!
         end
 
-        result[0..49]
+        result.first(limit)
       end
 
     end

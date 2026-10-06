@@ -3,6 +3,8 @@ module Queries
   module TaxonName
     class Autocomplete < Query::Autocomplete
 
+      DEFAULT_LIMIT = 20
+
       # @return [Array]
       #   &nomenclature_group[]=<<Iczn|Icnp|Icn>::<Higher|Family|Genus|Species>>
       attr_accessor :nomenclature_group
@@ -396,16 +398,15 @@ module Queries
         ]
       end
 
-      # @return [Array]
-      def autocomplete
+      # @return [Array<ActiveRecord::Relation>]
+      #   the queries #autocomplete runs, in priority order
+      def strategy_queries
         # exact, unified, comprehensive
 
         queries = (exact ? exact_autocomplete : comprehensive_autocomplete )
         queries.compact!
 
-        result = []
-
-        queries.each_with_index do |q,i|
+        queries.map do |q|
           a = q
           a = q.where(project_id:) if project_id.present? # strange here, concept is global autocomplete, doesn't exist in API
           a = a.where(and_clauses.to_sql) if and_clauses
@@ -415,14 +416,21 @@ module Queries
           end
 
           a = a.not_leaves if no_leaves
+          apply_restriction(a)
+        end
+      end
 
-          result += a.limit(20).to_a
-          break if result.count > 19
+      # @return [Array]
+      def autocomplete
+        result = []
+
+        strategy_queries.each do |a|
+          result += a.limit(limit).to_a
+          result.uniq!
+          break if result.count >= limit
         end
 
-        result.uniq!
-        # result[0..19]
-        result
+        result.first(limit)
       end
 
       # @return [String, nil]

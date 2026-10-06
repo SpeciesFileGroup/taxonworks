@@ -18,15 +18,19 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Status (i.e. Classification) slice to Filter Taxon Names radial (ids side only); replaces/extends separate Fossil slice [#5088]
 - Filter descriptors: Modal to update descriptors position
 - Filter field occurrences: Add mass delete (Up to a maximun of 25 records)
+- Browse OTU: Map now display absent distribution.
 
 ### Changed
 
+- Biological Association autocomplete is faster and finds more matches
 - Updated attribution label in `/api/v1/leads/key/<id>`
 - Radial annotator: Replace background color by badge when citation is original [#4979]
 - Add support for setting a Taxon Determination for a batch import of iNaturalist observations [#4912]
+- Browse OTU: Refactor BA panel [#4487]
 
 ### Fixed
 
+- Asserted Distribution autocomplete raised an error when searching on biological association matches
 - DwC-A Workbench ignored the selected string delimiter, causing text imports with literal double quotes to fail even when `None` was selected [#5120]
 - DwC importer incorrectly applied `CollectionObject` project predicates with DwC URIs to `HumanObservation` records, missed `FieldOccurrence` DwC predicate mappings, and failed to flag unused model-specific columns as ignored
 - `controlled_vocabulary_term_id` param is not working on the controlled vocabulary terms endpoint
@@ -36,11 +40,19 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Bug allowing to create more than one type genus, type family, etc. [#5106]
 - iNaturalist OTU matching fails on subgenera [#5086]
 - Match OTU to Taxon Name can fail to label ambiguity when an input name matches both a name with subgenus and a name without subgenus [#5066]
+- Browse OTU page of higher level taxa does not list collection objects/field observations [#5070]
+- Browse OTU errors on GETs requests that are too long. [#5082]
+- In some cases, Browse OTU displays duplicated type specimens. [#4875]
 
 [#114]: https://github.com/SpeciesFileGroup/taxonworks/issues/114
+[#4487]: https://github.com/SpeciesFileGroup/taxonworks/issues/4487
+[#4875]: https://github.com/SpeciesFileGroup/taxonworks/issues/4875
 [#4912]: https://github.com/SpeciesFileGroup/taxonworks/issues/4912
 [#4979]: https://github.com/SpeciesFileGroup/taxonworks/issues/4979
 [#5066]: https://github.com/SpeciesFileGroup/taxonworks/issues/5066
+[#5067]: https://github.com/SpeciesFileGroup/taxonworks/issues/5067
+[#5070]: https://github.com/SpeciesFileGroup/taxonworks/issues/5070
+[#5082]: https://github.com/SpeciesFileGroup/taxonworks/issues/5082
 [#5086]: https://github.com/SpeciesFileGroup/taxonworks/issues/5086
 [#5088]: https://github.com/SpeciesFileGroup/taxonworks/issues/5088
 [#5090]: https://github.com/SpeciesFileGroup/taxonworks/issues/5090

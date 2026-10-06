@@ -56,44 +56,58 @@ end
 ## Autocomplete
 TODO:
 
+### Conventions
+* Subclasses with explicit keyword arguments in `initialize` accept
+  `restrict_to:` and `limit:` and pass them to `super`.
+
+### Limit (`limit`)
+* `#limit` is the `limit:` given, or the class's `DEFAULT_LIMIT`.
+* An autocomplete that honours it sets its own `DEFAULT_LIMIT` and caps
+  `#autocomplete` with `#limit`, never a literal (`result.first(limit)`, not
+  `result[0..39]`).
+* An autocomplete that delegates to another passes its `limit` on, with its
+  restriction.
+* Build queries that run SQL when built (e.g. ones that run another
+  autocomplete) only when earlier queries have not filled `#limit`: list
+  method names (or thunks) and build each in turn, not an Array of built
+  queries. See `Queries::AssertedDistribution::Autocomplete#autocomplete`
+  and `Queries::BiologicalAssociation::Autocomplete#ordered_lazy_queries`.
+
 ### Restricting results (`restrict_to`)
-`Query::Autocomplete` accepts an optional `restrict_to:` - the set of the
-referenced model's records to restrict results to. `nil` (the default) is no
-restriction. It must be a relation OF THE REFERENCED MODEL (or a subclass);
-any `select` on it is replaced with `select(:id)`. Anything else (a relation
-of another model, an Array of ids, ...) raises `ArgumentError`.
+* `restrict_to:` is a relation of the referenced model (or a subclass), or
+  `nil` for no restriction. Anything else raises `ArgumentError`. Wrap ids
+  from another table in a relation of the referenced model, e.g.
+  `::CollectingEvent.where(id: ...select(:asserted_environment_object_id))`.
+* Apply it with `apply_restriction(query)` where the individual queries are
+  assembled, alongside `project_id` - not in `base_query`. See
+  `Queries::CollectingEvent::Autocomplete#autocomplete`.
+* A caller that can cheaply tell its restriction is small may pass literal
+  ids (`::Model.where(id: ids)`) instead of a subquery. See
+  `Queries::Query::Autocomplete#asserted_object_restriction`.
 
-When the ids come from another table, wrap them in a relation of the
-referenced model. For example,
-`Queries::AssertedEnvironment::Autocomplete` matches by object label, so it
-runs `Queries::CollectingEvent::Autocomplete` restricted to CollectingEvents
-that have asserted environments:
+### Delegating to another model's autocomplete
+* Use `delegated_autocomplete(build:, keep:, key:)`, don't translate the
+  restriction for the inner model. See
+  `Queries::Otu::Autocomplete#taxon_name_autocomplete`.
+* An autocomplete creating several delegating autocompletes (e.g. one per
+  side) gives them the same `delegated_results` Hash. See
+  `Queries::BiologicalAssociation::Autocomplete#side_autocomplete`.
+* The inner autocomplete honours `limit:`, and its queries that can return
+  many rows have a ranking ORDER BY. Don't add an id tie-breaker: tied rows
+  are equally ranked, and an id order with a limit can make PostgreSQL walk
+  the primary key instead of using the match.
+* Exception: an autocomplete consuming the inner autocomplete's individual
+  queries, not its results, translates the restriction and passes it on. See
+  `Queries::BiologicalAssociation::Autocomplete#side_restriction`.
 
-```ruby
-collecting_events = ::CollectingEvent.where(
-  id: ::AssertedEnvironment
-    .where(asserted_environment_object_type: 'CollectingEvent')
-    .select(:asserted_environment_object_id)
-)
+### Keep the ranking
+* When candidates are turned into results by a join, order by candidate rank
+  with `order_by_id_rank(query, column, ids)`. See
+  `Queries::BiologicalAssociation::Autocomplete#joined_matches`.
 
-Queries::CollectingEvent::Autocomplete.new(
-  query_string, project_id:, restrict_to: collecting_events
-).autocomplete
-```
-
-Unrestricted, the inner autocomplete:
-* pays its full cost over every record, and
-* can fill its own result limit with records the caller can't use, crowding
-  out the ones it can.
-
-Implementing it in an autocomplete:
-* Call `apply_restriction(query)` where the individual queries are assembled,
-  alongside where `project_id` is applied - NOT in `base_query`. Not all
-  queries are built from `base_query` (e.g.
-  `referenced_klass.joins(:identifiers)`, `k.where(...)` in concerns);
-  applying it at assembly covers them all.
-* Subclasses with explicit keyword arguments in `initialize` must accept
-  `restrict_to:` and pass it to `super`.
-* When an autocomplete itself delegates to another model's autocomplete,
-  translate the restriction for that model and pass it on (e.g. Otus -> the
-  TaxonNames those Otus use), so restrictions compose down the chain.
+### Asserted objects
+* An autocomplete of records asserting something about a polymorphic object
+  (e.g. AssertedDistribution, AssertedEnvironment) matches the objects with
+  `asserted_object_autocomplete(object_type:, object_autocomplete_class:,
+  object_association:)`, don't join the object autocomplete's queries. See
+  `Queries::AssertedEnvironment::Autocomplete#autocomplete_object`.

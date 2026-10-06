@@ -15,4 +15,15 @@ describe Queries::Gazetteer::Autocomplete, type: :model do
       expect(q.autocomplete.map(&:id)).to contain_exactly(g2.id)
     end
   end
+
+  context 'limit' do
+    specify 'defaults to 20' do
+      expect(Queries::Gazetteer::Autocomplete.new('Uniquegaz', project_id:).limit).to eq(20)
+    end
+
+    specify 'caps results' do
+      expect(Queries::Gazetteer::Autocomplete.new('Uniquegaz', project_id:, limit: 1).autocomplete.size).to eq(1)
+    end
+  end
+
 end
