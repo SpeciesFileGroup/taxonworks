@@ -2,8 +2,10 @@ module Queries
   module AssertedEnvironment
     class Autocomplete < Query::Autocomplete
 
-      def initialize(string, project_id: nil)
-        super
+      DEFAULT_LIMIT = 20
+
+      def initialize(string, project_id: nil, restrict_to: nil, limit: nil)
+        super(string, project_id:, restrict_to:, limit:)
       end
 
       def autocomplete_uri_label_contains_match
@@ -36,7 +38,8 @@ module Queries
       # The object's Autocomplete is restricted to only those objects that
       # have an AssertedEnvironment in this project. This keeps it fast and
       # prevents matching objects without asserted environments from filling the
-      # object Autocomplete's own result limit.
+      # object Autocomplete's own result limit. Every one has an asserted
+      # environment, so #limit of them can fill the results.
       # @param object_type [String]
       # @param object_autocomplete_class [Class]
       # @return [Scope, nil]
@@ -53,14 +56,14 @@ module Queries
         )
 
         ids = object_autocomplete_class
-          .new(query_string, project_id:, restrict_to: asserted_objects)
+          .new(query_string, project_id:, restrict_to: asserted_objects, limit:)
           .autocomplete.map(&:id)
 
         return nil if ids.empty?
         base_query.where(
           asserted_environment_object_type: object_type,
           asserted_environment_object_id: ids
-        )
+        ).limit(limit)
       end
 
       def updated_queries
@@ -82,7 +85,7 @@ module Queries
 
         queries.each do |q|
           a = project_id.present? ? q.where(project_id:) : q
-          project_queries.push a
+          project_queries.push apply_restriction(a)
         end
 
         project_queries
@@ -97,10 +100,10 @@ module Queries
         queries.each do |q|
           result += q.to_a
           result.uniq!
-          break if result.count > 19
+          break if result.count >= limit
         end
 
-        result[0..19]
+        result.first(limit)
       end
 
     end

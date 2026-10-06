@@ -78,4 +78,47 @@ describe Queries::AssertedDistribution::Autocomplete, type: :model do
     expect(q.autocomplete_biological_association.to_a).to eq([exact_ad, weaker_ad])
   end
 
+  context 'restrict_to' do
+    let(:otu) { FactoryBot.create(:valid_otu, name: 'Zzyzxrestrictotu') }
+    let!(:ad1) { FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object: otu) }
+    let!(:ad2) { FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object: otu) }
+
+    specify 'restricts results to the given AssertedDistributions' do
+      q = Queries::AssertedDistribution::Autocomplete.new('Zzyzxrestrictotu', project_id:, restrict_to: ::AssertedDistribution.where(id: ad2.id))
+      expect(q.autocomplete).to contain_exactly(ad2)
+    end
+
+    specify 'raises on a relation of another model' do
+      q = Queries::AssertedDistribution::Autocomplete.new('Zzyzxrestrictotu', project_id:, restrict_to: Otu.all)
+      expect { q.autocomplete }.to raise_error(ArgumentError, /AssertedDistribution/)
+    end
+  end
+
+  context 'limit' do
+    specify 'defaults to 50' do
+      expect(Queries::AssertedDistribution::Autocomplete.new('Zzyzx', project_id:).limit).to eq(50)
+    end
+
+    specify 'caps results' do
+      otu = FactoryBot.create(:valid_otu, name: 'Zzyzxlimitotu')
+      3.times { FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object: otu) }
+
+      expect(Queries::AssertedDistribution::Autocomplete.new('Zzyzxlimitotu', project_id:).autocomplete.size).to eq(3)
+      expect(Queries::AssertedDistribution::Autocomplete.new('Zzyzxlimitotu', project_id:, limit: 2).autocomplete.size).to eq(2)
+    end
+
+    specify 'is passed to the biological association autocomplete, and limits its asserted distributions' do
+      subject_otu = FactoryBot.create(:valid_otu, name: 'Zzyzxbasubjectotu')
+      ba = FactoryBot.create(:valid_biological_association, biological_association_subject: subject_otu)
+      3.times { FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object: ba) }
+
+      expect(Queries::BiologicalAssociation::Autocomplete).to receive(:new)
+        .with('Zzyzxbasubjectotu', hash_including(limit: 2))
+        .and_call_original
+
+      q = Queries::AssertedDistribution::Autocomplete.new('Zzyzxbasubjectotu', project_id:, limit: 2)
+      expect(q.autocomplete_biological_association.to_a.size).to eq(2)
+    end
+  end
+
 end

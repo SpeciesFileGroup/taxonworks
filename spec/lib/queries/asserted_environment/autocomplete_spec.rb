@@ -115,4 +115,45 @@ describe Queries::AssertedEnvironment::Autocomplete, type: :model do
     r = described_class.new('Uniquotu', project_id: ae.project_id).autocomplete
     expect(r).to contain_exactly(ae)
   end
+
+  context 'restrict_to' do
+    let!(:ae1) { FactoryBot.create(:valid_asserted_environment, uri_label: 'Zzyzxrestrict forest') }
+    let!(:ae2) { FactoryBot.create(:valid_asserted_environment, uri_label: 'Zzyzxrestrict forest') }
+
+    specify 'restricts results to the given AssertedEnvironments' do
+      q = described_class.new('Zzyzxrestrict', project_id:, restrict_to: ::AssertedEnvironment.where(id: ae2.id))
+      expect(q.autocomplete).to contain_exactly(ae2)
+    end
+
+    specify 'raises on a relation of another model' do
+      q = described_class.new('Zzyzxrestrict', project_id:, restrict_to: Otu.all)
+      expect { q.autocomplete }.to raise_error(ArgumentError, /AssertedEnvironment/)
+    end
+  end
+
+  context 'limit' do
+    specify 'defaults to 20' do
+      expect(described_class.new('Zzyzx', project_id:).limit).to eq(20)
+    end
+
+    specify 'caps results' do
+      3.times { FactoryBot.create(:valid_asserted_environment, uri_label: 'Zzyzxlimit forest') }
+
+      expect(described_class.new('Zzyzxlimit', project_id:).autocomplete.size).to eq(3)
+      expect(described_class.new('Zzyzxlimit', project_id:, limit: 2).autocomplete.size).to eq(2)
+    end
+
+    specify 'is passed to the object autocompletes, and limits their asserted environments' do
+      otu = FactoryBot.create(:valid_otu, name: 'Zzyzxlimitotu')
+      3.times { FactoryBot.create(:asserted_environment, uri_label: 'planned burn', asserted_environment_object: otu) }
+
+      expect(Queries::Otu::Autocomplete).to receive(:new)
+        .with('Zzyzxlimitotu', hash_including(limit: 2))
+        .and_call_original
+
+      q = described_class.new('Zzyzxlimitotu', project_id:, limit: 2)
+      expect(q.autocomplete_otu_object.to_a.size).to eq(2)
+    end
+  end
+
 end

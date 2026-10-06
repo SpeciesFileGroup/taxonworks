@@ -2,11 +2,13 @@ module Queries
   module AssertedDistribution
     class Autocomplete < Query::Autocomplete
 
+      DEFAULT_LIMIT = 50
+
       # See #autocomplete_biological_association
       LITERAL_RESTRICTION_MAX = 1000
 
-      def initialize(string, project_id: nil)
-        super
+      def initialize(string, project_id: nil, restrict_to: nil, limit: nil)
+        super(string, project_id:, restrict_to:, limit:)
       end
 
       def otu_table
@@ -68,8 +70,10 @@ module Queries
           asserted_biological_associations = ::BiologicalAssociation.where(id: ids)
         end
 
+        # Every one has an asserted distribution, so #limit of them can fill
+        # the results
         biological_association_ids = Queries::BiologicalAssociation::Autocomplete
-          .new(query_string, project_id:, restrict_to: asserted_biological_associations)
+          .new(query_string, project_id:, restrict_to: asserted_biological_associations, limit:)
           .autocomplete.map(&:id)
         return nil if biological_association_ids.empty?
 
@@ -81,6 +85,7 @@ module Queries
             "array_position(ARRAY[#{biological_association_ids.map(&:to_i).join(',')}], " \
             'asserted_distributions.asserted_distribution_object_id), asserted_distributions.id'
           ))
+          .limit(limit)
       end
 
       def autocomplete_biological_associations_graph
@@ -170,16 +175,16 @@ module Queries
 
         queries.each_with_index do |q ,i|
           a = q.where(asserted_distributions: {project_id:})
-          updated_queries[i] = a
+          updated_queries[i] = apply_restriction(a)
         end
 
         result = []
         updated_queries.each do |q|
           result += q.to_a
           result.uniq!
-          break if result.count > 50
+          break if result.count >= limit
         end
-        result[0..50]
+        result.first(limit)
       end
 
     end
