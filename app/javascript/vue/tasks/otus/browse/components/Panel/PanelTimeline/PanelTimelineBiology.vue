@@ -43,29 +43,42 @@
           </li>
         </ul>
       </div>
-      <div class="text-base font-bold">References</div>
-      <div class="margin-medium-top margin-medium-bottom">
-        <ul class="taxonomic_history no_bullets">
-          <li
-            v-for="source in references"
-            :key="source.id"
-            class="margin-small-bottom"
-          >
-            <div class="flex-row gap-small middle">
-              <RadialAnnotator :global-id="source.global_id" />
-              <RadialNavigator :global-id="source.global_id" />
-              <label>
+      <template v-if="references.length">
+        <div class="text-base font-bold margin-small-bottom">References</div>
+        <table class="no_bullets table-striped">
+          <thead>
+            <tr>
+              <th class="w-2"></th>
+              <th class="w-2"></th>
+              <th>Source</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              v-for="source in references"
+              :key="source.id"
+            >
+              <td>
                 <input
-                  type="checkbox"
-                  :value="source.id"
                   v-model="selectedSources"
+                  :value="source.id"
+                  class="margin-small-right"
+                  type="checkbox"
                 />
+              </td>
+              <td>
+                <div class="flex-row gap-small">
+                  <RadialAnnotator :global-id="source.global_id" />
+                  <RadialNavigator :global-id="source.global_id" />
+                </div>
+              </td>
+              <td>
                 <span v-html="source.cached" />
-              </label>
-            </div>
-          </li>
-        </ul>
-      </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </template>
     </template>
   </div>
 </template>
@@ -159,3 +172,13 @@ watch(
   { immediate: true }
 )
 </script>
+
+<style scoped>
+td {
+  padding: var(--spacing-xs) var(--spacing-xs);
+}
+
+td:first-child {
+  padding-right: 0;
+}
+</style>
