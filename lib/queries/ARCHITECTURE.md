@@ -126,6 +126,11 @@ prefixes) pay for the depth; one deep fetch was faster overall than
 starting shallower and deepening when too few were kept, with identical
 results.
 
+Restricted, query strings shorter than `DELEGATED_MINIMUM_LENGTH` (3) skip
+the inner autocomplete. They match so broadly that the deep fetch is an
+arbitrary sample (e.g. TaxonName's unordered `cached ILIKE '%Ca%'` filled all
+5000 for "Ca"), and they are the slowest to fetch.
+
 The inner autocomplete must (once, then every caller can use it):
 * accept `limit:` and limit each of its queries with it,
 * give its queries that can return many rows a ranking ORDER BY of their

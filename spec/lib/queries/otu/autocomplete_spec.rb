@@ -291,6 +291,22 @@ describe Queries::Otu::Autocomplete, type: :model do
       expect(q.autocomplete_taxon_name).to include(o)
     end
 
+    context 'shorter than DELEGATED_MINIMUM_LENGTH' do
+      let!(:otu) { Otu.create!(taxon_name: Protonym.create!(name: 'Zz', rank_class: Ranks.lookup(:iczn, 'genus'), parent: root)) }
+
+      specify 'restricted, does not run the TaxonName autocomplete' do
+        expect_any_instance_of(Queries::TaxonName::Autocomplete).to_not receive(:autocomplete)
+
+        q = Queries::Otu::Autocomplete.new('Zz', restrict_to: Otu.where(id: otu.id))
+        expect(q.taxon_name_autocomplete).to eq([])
+      end
+
+      specify 'unrestricted, runs the TaxonName autocomplete' do
+        q = Queries::Otu::Autocomplete.new('Zz')
+        expect(q.taxon_name_autocomplete).to include(otu.taxon_name)
+      end
+    end
+
     context 'deep TaxonName results' do
       let(:crowd_genus) { Protonym.create!(name: 'Zzyzxdeep', rank_class: Ranks.lookup(:iczn, 'genus'), parent: root) }
       let!(:target_otu) {

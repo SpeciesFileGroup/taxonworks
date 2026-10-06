@@ -111,6 +111,10 @@ module Queries
     # autocomplete
     DELEGATED_DEPTH = 5000
 
+    # The shortest query string a restricted #delegated_autocomplete runs
+    # its inner autocomplete for
+    DELEGATED_MINIMUM_LENGTH = 3
+
     # Run another model's (inner) autocomplete on behalf of this one. Use
     # it when an autocomplete delegates to another, instead of translating
     # #restrict_to for the inner model.
@@ -125,6 +129,11 @@ module Queries
     # (the least relevant) are missed. A LIMIT costs nothing for terms that
     # match fewer rows, so only broad terms pay for the depth; one deep fetch
     # was faster overall than starting shallower and deepening.
+    #
+    # Restricted, query strings shorter than DELEGATED_MINIMUM_LENGTH return
+    # no inner results: they match so broadly that the DELEGATED_DEPTH
+    # fetched are an arbitrary sample (largely unordered wildcard matches),
+    # and the slowest to fetch.
     #
     # The inner autocomplete must accept `limit:` and give its queries that
     # can return many rows a ranking order (see lib/queries/ARCHITECTURE.md).
@@ -143,6 +152,7 @@ module Queries
     def delegated_autocomplete(build:, keep:)
       inner = build.call(@limit)
       return inner.autocomplete if restrict_to.nil?
+      return [] if query_string.to_s.length < DELEGATED_MINIMUM_LENGTH
 
       wanted = inner.limit
       inner.limit = DELEGATED_DEPTH
