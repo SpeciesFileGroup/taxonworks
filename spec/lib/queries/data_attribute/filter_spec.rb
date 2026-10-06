@@ -15,11 +15,19 @@ describe Queries::DataAttribute::Filter, type: :model do
 
   let(:query) { Queries::DataAttribute::Filter.new({}) }
 
-  specify '#from_filter_facet' do
-    q = ::Queries::Otu::Filter.new(otu_id: o1.id)
-   
-    a = Queries::DataAttribute::Filter.new(otu_query: q.params)
-    expect(a.from_filter_facet(q)).to contain_exactly(i1)
+  specify '#otu_query_facet' do
+    q = Queries::DataAttribute::Filter.new(otu_query: { otu_id: [o1.id] })
+    expect(q.all).to contain_exactly(i1)
+  end
+
+  specify '#collection_object_query_facet' do
+    q = Queries::DataAttribute::Filter.new(collection_object_query: { collection_object_id: [o2.id] })
+    expect(q.all).to contain_exactly(i2)
+  end
+
+  specify '#collecting_event_query_facet' do
+    q = Queries::DataAttribute::Filter.new(collecting_event_query: { collecting_event_id: [o3.id] })
+    expect(q.all).to contain_exactly(i3)
   end
 
   specify '#polymorphic_id_facet' do
