@@ -27,6 +27,8 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Radial annotator: Replace background color by badge when citation is original [#4979]
 - Add support for setting a Taxon Determination for a batch import of iNaturalist observations [#4912]
 - Browse OTU: Refactor BA panel [#4487]
+- Updated Ruby gems
+- Updated NPM packages
 
 ### Fixed
 
