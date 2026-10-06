@@ -40,38 +40,38 @@ module Queries
     #
     SUBQUERIES = {
       alternate_value: [:descriptor, :otu, :taxon_name],
-      anatomical_part: [:collection_object, :field_occurrence, :otu, :observation, :extract, :sound, :biological_association],
-      asserted_distribution: [:source, :otu, :biological_association, :taxon_name, :dwc_occurrence, :observation],
-      asserted_environment: [:collecting_event, :otu],
+      anatomical_part: [:collection_object, :field_occurrence, :otu, :observation, :extract, :sound, :biological_association, :citation, :confidence, :identifier, :note, :tag],
+      asserted_distribution: [:source, :otu, :biological_association, :taxon_name, :dwc_occurrence, :observation, :citation, :confidence, :identifier, :note, :tag],
+      asserted_environment: [:collecting_event, :otu, :citation, :data_attribute, :identifier, :note, :tag],
       attribution: [:content, :image, :sound],
-      biological_association: [:source, :collecting_event, :otu, :collection_object, :field_occurrence, :taxon_name, :asserted_distribution, :anatomical_part],
+      biological_association: [:source, :collecting_event, :otu, :collection_object, :field_occurrence, :taxon_name, :asserted_distribution, :anatomical_part, :citation, :confidence, :identifier, :note, :tag],
       biological_associations_graph: [:biological_association, :source],
       citation: [:anatomical_part, :asserted_distribution, :asserted_environment, :biological_association, :collecting_event, :collection_object, :content, :descriptor, :extract, :field_occurrence, :image, :observation, :otu, :sound, :source, :taxon_name, :taxon_name_relationship],
-      collecting_event: [:source, :collection_object, :field_occurrence, :biological_association, :otu, :image, :taxon_name, :dwc_occurrence, :asserted_environment],
-      collection_object: [:source, :loan, :otu, :taxon_name, :collecting_event, :biological_association, :extract, :image, :observation, :dwc_occurrence, :anatomical_part],
+      collecting_event: [:source, :collection_object, :field_occurrence, :biological_association, :otu, :image, :taxon_name, :dwc_occurrence, :asserted_environment, :citation, :confidence, :data_attribute, :documentation, :identifier, :note, :tag],
+      collection_object: [:source, :loan, :otu, :taxon_name, :collecting_event, :biological_association, :extract, :image, :observation, :dwc_occurrence, :anatomical_part, :citation, :confidence, :data_attribute, :identifier, :note, :tag],
       confidence: [:anatomical_part, :asserted_distribution, :biological_association, :collecting_event, :collection_object, :content, :descriptor, :extract, :field_occurrence, :observation, :otu, :sound, :taxon_name],
-      content: [:source, :otu, :taxon_name, :image],
+      content: [:source, :otu, :taxon_name, :image, :attribution, :citation, :confidence],
       conveyance: [:sound],
       controlled_vocabulary_term: [:data_attribute],
       data_attribute: [:collection_object, :collecting_event, :field_occurrence, :taxon_name, :otu, :asserted_environment],
       documentation: [:collecting_event, :descriptor],
       dwc_occurrence: [:asserted_distribution, :collection_object, :collecting_event, :field_occurrence, :otu],
       depiction: [:image],
-      descriptor: [:source, :observation, :otu],
-      extract: [:source, :otu, :collection_object, :observation, :anatomical_part],
-      field_occurrence: [:collecting_event, :otu, :biological_association, :dwc_occurrence, :image, :observation, :taxon_name, :anatomical_part], # [:source, :otu, :collecting_event, :biological_association, :observation, :taxon_name, :extract],
+      descriptor: [:source, :observation, :otu, :alternate_value, :citation, :confidence, :documentation, :identifier, :note, :tag],
+      extract: [:source, :otu, :collection_object, :observation, :anatomical_part, :citation, :confidence, :identifier, :tag],
+      field_occurrence: [:collecting_event, :otu, :biological_association, :dwc_occurrence, :image, :observation, :taxon_name, :anatomical_part, :citation, :confidence, :data_attribute, :identifier, :note, :tag], # [:source, :otu, :collecting_event, :biological_association, :observation, :taxon_name, :extract],
       identifier: [:anatomical_part, :asserted_distribution, :asserted_environment, :biological_association, :collecting_event, :collection_object, :descriptor, :extract, :field_occurrence, :image, :observation, :otu, :sound, :taxon_name],
-      image: [:content, :collection_object, :collecting_event, :field_occurrence, :otu, :observation, :source, :taxon_name ],
+      image: [:content, :collection_object, :collecting_event, :field_occurrence, :otu, :observation, :source, :taxon_name, :attribution, :citation, :identifier, :note, :tag],
       loan: [:collection_object, :otu],
       note: [:anatomical_part, :asserted_distribution, :asserted_environment, :biological_association, :collecting_event, :collection_object, :descriptor, :field_occurrence, :image, :observation, :otu, :sound, :taxon_name, :taxon_name_relationship],
-      observation: [:asserted_distribution, :collection_object, :descriptor, :extract, :field_occurrence, :image, :otu, :sound, :source, :taxon_name, :anatomical_part],
-      otu: [:asserted_distribution, :biological_association, :collection_object, :dwc_occurrence, :field_occurrence, :collecting_event, :content, :descriptor, :extract, :image, :loan, :observation, :source, :taxon_name, :anatomical_part, :sound, :asserted_environment ],
+      observation: [:asserted_distribution, :collection_object, :descriptor, :extract, :field_occurrence, :image, :otu, :sound, :source, :taxon_name, :anatomical_part, :citation, :confidence, :identifier, :note, :tag],
+      otu: [:asserted_distribution, :biological_association, :collection_object, :dwc_occurrence, :field_occurrence, :collecting_event, :content, :descriptor, :extract, :image, :loan, :observation, :source, :taxon_name, :anatomical_part, :sound, :asserted_environment, :alternate_value, :citation, :confidence, :data_attribute, :identifier, :note, :tag],
       person: [],
       source: [:asserted_distribution,  :biological_association, :collecting_event, :collection_object, :content, :descriptor, :extract, :image, :observation, :otu, :taxon_name, :taxon_name_relationship],
-      sound: [:observation, :anatomical_part, :otu, :taxon_name],
+      sound: [:observation, :anatomical_part, :otu, :taxon_name, :attribution, :citation, :confidence, :identifier, :note, :tag],
       tag: [:anatomical_part, :asserted_distribution, :asserted_environment, :biological_association, :collecting_event, :collection_object, :descriptor, :extract, :field_occurrence, :image, :observation, :otu, :sound, :taxon_name],
-      taxon_name: [:asserted_distribution, :biological_association, :collection_object, :collecting_event, :image, :otu, :source, :taxon_name_relationship, :sound],
-      taxon_name_relationship: [:taxon_name, :source],
+      taxon_name: [:asserted_distribution, :biological_association, :collection_object, :collecting_event, :image, :otu, :source, :taxon_name_relationship, :sound, :alternate_value, :citation, :confidence, :data_attribute, :identifier, :note, :tag],
+      taxon_name_relationship: [:taxon_name, :source, :citation, :note],
     }.freeze
 
     def self.query_name
@@ -135,6 +135,21 @@ module Queries
       taxon_name_query: '::Queries::TaxonName::Filter',
       taxon_name_relationship_query: '::Queries::TaxonNameRelationship::Filter',
     }.freeze
+
+    # Annotator models whose filters can be passed as a subquery to the filter
+    # of an annotated model, e.g. `otu_query` <- `citation_query` returns the
+    # cited Otus. See `annotation_query_merge_clauses`.
+    ANNOTATOR_SUBQUERIES = [
+      :alternate_value,
+      :attribution,
+      :citation,
+      :confidence,
+      :data_attribute,
+      :documentation,
+      :identifier,
+      :note,
+      :tag,
+    ].freeze
 
     # @return [Array]
     # @param project_id [Array, Integer, false]
@@ -753,6 +768,72 @@ module Queries
         .distinct
     end
 
+    # The inverse of `polymorphic_annotation_object_query_facet`. Returns the
+    # records of this filter's class annotated by the results of
+    # `annotator_query` (e.g. the Otus cited by a Citation filter).
+    #
+    # `annotator_query` — a filter whose referenced class includes
+    #   Shared::PolymorphicAnnotator (e.g. citation_query).
+    def annotated_object_query_facet(annotator_query)
+      return nil if annotator_query.nil?
+      k = annotator_query.referenced_klass
+      referenced_klass.where(
+        id: annotator_query.all
+          .unscope(:select, :order)
+          .where(k.annotator_type => referenced_klass.base_class.name)
+          .select(k.annotator_id)
+      )
+    end
+
+    def alternate_value_query_facet
+      annotated_object_query_facet(alternate_value_query)
+    end
+
+    def attribution_query_facet
+      annotated_object_query_facet(attribution_query)
+    end
+
+    def citation_query_facet
+      annotated_object_query_facet(citation_query)
+    end
+
+    def confidence_query_facet
+      annotated_object_query_facet(confidence_query)
+    end
+
+    def data_attribute_query_facet
+      annotated_object_query_facet(data_attribute_query)
+    end
+
+    def documentation_query_facet
+      annotated_object_query_facet(documentation_query)
+    end
+
+    def identifier_query_facet
+      annotated_object_query_facet(identifier_query)
+    end
+
+    def note_query_facet
+      annotated_object_query_facet(note_query)
+    end
+
+    def tag_query_facet
+      annotated_object_query_facet(tag_query)
+    end
+
+    # @return [Array]
+    #   the annotator subquery facets registered for this filter in
+    #   SUBQUERIES. Filters that define their own version of one of these
+    #   facets (e.g. ControlledVocabularyTerm#data_attribute_query_facet)
+    #   reference it in their own `merge_clauses` instead.
+    def annotation_query_merge_clauses
+      (ANNOTATOR_SUBQUERIES & SUBQUERIES[base_name.to_sym].to_a).filter_map do |a|
+        m = method("#{a}_query_facet")
+        next if m.owner != ::Queries::Query::Filter
+        m.call
+      end
+    end
+
     def object_global_id_facet
       return nil if object_global_id.empty?
       ids = []
@@ -869,7 +950,7 @@ module Queries
     # We presently use SQL with INTERSECTION to combine facets.
     #
     def all_merge_clauses
-      clauses = merge_clauses + annotator_merge_clauses
+      clauses = merge_clauses + annotator_merge_clauses + annotation_query_merge_clauses
       clauses.compact!
 
       return nil if clauses.empty?

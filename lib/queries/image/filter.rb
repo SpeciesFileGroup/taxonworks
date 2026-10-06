@@ -893,7 +893,8 @@ module Queries
       end
 
       def merge_clauses
-        s = ::Queries::Query::Filter::SUBQUERIES.select{|k,v| v.include?(:image)}.keys.map(&:to_s) - ['source']
+        # Annotators are handled by `annotation_query_merge_clauses`, not through depictions
+        s = ::Queries::Query::Filter::SUBQUERIES.select{|k,v| v.include?(:image)}.keys.map(&:to_s) - ['source'] - ::Queries::Query::Filter::ANNOTATOR_SUBQUERIES.map(&:to_s)
         [
           *s.collect{|m| query_facets_facet(m)}, # Reference all the Image referencing SUBQUERIES
           biocuration_facet,
