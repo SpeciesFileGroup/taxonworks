@@ -56,6 +56,29 @@ class Descriptor < ApplicationRecord
     self.name.demodulize.humanize
   end
 
+  # @param descriptor_ids [Array]
+  # @param project_id [Integer]
+  # @return true
+  #   sort descriptors (global order) by re-using the positions they
+  #   already occupy, descriptors not in descriptor_ids keep their position
+  def self.sort(descriptor_ids, project_id)
+    descriptors = Descriptor.where(project_id:)
+    ids = descriptor_ids.map(&:to_i).uniq & descriptors.where(id: descriptor_ids).pluck(:id)
+
+    transaction do
+      descriptors.where(id: ids).order(:id).lock.pluck(:id)
+
+      reindex_positions(project_id) if descriptors.where(position: nil).exists? || descriptors.group(:position).having('COUNT(*) > 1').exists?
+
+      positions = descriptors.where(id: ids).order(:position).pluck(:position)
+      ids.each_with_index do |id, index|
+        descriptors.where(id:).update_all(position: positions[index])
+      end
+    end
+
+    true
+  end
+
   # @return String, nil
   #   the corresponding Observation STI class name
   def observation_type
@@ -106,6 +129,13 @@ class Descriptor < ApplicationRecord
   end
 
   protected
+
+  # Positions are made unique and sequential, nil positions last
+  def self.reindex_positions(project_id)
+    Descriptor.where(project_id:).order(Arel.sql('position NULLS LAST, id')).pluck(:id).each_with_index do |id, index|
+      Descriptor.where(id:).update_all(position: index + 1)
+    end
+  end
 
   # TODO: get rid of this
   def type_is_subclassed

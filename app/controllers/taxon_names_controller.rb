@@ -240,10 +240,14 @@ class TaxonNamesController < ApplicationController
   end
 
   # POST /taxon_names/match.json
+  #   subgenus_matching - 'with' (default): match names as given; 'without':
+  #   if that fails, retry ignoring subgenus; 'both': always try both, so
+  #   different taxa matched each way are reported as ambiguous
   def match
     names = match_params[:names] || []
     project_id = sessions_current_project_id
     taxon_name_id = match_params[:taxon_name_id]
+    subgenus_matching = match_params[:subgenus_matching]
 
     tn_results = Match::Otu::TaxonName.new(
       names:,
@@ -251,7 +255,8 @@ class TaxonNamesController < ApplicationController
       levenshtein_distance: match_params[:levenshtein_distance] || 0,
       taxon_name_id:,
       resolve_synonyms: match_params[:resolve_synonyms] == 'true',
-      try_without_subgenus: match_params[:try_without_subgenus] == 'true'
+      try_without_subgenus: %w{without both}.include?(subgenus_matching),
+      try_without_subgenus_after_exact_match: subgenus_matching == 'both'
     ).call
 
     @result = if match_params[:match_otu_names] == 'true'
@@ -453,7 +458,7 @@ class TaxonNamesController < ApplicationController
       :levenshtein_distance,
       :taxon_name_id,
       :resolve_synonyms,
-      :try_without_subgenus,
+      :subgenus_matching,
       :match_otu_names,
       names: []
     )
