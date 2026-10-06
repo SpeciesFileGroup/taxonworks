@@ -329,6 +329,35 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
     expect(q.all).to contain_exactly(o2)
   end
 
+  context '#lead_query' do
+    let(:o3) { Otu.create!(name: 'Ghi 3') }
+    let(:o4) { Otu.create!(name: 'Jkl 4') }
+    let!(:key1) { FactoryBot.create(:valid_lead, text: 'Key 1', otu: o1) }
+    let!(:key2) { FactoryBot.create(:valid_lead, text: 'Key 2') }
+
+    before do
+      key1.children.create!(text: 'couplet', otu: o2)
+      right = key1.children.create!(text: 'other couplet')
+      FactoryBot.create(:valid_lead_item, lead: right, otu: o3)
+      key2.children.create!(text: 'couplet', otu: o4)
+    end
+
+    specify 'returns OTUs on the root, couplets, and lead items of the keys' do
+      q.lead_query = Queries::Lead::Filter.new(lead_id: [key1.id])
+      expect(q.all).to contain_exactly(o1, o2, o3)
+    end
+
+    specify 'returns the union of OTUs for multiple keys' do
+      q.lead_query = Queries::Lead::Filter.new(lead_id: [key1.id, key2.id])
+      expect(q.all).to contain_exactly(o1, o2, o3, o4)
+    end
+
+    specify 'from params' do
+      query = Queries::Otu::Filter.new(lead_query: { text: 'Key 2' })
+      expect(query.all).to contain_exactly(o4)
+    end
+  end
+
   context 'defined in Queries::Query' do
     specify '#referenced_klass' do
       expect(q.referenced_klass).to eq(::Otu)

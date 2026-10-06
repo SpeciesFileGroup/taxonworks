@@ -676,6 +676,23 @@ module Queries
         ::Otu.from('(' + s + ') as otus').distinct
       end
 
+      # Otus anywhere in the keys (root Leads) of lead_query: on the root, on
+      # any descendant Lead, or on any LeadItem.
+      def lead_query_facet
+        return nil if lead_query.nil?
+        s = 'WITH query_lead_otus AS (' + lead_query.all.to_sql + ') '
+
+        key_leads = 'JOIN lead_hierarchies AS lh_otus ON lh_otus.descendant_id = leads.id ' \
+          'JOIN query_lead_otus AS query_lead_otus1 ON lh_otus.ancestor_id = query_lead_otus1.id'
+
+        a = ::Otu.joins(:leads).joins(key_leads)
+        b = ::Otu.joins(lead_items: [:lead]).joins(key_leads)
+
+        s << referenced_klass_union([a, b]).to_sql
+
+        ::Otu.from('(' + s + ') as otus').distinct
+      end
+
       def loan_query_facet
         return nil if loan_query.nil?
         s = 'WITH query_loan_otus AS (' + loan_query.all.to_sql + ') '
@@ -820,6 +837,7 @@ module Queries
           content_query_facet,
           descriptor_query_facet,
           extract_query_facet,
+          lead_query_facet,
           loan_query_facet,
           observation_query_facet,
           sound_query_facet,

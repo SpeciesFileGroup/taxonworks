@@ -9,7 +9,6 @@
       :list="list"
       :selected-ids="sortedSelectedIds"
       :button-unify="false"
-      :radial-filter="false"
       :radial-linker="false"
       :radial-mass-annotator="false"
       :radial-navigator="false"

@@ -66,7 +66,7 @@ module Queries
       loan: [:collection_object, :otu],
       note: [:anatomical_part, :asserted_distribution, :asserted_environment, :biological_association, :collecting_event, :collection_object, :descriptor, :field_occurrence, :image, :observation, :otu, :sound, :taxon_name, :taxon_name_relationship],
       observation: [:asserted_distribution, :collection_object, :descriptor, :extract, :field_occurrence, :image, :otu, :sound, :source, :taxon_name, :anatomical_part, :citation, :confidence, :identifier, :note, :tag],
-      otu: [:asserted_distribution, :biological_association, :collection_object, :dwc_occurrence, :field_occurrence, :collecting_event, :content, :descriptor, :extract, :image, :loan, :observation, :source, :taxon_name, :anatomical_part, :sound, :asserted_environment, :alternate_value, :citation, :confidence, :data_attribute, :identifier, :note, :tag],
+      otu: [:asserted_distribution, :biological_association, :collection_object, :dwc_occurrence, :field_occurrence, :collecting_event, :content, :descriptor, :extract, :image, :lead, :loan, :observation, :source, :taxon_name, :anatomical_part, :sound, :asserted_environment, :alternate_value, :citation, :confidence, :data_attribute, :identifier, :note, :tag],
       person: [],
       source: [:asserted_distribution,  :biological_association, :collecting_event, :collection_object, :content, :descriptor, :extract, :image, :observation, :otu, :taxon_name, :taxon_name_relationship],
       sound: [:observation, :anatomical_part, :otu, :taxon_name, :attribution, :citation, :confidence, :identifier, :note, :tag],
