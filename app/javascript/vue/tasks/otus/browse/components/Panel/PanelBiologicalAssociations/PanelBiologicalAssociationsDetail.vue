@@ -2,15 +2,13 @@
   <div class="ba-detail">
     <div class="ba-detail__header">
       <VBtn
+        icon
+        variant="tonal"
         color="primary"
-        medium
+        title="Back"
         @click="emit('close')"
       >
-        <VIcon
-          name="arrowLeft"
-          x-small
-        />
-        Back
+        <IconArrowLeft class="w-4 h-4" />
       </VBtn>
       <div class="ba-detail__title font-bold text-sm">
         Biological Association - <span v-html="association.objectTag" />
@@ -160,7 +158,7 @@ import PanelBiologicalAssociationsRelated from './PanelBiologicalAssociationsRel
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconArrowLeft from '@/components/Icon/IconArrowLeft.vue'
 import { makeBrowseUrl } from '@/helpers'
 
 defineProps({

@@ -1,29 +1,22 @@
 <template>
   <VBtn
-    v-if="cachedMap.synced"
-    circle
-    large
-    class="absolute cursor-pointer cached-map-icon"
+    icon
+    medium
+    class="absolute leaflet-map-button cached-map-icon"
+    :title="
+      cachedMap.synced
+        ? `Time between data and sync: ${cachedMap.time_between_data_and_sync}`
+        : 'Cached map'
+    "
+    @click="() => (isModalVisible = true)"
   >
-    <VIcon
-      color="create"
-      name="check"
-      :title="`Time between data and sync: ${cachedMap.time_between_data_and_sync}`"
-      @click="() => (isModalVisible = true)"
+    <IconCheckmark
+      v-if="cachedMap.synced"
+      class="w-4 h-4 text-create-color"
     />
-  </VBtn>
-  <VBtn
-    v-else
-    circle
-    large
-    class="absolute cursor-pointer cached-map-icon"
-  >
-    <VIcon
-      color="warning"
-      name="attention"
-      title="Cached map"
-      small
-      @click="() => (isModalVisible = true)"
+    <IconWarning
+      v-else
+      class="w-4 h-4 text-warning-color"
     />
   </VBtn>
 
@@ -60,11 +53,7 @@
                   class="text-warning-color horizontal-left-content middle"
                   v-else
                 >
-                  <VIcon
-                    name="attention"
-                    color="warning"
-                    small
-                  />
+                  <IconWarning class="w-4 h-4" />
                   <span class="margin-xsmall-left">
                     Map is not synchronized with the latest changes *
                   </span>
@@ -113,7 +102,8 @@
 <script setup>
 import { ref } from 'vue'
 import VModal from '@/components/ui/Modal.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconCheckmark from '@/components/Icon/IconCheckmark.vue'
+import IconWarning from '@/components/Icon/IconWarning.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 
 defineProps({

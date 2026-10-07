@@ -35,14 +35,18 @@
         :class="{ 'distribution-map__fullscreen--shifted': !!cachedMap }"
       >
         <VBtn
-          circle
+          icon
           class="leaflet-map-button"
           :title="isFullscreen ? 'Exit full screen' : 'Full screen'"
           @click="toggleFullscreen"
         >
-          <VIcon
-            :name="isFullscreen ? 'contract' : 'expand'"
-            x-small
+          <IconMinimize2
+            v-if="isFullscreen"
+            class="w-4 h-4"
+          />
+          <IconMaximize2
+            v-else
+            class="w-4 h-4"
           />
         </VBtn>
       </div>
@@ -55,7 +59,8 @@
 import PanelLayout from '../PanelLayout.vue'
 import VMap from '@/components/ui/VMap/VMap.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconMaximize2 from '@/components/Icon/IconMaximize2.vue'
+import IconMinimize2 from '@/components/Icon/IconMinimize2.vue'
 import CachedMap from './CachedMap.vue'
 import DistributionLegend from './DistributionLegend.vue'
 import { makeClusterIconFor } from '@/components/ui/VMap/clusters'

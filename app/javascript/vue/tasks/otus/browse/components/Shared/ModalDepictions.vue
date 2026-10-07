@@ -24,11 +24,14 @@
       </template>
     </VModal>
     <VBtn
-      color="primary"
-      :disabled="!count"
+      v-if="count"
+      class="horizontal-left-content gap-xsmall"
+      variant="outline"
+      title="Show depictions"
       @click="openModal"
     >
-      Show ({{ count }})
+      <IconImage class="w-4 h-4" />
+      <span>{{ count }}</span>
     </VBtn>
   </div>
 </template>
@@ -40,6 +43,7 @@ import VSpinner from '@/components/ui/VSpinner.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VModal from '@/components/ui/Modal.vue'
 import ImageViewer from '@/components/ui/ImageViewer/ImageViewer.vue'
+import IconImage from '@/components/Icon/IconImage.vue'
 
 const props = defineProps({
   count: {

@@ -5,10 +5,11 @@
       placement="bottom"
     >
       <VBtn
-        color="primary"
+        :variant="isSubsetSelected ? 'tonal' : 'outline'"
+        :color="isSubsetSelected ? 'primary' : 'default'"
         @click="() => (isModalVisible = true)"
       >
-        Coordinate OTUs ({{ store.coordinateOtus.length }})
+        Coordinate OTUs ({{ coordinateOtusCountLabel }})
       </VBtn>
       <template #content>
         <ul class="no_bullets">
@@ -143,6 +144,16 @@ const previewCoordinateOtus = computed(() =>
 
 const hiddenCoordinateOtusCount = computed(() =>
   Math.max(store.coordinateOtus.length - MAX_TOOLTIP_OTUS, 0)
+)
+
+const isSubsetSelected = computed(
+  () => store.selectedOtus.length < store.coordinateOtus.length
+)
+
+const coordinateOtusCountLabel = computed(() =>
+  isSubsetSelected.value
+    ? `${store.selectedOtus.length}/${store.coordinateOtus.length}`
+    : store.coordinateOtus.length
 )
 
 const filteredCoordinateOtus = computed(() => {

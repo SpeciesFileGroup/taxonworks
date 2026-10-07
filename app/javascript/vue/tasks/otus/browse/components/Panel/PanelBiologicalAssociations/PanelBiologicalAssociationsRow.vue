@@ -6,15 +6,13 @@
         <RadialObject :global-id="row.globalId" />
         <RadialNavigator :global-id="row.globalId" />
         <VBtn
-          circle
+          icon
+          variant="tonal"
           color="primary"
           title="View details"
           @click="emit('open-detail', row)"
         >
-          <VIcon
-            name="expand"
-            x-small
-          />
+          <IconMaximize2 class="w-4 h-4" />
         </VBtn>
       </div>
     </td>
@@ -97,7 +95,7 @@ import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import RadialObject from '@/components/radials/object/radial.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconMaximize2 from '@/components/Icon/IconMaximize2.vue'
 import { RouteNames } from '@/routes/routes'
 import { makeBrowseUrl } from '@/helpers'
 
