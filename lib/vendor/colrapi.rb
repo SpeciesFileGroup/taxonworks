@@ -31,12 +31,13 @@ module Vendor
     # its valid name's parent (project 13 sample, 2026-10: of 40 synonyms whose
     # two forms differ, CoL had the original combination for 38 and #cached
     # for 7, never #cached alone); anything else by its current form (a
-    # Combination, which has none, by its published one, at the rank it was
-    # published at).
+    # Combination, which has none, by its published one). A published form is
+    # searched at the rank it was published at.
     #
     # @param target [TaxonName, String, nil] the name to check: a TaxonName
-    #   when there is one (searched at its own rank; a Combination at the
-    #   rank it was published at), else a name string, searched as a species
+    #   when there is one (searched at its own rank, or the rank its
+    #   published form was published at), else a name string, searched as a
+    #   species
     #   - see .collection_object_name_target
     # @return [Hash]
     #   { taxonworks_name: String,
@@ -53,8 +54,15 @@ module Vendor
         forms = NameTranslation.forms(target)
         invalid_protonym =
           target.is_a?(::Protonym) && !target.cached_is_valid
-        name = (forms[:published] if invalid_protonym) || forms[:current]
         rank = ::RANKS_LOOKUP[target.rank_class.to_s]
+        if invalid_protonym && forms[:published]
+          # At the rank it was published at, e.g. a species published as a
+          # variety, or a subgenus as a genus.
+          name = forms[:published]
+          rank = published_rank(target) || rank
+        else
+          name = forms[:current]
+        end
       else
         name = target
         rank = 'species'
@@ -98,6 +106,17 @@ module Vendor
 
       { taxonworks_name: name, col_usages:, provisional_status: }
     end
+
+    # @param protonym [Protonym]
+    # @return [String, nil] the rank protonym was published at, the finest
+    #   rank of its original combination; nil without one
+    def self.published_rank(protonym)
+      types = protonym.original_combination_relationships.pluck(:type)
+      ::ORIGINAL_COMBINATION_RANKS
+        .select { |_rank, type| types.include?(type) }
+        .keys.last&.to_s
+    end
+    private_class_method :published_rank
 
     # @param usage [Hash] a nameusage_search usage
     # @return [String, nil] its comparison key

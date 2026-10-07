@@ -953,6 +953,30 @@ describe Vendor::Colrapi, type: :model do
       expect(r[:provisional_status]).to eq(:synonym)
     end
 
+    specify 'an invalid Protonym is looked up at the rank it was ' \
+      'published at' do
+      # The subspecies vitata, published as the species "Erythroneura vitata"
+      genus = species.parent.parent
+      subspecies.update!(original_genus: genus, original_species: subspecies)
+      subspecies.update_column(:cached_is_valid, false)
+      expect(::Colrapi).to receive(:nameusage_search)
+        .with(q: 'Erythroneura vitata', dataset_id: '3LR', rank: 'species')
+        .and_return(col_search_result)
+      described_class.name_status(subspecies.reload)
+    end
+
+    specify 'an invalid Protonym without original combination ' \
+      'relationships is looked up at its own rank' do
+      subspecies.update_columns(
+        cached_is_valid: false,
+        cached_original_combination: 'Typhlocyba vitata'
+      )
+      expect(::Colrapi).to receive(:nameusage_search)
+        .with(q: 'Typhlocyba vitata', dataset_id: '3LR', rank: 'subspecies')
+        .and_return(col_search_result)
+      described_class.name_status(subspecies)
+    end
+
     specify 'a valid Protonym is looked up by its current form' do
       species.update_column(:cached_original_combination, 'Typhlocyba vitis')
       expect(::Colrapi).to receive(:nameusage_search)
