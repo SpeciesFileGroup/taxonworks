@@ -88,10 +88,14 @@
             :object-id="otu.taxon_name_id"
           />
           <VBtn
+            icon
+            medium
+            variant="tonal"
             color="primary"
+            title="Layout settings"
             @click="showLayoutSettings = true"
           >
-            Layout settings
+            <IconSettings class="w-4 h-4" />
           </VBtn>
         </div>
       </div>
@@ -138,6 +142,7 @@ import RadialObject from '@/components/radials/navigation/radial.vue'
 import QuickForms from '@/components/radials/object/radial.vue'
 import BrowseTaxon from '@/components/taxon_names/browseTaxon.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import IconSettings from '@/components/Icon/IconSettings.vue'
 import VSkeleton from '@/components/ui/VSkeleton/VSkeleton.vue'
 import HeaderBarLayoutSettings from './HeaderBarLayoutSettings.vue'
 

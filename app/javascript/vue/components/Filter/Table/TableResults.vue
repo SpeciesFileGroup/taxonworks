@@ -80,6 +80,7 @@
             <ColumnHeaderActions
               :column-key="attr"
               :filtered="!!filterValues[attr]"
+              :sort-direction="getSortDirection(attr)"
               v-model:freeze="freezeColumn"
               @copy="
                 () =>
@@ -111,6 +112,7 @@
               <ColumnHeaderActions
                 :column-key="`${key}.${property}`"
                 :filtered="!!filterValues[`${key}.${property}`]"
+                :sort-direction="getSortDirection(`${key}.${property}`)"
                 v-model:freeze="freezeColumn"
                 @copy="
                   () =>
@@ -529,6 +531,12 @@ function setColumnFilter(item, key, property) {
     ? item[key].map((obj) => obj[property])
     : item[key][property]
   updateSelectedIdsByFilter()
+}
+
+function getSortDirection(column) {
+  if (sortedColumn.value !== column) return null
+
+  return ascending.value ? 'asc' : 'desc'
 }
 
 function sortTable(sortProperty) {

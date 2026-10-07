@@ -13,14 +13,12 @@
     <template #options>
       <VBtn
         v-if="menu"
-        color="transparent"
+        icon
+        variant="ghost"
         v-help.section.options.filter
         @click="emit('menu')"
       >
-        <VIcon
-          name="hamburger"
-          x-small
-        />
+        <IconMenu class="w-4 h-4" />
       </VBtn>
     </template>
 
@@ -37,7 +35,7 @@
 <script setup>
 import { computed, onUnmounted, watch } from 'vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconMenu from '@/components/Icon/IconMenu.vue'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
 import VSkeleton from '@/components/ui/VSkeleton/VSkeleton.vue'
 import { useSettingsStore } from '../../store'

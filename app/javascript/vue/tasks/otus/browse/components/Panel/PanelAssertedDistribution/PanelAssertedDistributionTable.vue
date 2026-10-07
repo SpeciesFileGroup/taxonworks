@@ -16,14 +16,21 @@
               {{ column }}
               <VBtn
                 title="Sort alphabetically"
-                color="primary"
-                circle
+                icon
+                variant="outline"
                 @click.stop="() => emit('sort', column)"
               >
-                <VIcon
-                  name="alphabeticalSort"
-                  title="Sort alphabetically"
-                  x-small
+                <IconArrowUpDown
+                  v-if="sortedColumn !== column"
+                  class="w-4 h-4"
+                />
+                <IconArrowUpAZ
+                  v-else-if="ascending"
+                  class="w-4 h-4"
+                />
+                <IconArrowDownZA
+                  v-else
+                  class="w-4 h-4"
                 />
               </VBtn>
             </div>
@@ -56,7 +63,9 @@
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconArrowUpAZ from '@/components/Icon/IconArrowUpAZ.vue'
+import IconArrowDownZA from '@/components/Icon/IconArrowDownZA.vue'
+import IconArrowUpDown from '@/components/Icon/IconArrowUpDown.vue'
 
 defineProps({
   list: {
@@ -67,6 +76,16 @@ defineProps({
   columns: {
     type: Array,
     required: true
+  },
+
+  sortedColumn: {
+    type: String,
+    default: null
+  },
+
+  ascending: {
+    type: Boolean,
+    default: true
   }
 })
 

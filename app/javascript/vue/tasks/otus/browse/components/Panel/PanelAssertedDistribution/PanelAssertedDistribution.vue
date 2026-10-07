@@ -24,6 +24,8 @@
         <TableList
           :list="list"
           :columns="COLUMNS"
+          :sorted-column="sortedColumn"
+          :ascending="ascending"
           @sort="sortTable"
         >
           <template #citations="{ column }">
@@ -31,26 +33,40 @@
               Citations
               <VBtn
                 title="Sort alphabetically"
-                color="primary"
-                circle
+                icon
+                variant="outline"
                 @click.stop="() => sortTable(column)"
               >
-                <VIcon
-                  name="alphabeticalSort"
-                  title="Sort alphabetically"
-                  x-small
+                <IconArrowUpDown
+                  v-if="sortedColumn !== column"
+                  class="w-4 h-4"
+                />
+                <IconArrowUpAZ
+                  v-else-if="ascending"
+                  class="w-4 h-4"
+                />
+                <IconArrowDownZA
+                  v-else
+                  class="w-4 h-4"
                 />
               </VBtn>
               <VBtn
-                color="primary"
-                circle
                 title="Sort by year"
+                icon
+                variant="outline"
                 @click.stop="() => sortTable('year')"
               >
-                <VIcon
-                  name="numberSort"
-                  title="Sort by year"
-                  x-small
+                <IconArrowUpDown
+                  v-if="sortedColumn !== 'year'"
+                  class="w-4 h-4"
+                />
+                <IconArrowUp01
+                  v-else-if="ascending"
+                  class="w-4 h-4"
+                />
+                <IconArrowDown01
+                  v-else
+                  class="w-4 h-4"
                 />
               </VBtn>
             </div>
@@ -65,7 +81,11 @@
 <script setup>
 import PanelLayout from '../PanelLayout.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconArrowUpAZ from '@/components/Icon/IconArrowUpAZ.vue'
+import IconArrowDownZA from '@/components/Icon/IconArrowDownZA.vue'
+import IconArrowUp01 from '@/components/Icon/IconArrowUp01.vue'
+import IconArrowDown01 from '@/components/Icon/IconArrowDown01.vue'
+import IconArrowUpDown from '@/components/Icon/IconArrowUpDown.vue'
 import VPagination from '@/components/pagination.vue'
 import TableList from './PanelAssertedDistributionTable.vue'
 import { getPagination, sortArray } from '@/helpers'
@@ -122,7 +142,8 @@ const COLUMNS = [
 
 const PER_PAGE = 50
 
-const ascending = ref(false)
+const ascending = ref(true)
+const sortedColumn = ref(null)
 const isLoading = ref(false)
 const list = ref([])
 const pagination = ref()
@@ -131,11 +152,16 @@ const currentOtu = computed(() => props.otu)
 const otuIds = computed(() => props.otus.map((o) => o.id))
 
 function sortTable(sortProperty) {
+  if (sortedColumn.value === sortProperty) {
+    ascending.value = !ascending.value
+  } else {
+    sortedColumn.value = sortProperty
+    ascending.value = true
+  }
+
   list.value = sortArray(list.value, sortProperty, ascending.value, {
     stripHtml: true
   })
-
-  ascending.value = !ascending.value
 }
 
 async function loadAssertedDistributions(page = 1) {
@@ -151,6 +177,7 @@ async function loadAssertedDistributions(page = 1) {
 
     pagination.value = getPagination(response)
     list.value = listParser(response.body)
+    sortedColumn.value = null
   } catch {
   } finally {
     isLoading.value = false
