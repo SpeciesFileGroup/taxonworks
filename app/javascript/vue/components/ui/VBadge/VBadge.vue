@@ -35,7 +35,6 @@ const radiusClass = computed(() => `v-badge--radius-${props.radius}`)
   font-size: var(--font-size-xs);
 }
 
-/* Zero specificity so width utilities (e.g. .w-full) can override it. */
 :where(.v-badge) {
   width: min-content;
 }
@@ -92,5 +91,9 @@ const radiusClass = computed(() => `v-badge--radius-${props.radius}`)
 .v-badge--purple {
   background-color: var(--badge-purple-bg);
   color: var(--badge-purple-color);
+}
+
+.v-badge--rounded {
+  border-radius: 9999px;
 }
 </style>

@@ -19,4 +19,34 @@ describe Queries::Query do
     expect(query.autocomplete_exact_id).to eq(nil)
   end
 
+  context '#delegated_autocomplete' do
+    specify 'restricted, works with an inner autocomplete using the base default limit' do
+      q = Queries::Otu::Autocomplete.new('Zzyzx', restrict_to: ::Otu.where(id: -1))
+      expect(Queries::Query::Autocomplete.new('Zzyzx').limit).to eq(Queries::Query::Autocomplete::DEFAULT_LIMIT)
+
+      expect(
+        q.delegated_autocomplete(
+          build: ->(l) { Queries::Source::Autocomplete.new('Zzyzx') },
+          keep: ->(results) { results },
+          key: ['Zzyzx']
+        )
+      ).to eq([])
+    end
+
+    specify 'restricted, keeps this autocomplete\'s #limit of inner results, not the inner default' do
+      q = Queries::Otu::Autocomplete.new('Zzyzx', restrict_to: ::Otu.where(id: -1))
+      inner = Queries::TaxonName::Autocomplete.new('Zzyzx')
+      allow(inner).to receive(:autocomplete) { (1..50).to_a }
+      expect(q.limit).to be > inner.limit
+
+      expect(
+        q.delegated_autocomplete(
+          build: ->(l) { inner },
+          keep: ->(results) { results },
+          key: ['Zzyzx']
+        ).size
+      ).to eq(q.limit)
+    end
+  end
+
 end

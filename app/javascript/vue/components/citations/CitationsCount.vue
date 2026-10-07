@@ -62,6 +62,11 @@ defineProps({
   citations: {
     type: Array,
     required: true
+  },
+
+  remove: {
+    type: Boolean,
+    default: true
   }
 })
 

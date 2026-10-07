@@ -1,6 +1,6 @@
 import { defineConfigs } from 'v-network-graph'
 
-export const configs = defineConfigs({
+export const networkConfig = {
   view: {
     boxSelectionEnabled: true
   },
@@ -71,4 +71,6 @@ export const configs = defineConfigs({
       }
     }
   }
-})
+}
+
+export const configs = defineConfigs(networkConfig)

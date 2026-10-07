@@ -194,6 +194,9 @@
   --news-warning-bg: var(--badge-red-bg);
   --news-warning-color: var(--badge-red-color);
 
+  --sk-base: #e2e5ea;
+  --sk-shine: #f4f6f9;
+
   .news-bar-close-button {
     cursor: pointer;
   }
@@ -285,6 +288,8 @@
   --color-status-included: #10b981;
   --color-status-included-glow: rgba(16, 185, 129, 0.5);
 
+  --sk-base: #2a2d35;
+  --sk-shine: #3a3e4a;
   --color-neutral: var(--gray-400);
 
   --badge-green-color: var(--emerald-400);
