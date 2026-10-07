@@ -103,7 +103,8 @@ class Autoselect::Base
     results = execute_level(level_instance, effective_term, operator)
     formatted = format_results(results, level_instance)
 
-    suppress_escalation = %i[pinboard pinboard_top].include?(operator)
+    suppress_escalation =
+      %i[pinboard pinboard_top].include?(operator) || nothing_to_search?
 
     Autoselect::Response.new(
       config: nil,
@@ -141,6 +142,8 @@ class Autoselect::Base
   end
 
   def execute_level(level_instance, effective_term, operator)
+    return [] if nothing_to_search?
+
     # Record-list operators are disabled on external levels (e.g. CoL)
     return [] if level_instance.external? && record_list_operator?(operator)
 
@@ -159,6 +162,14 @@ class Autoselect::Base
       user_id:,
       **level_params
     )
+  end
+
+  # @return [Boolean]
+  #   true when the term is only an operator that needs a term after it
+  #   (e.g. "!2", "!n" sent before the client strips it), so no level is
+  #   searched; record-list operators (!r, !b, ...) need no term
+  def nothing_to_search?
+    effective_term.blank? && !record_list_operator?(operator)
   end
 
   def record_list_operator?(operator)
