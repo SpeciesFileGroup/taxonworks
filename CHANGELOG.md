@@ -7,7 +7,9 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 ## [unreleased]
 
-\-
+### Added
+
+- Browse OTU: preference to display the task in full width
 
 ## [0.66.0] - 2026-10-07
 
