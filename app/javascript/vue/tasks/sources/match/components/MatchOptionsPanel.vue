@@ -1,0 +1,251 @@
+<template>
+  <div class="match-options-panel panel content">
+    <div class="flex-row flex-separate middle margin-medium-bottom">
+      <h3>Match options</h3>
+      <VBtn
+        color="primary"
+        title="Reset all options to defaults"
+        @click="emit('reset')"
+      >
+        Reset
+      </VBtn>
+    </div>
+
+    <div class="flex-col gap-medium">
+      <fieldset>
+        <legend>Sources</legend>
+        <label class="middle">
+          <input
+            type="radio"
+            name="source-scope"
+            :checked="!options.limitToProject"
+            @change="setScope(false)"
+          />
+          All Sources
+        </label>
+        <label class="middle">
+          <input
+            type="radio"
+            name="source-scope"
+            :checked="options.limitToProject"
+            @change="setScope(true)"
+          />
+          Only Sources in this project
+        </label>
+        <label
+          v-if="!options.limitToProject"
+          class="middle"
+          data-help="The same work often exists as several Sources, one per project that added it. When more than one candidate passes but exactly one of them is in this project, match that one."
+        >
+          <input
+            type="checkbox"
+            :checked="options.preferProjectSources"
+            @change="update('preferProjectSources', $event.target.checked)"
+          />
+          Prefer Sources in this project
+        </label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Year</legend>
+        <div class="horizontal-left-content gap-small middle">
+          <span>Allow</span>
+          <label
+            v-for="tolerance in yearTolerances"
+            :key="tolerance"
+            class="middle"
+          >
+            <input
+              type="radio"
+              name="year-tolerance"
+              :checked="options.yearTolerance === tolerance"
+              @change="update('yearTolerance', tolerance)"
+            />
+            {{ tolerance ? `±${tolerance}` : 'exact' }}
+          </label>
+        </div>
+        <label class="middle">
+          <input
+            type="checkbox"
+            :checked="options.requireYear"
+            @change="update('requireYear', $event.target.checked)"
+          />
+          Source must have a year
+        </label>
+        <label class="middle">
+          <input
+            type="checkbox"
+            :checked="options.matchYearSuffix"
+            @change="update('matchYearSuffix', $event.target.checked)"
+          />
+          Year suffixes (1990a, 1990b) must agree when both present
+        </label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Authors</legend>
+        <div
+          v-for="option in AUTHOR_SCOPE_OPTIONS"
+          :key="option.value"
+        >
+          <label class="middle">
+            <input
+              type="radio"
+              name="author-scope"
+              :checked="options.authorScope === option.value"
+              @change="update('authorScope', option.value)"
+            />
+            {{ option.label }}
+          </label>
+          <span
+            v-if="option.description"
+            class="subtle"
+            >{{ option.description }}</span
+          >
+        </div>
+
+        <div
+          v-for="option in AUTHOR_MATCHING_OPTIONS"
+          :key="option.value"
+          class="margin-small-top"
+        >
+          <label class="middle">
+            <input
+              type="radio"
+              name="author-matching"
+              :checked="options.authorMatching === option.value"
+              @change="update('authorMatching', option.value)"
+            />
+            {{ option.label }}
+          </label>
+          <span class="subtle">{{ option.description }}</span>
+        </div>
+
+        <div
+          v-if="options.authorMatching === AUTHOR_MATCHING.FUZZY"
+          class="margin-small-top"
+        >
+          <label>Up to {{ options.authorMaxEdits }} edit(s) per surname</label>
+          <input
+            type="range"
+            min="1"
+            :max="MAX_AUTHOR_EDITS"
+            class="full_width"
+            :value="options.authorMaxEdits"
+            @input="update('authorMaxEdits', Number($event.target.value))"
+          />
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend
+          data-help="Trigram similarity, 0-100%. For verbatim rows, how much of the Source's title (or journal) appears in the citation. At 0 the field is shown but never required."
+        >
+          Title and journal
+        </legend>
+        <label>
+          Title at least {{ percent(options.minTitleSimilarity) }}
+        </label>
+        <input
+          type="range"
+          min="0"
+          max="1"
+          step="0.05"
+          class="full_width"
+          :value="options.minTitleSimilarity"
+          @input="update('minTitleSimilarity', Number($event.target.value))"
+        />
+        <label>
+          Journal at least {{ percent(options.minJournalSimilarity) }}
+        </label>
+        <input
+          type="range"
+          min="0"
+          max="1"
+          step="0.05"
+          class="full_width"
+          :value="options.minJournalSimilarity"
+          @input="update('minJournalSimilarity', Number($event.target.value))"
+        />
+      </fieldset>
+
+      <fieldset>
+        <legend>Volume and pages</legend>
+        <label class="middle">
+          <input
+            type="checkbox"
+            :checked="options.requireVolume"
+            @change="update('requireVolume', $event.target.checked)"
+          />
+          Volume must agree when both present
+        </label>
+        <label class="middle">
+          <input
+            type="checkbox"
+            :checked="options.requireFirstPage"
+            @change="update('requireFirstPage', $event.target.checked)"
+          />
+          First page must agree when both present
+        </label>
+      </fieldset>
+
+      <p class="subtle">
+        A row matches when exactly one candidate passes every requirement. A
+        DOI shared by row and Source always matches; different DOIs never do.
+      </p>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import VBtn from '@/components/ui/VBtn/index.vue'
+import {
+  AUTHOR_MATCHING,
+  AUTHOR_MATCHING_OPTIONS,
+  AUTHOR_SCOPE_OPTIONS,
+  MAX_AUTHOR_EDITS,
+  MAX_YEAR_TOLERANCE
+} from '../constants.js'
+
+const emit = defineEmits(['reset', 'refetch'])
+
+const options = defineModel('options', { type: Object, required: true })
+
+const yearTolerances = Array.from(
+  { length: MAX_YEAR_TOLERANCE + 1 },
+  (_, i) => i
+)
+
+function update(key, value) {
+  options.value = { ...options.value, [key]: value }
+}
+
+// Changes the candidates themselves, not just how they're judged.
+function setScope(limitToProject) {
+  update('limitToProject', limitToProject)
+  emit('refetch')
+}
+
+function percent(value) {
+  return value > 0 ? `${Math.round(value * 100)}%` : '(not required)'
+}
+</script>
+
+<style scoped>
+.match-options-panel {
+  min-width: 320px;
+  max-width: 360px;
+}
+
+fieldset {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.subtle {
+  display: block;
+  color: var(--text-muted-color);
+  font-size: 0.85em;
+}
+</style>

@@ -1,6 +1,8 @@
 class SourcesController < ApplicationController
   include DataControllerConfiguration::SharedDataControllerConfiguration
 
+  MATCH_ROWS_LIMIT = 500
+
   before_action :set_source, only: [:show, :edit, :update, :destroy, :clone, :api_show]
   after_action -> { set_pagination_headers(:sources) }, only: [:index, :api_index, :api_bibliography], if: :json_request?
 
@@ -299,6 +301,28 @@ class SourcesController < ApplicationController
     render json: @sources
   end
 
+  # POST /sources/match.json
+  #   rows - [{authors:, year:, title:, journal:, volume:, pages:, doi:,
+  #     verbatim:}, ...], at most MATCH_ROWS_LIMIT
+  #   limit_to_project - 'true' to only consider Sources in the project
+  #   year_window - gather Sources up to this many years from a row's year
+  def match
+    rows = match_params[:rows] || []
+
+    if rows.size > MATCH_ROWS_LIMIT
+      render json: { error: "At most #{MATCH_ROWS_LIMIT} rows per request." },
+        status: :unprocessable_content
+      return
+    end
+
+    @result = Match::Source::Candidates.new(
+      rows: rows.map(&:to_h),
+      project_id: sessions_current_project_id,
+      limit_to_project: match_params[:limit_to_project] == 'true',
+      year_window: (match_params[:year_window] || 2).to_i.clamp(0, 5)
+    ).call
+  end
+
   # GET /api/v1/sources/:id
   def api_show
     render '/sources/api/v1/show'
@@ -312,6 +336,14 @@ class SourcesController < ApplicationController
     else
       Source::Bibtex.new_from_bibtex_text(params[:bibtex_input], sessions_current_project_id)
     end
+  end
+
+  def match_params
+    params.permit(
+      :limit_to_project,
+      :year_window,
+      rows: Match::Source::Candidates::INPUT_KEYS
+    )
   end
 
   def autocomplete_params

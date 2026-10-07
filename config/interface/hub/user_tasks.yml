@@ -1318,3 +1318,12 @@ new_asserted_environment_task:
     - biology
   status: prototype
   description: 'Create new asserted environments (ENVO terms characterizing OTUs, collecting events, and gazetteers), optionally cited.'
+
+match_sources_task:
+  hub: true
+  name: 'Match sources'
+  related:
+  categories:
+    - source
+  status: prototype
+  description: 'Match a list of citations (structured columns or verbatim strings) to existing Sources, with fuzzy author, year, title, and journal comparisons. Export the list with a Source id column.'

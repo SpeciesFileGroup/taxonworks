@@ -442,6 +442,10 @@ scope :tasks do
   end
 
   scope :sources do
+    scope :match, controller: 'tasks/sources/match' do
+      get '/', action: :index, as: 'match_sources_task'
+    end
+
     scope :documents_packager, controller: 'tasks/sources/documents_packager' do
       get '/', action: :index, as: 'documents_packager_task'
       post 'preview', action: :preview, defaults: { format: :json }

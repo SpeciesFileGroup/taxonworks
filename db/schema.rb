@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_17_190742) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_06_170000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -2147,6 +2147,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_17_190742) do
     t.index ["cached"], name: "index_sources_on_cached"
     t.index ["cached"], name: "src_cached_gin_trgm", opclass: :gin_trgm_ops, using: :gin
     t.index ["cached_author_string"], name: "index_sources_on_cached_author_string"
+    t.index ["cached_author_string"], name: "src_cached_author_string_gin_trgm", opclass: :gin_trgm_ops, using: :gin
     t.index ["cached_nomenclature_date"], name: "index_sources_on_cached_nomenclature_date"
     t.index ["created_at"], name: "index_sources_on_created_at"
     t.index ["created_by_id"], name: "index_sources_on_created_by_id"

@@ -966,6 +966,7 @@ resources :sources do
     get :generate, defaults: {format: :json}
     patch :batch_update
     get :download_formatted, defaults: {format: :json}
+    post :match, defaults: {format: :json}
   end
 
   member do
