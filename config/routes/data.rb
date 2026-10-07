@@ -69,6 +69,18 @@ resources :asserted_distributions do
   resources :origin_relationships, shallow: true, only: [:index], defaults: {format: :json}
 end
 
+resources :asserted_environments, except: [:update] do
+  collection do
+    get :list
+    get :download
+    get :search
+    get :autocomplete, defaults: {format: :json}
+    get :autoselect, defaults: {format: :json}
+    get :object_types, defaults: {format: :json}
+    match :filter, to: 'asserted_environments#index', via: [:get, :post]
+  end
+end
+
 resources :biocuration_classifications, only: [:create, :update, :destroy] do
   collection do
     get :index, defaults: {format: :json}
@@ -222,6 +234,9 @@ end
 
 resources :common_names do
   concerns [:data_routes]
+  collection do
+    match :filter, to: 'common_names#index', via: [:get, :post]
+  end
 end
 
 get 'confidences/exists', to: 'confidences#exists', defaults: {format: :json}
@@ -284,6 +299,7 @@ resources :conveyances do
     get :navigation, defaults: {format: :json}
   end
   collection do
+    match :filter, to: 'conveyances#index', via: [:get, :post]
     get :autocomplete, defaults: {format: :json}
     get :select_options, defaults: {format: :json}
   end
@@ -323,6 +339,7 @@ resources :descriptors do
   end
   collection do
     match :filter, to: 'descriptors#index', via: [:get, :post]
+    patch :sort, defaults: {format: :json}
     get :units
     post :preview_modify_gene_descriptor_batch_load
     post :create_modify_gene_descriptor_batch_load

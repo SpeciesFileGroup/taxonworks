@@ -1,0 +1,26 @@
+<%= render("/shared/data/all/list/list_header", objects: @asserted_environments) -%>
+
+<table class="tablesorter">
+  <thead>
+  <tr>
+    <%= fancy_th_tag(name: 'ENVO term') -%>
+    <%= fancy_th_tag(name: 'Uri') -%>
+    <%= fancy_th_tag(name: 'Object type') -%>
+    <%= fancy_th_tag(name: 'Object') -%>
+    <%= fancy_th_tag(name: 'Updated by', group: 'housekeeping') -%>
+    <%= fancy_th_tag(name: 'Last updated', group: 'housekeeping') -%>
+  </tr>
+  </thead>
+
+  <tbody>
+  <% @asserted_environments.each do |asserted_environment| %>
+      <%= content_tag(:tr, class: :contextMenuCells) do -%>
+          <td><%= asserted_environment.uri_label -%></td>
+          <td><%= link_to(asserted_environment.uri, asserted_environment.uri, data: {icon: 'link'}) -%></td>
+          <td><%= asserted_environment.asserted_environment_object_type -%></td>
+          <td><%= object_link(asserted_environment.asserted_environment_object) %></td>
+          <%= fancy_metadata_cells_tag(asserted_environment) -%>
+      <% end %>
+  <% end %>
+  </tbody>
+</table>

@@ -19,3 +19,9 @@ if extend_response_with('notes')
     json.text n.text
   end
 end
+
+if extend_response_with('citations')
+  json.citations do
+    json.array! common_name.citations, partial: '/citations/api/v1/attributes', as: :citation
+  end
+end

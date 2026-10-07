@@ -11,6 +11,105 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
 
   after(:all) { DatabaseCleaner.clean }
 
+  context 'when importing project-configured Darwin Core attributes' do
+    before :all do
+      DatabaseCleaner.start
+      init_housekeeping
+
+      @predicates = %w[lifeStage behavior establishmentMeans associatedReferences substrate habitat reproductiveCondition].to_h do |term|
+        [term, FactoryBot.create(:valid_predicate, name: term, uri: "http://rs.tdwg.org/dwc/terms/#{term}")]
+      end
+      Project.find(Current.project_id).update!(model_predicate_sets: {
+        'CollectionObject' => @predicates.values_at('lifeStage', 'establishmentMeans', 'substrate', 'habitat', 'reproductiveCondition').map(&:id),
+        'FieldOccurrence' => @predicates.values_at('behavior', 'establishmentMeans', 'reproductiveCondition').map(&:id),
+        'CollectingEvent' => @predicates.values_at('associatedReferences', 'substrate').map(&:id)
+      })
+
+      @import_dataset = ImportDataset::DarwinCore::Occurrences.create!(
+        source: fixture_file_upload(
+          Rails.root + 'spec/files/import_datasets/occurrences/project_dwc_attributes.tsv', 'text/plain'
+        ),
+        description: 'Project Darwin Core predicates'
+      ).tap(&:stage)
+      @results = @import_dataset.import(5000, 100)
+    end
+
+    after(:all) { DatabaseCleaner.clean }
+
+    it 'imports both record types' do
+      expect(@results.map(&:status)).to eq(%w[Imported Imported])
+    end
+
+    it 'recognizes columns mapped only to FieldOccurrence at the dataset level' do
+      index = @results.first.send(:get_field_mapping, 'behavior')
+      expect(@import_dataset.core_records_mapped_fields).to include(index)
+    end
+
+    it 'saves only FieldOccurrence predicates on HumanObservation records' do
+      expect(FieldOccurrence.first.internal_attributes.pluck(:controlled_vocabulary_term_id, :value)).to contain_exactly(
+        [@predicates['behavior'].id, 'feeding'],
+        [@predicates['establishmentMeans'].id, 'native']
+      )
+    end
+
+    it 'saves only CollectionObject predicates on specimen records' do
+      expect(CollectionObject.first.internal_attributes.pluck(:controlled_vocabulary_term_id, :value)).to contain_exactly(
+        [@predicates['lifeStage'].id, 'adult'],
+        [@predicates['establishmentMeans'].id, 'native'],
+        [@predicates['substrate'].id, 'rock'],
+        [@predicates['habitat'].id, 'forest']
+      )
+    end
+
+    it 'saves CollectingEvent predicates for either record type' do
+      [FieldOccurrence.first, CollectionObject.first].each do |occurrence|
+        expect(occurrence.collecting_event.internal_attributes.pluck(:controlled_vocabulary_term_id, :value)).to contain_exactly(
+          [@predicates['associatedReferences'].id, 'event reference'],
+          [@predicates['substrate'].id, 'rock']
+        )
+      end
+    end
+
+    it 'flags only unused model-specific columns as ignored for each row' do
+      human_row, specimen_row = @results
+      expect(human_row.ignored_fields).to contain_exactly(human_row.send(:get_field_mapping, 'lifeStage'))
+      expect(specimen_row.ignored_fields).to contain_exactly(specimen_row.send(:get_field_mapping, 'behavior'))
+    end
+
+    it 'keeps built-in handling when a predicate belongs only to the other model' do
+      expect(FieldOccurrence.first.collecting_event.verbatim_habitat).to eq('forest')
+    end
+
+    it 'does not create attributes for blank values' do
+      expect(InternalAttribute.where(predicate: @predicates['reproductiveCondition'])).not_to exist
+    end
+  end
+
+  context 'when project Darwin Core mappings omit target models' do
+    before :all do
+      DatabaseCleaner.start
+      init_housekeeping
+      predicate = FactoryBot.create(:valid_predicate, name: 'Life stage', uri: 'http://rs.tdwg.org/dwc/terms/lifeStage')
+      Project.find(Current.project_id).update!(model_predicate_sets: { 'CollectionObject' => [predicate.id] })
+      @import_dataset = ImportDataset::DarwinCore::Occurrences.create!(
+        source: fixture_file_upload(
+          Rails.root + 'spec/files/import_datasets/occurrences/project_dwc_attributes.tsv', 'text/plain'
+        ),
+        description: 'Missing target mappings'
+      ).tap(&:stage)
+      @results = @import_dataset.import(5000, 100)
+    end
+
+    after(:all) { DatabaseCleaner.clean }
+
+    it 'imports without requiring FieldOccurrence or CollectingEvent mappings' do
+      expect(@results.map(&:status)).to eq(%w[Imported Imported])
+      expect(FieldOccurrence.first.internal_attributes).to be_empty
+      expect(CollectionObject.first.internal_attributes.pluck(:value)).to contain_exactly('adult')
+      expect(@results.first.ignored_fields).to include(@results.first.send(:get_field_mapping, 'lifeStage'))
+    end
+  end
+
   context 'when importing HumanObservation occurrences' do
     before :all do
       DatabaseCleaner.start

@@ -6,6 +6,8 @@ module Queries
       include ::Queries::Concerns::DateRanges
       include ::Queries::Concerns::Roles
 
+      DEFAULT_LIMIT = 40
+
       # @return [Boolean, nil]
       #   true - only collecting events with a georeference
       #   false - only collecting events without a georeference
@@ -14,9 +16,9 @@ module Queries
 
       # @params string [String]
       # @params [Hash] args
-      def initialize(string, project_id: nil, georeferences: nil)
+      def initialize(string, project_id: nil, georeferences: nil, restrict_to: nil, limit: nil)
         @georeferences = boolean_param({georeferences:}, :georeferences)
-        super(string, project_id:)
+        super(string, project_id:, restrict_to:, limit:)
       end
 
       def autocomplete_verbatim_label_md5
@@ -113,16 +115,16 @@ module Queries
           a = q.where(project_id:) if project_id.present?
           a ||= q
           a = a.merge(georeference_restriction) unless georeferences.nil?
-          updated_queries[i] = a
+          updated_queries[i] = apply_restriction(a)
         end
 
         result = []
         updated_queries.each do |q|
           result += q.to_a
           result.uniq!
-          break if result.count > 29
+          break if result.count >= limit
         end
-        result[0..39]
+        result.first(limit)
       end
 
       # @return [Scope]

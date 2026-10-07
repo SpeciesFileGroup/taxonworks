@@ -225,4 +225,48 @@ describe Queries::TaxonName::Autocomplete, type: :model do
       expect(query.authorship).to eq(nil)
     end
   end
+
+  context 'limit' do
+    specify 'defaults to 20' do
+      expect(Queries::TaxonName::Autocomplete.new('Erasmoneura').limit).to eq(20)
+    end
+
+    specify 'caps results' do
+      q = Queries::TaxonName::Autocomplete.new('Erasmoneura', limit: 1)
+      expect(q.autocomplete.size).to eq(1)
+    end
+
+    specify 'caps results when a later query overshoots the limit' do
+      q = Queries::TaxonName::Autocomplete.new('Erasmoneura', limit: 2)
+      allow(q).to receive(:strategy_queries) {
+        [TaxonName.where(id: root.id), TaxonName.where(id: [genus.id, species.id]).order(:id)]
+      }
+      expect(q.autocomplete).to eq([root, genus])
+    end
+
+    specify 'does not count duplicates towards the limit' do
+      q = Queries::TaxonName::Autocomplete.new('Erasmoneura', limit: 2)
+      allow(q).to receive(:strategy_queries) {
+        [TaxonName.where(id: genus.id), TaxonName.where(id: genus.id), TaxonName.where(id: species.id)]
+      }
+      expect(q.autocomplete).to eq([genus, species])
+    end
+  end
+
+  context 'restrict_to' do
+    specify 'restricts results to the given TaxonNames' do
+      q = Queries::TaxonName::Autocomplete.new('Erasmoneura', restrict_to: TaxonName.where(id: species.id))
+      expect(q.autocomplete.map(&:id)).to contain_exactly(species.id)
+    end
+
+    specify 'raises when the relation is of another model' do
+      q = Queries::TaxonName::Autocomplete.new('Erasmoneura', restrict_to: Otu.all)
+      expect { q.autocomplete }.to raise_error(ArgumentError, /Otu/)
+    end
+
+    specify 'is not applied when nil' do
+      q = Queries::TaxonName::Autocomplete.new('Erasmoneura', restrict_to: nil)
+      expect(q.autocomplete.map(&:id)).to include(genus.id, species.id)
+    end
+  end
 end

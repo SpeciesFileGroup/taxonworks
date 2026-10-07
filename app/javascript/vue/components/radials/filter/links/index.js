@@ -1,5 +1,6 @@
 export * from './AnatomicalPart'
 export * from './AssertedDistribution'
+export * from './AssertedEnvironment'
 export * from './BiologicalAssociation'
 export * from './CollectingEvent'
 export * from './CollectionObject'

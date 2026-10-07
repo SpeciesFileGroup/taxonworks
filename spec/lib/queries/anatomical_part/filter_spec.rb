@@ -103,4 +103,65 @@ describe Queries::AnatomicalPart::Filter, type: :model do
     end
   end
 
+  context 'otu_query' do
+    let(:otu) { FactoryBot.create(:valid_otu) }
+    let(:specimen) { FactoryBot.create(:valid_specimen) }
+    let!(:part) {
+      FactoryBot.create(:valid_anatomical_part, ancestor: specimen, taxon_determination_otu: otu)
+    }
+
+    specify 'matches on the taxonomic origin (cached) otu, not just a direct origin relationship' do
+      q = Queries::AnatomicalPart::Filter.new(otu_query: { otu_id: otu.id })
+
+      expect(q.all.pluck(:id)).to contain_exactly(part.id)
+    end
+
+    specify 'ignores an origin CollectionObject whose id collides with the queried otu id' do
+      shared_id = 91_000_001
+      FactoryBot.create(:valid_otu, id: shared_id)
+      colliding_specimen = FactoryBot.create(:valid_specimen, id: shared_id)
+      colliding_part = FactoryBot.create(:valid_anatomical_part, ancestor: colliding_specimen)
+
+      q = Queries::AnatomicalPart::Filter.new(otu_query: { otu_id: shared_id })
+
+      expect(q.all.pluck(:id)).not_to include(colliding_part.id)
+    end
+  end
+
+  context 'observation_query' do
+    let(:specimen) { FactoryBot.create(:valid_specimen) }
+    let!(:part) { FactoryBot.create(:valid_anatomical_part, ancestor: specimen) }
+
+    specify 'matches AnatomicalParts that are the observation_object' do
+      observation = FactoryBot.create(:valid_observation, observation_object: part)
+
+      q = Queries::AnatomicalPart::Filter.new(
+        observation_query: { observation_id: observation.id }
+      )
+
+      expect(q.all.pluck(:id)).to contain_exactly(part.id)
+    end
+  end
+
+  context 'descendant queries' do
+    let(:specimen) { FactoryBot.create(:valid_specimen) }
+    let!(:part) { FactoryBot.create(:valid_anatomical_part, ancestor: specimen) }
+
+    specify 'extract_query' do
+      extract = FactoryBot.create(:valid_extract, origin: part)
+
+      q = Queries::AnatomicalPart::Filter.new(extract_query: { extract_id: extract.id })
+
+      expect(q.all.pluck(:id)).to contain_exactly(part.id)
+    end
+
+    specify 'sound_query' do
+      sound = FactoryBot.create(:valid_sound, origin: part)
+
+      q = Queries::AnatomicalPart::Filter.new(sound_query: { sound_id: sound.id })
+
+      expect(q.all.pluck(:id)).to contain_exactly(part.id)
+    end
+  end
+
 end

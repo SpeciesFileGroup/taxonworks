@@ -93,6 +93,42 @@ describe 'ApplicationEnumeration' do
     end
   end
 
+  context '.sti_reflections' do
+    specify 'includes belongs_to declared only on a subclass' do
+      names = ae.sti_reflections(ObservationMatrixColumnItem, :belongs_to).map(&:name)
+      expect(names).to include(:descriptor, :controlled_vocabulary_term)
+    end
+
+    specify 'includes has_many declared only on a subclass' do
+      names = ae.sti_reflections(TaxonName, :has_many).map(&:name)
+      expect(names).to include(:type_materials)
+    end
+
+    specify 'includes base class reflections' do
+      names = ae.sti_reflections(TaxonName, :belongs_to).map(&:name)
+      expect(names).to include(:parent, :valid_taxon_name)
+    end
+
+    specify 'returns each reflection once when declared on several subclasses' do
+      names = ae.sti_reflections(Descriptor, :has_many).map(&:name)
+      expect(names.count(:otus)).to eq(1)
+    end
+
+    specify 'returns base class reflections for models without subclasses' do
+      expect(ae.sti_reflections(Otu, :has_many).map(&:name))
+        .to match_array(Otu.reflect_on_all_associations(:has_many).map(&:name))
+    end
+
+    specify 'does not raise for any data model' do
+      expect { ae.data_models.each { |m| ae.sti_reflections(m) } }.not_to raise_error
+    end
+
+    specify 'defaults to all relationship types' do
+      macros = ae.sti_reflections(ObservationMatrixColumnItem).map(&:macro).uniq
+      expect(macros).to include(:belongs_to, :has_many)
+    end
+  end
+
   context '.no_related_data?', type: :model do
     let(:otu) { FactoryBot.create(:valid_otu) }
 

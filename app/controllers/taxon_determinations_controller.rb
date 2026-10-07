@@ -145,13 +145,34 @@ class TaxonDeterminationsController < ApplicationController
   end
 
   # POST /taxon_determinations/batch_create
+  #   collection_object_id[] or field_occurrence_id[]
   def batch_create
+    field_occurrence_id = params[:field_occurrence_id]
+    collection_object_id = params[:collection_object_id]
+
+    if field_occurrence_id.present? == collection_object_id.present?
+      render json: {
+          error: 'Provide exactly one of collection_object_id or ' \
+            'field_occurrence_id.'
+        },
+        status: :unprocessable_content
+      return
+    end
+
+    object_id, object_type =
+      if field_occurrence_id.present?
+        [field_occurrence_id, 'FieldOccurrence']
+      else
+        [collection_object_id, 'CollectionObject']
+      end
+
     render json: TaxonDetermination.batch_create(
-      params[:collection_object_id],
+      object_id,
       taxon_determination_params.to_h.merge(
         project_id: sessions_current_project_id,
         by: sessions_current_user_id
-      )
+      ),
+      object_type:
     )
   end
 

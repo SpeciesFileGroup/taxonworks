@@ -327,6 +327,31 @@ RSpec.describe Lead, type: :model do
       expect(q.first.key_updated_by).to eq(child_updated_by_name)
     end
 
+    specify 'stays discoverable via is_public filtering after editing a child' do
+      root = FactoryBot.create(:valid_lead, is_public: true)
+      child = FactoryBot.create(:valid_lead)
+      root.add_child(child)
+
+      # Editing a non-root node must not change the root's own is_public
+      # (which stays true), even though it changes key_updated_at/by.
+      child.update!(text: 'new text')
+
+      q = Lead.roots_with_data(project_id).where(is_public: true)
+      expect(q.map(&:id)).to include(root.id)
+    end
+
+    specify 'stays discoverable via is_public filtering after editing a child of a virtual root' do
+      root = FactoryBot.create(:valid_lead, is_virtual: true, is_public: true)
+      child = FactoryBot.create(:valid_lead, parent: root, is_virtual: true, text: nil)
+
+      # Editing a non-root node must not change the root's own is_public
+      # (which stays true), even though it changes key_updated_at/by.
+      child.update!(text: 'new text')
+
+      q = Lead.roots_with_data(project_id, false, is_virtual: true).where(is_public: true)
+      expect(q.map(&:id)).to include(root.id)
+    end
+
     specify "doesn't pre-load otus when you don't tell it to" do
       otu = FactoryBot.create(:valid_otu)
 
@@ -360,6 +385,20 @@ RSpec.describe Lead, type: :model do
       expect(q.first.otus_count).to eq(2)
     end
 
+    specify 'returns correct key_updated_by_id for a virtual root' do
+      # The update we'll do on a child later will be as Current.user_id, so
+      # create a root with a different updated_by_id so we can differentiate.
+      user2 = FactoryBot.create(:valid_user)
+      root = FactoryBot.create(:valid_lead, is_virtual: true, updated_by_id: user2.id)
+      child = FactoryBot.create(:valid_lead, parent: root, is_virtual: true, text: nil)
+
+      # Updates as Current.user_id (not as user2)
+      child.update!(text: 'new text')
+
+      q = Lead.roots_with_data(project_id, false, is_virtual: true).where(id: [root.id])
+      expect(root.updated_by_id).to eq(user2.id)
+      expect(q.first.key_updated_by_id).to eq(Current.user_id)
+    end
   end
 
   context '::child_descendant_lead_item_flags' do

@@ -40,6 +40,7 @@ class Otu < ApplicationRecord
   include Shared::HasPapertrail
   include Shared::OriginRelationship
   include Shared::AssertedDistributions
+  include Shared::AssertedEnvironments
 
   include Shared::AutoUuid
   include Shared::Taxonomy
@@ -56,7 +57,7 @@ class Otu < ApplicationRecord
 
   is_origin_for 'Sequence', 'Extract', 'Sound', 'AnatomicalPart'
 
-  GRAPH_ENTRY_POINTS = [:asserted_distributions, :biological_associations, :common_names, :contents, :data_attributes, :observation_matrices, :origin_relationships].freeze
+  GRAPH_ENTRY_POINTS = [:asserted_distributions, :asserted_environments, :biological_associations, :common_names, :contents, :data_attributes, :observation_matrices, :origin_relationships].freeze
 
   belongs_to :taxon_name, inverse_of: :otus
 
@@ -373,6 +374,7 @@ class Otu < ApplicationRecord
         when 'AssertedDistribution'
           t.project(t['asserted_distribution_object_id'].as('otu_id'),
                     t['updated_at']).from(t)
+            .where(t['asserted_distribution_object_type'].eq('Otu'))
             .where(t['updated_at'].gt( 1.week.ago ))
             .where(t['updated_by_id'].eq(user_id))
             .where(t['project_id'].eq(project_id))

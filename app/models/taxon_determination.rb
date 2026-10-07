@@ -92,23 +92,30 @@ class TaxonDetermination < ApplicationRecord
              "%#{params[:term]}%", "%#{params[:term]}%")
   end
 
-  # @params params [Hash]
-  # @params collection_objectt_id [Array, Integer]
+  BATCH_CREATE_OBJECT_TYPES = %w{CollectionObject FieldOccurrence}.freeze
+
+  # @param object_id [Array, Integer]
   #   an Array or single id
+  # @param params [Hash] TaxonDetermination attributes, including project_id
+  # @param object_type [String] one of BATCH_CREATE_OBJECT_TYPES
   # @return Hash
-  def self.batch_create(collection_object_id, params)
-    collection_object_ids = [collection_object_id].flatten.compact.uniq
+  def self.batch_create(object_id, params, object_type:)
+    if !BATCH_CREATE_OBJECT_TYPES.include?(object_type)
+      raise ArgumentError, "Unsupported object_type: #{object_type}"
+    end
+
+    object_ids = [object_id].flatten.compact.uniq
     result = {
       failed: [],
       total_created: 0
     }
 
-    collection_object_ids.each do |id|
+    object_ids.each do |id|
       begin
         TaxonDetermination.create!(
           params.merge(
             taxon_determination_object_id: id,
-            taxon_determination_object_type: 'CollectionObject'
+            taxon_determination_object_type: object_type
           )
         )
 

@@ -8,6 +8,15 @@ describe CollectingEvent, type: :model, group: [:geo, :collecting_events] do
   let(:state) { county.parent }
   let(:country) { state.parent }
 
+  specify '#GRAPH_ENTRY_POINTS includes asserted_environments (radial/graph metadata badge)' do
+    expect(CollectingEvent::GRAPH_ENTRY_POINTS).to include(:asserted_environments)
+  end
+
+  specify '#asserted_environments is queryable via a GRAPH_ENTRY_POINTS-listed association' do
+    ce = FactoryBot.create(:valid_collecting_event)
+    expect(ce.asserted_environments.count).to eq(0)
+  end
+
   # Added as a context for exploring re-indexing DwC based on DataAttribute updates
   xspecify 'data_attributes_attributes cascades' do
     p = FactoryBot.create(:valid_predicate, uri: 'http://rs.tdwg.org/dwc/terms/waterBody', name: 'waterBody')
