@@ -109,7 +109,7 @@
 <script setup>
 import VMap from '@/components/ui/VMap/VMap.vue'
 import VFilter from './components/filter.vue'
-import TableList from '@/tasks/otu/browse/components/assertedDistribution/TableList.vue'
+import TableList from '@/tasks/otus/browse/components/Panel/PanelAssertedDistribution/PanelAssertedDistributionTable.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import listParser from './helpers/listParser'
 import VBtn from '@/components/ui/VBtn/index.vue'

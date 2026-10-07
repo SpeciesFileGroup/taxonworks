@@ -53,7 +53,7 @@ class ImportDataset::DarwinCore < ImportDataset
           headers = CSV.parse(Roo::Spreadsheet.open(path).to_csv, headers: true, header_converters: lambda {|f| f.strip}).headers
         else
           col_sep = default_if_absent(params.dig(:import_settings, :col_sep), "\t")
-          quote_char = default_if_absent(params.dig(:import_settings, :qoute_char), '"')
+          quote_char = resolve_quote_char(params.dig(:import_settings, :quote_char))
           headers = CSV.read(path, headers: true, col_sep: col_sep, quote_char: quote_char, encoding: 'bom|utf-8', header_converters: lambda {|f| f.strip}).headers
         end
 
@@ -329,7 +329,14 @@ class ImportDataset::DarwinCore < ImportDataset
   end
 
   def get_quote_char
-    DarwinCore.default_if_absent(metadata.dig('import_settings', 'quote_char'), '"')
+    DarwinCore.resolve_quote_char(metadata.dig('import_settings', 'quote_char'))
+  end
+
+  # Keep an explicit no-quotes setting distinct from an omitted setting.
+  def self.resolve_quote_char(value)
+    return nil if value == 'none'
+
+    default_if_absent(value, '"')
   end
 
   def get_fields_mapping
