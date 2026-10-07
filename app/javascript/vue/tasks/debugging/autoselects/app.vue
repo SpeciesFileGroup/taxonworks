@@ -61,7 +61,7 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, shallowRef } from "vue";
 import AutoselectField from "@/components/ui/AutoselectField.vue";
 import RadialNavigator from "@/components/radials/navigation/radial.vue";
 import OtuNewModal from "@/components/ui/AutoselectField/OtuNewModal.vue";
@@ -75,7 +75,7 @@ import ColDatasetPicker from "@/components/ui/AutoselectField/ColDatasetPicker.v
 //   model-specific options (null = none). AutoselectField itself defaults to null,
 //   so the Playground (intentionally raw AutoselectField, not AutoselectPicker) wires
 //   it explicitly per model, same as newRecordComponent below.
-const registeredModels = ref([
+const registeredModels = shallowRef([
     {
         id: "playground-taxon-name-1",
         url: "/taxon_names/autoselect",
