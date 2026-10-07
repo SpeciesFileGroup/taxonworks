@@ -11,6 +11,10 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 - Browse OTU: preference to display the task in full width
 
+### Fixed
+
+- Browse OTU: Thumbnails may be cropped in the images panel
+
 ## [0.66.0] - 2026-10-07
 
 ### Added
