@@ -96,7 +96,18 @@
                   <RadialNavigator :global-id="otu.global_id" />
                 </div>
               </td>
-              <td v-html="otu.object_tag" />
+              <td>
+                <span
+                  v-if="store.otu?.id === otu.id"
+                  v-html="otu.object_tag"
+                />
+                <a
+                  v-else
+                  :href="`${RouteNames.BrowseOtu}?otu_id=${otu.id}`"
+                  data-turbolinks="false"
+                  v-html="otu.object_tag"
+                />
+              </td>
             </tr>
           </tbody>
         </table>
@@ -129,6 +140,7 @@ import ButtonUnify from '@/components/ui/Button/ButtonUnify.vue'
 import VTooltip from '@/components/ui/VTooltip/VTooltip.vue'
 import { useOtuStore } from '../store'
 import { OTU } from '@/constants'
+import { RouteNames } from '@/routes/routes'
 
 const MAX_TOOLTIP_OTUS = 10
 
