@@ -463,14 +463,45 @@ function getFirstVisibleLevelKey() {
   return visibleFuseSegments.value[0]?.key ?? getFirstLevelKey()
 }
 
+// Finds the first `!<trigger>` in text (trigger is a regex source; it may
+// appear anywhere in the string).
+// @return {{ cleanTerm: String, operand: String } | null} cleanTerm is text
+//   without the operator, operand what trigger matched
+function matchOperator(text, trigger) {
+  const match = text.match(
+    new RegExp(`^(.*?)\\s*!(${trigger})\\s*(.*)$`, 'i')
+  )
+  if (match === null) return null
+  return {
+    cleanTerm: (match[1] + ' ' + match[3]).replace(/\s+/g, ' ').trim(),
+    operand: match[2]
+  }
+}
+
+// @return {Boolean} true when text starts with an operator the server
+//   handles (!r, !u, !b, !!)
+function isServerOperator(text) {
+  return getOperators()
+    .filter((op) => !op.client_only)
+    .some((op) => text.startsWith(op.trigger))
+}
+
 function detectLevelOperator(text) {
-  const match = text.match(/^(.*?)!(\d+)\s*(.*)$/)
-  if (!match) return null
-  const n = parseInt(match[2], 10) - 1
+  const match = matchOperator(text, '\\d+')
+  if (match === null) return null
+  const n = parseInt(match.operand, 10) - 1
   const segs = visibleFuseSegments.value
   if (n < 0 || n >= segs.length) return null
-  const cleanTerm = (match[1] + match[3]).replace(/\s+/g, ' ').trim()
-  return { levelKey: segs[n].key, cleanTerm }
+  return { levelKey: segs[n].key, cleanTerm: match.cleanTerm }
+}
+
+function jumpToLevel(levelKey, cleanTerm) {
+  currentLevel.value = levelKey
+  inputText.value = cleanTerm
+  cancelFuse()
+  if (getRequest) clearTimeout(getRequest)
+  if (cleanTerm.length === 0) clearResults()
+  else triggerSearch(cleanTerm)
 }
 
 function firstExternalLevelKey() {
@@ -488,7 +519,7 @@ function nextVisibleLevelKey(currentKey) {
 
 // ── Input handler ──────────────────────────────────────────────────────────────
 function onInput() {
-  const text = inputText.value
+  let text = inputText.value
 
   if (!text.trim()) {
     clearResults()
@@ -503,22 +534,18 @@ function onInput() {
   }
 
   // !? — help overlay (may appear anywhere in the string, like other operators)
-  const helpMatch = text.match(/^(.*?)\s*!\?\s*(.*)$/)
-  if (helpMatch !== null) {
-    inputText.value = (helpMatch[1] + ' ' + helpMatch[2])
-      .replace(/\s+/g, ' ')
-      .trim()
+  const help = matchOperator(text, '\\?')
+  if (help !== null) {
+    inputText.value = help.cleanTerm
     updateHelpOverlayPosition()
     showHelp.value = true
     return
   }
 
   // !p — preferences modal
-  const prefMatch = text.match(/^(.*?)\s*!p\s*(.*)$/i)
-  if (prefMatch !== null) {
-    preInputText = (prefMatch[1] + ' ' + prefMatch[2])
-      .replace(/\s+/g, ' ')
-      .trim()
+  const pref = matchOperator(text, 'p')
+  if (pref !== null) {
+    preInputText = pref.cleanTerm
     inputText.value = preInputText
     cancelFuse()
     if (getRequest) clearTimeout(getRequest)
@@ -528,58 +555,37 @@ function onInput() {
   }
 
   // !i — toggle info display
-  const infoMatch = text.match(/^(.*?)\s*!i\s*(.*)$/i)
-  if (infoMatch !== null) {
-    const cleanTerm = (infoMatch[1] + ' ' + infoMatch[2])
-      .replace(/\s+/g, ' ')
-      .trim()
-    inputText.value = cleanTerm
+  const info = matchOperator(text, 'i')
+  if (info !== null) {
+    inputText.value = info.cleanTerm
     prefs.toggleShowInfo()
     currentPrefs.value = prefs.getPrefs()
     return
   }
 
   // !n — new record modal
-  const newRecordMatch = text.match(/^(.*?)\s*!n\s*(.*)$/i)
-  if (newRecordMatch !== null && props.newRecordComponent !== null) {
-    const cleanName = (newRecordMatch[1] + ' ' + newRecordMatch[2])
-      .replace(/\s+/g, ' ')
-      .trim()
-    inputText.value = cleanName
+  const newRecord = matchOperator(text, 'n')
+  if (newRecord !== null && props.newRecordComponent !== null) {
+    inputText.value = newRecord.cleanTerm
     cancelFuse()
     if (getRequest) clearTimeout(getRequest)
     clearResults()
-    newRecordName.value = cleanName
+    newRecordName.value = newRecord.cleanTerm
     return
   }
 
   // !e — jump to leftmost external level
-  const externalMatch = text.match(/^(.*?)\s*!e\s*(.*)$/i)
-  if (externalMatch !== null) {
-    const externalKey = firstExternalLevelKey()
-    if (externalKey !== null) {
-      const cleanTerm = (externalMatch[1] + ' ' + externalMatch[2])
-        .replace(/\s+/g, ' ')
-        .trim()
-      inputText.value = cleanTerm
-      currentLevel.value = externalKey
-      cancelFuse()
-      if (getRequest) clearTimeout(getRequest)
-      if (cleanTerm.length === 0) clearResults()
-      else triggerSearch(cleanTerm)
-      return
-    }
+  const external = matchOperator(text, 'e')
+  const externalKey = firstExternalLevelKey()
+  if (external !== null && externalKey !== null) {
+    jumpToLevel(externalKey, external.cleanTerm)
+    return
   }
 
   // !1, !2 … — jump to visible level
   const levelOp = detectLevelOperator(text)
   if (levelOp !== null) {
-    currentLevel.value = levelOp.levelKey
-    inputText.value = levelOp.cleanTerm
-    cancelFuse()
-    if (getRequest) clearTimeout(getRequest)
-    if (levelOp.cleanTerm.length === 0) clearResults()
-    else triggerSearch(levelOp.cleanTerm)
+    jumpToLevel(levelOp.levelKey, levelOp.cleanTerm)
     return
   }
 
@@ -589,6 +595,24 @@ function onInput() {
     if (getRequest) clearTimeout(getRequest)
     triggerSearch(text)
     return
+  }
+
+  // Any other bang is a client-only operator that can't apply here (!N past
+  // the visible levels, !n without a new-record form, !e without an external
+  // level) or no operator at all: drop it rather than send it to the server
+  // as part of the term. Server operators (!r, !u) go through as typed.
+  if (!isServerOperator(text)) {
+    const stray = matchOperator(text, '[^\\s!]\\S*')
+    if (stray !== null) {
+      text = stray.cleanTerm
+      inputText.value = text
+      if (text.length === 0) {
+        cancelFuse()
+        if (getRequest) clearTimeout(getRequest)
+        clearResults()
+        return
+      }
+    }
   }
 
   if (fuseActive.value) cancelFuse()
