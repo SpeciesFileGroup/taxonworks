@@ -7,6 +7,10 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 ## [unreleased]
 
+\-
+
+## [0.66.0] - 2026-10-07
+
 ### Added
 
 - Autocomplete for Organization
@@ -27,6 +31,8 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Radial annotator: Replace background color by badge when citation is original [#4979]
 - Add support for setting a Taxon Determination for a batch import of iNaturalist observations [#4912]
 - Browse OTU: Refactor BA panel [#4487]
+- Updated Ruby gems
+- Updated NPM packages
 
 ### Fixed
 
@@ -6584,7 +6590,8 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.65.0...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.66.0...development
+[0.66.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.65.0...v0.66.0
 [0.65.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.64.0...v0.65.0
 [0.64.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.63.1...v0.64.0
 [0.63.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.63.0...v0.63.1
