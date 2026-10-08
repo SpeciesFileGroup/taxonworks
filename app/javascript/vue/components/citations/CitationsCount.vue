@@ -11,34 +11,37 @@
         </span>
       </span>
     </div>
-    <VModal
-      v-if="showCitations"
-      @close="setModalView(false)"
-    >
-      <template #header>
-        <h3>Citations</h3>
-      </template>
-      <template #body>
-        <display-list
-          :list="citations"
-          :validations="true"
-          :label="['citation_source_body']"
-          :edit="false"
-          @delete="(item) => emit('delete', item)"
-        >
-          <template #options="{ item }">
-            <div>
-              <a
-                :title="item.source.object_tag"
-                class="button-default circle-button btn-citation"
-                :href="`${RouteNames.NomenclatureBySource}?source_id=${item.source.id}`"
-                target="blank"
-              />
-            </div>
-          </template>
-        </display-list>
-      </template>
-    </VModal>
+    <teleport to="body">
+      <VModal
+        v-if="showCitations"
+        @close="setModalView(false)"
+      >
+        <template #header>
+          <h3>Citations</h3>
+        </template>
+        <template #body>
+          <display-list
+            :list="citations"
+            :validations="true"
+            :label="['citation_source_body']"
+            :edit="false"
+            :remove="remove"
+            @delete="(item) => emit('delete', item)"
+          >
+            <template #options="{ item }">
+              <div>
+                <a
+                  :title="item.source.object_tag"
+                  class="button-default circle-button btn-citation"
+                  :href="`${RouteNames.NomenclatureBySource}?source_id=${item.source.id}`"
+                  target="blank"
+                />
+              </div>
+            </template>
+          </display-list>
+        </template>
+      </VModal>
+    </teleport>
   </div>
 </template>
 
@@ -52,6 +55,11 @@ defineProps({
   citations: {
     type: Array,
     required: true
+  },
+
+  remove: {
+    type: Boolean,
+    default: true
   }
 })
 

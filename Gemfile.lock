@@ -152,8 +152,9 @@ GEM
     bindex (0.8.1)
     binding_of_caller (2.0.0)
       debug_inspector (>= 1.2.0)
-    biodiversity (6.0.1)
-      ffi (~> 1.15)
+    biodiversity (6.1.0)
+      csv (~> 3.3)
+      ffi (~> 1.17)
     bootsnap (1.26.0)
       msgpack (~> 1.5)
     brakeman (7.1.2)
@@ -843,7 +844,7 @@ DEPENDENCIES
   better_errors (~> 2.9)
   bibtex-ruby (~> 6.0)
   binding_of_caller
-  biodiversity (~> 6.0)
+  biodiversity (~> 6.1.0)
   bootsnap
   brakeman (~> 7.1)
   byebug (~> 13.0)

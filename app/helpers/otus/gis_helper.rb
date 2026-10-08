@@ -53,36 +53,49 @@ module Otus::GisHelper
               Otu.coordinate_otus(otu.id)
             end
 
-      # Batch-load everything the downstream helpers touch.
-      otus = otus.includes(
-        :taxon_name,
-        current_field_occurrences: [
-          :identifiers,
-          { collecting_event: [ :georeferences, :geographic_area, :geographic_items ] }
-        ],
-        current_collection_objects: [
-          :identifiers,
-          { collecting_event: [ :georeferences, :geographic_area, :geographic_items ] }
-        ],
-        asserted_distributions: { asserted_distribution_shape: :geographic_items },
-        type_materials: [
-          { collection_object: [
-              :identifiers,
-              { collecting_event: [ :georeferences, :geographic_area, :geographic_items ] }
-            ] }
-        ]
-      )
+      otus_distribution_geo_json(otus, target: h)
+    end
 
-      seen_shapes = {
-        field_occurrences: {},
-        collection_objects: {},
-        asserted_distributions: {},
-        type_materials: {}
-      }
+    h
+  end
 
-      otus.each do |o|
-        add_distribution_geo_json(o, h, seen_shapes)
-      end
+  # @return [Hash]
+  #   GeoJSON FeatureCollection of present distribution data for exactly +otus+
+  #   (coordinate OTUs are not added).
+  # @param otus [ActiveRecord::Relation] of Otu
+  # @param target [Hash] the FeatureCollection features are added to
+  def otus_distribution_geo_json(otus, target: geojson_feature_collection)
+    h = target
+
+    # Batch-load everything the downstream helpers touch.
+    otus = otus.includes(
+      :taxon_name,
+      current_field_occurrences: [
+        :identifiers,
+        { collecting_event: [ :georeferences, :geographic_area, :geographic_items ] }
+      ],
+      current_collection_objects: [
+        :identifiers,
+        { collecting_event: [ :georeferences, :geographic_area, :geographic_items ] }
+      ],
+      asserted_distributions: { asserted_distribution_shape: :geographic_items },
+      type_materials: [
+        { collection_object: [
+            :identifiers,
+            { collecting_event: [ :georeferences, :geographic_area, :geographic_items ] }
+          ] }
+      ]
+    )
+
+    seen_shapes = {
+      field_occurrences: {},
+      collection_objects: {},
+      asserted_distributions: {},
+      type_materials: {}
+    }
+
+    otus.each do |o|
+      add_distribution_geo_json(o, h, seen_shapes)
     end
 
     h
@@ -99,13 +112,23 @@ module Otus::GisHelper
   def otu_distribution_is_absent(otu, descendants: false)
     return {} if otu.nil?
 
-    h = geojson_for_otu(otu)
+    otus = descendants ? otu.coordinate_otus_with_children : Otu.coordinate_otus(otu.id)
+
+    otus_distribution_is_absent_geo_json(otus, target: geojson_for_otu(otu))
+  end
+
+  # @return [Hash]
+  #   GeoJSON FeatureCollection of absent FieldOccurrences and AssertedDistributions
+  #   for exactly +otus+ (coordinate OTUs are not added) and their ancestor taxon names.
+  # @param otus [ActiveRecord::Relation] of Otu
+  # @param target [Hash] the FeatureCollection features are added to
+  def otus_distribution_is_absent_geo_json(otus, target: geojson_feature_collection)
+    h = target
+
     seen_shapes = {
       field_occurrences: {},
       asserted_distributions: {}
     }
-
-    otus = descendants ? otu.coordinate_otus_with_children : Otu.coordinate_otus(otu.id)
 
     otus.each do |o|
       t = geojson_target_for_otu(o)
@@ -132,6 +155,13 @@ module Otus::GisHelper
     end
 
     h
+  end
+
+  def geojson_feature_collection
+    {
+      'type' => 'FeatureCollection',
+      'features' => []
+    }
   end
 
   def geojson_for_otu(otu)

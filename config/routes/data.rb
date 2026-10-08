@@ -234,6 +234,9 @@ end
 
 resources :common_names do
   concerns [:data_routes]
+  collection do
+    match :filter, to: 'common_names#index', via: [:get, :post]
+  end
 end
 
 resources :compositions do
@@ -300,6 +303,7 @@ resources :conveyances do
     get :navigation, defaults: {format: :json}
   end
   collection do
+    match :filter, to: 'conveyances#index', via: [:get, :post]
     get :autocomplete, defaults: {format: :json}
     get :select_options, defaults: {format: :json}
   end
@@ -752,6 +756,9 @@ resources :otus do
     post :create_morphospecies_otu, defaults: { format: :json }
 
     patch :batch_update
+
+    match :distribution, action: :distribution_by_otus, via: [:get, :post], defaults: {format: :geojson}
+    match :distribution_is_absent, action: :distribution_is_absent_by_otus, via: [:get, :post], defaults: {format: :geojson}
   end
 
   member do

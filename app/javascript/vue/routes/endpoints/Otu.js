@@ -31,11 +31,21 @@ export const Otu = {
   geoJsonDistribution: (id) =>
     AjaxCall('get', `/otus/${id}/inventory/distribution.geojson`),
 
+  geoJsonDistributionAbsent: (id) =>
+    AjaxCall('get', `/otus/${id}/inventory/distribution_is_absent.geojson`),
+
+  geoJsonDistributionByOtus: (params) =>
+    AjaxCall('post', `/otus/distribution.geojson`, params),
+
+  geoJsonDistributionIsAbsentByOtus: (params) =>
+    AjaxCall('post', `/otus/distribution_is_absent.geojson`, params),
+
   navigation: (id) => AjaxCall('get', `/${controller}/${id}/navigation`),
 
   timeline: (id) => AjaxCall('get', `/${controller}/${id}/timeline.json`),
 
-  citations: (id) => AjaxCall('get', `/${controller}/${id}/inventory/citations.json`),
+  citations: (id) =>
+    AjaxCall('get', `/${controller}/${id}/inventory/citations.json`),
 
   filter: (params) => AjaxCall('post', `/${controller}/filter.json`, params),
 

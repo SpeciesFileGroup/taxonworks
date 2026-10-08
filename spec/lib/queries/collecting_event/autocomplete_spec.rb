@@ -202,4 +202,17 @@ describe Queries::CollectingEvent::Autocomplete, type: :model do
     end
   end
 
+  context 'limit' do
+    specify 'defaults to 40' do
+      expect(Queries::CollectingEvent::Autocomplete.new('Zzyzx', project_id:).limit).to eq(40)
+    end
+
+    specify 'caps results' do
+      3.times { FactoryBot.create(:valid_collecting_event, verbatim_locality: 'Zzyzxlimit') }
+
+      expect(Queries::CollectingEvent::Autocomplete.new('Zzyzxlimit', project_id:).autocomplete.size).to eq(3)
+      expect(Queries::CollectingEvent::Autocomplete.new('Zzyzxlimit', project_id:, limit: 2).autocomplete.size).to eq(2)
+    end
+  end
+
 end

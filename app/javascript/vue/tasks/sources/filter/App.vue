@@ -128,7 +128,10 @@ const {
   selectedIds,
   sortedSelectedIds,
   urlRequest
-} = useFilter(Source, { initParameters: { extend } })
+} = useFilter(Source, {
+  initParameters: { extend },
+  defaultParameters: { in_project: true }
+})
 
 const csvOptions = {
   fields: [

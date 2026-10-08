@@ -158,6 +158,7 @@
           :image="imageObject"
           :url="thumbUrlSrc"
           :depiction="depiction"
+          :has-crop="hasSVGBox"
         >
           <div :class="[`depiction-${thumbSize}-image`]">
             <img
@@ -270,7 +271,7 @@ const hasSVGBox = computed(() => props.depiction?.svg_view_box != null)
 const thumbUrlSrc = computed(() => {
   const depiction = props.depiction
 
-  return props.hasSVGBox
+  return hasSVGBox.value
     ? imageSVGViewBox(
         imageObject.value.id,
         depiction.svg_view_box,

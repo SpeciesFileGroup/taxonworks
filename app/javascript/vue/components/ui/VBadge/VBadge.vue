@@ -1,5 +1,5 @@
 <template>
-  <div :class="['v-badge', colorClass]">
+  <div :class="['v-badge', colorClass, roundedClass]">
     <slot />
   </div>
 </template>
@@ -10,10 +10,16 @@ const props = defineProps({
   color: {
     type: String,
     default: 'default'
+  },
+
+  rounded: {
+    type: Boolean,
+    default: false
   }
 })
 
 const colorClass = computed(() => `v-badge--${props.color}`)
+const roundedClass = computed(() => (props.rounded ? 'v-badge--rounded' : ''))
 </script>
 
 <style>
@@ -52,5 +58,9 @@ const colorClass = computed(() => `v-badge--${props.color}`)
 .v-badge--purple {
   background-color: var(--badge-purple-bg);
   color: var(--badge-purple-color);
+}
+
+.v-badge--rounded {
+  border-radius: 9999px;
 }
 </style>
