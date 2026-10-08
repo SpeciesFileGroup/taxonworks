@@ -37,7 +37,7 @@
     <VModal
       v-if="isModalVisible"
       :container-style="{ width: '700px' }"
-      @close="() => (isModalVisible = false)"
+      @close="closeModal"
     >
       <template #header>
         <h3>Coordinate OTUs</h3>
@@ -85,7 +85,6 @@
                 <input
                   type="checkbox"
                   :value="otu"
-                  :disabled="store.otu?.id === otu.id"
                   v-model="otus"
                 />
               </td>
@@ -113,17 +112,21 @@
         </table>
       </template>
       <template #footer>
-        <VBtn
-          color="primary"
-          @click="
-            () => {
-              store.selectedOtus = [...otus]
-              isModalVisible = false
-            }
-          "
-        >
-          Apply
-        </VBtn>
+        <div class="horizontal-left-content middle gap-small">
+          <VBtn
+            color="primary"
+            @click="applySelection"
+          >
+            Apply
+          </VBtn>
+          <span
+            v-if="isCurrentOtuUnchecked"
+            class="subtle"
+          >
+            The current OTU is always included in the panels.
+          </span>
+        </div>
+        <ConfirmationModal ref="confirmationModal" />
       </template>
     </VModal>
   </div>
@@ -138,6 +141,7 @@ import RadialObject from '@/components/radials/object/radial.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import ButtonUnify from '@/components/ui/Button/ButtonUnify.vue'
 import VTooltip from '@/components/ui/VTooltip/VTooltip.vue'
+import ConfirmationModal from '@/components/ConfirmationModal.vue'
 import { useOtuStore } from '../store'
 import { OTU } from '@/constants'
 import { RouteNames } from '@/routes/routes'
@@ -147,6 +151,8 @@ const MAX_TOOLTIP_OTUS = 10
 const otus = ref([])
 const isModalVisible = ref(false)
 const searchText = ref('')
+const confirmationModal = ref(null)
+const isConfirmingClose = ref(false)
 const store = useOtuStore()
 
 const previewCoordinateOtus = computed(() =>
@@ -167,9 +173,7 @@ const filteredCoordinateOtus = computed(() => {
   )
 })
 
-const selectableOtus = computed(() =>
-  filteredCoordinateOtus.value.filter((otu) => otu.id !== store.otu?.id)
-)
+const selectableOtus = computed(() => filteredCoordinateOtus.value)
 
 const isEverySelectableOtuSelected = computed(
   () =>
@@ -184,6 +188,57 @@ function toggleAllOtus(event) {
   otus.value = event.target.checked
     ? [...keptOtus, ...selectableOtus.value]
     : keptOtus
+}
+
+const isCurrentOtuUnchecked = computed(
+  () => !otus.value.some((otu) => otu.id === store.otu?.id)
+)
+
+function makeSelectionWithCurrentOtu() {
+  const currentOtu = store.coordinateOtus.find(
+    (otu) => otu.id === store.otu?.id
+  )
+  const otherOtus = otus.value.filter((otu) => otu.id !== currentOtu?.id)
+
+  return currentOtu ? [currentOtu, ...otherOtus] : otherOtus
+}
+
+const hasUnappliedChanges = computed(() => {
+  const appliedIds = store.selectedOtus.map((otu) => otu.id)
+  const pendingIds = makeSelectionWithCurrentOtu().map((otu) => otu.id)
+
+  return (
+    appliedIds.length !== pendingIds.length ||
+    pendingIds.some((id) => !appliedIds.includes(id))
+  )
+})
+
+function applySelection() {
+  store.selectedOtus = makeSelectionWithCurrentOtu()
+  isModalVisible.value = false
+}
+
+async function closeModal() {
+  if (isConfirmingClose.value) return
+
+  if (hasUnappliedChanges.value) {
+    isConfirmingClose.value = true
+
+    const ok = await confirmationModal.value.show({
+      title: 'Discard changes',
+      message:
+        'You have changes that have not been applied. Are you sure you want to close without applying them?',
+      okButton: 'Close without applying',
+      cancelButton: 'Cancel',
+      typeButton: 'default'
+    })
+
+    isConfirmingClose.value = false
+
+    if (!ok) return
+  }
+
+  isModalVisible.value = false
 }
 
 watch(isModalVisible, () => {
