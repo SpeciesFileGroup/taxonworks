@@ -17,6 +17,13 @@ RSpec.describe Layout, type: :model do
     expect(layout.errors.include?(:is_community)).to be_truthy
   end
 
+  specify 'is never community, even when permitted' do
+    allow(Layout).to receive(:community_permitted?).and_return(true)
+    layout.is_community = true
+    layout.valid?
+    expect(layout.errors.include?(:is_community)).to be_truthy
+  end
+
   specify 'is_community is nil when saved' do
     layout.save!
     expect(layout.reload.is_community).to eq(nil)

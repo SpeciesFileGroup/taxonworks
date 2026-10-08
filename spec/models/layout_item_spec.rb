@@ -18,4 +18,24 @@ RSpec.describe LayoutItem, type: :model do
     layout_item.valid?
     expect(layout_item.errors.include?(:composition)).to be_truthy
   end
+
+  context 'composition_item_object' do
+    let(:image) { FactoryBot.create(:valid_image) }
+
+    specify 'may be an Image in the same project' do
+      layout_item.composition_item_object = image
+      layout_item.save!
+      expect(layout_item.reload.composition_item_object).to eq(image)
+    end
+
+    specify 'may not be in another project' do
+      p = FactoryBot.create(:valid_project)
+      layout_item.composition_item_object =
+        FactoryBot.create(:valid_otu, project: p)
+      layout_item.valid?
+      expect(
+        layout_item.errors.include?(:composition_item_object_id)
+      ).to be_truthy
+    end
+  end
 end

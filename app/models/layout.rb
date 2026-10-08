@@ -3,4 +3,8 @@
 #
 class Layout < Composition
 
+  # Layouts reference instance data, enforced here so that subclasses can
+  # not opt in via .community_permitted?
+  validates :is_community, absence: true
+
 end
