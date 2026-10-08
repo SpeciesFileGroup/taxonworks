@@ -3,6 +3,8 @@ module Shared::IsData::Annotation
 
   extend ActiveSupport::Concern
 
+  include Shared::IsData::AnnotationTypes
+
   # This is indirectly responsible for
   # visual position placement in radial annotator
   # middle is left, top/bottom right
@@ -68,36 +70,6 @@ module Shared::IsData::Annotation
 
     def annotates?
       self < Shared::PolymorphicAnnotator ? true : false
-    end
-
-    # Determines whether the class can be annotated
-    # in one of the following ways
-    ::ANNOTATION_TYPES.each do |t|
-      define_method("has_#{t}?") do
-        k = "Shared::#{t.to_s.singularize.classify.pluralize}".safe_constantize
-        self < k ? true : false
-      end
-    end
-
-    def available_annotation_types
-      ::ANNOTATION_TYPES.collect do |a|
-        self.send("has_#{a}?") ? a.to_s.classify : nil
-      end.compact
-    end
-  end
-
-  # Determines whether the instance can be annotated
-  # in one of the following ways
-  ::ANNOTATION_TYPES.each do |t|
-    define_method("has_#{t}?") do
-      k = "Shared::#{t.to_s.singularize.classify.pluralize}".safe_constantize
-      self.class < k ? true : false
-    end
-  end
-
-  def available_annotation_types
-    ::ANNOTATION_TYPES.select do |a|
-      self.send("has_#{a}?")
     end
   end
 

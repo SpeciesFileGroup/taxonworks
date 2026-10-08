@@ -11,12 +11,11 @@ module Shared::IsData
     include Levenshtein
     include Annotation
     include Scopes
-    include Navigation
     include Metamorphosize
     include HasRoles
     include Shared::Verifiers
     include Shared::Unify
-    include Shared::Permissions
+    include Shared::IsSteppable
   end
 
   module ClassMethods
