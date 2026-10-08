@@ -51,12 +51,26 @@ module Vendor
     # The key is never displayed or used to create anything, though it is what
     # CoL is searched with (.search_term).
     #
-    # TODO: ICN section, subsection, series, subseries (and ICZN
-    # supersubgenus/infragenus) - TaxonWorks #cached for these is just the
-    # genus, so #name would need to be compared, but no CoL examples of these
-    # ranks were found to confirm how CoL formats them.
-    #
-    # TODO: author/year formats likely vary by source in the same way.
+    # Asks of CoL - things CoL's API should handle rather than TaxonWorks
+    # working around them. What we do in the meantime:
+    #   * search should find a name with or without its subgenus, both ways.
+    #     A query with the subgenus misses names CoL gives without one, so we
+    #     search without it (.search_term), relying on undocumented behavior
+    #     (see the search note above).
+    #   * a name should come formatted the same way whatever its source
+    #     (subgenus included or not, a synonym like its accepted name). We
+    #     compare keys that ignore the subgenus.
+    #   * search should accept "Genus (Subgenus)" for a botanical subgenus,
+    #     not only "Genus subgen. Subgenus". Not worked around, see
+    #     Vendor::Colrapi.search.
+    #   * search should find a fossil name without its dagger (†). Not worked
+    #     around.
+    #   * the formats of ICN section, subsection, series, subseries (and ICZN
+    #     supersubgenus/infragenus) names should be documented - no CoL
+    #     examples were found. Not handled: TaxonWorks #cached for these is
+    #     just the genus, so #name would need to be compared.
+    #   * author/year formats should be consistent across sources (they
+    #     likely vary as names do). Not handled.
     #
     module NameTranslation
 

@@ -166,9 +166,10 @@ module Vendor
     # @param limit [Integer] maximum number of results
     # @return [Hash] raw Colrapi nameusage response (keys 'total', 'result')
     #
-    # TODO: CoL writes botanical subgenera "Genus subgen. Subgenus", and a
-    # query in TaxonWorks' form ("Acrobolbus (Marsupellopsis)") returns
-    # nothing, so the CoL autoselect levels can't find them that way.
+    # An ask of CoL (see NameTranslation): CoL writes botanical subgenera
+    # "Genus subgen. Subgenus", and a query in TaxonWorks' form ("Acrobolbus
+    # (Marsupellopsis)") returns nothing, so the CoL autoselect levels can't
+    # find them that way.
     # NameTranslation.search_term isn't the fix here (it drops the
     # parenthetical, so the query becomes the whole genus). Low impact for
     # now: every botanical subgenus in the backbone is a synonym (2026-10).
