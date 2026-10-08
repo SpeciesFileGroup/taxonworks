@@ -7,7 +7,18 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 ## [unreleased]
 
-\-
+### Added
+
+- Browse OTUs: preference to display the task in full width
+- Browse OTUs: links to OTUs coordinate
+
+### Changed
+
+- Filter sources: search sources in project by default
+
+### Fixed
+
+- Browse OTUs: Thumbnails may be cropped in the images panel
 
 ## [0.66.0] - 2026-10-07
 

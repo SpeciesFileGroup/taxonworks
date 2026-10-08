@@ -2,7 +2,8 @@
   <NavBar navbar-class="panel content rounded-tl-none rounded-tr-none">
     <div
       id="browse-otu-header"
-      class="container-2xl w-full mx-auto"
+      class="w-full mx-auto"
+      :class="containerClass"
     >
       <div class="flex-separate align-start gap-medium">
         <template v-if="navigation">
@@ -173,6 +174,12 @@ const browseTaxonRef = ref(null)
 const navigation = ref()
 const showLayoutSettings = ref(false)
 const isLoading = ref(true)
+
+const containerClass = computed(() =>
+  props.preferences?.layout?.[props.storageKey]?.fullWidth
+    ? 'container-full'
+    : 'container-2xl'
+)
 
 const taxonName = computed(() => otuStore.taxonName)
 const isInvalid = computed(
