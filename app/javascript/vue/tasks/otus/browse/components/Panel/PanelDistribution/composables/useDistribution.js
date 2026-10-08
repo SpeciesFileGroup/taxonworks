@@ -40,9 +40,11 @@ function isRankInSpeciesGroups(rank) {
   ].includes(rankGroup)
 }
 
-async function loadAbsentFeatures(otuId) {
+async function loadAbsentFeatures(otuIds) {
   try {
-    const { body } = await Otu.geoJsonDistributionAbsent(otuId)
+    const { body } = await Otu.geoJsonDistributionIsAbsentByOtus({
+      otu_id: otuIds
+    })
     const features = (body.features || []).map((feature) => ({
       ...feature,
       properties: {
@@ -59,9 +61,11 @@ async function loadAbsentFeatures(otuId) {
   }
 }
 
-async function loadAggregateMap(otuId) {
+async function loadAggregateMap(otuIds) {
   try {
-    const { body } = await Otu.geoJsonDistribution(otuId)
+    const { body } = await Otu.geoJsonDistributionByOtus({
+      otu_id: otuIds
+    })
     const { features, shapeTypes } = removeDuplicateShapes(
       sortFeaturesByType(body.features, Object.keys(MAP_LEGEND))
     )
@@ -93,6 +97,7 @@ export default () => {
   const geojson = ref([])
   const cachedMap = ref()
   const isLoading = ref(false)
+  let requestId = 0
   const isAggregateMap = computed(() =>
     shapeTypes.value.includes(MAP_SHAPE_AGGREGATE)
   )
@@ -103,18 +108,21 @@ export default () => {
     cachedMap.value = undefined
   }
 
-  const loadMapData = async (otuId, rank) => {
+  const loadMapData = async ({ otuId, otuIds, rank }) => {
     const isSpeciesGroup = rank && isRankInSpeciesGroups(rank)
+    const currentRequestId = ++requestId
 
     isLoading.value = true
 
     try {
       const [data, absentFeatures] = await Promise.all([
         isSpeciesGroup
-          ? loadAggregateMap(otuId)
+          ? loadAggregateMap(otuIds)
           : loadGeoJSONDistribution(otuId),
-        loadAbsentFeatures(otuId)
+        loadAbsentFeatures(otuIds)
       ])
+
+      if (currentRequestId !== requestId) return
 
       const baseShapeTypes = data?.shapeTypes ?? []
       const baseFeatures = data?.features ?? []
@@ -126,7 +134,9 @@ export default () => {
       cachedMap.value = data?.cachedMap
     } catch {
     } finally {
-      isLoading.value = false
+      if (currentRequestId === requestId) {
+        isLoading.value = false
+      }
     }
   }
 

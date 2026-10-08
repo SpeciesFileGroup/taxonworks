@@ -15,10 +15,13 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 ### Changed
 
 - Filter sources: search sources in project by default
+- Browse OTUs: Distribution panel only loads data for the selected OTUs [#4453]
 
 ### Fixed
 
 - Browse OTUs: Thumbnails may be cropped in the images panel
+
+[#4453]: https://github.com/SpeciesFileGroup/taxonworks/issues/4453
 
 ## [0.66.0] - 2026-10-07
 

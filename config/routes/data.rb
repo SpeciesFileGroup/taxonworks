@@ -752,6 +752,9 @@ resources :otus do
     post :create_morphospecies_otu, defaults: { format: :json }
 
     patch :batch_update
+
+    match :distribution, action: :distribution_by_otus, via: [:get, :post], defaults: {format: :geojson}
+    match :distribution_is_absent, action: :distribution_is_absent_by_otus, via: [:get, :post], defaults: {format: :geojson}
   end
 
   member do
