@@ -7,7 +7,7 @@
       <h3>Layout settings</h3>
     </template>
     <template #body>
-      <div class="field label-above">
+      <div class="field">
         <label>Layout</label>
         <VSwitch
           v-model="currentPresetLabel"
