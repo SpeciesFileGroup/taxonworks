@@ -1,4 +1,5 @@
-# An Image placed in a Layout.
+# An Image placed in a Layout, e.g. one that depicts nothing yet. See
+# LayoutItem::DepictionItem for an Image as it depicts something.
 #
 # x, y, width, height: pixels, in the Layout's coordinate space
 # z: stacking order, higher is in front

@@ -156,7 +156,7 @@ RSpec.describe CompositionItem, type: :model do
           s.composition_item_object_permitted?(k)
         }
     }
-    expect(targets).to include(Image)
+    expect(targets).to include(Image, Depiction)
     expect(targets.reject { |k| k < Shared::LayoutItems }).to eq([])
   end
 

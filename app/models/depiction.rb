@@ -56,6 +56,7 @@ class Depiction < ApplicationRecord
   include Shared::DataAttributes
   include Shared::AssertedDistributions
   include Shared::DwcOccurrenceHooks
+  include Shared::LayoutItems
   include Shared::IsData
   include Shared::PolymorphicAnnotator
   polymorphic_annotates(:depiction_object)
