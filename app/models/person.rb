@@ -228,12 +228,12 @@ class Person < ApplicationRecord
                 av_list = l_person_hash['alternate values']
                 av_list ||= {}
                 av_list.each do |av|
-                  if av.value == r_person.first_name
-                    if av.type == 'AlternateValue::AlternateSpelling' &&
-                        av.alternate_value_object_attribute == 'first_name' # &&
-                      skip_av = true
-                      break # stop looking in this bunch, if you found a match
-                    end
+                  # Any existing alternate value (e.g. a Misspelling) of this
+                  # name already records it, don't add an AlternateSpelling too.
+                  if av.value == r_person.first_name &&
+                      av.alternate_value_object_attribute == 'first_name'
+                    skip_av = true
+                    break # stop looking in this bunch, if you found a match
                   end
                 end
 
@@ -256,12 +256,12 @@ class Person < ApplicationRecord
                 av_list = l_person_hash['alternate values']
                 av_list ||= {}
                 av_list.each do |av|
-                  if av.value == r_person.last_name
-                    if av.type == 'AlternateValue::AlternateSpelling' &&
-                        av.alternate_value_object_attribute == 'last_name' # &&
-                      skip_av = true
-                      break # stop looking in this bunch, if you found a match
-                    end
+                  # Any existing alternate value (e.g. a Misspelling) of this
+                  # name already records it, don't add an AlternateSpelling too.
+                  if av.value == r_person.last_name &&
+                      av.alternate_value_object_attribute == 'last_name'
+                    skip_av = true
+                    break # stop looking in this bunch, if you found a match
                   end
                 end
 
