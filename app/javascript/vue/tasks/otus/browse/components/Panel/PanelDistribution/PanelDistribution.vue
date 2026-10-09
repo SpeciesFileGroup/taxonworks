@@ -4,6 +4,7 @@
     :title="title"
     :spinner="isLoading"
     :empty="!geojson.length && !cachedMap"
+    :current-otu-only="!isSpeciesGroup"
     :skeleton="{
       variant: 'rect',
       height: '398px'
@@ -61,7 +62,9 @@ import DistributionLegend from './DistributionLegend.vue'
 import { makeClusterIconFor } from '@/components/ui/VMap/clusters'
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { GEOREFERENCE, ASSERTED_DISTRIBUTION } from '@/constants/index.js'
-import useDistribution from './composables/useDistribution.js'
+import useDistribution, {
+  isRankInSpeciesGroups
+} from './composables/useDistribution.js'
 
 const TABS = {
   Georeferences: 'Georeferences',
@@ -176,6 +179,12 @@ onBeforeUnmount(() => {
   document.removeEventListener('fullscreenchange', syncFullscreen)
   document.removeEventListener('keydown', exitFullscreenOnEscape)
 })
+
+const isSpeciesGroup = computed(
+  () =>
+    !!props.taxonName?.rank_string &&
+    isRankInSpeciesGroups(props.taxonName.rank_string)
+)
 
 const selectedOtuIds = computed(() => {
   const ids = props.otus.map((o) => o.id)

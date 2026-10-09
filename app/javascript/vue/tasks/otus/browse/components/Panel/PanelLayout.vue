@@ -7,6 +7,13 @@
     <template #header>
       <h3>
         {{ title }}
+        <span
+          v-if="isCurrentOtuHintVisible"
+          class="subtle font-light"
+          title="This panel only displays information for the current OTU"
+        >
+          · Current OTU
+        </span>
       </h3>
     </template>
 
@@ -40,7 +47,8 @@ import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
 import VSkeleton from '@/components/ui/VSkeleton/VSkeleton.vue'
-import { useSettingsStore } from '../../store'
+import { useSettingsStore, useOtuStore } from '../../store'
+import { OTU_SCOPE_CURRENT } from '../../constants/otuScope.js'
 
 const props = defineProps({
   title: {
@@ -79,16 +87,29 @@ const props = defineProps({
   empty: {
     type: Boolean,
     default: false
+  },
+
+  currentOtuOnly: {
+    type: Boolean,
+    default: false
   }
 })
 
 const emit = defineEmits(['menu'])
 
 const settingStore = useSettingsStore()
+const otuStore = useOtuStore()
 
 const linkName = computed(() => props.name || props.title)
 
 const isEmpty = computed(() => !props.spinner && props.empty)
+
+const isCurrentOtuHintVisible = computed(
+  () =>
+    props.currentOtuOnly &&
+    otuStore.coordinateOtus.length > 1 &&
+    otuStore.otuScope !== OTU_SCOPE_CURRENT
+)
 
 const isHidden = computed(() => isEmpty.value && settingStore.hideEmptyPanels)
 

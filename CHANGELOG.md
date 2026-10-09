@@ -17,6 +17,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Filter sources: search sources in project by default
 - Browse OTUs: Distribution panel only loads data for the selected OTUs [#4453]
 - Browse OTUs: The image panel displays only OTU and observation images [#5130]
+- Browse OTUs: Replace per-OTU selection with All / Current / Coordinates only scope
 
 ### Fixed
 
