@@ -20,6 +20,7 @@
 #   and down from there.
 # * Rotations pivot on the item's center (as the CSS transform-origin
 #   default). A positive rotation_z is clockwise as seen by the viewer.
+# * LayoutItem::GroupItem is translation only, see there.
 #
 # @!attribute type
 #   @return [String]

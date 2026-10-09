@@ -1,7 +1,7 @@
 class CompositionItemsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_composition_item, only: [:show, :update, :destroy]
+  before_action :set_composition_item, only: [:show, :update, :destroy, :ungroup]
   before_action :check_composition, only: [:create, :update]
 
   # GET /compositions/:composition_id/composition_items.json
@@ -54,6 +54,19 @@ class CompositionItemsController < ApplicationController
     else
       render json: @composition_item.errors, status: :unprocessable_content
     end
+  end
+
+  # POST /composition_items/1/ungroup.json
+  # Removes a LayoutItem::GroupItem, keeping its members in place.
+  # Renders the former members.
+  def ungroup
+    if !@composition_item.is_a?(LayoutItem::GroupItem)
+      render json: { base: ['only a group can be ungrouped'] },
+        status: :unprocessable_content
+      return
+    end
+    @composition_items = @composition_item.ungroup!
+    render :index
   end
 
   private
