@@ -9,7 +9,7 @@
         {{ title }}
         <span
           v-if="isCurrentOtuHintVisible"
-          class="subtle font-light"
+          class="subtle font-light margin-xsmall-left"
           title="This panel only displays information for the current OTU"
         >
           · Current OTU
