@@ -7,9 +7,10 @@ module Shared::LayoutItems
   extend ActiveSupport::Concern
 
   included do
+    # No class_name: (inferred), so that Shared::Unify moves these to the
+    # surviving object, see Shared::Unify#inferred_relations
     has_many :layout_items, as: :composition_item_object,
-      class_name: 'LayoutItem', inverse_of: :composition_item_object,
-      dependent: :destroy
+      inverse_of: :composition_item_object, dependent: :destroy
   end
 
 end

@@ -375,6 +375,27 @@ RSpec.describe Project, '#unify', type: :model do
       end
     end
 
+    context 'with Composition name conflict' do
+      let!(:source_layout) do
+        FactoryBot.create(:valid_layout, name: 'Table', project: source_project)
+      end
+
+      let!(:target_layout) do
+        FactoryBot.create(:valid_layout, name: 'Table', project: target_project)
+      end
+
+      it 'reports the conflict and does not unify' do
+        result = target_project.unify(source_project, preview: false, user_id: user.id)
+
+        expect(result[:unified]).to be false
+        conflict = result[:conflicts].first
+        expect(conflict[:model]).to eq('Composition')
+        expect(conflict[:id]).to eq(source_layout.id)
+        expect(conflict[:conflict_fields]).to include(:name)
+        expect(source_layout.reload.project_id).to eq(source_project.id)
+      end
+    end
+
     context 'without conflicts' do
       let!(:source_otu) { FactoryBot.create(:valid_otu, project: source_project) }
       let!(:note) { FactoryBot.create(:note, note_object: source_otu, project: source_project, text: 'Test note') }
