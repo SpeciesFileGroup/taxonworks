@@ -33,7 +33,6 @@ module ProjectUnification
       InternalAttribute
       News
       Observation
-      TaggedSectionKeyword
       Role
       Label
       Protocol
@@ -71,7 +70,6 @@ module ProjectUnification
       Download
       DatasetRecordField
       DatasetRecord
-      OtuPageLayoutSection
       TaxonDetermination
       BiocurationClassification
       CharacterState
@@ -111,7 +109,6 @@ module ProjectUnification
       ProjectOrganization
       ProjectSource
       RangedLotCategory
-      OtuPageLayout
       Image
       Document
       ControlledVocabularyTerm

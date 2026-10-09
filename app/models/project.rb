@@ -42,7 +42,6 @@ class Project < ApplicationRecord
      CharacterState
      AlternateValue
      DataAttribute
-     TaggedSectionKeyword
      Tag
      Confidence
      Role
@@ -85,8 +84,6 @@ class Project < ApplicationRecord
      LeadItem
      LoanItem
      Loan
-     OtuPageLayoutSection
-     OtuPageLayout
      ProjectOrganization
      ProjectSource
      TaxonDetermination

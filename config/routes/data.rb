@@ -778,16 +778,6 @@ resources :otus do
 
 end
 
-resources :otu_page_layouts do
-  collection do
-    get :list
-    get :lookup_topic, controller: 'topics'
-  end
-  member do
-    get 'related'
-  end
-end
-
 resources :otu_relationships do
   collection do
     get :list
@@ -806,8 +796,6 @@ end
 resources :origin_relationships do
   concerns [:data_routes]
 end
-
-resources :otu_page_layout_sections, only: [:create, :update, :destroy]
 
 match 'people/role_types', to: 'people#role_types', via: :get, method: :json
 resources :people do
@@ -1002,8 +990,6 @@ resources :tags, except: [:edit, :show, :new] do
     post :batch_remove, defaults: {format: :json}
   end
 end
-
-resources :tagged_section_keywords, only: [:create, :update, :destroy]
 
 resources :taxon_determinations do
   collection do

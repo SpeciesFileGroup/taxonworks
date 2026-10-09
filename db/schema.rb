@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_09_010422) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_09_150000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -1767,38 +1767,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_09_010422) do
     t.index ["updated_by_id"], name: "index_origin_relationships_on_updated_by_id"
   end
 
-  create_table "otu_page_layout_sections", id: :serial, force: :cascade do |t|
-    t.datetime "created_at", precision: nil, null: false
-    t.integer "created_by_id", null: false
-    t.string "dynamic_content_class"
-    t.integer "otu_page_layout_id", null: false
-    t.integer "position", null: false
-    t.integer "project_id", null: false
-    t.integer "topic_id"
-    t.string "type", null: false
-    t.datetime "updated_at", precision: nil, null: false
-    t.integer "updated_by_id", null: false
-    t.index ["created_by_id"], name: "index_otu_page_layout_sections_on_created_by_id"
-    t.index ["otu_page_layout_id"], name: "index_otu_page_layout_sections_on_otu_page_layout_id"
-    t.index ["position"], name: "index_otu_page_layout_sections_on_position"
-    t.index ["project_id"], name: "index_otu_page_layout_sections_on_project_id"
-    t.index ["topic_id"], name: "index_otu_page_layout_sections_on_topic_id"
-    t.index ["type"], name: "index_otu_page_layout_sections_on_type"
-    t.index ["updated_by_id"], name: "index_otu_page_layout_sections_on_updated_by_id"
-  end
-
-  create_table "otu_page_layouts", id: :serial, force: :cascade do |t|
-    t.datetime "created_at", precision: nil, null: false
-    t.integer "created_by_id", null: false
-    t.string "name", null: false
-    t.integer "project_id", null: false
-    t.datetime "updated_at", precision: nil, null: false
-    t.integer "updated_by_id", null: false
-    t.index ["created_by_id"], name: "index_otu_page_layouts_on_created_by_id"
-    t.index ["project_id"], name: "index_otu_page_layouts_on_project_id"
-    t.index ["updated_by_id"], name: "index_otu_page_layouts_on_updated_by_id"
-  end
-
   create_table "otu_relationships", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.integer "created_by_id", null: false
@@ -2231,23 +2199,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_09_010422) do
     t.integer "updated_by_id", null: false
     t.index ["depiction_id"], name: "index_sqed_depictions_on_depiction_id"
     t.index ["project_id"], name: "index_sqed_depictions_on_project_id"
-  end
-
-  create_table "tagged_section_keywords", id: :serial, force: :cascade do |t|
-    t.datetime "created_at", precision: nil, null: false
-    t.integer "created_by_id", null: false
-    t.integer "keyword_id", null: false
-    t.integer "otu_page_layout_section_id", null: false
-    t.integer "position", null: false
-    t.integer "project_id", null: false
-    t.datetime "updated_at", precision: nil, null: false
-    t.integer "updated_by_id", null: false
-    t.index ["created_by_id"], name: "index_tagged_section_keywords_on_created_by_id"
-    t.index ["keyword_id"], name: "index_tagged_section_keywords_on_keyword_id"
-    t.index ["otu_page_layout_section_id"], name: "index_tagged_section_keywords_on_otu_page_layout_section_id"
-    t.index ["position"], name: "index_tagged_section_keywords_on_position"
-    t.index ["project_id"], name: "index_tagged_section_keywords_on_project_id"
-    t.index ["updated_by_id"], name: "index_tagged_section_keywords_on_updated_by_id"
   end
 
   create_table "tags", id: :serial, force: :cascade do |t|
@@ -2728,14 +2679,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_09_010422) do
   add_foreign_key "origin_relationships", "projects"
   add_foreign_key "origin_relationships", "users", column: "created_by_id"
   add_foreign_key "origin_relationships", "users", column: "updated_by_id"
-  add_foreign_key "otu_page_layout_sections", "controlled_vocabulary_terms", column: "topic_id", name: "otu_page_layout_sections_topic_id_fkey"
-  add_foreign_key "otu_page_layout_sections", "otu_page_layouts", name: "otu_page_layout_sections_otu_page_layout_id_fkey"
-  add_foreign_key "otu_page_layout_sections", "projects", name: "otu_page_layout_sections_project_id_fkey"
-  add_foreign_key "otu_page_layout_sections", "users", column: "created_by_id", name: "otu_page_layout_sections_created_by_id_fkey"
-  add_foreign_key "otu_page_layout_sections", "users", column: "updated_by_id", name: "otu_page_layout_sections_updated_by_id_fkey"
-  add_foreign_key "otu_page_layouts", "projects", name: "otu_page_layouts_project_id_fkey"
-  add_foreign_key "otu_page_layouts", "users", column: "created_by_id", name: "otu_page_layouts_created_by_id_fkey"
-  add_foreign_key "otu_page_layouts", "users", column: "updated_by_id", name: "otu_page_layouts_updated_by_id_fkey"
   add_foreign_key "otu_relationships", "otus", column: "object_otu_id"
   add_foreign_key "otu_relationships", "otus", column: "subject_otu_id"
   add_foreign_key "otu_relationships", "projects"
@@ -2820,11 +2763,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_09_010422) do
   add_foreign_key "sqed_depictions", "projects"
   add_foreign_key "sqed_depictions", "users", column: "created_by_id"
   add_foreign_key "sqed_depictions", "users", column: "updated_by_id"
-  add_foreign_key "tagged_section_keywords", "controlled_vocabulary_terms", column: "keyword_id", name: "tagged_section_keywords_keyword_id_fkey"
-  add_foreign_key "tagged_section_keywords", "otu_page_layout_sections", name: "tagged_section_keywords_otu_page_layout_section_id_fkey"
-  add_foreign_key "tagged_section_keywords", "projects", name: "tagged_section_keywords_project_id_fkey"
-  add_foreign_key "tagged_section_keywords", "users", column: "created_by_id", name: "tagged_section_keywords_created_by_id_fkey"
-  add_foreign_key "tagged_section_keywords", "users", column: "updated_by_id", name: "tagged_section_keywords_updated_by_id_fkey"
   add_foreign_key "tags", "controlled_vocabulary_terms", column: "keyword_id", name: "tags_keyword_id_fkey"
   add_foreign_key "tags", "projects", name: "tags_project_id_fkey"
   add_foreign_key "tags", "users", column: "created_by_id", name: "tags_created_by_id_fkey"
