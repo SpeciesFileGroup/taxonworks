@@ -104,9 +104,26 @@ class CompositionItem < ApplicationRecord
   validate :parent_is_in_composition
   validate :parent_is_not_self_or_descendant
   validate :community_composition_has_no_object
+  validate :composition_item_object_is_permitted
 
   # @return [Boolean]
-  #   overrides Housekeeping::Projects, which checks the class
+  #   Unify (ApplicationEnumeration.relation_targets_community?) asks this
+  #   of classes that Data has_many of. Items that reference objects are
+  #   never community, see #community_composition_has_no_object.
+  def self.is_community?
+    false
+  end
+
+  # @return [Boolean]
+  #   true if instances of klass may be the composition_item_object.
+  #   Abstract: no objects are permitted unless a subclass says so.
+  def self.composition_item_object_permitted?(klass)
+    false
+  end
+
+  # @return [Boolean]
+  #   overrides Housekeeping::Projects, which checks the class. Per record,
+  #   follows the Composition, see Composition#is_community?
   def is_community?
     composition&.is_community? ? true : false
   end
@@ -142,6 +159,15 @@ class CompositionItem < ApplicationRecord
         break
       end
       p = p.parent
+    end
+  end
+
+  def composition_item_object_is_permitted
+    if composition_item_object &&
+        !self.class.composition_item_object_permitted?(
+          composition_item_object.class
+        )
+      errors.add(:composition_item_object_type, 'is not permitted')
     end
   end
 

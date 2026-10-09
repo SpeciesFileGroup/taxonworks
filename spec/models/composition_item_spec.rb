@@ -95,7 +95,11 @@ RSpec.describe CompositionItem, type: :model do
     end
 
     context 'when the composition is community' do
-      before { allow(Template).to receive(:community_permitted?).and_return(true) }
+      before do
+        allow(Template).to receive(:community_permitted?).and_return(true)
+        allow(TemplateItem).to receive(:composition_item_object_permitted?)
+          .and_return(true)
+      end
       let(:template) { FactoryBot.create(:valid_template, is_community: true) }
 
       specify 'is nil' do
@@ -132,9 +136,28 @@ RSpec.describe CompositionItem, type: :model do
     end
   end
 
-  specify 'composition_item_object may be any object' do
-    i = FactoryBot.create(:valid_layout_item, composition_item_object: FactoryBot.create(:valid_otu))
-    expect(i.reload.composition_item_object).to be_a(Otu)
+  specify 'composition_item_object is not permitted by default' do
+    i = FactoryBot.build(:valid_layout_item,
+      composition_item_object: FactoryBot.create(:valid_otu))
+    i.valid?
+    expect(i.errors.include?(:composition_item_object_type)).to be_truthy
+  end
+
+  specify 'is not community at the class level' do
+    expect(CompositionItem.is_community?).to be_falsey
+  end
+
+  # Permitted targets must get dependent cleanup from a target concern.
+  specify 'every permitted target class includes Shared::LayoutItems' do
+    Rails.application.eager_load!
+    targets = ApplicationRecord.descendants.select { |k|
+      !k.abstract_class? && k.table_exists? &&
+        LayoutItem.descendants.any? { |s|
+          s.composition_item_object_permitted?(k)
+        }
+    }
+    expect(targets).to include(Image)
+    expect(targets.reject { |k| k < Shared::LayoutItems }).to eq([])
   end
 
   specify 'destroying the composition destroys its items' do

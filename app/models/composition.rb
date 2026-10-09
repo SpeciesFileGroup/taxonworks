@@ -55,15 +55,18 @@ class Composition < ApplicationRecord
   validate :community_has_no_item_objects
 
   # @return [Boolean]
-  #   true if instances may be shared across projects. Subclasses that
-  #   reference only model attributes and attribute modifiers, never
-  #   instance data, may override this.
+  #   true if *some* instances may be shared across projects (compare
+  #   IsData's class-level .is_community?, which means *all* instances are).
+  #   Subclasses that reference only model attributes and attribute
+  #   modifiers, never instance data, may override this.
   def self.community_permitted?
     false
   end
 
   # @return [Boolean]
-  #   overrides Housekeeping::Projects, which checks the class
+  #   overrides Housekeeping::Projects, which checks the class. Per record,
+  #   unlike Data where community is a property of the class. There is no
+  #   class-level .is_community? here, nothing asks it of Composition.
   def is_community?
     is_community == true
   end

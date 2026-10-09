@@ -14,13 +14,4 @@ module Shared::IsRender
     include Shared::IsSteppable
   end
 
-  module ClassMethods
-
-    # @return [Boolean]
-    def is_community?
-      self < Shared::SharedAcrossProjects ? true : false
-    end
-
-  end
-
 end
