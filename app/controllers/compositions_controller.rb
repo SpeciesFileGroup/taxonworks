@@ -14,7 +14,7 @@ class CompositionsController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @compositions = Composition.visible_to_project(sessions_current_project_id)
+        @compositions = visible_compositions
           .order(:type, :name, :version)
           .page(params[:page])
           .per(params[:per])
@@ -97,13 +97,26 @@ class CompositionsController < ApplicationController
   end
 
   def autocomplete
-    @compositions = Composition.visible_to_project(sessions_current_project_id)
+    @compositions = visible_compositions
       .where('name ILIKE ?', "%#{params.require(:term)}%")
       .order(:type, :name, :version)
       .limit(20)
   end
 
   private
+
+  # @return [Scope]
+  #   Compositions visible to the project, optionally only those of
+  #   params[:type] (e.g. Layout), including its subclasses. An unknown
+  #   type matches nothing.
+  def visible_compositions
+    klass = Composition
+    if params[:type].present?
+      klass = params[:type].safe_constantize
+      return Composition.none if !(klass.is_a?(Class) && klass <= Composition)
+    end
+    klass.visible_to_project(sessions_current_project_id)
+  end
 
   def set_composition
     @composition = Composition.visible_to_project(sessions_current_project_id).find(params[:id])

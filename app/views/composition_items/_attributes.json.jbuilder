@@ -7,9 +7,9 @@ json.extract! composition_item, :id, :type, :composition_id, :parent_id,
 json.partial! '/shared/data/all/metadata', object: composition_item
 
 if extend_response_with('composition_item_object') &&
-    composition_item.composition_item_object
+    (o = composition_item.composition_item_object)
   json.composition_item_object do
-    json.partial! '/shared/data/all/metadata',
-      object: composition_item.composition_item_object, extensions: false
+    k = o.class.base_class.name.underscore
+    json.partial! "/#{k.pluralize}/attributes", k.to_sym => o
   end
 end
