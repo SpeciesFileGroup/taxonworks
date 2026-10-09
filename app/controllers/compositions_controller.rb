@@ -38,7 +38,7 @@ class CompositionsController < ApplicationController
 
   def list
     @compositions = Composition.visible_to_project(sessions_current_project_id)
-      .order(:type, :name, :version)
+      .order(:id)
       .page(params[:page])
   end
 
@@ -97,6 +97,7 @@ class CompositionsController < ApplicationController
   end
 
   def autocomplete
+    # TODO: expand, move to queries..autocomplete
     @compositions = visible_compositions
       .where('name ILIKE ?', "%#{params.require(:term)}%")
       .order(:type, :name, :version)

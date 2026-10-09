@@ -1,7 +1,8 @@
 class CompositionItemsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
 
-  before_action :set_composition_item, only: [:show, :update, :destroy, :ungroup]
+  before_action :set_composition_item,
+    only: [:show, :update, :destroy, :ungroup]
   before_action :check_composition, only: [:create, :update]
 
   # GET /compositions/:composition_id/composition_items.json
@@ -71,18 +72,26 @@ class CompositionItemsController < ApplicationController
 
   private
 
-  # Items of community Compositions have no project.
+  # Items of community Compositions have no project. A nil project_id alone
+  # isn't trusted (items' project is only kept in step by callbacks), the
+  # Composition must be community (enforced by a DB check constraint).
   def set_composition_item
     @composition_item = CompositionItem
-      .where(project_id: [sessions_current_project_id, nil])
+      .where(project_id: sessions_current_project_id)
+      .or(CompositionItem.where(
+        composition_id: Composition.where(is_community: true).select(:id)
+      ))
       .find(params[:id])
   end
 
   # Items take their project from their Composition, so it must be one
   # this project can see.
   def check_composition
-    if id = params.dig(:composition_item, :composition_id).presence
-      Composition.visible_to_project(sessions_current_project_id).find(id)
+    id = params.dig(:composition_item, :composition_id).presence
+    if id &&
+        !Composition.visible_to_project(sessions_current_project_id).exists?(id)
+      render json: { composition: ['is not available'] },
+        status: :unprocessable_content
     end
   end
 
