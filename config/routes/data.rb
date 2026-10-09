@@ -11,10 +11,6 @@ concern :data_routes do |options|
     get 'autocomplete'
     get 'search' # TODO: deprecate/remove
   end
-
-  member do
-    get 'related' # TODO: remove or redirect here to Task route
-  end
 end
 
 resources :alternate_values, except: [:show, :new] do
@@ -372,10 +368,6 @@ resources :documentation, as: :documentation do
 
     patch :sort
   end
-
-  member do
-    get 'related'
-  end
 end
 
 resources :documents do
@@ -459,10 +451,6 @@ resources :geographic_areas, only: [:index, :show] do
     get 'display_coordinates', as: 'getdisplaycoordinates'
     get :select_options, defaults: {format: :json}
     get :by_lat_long, defaults: {format: :json}
-  end
-
-  member do
-    get 'related'
   end
 end
 

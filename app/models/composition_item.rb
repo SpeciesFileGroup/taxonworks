@@ -168,12 +168,15 @@ class CompositionItem < ApplicationRecord
   end
 
   def parent_is_not_self_or_descendant
+    seen = []
     p = parent
-    while p
+    # seen guards against a cycle already in the data that excludes self
+    while p && !seen.include?(p)
       if p == self
         errors.add(:parent, 'may not be self or a descendant')
         break
       end
+      seen.push(p)
       p = p.parent
     end
   end

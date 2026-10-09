@@ -70,6 +70,14 @@ RSpec.describe CompositionItem, type: :model do
       expect(parent.errors.include?(:parent)).to be_truthy
     end
 
+    specify 'validation terminates on a cycle already in the data' do
+      item.save!
+      parent.update_columns(parent_id: item.id)
+      c = FactoryBot.build(:valid_layout_item,
+        composition: item.composition, parent: item)
+      expect(Timeout.timeout(5) { c.valid? }).to be_truthy
+    end
+
     specify 'destroying a parent destroys its children' do
       item.save!
       parent.destroy!
