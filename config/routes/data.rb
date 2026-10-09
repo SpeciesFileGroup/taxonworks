@@ -239,8 +239,11 @@ resources :common_names do
   end
 end
 
+resources :composition_items, only: [:show, :create, :update, :destroy], defaults: {format: :json}
+
 resources :compositions do
   concerns [:data_routes]
+  resources :composition_items, shallow: true, only: [:index], defaults: {format: :json}
 end
 
 get 'confidences/exists', to: 'confidences#exists', defaults: {format: :json}
