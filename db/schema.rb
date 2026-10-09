@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_02_202328) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_09_010422) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -584,8 +584,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_02_202328) do
     t.bigint "parent_id"
     t.integer "position"
     t.bigint "project_id"
-    t.float "rotation_x"
-    t.float "rotation_y"
+    t.float "rotation_z"
     t.xml "svg_clip"
     t.string "svg_view_box"
     t.text "text"

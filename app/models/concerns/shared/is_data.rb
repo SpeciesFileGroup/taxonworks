@@ -21,7 +21,7 @@ module Shared::IsData
   module ClassMethods
 
     # @return [Boolean]
-    # TODO: Composition::Template has a model-level `is_community` attribute, so
+    # TODO: Template has a model-level `is_community` attribute, so
     # this is no longer expressible there at the class level in that case.
     def is_community?
       self < Shared::SharedAcrossProjects ? true : false

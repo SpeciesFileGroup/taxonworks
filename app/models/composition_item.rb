@@ -7,6 +7,20 @@
 # Subclasses that use composition_id are named <Composition subclass>Item,
 # e.g. LayoutItem, TemplateItem.
 #
+# Coordinate system (units are defined by subclasses):
+# * Left-handed, as CSS: x increases right, y increases down, z increases
+#   toward the viewer (higher z is in front, as CSS z-index). Renderers
+#   using a right-handed system (e.g. WebGL/three.js) negate y at their
+#   boundary.
+# * The origin is the top-left of the Composition, or of the parent item
+#   when parent_id is set: child coordinates are relative to the parent,
+#   and the parent's rotation and zoom apply to its children (as nested
+#   SVG <g> transforms), so moving a parent moves its children.
+# * x, y locate the item's top-left corner; width and height extend right
+#   and down from there.
+# * Rotations pivot on the item's center (as the CSS transform-origin
+#   default). A positive rotation_z is clockwise as seen by the viewer.
+#
 # @!attribute type
 #   @return [String]
 #     the subclass
@@ -32,12 +46,15 @@
 #
 # @!attribute x
 #   @return [Float, nil]
+#     left edge, increases right, see Coordinate system
 #
 # @!attribute y
 #   @return [Float, nil]
+#     top edge, increases down, see Coordinate system
 #
 # @!attribute z
 #   @return [Float, nil]
+#     increases toward the viewer, see Coordinate system
 #
 # @!attribute position
 #   @return [Integer]
@@ -60,11 +77,10 @@
 # @!attribute zoom
 #   @return [Float, nil]
 #
-# @!attribute rotation_x
+# @!attribute rotation_z
 #   @return [Float, nil]
-#
-# @!attribute rotation_y
-#   @return [Float, nil]
+#     rotation about the z axis (out of the page), i.e. flat, in-plane
+#     rotation, see Coordinate system and e.g. CSS rotateZ()
 #
 # @!attribute opacity
 #   @return [Float, nil]
