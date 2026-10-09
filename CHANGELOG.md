@@ -21,6 +21,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 ### Fixed
 
 - Browse OTUs: Thumbnails may be cropped in the images panel
+- "Internal error" screen instead of error toast when error occurs during Batch Asserted Distribution upload
 
 [#4453]: https://github.com/SpeciesFileGroup/taxonworks/issues/4453
 [#5130]: https://github.com/SpeciesFileGroup/taxonworks/issues/5130
