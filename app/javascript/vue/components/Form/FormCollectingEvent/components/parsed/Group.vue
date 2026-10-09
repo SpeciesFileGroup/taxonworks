@@ -12,6 +12,10 @@
             collectingEvent.group = e.name
             collectingEvent.isUnsaved = true
           }"
+        @getInput="(text) => {
+            collectingEvent.group = text
+            collectingEvent.isUnsaved = true
+          }"
         :headers="EXTERNAL_HEADERS"
         :add-params="{
           limit: 30,
@@ -31,6 +35,10 @@
         :send-label="collectingEvent.formation"
         @getItem="(e) => {
             collectingEvent.formation = e.name
+            collectingEvent.isUnsaved = true
+          }"
+        @getInput="(text) => {
+            collectingEvent.formation = text
             collectingEvent.isUnsaved = true
           }"
         :headers="EXTERNAL_HEADERS"

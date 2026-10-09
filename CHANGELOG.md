@@ -23,6 +23,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 - Browse OTUs: Thumbnails may be cropped in the images panel
 - "Internal error" screen instead of error toast when error occurs during Batch Asserted Distribution upload
+- New collecting events: Fix CORS error and allow free text in CE Group/Formation fields
 
 [#4453]: https://github.com/SpeciesFileGroup/taxonworks/issues/4453
 [#5130]: https://github.com/SpeciesFileGroup/taxonworks/issues/5130
