@@ -34,14 +34,21 @@ class HubController < ApplicationController
   protected
 
   # Appends default tabs missing from the user's order, e.g. an empty order
-  # after a reset, or tabs added since the order was saved.
+  # after a reset, or tabs added since the order was saved. If favorite was
+  # last (as in the default order) it stays last, so users who never
+  # reordered end up with the current default order.
   def handle_bad_tab_order
-    missing = DEFAULT_HUB_TAB_ORDER - @sessions_current_user.hub_tab_order
+    order = @sessions_current_user.hub_tab_order
+    missing = DEFAULT_HUB_TAB_ORDER - order
     if missing.any?
+      new_order =
+        if order.last == 'favorite'
+          order[0..-2] + missing + ['favorite']
+        else
+          order + missing
+        end
       # TODO: update_column likely
-      @sessions_current_user.update_attribute(
-        :hub_tab_order, @sessions_current_user.hub_tab_order + missing
-      )
+      @sessions_current_user.update_attribute(:hub_tab_order, new_order)
     end
     true
   end
