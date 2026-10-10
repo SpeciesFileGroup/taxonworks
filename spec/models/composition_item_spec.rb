@@ -43,16 +43,23 @@ RSpec.describe CompositionItem, type: :model do
     end
   end
 
+  # LayoutItem restricts parents to groups, TemplateItems exercise the base
+  # rules.
   context 'parent' do
-    let(:parent) { FactoryBot.create(:valid_layout_item, composition: layout) }
-    let(:item) { FactoryBot.build(:valid_layout_item, composition: layout, parent:) }
+    let(:template) { FactoryBot.create(:valid_template) }
+    let(:parent) {
+      FactoryBot.create(:valid_template_item, composition: template)
+    }
+    let(:item) {
+      FactoryBot.build(:valid_template_item, composition: template, parent:)
+    }
 
     specify 'may be in the same composition' do
       expect(item.valid?).to be_truthy
     end
 
     specify 'may not be in a different composition' do
-      item.composition = FactoryBot.create(:valid_layout)
+      item.composition = FactoryBot.create(:valid_template)
       item.valid?
       expect(item.errors.include?(:parent)).to be_truthy
     end
@@ -73,7 +80,7 @@ RSpec.describe CompositionItem, type: :model do
     specify 'validation terminates on a cycle already in the data' do
       item.save!
       parent.update_columns(parent_id: item.id)
-      c = FactoryBot.build(:valid_layout_item,
+      c = FactoryBot.build(:valid_template_item,
         composition: item.composition, parent: item)
       expect(Timeout.timeout(5) { c.valid? }).to be_truthy
     end
@@ -87,7 +94,7 @@ RSpec.describe CompositionItem, type: :model do
 
   context 'position' do
     specify 'is ordered within composition and parent' do
-      a = FactoryBot.create(:valid_layout_item, composition: layout)
+      a = FactoryBot.create(:valid_layout_item_group_item, composition: layout)
       b = FactoryBot.create(:valid_layout_item, composition: layout)
       c = FactoryBot.create(:valid_layout_item, composition: layout, parent: a)
       d = FactoryBot.create(:valid_layout_item)
@@ -177,7 +184,7 @@ RSpec.describe CompositionItem, type: :model do
   end
 
   specify 'destroying the composition destroys its items' do
-    i = FactoryBot.create(:valid_layout_item, composition: layout)
+    i = FactoryBot.create(:valid_layout_item_group_item, composition: layout)
     c = FactoryBot.create(:valid_layout_item, composition: layout, parent: i)
     layout.destroy!
     expect(CompositionItem.where(id: [i.id, c.id]).exists?).to be_falsey

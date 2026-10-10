@@ -26,4 +26,22 @@ RSpec.describe LayoutItem, type: :model do
       layout_item.errors.include?(:composition_item_object_type)
     ).to be_truthy
   end
+
+  context 'parent' do
+    let(:layout) { FactoryBot.create(:valid_layout) }
+
+    specify 'may be a group' do
+      g = FactoryBot.create(:valid_layout_item_group_item, composition: layout)
+      i = FactoryBot.build(:valid_layout_item, composition: layout, parent: g)
+      expect(i.valid?).to be_truthy
+    end
+
+    specify 'may not be a non-group item' do
+      p = FactoryBot.create(:valid_layout_item_depiction_item,
+        composition: layout)
+      i = FactoryBot.build(:valid_layout_item, composition: layout, parent: p)
+      i.valid?
+      expect(i.errors.include?(:parent)).to be_truthy
+    end
+  end
 end

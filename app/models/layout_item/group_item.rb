@@ -15,6 +15,9 @@
 #   Members stack by their own z, interleaved with everything else.
 # * No stored bounds: a group's extent is derived from its members, by the
 #   client (e.g. for a selection outline), so it can never go stale.
+# * Groups are the only parents allowed in a Layout (see LayoutItem), so a
+#   renderer only ever sums offsets: it can paint all leaf items in one
+#   layer sorted by z, and treat groups as logical (offset + membership).
 # * An item belongs to at most one group (parent_id). For overlapping,
 #   many-to-many sets use Tags on the depicted objects.
 #

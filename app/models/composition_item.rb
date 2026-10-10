@@ -20,7 +20,10 @@
 #   and down from there.
 # * Rotations pivot on the item's center (as the CSS transform-origin
 #   default). A positive rotation_z is clockwise as seen by the viewer.
-# * LayoutItem::GroupItem is translation only, see there.
+# * Stacking: higher z is in front. A nil z is 0. Equal z is broken by id,
+#   lower (older) behind, so every renderer paints identically.
+# * In a Layout only a LayoutItem::GroupItem may be a parent, and groups are
+#   translation only, see there.
 #
 # @!attribute type
 #   @return [String]
