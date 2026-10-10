@@ -101,9 +101,7 @@
 #
 # @!attribute project_id
 #   @return [Integer, nil]
-#     the project ID, nil when the Composition is community. Otherwise set
-#     as for any project data (Housekeeping), so a Composition in another
-#     project fails Housekeeping's same-project check
+#     the project ID, nil when the Composition is community.
 #
 class CompositionItem < ApplicationRecord
   include Housekeeping
@@ -158,8 +156,7 @@ class CompositionItem < ApplicationRecord
 
   protected
 
-  # Items of a community Composition have no project. Other items are left
-  # to Housekeeping, as for any project data.
+  # Items of a community Composition have no project.
   def set_community_project_id
     self.project_id = nil if is_community?
   end
@@ -170,17 +167,17 @@ class CompositionItem < ApplicationRecord
     end
   end
 
+  # Also rejects a cycle already in the data above self (and terminates).
   def parent_is_not_self_or_descendant
-    seen = []
-    p = parent
-    # seen guards against a cycle already in the data that excludes self
-    while p && !seen.include?(p)
-      if p == self
-        errors.add(:parent, 'may not be self or a descendant')
-        break
+    seen = [id] # may be [nil], which is harmless
+    pid = parent_id
+    while pid
+      if seen.include?(pid)
+        errors.add(:parent, 'would create a cycle')
+        return
       end
-      seen.push(p)
-      p = p.parent
+      seen.push(pid)
+      pid = CompositionItem.where(id: pid).pick(:parent_id)
     end
   end
 
