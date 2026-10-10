@@ -38,7 +38,11 @@ class ObservationMatrixRowItem < ApplicationRecord
 
   validates_presence_of :observation_matrix, :observation_object
 
-  after_save :update_matrix_rows
+  after_create :update_matrix_rows
+  after_update :move_matrix_row, if: -> {
+    saved_change_to_observation_object_id? ||
+      saved_change_to_observation_object_type?
+  }
   after_destroy :cleanup_matrix_rows
 
   # @return [Array]
@@ -52,6 +56,19 @@ class ObservationMatrixRowItem < ApplicationRecord
     observation_objects.each do |o|
       update_single_matrix_row o
     end
+  end
+
+  # Decrement the previous observation_object's row, increment the new one
+  def move_matrix_row
+    if observation_object_id_before_last_save
+      mr = ObservationMatrixRow.where(
+        observation_matrix:,
+        observation_object_id: observation_object_id_before_last_save,
+        observation_object_type: observation_object_type_before_last_save
+      ).first
+      decrement_matrix_row_reference_count(mr) if !mr.nil?
+    end
+    update_matrix_rows
   end
 
   def cleanup_matrix_rows

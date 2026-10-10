@@ -935,16 +935,64 @@ describe 'Shared::Unify', type: :model do
     end
   end
 
+  # ObservationMatrixRows are derived from ObservationMatrixRowItems,
+  # unify moves the items and lets them maintain the rows.
+  context 'Otus in observation matrices' do
+    let(:om) { FactoryBot.create(:valid_observation_matrix) }
+    let!(:item2) {
+      ObservationMatrixRowItem::Single.create!(
+        observation_matrix: om, observation_object: o2)
+    }
+
+    specify 'observation_matrix_rows are not unified directly' do
+      expect(o1.merge_relations.map(&:name))
+        .not_to include(:observation_matrix_rows)
+    end
+
+    context 'when only the removed otu is in the matrix' do
+      specify 'unify succeeds' do
+        expect(o1.unify(o2)[:result][:unified]).to be(true)
+      end
+
+      specify 'the row moves to the kept otu' do
+        o1.unify(o2)
+        expect(ObservationMatrixRow.where(observation_matrix: om)
+          .pluck(:observation_object_id, :reference_count,
+            :cached_observation_matrix_row_item_id))
+          .to contain_exactly([o1.id, 1, item2.id])
+      end
+    end
+
+    context 'when both otus are in the matrix' do
+      let!(:item1) {
+        ObservationMatrixRowItem::Single.create!(
+          observation_matrix: om, observation_object: o1)
+      }
+
+      specify 'unify succeeds' do
+        expect(o1.unify(o2)[:result][:unified]).to be(true)
+      end
+
+      specify 'only the kept otu row remains' do
+        o1.unify(o2)
+        expect(ObservationMatrixRow.where(observation_matrix: om)
+          .pluck(:observation_object_id, :reference_count,
+            :cached_observation_matrix_row_item_id))
+          .to contain_exactly([o1.id, 1, item1.id])
+      end
+    end
+  end
+
   context 'when the nested unify inside deduplicate_update_target fails' do
     let(:om) { ObservationMatrix.create!(name: 'BugTest') }
-    let!(:row1) { FactoryBot.create(:valid_observation_matrix_row, observation_object: o1, observation_matrix: om) }
-    let!(:row2) { FactoryBot.create(:valid_observation_matrix_row, observation_object: o2, observation_matrix: om) }
+    let!(:item1) { ObservationMatrixRowItem::Single.create!(observation_object: o1, observation_matrix: om) }
+    let!(:item2) { ObservationMatrixRowItem::Single.create!(observation_object: o2, observation_matrix: om) }
 
     before do
       # At time of writing there are no second-level model associations that
       # could return {unified: false} from the secondary unify call, but there's
       # no reason that might not happen in the future.
-      allow_any_instance_of(ObservationMatrixRow).to receive(:unify)
+      allow_any_instance_of(ObservationMatrixRowItem).to receive(:unify)
         .and_return({result: {unified: false, message: 'nested failure'}, details: {}})
     end
 
@@ -960,7 +1008,7 @@ describe 'Shared::Unify', type: :model do
 
     specify 'details report unmerged count of 1 (not deduplicated)' do
       result = o1.unify(o2)
-      expect(result[:details]['Observation matrix rows'][:unmerged]).to eq(1)
+      expect(result[:details]['Observation matrix row items'][:unmerged]).to eq(1)
     end
   end
 
