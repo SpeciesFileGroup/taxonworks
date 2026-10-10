@@ -3,7 +3,6 @@ class CompositionItemsController < ApplicationController
 
   before_action :set_composition_item,
     only: [:show, :update, :destroy, :ungroup]
-  before_action :check_composition, only: [:create, :update]
 
   # GET /compositions/:composition_id/composition_items.json
   # All items of the Composition, unpaged: a renderer needs them all.
@@ -82,17 +81,6 @@ class CompositionItemsController < ApplicationController
         composition_id: Composition.where(is_community: true).select(:id)
       ))
       .find(params[:id])
-  end
-
-  # Items take their project from their Composition, so it must be one
-  # this project can see.
-  def check_composition
-    id = params.dig(:composition_item, :composition_id).presence
-    if id &&
-        !Composition.visible_to_project(sessions_current_project_id).exists?(id)
-      render json: { composition: ['is not available'] },
-        status: :unprocessable_content
-    end
   end
 
   # type is set only on create

@@ -102,6 +102,14 @@ RSpec.describe CompositionItem, type: :model do
       expect(i.project_id).to eq(layout.project_id)
     end
 
+    specify 'a composition in another project is invalid' do
+      other = FactoryBot.create(:valid_layout,
+        project: FactoryBot.create(:valid_project))
+      i = FactoryBot.build(:valid_layout_item_group_item, composition: other)
+      i.valid?
+      expect(i.errors.include?(:composition_id)).to be_truthy
+    end
+
     context 'when the composition is community' do
       before do
         allow(Template).to receive(:community_permitted?).and_return(true)

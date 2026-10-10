@@ -98,8 +98,9 @@
 #
 # @!attribute project_id
 #   @return [Integer, nil]
-#     the project ID, always that of the Composition when present, nil when
-#     the Composition is community
+#     the project ID, nil when the Composition is community. Otherwise set
+#     as for any project data (Housekeeping), so a Composition in another
+#     project fails Housekeeping's same-project check
 #
 class CompositionItem < ApplicationRecord
   include Housekeeping
@@ -107,7 +108,7 @@ class CompositionItem < ApplicationRecord
 
   acts_as_list scope: [:project_id, :composition_id, :parent_id]
 
-  before_validation :set_composition_project_id
+  before_validation :set_community_project_id
 
   belongs_to :composition, inverse_of: :composition_items
   belongs_to :composition_item_object, polymorphic: true
@@ -154,12 +155,10 @@ class CompositionItem < ApplicationRecord
 
   protected
 
-  def set_composition_project_id
-    if composition
-      self.project_id = composition.project_id
-    else
-      self.project_id ||= Current.project_id
-    end
+  # Items of a community Composition have no project. Other items are left
+  # to Housekeeping, as for any project data.
+  def set_community_project_id
+    self.project_id = nil if is_community?
   end
 
   def parent_is_in_composition
