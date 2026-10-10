@@ -26,8 +26,7 @@ class HubController < ApplicationController
   end
 
   def update_tab_order
-    # TODO: update_column likely 
-    @sessions_current_user.update_attribute(:hub_tab_order, params[:order])
+    @sessions_current_user.update_column(:hub_tab_order, params[:order])
     head :ok
   end
 
@@ -47,8 +46,7 @@ class HubController < ApplicationController
         else
           order + missing
         end
-      # TODO: update_column likely
-      @sessions_current_user.update_attribute(:hub_tab_order, new_order)
+      @sessions_current_user.update_column(:hub_tab_order, new_order)
     end
     true
   end
