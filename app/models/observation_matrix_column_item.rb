@@ -37,7 +37,8 @@ class ObservationMatrixColumnItem < ApplicationRecord
   validates_presence_of :observation_matrix
   validate :other_subclass_attributes_not_set, if: -> { !type.blank? }
 
-  after_save :update_matrix_columns
+  after_create :update_matrix_columns
+  after_update :move_matrix_column, if: :saved_change_to_descriptor_id?
   after_destroy :cleanup_matrix_columns
 
   # @return [Array]
@@ -61,6 +62,14 @@ class ObservationMatrixColumnItem < ApplicationRecord
     descriptors.each do |d|
       update_single_matrix_column(d)
     end
+  end
+
+  # Decrement the previous descriptor's column, increment the new one
+  def move_matrix_column
+    if descriptor_id_before_last_save
+      cleanup_single_matrix_column(descriptor_id_before_last_save)
+    end
+    update_matrix_columns
   end
 
   def cleanup_single_matrix_column(descriptor_id, mc = nil)

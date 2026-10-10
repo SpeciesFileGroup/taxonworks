@@ -890,6 +890,51 @@ describe 'Shared::Unify', type: :model do
     end
   end
 
+  # ObservationMatrixColumns are derived from ObservationMatrixColumnItems,
+  # unify moves the items and lets them maintain the columns.
+  context 'Descriptors in observation matrices' do
+    let(:om) { FactoryBot.create(:valid_observation_matrix) }
+    let(:d1) { FactoryBot.create(:valid_descriptor) }
+    let(:d2) { FactoryBot.create(:valid_descriptor) }
+    let!(:item2) {
+      ObservationMatrixColumnItem::Single::Descriptor.create!(
+        observation_matrix: om, descriptor: d2)
+    }
+
+    context 'when only the removed descriptor is in the matrix' do
+      specify 'unify succeeds' do
+        expect(d1.unify(d2)[:result][:unified]).to be(true)
+      end
+
+      specify 'the column moves to the kept descriptor' do
+        d1.unify(d2)
+        expect(ObservationMatrixColumn.where(observation_matrix: om)
+          .pluck(:descriptor_id, :reference_count,
+            :cached_observation_matrix_column_item_id))
+          .to contain_exactly([d1.id, 1, item2.id])
+      end
+    end
+
+    context 'when both descriptors are in the matrix' do
+      let!(:item1) {
+        ObservationMatrixColumnItem::Single::Descriptor.create!(
+          observation_matrix: om, descriptor: d1)
+      }
+
+      specify 'unify succeeds' do
+        expect(d1.unify(d2)[:result][:unified]).to be(true)
+      end
+
+      specify 'only the kept descriptor column remains' do
+        d1.unify(d2)
+        expect(ObservationMatrixColumn.where(observation_matrix: om)
+          .pluck(:descriptor_id, :reference_count,
+            :cached_observation_matrix_column_item_id))
+          .to contain_exactly([d1.id, 1, item1.id])
+      end
+    end
+  end
+
   context 'when the nested unify inside deduplicate_update_target fails' do
     let(:om) { ObservationMatrix.create!(name: 'BugTest') }
     let!(:row1) { FactoryBot.create(:valid_observation_matrix_row, observation_object: o1, observation_matrix: om) }
