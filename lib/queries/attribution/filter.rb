@@ -11,6 +11,8 @@ module Queries
         :attribution_object_id,
         :attribution_object_type,
         attribution_id: [],
+        attribution_object_id: [],
+        attribution_object_type: [],
       ].freeze
 
       attr_accessor :attribution_id
@@ -55,6 +57,26 @@ module Queries
         [
           attribution_object_type_facet,
           attribution_object_id_facet
+        ]
+      end
+
+      def content_query_facet
+        polymorphic_annotation_object_query_facet(content_query, 'Content', 'query_cnt_at')
+      end
+
+      def image_query_facet
+        polymorphic_annotation_object_query_facet(image_query, 'Image', 'query_im_at')
+      end
+
+      def sound_query_facet
+        polymorphic_annotation_object_query_facet(sound_query, 'Sound', 'query_snd_at')
+      end
+
+      def merge_clauses
+        [
+          content_query_facet,
+          image_query_facet,
+          sound_query_facet
         ]
       end
 

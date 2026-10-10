@@ -11,6 +11,12 @@ if extend_response_with('citation_object')
   end
 end
 
+if extend_response_with('annotated_object')
+  json.annotated_object do
+    json.partial! '/shared/data/all/metadata', object: metamorphosize_if(citation.citation_object), extensions: false
+  end
+end
+
 if extend_response_with('citation_topics')
   json.citation_topics do |ct|
     ct.array! citation.citation_topics, partial: '/citation_topics/attributes', as: :citation_topic
@@ -37,3 +43,23 @@ if extend_response_with('target_document')
     end
   end
 end
+
+if extend_response_with('tags')
+  json.tags do
+    json.array! citation.tags do |tag|
+      json.id tag.id
+      json.keyword_id tag.keyword_id
+      json.keyword_name tag.keyword&.name
+    end
+  end
+end
+
+if extend_response_with('notes')
+  json.notes do
+    json.array! citation.notes do |note|
+      json.id note.id
+      json.text note.text
+    end
+  end
+end
+

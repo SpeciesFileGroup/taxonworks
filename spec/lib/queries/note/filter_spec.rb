@@ -32,4 +32,14 @@ describe Queries::Note::Filter, type: :model do
     expect(query.all.map(&:id)).to contain_exactly(n3.id)
   end
 
+  specify '#asserted_environment_query_facet' do
+    ae = FactoryBot.create(:valid_asserted_environment)
+    other_ae = FactoryBot.create(:valid_asserted_environment)
+    n = Note.create!(note_object: ae, text: 'on the environment')
+    Note.create!(note_object: other_ae, text: 'not this one')
+
+    q = Queries::Note::Filter.new(asserted_environment_query: { asserted_environment_id: [ae.id] })
+    expect(q.all).to contain_exactly(n)
+  end
+
 end

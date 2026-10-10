@@ -15,6 +15,17 @@ import {
   ProjectMember
 } from '@/routes/endpoints'
 import { ATTRIBUTES_BY_TYPE } from '../constants/attributes.js'
+import {
+  ALTERNATE_VALUE,
+  ATTRIBUTION,
+  CITATION,
+  CONFIDENCE,
+  DATA_ATTRIBUTE,
+  DOCUMENTATION,
+  IDENTIFIER,
+  NOTE,
+  TAG
+} from '@/constants/index.js'
 
 const SERVICES = {
   tags: Tag,
@@ -27,6 +38,20 @@ const SERVICES = {
   attributions: Attribution,
   depictions: Depiction,
   documentation: Documentation
+}
+
+// Annotation types that can be sent to the filters of the annotated objects
+// with the radial filter
+const OBJECT_TYPES = {
+  tags: TAG,
+  notes: NOTE,
+  confidences: CONFIDENCE,
+  data_attributes: DATA_ATTRIBUTE,
+  citations: CITATION,
+  identifiers: IDENTIFIER,
+  alternate_values: ALTERNATE_VALUE,
+  attributions: ATTRIBUTION,
+  documentation: DOCUMENTATION
 }
 
 function getNestedValue(obj, path) {
@@ -103,8 +128,10 @@ export default function useAnnotationFilter() {
 
   const filterState = useFilter(serviceProxy, {
     listParser,
-    initParameters: { extend: ['annotated_object'] }
+    initParameters: { extend: ['annotated_object', 'source'] }
   })
+
+  const objectType = computed(() => OBJECT_TYPES[annotationType.value])
 
   const currentAttributes = computed(() =>
     annotationType.value ? ATTRIBUTES_BY_TYPE[annotationType.value] || {} : {}
@@ -129,6 +156,7 @@ export default function useAnnotationFilter() {
     annotationType,
     annotationTypes,
     currentAttributes,
+    objectType,
     setAnnotationType
   }
 }

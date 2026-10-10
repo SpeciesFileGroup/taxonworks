@@ -1,11 +1,17 @@
 import {
+    FILTER_ATTRIBUTION,
+    FILTER_CITATION,
+    FILTER_CONFIDENCE,
+    FILTER_IMAGE,
     FILTER_OTU,
     FILTER_SOURCE,
-    FILTER_IMAGE,
 } from '../constants/filterLinks'
 
 export const Content = [
+    FILTER_ATTRIBUTION,
+    FILTER_CITATION,
+    FILTER_CONFIDENCE,
+    FILTER_IMAGE,
     FILTER_OTU,
     FILTER_SOURCE,
-    FILTER_IMAGE,
 ]

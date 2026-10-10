@@ -15,11 +15,19 @@ describe Queries::DataAttribute::Filter, type: :model do
 
   let(:query) { Queries::DataAttribute::Filter.new({}) }
 
-  specify '#from_filter_facet' do
-    q = ::Queries::Otu::Filter.new(otu_id: o1.id)
-   
-    a = Queries::DataAttribute::Filter.new(otu_query: q.params)
-    expect(a.from_filter_facet(q)).to contain_exactly(i1)
+  specify '#otu_query_facet' do
+    q = Queries::DataAttribute::Filter.new(otu_query: { otu_id: [o1.id] })
+    expect(q.all).to contain_exactly(i1)
+  end
+
+  specify '#collection_object_query_facet' do
+    q = Queries::DataAttribute::Filter.new(collection_object_query: { collection_object_id: [o2.id] })
+    expect(q.all).to contain_exactly(i2)
+  end
+
+  specify '#collecting_event_query_facet' do
+    q = Queries::DataAttribute::Filter.new(collecting_event_query: { collecting_event_id: [o3.id] })
+    expect(q.all).to contain_exactly(i3)
   end
 
   specify '#polymorphic_id_facet' do
@@ -54,6 +62,16 @@ describe Queries::DataAttribute::Filter, type: :model do
   specify '#object_global_id' do
     query.object_global_id = i1.to_global_id.to_s
     expect(query.all).to contain_exactly(i1)
+  end
+
+  specify '#asserted_environment_query_facet' do
+    ae = FactoryBot.create(:valid_asserted_environment)
+    other_ae = FactoryBot.create(:valid_asserted_environment)
+    da = ::InternalAttribute.create!(attribute_subject: ae, value: 'ae', predicate: p1)
+    ::InternalAttribute.create!(attribute_subject: other_ae, value: 'other', predicate: p1)
+
+    q = Queries::DataAttribute::Filter.new(asserted_environment_query: { asserted_environment_id: [ae.id] })
+    expect(q.all).to contain_exactly(da)
   end
 
 end

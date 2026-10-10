@@ -5,7 +5,8 @@
       :url-request="urlRequest"
       :selected-ids="sortedSelectedIds"
       :list="list"
-      :radial-filter="false"
+      :object-type="objectType"
+      :radial-filter="!!objectType"
       :radial-linker="false"
       :radial-mass-annotator="false"
       :radial-navigator="false"
@@ -86,6 +87,7 @@ const {
   urlRequest,
   annotationType,
   currentAttributes,
+  objectType,
   setAnnotationType
 } = useAnnotationFilter()
 

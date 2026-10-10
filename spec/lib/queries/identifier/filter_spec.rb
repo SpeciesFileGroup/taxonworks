@@ -144,4 +144,14 @@ describe Queries::Identifier::Filter, type: :model, group: :identifiers do
     expect(query.all.map(&:id)).to include(i1.id, i2.id)
   end
 
+  specify '#asserted_environment_query_facet' do
+    ae = FactoryBot.create(:valid_asserted_environment)
+    other_ae = FactoryBot.create(:valid_asserted_environment)
+    i = Identifier::Global::Uri.create!(identifier_object: ae, identifier: 'https://uri.org/example/ae1')
+    Identifier::Global::Uri.create!(identifier_object: other_ae, identifier: 'https://uri.org/example/ae2')
+
+    q = Queries::Identifier::Filter.new(asserted_environment_query: { asserted_environment_id: [ae.id] })
+    expect(q.all).to contain_exactly(i)
+  end
+
 end
