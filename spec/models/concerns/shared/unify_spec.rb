@@ -844,6 +844,52 @@ describe 'Shared::Unify', type: :model do
     expect( b[:details]['Asserted distributions'].dig(:deduplicated)).to eq(1)
   end
 
+  # Moving the last Depiction off an Observation::Media destroys that
+  # observation via a Depiction callback, i.e. a nested dedup unify's
+  # remove_object can disappear before unify itself destroys it.
+  context 'when a nested dedup unify remove_object is destroyed by a callback' do
+    let(:d1) { Descriptor::Media.create!(name: 'keep') }
+    let(:d2) { Descriptor::Media.create!(name: 'remove') }
+    let!(:observation1) {
+      FactoryBot.create(:valid_observation, type: 'Observation::Media',
+        descriptor: d1, observation_object: o1)
+    }
+    let!(:observation2) {
+      FactoryBot.create(:valid_observation, type: 'Observation::Media',
+        descriptor: d2, observation_object: o1)
+    }
+    let!(:depiction1) {
+      FactoryBot.create(:valid_depiction, depiction_object: observation1)
+    }
+    let!(:depiction2) {
+      FactoryBot.create(:valid_depiction, depiction_object: observation2)
+    }
+
+    specify 'unify succeeds' do
+      result = d1.unify(d2)
+      expect(result[:result][:unified]).to be(true)
+      expect(result[:details]['Observations'][:deduplicated]).to eq(1)
+    end
+
+    specify 'remove_object and its duplicate observation are destroyed' do
+      d1.unify(d2)
+      expect(Descriptor.where(id: d2.id).exists?).to be(false)
+      expect(Observation.where(id: observation2.id).exists?).to be(false)
+    end
+
+    specify 'depictions end up on the kept observation' do
+      d1.unify(d2)
+      expect(observation1.depictions.reload.map(&:id))
+        .to contain_exactly(depiction1.id, depiction2.id)
+    end
+
+    specify 'preview does not raise' do
+      result = d1.unify(d2, preview: true)
+      expect(result[:result][:unified]).to be(true)
+      expect(Descriptor.where(id: d2.id).exists?).to be(true)
+    end
+  end
+
   context 'when the nested unify inside deduplicate_update_target fails' do
     let(:om) { ObservationMatrix.create!(name: 'BugTest') }
     let!(:row1) { FactoryBot.create(:valid_observation_matrix_row, observation_object: o1, observation_matrix: om) }
