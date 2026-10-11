@@ -45,7 +45,7 @@
                   <li><%= tag_default_icon(object) %></li>
                 <% end %>
               <% end %>
-              <% if object.class < Shared::IsData::Pinnable %>
+              <% if pinnable?(object) %>
                 <li><%= pin_item_to_pinboard_link(object, sessions_current_user) %></li>
               <% end %>
               <li><%= radial_navigation_tag(object) %></li>

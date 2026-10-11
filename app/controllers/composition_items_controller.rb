@@ -11,10 +11,17 @@ class CompositionItemsController < ApplicationController
       .visible_to_project(sessions_current_project_id)
       .find(params.require(:composition_id))
       .composition_items
-      .includes(:composition_item_object)
       .order(
         CompositionItem.arel_table[:parent_id].asc.nulls_first, :position
       )
+
+    # TODO: N+1 on the objects' own associations (e.g. Depiction#image) when
+    # rendering their attributes. Consider letting each item subclass declare
+    # a preload for its object, next to composition_item_object_permitted?.
+    if helpers.extend_response_with('composition_item_object')
+      @composition_items =
+        @composition_items.includes(:composition_item_object)
+    end
   end
 
   # GET /composition_items/1.json
@@ -72,9 +79,6 @@ class CompositionItemsController < ApplicationController
 
   private
 
-  # Items of community Compositions have no project. A nil project_id alone
-  # isn't trusted (items' project is only kept in step by callbacks), the
-  # Composition must be community (enforced by a DB check constraint).
   def set_composition_item
     @composition_item = CompositionItem
       .where(project_id: sessions_current_project_id)

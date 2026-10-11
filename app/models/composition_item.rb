@@ -122,7 +122,7 @@ class CompositionItem < ApplicationRecord
   validates :opacity, numericality: { in: 0..100 }, allow_nil: true
   validate :composition_is_unchanged, on: :update
   validate :parent_is_in_composition
-  validate :parent_is_not_self_or_descendant
+  validate :parent_is_not_self_or_descendant, if: :parent_id_changed?
   validate :community_composition_has_no_object
   validate :composition_item_object_is_permitted
 

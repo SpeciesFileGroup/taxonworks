@@ -182,7 +182,8 @@ RSpec.describe CompositionItem, type: :model do
 
   # Permitted targets must get dependent cleanup from a target concern.
   specify 'every permitted target class includes Shared::LayoutItems' do
-    Rails.application.eager_load!
+    # descendants only sees loaded classes
+    expect(Rails.application.config.eager_load).to be(true)
     targets = ApplicationRecord.descendants.select { |k|
       !k.abstract_class? && k.table_exists? &&
         LayoutItem.descendants.any? { |s|

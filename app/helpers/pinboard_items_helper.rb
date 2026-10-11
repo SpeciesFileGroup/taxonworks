@@ -1,5 +1,10 @@
 module PinboardItemsHelper
 
+  # @return [Boolean]
+  def pinnable?(object)
+    object.class < Shared::IsData::Pinnable ? true : false
+  end
+
   def pin_item_to_pinboard_link(object, user)
     if !object.pinned?(user, sessions_current_project_id)
       link_to('',  pinboard_items_path(pinboard_item: { pinned_object_id: object.id, pinned_object_type: object.metamorphosize.class.name, is_inserted: true }), data: { "pin-button-item-id": object.id, "tooltip-content": 'Pin to Pinboard', "tooltip-placement": 'bottom' }, class: 'navigation-item pin-button', remote: true, method: :post)
