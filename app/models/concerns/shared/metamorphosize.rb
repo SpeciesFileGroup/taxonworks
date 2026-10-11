@@ -1,4 +1,4 @@
-module Shared::IsData::Metamorphosize
+module Shared::Metamorphosize
 
   extend ActiveSupport::Concern
 

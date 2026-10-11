@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-describe 'IsData::Navigation', type: :model do
+describe 'Shared::Navigation', type: :model do
 
   before do
     (0..5).each do |i|
@@ -22,6 +22,6 @@ end
 
 class TestIsDataNavigation < ApplicationRecord
   include FakeTable
-  include Shared::IsData::Navigation
+  include Shared::Navigation
 end
 

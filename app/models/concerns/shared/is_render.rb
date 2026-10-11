@@ -3,14 +3,12 @@
 # Data. Parallels Shared::IsData, but includes only the plumbing needed to
 # create, show, and navigate records.
 #
-# !! This module must in included last !!
-#
 module Shared::IsRender
 
   extend ActiveSupport::Concern
 
   included do
-    include Shared::IsData::Metamorphosize
+    include Shared::Metamorphosize
     include Shared::IsSteppable
   end
 

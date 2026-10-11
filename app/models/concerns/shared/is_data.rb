@@ -11,7 +11,7 @@ module Shared::IsData
     include Levenshtein
     include Annotation
     include Scopes
-    include Metamorphosize
+    include Shared::Metamorphosize
     include HasRoles
     include Shared::Verifiers
     include Shared::Unify

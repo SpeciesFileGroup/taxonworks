@@ -1,4 +1,4 @@
-module Shared::IsData::Navigation
+module Shared::Navigation
   extend ActiveSupport::Concern
  
   module ClassMethods
