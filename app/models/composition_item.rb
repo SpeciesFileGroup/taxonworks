@@ -120,6 +120,7 @@ class CompositionItem < ApplicationRecord
 
   validates_presence_of :type
   validates :opacity, numericality: { in: 0..100 }, allow_nil: true
+  validate :composition_is_unchanged, on: :update
   validate :parent_is_in_composition
   validate :parent_is_not_self_or_descendant
   validate :community_composition_has_no_object
@@ -159,6 +160,14 @@ class CompositionItem < ApplicationRecord
   # Items of a community Composition have no project.
   def set_community_project_id
     self.project_id = nil if is_community?
+  end
+
+  # Moving an item would leave its children behind, parented across
+  # Compositions.
+  def composition_is_unchanged
+    if composition_id_changed?
+      errors.add(:composition, 'may not be changed')
+    end
   end
 
   def parent_is_in_composition

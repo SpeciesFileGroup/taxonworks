@@ -93,6 +93,15 @@ RSpec.describe CompositionItem, type: :model do
     end
   end
 
+  context 'composition' do
+    specify 'may not change once saved' do
+      i = FactoryBot.create(:valid_layout_item_group_item, composition: layout)
+      i.composition = FactoryBot.create(:valid_layout)
+      i.valid?
+      expect(i.errors.include?(:composition)).to be_truthy
+    end
+  end
+
   context 'position' do
     specify 'is ordered within composition and parent' do
       a = FactoryBot.create(:valid_layout_item_group_item, composition: layout)

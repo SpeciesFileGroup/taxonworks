@@ -25,7 +25,8 @@ class CompositionItemsController < ApplicationController
   def create
     @composition_item = CompositionItem.new(
       composition_item_params.merge(
-        type: params.dig(:composition_item, :type)
+        type: params.dig(:composition_item, :type),
+        composition_id: params.dig(:composition_item, :composition_id)
       )
     )
     if @composition_item.save
@@ -83,10 +84,10 @@ class CompositionItemsController < ApplicationController
       .find(params[:id])
   end
 
-  # type is set only on create
+  # type and composition_id are set only on create
   def composition_item_params
     params.require(:composition_item).permit(
-      :composition_id, :parent_id,
+      :parent_id,
       :composition_item_object_id, :composition_item_object_type,
       :text, :x, :y, :z, :position, :width, :height, :zoom, :rotation_z,
       :svg_view_box, :svg_clip, :opacity, :is_visible, :total, :css_style
