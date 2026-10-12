@@ -66,13 +66,13 @@
         <table class="full_width table-striped">
           <thead>
             <tr>
-              <th />
               <th>
                 <ButtonUnify
                   :ids="otusToUnify.map((o) => o.id)"
                   :model="OTU"
                 />
               </th>
+              <th />
               <th>OTU</th>
               <th />
             </tr>
@@ -118,15 +118,13 @@
                 </span>
                 <VBtn
                   v-else
-                  circle
+                  icon
+                  variant="tonal"
                   color="primary"
                   title="Set as current OTU: header and single-OTU panels will display this OTU"
                   @click="() => store.setCurrentOtu(otu.id)"
                 >
-                  <VIcon
-                    name="focus"
-                    x-small
-                  />
+                  <IconFocus class="w-4 h-4" />
                 </VBtn>
               </td>
             </tr>
@@ -140,13 +138,13 @@
 <script setup>
 import { computed, watch, ref } from 'vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
 import VModal from '@/components/ui/Modal.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialObject from '@/components/radials/object/radial.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import ButtonUnify from '@/components/ui/Button/ButtonUnify.vue'
 import VTooltip from '@/components/ui/VTooltip/VTooltip.vue'
+import IconFocus from '@/components/Icon/IconFocus.vue'
 import { useOtuStore } from '../store'
 import { OTU_SCOPES } from '../constants/otuScope.js'
 import { OTU } from '@/constants'

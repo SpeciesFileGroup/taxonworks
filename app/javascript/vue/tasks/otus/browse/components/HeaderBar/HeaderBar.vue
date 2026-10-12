@@ -90,7 +90,6 @@
           />
           <VBtn
             icon
-            medium
             variant="tonal"
             color="primary"
             title="Layout settings"

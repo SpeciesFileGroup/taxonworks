@@ -31,14 +31,15 @@ defineProps({
 .distribution-legend {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.25rem 1rem;
+  gap: var(--spacing-sm) var(--spacing-sm);
   padding: var(--spacing-sm) var(--spacing-md);
+  font-size: var(--font-size-xs);
 }
 
 .distribution-legend__item {
   display: flex;
   align-items: center;
-  gap: 0.375rem;
+  gap: var(--spacing-xxs);
 }
 
 .distribution-legend__swatch {
