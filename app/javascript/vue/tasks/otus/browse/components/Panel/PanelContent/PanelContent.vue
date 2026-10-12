@@ -63,12 +63,12 @@ function markdownToHtml(text) {
   return DOMPurify.sanitize(marked.parse(text ?? ''))
 }
 
-async function loadContents(otuId) {
+async function loadContents(otuIds) {
   isLoading.value = true
 
   try {
     const { body } = await Content.filter({
-      otu_id: otuId,
+      otu_id: otuIds,
       most_recent_updates: 100,
       extend: ['topic']
     })
@@ -81,10 +81,12 @@ async function loadContents(otuId) {
 }
 
 watch(
-  () => props.otu,
+  () => props.otus,
   (newVal) => {
-    if (newVal?.id) {
-      loadContents(newVal.id)
+    const otuIds = newVal.map((o) => o.id)
+
+    if (otuIds.length) {
+      loadContents(otuIds)
     }
   },
   { immediate: true }

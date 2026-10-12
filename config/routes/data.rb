@@ -63,7 +63,7 @@ resources :asserted_distributions do
     post :batch_template_create, defaults: {format: :json}
     post :sources, defaults: {format: :json}
     post :preview_simple_batch_load # should be get
-    post :create_simple_batch_load, defaults: {format: :json}
+    post :create_simple_batch_load
     match :filter, to: 'asserted_distributions#index', via: [:get, :post]
   end
   resources :origin_relationships, shallow: true, only: [:index], defaults: {format: :json}
@@ -752,6 +752,9 @@ resources :otus do
     post :create_morphospecies_otu, defaults: { format: :json }
 
     patch :batch_update
+
+    match :distribution, action: :distribution_by_otus, via: [:get, :post], defaults: {format: :geojson}
+    match :distribution_is_absent, action: :distribution_is_absent_by_otus, via: [:get, :post], defaults: {format: :geojson}
   end
 
   member do

@@ -170,7 +170,7 @@ async function loadDepictions(otuId) {
   try {
     const { body } = await Depiction.filter({
       otu_id: otuId,
-      otu_scope: ['all'],
+      otu_scope: ['otus', 'otu_observations'],
       per: 500
     })
 
