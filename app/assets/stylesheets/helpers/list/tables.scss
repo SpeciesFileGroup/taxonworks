@@ -211,7 +211,7 @@ table {
 .row-action + .row-action {
   margin-left: var(--spacing-xxs);
 }
-
+/* 
 @media (hover: hover) {
   .table-row-radial {
     opacity: 0;
@@ -222,4 +222,4 @@ table {
   .cell-selected-border .table-row-radial {
     opacity: 1;
   }
-}
+} */
