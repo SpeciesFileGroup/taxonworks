@@ -2,7 +2,30 @@ class ImagesController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
   after_action -> { set_pagination_headers(:images) }, only: [:index, :api_index, :api_image_inventory], if: :json_request?
 
-  before_action :set_image, only: [:show, :edit, :update, :destroy, :rotate, :regenerate_derivative, :as_png, :api_as_png]
+  before_action :set_image, only: [:show, :edit, :update, :destroy, :rotate, :regenerate_derivative, :as_png]
+
+  # `api_` actions that look up a single Image by :id/:sha via `set_api_image`.
+  # !! spec/controllers/images_controller_spec.rb asserts every api_ action on this
+  # controller is either listed here or in that spec's exception list; a new api_
+  # action fails that spec until it's deliberately added to one or the other. !!
+  API_SINGLE_IMAGE_ACTIONS = %i[
+    api_show
+    api_image_file_sha
+    api_image_show_sha
+    api_scale_to_box
+    api_scale_to_box_sha
+    api_as_png
+  ].freeze
+
+  before_action :set_api_image, only: API_SINGLE_IMAGE_ACTIONS
+
+  # !! Actual image bytes returned via the API must include some attribution !!
+  before_action :require_attributed_image, only: [
+    :api_image_file_sha,
+    :api_scale_to_box,
+    :api_scale_to_box_sha,
+    :api_as_png
+  ]
 
   # GET /images
   # GET /images.json
@@ -30,7 +53,7 @@ class ImagesController < ApplicationController
         :otu_scope,
         otu_id: [],
         otu_scope: [])
-    ).all.page(params[:page]).per(params[:per])
+    ).all.includes(:attribution).page(params[:page]).per(params[:per])
     render '/images/api/v1/index'
   end
 
@@ -43,52 +66,31 @@ class ImagesController < ApplicationController
   def api_index
     @images = Queries::Image::Filter.new(params.merge!(api: true)).all
       .where(project_id: sessions_current_project_id)
-      .page(params[:page]).per(params[:per])
+      .includes(:attribution)
+
+    # Attributed-only by default; pass attributed_images_only=false to opt out.
+    @images = @images.with_attribution if params[:attributed_images_only] != 'false'
+
+    @images = @images.page(params[:page]).per(params[:per])
     render '/images/api/v1/index'
   end
 
   # GET /api/v1/images/:id
   def api_show
-    id = params[:id]
-    if id =~ (/\A\d+\z/)
-      @image = Image.where(project_id: sessions_current_project_id).find_by(id:)
-    else
-      @image = Image.where(project_id: sessions_current_project_id).find_by(image_file_fingerprint: id)
-    end
-
-    render plain: 'Not found. You may need to add a &project_token= param to the URL currently in your address bar to access these data. See https://api.taxonworks.org/ for more.', status: :not_found and return if @image.nil?
-
     render '/images/api/v1/show'
   end
 
   def api_image_file_sha
-    @image = Image
-      .where(project_id: sessions_current_project_id)
-      .find_by(image_file_fingerprint: params[:sha])
-
-    if @image.present?
-      file_path = @image.image_file.path
-      send_file(
-        file_path,
-        type: @image.image_file_content_type,
-        disposition: 'inline',
-        filename: @image.image_file_file_name
-      )
-    else
-      render plain: 'Image not found.', status: :not_found
-    end
+    send_file(
+      @image.image_file.path,
+      type: @image.image_file_content_type,
+      disposition: 'inline',
+      filename: @image.image_file_file_name
+    )
   end
 
   def api_image_show_sha
-    @image = Image
-      .where(project_id: sessions_current_project_id)
-      .find_by(image_file_fingerprint: params[:sha])
-
-    if @image.present?
-      render '/images/api/v1/show'
-    else
-      render plain: 'Image not found.', status: :not_found
-    end
+    render '/images/api/v1/show'
   end
 
   # GET /images/new
@@ -197,17 +199,9 @@ class ImagesController < ApplicationController
 
   # GET 'api/v1/images/file/sha/:sha/scale_to_box/:x/:y/:width/:height/:box_width/:box_height'
   def api_scale_to_box_sha
-    @image = Image
-      .where(project_id: sessions_current_project_id)
-      .find_by(image_file_fingerprint: params[:sha])
-
-    if @image.present?
-      # Replace :sha with :id in params so scaled_to_box_blob works
-      modified_params = params.merge(id: @image.id)
-      send_data Image.scaled_to_box_blob(modified_params), type: 'image/jpg', disposition: 'inline'
-    else
-      render plain: 'Image not found.', status: :not_found
-    end
+    # Replace :sha with :id in params so scaled_to_box_blob works
+    modified_params = params.merge(id: @image.id)
+    send_data Image.scaled_to_box_blob(modified_params), type: 'image/jpg', disposition: 'inline'
   end
 
   # GET 'images/:id/as_png'
@@ -258,6 +252,41 @@ class ImagesController < ApplicationController
   end
 
   private
+
+  def set_api_image
+    @image = find_api_image
+
+    if @image.nil?
+      render plain: 'Not found. You may need to add a &project_token= param to the URL currently in your address bar to access these data. See https://api.taxonworks.org/ for more.', status: :not_found
+    end
+  end
+
+  def require_attributed_image
+    render_unattributed_image unless @image.attributed?
+  end
+
+
+  def find_api_image
+    scope = Image.where(project_id: sessions_current_project_id)
+
+    return scope.find_by(image_file_fingerprint: params[:sha]) if params[:sha].present?
+
+    # `api_show` alone accepts either a numeric id or an image_file_fingerprint
+    # in its :id param; a legacy convenience predating the dedicated sha routes.
+    if action_name == 'api_show'
+      if params[:id].to_s.length < 32 && params[:id] =~ (/\A\d+\z/)
+        scope.find_by(id: params[:id])
+      elsif params[:id].to_s.length == 32
+        scope.find_by(image_file_fingerprint: params[:id])
+      end
+    else
+      scope.find_by(id: params[:id])
+    end
+  end
+
+  def render_unattributed_image
+    render plain: 'Image is not accessible via the API because it lacks attribution.', status: :forbidden
+  end
 
   def set_image
     @image = Image.with_project_id(sessions_current_project_id).find(params[:id])

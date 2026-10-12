@@ -653,5 +653,21 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
 
       expect(q.all.map(&:id)).to contain_exactly(i3.id)
     end
+
+    specify 'attribution true' do
+      i2 # not this one
+      i3 # not this one
+
+      q.attribution = true
+      expect(q.all.map(&:id)).to contain_exactly(i1.id)
+    end
+
+    specify 'attribution false' do
+      i2
+      i3
+
+      q.attribution = false
+      expect(q.all.map(&:id)).to contain_exactly(i2.id, i3.id)
+    end
   end
 end

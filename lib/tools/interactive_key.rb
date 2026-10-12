@@ -63,6 +63,14 @@ class Tools::InteractiveKey
   # Sample states can use numerical ranges
   attr_accessor :selected_descriptors
 
+  # @!attributed_images_only
+  #   @return [Boolean]
+  # Optional attribute: when true (the default), :depiction_ids on descriptors
+  # and character states only reference images with an Attribution. Callers
+  # that already gate on attribution themselves (e.g. in-app, signed-in
+  # views) should pass false to see everything.
+  attr_accessor :attributed_images_only
+
   ##### RETURNED DATA ######
 
   # @!observation_matrix
@@ -166,7 +174,8 @@ class Tools::InteractiveKey
     error_tolerance: 0,
     identified_to_rank: nil,
     eliminate_unknown: nil,
-    selected_descriptors: nil)
+    selected_descriptors: nil,
+    attributed_images_only: true)
 
     # raise if observation_matrix_id.blank? || project_id.blank?
     @observation_matrix_id = observation_matrix_id
@@ -189,6 +198,7 @@ class Tools::InteractiveKey
     @eliminate_unknown = eliminate_unknown == 'true' ? true : false
     @identified_to_rank = identified_to_rank
     @selected_descriptors = selected_descriptors
+    @attributed_images_only = attributed_images_only
     @selected_descriptors_hash = selected_descriptors_hash_initiate
 
     @row_hash = row_hash_initiate
@@ -475,6 +485,13 @@ class Tools::InteractiveKey
     return h.values
   end
 
+  # @return [Array] depiction ids, restricted to attributed images unless
+  #   attributed_images_only is false
+  def depiction_ids_for(depictions)
+    depictions = depictions.joins(image: :attribution) if attributed_images_only
+    depictions.order(:position).pluck(:id)
+  end
+
   def useful_descriptors
     list_of_remaining_taxa = {}
     language = language_id.blank? ? nil : language_id.to_i
@@ -552,7 +569,7 @@ class Tools::InteractiveKey
       descriptor[:usefulness] = 0
       descriptor[:status] = d_value[:status] == 'used' ? 'used' : 'useless'
       descriptor[:description] = d_value[:descriptor].description
-      descriptor[:depiction_ids] = d_value[:descriptor].depictions.order(:position).pluck(:id)
+      descriptor[:depiction_ids] = depiction_ids_for(d_value[:descriptor].depictions)
 
       s = 0
       case d_value[:descriptor].type
@@ -578,7 +595,7 @@ class Tools::InteractiveKey
             d_value[:status] = 'useful'
             descriptor[:status] = 'useful'
           end
-          state[:depiction_ids] = c.depictions.order(:position).pluck(:id)
+          state[:depiction_ids] = depiction_ids_for(c.depictions)
 
           #          weight = rem_taxa/number_of_states + squer (sum (rem_taxa/number_of_states - taxa_in_each_state)^2)
           s += (number_of_taxa / number_of_states - s_value[:rows].count) ** 2

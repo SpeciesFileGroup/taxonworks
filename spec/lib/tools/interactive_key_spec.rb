@@ -75,6 +75,23 @@ describe Tools::InteractiveKey, type: :model, group: :observation_matrix do
       expect(interactive_key.list_of_descriptors.count).to eq(2)
     end
 
+    specify 'depiction_ids default to attributed images only, attributed_images_only: false opts out' do
+      observation_matrix.observation_matrix_column_items << ObservationMatrixColumnItem::Single::Descriptor.new(descriptor: descriptor1)
+
+      attributed_image = FactoryBot.create(:tiny_random_image)
+      FactoryBot.create(:valid_attribution, attribution_object: attributed_image)
+      unattributed_image = FactoryBot.create(:tiny_random_image)
+
+      attributed_depiction = FactoryBot.create(:valid_depiction, depiction_object: descriptor1, image: attributed_image)
+      FactoryBot.create(:valid_depiction, depiction_object: descriptor1, image: unattributed_image)
+
+      defaulted = key.new(observation_matrix_id: observation_matrix.id, project_id: observation_matrix.project_id)
+      expect(defaulted.list_of_descriptors.first[:depiction_ids]).to contain_exactly(attributed_depiction.id)
+
+      opted_out = key.new(observation_matrix_id: observation_matrix.id, project_id: observation_matrix.project_id, attributed_images_only: false)
+      expect(opted_out.list_of_descriptors.first[:depiction_ids].size).to eq(2)
+    end
+
     # TODO:  strangely named, does not match the variable
     specify 'rows_with_filter' do
       observation_matrix.observation_matrix_row_items << ObservationMatrixRowItem::Single.new(observation_object: otu1)

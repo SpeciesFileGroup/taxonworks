@@ -33,6 +33,6 @@ if extensions
     metadata = key_metadata(root)
     json.key_metadata metadata
     json.key_ordered_parents metadata.keys
-    json.key_data key_data(root, metadata, lead_items: true, back_couplets: true)
+    json.key_data key_data(root, metadata, with_figures: true, lead_items: true, back_couplets: true)
   end
 end

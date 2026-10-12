@@ -286,6 +286,152 @@ describe ImagesController, type: :controller do
       end
     end
 
+    describe 'GET api_index' do
+      render_views
+
+      let(:attributed_image) { Image.create! valid_attributes }
+      let(:unattributed_image) { FactoryBot.create(:tiny_random_image) }
+
+      before do
+        FactoryBot.create(:valid_attribution, attribution_object: attributed_image)
+        unattributed_image
+      end
+
+      context 'without attributed_images_only (default)' do
+        it 'drops the unattributed image from the response entirely' do
+          get :api_index, params: {format: :json}, session: valid_session
+          json = JSON.parse(response.body)
+
+          expect(json.map { |i| i['id'] }).to contain_exactly(attributed_image.id)
+        end
+      end
+
+      context 'with attributed_images_only=false' do
+        it 'includes both images, redacting the unattributed one' do
+          get :api_index, params: {format: :json, attributed_images_only: 'false'}, session: valid_session
+          json = JSON.parse(response.body)
+          ids = json.map { |i| i['id'] }
+
+          expect(ids).to contain_exactly(attributed_image.id, unattributed_image.id)
+          expect(json.find { |i| i['id'] == unattributed_image.id }['message']).to include('lacks attribution')
+        end
+      end
+    end
+
+    describe 'GET api_show' do
+      render_views
+
+      let(:image) { Image.create! valid_attributes }
+
+      context 'with attribution' do
+        before { FactoryBot.create(:valid_attribution, attribution_object: image) }
+
+        it 'renders the image data' do
+          get :api_show, params: {id: image.to_param, format: :json}, session: valid_session
+          json = JSON.parse(response.body)
+
+          expect(response).to have_http_status(:success)
+          expect(json['attributed']).to eq(true)
+        end
+      end
+
+      context 'without attribution' do
+        it 'renders metadata with links redacted' do
+          get :api_show, params: {id: image.to_param, format: :json}, session: valid_session
+          json = JSON.parse(response.body)
+
+          expect(response).to have_http_status(:success)
+          expect(json['id']).to eq(image.id)
+          expect(json['attributed']).to eq(false)
+          expect(json['message']).to include('lacks attribution')
+          expect(json).not_to have_key('image_file_file_name')
+          expect(json).not_to have_key('original')
+          expect(json).not_to have_key('thumb')
+          expect(json).not_to have_key('medium')
+          expect(json).not_to have_key('original_png')
+          expect(json).not_to have_key('as_png')
+        end
+      end
+
+      context 'with invalid id' do
+        it 'returns 404 not found' do
+          get :api_show, params: {id: -1}, session: valid_session
+          expect(response).to have_http_status(:not_found)
+        end
+      end
+    end
+
+    describe 'GET api_image_file_sha' do
+      let(:image) { Image.create! valid_attributes }
+      let(:fingerprint) { image.image_file_fingerprint }
+
+      context 'with attribution' do
+        before { FactoryBot.create(:valid_attribution, attribution_object: image) }
+
+        it 'returns image file data' do
+          get :api_image_file_sha, params: {sha: fingerprint}, session: valid_session
+          expect(response).to have_http_status(:success)
+          expect(response.body).not_to be_empty
+        end
+      end
+
+      context 'without attribution' do
+        it 'returns 403 forbidden' do
+          get :api_image_file_sha, params: {sha: fingerprint}, session: valid_session
+          expect(response).to have_http_status(:forbidden)
+          expect(response.body).to include('lacks attribution')
+        end
+      end
+
+      context 'with invalid fingerprint' do
+        it 'returns 404 not found' do
+          get :api_image_file_sha, params: {sha: 'nonexistent_fingerprint'}, session: valid_session
+          expect(response).to have_http_status(:not_found)
+        end
+      end
+    end
+
+    describe 'GET api_image_show_sha' do
+      render_views
+
+      let(:image) { Image.create! valid_attributes }
+      let(:fingerprint) { image.image_file_fingerprint }
+
+      context 'with attribution' do
+        before { FactoryBot.create(:valid_attribution, attribution_object: image) }
+
+        it 'renders the image data' do
+          get :api_image_show_sha, params: {sha: fingerprint, format: :json}, session: valid_session
+          json = JSON.parse(response.body)
+
+          expect(response).to have_http_status(:success)
+          expect(json['attributed']).to eq(true)
+        end
+      end
+
+      context 'without attribution' do
+        it 'renders metadata with links redacted' do
+          get :api_image_show_sha, params: {sha: fingerprint, format: :json}, session: valid_session
+          json = JSON.parse(response.body)
+
+          expect(response).to have_http_status(:success)
+          expect(json['id']).to eq(image.id)
+          expect(json['attributed']).to eq(false)
+          expect(json['message']).to include('lacks attribution')
+          expect(json).not_to have_key('original')
+          expect(json).not_to have_key('thumb')
+          expect(json).not_to have_key('medium')
+        end
+      end
+
+      context 'with invalid fingerprint' do
+        it 'returns 404 not found' do
+          get :api_image_show_sha, params: {sha: 'nonexistent_fingerprint'}, session: valid_session
+          expect(response).to have_http_status(:not_found)
+        end
+      end
+    end
+
     describe 'GET api_scale_to_box_sha' do
       let(:image) { Image.create! valid_attributes }
       let(:fingerprint) { image.image_file_fingerprint }
@@ -295,6 +441,8 @@ describe ImagesController, type: :controller do
       let(:height) { image.width / 4 }
       let(:box_width) { image.width / 4 }
       let(:box_height) { image.width / 4 }
+
+      before { FactoryBot.create(:valid_attribution, attribution_object: image) }
 
       context 'with valid fingerprint' do
         it 'returns image data' do
@@ -336,6 +484,7 @@ describe ImagesController, type: :controller do
               'image/png'
             )
           )
+          FactoryBot.create(:valid_attribution, attribution_object: crop_image)
 
           get :api_scale_to_box_sha, params: {
             sha: crop_image.image_file_fingerprint,
@@ -381,7 +530,100 @@ describe ImagesController, type: :controller do
           }, session: valid_session
 
           expect(response).to have_http_status(:not_found)
-          expect(response.body).to include('Image not found')
+          expect(response.body).to include('project_token')
+        end
+      end
+    end
+
+    describe 'GET api_scale_to_box' do
+      let(:image) { Image.create! valid_attributes }
+      let(:x) { image.width / 2 }
+      let(:y) { image.height / 2 }
+      let(:width) { image.width / 4 }
+      let(:height) { image.width / 4 }
+      let(:box_width) { image.width / 4 }
+      let(:box_height) { image.width / 4 }
+
+      context 'with attribution' do
+        before { FactoryBot.create(:valid_attribution, attribution_object: image) }
+
+        it 'returns image data' do
+          get :api_scale_to_box, params: {
+            id: image.id,
+            x: x,
+            y: y,
+            width: width,
+            height: height,
+            box_width: box_width,
+            box_height: box_height
+          }, session: valid_session
+
+          expect(response).to have_http_status(:success)
+          expect(response.content_type).to eq('image/jpg')
+          expect(response.body).not_to be_empty
+        end
+      end
+
+      context 'without attribution' do
+        it 'returns 403 forbidden' do
+          get :api_scale_to_box, params: {
+            id: image.id,
+            x: x,
+            y: y,
+            width: width,
+            height: height,
+            box_width: box_width,
+            box_height: box_height
+          }, session: valid_session
+
+          expect(response).to have_http_status(:forbidden)
+          expect(response.body).to include('lacks attribution')
+        end
+      end
+
+      context 'with invalid id' do
+        it 'returns 404 not found' do
+          get :api_scale_to_box, params: {
+            id: -1,
+            x: 0,
+            y: 0,
+            width: 1,
+            height: 1,
+            box_width: 1,
+            box_height: 1
+          }, session: valid_session
+
+          expect(response).to have_http_status(:not_found)
+        end
+      end
+    end
+
+    describe 'GET api_as_png' do
+      let(:image) { Image.create! valid_attributes }
+
+      context 'with attribution' do
+        before { FactoryBot.create(:valid_attribution, attribution_object: image) }
+
+        it 'returns png image data' do
+          get :api_as_png, params: {id: image.to_param}, session: valid_session
+          expect(response).to have_http_status(:success)
+          expect(response.content_type).to eq('image/png')
+          expect(response.body).not_to be_empty
+        end
+      end
+
+      context 'without attribution' do
+        it 'returns 403 forbidden' do
+          get :api_as_png, params: {id: image.to_param}, session: valid_session
+          expect(response).to have_http_status(:forbidden)
+          expect(response.body).to include('lacks attribution')
+        end
+      end
+
+      context 'with invalid id' do
+        it 'returns 404 not found' do
+          get :api_as_png, params: {id: -1}, session: valid_session
+          expect(response).to have_http_status(:not_found)
         end
       end
     end
@@ -396,4 +638,25 @@ describe ImagesController, type: :controller do
     end
   end
   # rubocop:enable Style/StringHashKeys
+end
+
+describe 'ImagesController api_ action coverage for set_api_image' do
+  # Every `api_` action defined on ImagesController must be accounted for here: either it
+  # looks up a single Image via `set_api_image` (belongs in
+  # ImagesController::API_SINGLE_IMAGE_ACTIONS) or it's a listing/batch action that
+  # legitimately has no single Image to look up (belongs in BATCH_API_ACTIONS below).
+  #
+  # This spec fails on any new `api_` action until it's been deliberately added to one of
+  # those two lists - see the comment above ImagesController::API_SINGLE_IMAGE_ACTIONS.
+  BATCH_API_ACTIONS = %i[
+    api_index
+    api_image_inventory
+  ].freeze
+
+  it 'accounts for every api_ action with either single-image or batch handling' do
+    all_api_actions = ImagesController.instance_methods(false).grep(/\Aapi_/)
+    accounted_for_actions = ImagesController::API_SINGLE_IMAGE_ACTIONS + BATCH_API_ACTIONS
+
+    expect(all_api_actions.sort).to eq(accounted_for_actions.sort)
+  end
 end

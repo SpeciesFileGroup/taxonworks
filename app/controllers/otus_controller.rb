@@ -355,6 +355,12 @@ class OtusController < ApplicationController
       .joins("LEFT OUTER JOIN observations ON (observations.id = depictions.depiction_object_id and depictions.depiction_object_type = 'Observation')")
       .joins('LEFT OUTER JOIN descriptors ON descriptors.id = observations.descriptor_id')
       .eager_load(image: [:attribution])
+
+    # Attributed-only by default; pass attributed_images_only=false to opt out.
+    if params[:attributed_images_only] != 'false'
+      @depictions = @depictions.where.not(attributions: { id: nil })
+    end
+
     if params[:sort_order]
       @depictions = @depictions.order( Arel.sql( conditional_sort('depictions.depiction_object_type', params[:sort_order]) + ', descriptors.position, depictions.depiction_object_id, depictions.position' ))
     else
