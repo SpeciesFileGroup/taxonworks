@@ -518,6 +518,40 @@ describe Otus::GisHelper, type: :helper do
         h = helper.otus_distribution_is_absent_geo_json(Otu.where(id: otu.id))
         expect(h['features'].map { |f| f.dig('properties', 'base', 'id') }).not_to include(ad.id)
       end
+
+      context 'only_requested: true' do
+        def absent_fo_for(o)
+          ce = FactoryBot.create(:valid_collecting_event)
+          FactoryBot.create(:valid_georeference, collecting_event: ce)
+          fo = FactoryBot.create(:valid_field_occurrence, is_absent: true, total: 0, collecting_event: ce)
+          fo.taxon_determinations.first.update!(otu: o)
+          fo
+        end
+
+        def base_ids(otu_ids)
+          helper.otus_distribution_is_absent_geo_json(Otu.where(id: otu_ids), only_requested: true)['features']
+            .map { |f| f.dig('properties', 'base', 'id') }
+        end
+
+        specify 'excludes absences of coordinate OTUs not requested' do
+          ad = add_ad(coord_otu, is_absent: true)
+          fo = absent_fo_for(coord_otu)
+          expect(base_ids(otu.id)).not_to include(ad.id, fo.id)
+        end
+
+        specify 'includes absences of coordinate OTUs requested' do
+          ad = add_ad(coord_otu, is_absent: true)
+          fo = absent_fo_for(coord_otu)
+          expect(base_ids([otu.id, coord_otu.id])).to include(ad.id, fo.id)
+        end
+
+        specify 'includes absences of ancestor OTUs' do
+          genus_otu = Otu.create!(taxon_name: species_name.parent)
+          ad = add_ad(genus_otu, is_absent: true)
+          fo = absent_fo_for(genus_otu)
+          expect(base_ids(otu.id)).to include(ad.id, fo.id)
+        end
+      end
     end
   end
 

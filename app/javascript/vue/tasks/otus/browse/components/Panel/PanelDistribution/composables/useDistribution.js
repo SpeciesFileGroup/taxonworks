@@ -31,7 +31,7 @@ function sortFeaturesByType(arr, reference) {
   })
 }
 
-function isRankInSpeciesGroups(rank) {
+export function isRankInSpeciesGroups(rank) {
   const rankGroup = rank.split('::').at(2)
 
   return [
