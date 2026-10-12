@@ -9,15 +9,11 @@
 #
 # @!attribute name
 #   @return [String]
-#     the name of the Composition, unique within type and version
+#     the name of the Composition, unique within type
 #
 # @!attribute description
 #   @return [String, nil]
 #     a free text description
-#
-# @!attribute version
-#   @return [String, nil]
-#     <major>.<minor>.<patch>, see Utilities::SemanticVersion
 #
 # @!attribute is_community
 #   @return [true, nil]
@@ -34,8 +30,6 @@ class Composition < ApplicationRecord
   include Shared::IsRender
   include Shared::Pinnable
 
-  normalizes :version, with: -> (v) { v.strip.presence }
-
   # Only true or nil
   normalizes :is_community, with: -> (v) { v.presence }
 
@@ -50,8 +44,7 @@ class Composition < ApplicationRecord
   }
 
   validates_presence_of :type, :name
-  validates :name, uniqueness: { scope: [:project_id, :type, :version] }
-  validate :version_is_semantic
+  validates :name, uniqueness: { scope: [:project_id, :type] }
   validate :is_community_is_permitted
   validate :community_has_no_item_objects
 
@@ -80,12 +73,6 @@ class Composition < ApplicationRecord
   end
 
   protected
-
-  def version_is_semantic
-    if version.present? && !Utilities::SemanticVersion.valid?(version)
-      errors.add(:version, 'must be <major>.<minor>.<patch>, e.g. 1.0.0')
-    end
-  end
 
   def is_community_is_permitted
     if is_community? && !self.class.community_permitted?

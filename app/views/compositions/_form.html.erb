@@ -23,12 +23,6 @@
     <%= f.text_area :description, rows: 5 %>
   </div>
 
-  <div class="field">
-    <%= f.label :version %> (e.g. 1.0.0)
-    <br>
-    <%= f.text_field :version %>
-  </div>
-
   <% if @composition.class.community_permitted? %>
     <div class="field">
       <%= f.label :is_community, 'Share with all projects' %>

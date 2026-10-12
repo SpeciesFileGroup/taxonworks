@@ -15,7 +15,7 @@ class CompositionsController < ApplicationController
       end
       format.json {
         @compositions = visible_compositions
-          .order(:type, :name, :version)
+          .order(:type, :name)
           .page(params[:page])
           .per(params[:per])
       }
@@ -100,7 +100,7 @@ class CompositionsController < ApplicationController
     # TODO: expand, move to queries..autocomplete
     @compositions = visible_compositions
       .where('name ILIKE ?', "%#{params.require(:term)}%")
-      .order(:type, :name, :version)
+      .order(:type, :name)
       .limit(20)
   end
 
@@ -126,6 +126,6 @@ class CompositionsController < ApplicationController
 
   # type is set only on create
   def composition_params
-    params.require(:composition).permit(:name, :description, :version, :is_community)
+    params.require(:composition).permit(:name, :description, :is_community)
   end
 end

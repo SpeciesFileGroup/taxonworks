@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_09_150000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_12_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -616,10 +616,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_09_150000) do
     t.string "type", null: false
     t.datetime "updated_at", null: false
     t.integer "updated_by_id", null: false
-    t.text "version"
     t.index ["created_by_id"], name: "index_compositions_on_created_by_id"
     t.index ["is_community"], name: "index_compositions_on_is_community"
-    t.index ["project_id", "type", "name", "version"], name: "composition_unique_name_index", unique: true, nulls_not_distinct: true
+    t.index ["project_id", "type", "name"], name: "composition_unique_name_index", unique: true, nulls_not_distinct: true
     t.index ["project_id"], name: "index_compositions_on_project_id"
     t.index ["updated_by_id"], name: "index_compositions_on_updated_by_id"
     t.check_constraint "(is_community IS TRUE) = (project_id IS NULL)", name: "composition_community_project_check"
