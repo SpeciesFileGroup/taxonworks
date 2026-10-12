@@ -5,7 +5,11 @@
     :slices="slices"
     :ids="ids"
     :object-type="TAXON_NAME"
-  />
+  >
+    <template #icon>
+      <IconFileInput class="w-3.5 h-3.5" />
+    </template>
+  </RadialBatch>
 </template>
 
 <script setup>
@@ -16,6 +20,7 @@ import GenderSlice from './components/GenderSlice.vue'
 import SliceParent from './components/ParentSlice.vue'
 import StatusSlice from './components/StatusSlice.vue'
 import VerbatimSlice from './components/VerbatimSlice.vue'
+import IconFileInput from '@/components/Icon/IconFileInput.vue'
 
 // Classification slices (Gender, Status) are ids-only, capping a batch at
 // one page of checked names

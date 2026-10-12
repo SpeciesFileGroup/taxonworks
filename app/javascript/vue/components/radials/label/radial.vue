@@ -33,10 +33,7 @@
       :disabled="disabled"
       @click="openRadialMenu()"
     >
-      <VIcon
-        name="label"
-        x-small
-      />
+      <IconTag class="w-3.5 h-3.5" />
     </VBtn>
   </div>
 </template>
@@ -44,10 +41,10 @@
 <script setup>
 import { computed, ref } from 'vue'
 import RadialMenu from '@/components/radials/RadialMenu.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import Modal from '@/components/ui/Modal.vue'
 import AjaxCall from '@/helpers/ajaxCall'
+import IconTag from '@/components/Icon/IconTag.vue'
 import * as SLICES from './model/index.js'
 
 const props = defineProps({

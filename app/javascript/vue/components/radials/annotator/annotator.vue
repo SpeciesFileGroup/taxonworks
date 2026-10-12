@@ -68,7 +68,7 @@
       @contextmenu.prevent="loadContextMenu"
       @click="displayAnnotator()"
     >
-      <IconRadialAnnotator class="w-4 h-4" />
+      <IconLayers class="w-4 h-4" />
     </VBtn>
     <div
       v-if="metadataCount && showCount"
@@ -99,7 +99,7 @@ import VBtn from '@/components/ui/VBtn/index.vue'
 import Icons from './images/icons.js'
 import tagButtonIcon from './images/tagButton.js'
 import ContextMenu from './components/contextMenu'
-import IconRadialAnnotator from '@/components/Icon/IconRadialAnnotator.vue'
+import IconLayers from '@/components/Icon/IconLayers.vue'
 import RadialHeader from '../shared/RadialHeader.vue'
 
 const MIDDLE_RADIAL_BUTTON = 'circleButton'

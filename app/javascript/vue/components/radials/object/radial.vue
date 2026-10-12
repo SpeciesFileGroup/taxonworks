@@ -78,10 +78,7 @@
       :disabled="disabled"
       @click="openRadialMenu()"
     >
-      <VIcon
-        name="radialObject"
-        x-small
-      />
+      <IconQuickForms class="w-3.5 h-3.5" />
     </VBtn>
     <div
       v-if="metadataCount && showCount"
@@ -97,7 +94,7 @@ import RadialMenu from '@/components/radials/RadialMenu.vue'
 import VModal from '@/components/ui/Modal.vue'
 import SpinnerComponent from '@/components/ui/VSpinner.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
+import IconQuickForms from '@/components/Icon/IconQuickForms.vue'
 import RadialHeader from '../shared/RadialHeader.vue'
 import makeRequest from '@/helpers/ajaxCall'
 import Icons from './images/icons.js'
