@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <div class="field">
+  <div class="flex-col gap-medium">
+    <div>
       <label>Group</label>
       <autocomplete
         url="https://paleobiodb.org/data1.2/strata/auto.json"
@@ -26,7 +26,7 @@
         param="name"
       />
     </div>
-    <div class="field">
+    <div>
       <label>Formation</label>
       <autocomplete
         url="https://paleobiodb.org/data1.2/strata/auto.json"
@@ -76,8 +76,8 @@
         "
       />
     </div>
-    <div class="horizontal-left-content ma-fields">
-      <div class="separate-right label-above">
+    <div class="horizontal-left-content ma-fields gap-medium">
+      <div class="label-above">
         <label>Minimum MA</label>
         <input
           type="text"
@@ -89,7 +89,7 @@
           "
         />
       </div>
-      <div class="separate-left label-above">
+      <div class=" label-above">
         <label>Maximum MA</label>
         <input
           type="text"
@@ -119,7 +119,7 @@ const EXTERNAL_HEADERS = {
 <style lang="scss" scoped>
 .ma-fields {
   input {
-    width: 60px;
+    width: 86px;
   }
 }
 </style>
