@@ -32,6 +32,7 @@
 class Composition < ApplicationRecord
   include Housekeeping
   include Shared::IsRender
+  include Shared::Pinnable
 
   normalizes :version, with: -> (v) { v.strip.presence }
 

@@ -7,7 +7,7 @@ module Shared::IsData
   extend ActiveSupport::Concern
 
   included do
-    include Pinnable
+    include Shared::Pinnable
     include Levenshtein
     include Annotation
     include Scopes

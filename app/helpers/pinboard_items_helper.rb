@@ -2,7 +2,7 @@ module PinboardItemsHelper
 
   # @return [Boolean]
   def pinnable?(object)
-    object.class < Shared::IsData::Pinnable ? true : false
+    object.class < Shared::Pinnable ? true : false
   end
 
   def pin_item_to_pinboard_link(object, user)

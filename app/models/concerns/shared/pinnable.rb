@@ -1,6 +1,6 @@
 # Shared code pinning objects (adding them to your pinboard).
 #
-module Shared::IsData::Pinnable
+module Shared::Pinnable
   extend ActiveSupport::Concern
 
   included do
