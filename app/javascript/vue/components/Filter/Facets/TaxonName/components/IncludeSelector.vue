@@ -1,6 +1,6 @@
 <template>
   <div class="field">
-    <label>Include</label>
+    <label class="font-medium">Include</label>
     <ul class="no_bullets">
       <li
         v-for="({ descendants, ancestors }, label) in INCLUDE_OPTIONS"

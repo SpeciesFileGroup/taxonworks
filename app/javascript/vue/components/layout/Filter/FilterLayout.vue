@@ -51,7 +51,6 @@
               color="primary"
               variant="tonal"
               icon
-              medium
               v-tooltip="{
                 content: 'Reset (Alt/Ctrl + R)',
                 placement: 'bottom'
