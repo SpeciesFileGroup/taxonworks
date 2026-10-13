@@ -233,6 +233,19 @@ describe 'Shared::Unify', type: :model do
     expect(o1.depictions.size).to eq(1)
   end
 
+  specify 'deduplicates Depictions — reroutes LayoutItems to the surviving depiction' do
+    i = FactoryBot.create(:valid_image)
+
+    a = FactoryBot.create(:valid_depiction, depiction_object: o1, image: i)
+    b = FactoryBot.create(:valid_depiction, depiction_object: o2, image: i)
+    item = FactoryBot.create(:valid_layout_item_light_table_item,
+      composition_item_object: b)
+
+    o1.unify(o2)
+    expect(Depiction.where(id: b.id).exists?).to be_falsey
+    expect(item.reload.composition_item_object).to eq(a)
+  end
+
   specify 'deduplicates double non-unique DataAttributes' do
     a = FactoryBot.create(:valid_data_attribute_import_attribute, attribute_subject: o1, value: 123)
     c = FactoryBot.create(:valid_data_attribute_import_attribute, attribute_subject: o2, value: 123, import_predicate:  a.import_predicate)
@@ -506,6 +519,18 @@ describe 'Shared::Unify', type: :model do
 
     expect(b.destroyed?).to be_truthy
     expect(depiction.reload.image).to eq(a)
+  end
+
+  specify 'unifies Image — reroutes LayoutItems to the surviving image' do
+    a = FactoryBot.create(:valid_image)
+    b = FactoryBot.create(:tiny_random_image)
+    item = FactoryBot.create(:valid_layout_item_light_table_item,
+      composition_item_object: b)
+
+    a.unify(b)
+
+    expect(b.destroyed?).to be_truthy
+    expect(item.reload.composition_item_object).to eq(a)
   end
 
   specify 'unifies Document' do

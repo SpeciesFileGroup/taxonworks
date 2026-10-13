@@ -73,7 +73,6 @@ Models are categorized by validation complexity:
 #### Fast Track (Bulk SQL UPDATE)
 - ProjectSource
 - RangedLotCategory
-- OtuPageLayout
 - ~30 other models with simple or no uniqueness constraints
 
 **Processing**: Single SQL UPDATE statement per model
