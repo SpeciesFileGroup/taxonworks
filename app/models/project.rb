@@ -42,11 +42,12 @@ class Project < ApplicationRecord
      CharacterState
      AlternateValue
      DataAttribute
-     TaggedSectionKeyword
      Tag
      Confidence
      Role
      Label
+     CompositionItem
+     Composition
      Attribution
      DwcOccurrence
      BiologicalAssociationIndex
@@ -83,8 +84,6 @@ class Project < ApplicationRecord
      LeadItem
      LoanItem
      Loan
-     OtuPageLayoutSection
-     OtuPageLayout
      ProjectOrganization
      ProjectSource
      TaxonDetermination

@@ -66,7 +66,7 @@ module Workbench::TableHelper
   end
 
   def fancy_pin_tag(object)
-    if object.respond_to?(:pinned?)
+    if pinnable?(object)
       content_tag(:td, pin_item_to_pinboard_link(object, sessions_current_user), class: 'table-options', data: {pin: true})
     end
   end
