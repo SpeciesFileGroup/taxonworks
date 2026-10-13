@@ -1,10 +1,6 @@
 # Helpers for table rendering
 module Workbench::TableHelper
 
-  def row_action_icon(name)
-    icon(name, size: 15)
-  end
-
   def fancy_th_tag(group: nil, name: '')
     content_tag(:th, data: {group: group}) do
       content_tag(:span, name)
@@ -30,29 +26,32 @@ module Workbench::TableHelper
   # replacing the former hidden cells + right-click context menu.
   def fancy_options_cells_tag(object)
     content_tag(:td, class: 'row-actions') do
-      safe_join([
-        row_action_show_link(object),
-        row_action_edit_link(object),
-        row_action_delete_link(object)
-      ].compact)
+      content_tag(:div, class: 'horizontal-right-content gap-xsmall') do
+        safe_join([
+          row_action_show_link(object),
+          row_action_edit_link(object),
+          fancy_pin_tag(object),
+          row_action_delete_link(object)
+        ].compact)
+      end
     end
   end
 
   def row_action_show_link(object)
     target = defined?(object.annotated_object) ? metamorphosize_if(object.annotated_object) : metamorphosize_if(object)
-    link_to(row_action_icon('show'), target, class: 'row-action btn-tonal btn-primary', 'aria-label': 'Show record', data: { show: true, tooltip_content: 'Show record', tooltip_placement: 'bottom' })
+    link_to(icon('show'), target, class: 'button btn-primary btn-link btn-default-icon btn-tonal', 'aria-label': 'Show record', data: { show: true, tooltip_content: 'Show record', tooltip_placement: 'bottom' })
   end
 
   def row_action_edit_link(object)
     return nil unless has_route_for_edit?(object)
     return nil if object.respond_to?(:is_editable?) && !object.is_editable?(sessions_current_user)
-    link_to(row_action_icon('edit'), edit_object_path(metamorphosize_if(object)), class: 'row-action btn-tonal btn-primary', 'aria-label': 'Edit record', data: { tooltip_content: 'Edit record', tooltip_placement: 'bottom' })
+    link_to(icon('edit'), edit_object_path(metamorphosize_if(object)), class: 'button btn-primary btn-link btn-default-icon btn-tonal', 'aria-label': 'Edit record', data: { tooltip_content: 'Edit record', tooltip_placement: 'bottom' })
   end
 
   def row_action_delete_link(object)
     m = metamorphosize_if(object)
     return nil unless m.respond_to?(:is_destroyable?) && m.is_destroyable?(sessions_current_user)
-    link_to(row_action_icon('delete'), m, method: :delete, class: 'row-action btn-tonal btn-destroy', 'aria-label': 'Delete record', data: { confirm: 'Are you sure?', delete: true, tooltip_content: 'Delete record', tooltip_placement: 'bottom' })
+    link_to(icon('delete'), m, method: :delete, class: 'button btn-destroy btn-link btn-default-icon btn-tonal', 'aria-label': 'Delete record', data: { confirm: 'Are you sure?', delete: true, tooltip_content: 'Delete record', tooltip_placement: 'bottom' })
   end
 
   def fancy_show_tag(object)
@@ -67,7 +66,7 @@ module Workbench::TableHelper
 
   def fancy_pin_tag(object)
     if pinnable?(object)
-      content_tag(:td, pin_item_to_pinboard_link(object, sessions_current_user), class: 'table-options', data: {pin: true})
+      pin_item_to_pinboard_link(object, sessions_current_user)
     end
   end
 

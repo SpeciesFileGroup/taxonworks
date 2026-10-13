@@ -90,7 +90,7 @@
             <div class="token-input">
               <code class="token-value" id="tokenValue"><%= @project.api_access_token %></code>
             </div>
-            <button class="token-btn" title="Copy">
+            <button class="button btn-primary btn-tonal btn btn-medium-icon token-btn" data-tooltip-content="Copy to clipboard">
               <%= icon('copy') %>
             </button>
           </div>
@@ -124,7 +124,7 @@
             <input type="text" id="input-search" class="normal-input" autofocus="true" placeholder="Search members...">
 
             <% if is_superuser? %>
-              <button class="button btn-tonal btn-primary btn btn-medium-size" data-clipboard-table-selector="#members-table" data-offset="6" data-end="6">
+              <button class="button btn-tonal btn-primary btn btn-link btn-medium-size" data-clipboard-table-selector="#members-table" data-offset="6" data-end="6">
                 <%= icon('mail') %>
                 Copy emails
               </button>
@@ -185,7 +185,7 @@
                     <td class="td-center"> 
                       <%= form_for(pm, method: :delete) do |f| -%>
                         <%= f.hidden_field :_destroy, value: :true -%>
-                        <%= f.button(row_action_icon('delete'), class: 'button row-action btn-tonal btn-destroy', 'aria-label': 'Remove member', data: { confirm: "Are you sure you want to remove this user from the project?" }) %>
+                        <%= f.button(icon('delete'), class: 'button btn-destroy btn btn-default-icon btn-tonal', 'aria-label': 'Remove member', data: { confirm: "Are you sure you want to remove this user from the project?" }) %>
                       <% end %>
                     </td>
                   </tr>

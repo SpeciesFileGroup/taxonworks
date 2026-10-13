@@ -199,18 +199,6 @@ table {
   cursor: default;
 }
 
-.row-action {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 5px;
-  border-radius: var(--border-radius-small);
-  vertical-align: middle;
-}
-
-.row-action + .row-action {
-  margin-left: var(--spacing-xxs);
-}
 /* 
 @media (hover: hover) {
   .table-row-radial {

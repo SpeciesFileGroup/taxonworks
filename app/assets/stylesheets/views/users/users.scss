@@ -47,19 +47,6 @@
     font-size: var(--font-size-sm);
   }
 
-  .btn {
-    display: inline-flex;
-    align-items: center;
-    font-size: var(--font-size-xs);
-    gap: var(--spacing-xs);
-    padding: var(--spacing-xs) var(--spacing-md);
-    border: none;
-    cursor: pointer;
-    transition:
-      background-color 0.2s,
-      opacity 0.2s;
-  }
-
   .edit-btn:hover {
     color: white;
   }

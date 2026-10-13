@@ -133,25 +133,6 @@
   font-size: var(--font-size-sm);
 }
 
-.token-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: var(--size-medium);
-  height: var(--size-medium);
-  padding: var(--spacing-xs);
-  background-color: var(--color-soft-primary-bg);
-  border: 1px solid transparent;
-  border-radius: var(--border-radius-medium);
-  color: var(--color-primary);
-  cursor: pointer;
-  transition: background-color 0.2s;
-
-  &:hover {
-    background-color: color-mix(in srgb, var(--color-primary) 20%, transparent);
-  }
-}
-
 .token-warning {
   display: flex;
   align-items: center;
