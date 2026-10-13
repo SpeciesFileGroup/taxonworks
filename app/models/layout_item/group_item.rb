@@ -40,9 +40,10 @@ class LayoutItem::GroupItem < LayoutItem
   protected
 
   # Keeps the members where they appear: each moves to the group's parent,
-  # with the group's offset added to its x, y.
+  # with the group's offset added to its x, y. Members are appended to the
+  # parent's list in their order.
   def release_members
-    children.each do |m|
+    children.order(:position).each do |m|
       m.update!(
         parent_id:,
         x: (m.x || 0) + (x || 0),

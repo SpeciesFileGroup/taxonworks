@@ -111,6 +111,40 @@ RSpec.describe CompositionItem, type: :model do
 
       expect([a, b, c, d].map(&:position)).to eq([1, 2, 1, 1])
     end
+
+    context 'among siblings' do
+      let!(:a) { FactoryBot.create(:valid_layout_item, composition: layout) }
+      let!(:b) { FactoryBot.create(:valid_layout_item, composition: layout) }
+      let!(:c) { FactoryBot.create(:valid_layout_item, composition: layout) }
+
+      def positions(*items) = items.map { |i| i.reload.position }
+
+      specify 'an explicit position shifts the siblings at and below it' do
+        d = FactoryBot.create(:valid_layout_item,
+          composition: layout, position: 2)
+        expect(positions(a, d, b, c)).to eq([1, 2, 3, 4])
+      end
+
+      specify 'moving an item reorders the siblings between' do
+        c.update!(position: 1)
+        expect(positions(c, a, b)).to eq([1, 2, 3])
+      end
+
+      specify 'destroying an item closes the gap' do
+        a.destroy!
+        expect(positions(b, c)).to eq([1, 2])
+      end
+
+      specify 'a new parent closes the old gap and appends to the new list' do
+        group = FactoryBot.create(:valid_layout_item_group_item,
+          composition: layout)
+        member = FactoryBot.create(:valid_layout_item,
+          composition: layout, parent: group)
+        a.update!(parent: group)
+        expect(positions(b, c, group)).to eq([1, 2, 3])
+        expect(positions(member, a)).to eq([1, 2])
+      end
+    end
   end
 
   context 'project' do

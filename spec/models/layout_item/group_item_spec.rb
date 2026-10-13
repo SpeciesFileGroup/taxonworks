@@ -103,6 +103,19 @@ RSpec.describe LayoutItem::GroupItem, type: :model do
       expect([c.reload.parent, c.x, c.y]).to eq([inner, 2.0, 2.0])
     end
 
+    specify 'members keep their order, after the parent\'s other items' do
+      other = FactoryBot.create(:valid_layout_item_group_item,
+        composition: layout)
+      c = FactoryBot.create(:valid_layout_item_light_table_item,
+        composition: layout, parent: group)
+      c.insert_at(1)
+      group.destroy!
+      expect(
+        layout.composition_items.where(parent_id: nil).order(:position)
+          .pluck(:id, :position)
+      ).to eq([[other.id, 1], [c.id, 2], [a.id, 3], [b.id, 4]])
+    end
+
     specify 'is skipped when the Composition is destroyed' do
       layout.destroy!
       expect(CompositionItem.where(id: [group.id, a.id, b.id]).exists?)
