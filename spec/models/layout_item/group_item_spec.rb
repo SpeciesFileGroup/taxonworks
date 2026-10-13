@@ -43,17 +43,17 @@ RSpec.describe LayoutItem::GroupItem, type: :model do
   end
 
   context 'destroy (ungroup)' do
-    let(:layout) { FactoryBot.create(:valid_layout) }
+    let(:layout) { FactoryBot.create(:valid_layout_light_table) }
     let(:group) {
       FactoryBot.create(:valid_layout_item_group_item,
         composition: layout, x: 100, y: 50)
     }
     let!(:a) {
-      FactoryBot.create(:valid_layout_item_depiction_item,
+      FactoryBot.create(:valid_layout_item_light_table_item,
         composition: layout, parent: group, x: 10, y: 5)
     }
     let!(:b) {
-      FactoryBot.create(:valid_layout_item_depiction_item,
+      FactoryBot.create(:valid_layout_item_light_table_item,
         composition: layout, parent: group)
     }
 
@@ -95,7 +95,7 @@ RSpec.describe LayoutItem::GroupItem, type: :model do
     specify 'a nested group moves up with its members untouched' do
       inner = FactoryBot.create(:valid_layout_item_group_item,
         composition: layout, parent: group, x: 7, y: 3)
-      c = FactoryBot.create(:valid_layout_item_depiction_item,
+      c = FactoryBot.create(:valid_layout_item_light_table_item,
         composition: layout, parent: inner, x: 2, y: 2)
       group.destroy!
       expect([inner.reload.parent_id, inner.x, inner.y])
@@ -111,9 +111,12 @@ RSpec.describe LayoutItem::GroupItem, type: :model do
   end
 
   context 'members' do
-    before { group_item.save! }
+    before {
+      group_item.composition = FactoryBot.create(:valid_layout_light_table)
+      group_item.save!
+    }
     let!(:member) {
-      FactoryBot.create(:valid_layout_item_depiction_item,
+      FactoryBot.create(:valid_layout_item_light_table_item,
         composition: group_item.composition, parent: group_item)
     }
 

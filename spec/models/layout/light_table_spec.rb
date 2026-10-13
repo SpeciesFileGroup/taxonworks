@@ -19,7 +19,7 @@ RSpec.describe Layout::LightTable, type: :model do
 
   specify 'LayoutItems may be placed in it' do
     light_table.save!
-    i = FactoryBot.create(:valid_layout_item_image_item,
+    i = FactoryBot.create(:valid_layout_item_light_table_item,
       composition: light_table)
     expect(light_table.composition_items).to contain_exactly(i)
   end

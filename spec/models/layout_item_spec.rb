@@ -28,7 +28,7 @@ RSpec.describe LayoutItem, type: :model do
   end
 
   context 'parent' do
-    let(:layout) { FactoryBot.create(:valid_layout) }
+    let(:layout) { FactoryBot.create(:valid_layout_light_table) }
 
     specify 'may be a group' do
       g = FactoryBot.create(:valid_layout_item_group_item, composition: layout)
@@ -37,11 +37,25 @@ RSpec.describe LayoutItem, type: :model do
     end
 
     specify 'may not be a non-group item' do
-      p = FactoryBot.create(:valid_layout_item_depiction_item,
+      p = FactoryBot.create(:valid_layout_item_light_table_item,
         composition: layout)
       i = FactoryBot.build(:valid_layout_item, composition: layout, parent: p)
       i.valid?
       expect(i.errors.include?(:parent)).to be_truthy
     end
+  end
+
+  # Object concerns combine in one class, so one may not silently override
+  # another's method.
+  specify 'object concerns share no instance methods' do
+    concerns = Shared::Render.constants
+      .map { |c| Shared::Render.const_get(c) }
+      .select { |m| m.is_a?(Module) && !m.is_a?(Class) }
+    expect(concerns).to include(Shared::Render::DepictionItem,
+      Shared::Render::ImageItem)
+    names = concerns.flat_map { |m|
+      m.instance_methods(false) + m.private_instance_methods(false)
+    }
+    expect(names.tally.select { |_, n| n > 1 }.keys).to eq([])
   end
 end

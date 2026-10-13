@@ -238,7 +238,7 @@ describe 'Shared::Unify', type: :model do
 
     a = FactoryBot.create(:valid_depiction, depiction_object: o1, image: i)
     b = FactoryBot.create(:valid_depiction, depiction_object: o2, image: i)
-    item = FactoryBot.create(:valid_layout_item_depiction_item,
+    item = FactoryBot.create(:valid_layout_item_light_table_item,
       composition_item_object: b)
 
     o1.unify(o2)
@@ -524,7 +524,7 @@ describe 'Shared::Unify', type: :model do
   specify 'unifies Image — reroutes LayoutItems to the surviving image' do
     a = FactoryBot.create(:valid_image)
     b = FactoryBot.create(:tiny_random_image)
-    item = FactoryBot.create(:valid_layout_item_image_item,
+    item = FactoryBot.create(:valid_layout_item_light_table_item,
       composition_item_object: b)
 
     a.unify(b)
