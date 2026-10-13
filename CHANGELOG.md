@@ -7,10 +7,16 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 ## [unreleased]
 
+### Added
+
+- Composition and CompositionItem models, the first Render models for tracking display of Data items in the UI [#5116] [#5117]
+
 ### Fixed
 
 - Contents are not republished after saving content that was already published [#5133]
 
+[#5116]: https://github.com/SpeciesFileGroup/taxonworks/issues/5116
+[#5117]: https://github.com/SpeciesFileGroup/taxonworks/issues/5117
 [#5133]: https://github.com/SpeciesFileGroup/taxonworks/issues/5133
 
 ## [0.66.1] - 2026-10-09
