@@ -8,6 +8,7 @@ module Shared::IsData
 
   included do
     include Shared::Pinnable
+    include Shared::LayoutItems
     include Levenshtein
     include Annotation
     include Scopes
