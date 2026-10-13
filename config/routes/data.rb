@@ -74,6 +74,7 @@ resources :asserted_environments, except: [:update] do
     get :autoselect, defaults: {format: :json}
     get :object_types, defaults: {format: :json}
     match :filter, to: 'asserted_environments#index', via: [:get, :post]
+    post :batch_by_filter_scope, defaults: {format: :json}
   end
 end
 

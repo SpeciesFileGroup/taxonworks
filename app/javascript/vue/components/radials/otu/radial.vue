@@ -61,14 +61,18 @@ import VIcon from '@/components/ui/VIcon/index.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import TaxonNameSlice from './components/TaxonNameSlice.vue'
 import AssertedDistributionSlice from './components/AssertedDistributionSlice.vue'
+import AssertedEnvironmentSlice from '@/components/radials/shared/AssertedEnvironmentSlice.vue'
 
-import { computed, ref } from 'vue'
+import { computed, h, ref } from 'vue'
+import { OTU } from '@/constants'
 import { removeEmptyProperties } from '@/helpers/objects.js'
 
 const EXCLUDE_PARAMETERS = ['per', 'page', 'extend']
 const SLICES = {
   'Update Taxon name': TaxonNameSlice,
-  'Add asserted distribution': AssertedDistributionSlice
+  'Add asserted distribution': AssertedDistributionSlice,
+  'Add asserted environment': (attrs) =>
+    h(AssertedEnvironmentSlice, { ...attrs, objectType: OTU })
 }
 
 const props = defineProps({

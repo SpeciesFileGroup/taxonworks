@@ -55,6 +55,7 @@ class AssertedEnvironment < ApplicationRecord
   include Shared::Tags
   include Shared::DwcOccurrenceHooks
   include Shared::IsData
+  include Shared::BatchByFilterScope
 
   acts_as_list scope: [:project_id, :asserted_environment_object_type, :asserted_environment_object_id]
 
@@ -88,6 +89,106 @@ class AssertedEnvironment < ApplicationRecord
       .where(fo: {collecting_event_id: asserted_environment_object_id})
 
     ::Queries.union(DwcOccurrence, [a, b])
+  end
+
+  # Only mode :add is supported - assert the ENVO term in params (uri,
+  # uri_label) on every object returned by query, optionally with a citation
+  # (params[:citation], like { source_id:, pages:, is_original: }).
+  #
+  # If the object already has an asserted environment for the term then the
+  # citation, when provided and not already present, is added to that
+  # existing asserted environment, otherwise the object is not updated.
+  #
+  # updated are AssertedEnvironment ids, not_updated are object ids.
+  def self.process_batch_by_filter_scope(
+    batch_response: nil, query: nil, hash_query: nil, mode: nil, params: nil,
+    async: nil, project_id: nil, user_id: nil,
+    called_from_async: false
+  )
+    # Don't call async from async (the point is we do the same processing in
+    # async and not in async, and this function handles both that processing and
+    # making the async call, so it's this much janky).
+    async = false if called_from_async == true
+    r = batch_response
+
+    if mode.to_sym != :add
+      r.errors["unsupported mode '#{mode}'"] = 1
+      return r
+    end
+
+    object_type = query.klass.base_class.name
+    if !ENVIRONMENT_ASSERTABLE_TYPES.include?(object_type)
+      r.errors["asserted environments can not be added to #{object_type}"] = 1
+      return r
+    end
+
+    if params[:uri].blank? || params[:uri_label].blank?
+      r.errors['uri and uri_label are required'] = 1
+      return r
+    end
+
+    if async && !called_from_async
+      BatchByFilterScopeJob.perform_later(
+        klass: self.name,
+        hash_query:,
+        mode:,
+        params:,
+        project_id:,
+        user_id:
+      )
+    else
+      citation_params = params[:citation]&.to_h&.symbolize_keys&.compact_blank
+
+      query.find_each do |o|
+        add_by_batch(o, params[:uri], params[:uri_label], citation_params, r)
+      end
+    end
+
+    r
+  end
+
+  # @param citation_params [Hash, nil] attributes for a new Citation
+  # @param r [BatchResponse] updated with the result for object
+  def self.add_by_batch(object, uri, uri_label, citation_params, r)
+    existing = AssertedEnvironment.find_by(
+      asserted_environment_object: object, uri:
+    )
+
+    if existing
+      if citation_params.blank?
+        r.not_updated.push object.id
+        r.validation_errors['asserted environment already exists'] += 1
+        return
+      end
+
+      citation = existing.citations.create(citation_params)
+      if citation.persisted?
+        r.updated.push existing.id
+      else
+        r.not_updated.push object.id
+        citation.errors.full_messages.each { |msg|
+          r.validation_errors["citation not added to existing asserted environment: #{msg}"] += 1
+        }
+      end
+
+      return
+    end
+
+    a = AssertedEnvironment.create(
+      asserted_environment_object: object,
+      uri:,
+      uri_label:,
+      citations_attributes: citation_params.present? ? [citation_params] : []
+    )
+
+    if a.persisted?
+      r.updated.push a.id
+    else
+      r.not_updated.push object.id
+      a.errors.full_messages.each { |msg|
+        r.validation_errors[msg] += 1
+      }
+    end
   end
 
   protected

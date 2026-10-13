@@ -1,6 +1,8 @@
 require 'rails_helper'
 
 describe AssertedEnvironment, type: :model, group: :shared_geo do
+  include ActiveJob::TestHelper
+
   let(:asserted_environment) { AssertedEnvironment.new }
   let(:otu) { FactoryBot.create(:valid_otu) }
   let(:collecting_event) { FactoryBot.create(:valid_collecting_event) }
@@ -115,6 +117,176 @@ describe AssertedEnvironment, type: :model, group: :shared_geo do
   specify '#destroy' do
     a = FactoryBot.create(:valid_asserted_environment)
     expect(a.destroy).to be_truthy
+  end
+
+  context '.batch_by_filter_scope' do
+    let(:otu2) { FactoryBot.create(:valid_otu) }
+    let(:source) { FactoryBot.create(:valid_source) }
+    let(:otu_filter_query) {
+      { 'otu_query' => Queries::Otu::Filter.new(otu_id: [otu.id, otu2.id]).params }
+    }
+    let(:environment_params) { { uri: envo_uri, uri_label: 'temperate forest biome' } }
+
+    specify ':add creates an asserted environment for each OTU' do
+      r = AssertedEnvironment.batch_by_filter_scope(
+        filter_query: otu_filter_query,
+        mode: :add,
+        params: environment_params
+      )
+
+      expect(r[:updated].length).to eq(2)
+      expect(r[:not_updated]).to be_empty
+      expect(AssertedEnvironment.all.map(&:asserted_environment_object))
+        .to contain_exactly(otu, otu2)
+      expect(AssertedEnvironment.pluck(:uri).uniq).to eq([envo_uri])
+    end
+
+    specify ':add creates an asserted environment for each collecting event' do
+      ce2 = FactoryBot.create(:valid_collecting_event)
+      q = Queries::CollectingEvent::Filter.new(collecting_event_id: [collecting_event.id, ce2.id])
+
+      AssertedEnvironment.batch_by_filter_scope(
+        filter_query: { 'collecting_event_query' => q.params },
+        mode: :add,
+        params: environment_params
+      )
+
+      expect(AssertedEnvironment.all.map(&:asserted_environment_object))
+        .to contain_exactly(collecting_event, ce2)
+    end
+
+    specify ':add appends after existing asserted environments on the object' do
+      FactoryBot.create(:valid_asserted_environment, asserted_environment_object: otu)
+
+      AssertedEnvironment.batch_by_filter_scope(
+        filter_query: otu_filter_query,
+        mode: :add,
+        params: environment_params
+      )
+
+      expect(AssertedEnvironment.find_by(asserted_environment_object: otu, uri: envo_uri).position).to eq(2)
+    end
+
+    specify ':add adds a citation to each new asserted environment' do
+      AssertedEnvironment.batch_by_filter_scope(
+        filter_query: otu_filter_query,
+        mode: :add,
+        params: environment_params.merge(citation: { source_id: source.id, pages: '12' })
+      )
+
+      expect(Citation.where(citation_object_type: 'AssertedEnvironment').count).to eq(2)
+      expect(Citation.pluck(:pages).uniq).to eq(['12'])
+    end
+
+    specify ':add with string-keyed citation params (as from the controller)' do
+      AssertedEnvironment.batch_by_filter_scope(
+        filter_query: otu_filter_query,
+        mode: :add,
+        params: environment_params.merge(citation: { 'source_id' => source.id.to_s })
+      )
+
+      expect(Citation.where(citation_object_type: 'AssertedEnvironment').count).to eq(2)
+    end
+
+    specify ':add adds the citation to an already existing asserted environment' do
+      existing = FactoryBot.create(:valid_asserted_environment,
+        asserted_environment_object: otu, uri: envo_uri, uri_label: 'temperate forest biome')
+
+      r = AssertedEnvironment.batch_by_filter_scope(
+        filter_query: otu_filter_query,
+        mode: :add,
+        params: environment_params.merge(citation: { source_id: source.id })
+      )
+
+      expect(r[:updated]).to include(existing.id)
+      expect(r[:updated].length).to eq(2)
+      expect(AssertedEnvironment.count).to eq(2)
+      expect(existing.citations.count).to eq(1)
+    end
+
+    specify ':add reports an already existing asserted environment, without citation, as not updated' do
+      FactoryBot.create(:valid_asserted_environment,
+        asserted_environment_object: otu, uri: envo_uri, uri_label: 'temperate forest biome')
+
+      r = AssertedEnvironment.batch_by_filter_scope(
+        filter_query: otu_filter_query,
+        mode: :add,
+        params: environment_params
+      )
+
+      expect(r[:updated].length).to eq(1)
+      expect(r[:not_updated]).to contain_exactly(otu.id)
+      expect(r[:validation_errors].keys).to include(a_string_matching(/already exists/))
+      expect(AssertedEnvironment.count).to eq(2)
+    end
+
+    specify ':add reports an already cited existing asserted environment as not updated' do
+      existing = FactoryBot.create(:valid_asserted_environment,
+        asserted_environment_object: otu, uri: envo_uri, uri_label: 'temperate forest biome',
+        citations_attributes: [{ source_id: source.id }])
+
+      r = AssertedEnvironment.batch_by_filter_scope(
+        filter_query: otu_filter_query,
+        mode: :add,
+        params: environment_params.merge(citation: { source_id: source.id })
+      )
+
+      expect(r[:not_updated]).to contain_exactly(otu.id)
+      expect(existing.citations.count).to eq(1)
+    end
+
+    specify ':add with an invalid uri creates nothing' do
+      r = AssertedEnvironment.batch_by_filter_scope(
+        filter_query: otu_filter_query,
+        mode: :add,
+        params: { uri: 'http://purl.obolibrary.org/obo/UBERON_0000979', uri_label: 'leg' }
+      )
+
+      expect(r[:not_updated]).to contain_exactly(otu.id, otu2.id)
+      expect(r[:validation_errors].keys).to include(a_string_matching(/ENVO/))
+      expect(AssertedEnvironment.count).to eq(0)
+    end
+
+    specify ':add on a filter of a type that can not have asserted environments errors' do
+      source
+      r = AssertedEnvironment.batch_by_filter_scope(
+        filter_query: { 'source_query' => Queries::Source::Filter.new(source_id: [source.id]).params },
+        mode: :add,
+        params: environment_params
+      )
+
+      expect(r[:errors]).not_to be_empty
+      expect(AssertedEnvironment.count).to eq(0)
+    end
+
+    specify ':add without uri errors' do
+      r = AssertedEnvironment.batch_by_filter_scope(
+        filter_query: otu_filter_query,
+        mode: :add,
+        params: { uri_label: 'temperate forest biome' }
+      )
+
+      expect(r[:errors]).not_to be_empty
+      expect(AssertedEnvironment.count).to eq(0)
+    end
+
+    specify ':add, async' do
+      AssertedEnvironment.batch_by_filter_scope(
+        filter_query: otu_filter_query,
+        mode: :add,
+        params: environment_params.merge(citation: { source_id: source.id }),
+        project_id: Project.first.id,
+        user_id: User.first.id,
+        async_cutoff: 0
+      )
+      expect(AssertedEnvironment.count).to eq(0)
+
+      perform_enqueued_jobs
+
+      expect(AssertedEnvironment.all.map(&:asserted_environment_object))
+        .to contain_exactly(otu, otu2)
+      expect(Citation.where(citation_object_type: 'AssertedEnvironment').count).to eq(2)
+    end
   end
 
   context 'associations' do
