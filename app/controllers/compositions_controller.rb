@@ -104,18 +104,36 @@ class CompositionsController < ApplicationController
       .limit(20)
   end
 
+  # GET /compositions/select_options.json?type=Layout::LightTable
+  def select_options
+    klass = composition_class
+    @compositions = if klass
+      klass.select_optimized(
+        sessions_current_user_id, sessions_current_project_id
+      )
+    else
+      {quick: [], pinboard: [], recent: []}
+    end
+  end
+
   private
+
+  # @return [Class, nil]
+  #   Composition, or params[:type] (e.g. Layout) when given; nil when
+  #   params[:type] is not a Composition class
+  def composition_class
+    return Composition if params[:type].blank?
+    klass = params[:type].safe_constantize
+    klass if klass.is_a?(Class) && klass <= Composition
+  end
 
   # @return [Scope]
   #   Compositions visible to the project, optionally only those of
   #   params[:type] (e.g. Layout), including its subclasses. An unknown
   #   type matches nothing.
   def visible_compositions
-    klass = Composition
-    if params[:type].present?
-      klass = params[:type].safe_constantize
-      return Composition.none if !(klass.is_a?(Class) && klass <= Composition)
-    end
+    klass = composition_class
+    return Composition.none if klass.nil?
     klass.visible_to_project(sessions_current_project_id)
   end
 

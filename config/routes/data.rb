@@ -239,6 +239,9 @@ resources :composition_items, only: [:show, :create, :update, :destroy], default
 
 resources :compositions do
   concerns [:data_routes]
+  collection do
+    get :select_options, defaults: {format: :json}
+  end
   resources :composition_items, shallow: true, only: [:index], defaults: {format: :json}
 end
 

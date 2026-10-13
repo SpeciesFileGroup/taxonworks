@@ -57,6 +57,45 @@ class Composition < ApplicationRecord
     false
   end
 
+  # @return [Array of Integer]
+  #   ids of the Compositions (of this class) visible to the project that
+  #   user_id last changed, most recent first. A change to any item counts
+  #   as a change to its Composition. Destroyed items leave no trace.
+  def self.used_recently(user_id, project_id)
+    visible = visible_to_project(project_id)
+
+    own = visible.where(updated_by_id: user_id)
+      .select(:id, :updated_at)
+    items = CompositionItem
+      .where(updated_by_id: user_id, composition_id: visible.select(:id))
+      .select('composition_id AS id', :updated_at)
+
+    Composition
+      .from("(#{own.to_sql} UNION ALL #{items.to_sql}) AS used")
+      .group('used.id')
+      .order(Arel.sql('MAX(used.updated_at) DESC'))
+      .limit(10)
+      .pluck('used.id')
+  end
+
+  # @return [Hash]
+  #   pinboard, recent (the Compositions the user worked on last, most
+  #   recent first) and quick (inserted pins plus the 4 most recent). Call
+  #   on a subclass, e.g. Layout::LightTable, for only its Compositions.
+  def self.select_optimized(user_id, project_id)
+    q = visible_to_project(project_id)
+    pinned = q.pinned_by(user_id).pinned_in_project(project_id)
+
+    r = used_recently(user_id, project_id)
+    recent = q.where(id: r).to_a.sort_by { |c| r.index(c.id) }
+
+    {
+      quick: (pinned.pinboard_inserted.to_a + recent.first(4)).uniq,
+      pinboard: pinned.pinboard_ordered.to_a,
+      recent:
+    }
+  end
+
   # @return [Boolean]
   #   overrides Housekeeping::Projects, which checks the class. Per record,
   #   unlike Data where community is a property of the class. There is no

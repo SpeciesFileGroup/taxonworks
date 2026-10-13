@@ -59,4 +59,59 @@ RSpec.describe Composition, type: :model do
       expect(Composition.visible_to_project(l.project_id)).to contain_exactly(l, t)
     end
   end
+
+  context '.select_optimized' do
+    let(:other_user) { FactoryBot.create(:valid_user) }
+    let!(:a) { FactoryBot.create(:valid_layout_light_table) }
+    let!(:b) { FactoryBot.create(:valid_layout_light_table) }
+    let!(:c) { FactoryBot.create(:valid_layout_light_table) }
+
+    def select_optimized(klass = Layout::LightTable)
+      klass.select_optimized(user_id, project_id)
+    end
+
+    specify 'recent is ordered by the user\'s latest change, most recent first' do
+      a.update_columns(updated_at: 3.days.ago)
+      b.update_columns(updated_at: 2.days.ago)
+      c.update_columns(updated_at: 1.day.ago)
+      expect(select_optimized[:recent]).to eq([c, b, a])
+    end
+
+    specify 'recent counts changes to items' do
+      [a, b, c].each { |l| l.update_columns(updated_at: 2.days.ago) }
+      FactoryBot.create(:valid_layout_item_light_table_item, composition: a)
+      expect(select_optimized[:recent].first).to eq(a)
+    end
+
+    specify 'recent ignores other users\' changes' do
+      a.update_columns(updated_by_id: other_user.id)
+      expect(select_optimized[:recent]).to contain_exactly(b, c)
+    end
+
+    specify 'recent ignores other users\' item changes' do
+      a.update_columns(updated_by_id: other_user.id)
+      i = FactoryBot.create(:valid_layout_item_light_table_item, composition: a)
+      i.update_columns(updated_by_id: other_user.id)
+      expect(select_optimized[:recent]).to contain_exactly(b, c)
+    end
+
+    specify 'is limited to the class it is called on' do
+      l = FactoryBot.create(:valid_layout)
+      expect(select_optimized[:recent]).not_to include(l)
+      expect(select_optimized(Composition)[:recent]).to include(l, a)
+    end
+
+    specify 'is limited to the project' do
+      o = FactoryBot.create(:valid_layout_light_table,
+        project: FactoryBot.create(:valid_project))
+      expect(select_optimized[:recent]).not_to include(o)
+    end
+
+    specify 'pinboard and quick include pinned Compositions' do
+      FactoryBot.create(:valid_pinboard_item,
+        pinned_object: a, user: User.find(user_id), is_inserted: true)
+      expect(select_optimized[:pinboard]).to eq([a])
+      expect(select_optimized[:quick]).to include(a)
+    end
+  end
 end
