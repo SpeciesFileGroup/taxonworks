@@ -21,29 +21,36 @@
 # * An item belongs to at most one group (parent_id). For overlapping,
 #   many-to-many sets use Tags on the depicted objects.
 #
+# Destroying a group ungroups: its members are kept where they appear (see
+# #release_members). To remove a group and its members, destroy the
+# members too.
+#
 class LayoutItem::GroupItem < LayoutItem
 
   validates_absence_of :z, :zoom, :rotation_z, :width, :height,
     :svg_view_box, :svg_clip, :opacity, :is_visible,
     message: 'is not supported on a group'
 
-  # Removes the group, keeping its members where they appear: each member
-  # moves to the group's parent, with the group's offset added to its x, y.
-  # @return [Array of LayoutItem]
-  #   the former members
-  def ungroup!
-    members = children.to_a
-    transaction do
-      members.each do |m|
-        m.update!(
-          parent_id:,
-          x: (m.x || 0) + (x || 0),
-          y: (m.y || 0) + (y || 0)
-        )
-      end
-      destroy!
+  # Before the children cascade (CompositionItem has_many :children,
+  # dependent: :destroy), so that it finds none. Skipped when destroyed by a
+  # cascade (e.g. its Composition's), where the members go too.
+  before_destroy :release_members, prepend: true,
+    if: -> { destroyed_by_association.nil? }
+
+  protected
+
+  # Keeps the members where they appear: each moves to the group's parent,
+  # with the group's offset added to its x, y.
+  def release_members
+    children.each do |m|
+      m.update!(
+        parent_id:,
+        x: (m.x || 0) + (x || 0),
+        y: (m.y || 0) + (y || 0)
+      )
     end
-    members
+    # The cascade must not reuse the loaded (now released) members.
+    children.reset
   end
 
 end

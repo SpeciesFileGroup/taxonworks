@@ -42,7 +42,7 @@ RSpec.describe LayoutItem::GroupItem, type: :model do
     end
   end
 
-  context '#ungroup!' do
+  context 'destroy (ungroup)' do
     let(:layout) { FactoryBot.create(:valid_layout) }
     let(:group) {
       FactoryBot.create(:valid_layout_item_group_item,
@@ -58,28 +58,28 @@ RSpec.describe LayoutItem::GroupItem, type: :model do
     }
 
     specify 'keeps the members' do
-      group.ungroup!
+      group.destroy!
       expect(CompositionItem.where(id: [a.id, b.id]).count).to eq(2)
     end
 
     specify 'destroys the group' do
-      group.ungroup!
+      group.destroy!
       expect(CompositionItem.where(id: group.id).exists?).to be_falsey
     end
 
     specify 'adds the offset to members' do
-      group.ungroup!
+      group.destroy!
       expect([a.reload.x, a.y]).to eq([110.0, 55.0])
     end
 
     specify 'treats nil member position as 0' do
-      group.ungroup!
+      group.destroy!
       expect([b.reload.x, b.y]).to eq([100.0, 50.0])
     end
 
     specify 'nil group offset leaves members in place' do
       group.update!(x: nil, y: nil)
-      group.ungroup!
+      group.destroy!
       expect([a.reload.x, a.y]).to eq([10.0, 5.0])
     end
 
@@ -87,7 +87,7 @@ RSpec.describe LayoutItem::GroupItem, type: :model do
       outer = FactoryBot.create(:valid_layout_item_group_item,
         composition: layout, x: 1, y: 1)
       group.update!(parent: outer)
-      group.ungroup!
+      group.destroy!
       expect(a.reload.parent).to eq(outer)
       expect([a.x, a.y]).to eq([110.0, 55.0])
     end
@@ -97,14 +97,16 @@ RSpec.describe LayoutItem::GroupItem, type: :model do
         composition: layout, parent: group, x: 7, y: 3)
       c = FactoryBot.create(:valid_layout_item_depiction_item,
         composition: layout, parent: inner, x: 2, y: 2)
-      group.ungroup!
+      group.destroy!
       expect([inner.reload.parent_id, inner.x, inner.y])
         .to eq([nil, 107.0, 53.0])
       expect([c.reload.parent, c.x, c.y]).to eq([inner, 2.0, 2.0])
     end
 
-    specify 'returns the former members' do
-      expect(group.ungroup!).to contain_exactly(a, b)
+    specify 'is skipped when the Composition is destroyed' do
+      layout.destroy!
+      expect(CompositionItem.where(id: [group.id, a.id, b.id]).exists?)
+        .to be_falsey
     end
   end
 
@@ -119,9 +121,9 @@ RSpec.describe LayoutItem::GroupItem, type: :model do
       expect(group_item.children).to contain_exactly(member)
     end
 
-    specify 'are destroyed with it' do
+    specify 'are kept when it is destroyed' do
       group_item.destroy!
-      expect(CompositionItem.where(id: member.id).exists?).to be_falsey
+      expect(CompositionItem.where(id: member.id).exists?).to be_truthy
     end
 
     specify 'may not be in another Layout' do

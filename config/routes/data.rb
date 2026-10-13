@@ -235,11 +235,7 @@ resources :common_names do
   end
 end
 
-resources :composition_items, only: [:show, :create, :update, :destroy], defaults: {format: :json} do
-  member do
-    post :ungroup
-  end
-end
+resources :composition_items, only: [:show, :create, :update, :destroy], defaults: {format: :json}
 
 resources :compositions do
   concerns [:data_routes]

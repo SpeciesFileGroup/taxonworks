@@ -200,4 +200,14 @@ RSpec.describe CompositionItem, type: :model do
     layout.destroy!
     expect(CompositionItem.where(id: [i.id, c.id]).exists?).to be_falsey
   end
+
+  specify 'destroying the composition destroys nested groups and members' do
+    outer = FactoryBot.create(:valid_layout_item_group_item, composition: layout)
+    inner = FactoryBot.create(:valid_layout_item_group_item,
+      composition: layout, parent: outer)
+    c = FactoryBot.create(:valid_layout_item, composition: layout, parent: inner)
+    layout.destroy!
+    expect(CompositionItem.where(id: [outer.id, inner.id, c.id]).exists?)
+      .to be_falsey
+  end
 end
