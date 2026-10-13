@@ -7,7 +7,11 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 ## [unreleased]
 
-\-
+### Fixed
+
+- Contents are not republished after saving content that was already published [#5133]
+
+[#5133]: https://github.com/SpeciesFileGroup/taxonworks/issues/5133
 
 ## [0.66.1] - 2026-10-09
 

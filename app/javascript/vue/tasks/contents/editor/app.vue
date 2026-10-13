@@ -30,7 +30,7 @@ function loadFromIdParameter() {
   const contentId = urlParams.get('content_id')
 
   if (/^\d+$/.test(contentId)) {
-    Content.find(contentId, { extend: ['otu', 'topic'] }).then(({ body }) => {
+    Content.find(contentId, { extend: ['otu', 'topic', 'public_content'] }).then(({ body }) => {
       store.setContent(body)
 
       store.otu = body.otu
