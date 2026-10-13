@@ -1,5 +1,5 @@
 class CompositionItemsController < ApplicationController
-  include DataControllerConfiguration::ProjectDataControllerConfiguration
+  include RenderControllerConfiguration
 
   before_action :set_composition_item,
     only: [:show, :update, :destroy, :ungroup]

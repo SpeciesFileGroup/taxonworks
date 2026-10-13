@@ -1,5 +1,5 @@
 class CompositionsController < ApplicationController
-  include DataControllerConfiguration::ProjectDataControllerConfiguration
+  include RenderControllerConfiguration
 
   before_action :set_composition, only: [:show, :edit, :update, :destroy]
   after_action -> { set_pagination_headers(:compositions) }, only: [:index], if: :json_request?

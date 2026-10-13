@@ -13,12 +13,12 @@
 
         <div class="navigation-controls border-bottom">
           <div class="content w-full">
-            <%= search_form_for_model(@data_model) %>
+            <%= search_form_for_model(@hub_model) %>
           </div>
         </div>
 
         <div class="navigation-controls">
-          <%= new_for_model_link(@data_model)  -%>
+          <%= new_for_model_link(@hub_model)  -%>
         </div>
 
         <%= yield :additional_navigation -%>
