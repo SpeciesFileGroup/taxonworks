@@ -19,6 +19,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 ### Fixed
 
 - Contents are not republished after saving content that was already published [#5133]
+- Browse OTUs: Timeline shows citations for all taxon names when it should only show the current one
 
 [#5116]: https://github.com/SpeciesFileGroup/taxonworks/issues/5116
 [#5117]: https://github.com/SpeciesFileGroup/taxonworks/issues/5117

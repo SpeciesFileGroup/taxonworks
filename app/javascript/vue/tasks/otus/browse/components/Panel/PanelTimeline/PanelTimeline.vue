@@ -3,7 +3,6 @@
     :title="title"
     :spinner="isLoading"
     :empty="!timeline?.items?.length"
-    :current-otu-only="!isBiologyTab"
     menu
     @menu="() => (isModalVisible = true)"
   >
@@ -67,7 +66,13 @@ import {
   DEFAULT_TIMELINE_TAB
 } from './constants/tabs'
 import { CITATIONS_PREVIEW_SIZE } from '../../../constants'
-import { matchItem, itemsForSources } from './utils/timelineFilters'
+import { useOtuStore } from '../../../store'
+import { OTU_SCOPE_ALL } from '../../../constants/otuScope.js'
+import {
+  matchItem,
+  itemsForSources,
+  itemsForTaxonNames
+} from './utils/timelineFilters'
 import useOtuTimeline from './composables/useOtuTimeline'
 import PanelLayout from '../PanelLayout.vue'
 import PanelTimelineTabs from './PanelTimelineTabs.vue'
@@ -96,6 +101,7 @@ const props = defineProps({
 const KEY_STORAGE = 'task::BrowseOtus'
 
 const userPref = useUserPreferences()
+const otuStore = useOtuStore()
 
 const preferences = computed(
   () => userPref.preferences.value.layout?.[KEY_STORAGE]
@@ -126,10 +132,21 @@ const alwaysShowAllCitations = computed({
 
 const isBiologyTab = computed(() => tab.value?.kind === TIMELINE_TAB_BIOLOGY)
 
+const scopedItems = computed(() => {
+  const items = timeline.value?.items ?? []
+
+  if (otuStore.otuScope === OTU_SCOPE_ALL) return items
+
+  return itemsForTaxonNames(
+    props.otus.map((otu) => otu.taxon_name_id),
+    items
+  )
+})
+
 const matchingItems = computed(() => {
   if (!preferences.value || !timeline.value) return []
 
-  return timeline.value.items.filter((item) =>
+  return scopedItems.value.filter((item) =>
     matchItem(item, {
       tab: tab.value,
       filterSections: preferences.value.filterSections,

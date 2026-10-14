@@ -37,6 +37,16 @@ export function matchItem(item, { tab, filterSections, selectedTopics }) {
   )
 }
 
+export function itemsForTaxonNames(taxonNameIds, items) {
+  const ids = new Set(taxonNameIds)
+
+  return items.filter((item) =>
+    (item.data_attributes['history-protonym-ids'] ?? []).some((id) =>
+      ids.has(id)
+    )
+  )
+}
+
 /**
  * The sources cited by the given items.
  *
