@@ -11,6 +11,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 - Composition and CompositionItem models, the first Render models for tracking display of Data items in the UI [#5116] [#5117]
 - `coordinate_otus` parameter to `/otus/<id>/inventory/content`
+- Browse OTUs: `All` tab in Timeline panel
 
 ### Changed
 

@@ -5,7 +5,7 @@ const matchSingle = ({ key, value, equal }, attrs) => {
 }
 
 const matchTab = (tab, attrs) => {
-  if (!tab || tab.label === 'All') return true
+  if (!tab) return true
 
   return matchSingle(tab, attrs)
 }
@@ -78,4 +78,21 @@ export function sourceTopics(sourceId, items) {
   return [
     ...new Set(itemsForSources([sourceId], items).flatMap((i) => i.topics))
   ]
+}
+
+const yearOf = (item) => {
+  const year = item.data_attributes['history-year']
+
+  return Number.isInteger(year) ? year : Infinity
+}
+
+export function sortChronologically(items) {
+  return [...items].sort((a, b) => yearOf(a) - yearOf(b))
+}
+
+export function matchBiologyItem(item, { filterSections, selectedTopics }) {
+  return (
+    matchAndGroups({ year: filterSections.and.year }, item.data_attributes) &&
+    matchTopics(selectedTopics, item.topics)
+  )
 }

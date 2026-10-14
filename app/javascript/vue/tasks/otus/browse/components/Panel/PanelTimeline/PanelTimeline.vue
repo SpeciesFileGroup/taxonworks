@@ -1,12 +1,12 @@
 <template>
   <PanelLayout
     :title="title"
-    :spinner="isLoading"
+    :spinner="isLoading || isBiologyLoading"
     :empty="!timeline?.items?.length"
     menu
     @menu="() => (isModalVisible = true)"
   >
-    <template v-if="!isLoading">
+    <template v-if="!isLoading && !isBiologyLoading">
       <PanelTimelineTabs
         v-model="tab"
         :tabs="TIMELINE_TABS"
@@ -14,8 +14,7 @@
 
       <PanelTimelineBiology
         v-if="isBiologyTab"
-        :otu="otu"
-        :otus="otus"
+        :items="scopedBiologyItems"
       />
 
       <template v-else-if="matchingItems.length">
@@ -31,10 +30,10 @@
             :is-collapsible="isCollapsible"
           />
           <PanelTimelineReferences
-            v-if="Object.keys(timeline.sources.list).length"
+            v-if="Object.keys(referenceSources).length"
             v-model="selectedReferenceIds"
-            :sources="timeline.sources.list"
-            :topics-list="timeline.topics.list"
+            :sources="referenceSources"
+            :topics-list="referenceTopics"
             :filtered-items="matchingItems"
             :show-topics="showReferencesTopic"
           />
@@ -62,6 +61,7 @@ import { copyObject } from '@/helpers'
 import { computed, ref } from 'vue'
 import {
   TIMELINE_TABS,
+  TIMELINE_TAB_ALL,
   TIMELINE_TAB_BIOLOGY,
   DEFAULT_TIMELINE_TAB
 } from './constants/tabs'
@@ -70,10 +70,18 @@ import { useOtuStore } from '../../../store'
 import { OTU_SCOPE_ALL } from '../../../constants/otuScope.js'
 import {
   matchItem,
+  matchBiologyItem,
   itemsForSources,
-  itemsForTaxonNames
+  itemsForTaxonNames,
+  sortChronologically
 } from './utils/timelineFilters'
+import {
+  biologyItems,
+  biologySources,
+  biologyTopics
+} from './utils/biologyItems'
 import useOtuTimeline from './composables/useOtuTimeline'
+import useOtuBiologyCitations from './composables/useOtuBiologyCitations'
 import PanelLayout from '../PanelLayout.vue'
 import PanelTimelineTabs from './PanelTimelineTabs.vue'
 import PanelTimelineBiology from './PanelTimelineBiology.vue'
@@ -110,6 +118,8 @@ const preferences = computed(
 const otuRef = computed(() => props.otu)
 const { isLoading, timeline, selectedReferenceIds, selectedTopics, tab } =
   useOtuTimeline(otuRef, { defaultTab: DEFAULT_TIMELINE_TAB })
+const { isLoading: isBiologyLoading, inventory } =
+  useOtuBiologyCitations(otuRef)
 
 const showReferencesTopic = ref(false)
 const isModalVisible = ref(false)
@@ -131,6 +141,14 @@ const alwaysShowAllCitations = computed({
 })
 
 const isBiologyTab = computed(() => tab.value?.kind === TIMELINE_TAB_BIOLOGY)
+const isAllTab = computed(() => tab.value?.kind === TIMELINE_TAB_ALL)
+
+const scopedBiologyItems = computed(() =>
+  biologyItems(
+    inventory.value,
+    props.otus.map((otu) => otu.id)
+  )
+)
 
 const scopedItems = computed(() => {
   const items = timeline.value?.items ?? []
@@ -146,13 +164,51 @@ const scopedItems = computed(() => {
 const matchingItems = computed(() => {
   if (!preferences.value || !timeline.value) return []
 
-  return scopedItems.value.filter((item) =>
+  const filterSections = preferences.value.filterSections
+  const nomenclatureItems = scopedItems.value.filter((item) =>
     matchItem(item, {
       tab: tab.value,
-      filterSections: preferences.value.filterSections,
+      filterSections,
       selectedTopics: selectedTopics.value
     })
   )
+
+  if (!isAllTab.value) return nomenclatureItems
+
+  return sortChronologically([
+    ...nomenclatureItems,
+    ...scopedBiologyItems.value.filter((item) =>
+      matchBiologyItem(item, {
+        filterSections,
+        selectedTopics: selectedTopics.value
+      })
+    )
+  ])
+})
+
+const referenceSources = computed(() => {
+  const sources = timeline.value?.sources.list ?? {}
+
+  if (!isAllTab.value) return sources
+
+  const merged = { ...biologySources(scopedBiologyItems.value), ...sources }
+
+  return Object.fromEntries(
+    Object.entries(merged).sort(
+      ([, a], [, b]) => (a.year ?? Infinity) - (b.year ?? Infinity)
+    )
+  )
+})
+
+const referenceTopics = computed(() => {
+  const topics = timeline.value?.topics.list ?? {}
+
+  if (!isAllTab.value) return topics
+
+  return {
+    ...biologyTopics(scopedBiologyItems.value),
+    ...topics
+  }
 })
 
 const filteredItems = computed(() => {
