@@ -905,39 +905,6 @@ describe Vendor::Colrapi, type: :model do
   let(:subspecies) { FactoryBot.create(:iczn_subspecies) }
   let(:species) { subspecies.parent }
 
-  def determined_specimen(otu)
-    FactoryBot.create(:valid_taxon_determination, otu:)
-      .taxon_determination_object
-  end
-
-  let(:specimen) do
-    determined_specimen(FactoryBot.create(:valid_otu, taxon_name: species))
-  end
-
-  describe '.collection_object_name_target' do
-    specify 'is the determination\'s TaxonName' do
-      expect(described_class.collection_object_name_target(specimen))
-        .to eq(species)
-    end
-
-    specify 'ignores the Otu\'s own name (e.g. a morphospecies code)' do
-      otu = FactoryBot.create(:valid_otu, taxon_name: species, name: 'sp. 3')
-      co = determined_specimen(otu)
-      expect(described_class.collection_object_name_target(co)).to eq(species)
-    end
-
-    specify 'is the Otu name when there\'s no TaxonName' do
-      otu = FactoryBot.create(:valid_otu, name: 'Aus bus')
-      co = determined_specimen(otu)
-      expect(described_class.collection_object_name_target(co)).to eq('Aus bus')
-    end
-
-    specify 'is nil without a determination' do
-      co = FactoryBot.create(:valid_specimen)
-      expect(described_class.collection_object_name_target(co)).to be_nil
-    end
-  end
-
   describe '.name_status' do
     def status_for(*usages, target: species)
       allow(::Colrapi).to receive(:nameusage_search)

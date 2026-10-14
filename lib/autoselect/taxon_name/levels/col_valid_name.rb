@@ -15,8 +15,6 @@
 # Autoselect::Otu::Levels::ColValidName reuses #resolve_target directly
 # and adds its own existing-Otu hook.
 class Autoselect::TaxonName::Levels::ColValidName < ::Autoselect::Level
-  # Source mark + "valid name for X" note, shared with the Otu-level
-  # equivalent.
   include ::Autoselect::Levels::ColResolvedName
   include ::Autoselect::Levels::ColRecordLabel
 

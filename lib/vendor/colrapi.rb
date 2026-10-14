@@ -38,7 +38,8 @@ module Vendor
     #   when there is one (searched at its own rank, or the rank its
     #   published form was published at), else a name string, searched as a
     #   species
-    #   - see .collection_object_name_target
+    #   - for a CollectionObject see Tasks::CollectionObjects::
+    #   OutdatedNamesHelper#outdated_names_target
     # @return [Hash]
     #   { taxonworks_name: String,
     #     col_usages: [ { usage: { name:, status: },
@@ -438,9 +439,7 @@ module Vendor
 
       # The full nameusage hash for the *valid* name — CoL nests the accepted
       # usage (a complete nameusage record, same shape as a search result) right
-      # on the synonym hit, so a caller that needs the alignment/extension for
-      # the valid name can hand this straight to classified_usage instead of
-      # searching again.
+      # on the synonym hit.
       valid_col_result = accepted || top
 
       {
@@ -552,21 +551,6 @@ module Vendor
     def self.above_genus_group?(rank_name, col_code)
       rank_class = rank_class_for(rank_name, col_code:)
       rank_class ? ::FAMILY_AND_ABOVE_RANK_NAMES.include?(rank_class) : false
-    end
-
-    # What CoL is asked about for a CollectionObject (.name_status): its
-    # current determination's TaxonName, else (no TaxonName) the Otu's name.
-    # An Otu's own name alongside a TaxonName (e.g. a morphospecies code, "Aus
-    # sp. 3") is deliberately left out - CoL can't know it.
-    #
-    # @param collection_object [CollectionObject, nil]
-    # @return [TaxonName, String, nil]
-    def self.collection_object_name_target(collection_object)
-      otu = collection_object&.taxon_determinations
-        &.order(:position)&.first&.otu
-      return nil if otu.nil?
-
-      otu.taxon_name || otu.name
     end
   end
 

@@ -4,9 +4,7 @@
 <%= tag.div(paginate @collection_objects) %>
 
 <% @collection_objects.find_each do |co| %>
-  <% d = ::Vendor::Colrapi.name_status(
-    ::Vendor::Colrapi.collection_object_name_target(co)
-  ) %>
+  <% d = ::Vendor::Colrapi.name_status(outdated_names_target(co)) %>
   <% n = d[:taxonworks_name] %>
 
 <table style="width: 50%;">
