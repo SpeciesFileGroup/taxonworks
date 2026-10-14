@@ -1,6 +1,14 @@
 # Helpers that wrap sets of annotations of different types.
 module AnnotationsHelper
 
+  # @return [Boolean]
+  #   true if object can carry annotations at all, i.e. responds to the
+  #   has_<annotation>? checks; check this before calling them on an object
+  #   that may not be Data (e.g. a Composition)
+  def annotatable?(object)
+    object.class < Shared::IsData::Annotation ? true : false
+  end
+
   # @return Hash
   # Models name as key, annotator names as Array of values
   #   see /metadata/annotators.json

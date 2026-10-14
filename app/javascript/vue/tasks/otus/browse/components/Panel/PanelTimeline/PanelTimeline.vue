@@ -3,6 +3,7 @@
     :title="title"
     :spinner="isLoading"
     :empty="!timeline?.items?.length"
+    :current-otu-only="!isBiologyTab"
     menu
     @menu="() => (isModalVisible = true)"
   >

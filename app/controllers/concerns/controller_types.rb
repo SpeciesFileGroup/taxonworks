@@ -2,12 +2,17 @@ module ControllerTypes
   extend ActiveSupport::Concern
 
   included do
-    attr_writer :is_data_controller, :is_task_controller
+    attr_writer :is_data_controller, :is_render_controller, :is_task_controller
 
     # Returns true if the controller is that of data class. See controllers/concerns/data_controller_configuration/ concern.
     # Data controllers can not be task controllers.
     def is_data_controller?
       @is_data_controller
+    end
+
+    # Returns true if the controller is that of a Render class. See controllers/concerns/render_controller_configuration concern.
+    def is_render_controller?
+      @is_render_controller
     end
 
     # Returns true if the controller is a task controller. See controllers/concerns/task_controller_configuration/ concern.
@@ -16,7 +21,7 @@ module ControllerTypes
       @is_task_controller
     end
 
-    helper_method :is_data_controller?, :is_task_controller?
+    helper_method :is_data_controller?, :is_render_controller?, :is_task_controller?
   end
   
 end

@@ -100,6 +100,9 @@ const invertedOptions = ref([
 
 if (props.param) {
   const params = URLParamsToJSON(location.href)
-  optionValue.value[props.param] = params[props.param]
+
+  if (props.param in params) {
+    optionValue.value[props.param] = params[props.param]
+  }
 }
 </script>

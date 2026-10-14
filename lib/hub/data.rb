@@ -92,6 +92,11 @@ module Hub::Data
 
   SECTIONS = CONFIG_DATA.keys
 
+  # Sections displayed in their own hub tab rather than in the data tab
+  RENDER_SECTIONS = %w{Render}.freeze
+
+  DATA_SECTIONS = (SECTIONS - RENDER_SECTIONS).freeze
+
   data = {}
   by_name = {}
 

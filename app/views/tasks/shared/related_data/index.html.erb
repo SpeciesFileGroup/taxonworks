@@ -10,9 +10,15 @@
     <div class="flex-separate">
       <ul class="context-menu">
         <%= yield :icon_navigation -%> 
-        <li><%= radial_annotator(@object, annotations_exist(@object)) %></li>
-        <li><%= tag_default_icon(@object) %></li>
-        <li><%= pin_item_to_pinboard_link(@object, sessions_current_user) %></li>
+        <% if annotatable?(@object) %>
+          <li><%= radial_annotator(@object, annotations_exist(@object)) %></li>
+          <% if @object.has_tags? %>
+            <li><%= tag_default_icon(@object) %></li>
+          <% end %>
+        <% end %>
+        <% if pinnable?(@object) %>
+          <li><%= pin_item_to_pinboard_link(@object, sessions_current_user) %></li>
+        <% end %>
         <li><%= radial_navigation_tag(@object) %></li>
       </ul>
     </div>
@@ -24,6 +30,7 @@
   <% next if r.name =~ /_hierarchies|project/ %>
   <% if @object.respond_to?(r.name) -%>
     <% q = @object.send(r.name.to_s) %>
+    <%# TODO: hides the (project-less) items of a community Composition %>
     <% q = q.where(r.table_name => {project_id: sessions_current_project_id}) if r.klass.column_names.include?('project_id')  %>
 
     <% t = q.load.count %>

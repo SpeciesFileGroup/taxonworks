@@ -1,0 +1,15 @@
+# Shared code for classes that are "render" sensu TaxonWorks, i.e. they
+# describe how Data is presented (e.g. Compositions), they are not themselves
+# Data. Parallels Shared::IsData, but includes only the plumbing needed to
+# create, show, and navigate records.
+#
+module Shared::IsRender
+
+  extend ActiveSupport::Concern
+
+  included do
+    include Shared::Metamorphosize
+    include Shared::IsSteppable
+  end
+
+end

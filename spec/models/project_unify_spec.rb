@@ -375,6 +375,27 @@ RSpec.describe Project, '#unify', type: :model do
       end
     end
 
+    context 'with Composition name conflict' do
+      let!(:source_layout) do
+        FactoryBot.create(:valid_layout, name: 'Table', project: source_project)
+      end
+
+      let!(:target_layout) do
+        FactoryBot.create(:valid_layout, name: 'Table', project: target_project)
+      end
+
+      it 'reports the conflict and does not unify' do
+        result = target_project.unify(source_project, preview: false, user_id: user.id)
+
+        expect(result[:unified]).to be false
+        conflict = result[:conflicts].first
+        expect(conflict[:model]).to eq('Composition')
+        expect(conflict[:id]).to eq(source_layout.id)
+        expect(conflict[:conflict_fields]).to include(:name)
+        expect(source_layout.reload.project_id).to eq(source_project.id)
+      end
+    end
+
     context 'without conflicts' do
       let!(:source_otu) { FactoryBot.create(:valid_otu, project: source_project) }
       let!(:note) { FactoryBot.create(:note, note_object: source_otu, project: source_project, text: 'Test note') }
@@ -725,43 +746,6 @@ RSpec.describe Project, '#unify', type: :model do
         target_project.unify(source_project, preview: false, user_id: user.id)
 
         expect(RangedLotCategory.exists?(source_rlc.id)).to be false
-      end
-    end
-  end
-
-  describe 'OtuPageLayout deduplication' do
-    # valid_otu_page_layout always uses name 'My Layout', so two in different
-    # projects will collide on name + project_id.
-    let!(:source_layout) { FactoryBot.create(:valid_otu_page_layout, project: source_project) }
-    let!(:target_layout) { FactoryBot.create(:valid_otu_page_layout, project: target_project) }
-
-    it 'destroys the sentinel and preserves the target layout' do
-      target_project.unify(source_project, preview: false, user_id: user.id)
-
-      expect(OtuPageLayout.exists?(source_layout.id)).to be false
-      expect(OtuPageLayout.exists?(target_layout.id)).to be true
-      expect(OtuPageLayout.where(project_id: target_project.id, name: 'My Layout').count).to eq(1)
-    end
-
-    context 'when the source layout has sections' do
-      let!(:source_topic) { FactoryBot.create(:valid_topic, project: source_project) }
-      let!(:source_section) do
-        FactoryBot.create(:valid_otu_page_layout_section,
-          otu_page_layout: source_layout,
-          topic: source_topic,
-          project: source_project)
-      end
-
-      it 'reroutes sections to the target layout' do
-        target_project.unify(source_project, preview: false, user_id: user.id)
-
-        expect(source_section.reload.otu_page_layout).to eq(target_layout)
-      end
-
-      it 'destroys the sentinel layout' do
-        target_project.unify(source_project, preview: false, user_id: user.id)
-
-        expect(OtuPageLayout.exists?(source_layout.id)).to be false
       end
     end
   end

@@ -7,7 +7,45 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 ## [unreleased]
 
-\-
+### Added
+
+- Composition and CompositionItem models, the first Render models for tracking display of Data items in the UI [#5116] [#5117]
+
+### Changed
+
+- Browse OTUs: Contents are now grouped by OTU when there is more than one. [#5136]
+
+### Fixed
+
+- Contents are not republished after saving content that was already published [#5133]
+
+[#5116]: https://github.com/SpeciesFileGroup/taxonworks/issues/5116
+[#5117]: https://github.com/SpeciesFileGroup/taxonworks/issues/5117
+[#5133]: https://github.com/SpeciesFileGroup/taxonworks/issues/5133
+[#5136]: https://github.com/SpeciesFileGroup/taxonworks/issues/5136
+
+## [0.66.1] - 2026-10-09
+
+### Added
+
+- Browse OTUs: preference to display the task in full width
+- Browse OTUs: links to OTUs coordinate
+
+### Changed
+
+- Filter sources: search sources in project by default
+- Browse OTUs: Distribution panel only loads data for the selected OTUs [#4453]
+- Browse OTUs: The image panel displays only OTU and observation images [#5130]
+- Browse OTUs: Replace per-OTU selection with All / Current / Coordinates only scope
+
+### Fixed
+
+- Browse OTUs: Thumbnails may be cropped in the images panel
+- "Internal error" screen instead of error toast when error occurs during Batch Asserted Distribution upload
+- New collecting events: Fix CORS error and allow free text in CE Group/Formation fields
+
+[#4453]: https://github.com/SpeciesFileGroup/taxonworks/issues/4453
+[#5130]: https://github.com/SpeciesFileGroup/taxonworks/issues/5130
 
 ## [0.66.0] - 2026-10-07
 
@@ -6590,7 +6628,8 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.66.0...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.66.1...development
+[0.66.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.66.0...v0.66.1
 [0.66.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.65.0...v0.66.0
 [0.65.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.64.0...v0.65.0
 [0.64.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.63.1...v0.64.0

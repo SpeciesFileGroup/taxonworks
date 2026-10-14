@@ -560,6 +560,20 @@ class OtusController < ApplicationController
     end
   end
 
+  # Distribution for exactly the OTUs in otu_id[] (coordinate OTUs are not added)
+  # GET|POST /otus/distribution.geojson?otu_id[]=1&otu_id[]=2
+  def distribution_by_otus
+    @otus = distribution_otus
+    render json: { error: 'otu_id is required' }, status: :unprocessable_content if @otus.nil?
+  end
+
+  # Absent distribution for exactly the OTUs in otu_id[] (coordinate OTUs are not added)
+  # GET|POST /otus/distribution_is_absent.geojson?otu_id[]=1&otu_id[]=2
+  def distribution_is_absent_by_otus
+    @otus = distribution_otus
+    render json: { error: 'otu_id is required' }, status: :unprocessable_content if @otus.nil?
+  end
+
   # GET /api/v1/otus/:id/inventory/distribution_is_absent.geojson
   def api_distribution_is_absent
     @descendants = params[:descendants] == 'true'
@@ -571,6 +585,15 @@ class OtusController < ApplicationController
   end
 
   private
+
+  # @return [ActiveRecord::Relation, nil]
+  #   nil when no otu_id is provided
+  def distribution_otus
+    otu_ids = [params[:otu_id]].flatten.compact_blank
+    return nil if otu_ids.empty?
+
+    Otu.where(project_id: sessions_current_project_id, id: otu_ids)
+  end
 
   def autoselect_params
     params.permit(:show_info, :dataset_id).to_h.symbolize_keys

@@ -1,16 +1,36 @@
 import { defineStore } from 'pinia'
 import { useSettingsStore } from './settings'
 import { Otu, TaxonName, CollectionObject } from '@/routes/endpoints'
+import {
+  OTU_SCOPE_ALL,
+  OTU_SCOPE_CURRENT,
+  OTU_SCOPE_COORDINATES_ONLY
+} from '../constants/otuScope.js'
 
 export const useOtuStore = defineStore('browse-otu', {
   state: () => ({
     otu: undefined,
     taxonName: undefined,
     coordinateOtus: [],
-    selectedOtus: [],
+    otuScope: OTU_SCOPE_ALL,
     otus: [],
     navigate: null
   }),
+
+  getters: {
+    selectedOtus(state) {
+      const currentOtuId = state.otu?.id
+
+      switch (state.otuScope) {
+        case OTU_SCOPE_CURRENT:
+          return state.coordinateOtus.filter((otu) => otu.id === currentOtuId)
+        case OTU_SCOPE_COORDINATES_ONLY:
+          return state.coordinateOtus.filter((otu) => otu.id !== currentOtuId)
+        default:
+          return state.coordinateOtus
+      }
+    }
+  },
 
   actions: {
     async initFromUrl() {
@@ -93,13 +113,35 @@ export const useOtuStore = defineStore('browse-otu', {
         const { body: coordinateOtus } = await Otu.coordinate(otuId)
 
         this.coordinateOtus = coordinateOtus
-        this.selectedOtus = [...coordinateOtus]
 
         if (body.taxon_name_id) {
           await this.loadTaxonName(body.taxon_name_id)
         }
 
         this.otu = body
+      } finally {
+        settings.isLoading = false
+      }
+    },
+
+    async setCurrentOtu(otuId) {
+      const settings = useSettingsStore()
+
+      settings.isLoading = true
+
+      try {
+        const { body } = await Otu.find(otuId)
+
+        if (body.taxon_name_id) {
+          await this.loadTaxonName(body.taxon_name_id)
+        } else {
+          this.taxonName = undefined
+        }
+
+        this.otu = body
+
+        const { body: navigate } = await Otu.navigation(otuId)
+        this.navigate = navigate
       } finally {
         settings.isLoading = false
       }

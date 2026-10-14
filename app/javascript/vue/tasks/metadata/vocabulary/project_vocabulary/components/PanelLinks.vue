@@ -5,7 +5,7 @@
   >
     <a
       :href="link"
-      data-turbolink="false"
+      data-turbolinks="false"
       >Open in field synchronize</a
     >
   </div>

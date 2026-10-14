@@ -689,11 +689,6 @@ scope :tasks do
     end
   end
 
-  scope :contents, controller: 'tasks/content/preview' do
-    get 'otu_content_for_layout/:otu_id', action: :otu_content_for_layout, as: 'preview_otu_content_for_layout'
-    get ':otu_id', action: 'otu_content', as: 'preview_otu_content'
-  end
-
   scope :controlled_vocabularies do
     scope :manage, controller: 'tasks/controlled_vocabularies/manage' do
       get '/', action: :index, as: 'manage_controlled_vocabulary_terms_task'

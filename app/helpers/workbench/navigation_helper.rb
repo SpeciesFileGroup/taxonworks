@@ -274,14 +274,6 @@ module Workbench::NavigationHelper
     end
   end
 
-  # @return [<a> tag, nil]
-  #   a link to the related data page
-  def related_data_link_tag(object)
-    return nil if object.nil?
-    p = "related_#{member_base_path(metamorphosize_if(object))}_path"
-    content_tag(:li, link_to('Related data', send(p, object))) if controller.respond_to?(p)
-  end
-
   def a_to_z_links(targets = [])
     letters = targets.empty? ? ('A'..'Z') : ('A'..'Z').to_a & targets
     content_tag(:div, class: 'navigation-bar-left', id: 'alphabet_nav') do

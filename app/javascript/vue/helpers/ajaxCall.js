@@ -18,9 +18,15 @@ const axios = Axios.create({
   }
 })
 
+function isSameOrigin(url) {
+  return new URL(url, window.location.origin).origin === window.location.origin
+}
+
 axios.interceptors.request.use((config) => {
-  config.headers['X-Timezone'] =
-    Intl.DateTimeFormat().resolvedOptions().timeZone
+  if (isSameOrigin(config.url)) {
+    config.headers['X-Timezone'] =
+      Intl.DateTimeFormat().resolvedOptions().timeZone
+  }
   return config
 })
 

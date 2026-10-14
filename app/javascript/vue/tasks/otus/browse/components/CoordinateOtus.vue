@@ -43,10 +43,19 @@
         <h3>Coordinate OTUs</h3>
       </template>
       <template #body>
-        <p>
-          Select the OTUs to filter the data. Each panel will display
-          information according to the selected OTUs.
-        </p>
+        <div class="horizontal-left-content gap-medium margin-medium-bottom">
+          <label
+            v-for="(label, scope) in OTU_SCOPES"
+            :key="scope"
+          >
+            <input
+              v-model="store.otuScope"
+              type="radio"
+              :value="scope"
+            />
+            {{ label }}
+          </label>
+        </div>
         <input
           v-model="searchText"
           type="text"
@@ -56,24 +65,15 @@
         <table class="full_width table-striped">
           <thead>
             <tr>
-              <th>
-                <div class="horizontal-left-content gap-small">
-                  <input
-                    type="checkbox"
-                    title="Select/deselect all coordinate OTUs"
-                    :checked="isEverySelectableOtuSelected"
-                    :disabled="!selectableOtus.length"
-                    @change="toggleAllOtus"
-                  />
-                </div>
-              </th>
+              <th />
               <th>
                 <ButtonUnify
-                  :ids="otus.map((o) => o.id)"
+                  :ids="otusToUnify.map((o) => o.id)"
                   :model="OTU"
                 />
               </th>
               <th>OTU</th>
+              <th />
             </tr>
           </thead>
           <tbody>
@@ -84,9 +84,9 @@
               <td class="w-2">
                 <input
                   type="checkbox"
+                  title="Select to unify"
                   :value="otu"
-                  :disabled="store.otu?.id === otu.id"
-                  v-model="otus"
+                  v-model="otusToUnify"
                 />
               </td>
               <td class="w-2">
@@ -96,23 +96,41 @@
                   <RadialNavigator :global-id="otu.global_id" />
                 </div>
               </td>
-              <td v-html="otu.object_tag" />
+              <td>
+                <span
+                  v-if="store.otu?.id === otu.id"
+                  v-html="otu.object_tag"
+                />
+                <a
+                  v-else
+                  :href="`${RouteNames.BrowseOtu}?otu_id=${otu.id}`"
+                  data-turbolinks="false"
+                  v-html="otu.object_tag"
+                />
+              </td>
+              <td class="w-2">
+                <span
+                  v-if="store.otu?.id === otu.id"
+                  class="subtle"
+                >
+                  Current
+                </span>
+                <VBtn
+                  v-else
+                  circle
+                  color="primary"
+                  title="Set as current OTU: header and single-OTU panels will display this OTU"
+                  @click="() => store.setCurrentOtu(otu.id)"
+                >
+                  <VIcon
+                    name="focus"
+                    x-small
+                  />
+                </VBtn>
+              </td>
             </tr>
           </tbody>
         </table>
-      </template>
-      <template #footer>
-        <VBtn
-          color="primary"
-          @click="
-            () => {
-              store.selectedOtus = [...otus]
-              isModalVisible = false
-            }
-          "
-        >
-          Apply
-        </VBtn>
       </template>
     </VModal>
   </div>
@@ -121,6 +139,7 @@
 <script setup>
 import { computed, watch, ref } from 'vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 import VModal from '@/components/ui/Modal.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialObject from '@/components/radials/object/radial.vue'
@@ -128,11 +147,13 @@ import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import ButtonUnify from '@/components/ui/Button/ButtonUnify.vue'
 import VTooltip from '@/components/ui/VTooltip/VTooltip.vue'
 import { useOtuStore } from '../store'
+import { OTU_SCOPES } from '../constants/otuScope.js'
 import { OTU } from '@/constants'
+import { RouteNames } from '@/routes/routes'
 
 const MAX_TOOLTIP_OTUS = 10
 
-const otus = ref([])
+const otusToUnify = ref([])
 const isModalVisible = ref(false)
 const searchText = ref('')
 const store = useOtuStore()
@@ -155,27 +176,8 @@ const filteredCoordinateOtus = computed(() => {
   )
 })
 
-const selectableOtus = computed(() =>
-  filteredCoordinateOtus.value.filter((otu) => otu.id !== store.otu?.id)
-)
-
-const isEverySelectableOtuSelected = computed(
-  () =>
-    !!selectableOtus.value.length &&
-    selectableOtus.value.every((otu) => otus.value.some((o) => o.id === otu.id))
-)
-
-function toggleAllOtus(event) {
-  const visibleIds = selectableOtus.value.map((otu) => otu.id)
-  const keptOtus = otus.value.filter((otu) => !visibleIds.includes(otu.id))
-
-  otus.value = event.target.checked
-    ? [...keptOtus, ...selectableOtus.value]
-    : keptOtus
-}
-
 watch(isModalVisible, () => {
-  otus.value = [...store.selectedOtus]
+  otusToUnify.value = []
   searchText.value = ''
 })
 </script>
