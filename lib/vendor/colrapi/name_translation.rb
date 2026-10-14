@@ -34,7 +34,7 @@ module Vendor
     #     "Aphrophora binomoriensis"), while a query without it still returns
     #     names CoL gives with it ("Aedes aegypti" finds "Aedes (Stegomyia)
     #     aegypti", "Aphrophora ambigua" finds both forms) - see .search_term.
-    #     The single query in .search_term depends on that second half: it's
+    #     !! The single query in .search_term depends on that second half: it's
     #     observed CoL search behavior (2026-10), not documented. If CoL ever
     #     stops matching that way, names CoL gives with a subgenus silently go
     #     missing (e.g. Outdated Names reports them :undeterminable) and specs,
@@ -55,8 +55,7 @@ module Vendor
     # working around them. What we do in the meantime:
     #   * search should find a name with or without its subgenus, both ways.
     #     A query with the subgenus misses names CoL gives without one, so we
-    #     search without it (.search_term), relying on undocumented behavior
-    #     (see the search note above).
+    #     search without it (.search_term).
     #   * a name should come formatted the same way whatever its source
     #     (subgenus included or not, a synonym like its accepted name). We
     #     compare keys that ignore the subgenus.
@@ -141,9 +140,6 @@ module Vendor
       def self.name_key(name)
         return nil if name.nil?
 
-        # [sic] goes first: anywhere in the name it stops SUBGENUS_NAME
-        # matching ("Jassus [sic] (Athysanus)"), or stays in the epithet
-        # ("Aphrophora (Aprophora [sic])").
         name = ::Utilities::Nomenclature.unmisspell_name(name)
         return subgenus_epithet(name) if name.match?(SUBGENUS_NAME)
 
@@ -167,8 +163,6 @@ module Vendor
       def self.split_authorship(col_authorship, col_year)
         return [nil, nil] if col_authorship.blank?
 
-        # Prefer the explicit year already extracted server-side (present for
-        # the target row).
         year = col_year.presence&.to_i
 
         # When authorship leads with "(Basionym Author, YYYY)" and no explicit
@@ -271,16 +265,21 @@ module Vendor
 
         # A species-group name may carry a subgenus or [sic] the key doesn't:
         # match #cached on the last epithet (#name) within the genus, and
-        # either form on "Genus ... epithet". (A superset - the keys below
-        # decide.)
+        # either form on "Genus ... epithet" (the plain "Genus epithet" is
+        # matched exactly above). A superset - anything can sit between genus
+        # and last epithet, so "Aus bus cus" also finds "Aus xus cus", and
+        # "Aus bus" finds "Aus xus bus"; the keys below decide.
         multi_word.each do |k|
           words = k.split(' ')
           genus = ::ActiveRecord::Base.sanitize_sql_like(words.first)
           epithet = ::ActiveRecord::Base.sanitize_sql_like(words.last)
           condition = condition
             .or(t[:name].eq(words.last).and(t[:cached].matches("#{genus} %")))
-            .or(t[:cached].matches("#{genus} %#{epithet}"))
-            .or(t[:cached_original_combination].matches("#{genus} %#{epithet}"))
+            .or(t[:cached].matches("#{genus} % #{epithet}"))
+            .or(
+              t[:cached_original_combination]
+                .matches("#{genus} % #{epithet}")
+            )
         end
 
         candidates = Hash.new { |h, k| h[k] = [] }
