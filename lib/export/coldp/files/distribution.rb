@@ -16,9 +16,9 @@ module Export::Coldp::Files::Distribution
       .joins("JOIN geographic_areas on asserted_distributions.asserted_distribution_shape_id = geographic_areas.id AND asserted_distributions.asserted_distribution_shape_type = 'GeographicArea'")
       .joins(:sources)
       .where(is_absent: [false, nil])
-      .select('asserted_distribution_shape_id, asserted_distribution_object_id, name, iso_3166_a3, iso_3166_a2, "tdwgID", data_origin, asserted_distributions.updated_at, asserted_distributions.updated_by_id,
+      .select('asserted_distributions.id, asserted_distribution_shape_id, asserted_distribution_object_id, name, iso_3166_a3, iso_3166_a2, "tdwgID", data_origin, asserted_distributions.updated_at, asserted_distributions.updated_by_id,
               MAX(sources.cached) AS cached, MAX(sources.id) AS source_id')
-      .group('asserted_distribution_shape_id, asserted_distribution_object_id, name, iso_3166_a3, iso_3166_a2, "tdwgID", data_origin, asserted_distributions.updated_at, asserted_distributions.updated_by_id' )
+      .group('asserted_distributions.id, asserted_distribution_shape_id, asserted_distribution_object_id, name, iso_3166_a3, iso_3166_a2, "tdwgID", data_origin, asserted_distributions.updated_at, asserted_distributions.updated_by_id' )
   end
 
   def self.content_distributions(otus, project_id: nil)
@@ -51,6 +51,7 @@ module Export::Coldp::Files::Distribution
         modified
         modifiedBy
         remarks
+        tw_asserted_distribution_id
       }
 
       # We gather the scope (not data) so we can add references en-masse after
@@ -108,7 +109,8 @@ module Export::Coldp::Files::Distribution
         ad.source_id,                                                  # reference_id - only 1 distribution reference allowed
         Export::Coldp.modified(ad.updated_at),                         # modified
         Export::Coldp.modified_by(ad.updated_by_id, project_members),  # modified_by
-        nil
+        nil,
+        ad.id                                                          # tw_asserted_distribution_id
       ]
     end
 
@@ -129,7 +131,8 @@ module Export::Coldp::Files::Distribution
         nil,
         Export::Coldp.modified(o.updated_at),
         Export::Coldp.modified_by(o.updated_by_id, project_members),
-        nil
+        nil,
+        nil                                                            # tw_asserted_distribution_id (N/A for content distributions)
       ]
     end
 
