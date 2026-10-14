@@ -165,14 +165,6 @@ module Vendor
     #   hardwired ID when nil
     # @param limit [Integer] maximum number of results
     # @return [Hash] raw Colrapi nameusage response (keys 'total', 'result')
-    #
-    # An ask of CoL (see NameTranslation): CoL writes botanical subgenera
-    # "Genus subgen. Subgenus", and a query in TaxonWorks' form ("Acrobolbus
-    # (Marsupellopsis)") returns nothing, so the CoL autoselect levels can't
-    # find them that way.
-    # NameTranslation.search_term isn't the fix here (it drops the
-    # parenthetical, so the query becomes the whole genus). Low impact for
-    # now: every botanical subgenus in the backbone is a synonym (2026-10).
     def self.search(name_string, dataset_id: nil, limit: 20)
       target = dataset_id.presence || DATASETS[:col]
       ::Colrapi.nameusage(target, q: name_string, limit:)
@@ -236,11 +228,12 @@ module Vendor
     # Only valid for backbone datasets (DATASETS[:col], DATASETS[:col_extended]).
     # For external datasets use ancestors_via_parent_id instead.
     #
+    # @param dataset_id [String] the backbone dataset taxon_id belongs to
     # @param taxon_id [String] CoL taxon ID (e.g. '6MB3T')
     # @return [Array<Hash>]
-    def self.ancestors(taxon_id)
+    def self.ancestors(dataset_id, taxon_id)
       ::Colrapi.taxon(
-        DATASETS[:col], taxon_id: taxon_id, subresource: 'classification'
+        dataset_id, taxon_id: taxon_id, subresource: 'classification'
       )
     rescue => e
       Rails.logger.warn "Vendor::Colrapi.ancestors error: #{e.message}"
@@ -369,13 +362,14 @@ module Vendor
           }
         end
 
-      ancestor_chain, ancestor_dataset_id =
+      # Ancestors come from the searched dataset, so their ids are its ids.
+      ancestor_chain =
         if non_accepted || col_key.blank?
-          [[], col_dataset_id]
+          []
         elsif col_backbone_dataset?(col_dataset_id)
-          [ancestors(col_key), DATASETS[:col]]
+          ancestors(col_dataset_id, col_key)
         else
-          [ancestors_via_parent_id(col_dataset_id, col_key), col_dataset_id]
+          ancestors_via_parent_id(col_dataset_id, col_key)
         end
 
       # Drop 'domain', which CoL's backbone puts above kingdom in every
@@ -396,7 +390,7 @@ module Vendor
           # As CoL gives it ("Aedes (Stegomyia)", "Olea europaea").
           col_name: ancestor['name'],
           col_id: ancestor['id'],
-          dataset_id: ancestor_dataset_id,
+          dataset_id: col_dataset_id,
           col_authorship: ancestor['authorship'].presence,
           above_genus_group: above_genus_group?(rank, col_code),
           # e.g. 'parvphylum' - can't be created (ColCreator skips it)

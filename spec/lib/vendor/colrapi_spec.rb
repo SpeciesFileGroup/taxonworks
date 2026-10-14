@@ -116,19 +116,19 @@ describe Vendor::Colrapi, type: :model do
     end
 
     it 'calls Colrapi.taxon with subresource: classification' do
-      described_class.ancestors('6MB3T')
+      described_class.ancestors('3LR', '6MB3T')
       expect(::Colrapi).to have_received(:taxon)
         .with('3LR', taxon_id: '6MB3T', subresource: 'classification')
     end
 
     it 'returns an array of classification entries' do
-      result = described_class.ancestors('6MB3T')
+      result = described_class.ancestors('3LR', '6MB3T')
       expect(result).to be_an(Array)
       expect(result.length).to eq(4)
     end
 
     it 'each entry has id, name (String), and rank' do
-      result = described_class.ancestors('6MB3T')
+      result = described_class.ancestors('3LR', '6MB3T')
       entry = result.first
       expect(entry['name']).to be_a(String)
       expect(entry['rank']).to be_a(String)
@@ -136,7 +136,7 @@ describe Vendor::Colrapi, type: :model do
     end
 
     it 'returns entries in distal-to-proximal order (kingdom before genus)' do
-      result = described_class.ancestors('6MB3T')
+      result = described_class.ancestors('3LR', '6MB3T')
       ranks = result.map { |e| e['rank'] }
       expect(ranks.first).to eq('kingdom')
       expect(ranks.last).to eq('genus')
@@ -148,7 +148,7 @@ describe Vendor::Colrapi, type: :model do
       end
 
       it 'returns an empty array' do
-        expect(described_class.ancestors('6MB3T')).to eq([])
+        expect(described_class.ancestors('3LR', '6MB3T')).to eq([])
       end
     end
   end
@@ -240,7 +240,7 @@ describe Vendor::Colrapi, type: :model do
 
     before do
       allow(described_class).to receive(:ancestors)
-      .with('6MB3T')
+      .with(described_class::DATASETS[:col], '6MB3T')
       .and_return(classification)
     end
 
@@ -277,9 +277,25 @@ describe Vendor::Colrapi, type: :model do
       expect(extension[:col_dataset_id]).to eq(described_class::DATASETS[:col])
     end
 
-    it 'extension col_dataset_id reflects the searched dataset when provided' do
-      ext = described_class.classified_usage(col_result, dataset_id: '3LXR')
-      expect(ext[:col_dataset_id]).to eq('3LXR')
+    context 'when the extended dataset was searched' do
+      before do
+        allow(described_class).to receive(:ancestors)
+          .with('3LXR', '6MB3T')
+          .and_return(classification)
+      end
+
+      let(:ext) {
+        described_class.classified_usage(col_result, dataset_id: '3LXR')
+      }
+
+      it 'extension col_dataset_id reflects the searched dataset' do
+        expect(ext[:col_dataset_id]).to eq('3LXR')
+      end
+
+      it 'takes the alignment from that dataset' do
+        expect(ext[:alignment].map { |a| a[:dataset_id] }.uniq)
+          .to eq(['3LXR'])
+      end
     end
 
     # Also - the alignment starts at the top
@@ -326,7 +342,8 @@ describe Vendor::Colrapi, type: :model do
       }
 
       before do
-        allow(described_class).to receive(:ancestors).with('SG1').and_return([])
+        allow(described_class).to receive(:ancestors)
+          .with(described_class::DATASETS[:col], 'SG1').and_return([])
       end
 
       subject(:ext) { described_class.classified_usage(subgenus_result) }
