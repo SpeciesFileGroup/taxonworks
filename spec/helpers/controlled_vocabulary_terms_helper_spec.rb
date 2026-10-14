@@ -73,6 +73,40 @@ describe ControlledVocabularyTermsHelper, type: :helper do
       end
     end
 
+    context 'for a BiologicalProperty' do
+      specify 'returns the number of biological associations whose relationship uses the property, scoped to current project' do
+        property = FactoryBot.create(:valid_biological_property, project: project)
+        other_property = FactoryBot.create(:valid_biological_property, project: project)
+
+        relationship1 = FactoryBot.create(:valid_biological_relationship, project: project)
+        relationship2 = FactoryBot.create(:valid_biological_relationship, project: project)
+        other_relationship = FactoryBot.create(:valid_biological_relationship, project: project)
+
+        FactoryBot.create(:valid_biological_relationship_subject_type, biological_property: property, biological_relationship: relationship1, project: project)
+        FactoryBot.create(:valid_biological_relationship_object_type, biological_property: property, biological_relationship: relationship2, project: project)
+
+        # Not this one - different property.
+        FactoryBot.create(:valid_biological_relationship_object_type, biological_property: other_property, biological_relationship: other_relationship, project: project)
+
+        create_association = lambda do |relationship|
+          FactoryBot.create(
+            :valid_biological_association,
+            biological_relationship: relationship,
+            biological_association_subject: FactoryBot.create(:valid_otu, project: project),
+            biological_association_object: FactoryBot.create(:valid_otu, project: project),
+            project: project
+          )
+        end
+
+        2.times { create_association.call(relationship1) }
+        create_association.call(relationship2)
+        create_association.call(other_relationship)
+
+        # Expect: 2 (relationship1) + 1 (relationship2) = 3
+        expect(helper.controlled_vocabulary_term_use(property)).to eq(3)
+      end
+    end
+
     # So we update the helper if/when we add a new class.
     specify 'does not return "n/a" for any ControlledVocabularyTerm subclass' do
       Rails.application.eager_load!

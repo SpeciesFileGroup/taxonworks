@@ -21,6 +21,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 - Contents are not republished after saving content that was already published [#5133]
 - Browse OTUs: Timeline shows citations for all taxon names when it should only show the current one
+- Biological Properties usage count now returns the number of Biological Associations using a Biological Relationship that has that property on its subject, object, or both sides
 
 [#5116]: https://github.com/SpeciesFileGroup/taxonworks/issues/5116
 [#5117]: https://github.com/SpeciesFileGroup/taxonworks/issues/5117
