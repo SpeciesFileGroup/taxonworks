@@ -19,6 +19,7 @@ end
 
 json.sources do
   json.array! @data[:sources].each do |s|
+    json.id s.id
     json.cached s.cached
     json.url s.url
   end
