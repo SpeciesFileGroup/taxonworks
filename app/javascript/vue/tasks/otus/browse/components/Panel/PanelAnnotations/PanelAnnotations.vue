@@ -15,10 +15,14 @@
           class="annotation-otu"
         >
           <h4
+            v-if="isOtuTitleVisible"
             class="annotation-otu-title"
             v-html="otus.find((otu) => otu.id == key)?.object_tag"
           />
-          <div class="annotation-groups">
+          <div
+            class="annotation-groups"
+            :class="{ 'annotation-groups-grouped': isOtuTitleVisible }"
+          >
             <PanelAnnotationsList
               v-if="item.dataAttributes.length"
               title="Data attributes"
@@ -38,7 +42,16 @@
               v-if="item.tags.length"
               title="Tags"
               :list="item.tags"
-            />
+            >
+              <template #item="{ item: tag }">
+                <span
+                  class="pill keyword"
+                  :style="keywordPillStyle(tag.keyword)"
+                >
+                  <span>{{ tag.keyword?.name }}</span>
+                </span>
+              </template>
+            </PanelAnnotationsList>
           </div>
         </div>
       </template>
@@ -83,6 +96,12 @@ const hasAnyAnnotation = computed(() =>
   Object.values(annotations.value).some(hasAnnotations)
 )
 
+const isOtuTitleVisible = computed(() =>
+  Object.entries(annotations.value).some(
+    ([otuId, item]) => Number(otuId) !== props.otu.id && hasAnnotations(item)
+  )
+)
+
 async function loadAnnotationsForOtu(otuId) {
   const [identifiers, tags, notes, dataAttributes] = await Promise.all([
     Identifier.where({
@@ -122,6 +141,17 @@ async function loadAnnotations(otus) {
   }
 }
 
+function keywordPillStyle(keyword) {
+  const color = keyword?.css_color
+
+  if (!color) return null
+
+  return {
+    backgroundColor: color,
+    color
+  }
+}
+
 function hasAnnotations(item) {
   return Object.values(item).some((list) => list.length)
 }
@@ -140,13 +170,14 @@ watch(
 <style lang="scss" scoped>
 .annotation-otu + .annotation-otu {
   margin-top: var(--spacing-lg);
-  padding-top: var(--spacing-lg);
-  border-top: 1px solid var(--border-color);
 }
 
 .annotation-otu-title {
   margin: 0 0 var(--spacing-sm);
-  font-size: var(--font-size-base);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background-color: var(--bg-muted);
+  border-radius: var(--border-radius-small);
+  font-size: var(--font-size-sm);
   font-weight: 600;
 }
 
@@ -154,6 +185,11 @@ watch(
   display: flex;
   flex-direction: column;
   gap: var(--spacing-md);
-  padding-left: var(--spacing-sm);
+
+  &.annotation-groups-grouped {
+    margin-left: var(--spacing-sm);
+    padding-left: var(--spacing-md);
+    border-left: 2px solid var(--border-color);
+  }
 }
 </style>

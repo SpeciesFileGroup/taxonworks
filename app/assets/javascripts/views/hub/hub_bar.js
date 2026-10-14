@@ -38,5 +38,15 @@ document.addEventListener('turbolinks:load', function () {
         if (thirdTab) thirdTab.click()
       }
     )
+
+    TW.workbench.keyboard.createShortcut(
+      'shift+4',
+      'Select fourth tab',
+      'Hub',
+      function () {
+        const fourthTab = document.querySelector('#hub_tabs li:nth-child(4) a')
+        if (fourthTab) fourthTab.click()
+      }
+    )
   }
 })

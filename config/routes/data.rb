@@ -11,10 +11,6 @@ concern :data_routes do |options|
     get 'autocomplete'
     get 'search' # TODO: deprecate/remove
   end
-
-  member do
-    get 'related' # TODO: remove or redirect here to Task route
-  end
 end
 
 resources :alternate_values, except: [:show, :new] do
@@ -63,7 +59,7 @@ resources :asserted_distributions do
     post :batch_template_create, defaults: {format: :json}
     post :sources, defaults: {format: :json}
     post :preview_simple_batch_load # should be get
-    post :create_simple_batch_load, defaults: {format: :json}
+    post :create_simple_batch_load
     match :filter, to: 'asserted_distributions#index', via: [:get, :post]
   end
   resources :origin_relationships, shallow: true, only: [:index], defaults: {format: :json}
@@ -239,6 +235,16 @@ resources :common_names do
   end
 end
 
+resources :composition_items, only: [:show, :create, :update, :destroy], defaults: {format: :json}
+
+resources :compositions do
+  concerns [:data_routes]
+  collection do
+    get :select_options, defaults: {format: :json}
+  end
+  resources :composition_items, shallow: true, only: [:index], defaults: {format: :json}
+end
+
 get 'confidences/exists', to: 'confidences#exists', defaults: {format: :json}
 resources :confidences do # , except: [:edit, :show]
   concerns [:data_routes]
@@ -365,10 +371,6 @@ resources :documentation, as: :documentation do
 
     patch :sort
   end
-
-  member do
-    get 'related'
-  end
 end
 
 resources :documents do
@@ -452,10 +454,6 @@ resources :geographic_areas, only: [:index, :show] do
     get 'display_coordinates', as: 'getdisplaycoordinates'
     get :select_options, defaults: {format: :json}
     get :by_lat_long, defaults: {format: :json}
-  end
-
-  member do
-    get 'related'
   end
 end
 
@@ -752,6 +750,9 @@ resources :otus do
     post :create_morphospecies_otu, defaults: { format: :json }
 
     patch :batch_update
+
+    match :distribution, action: :distribution_by_otus, via: [:get, :post], defaults: {format: :geojson}
+    match :distribution_is_absent, action: :distribution_is_absent_by_otus, via: [:get, :post], defaults: {format: :geojson}
   end
 
   member do
@@ -766,16 +767,6 @@ resources :otus do
     get 'inventory/citations', action: :citations_inventory, defaults: {format: :json}
   end
 
-end
-
-resources :otu_page_layouts do
-  collection do
-    get :list
-    get :lookup_topic, controller: 'topics'
-  end
-  member do
-    get 'related'
-  end
 end
 
 resources :otu_relationships do
@@ -796,8 +787,6 @@ end
 resources :origin_relationships do
   concerns [:data_routes]
 end
-
-resources :otu_page_layout_sections, only: [:create, :update, :destroy]
 
 match 'people/role_types', to: 'people#role_types', via: :get, method: :json
 resources :people do
@@ -992,8 +981,6 @@ resources :tags, except: [:edit, :show, :new] do
     post :batch_remove, defaults: {format: :json}
   end
 end
-
-resources :tagged_section_keywords, only: [:create, :update, :destroy]
 
 resources :taxon_determinations do
   collection do

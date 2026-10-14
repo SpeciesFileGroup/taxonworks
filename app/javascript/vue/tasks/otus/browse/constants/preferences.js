@@ -10,6 +10,7 @@ export const DEFAULT_PREFERENCES = {
   layout: DEFAULT_LAYOUT,
   customRows: null,
   hideEmptyPanels: false,
+  fullWidth: false,
   timeline: {
     alwaysShowAllCitations: false
   },

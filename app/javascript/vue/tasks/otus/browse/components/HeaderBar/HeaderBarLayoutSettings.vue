@@ -26,6 +26,17 @@
         </label>
       </div>
 
+      <div class="field separate-bottom">
+        <label>
+          <input
+            type="checkbox"
+            :checked="!!taskPreferences?.fullWidth"
+            @change="toggleFullWidth"
+          />
+          Use full page width
+        </label>
+      </div>
+
       <p class="subtle separate-bottom">
         Drag panels to reorder them or to move them between rows and columns.
       </p>
@@ -250,6 +261,14 @@ function toggleHideEmptyPanels(event) {
   if (!taskPreferences.value) return
 
   taskPreferences.value.hideEmptyPanels = event.target.checked
+
+  persist()
+}
+
+function toggleFullWidth(event) {
+  if (!taskPreferences.value) return
+
+  taskPreferences.value.fullWidth = event.target.checked
 
   persist()
 }

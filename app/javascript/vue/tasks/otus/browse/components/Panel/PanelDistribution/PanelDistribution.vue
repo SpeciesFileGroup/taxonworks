@@ -4,6 +4,7 @@
     :title="title"
     :spinner="isLoading"
     :empty="!geojson.length && !cachedMap"
+    :current-otu-only="!isSpeciesGroup"
     :skeleton="{
       variant: 'rect',
       height: '398px'
@@ -60,8 +61,10 @@ import CachedMap from './CachedMap.vue'
 import DistributionLegend from './DistributionLegend.vue'
 import { makeClusterIconFor } from '@/components/ui/VMap/clusters'
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import { GEOREFERENCE, ASSERTED_DISTRIBUTION, OTU } from '@/constants/index.js'
-import useDistribution from './composables/useDistribution.js'
+import { GEOREFERENCE, ASSERTED_DISTRIBUTION } from '@/constants/index.js'
+import useDistribution, {
+  isRankInSpeciesGroups
+} from './composables/useDistribution.js'
 
 const TABS = {
   Georeferences: 'Georeferences',
@@ -106,11 +109,6 @@ const {
 } = useDistribution()
 
 const shapes = computed(() => {
-  const otuIds = new Set(props.otus.map((o) => o.id))
-
-  const matchesOTU = (item) =>
-    item.properties.target.some((t) => t.type === OTU && otuIds.has(t.id))
-
   const matchesBase = (item, type) =>
     item.properties.base.some((b) => b.type === type)
 
@@ -125,14 +123,9 @@ const shapes = computed(() => {
       break
   }
 
-  return isAggregateMap.value
+  return isAggregateMap.value || !baseType
     ? geojson.value
-    : geojson.value.filter((item) => {
-        if (!matchesOTU(item)) return false
-        if (!baseType) return true
-
-        return matchesBase(item, baseType)
-      })
+    : geojson.value.filter((item) => matchesBase(item, baseType))
 })
 
 const view = ref(TABS.Both)
@@ -187,11 +180,27 @@ onBeforeUnmount(() => {
   document.removeEventListener('keydown', exitFullscreenOnEscape)
 })
 
+const isSpeciesGroup = computed(
+  () =>
+    !!props.taxonName?.rank_string &&
+    isRankInSpeciesGroups(props.taxonName.rank_string)
+)
+
+const selectedOtuIds = computed(() => {
+  const ids = props.otus.map((o) => o.id)
+
+  return ids.length ? ids : [props.otu?.id].filter(Boolean)
+})
+
 watch(
-  () => props.otu,
-  async (newOtu) => {
-    if (newOtu) {
-      await loadMapData(newOtu.id, props.taxonName?.rank_string)
+  [() => props.otu?.id, () => selectedOtuIds.value.join()],
+  async ([otuId]) => {
+    if (otuId) {
+      await loadMapData({
+        otuId,
+        otuIds: selectedOtuIds.value,
+        rank: props.taxonName?.rank_string
+      })
     }
   },
   { immediate: true }

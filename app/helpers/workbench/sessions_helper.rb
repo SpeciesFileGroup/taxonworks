@@ -136,7 +136,7 @@ module Workbench::SessionsHelper
   end
 
   def authorize_project_selection(user, project)
-    project.project_members.exists?(user:)
+    user.is_administrator? || project.project_members.exists?(user:)
   end
 
   def require_sign_in

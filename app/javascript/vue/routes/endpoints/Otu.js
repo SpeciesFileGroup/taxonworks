@@ -34,6 +34,12 @@ export const Otu = {
   geoJsonDistributionAbsent: (id) =>
     AjaxCall('get', `/otus/${id}/inventory/distribution_is_absent.geojson`),
 
+  geoJsonDistributionByOtus: (params) =>
+    AjaxCall('post', `/otus/distribution.geojson`, params),
+
+  geoJsonDistributionIsAbsentByOtus: (params) =>
+    AjaxCall('post', `/otus/distribution_is_absent.geojson`, params),
+
   navigation: (id) => AjaxCall('get', `/${controller}/${id}/navigation`),
 
   timeline: (id) => AjaxCall('get', `/${controller}/${id}/timeline.json`),

@@ -44,7 +44,10 @@
       />
       <div class="separate-top separate-bottom"></div>
 
-      <div class="container-2xl mx-auto flex-col gap-medium">
+      <div
+        class="mx-auto flex-col gap-medium"
+        :class="containerClass"
+      >
         <div
           v-for="(row, rowIndex) in rows"
           :key="rowIndex"
@@ -126,6 +129,10 @@ loadPreferences().then(() => {
 
 const taskPreferences = computed(
   () => preferences.value?.layout?.[KEY_STORAGE] || {}
+)
+
+const containerClass = computed(() =>
+  taskPreferences.value.fullWidth ? 'container-full' : 'container-2xl'
 )
 
 const rows = computed(() =>

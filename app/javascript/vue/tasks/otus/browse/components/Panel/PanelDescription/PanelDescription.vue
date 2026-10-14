@@ -4,6 +4,7 @@
     :title="title"
     :spinner="isLoading"
     :empty="!generatedDescription"
+    current-otu-only
   >
     <div v-if="generatedDescription">
       {{ generatedDescription }}

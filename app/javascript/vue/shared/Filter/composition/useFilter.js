@@ -8,7 +8,10 @@ import { sortArrayByReference } from '@/helpers'
 import getPagination from '@/helpers/getPagination'
 import qs from 'qs'
 
-export default function (service, { listParser, initParameters = {} } = {}) {
+export default function (
+  service,
+  { listParser, initParameters = {}, defaultParameters = {} } = {}
+) {
   const DEFAULT_PER = 50
   const DEFAULT_PARAMETERS = {
     paginate: true
@@ -117,7 +120,10 @@ export default function (service, { listParser, initParameters = {} } = {}) {
   }
 
   const resetFilter = () => {
-    state.parameters = { per: state.parameters.per ?? DEFAULT_PER }
+    state.parameters = {
+      per: state.parameters.per ?? DEFAULT_PER,
+      ...defaultParameters
+    }
     state.list = []
     state.isLoading = false
     state.urlRequest = ''
@@ -142,6 +148,10 @@ export default function (service, { listParser, initParameters = {} } = {}) {
     exclude.forEach((param) => {
       delete urlParameters[param]
     })
+
+    if (!Object.keys(urlParameters).length) {
+      Object.assign(state.parameters, defaultParameters)
+    }
 
     Object.assign(state.parameters, urlParameters)
 
