@@ -19,7 +19,7 @@ class BiologicalAssociationsController < ApplicationController
           .all
           .where(project_id: sessions_current_project_id)
           .includes(
-            citations: [:source, { citation_topics: :topic }],
+            citations: [:source, :topics, { citation_topics: :topic }],
             biological_relationship: :biological_relationship_types
           )
           .preload(:biological_association_subject, :biological_association_object)
