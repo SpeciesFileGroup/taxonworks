@@ -67,7 +67,7 @@ class LeadsController < ApplicationController
       .where(is_public: true)
 
     if helpers.extend_response_with('citations')
-      @leads = @leads.includes(citations: [:source])
+      @leads = @leads.includes(citations: [:source, :topics, { citation_topics: :topic }])
     end
 
     @leads = @leads.page(params[:page]).per(params[:per])
