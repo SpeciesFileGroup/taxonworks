@@ -139,7 +139,6 @@
             otuBlocked ||
             chainConflict ||
             isAmbiguous ||
-            duplicateBlocked ||
             nonAcceptedBlocked
         }"
       >
@@ -157,28 +156,6 @@
           {{ ext.ambiguous_match.count }} TaxonWorks records are named
           <em>{{ ext.ambiguous_match.col_name }}</em> at rank <em>{{ ext.ambiguous_match.rank }}</em> —
           there's no way to tell which one this lineage should use. Resolve this manually before creating.
-        </template>
-        <template v-else-if="duplicateBlocked">
-          TaxonWorks already has
-          <template v-if="duplicateOfAncestor">
-            <em>{{ ext.possible_duplicates_of.col_name }}</em>
-            ({{ ext.possible_duplicates_of.rank }})
-          </template>
-          <template v-else>this name</template>
-          as
-          <span
-            v-for="(duplicate, i) in ext.possible_duplicates"
-            :key="duplicate.id"
-            ><template v-if="i > 0">; </template
-            ><a
-              :href="browseTaxonNameUrl(duplicate.id)"
-              target="_blank"
-              rel="noopener noreferrer"
-              >{{ duplicate.cached }}</a
-            >
-            ({{ duplicateNote(duplicate) }})</span
-          >
-          — select it directly instead of creating a duplicate.
         </template>
         <template v-else-if="nonAcceptedBlocked">
           Catalogue of Life status: <em>{{ ext.col_status }}</em
@@ -219,7 +196,6 @@
             cannotCreate ||
             chainConflict ||
             otuBlocked ||
-            duplicateBlocked ||
             nonAcceptedBlocked
           "
           @click="doConfirm"
@@ -358,20 +334,6 @@ const isAmbiguous = computed(() => !!ext.value.ambiguous_match)
 // isn't this action's problem to block.
 const chainConflict = computed(() => !chainConsistent.value && !nothingToCreate.value)
 
-// Server-computed (Autoselect::TaxonName::ColMatch#possible_duplicates):
-// TaxonWorks names that a name Create would make (the target, or a missing
-// ancestor of it - possible_duplicates_of says which) is the published form
-// of (an original combination, or a Combination) - the taxon is already in
-// TaxonWorks, placed differently, so creating it would duplicate it.
-const duplicateBlocked = computed(
-  () =>
-    (ext.value.possible_duplicates ?? []).length > 0 && !nothingToCreate.value
-)
-
-const duplicateOfAncestor = computed(
-  () => ext.value.possible_duplicates_of?.rank !== ext.value.col_rank
-)
-
 // Server-computed (Vendor::Colrapi.classified_usage): CoL doesn't accept the
 // target (synonym, misapplied, ...) and has no classification of its own for
 // it, so it can't be created (ColCreator refuses it too). Selecting it when
@@ -379,21 +341,6 @@ const duplicateOfAncestor = computed(
 const nonAcceptedBlocked = computed(
   () => !!ext.value.non_accepted && !ext.value.target_taxonworks_id
 )
-
-// e.g. "originally Deltocephalus pumilicans, valid name Vilargus pumilicans"
-function duplicateNote(duplicate) {
-  const how =
-    duplicate.via === 'combination'
-      ? 'a Combination'
-      : `originally ${duplicate.published}`
-  return duplicate.valid_cached
-    ? `${how}, valid name ${duplicate.valid_cached}`
-    : how
-}
-
-function browseTaxonNameUrl(id) {
-  return `${RouteNames.BrowseNomenclature}?taxon_name_id=${id}`
-}
 
 // Returns a Checklistbank web URL including dataset context, falling back to
 // the legacy catalogueoflife.org path when no dataset_id is available.
