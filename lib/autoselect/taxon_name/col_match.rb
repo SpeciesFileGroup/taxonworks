@@ -5,6 +5,25 @@
 # classification (Vendor::Colrapi.classified_usage) plus how each row lines
 # up with TaxonWorks, whether the target already exists, and anything that
 # blocks Create (conflicts, homonyms, possible duplicates).
+#
+# Terms:
+#   * target - the CoL name being matched (the last row of the chain, below
+#     its ancestors)
+#   * anchor - the lowest row of CoL's chain (the target, else its nearest
+#     ancestor) that exactly one TaxonName in the project matches, by current
+#     form, rank and code. TaxonWorks' lineage is compared to CoL's from there
+#     up. No anchor: Create would make the whole chain.
+#
+# Create can make rows in two places:
+#   * below the anchor - every row down to the target. One TaxonWorks already
+#     has in another form (:possible_duplicates) blocks Create.
+#   * above the anchor - ranks CoL has that the anchor's lineage lacks
+#     (inserted between two existing records, or above its topmost one).
+#     These are offered without checking the rest of the project: a name
+#     TaxonWorks already has elsewhere at that rank (e.g. the subfamily CoL
+#     inserts, already holding other genera) would be created again. Known
+#     and allowed - that would mean the project's classification is already
+#     split, which the user is expected to recognize.
 class Autoselect::TaxonName::ColMatch
 
   # @param col_result [Hash] a flat CoL nameusage hash (search-result shape)
@@ -53,19 +72,8 @@ class Autoselect::TaxonName::ColMatch
 
   private
 
-  # Finds the lowest (most specific) rank in the CoL chain — the target itself
-  # first, then ancestors from most- to least-proximal — that unambiguously
-  # (exactly one candidate, matched on both name AND rank) exists in this
-  # project, then diffs TaxonWorks' REAL ancestor chain from there against CoL's
-  # (ColAncestryComparator).
-  #
-  # This never reparents anything: the target, if it exists at all, is checked
-  # first and immediately becomes the anchor, so TaxonWorks' own real ancestor
-  # chain — not a separately-found, name-coincidental chain — is always the
-  # source of truth for it. Only when the target itself doesn't exist yet does
-  # the search continue outward, since attaching a brand-new record to an
-  # existing, unambiguous ancestor is a normal creation decision, not a
-  # reparenting of anything that already exists.
+  # Finds the anchor, walking up from the target, then diffs TaxonWorks' REAL
+  # ancestor chain from there against CoL's (ColAncestryComparator).
   #
   # A position with more than one same-name, same-rank candidate is a homonym we
   # have no principled way to pick between (matching by cached name alone never
@@ -77,7 +85,8 @@ class Autoselect::TaxonName::ColMatch
   #   :target_global_id (only when the target itself matched), :ambiguous_match
   #   (only when the walk was stopped by a homonym), :possible_duplicates and
   #   :possible_duplicates_of ({ rank:, col_name: } of the row they duplicate)
-  #   (only when a row Create would make is already in TaxonWorks)
+  #   (only when a row Create would make below the anchor is already in
+  #   TaxonWorks)
   def match_against_taxonworks(extension, col_name, col_rank)
     full_chain = extension[:alignment] + [{
       rank: col_rank,
@@ -90,9 +99,8 @@ class Autoselect::TaxonName::ColMatch
     # CoL and TaxonWorks format some names differently (subgenus, species-group
     # names with/without subgenus, [sic]), so candidates are found and compared
     # by key - see Vendor::Colrapi::NameTranslation.
-    translation = ::Vendor::Colrapi::NameTranslation
-    candidates_by_key =
-      translation.candidates_by_key(full_chain, project_id: @project_id)
+    candidates_by_key = ::Vendor::Colrapi::NameTranslation
+      .candidates_by_key(full_chain, project_id: @project_id)
 
     # A CoL name can also match a TaxonWorks name in its *published* form (a
     # Protonym's original combination, or a Combination) - a taxon TaxonWorks
@@ -110,21 +118,13 @@ class Autoselect::TaxonName::ColMatch
     anchor = nil
     anchor_index = nil
 
+    # Try to find the anchor.
     (full_chain.length - 1).downto(0) do |i|
       row = full_chain[i]
-      row_key = translation.col_name_key(row[:col_name], row[:rank])
-      rank_matched = (candidates_by_key[row_key] || [])
-        .select { |candidate| candidate.form == :current }
-        .map(&:taxon_name)
-        .select do |candidate|
-          rank_name_for(candidate.rank_class) == row[:rank]
-        end
-
-      if expected_nomenclature_code
-        rank_matched = rank_matched.select do |candidate|
-          candidate.rank_class.nomenclatural_code == expected_nomenclature_code
-        end
-      end
+      rank_matched = candidates_for(
+        # The anchor is always a :current name (has correct ancestry).
+        candidates_by_key, row, :current, expected_nomenclature_code
+      )
 
       if rank_matched.length > 1
         return ambiguous_result(extension, row, rank_matched.length)
@@ -218,18 +218,31 @@ class Autoselect::TaxonName::ColMatch
   #   'original_combination' | 'combination', published:, valid_id:,
   #   valid_cached: (nil when it's its own valid name) }
   def possible_duplicates(candidates_by_key, row, expected_code)
+    candidates_for(candidates_by_key, row, :published, expected_code)
+      .map { |taxon_name| duplicate_entry(taxon_name) }
+  end
+
+  # The TaxonNames whose given form (:current or :published) is a CoL row, at
+  # the row's rank (and code, when CoL gives one). Rank is checked here, per
+  # row, not by key: a genus and its nominotypical subgenus share a key.
+  #
+  # @param candidates_by_key [Hash] from NameTranslation.candidates_by_key
+  # @param row [Hash] a row of the CoL alignment chain
+  # @param form [Symbol] :current or :published (see NameTranslation.forms)
+  # @param expected_code [Symbol, nil] nomenclatural code CoL gives, if any
+  # @return [Array<TaxonName>]
+  def candidates_for(candidates_by_key, row, form, expected_code)
     key = ::Vendor::Colrapi::NameTranslation
       .col_name_key(row[:col_name], row[:rank])
 
     (candidates_by_key[key] || [])
-      .select { |candidate| candidate.form == :published }
+      .select { |candidate| candidate.form == form }
       .map(&:taxon_name)
       .select do |taxon_name|
         rank_name, code = rank_name_and_code(taxon_name)
         rank_name == row[:rank] &&
           (expected_code.nil? || code == expected_code)
       end
-      .map { |taxon_name| duplicate_entry(taxon_name) }
   end
 
   # A Combination has no rank_class of its own: its rank is that of its
