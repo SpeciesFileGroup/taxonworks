@@ -17,6 +17,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 ### Changed
 
 - Browse OTUs: Contents are now grouped by OTU when there is more than one. [#5136]
+- `/taxon_names/<id>/inventory/catalog` sends sources in chronological order [#200]
 
 ### Fixed
 
@@ -25,6 +26,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Biological Properties usage count now returns the number of Biological Associations using a Biological Relationship that has that property on its subject, object, or both sides
 - Filter TNR: After destroying a record in filter taxon name relationships the record still displays [#5137]
 
+[#200]: https://github.com/SpeciesFileGroup/taxonpages/issues/200
 [#5116]: https://github.com/SpeciesFileGroup/taxonworks/issues/5116
 [#5117]: https://github.com/SpeciesFileGroup/taxonworks/issues/5117
 [#5133]: https://github.com/SpeciesFileGroup/taxonworks/issues/5133
