@@ -68,8 +68,8 @@ class Autoselect::TaxonName::ColMatch
   # A position with more than one same-name, same-rank candidate is a homonym we
   # have no principled way to pick between (matching by cached name alone never
   # guaranteed a coherent chain) — that stops the walk and blocks Create, same
-  # as a real conflict. So does an anchor whose authorship differs from CoL's
-  # (#authorship_mismatch).
+  # as a real conflict. An anchor whose authorship differs from CoL's is
+  # matched, and the difference reported (#authorship_mismatch).
   #
   # @return [Hash] :alignment (kingdom-first, ancestors only — the target is
   #   reported separately below), :chain_consistent, :target_taxonworks_id,
@@ -104,9 +104,6 @@ class Autoselect::TaxonName::ColMatch
       return { alignment: none_alignment(extension), chain_consistent: true }
     end
 
-    mismatch = authorship_mismatch(anchor, full_chain[anchor_index])
-    return blocked_result(extension, authorship_mismatch: mismatch) if mismatch
-
     # Rows Create would make: everything below the anchor (none when the
     # target matched).
     #
@@ -132,10 +129,12 @@ class Autoselect::TaxonName::ColMatch
     ).call
 
     merged = diffed + below_rows
+    mismatch = authorship_mismatch(anchor, full_chain[anchor_index])
 
     {
       alignment: merged[0...-1],
       chain_consistent: merged.none? { |row| row[:match] == 'conflict' },
+      **(mismatch ? { authorship_mismatch: mismatch } : {}),
       **(
         if below_rows.empty?
           {
@@ -153,8 +152,8 @@ class Autoselect::TaxonName::ColMatch
   # matches, by current form, rank and code. One match there is the anchor.
   # More than one is a homonym: the one whose authorship agrees with CoL's is
   # the anchor (#agreeing_authorship), else the caller can't pick between
-  # them. A lone match whose authorship differs is a different name
-  # (#authorship_mismatch).
+  # them. A lone match is taken whatever its authorship, a difference is only
+  # reported (#authorship_mismatch).
   #
   # Only the current form counts: a name matching in its *published* form (a
   # Protonym's original combination, or a Combination) is a taxon TaxonWorks
@@ -222,12 +221,14 @@ class Autoselect::TaxonName::ColMatch
   end
 
   # The anchor is matched by name, rank and code alone; when its authorship
-  # and CoL's can both be compared and differ, they are different names that
-  # share a string (e.g. CoL's "Trioza minuta Crawford, 1910", a synonym of
-  # Bactericera minuta, vs TaxonWorks' Trioza minuta (Mathur, 1975)), or one
-  # side's authorship is wrong. Either way it blocks: the keys already ignore
-  # case, diacritics and punctuation, so formatting doesn't get here.
-  # Parentheses are ignored, CoL adds them by its own placement.
+  # and CoL's can both be compared and differ, they are usually different
+  # names that share a string (e.g. CoL's "Trioza minuta Crawford, 1910", a
+  # synonym of Bactericera minuta, vs TaxonWorks' Trioza minuta (Mathur,
+  # 1975)). Reported, not blocked: the same name can still differ (TaxonWorks'
+  # Evansia "Cambridge, O.P., 1900" is CoL's "O. Pickard-Cambridge, 1901"),
+  # and a block on an ancestor would stop Create with no way past it short
+  # of getting CoL's authorship changed. Parentheses are ignored, CoL adds
+  # them by its own placement.
   #
   # @param row [Hash] the anchor's row of the CoL chain
   # @return [Hash, nil] { rank:, col_name:, col_authorship:,
@@ -299,7 +300,7 @@ class Autoselect::TaxonName::ColMatch
   end
 
   # No anchor can be trusted: nothing is matched and Create and Select are
-  # blocked. `reason` says why (:ambiguous_match or :authorship_mismatch).
+  # blocked. `reason` says why (e.g. :ambiguous_match).
   def blocked_result(extension, **reason)
     {
       alignment: none_alignment(extension),

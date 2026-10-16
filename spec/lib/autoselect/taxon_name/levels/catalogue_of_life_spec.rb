@@ -599,10 +599,11 @@ RSpec.describe Autoselect::TaxonName::Levels::CatalogueOfLife, type: :model do
           .first._col_extension
       end
 
-      specify 'blocks the match, and reports CoL\'s other authorship' do
+      specify 'matches the current name, and reports CoL\'s other ' \
+        'authorship' do
         ext = match_for('Crawford, 1910')
-        expect(ext[:target_taxonworks_id]).to be_nil
-        expect(ext[:chain_consistent]).to be false
+        expect(ext[:target_taxonworks_id]).to eq(mathur.id)
+        expect(ext[:chain_consistent]).to be true
         expect(ext[:authorship_mismatch]).to eq(
           rank: 'species',
           col_name: "#{genus.cached} minuta",
@@ -629,6 +630,37 @@ RSpec.describe Autoselect::TaxonName::Levels::CatalogueOfLife, type: :model do
         ext = match_for('Crawford')
         expect(ext[:target_taxonworks_id]).to eq(mathur.id)
         expect(ext).not_to have_key(:authorship_mismatch)
+      end
+    end
+
+    context 'when the anchor is an ancestor whose authorship differs from ' \
+      'CoL\'s' do
+      before do
+        genus.update!(verbatim_author: 'Jones', year_of_publication: 1950)
+        allow(::Vendor::Colrapi).to receive(:search).and_return(
+          'result' => [
+            col_result_for_target(
+              id: 'TGT1', scientific_name: "#{genus.cached} novus",
+              rank: 'species'
+            )
+          ]
+        )
+        allow(::Vendor::Colrapi).to receive(:ancestors).and_return([
+          col_classification_entry(id: 'A1', name: genus.cached, rank: 'genus')
+            .merge('authorship' => 'Smith, 1900')
+        ])
+      end
+
+      specify 'anchors on it, and reports the ancestor\'s authorship' do
+        ext = level.call(term: "#{genus.cached} novus", project_id:, user_id:)
+          .first._col_extension
+        expect(ext[:target_taxonworks_id]).to be_nil
+        expect(ext[:chain_consistent]).to be true
+        expect(ext[:alignment].last).to include(rank: 'genus', match: 'exact')
+        expect(ext[:authorship_mismatch]).to include(
+          rank: 'genus', col_authorship: 'Smith, 1900',
+          taxonworks_authorship: 'Jones, 1950'
+        )
       end
     end
 
