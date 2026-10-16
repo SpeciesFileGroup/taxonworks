@@ -8,7 +8,7 @@
 </template>
 
 <script setup>
-import { h, useAttrs } from 'vue'
+import { useAttrs } from 'vue'
 import { OTU } from '@/constants'
 import RadialBatch from '@/components/radials/shared/RadialBatch.vue'
 import TaxonNameSlice from './components/TaxonNameSlice.vue'
@@ -18,8 +18,7 @@ import AssertedEnvironmentSlice from '@/components/radials/shared/AssertedEnviro
 const SLICES = {
   'Update Taxon name': TaxonNameSlice,
   'Add asserted distribution': AssertedDistributionSlice,
-  'Add asserted environment': (attrs) =>
-    h(AssertedEnvironmentSlice, { ...attrs, objectType: OTU })
+  'Add asserted environment': AssertedEnvironmentSlice
 }
 
 defineOptions({

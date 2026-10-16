@@ -8,7 +8,7 @@
 </template>
 
 <script setup>
-import { h, useAttrs } from 'vue'
+import { useAttrs } from 'vue'
 import { COLLECTING_EVENT } from '@/constants'
 import RadialBatch from '@/components/radials/shared/RadialBatch.vue'
 import AssignSlice from './components/AssignSlice.vue'
@@ -28,8 +28,7 @@ const SLICES = {
   'Set Collection Date/Time': DateTimeSlice,
   'Set verbatim fields': VerbatimSlice,
   'Print label': PrintLabelSlice,
-  'Add asserted environment': (attrs) =>
-    h(AssertedEnvironmentSlice, { ...attrs, objectType: COLLECTING_EVENT })
+  'Add asserted environment': AssertedEnvironmentSlice
 }
 
 defineOptions({
