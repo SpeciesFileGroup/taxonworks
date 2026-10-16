@@ -71,7 +71,7 @@ const props = defineProps({
 
   objectType: {
     type: String,
-    default: 'Otu'
+    required: true
   }
 })
 

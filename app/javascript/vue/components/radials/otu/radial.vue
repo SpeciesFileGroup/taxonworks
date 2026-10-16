@@ -12,7 +12,7 @@ import { useAttrs } from 'vue'
 import { OTU } from '@/constants'
 import RadialBatch from '@/components/radials/shared/RadialBatch.vue'
 import TaxonNameSlice from './components/TaxonNameSlice.vue'
-import AssertedDistributionSlice from './components/AssertedDistributionSlice.vue'
+import AssertedDistributionSlice from '@/components/radials/shared/AssertedDistributionSlice.vue'
 import AssertedEnvironmentSlice from '@/components/radials/shared/AssertedEnvironmentSlice.vue'
 
 const SLICES = {
