@@ -68,13 +68,14 @@ class Autoselect::TaxonName::ColMatch
   # A position with more than one same-name, same-rank candidate is a homonym we
   # have no principled way to pick between (matching by cached name alone never
   # guaranteed a coherent chain) — that stops the walk and blocks Create, same
-  # as a real conflict.
+  # as a real conflict. So does an anchor whose authorship differs from CoL's
+  # (#authorship_mismatch).
   #
   # @return [Hash] :alignment (kingdom-first, ancestors only — the target is
   #   reported separately below), :chain_consistent, :target_taxonworks_id,
   #   :target_global_id (only when the target itself matched), :ambiguous_match
-  #   (only when the walk was stopped by a homonym), :authorship_mismatch (see
-  #   #authorship_mismatch)
+  #   (only when the walk was stopped by a homonym), :authorship_mismatch (only
+  #   when the anchor's authorship differs from CoL's)
   def match_against_taxonworks(extension, col_name, col_rank)
     full_chain = extension[:alignment] + [{
       rank: col_rank,
@@ -88,18 +89,23 @@ class Autoselect::TaxonName::ColMatch
       find_anchor(full_chain, extension[:col_code])
 
     if anchor_candidates && anchor_candidates.length > 1
-      return ambiguous_result(
-        extension, full_chain[anchor_index], anchor_candidates.length
+      row = full_chain[anchor_index]
+      return blocked_result(
+        extension,
+        ambiguous_match: {
+          rank: row[:rank], col_name: row[:col_name],
+          count: anchor_candidates.length
+        }
       )
     end
 
     anchor = anchor_candidates&.first
     if anchor.nil?
-      none_alignment = extension[:alignment].map do |row|
-        row.merge(taxonworks_id: nil, taxonworks_name: nil, match: 'none')
-      end
-      return { alignment: none_alignment, chain_consistent: true }
+      return { alignment: none_alignment(extension), chain_consistent: true }
     end
+
+    mismatch = authorship_mismatch(anchor, full_chain[anchor_index])
+    return blocked_result(extension, authorship_mismatch: mismatch) if mismatch
 
     # Rows Create would make: everything below the anchor (none when the
     # target matched).
@@ -126,12 +132,10 @@ class Autoselect::TaxonName::ColMatch
     ).call
 
     merged = diffed + below_rows
-    mismatch = authorship_mismatch(anchor, full_chain[anchor_index])
 
     {
       alignment: merged[0...-1],
       chain_consistent: merged.none? { |row| row[:match] == 'conflict' },
-      **(mismatch ? { authorship_mismatch: mismatch } : {}),
       **(
         if below_rows.empty?
           {
@@ -149,8 +153,8 @@ class Autoselect::TaxonName::ColMatch
   # matches, by current form, rank and code. One match there is the anchor.
   # More than one is a homonym: the one whose authorship agrees with CoL's is
   # the anchor (#agreeing_authorship), else the caller can't pick between
-  # them. A lone match is taken whatever its authorship, a difference is only
-  # reported (#authorship_mismatch).
+  # them. A lone match whose authorship differs is a different name
+  # (#authorship_mismatch).
   #
   # Only the current form counts: a name matching in its *published* form (a
   # Protonym's original combination, or a Combination) is a taxon TaxonWorks
@@ -218,10 +222,11 @@ class Autoselect::TaxonName::ColMatch
   end
 
   # The anchor is matched by name, rank and code alone; when its authorship
-  # and CoL's can both be compared and differ, CoL may mean a different taxon
-  # with the same name (e.g. CoL's "Trioza minuta Crawford, 1910", a synonym of
-  # Bactericera minuta, anchors on TaxonWorks' Trioza minuta (Mathur, 1975)).
-  # Reported, not blocked: a formatting difference reads the same way.
+  # and CoL's can both be compared and differ, they are different names that
+  # share a string (e.g. CoL's "Trioza minuta Crawford, 1910", a synonym of
+  # Bactericera minuta, vs TaxonWorks' Trioza minuta (Mathur, 1975)), or one
+  # side's authorship is wrong. Either way it blocks: the keys already ignore
+  # case, diacritics and punctuation, so formatting doesn't get here.
   # Parentheses are ignored, CoL adds them by its own placement.
   #
   # @param row [Hash] the anchor's row of the CoL chain
@@ -293,17 +298,20 @@ class Autoselect::TaxonName::ColMatch
     ::RANKS_LOOKUP[rank_class.to_s]
   end
 
-  def ambiguous_result(extension, row, count)
-    none_alignment = extension[:alignment].map do |r|
-      r.merge(taxonworks_id: nil, taxonworks_name: nil, match: 'none')
-    end
+  # No anchor can be trusted: nothing is matched and Create and Select are
+  # blocked. `reason` says why (:ambiguous_match or :authorship_mismatch).
+  def blocked_result(extension, **reason)
     {
-      alignment: none_alignment,
+      alignment: none_alignment(extension),
       chain_consistent: false,
-      ambiguous_match: {
-        rank: row[:rank], col_name: row[:col_name], count:
-      }
+      **reason
     }
+  end
+
+  def none_alignment(extension)
+    extension[:alignment].map do |row|
+      row.merge(taxonworks_id: nil, taxonworks_name: nil, match: 'none')
+    end
   end
 
   def rank_resolvable?(rank_string)

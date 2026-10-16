@@ -599,10 +599,10 @@ RSpec.describe Autoselect::TaxonName::Levels::CatalogueOfLife, type: :model do
           .first._col_extension
       end
 
-      specify 'matches the current name, and reports CoL\'s other ' \
-        'authorship' do
+      specify 'blocks the match, and reports CoL\'s other authorship' do
         ext = match_for('Crawford, 1910')
-        expect(ext[:target_taxonworks_id]).to eq(mathur.id)
+        expect(ext[:target_taxonworks_id]).to be_nil
+        expect(ext[:chain_consistent]).to be false
         expect(ext[:authorship_mismatch]).to eq(
           rank: 'species',
           col_name: "#{genus.cached} minuta",
@@ -619,12 +619,16 @@ RSpec.describe Autoselect::TaxonName::Levels::CatalogueOfLife, type: :model do
         expect(ext).not_to have_key(:authorship_mismatch)
       end
 
-      specify 'reports nothing when CoL gives no authorship' do
-        expect(match_for(nil)).not_to have_key(:authorship_mismatch)
+      specify 'matches when CoL gives no authorship' do
+        ext = match_for(nil)
+        expect(ext[:target_taxonworks_id]).to eq(mathur.id)
+        expect(ext).not_to have_key(:authorship_mismatch)
       end
 
-      specify 'reports nothing when CoL\'s authorship has no year' do
-        expect(match_for('Crawford')).not_to have_key(:authorship_mismatch)
+      specify 'matches when CoL\'s authorship has no year' do
+        ext = match_for('Crawford')
+        expect(ext[:target_taxonworks_id]).to eq(mathur.id)
+        expect(ext).not_to have_key(:authorship_mismatch)
       end
     end
 

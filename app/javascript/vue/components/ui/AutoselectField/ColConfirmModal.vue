@@ -107,21 +107,6 @@
         </tbody>
       </table>
 
-      <!-- Server-computed (Autoselect::TaxonName::ColMatch#authorship_mismatch):
-           matched by name, but the authors differ - CoL may mean another
-           taxon with the same name. Doesn't block. -->
-      <p
-        v-if="ext.authorship_mismatch"
-        class="col-confirm-modal__note col-confirm-modal__note--warning"
-      >
-        Authors differ at {{ ext.authorship_mismatch.rank }}: TaxonWorks
-        <em>{{ ext.authorship_mismatch.taxonworks_name }}</em>
-        {{ ext.authorship_mismatch.taxonworks_authorship }}, Catalogue of Life
-        <em>{{ ext.authorship_mismatch.col_name }}</em>
-        {{ ext.authorship_mismatch.col_authorship }} — check they're the same
-        taxon.
-      </p>
-
       <p
         v-if="ext.hook?.existing_id && ext.hook.existing_named"
         class="col-confirm-modal__note"
@@ -154,6 +139,7 @@
             otuBlocked ||
             chainConflict ||
             isAmbiguous ||
+            authorshipMismatch ||
             nonAcceptedBlocked
         }"
       >
@@ -171,6 +157,14 @@
           {{ ext.ambiguous_match.count }} TaxonWorks records are named
           <em>{{ ext.ambiguous_match.col_name }}</em> at rank <em>{{ ext.ambiguous_match.rank }}</em> —
           there's no way to tell which one this lineage should use. Resolve this manually before creating.
+        </template>
+        <template v-else-if="authorshipMismatch">
+          Different names at <em>{{ authorshipMismatch.rank }}</em>:
+          TaxonWorks <em>{{ authorshipMismatch.taxonworks_name }}</em>
+          {{ authorshipMismatch.taxonworks_authorship }}, Catalogue of Life
+          <em>{{ authorshipMismatch.col_name }}</em>
+          {{ authorshipMismatch.col_authorship }}. If one authorship is wrong,
+          correct it first.
         </template>
         <template v-else-if="nonAcceptedBlocked">
           Catalogue of Life status: <em>{{ ext.col_status }}</em
@@ -343,6 +337,11 @@ const conflictRows = computed(() => (ext.value.alignment ?? []).filter((r) => r.
 // same-rank TaxonWorks candidate at some position — a homonym with no principled
 // way to pick between them, distinct from a genuine name disagreement.
 const isAmbiguous = computed(() => !!ext.value.ambiguous_match)
+
+// Server-computed (Autoselect::TaxonName::ColMatch#authorship_mismatch): the
+// anchor matched by name, but its authorship differs from CoL's - a different
+// name sharing the string, or a wrong authorship. Blocks Select and Create.
+const authorshipMismatch = computed(() => ext.value.authorship_mismatch)
 
 // Only blocks Create itself — nothingToCreate's "Select" shortcut doesn't create or
 // reparent anything, so a pre-existing inconsistency among already-matched records
