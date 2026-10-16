@@ -287,6 +287,122 @@ describe AssertedEnvironment, type: :model, group: :shared_geo do
         .to contain_exactly(otu, otu2)
       expect(Citation.where(citation_object_type: 'AssertedEnvironment').count).to eq(2)
     end
+
+    specify 'unsupported mode errors' do
+      r = AssertedEnvironment.batch_by_filter_scope(
+        filter_query: otu_filter_query,
+        mode: :replace,
+        params: environment_params
+      )
+
+      expect(r[:errors].keys).to include(a_string_matching(/unsupported mode/))
+    end
+
+    context ':remove' do
+      let(:other_envo_uri) { 'http://purl.obolibrary.org/obo/ENVO_01000174' }
+
+      let!(:ae1) {
+        FactoryBot.create(:valid_asserted_environment,
+          asserted_environment_object: otu, uri: envo_uri, uri_label: 'temperate forest biome')
+      }
+
+      let!(:ae2) {
+        FactoryBot.create(:valid_asserted_environment,
+          asserted_environment_object: otu2, uri: envo_uri, uri_label: 'temperate forest biome')
+      }
+
+      specify 'destroys the asserted environment for the term on each object' do
+        r = AssertedEnvironment.batch_by_filter_scope(
+          filter_query: otu_filter_query,
+          mode: :remove,
+          params: { uri: envo_uri }
+        )
+
+        expect(r[:updated]).to contain_exactly(ae1.id, ae2.id)
+        expect(r[:not_updated]).to be_empty
+        expect(AssertedEnvironment.count).to eq(0)
+      end
+
+      specify 'leaves other terms on the same objects' do
+        other = FactoryBot.create(:valid_asserted_environment,
+          asserted_environment_object: otu, uri: other_envo_uri, uri_label: 'forest biome')
+
+        AssertedEnvironment.batch_by_filter_scope(
+          filter_query: otu_filter_query,
+          mode: :remove,
+          params: { uri: envo_uri }
+        )
+
+        expect(AssertedEnvironment.all).to contain_exactly(other)
+      end
+
+      specify 'leaves the term on objects outside the filter' do
+        otu3 = FactoryBot.create(:valid_otu)
+        outside = FactoryBot.create(:valid_asserted_environment,
+          asserted_environment_object: otu3, uri: envo_uri, uri_label: 'temperate forest biome')
+
+        AssertedEnvironment.batch_by_filter_scope(
+          filter_query: otu_filter_query,
+          mode: :remove,
+          params: { uri: envo_uri }
+        )
+
+        expect(AssertedEnvironment.all).to contain_exactly(outside)
+      end
+
+      specify 'destroys the citations of removed asserted environments' do
+        ae1.citations.create!(source:)
+
+        AssertedEnvironment.batch_by_filter_scope(
+          filter_query: otu_filter_query,
+          mode: :remove,
+          params: { uri: envo_uri }
+        )
+
+        expect(Citation.where(citation_object_type: 'AssertedEnvironment').count).to eq(0)
+      end
+
+      specify 'reports objects without the term as not updated' do
+        ae2.destroy!
+
+        r = AssertedEnvironment.batch_by_filter_scope(
+          filter_query: otu_filter_query,
+          mode: :remove,
+          params: { uri: envo_uri }
+        )
+
+        expect(r[:updated]).to contain_exactly(ae1.id)
+        expect(r[:not_updated]).to contain_exactly(otu2.id)
+        expect(r[:validation_errors].keys).to include(a_string_matching(/no asserted environment/))
+      end
+
+      specify 'without uri errors' do
+        r = AssertedEnvironment.batch_by_filter_scope(
+          filter_query: otu_filter_query,
+          mode: :remove,
+          params: { uri_label: 'temperate forest biome' }
+        )
+
+        expect(r[:errors]).not_to be_empty
+        expect(AssertedEnvironment.count).to eq(2)
+      end
+
+      specify 'async' do
+        AssertedEnvironment.batch_by_filter_scope(
+          filter_query: otu_filter_query,
+          mode: :remove,
+          params: { uri: envo_uri },
+          project_id: Project.first.id,
+          user_id: User.first.id,
+          async_cutoff: 0
+        )
+        expect(AssertedEnvironment.count).to eq(2)
+
+        perform_enqueued_jobs
+
+        expect(AssertedEnvironment.count).to eq(0)
+      end
+    end
   end
 
   context 'associations' do

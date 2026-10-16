@@ -28,7 +28,7 @@ const SLICES = {
   'Set Collection Date/Time': DateTimeSlice,
   'Set verbatim fields': VerbatimSlice,
   'Print label': PrintLabelSlice,
-  'Add asserted environment': AssertedEnvironmentSlice
+  'Asserted environment': AssertedEnvironmentSlice
 }
 
 defineOptions({

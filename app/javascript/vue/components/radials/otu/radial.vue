@@ -18,7 +18,7 @@ import AssertedEnvironmentSlice from '@/components/radials/shared/AssertedEnviro
 const SLICES = {
   'Update Taxon name': TaxonNameSlice,
   'Add asserted distribution': AssertedDistributionSlice,
-  'Add asserted environment': AssertedEnvironmentSlice
+  'Asserted environment': AssertedEnvironmentSlice
 }
 
 defineOptions({

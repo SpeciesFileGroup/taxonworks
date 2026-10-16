@@ -91,15 +91,20 @@ class AssertedEnvironment < ApplicationRecord
     ::Queries.union(DwcOccurrence, [a, b])
   end
 
-  # Only mode :add is supported - assert the ENVO term in params (uri,
-  # uri_label) on every object returned by query, optionally with a citation
-  # (params[:citation], like { source_id:, pages:, is_original: }).
+  # mode :add - assert the ENVO term in params (uri, uri_label) on every object
+  # returned by query, optionally with a citation (params[:citation], like
+  # { source_id:, pages:, is_original: }).
   #
   # If the object already has an asserted environment for the term then the
   # citation, when provided and not already present, is added to that
   # existing asserted environment, otherwise the object is not updated.
   #
-  # updated are AssertedEnvironment ids, not_updated are object ids.
+  # mode :remove - destroy the asserted environment for the ENVO term in
+  # params (uri) on every object returned by query; objects without one are
+  # not updated.
+  #
+  # updated are AssertedEnvironment ids (destroyed ones for :remove),
+  # not_updated are object ids.
   def self.process_batch_by_filter_scope(
     batch_response: nil, query: nil, hash_query: nil, mode: nil, params: nil,
     async: nil, project_id: nil, user_id: nil,
@@ -111,19 +116,25 @@ class AssertedEnvironment < ApplicationRecord
     async = false if called_from_async == true
     r = batch_response
 
-    if mode.to_sym != :add
+    mode = mode.to_sym
+    if ![:add, :remove].include?(mode)
       r.errors["unsupported mode '#{mode}'"] = 1
       return r
     end
 
     object_type = query.klass.base_class.name
     if !ENVIRONMENT_ASSERTABLE_TYPES.include?(object_type)
-      r.errors["asserted environments can not be added to #{object_type}"] = 1
+      r.errors["#{object_type} can not have asserted environments"] = 1
       return r
     end
 
-    if params[:uri].blank? || params[:uri_label].blank?
-      r.errors['uri and uri_label are required'] = 1
+    if params[:uri].blank?
+      r.errors['uri is required'] = 1
+      return r
+    end
+
+    if mode == :add && params[:uri_label].blank?
+      r.errors['uri_label is required'] = 1
       return r
     end
 
@@ -136,12 +147,14 @@ class AssertedEnvironment < ApplicationRecord
         project_id:,
         user_id:
       )
-    else
+    elsif mode == :add
       citation_params = params[:citation]&.to_h&.symbolize_keys&.compact_blank
 
       query.find_each do |o|
         add_by_batch(o, params[:uri], params[:uri_label], citation_params, r)
       end
+    else
+      remove_by_batch(query, params[:uri], r)
     end
 
     r
@@ -188,6 +201,29 @@ class AssertedEnvironment < ApplicationRecord
       a.errors.full_messages.each { |msg|
         r.validation_errors[msg] += 1
       }
+    end
+  end
+
+  # @param r [BatchResponse] updated with the result for each object in query
+  def self.remove_by_batch(query, uri, r)
+    existing_by_object_id = AssertedEnvironment
+      .where(asserted_environment_object: query, uri:)
+      .index_by(&:asserted_environment_object_id)
+
+    query.find_each do |o|
+      a = existing_by_object_id[o.id]
+
+      if a.nil?
+        r.not_updated.push o.id
+        r.validation_errors['no asserted environment for this term'] += 1
+      elsif a.destroy
+        r.updated.push a.id
+      else
+        r.not_updated.push o.id
+        a.errors.full_messages.each { |msg|
+          r.validation_errors[msg] += 1
+        }
+      end
     end
   end
 

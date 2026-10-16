@@ -1,8 +1,34 @@
 <template>
   <div>
-    <h3>New asserted environment</h3>
-
     <fieldset>
+      <legend>Action</legend>
+      <ul class="no_bullets">
+        <li>
+          <label>
+            <input
+              type="radio"
+              name="asserted_environment_mode"
+              value="add"
+              v-model="selectedMode"
+            />
+            Add asserted environment
+          </label>
+        </li>
+        <li>
+          <label>
+            <input
+              type="radio"
+              name="asserted_environment_mode"
+              value="remove"
+              v-model="selectedMode"
+            />
+            Remove asserted environment
+          </label>
+        </li>
+      </ul>
+    </fieldset>
+
+    <fieldset class="margin-medium-top">
       <legend>Environment</legend>
       <AutoselectField
         url="/asserted_environments/autoselect"
@@ -19,6 +45,7 @@
     </fieldset>
 
     <FormCitation
+      v-if="!isRemove"
       class="margin-medium-top"
       v-model="citation"
       :klass="ASSERTED_ENVIRONMENT"
@@ -31,8 +58,8 @@
         :batch-service="AssertedEnvironment.batchByFilter"
         :payload="payload"
         :disabled="!environment"
-        confirmation-word="CREATE"
-        button-label="Create"
+        :confirmation-word="confirmationWord"
+        :button-label="buttonLabel"
         @update="updateMessage"
         @close="emit('close')"
       />
@@ -65,6 +92,7 @@ const props = defineProps({
 
 const emit = defineEmits(['close'])
 
+const selectedMode = ref('add')
 const environment = ref()
 const citation = ref({
   source_id: undefined,
@@ -72,19 +100,26 @@ const citation = ref({
   is_original: undefined
 })
 
+const isRemove = computed(() => selectedMode.value === 'remove')
+
+const buttonLabel = computed(() => (isRemove.value ? 'Remove' : 'Create'))
+
+const confirmationWord = computed(() => (isRemove.value ? 'REMOVE' : 'CREATE'))
+
 const payload = computed(() => ({
   filter_query: { [QUERY_PARAM[props.objectType]]: props.parameters },
-  mode: 'add',
+  mode: selectedMode.value,
   params: {
     uri: environment.value?.uri,
     uri_label: environment.value?.uri_label,
-    citation: citation.value.source_id
-      ? {
-          source_id: citation.value.source_id,
-          pages: citation.value.pages,
-          is_original: citation.value.is_original
-        }
-      : undefined
+    citation:
+      !isRemove.value && citation.value.source_id
+        ? {
+            source_id: citation.value.source_id,
+            pages: citation.value.pages,
+            is_original: citation.value.is_original
+          }
+        : undefined
   }
 }))
 
@@ -97,7 +132,7 @@ function setEnvironment(item) {
 function updateMessage(data) {
   if (data.async) {
     TW.workbench.alert.create(
-      `${data.total_attempted} asserted environments queued for creation.`,
+      `${data.total_attempted} records queued for asserted environment ${isRemove.value ? 'removal' : 'creation'}.`,
       'notice'
     )
     return
@@ -105,15 +140,16 @@ function updateMessage(data) {
 
   const updatedCount = data.updated.length
   const notUpdatedCount = data.not_updated.length
+  const action = isRemove.value ? 'removed' : 'created or cited'
 
   if (notUpdatedCount === 0) {
     TW.workbench.alert.create(
-      `${updatedCount} asserted environments were successfully created or cited.`,
+      `${updatedCount} asserted environments were successfully ${action}.`,
       'notice'
     )
   } else {
     TW.workbench.alert.create(
-      `${updatedCount} asserted environments created or cited, ${notUpdatedCount} records not updated.`,
+      `${updatedCount} asserted environments ${action}, ${notUpdatedCount} records not updated.`,
       updatedCount > 0 ? 'notice' : 'error'
     )
   }
