@@ -13,6 +13,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - `coordinate_otus` parameter to `/otus/<id>/inventory/content`
 - Browse OTUs: `All` tab in Timeline panel
 - extend[]=citations param to /api/v1/leads
+- Batch add/remove AssertedEnvironments from Filter OTU and Collecting Event [#5128]
 
 ### Changed
 
@@ -29,6 +30,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 [#200]: https://github.com/SpeciesFileGroup/taxonpages/issues/200
 [#5116]: https://github.com/SpeciesFileGroup/taxonworks/issues/5116
 [#5117]: https://github.com/SpeciesFileGroup/taxonworks/issues/5117
+[#5128]: https://github.com/SpeciesFileGroup/taxonworks/issues/5128
 [#5133]: https://github.com/SpeciesFileGroup/taxonworks/issues/5133
 [#5136]: https://github.com/SpeciesFileGroup/taxonworks/issues/5136
 [#5137]: https://github.com/SpeciesFileGroup/taxonworks/issues/5137
