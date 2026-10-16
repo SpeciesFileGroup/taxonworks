@@ -107,6 +107,21 @@
         </tbody>
       </table>
 
+      <!-- Server-computed (Autoselect::TaxonName::ColMatch#authorship_mismatch):
+           matched by name, but the authors differ - CoL may mean another
+           taxon with the same name. Doesn't block. -->
+      <p
+        v-if="ext.authorship_mismatch"
+        class="col-confirm-modal__note col-confirm-modal__note--warning"
+      >
+        Authors differ at {{ ext.authorship_mismatch.rank }}: TaxonWorks
+        <em>{{ ext.authorship_mismatch.taxonworks_name }}</em>
+        {{ ext.authorship_mismatch.taxonworks_authorship }}, Catalogue of Life
+        <em>{{ ext.authorship_mismatch.col_name }}</em>
+        {{ ext.authorship_mismatch.col_authorship }} — check they're the same
+        taxon.
+      </p>
+
       <p
         v-if="ext.hook?.existing_id && ext.hook.existing_named"
         class="col-confirm-modal__note"

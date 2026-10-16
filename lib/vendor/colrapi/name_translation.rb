@@ -51,6 +51,9 @@ module Vendor
     # The key is never displayed or used to create anything, though it is what
     # CoL is searched with (.search_term).
     #
+    # [Authorship is compared the same way, by
+    # Utilities::AuthorNames.authorship_key.]
+    #
     # Asks of CoL - things CoL's API should handle rather than TaxonWorks
     # working around them. What we do in the meantime:
     #   * search should find a name with or without its subgenus, both ways.
@@ -69,7 +72,10 @@ module Vendor
     #     examples were found. Not handled: TaxonWorks #cached for these is
     #     just the genus, so #name would need to be compared.
     #   * author/year formats should be consistent across sources (they
-    #     likely vary as names do). Not handled.
+    #     likely vary as names do).
+    #     * Seen so far (2026-10) they match TaxonWorks #cached_author_year;
+    #       see Utilities::AuthorNames.authorship_key for how author/year
+    #       are currently compared across CoL and TW.
     #
     module NameTranslation
 

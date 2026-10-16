@@ -73,7 +73,8 @@ class Autoselect::TaxonName::ColMatch
   # @return [Hash] :alignment (kingdom-first, ancestors only — the target is
   #   reported separately below), :chain_consistent, :target_taxonworks_id,
   #   :target_global_id (only when the target itself matched), :ambiguous_match
-  #   (only when the walk was stopped by a homonym)
+  #   (only when the walk was stopped by a homonym), :authorship_mismatch (see
+  #   #authorship_mismatch)
   def match_against_taxonworks(extension, col_name, col_rank)
     full_chain = extension[:alignment] + [{
       rank: col_rank,
@@ -125,10 +126,12 @@ class Autoselect::TaxonName::ColMatch
     ).call
 
     merged = diffed + below_rows
+    mismatch = authorship_mismatch(anchor, full_chain[anchor_index])
 
     {
       alignment: merged[0...-1],
       chain_consistent: merged.none? { |row| row[:match] == 'conflict' },
+      **(mismatch ? { authorship_mismatch: mismatch } : {}),
       **(
         if below_rows.empty?
           {
@@ -143,8 +146,11 @@ class Autoselect::TaxonName::ColMatch
   end
 
   # Walks CoL's chain up from the target to the first row any TaxonName
-  # matches, by current form, rank and code. One match there is the anchor;
-  # more than one is a homonym the caller can't pick between.
+  # matches, by current form, rank and code. One match there is the anchor.
+  # More than one is a homonym: the one whose authorship agrees with CoL's is
+  # the anchor (#agreeing_authorship), else the caller can't pick between
+  # them. A lone match is taken whatever its authorship, a difference is only
+  # reported (#authorship_mismatch).
   #
   # Only the current form counts: a name matching in its *published* form (a
   # Protonym's original combination, or a Combination) is a taxon TaxonWorks
@@ -161,19 +167,84 @@ class Autoselect::TaxonName::ColMatch
   def find_anchor(full_chain, col_code)
     # CoL and TaxonWorks format some names differently (subgenus, species-group
     # names with/without subgenus, [sic]), so candidates are found and compared
-    # by key - see Vendor::Colrapi::NameTranslation.
+    # by key.
     candidates_by_key = ::Vendor::Colrapi::NameTranslation
       .candidates_by_key(full_chain, project_id: @project_id)
     expected_code =
       ::Vendor::Colrapi::COL_CODE_TO_NOMENCLATURE_CODE[col_code]
 
     (full_chain.length - 1).downto(0) do |i|
+      row = full_chain[i]
       candidates = candidates_for(
-        candidates_by_key, full_chain[i], :current, expected_code
+        candidates_by_key, row, :current, expected_code
       )
-      return [i, candidates] if candidates.any?
+      next if candidates.empty?
+
+      if candidates.length > 1
+        candidates = agreeing_authorship(candidates, row[:col_authorship])
+      end
+      return [i, candidates]
     end
     nil
+  end
+
+  # Authorship only ever turns a block into a match: anything it can't compare
+  # (no year, an abbreviation, a diacritic or date that differs) leaves all
+  # the candidates.
+  #
+  # @param col_authorship [String, nil] as CoL gives it, e.g. "(Walker, 1851)"
+  # @return [Array<TaxonName>] the one candidate whose authorship agrees with
+  #   CoL's (with parentheses, then without), else all of them
+  def agreeing_authorship(candidates, col_authorship)
+    col_authorship_key = ::Utilities::AuthorNames.authorship_key(col_authorship)
+    return candidates if col_authorship_key.nil?
+
+    candidate_keys = candidates.to_h do |taxon_name|
+      [
+        taxon_name,
+        ::Utilities::AuthorNames.authorship_key(taxon_name.cached_author_year)
+      ]
+    end
+
+    [true, false].each do |parentheses|
+      agreeing = candidates.select do |taxon_name|
+        ::Utilities::AuthorNames.same_authorship?(
+          candidate_keys[taxon_name], col_authorship_key, parentheses:
+        )
+      end
+      return agreeing if agreeing.length == 1
+    end
+    candidates
+  end
+
+  # The anchor is matched by name, rank and code alone; when its authorship
+  # and CoL's can both be compared and differ, CoL may mean a different taxon
+  # with the same name (e.g. CoL's "Trioza minuta Crawford, 1910", a synonym of
+  # Bactericera minuta, anchors on TaxonWorks' Trioza minuta (Mathur, 1975)).
+  # Reported, not blocked: a formatting difference reads the same way.
+  # Parentheses are ignored, CoL adds them by its own placement.
+  #
+  # @param row [Hash] the anchor's row of the CoL chain
+  # @return [Hash, nil] { rank:, col_name:, col_authorship:,
+  #   taxonworks_name:, taxonworks_authorship: }
+  def authorship_mismatch(anchor, row)
+    col_authorship_key =
+      ::Utilities::AuthorNames.authorship_key(row[:col_authorship])
+    anchor_authorship_key =
+      ::Utilities::AuthorNames.authorship_key(anchor.cached_author_year)
+    return nil if col_authorship_key.nil? || anchor_authorship_key.nil?
+
+    same = ::Utilities::AuthorNames
+      .same_authorship?(anchor_authorship_key, col_authorship_key)
+    return nil if same
+
+    {
+      rank: row[:rank],
+      col_name: row[:col_name],
+      col_authorship: row[:col_authorship],
+      taxonworks_name: anchor.cached,
+      taxonworks_authorship: anchor.cached_author_year
+    }
   end
 
   # The TaxonNames whose given form (:current or :published) is a CoL row, at

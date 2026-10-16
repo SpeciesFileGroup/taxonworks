@@ -2,11 +2,13 @@ require 'rails_helper'
 
 # Minimal Colrapi wire-format fixtures — see spec/lib/vendor/colrapi_spec.rb for the
 # canonical shapes; duplicated in miniature here to keep this file self-contained.
-def col_result_for_target(id:, scientific_name:, rank: 'genus', code: nil)
+def col_result_for_target(
+  id:, scientific_name:, rank: 'genus', code: nil, authorship: nil
+)
   {
     'id'     => id,
     'status' => 'accepted',
-    'name'   => { 'scientificName' => scientific_name, 'rank' => rank, 'authorship' => nil, 'code' => code },
+    'name'   => { 'scientificName' => scientific_name, 'rank' => rank, 'authorship' => authorship, 'code' => code },
     'label'     => scientific_name,
     'labelHtml' => scientific_name
   }
@@ -463,6 +465,166 @@ RSpec.describe Autoselect::TaxonName::Levels::CatalogueOfLife, type: :model do
       it 'does not guess a target_taxonworks_id' do
         result = level.call(term: 'Homonymus', project_id:, user_id:)
         expect(result.first._col_extension[:target_taxonworks_id]).to be_nil
+      end
+    end
+
+    context 'when the target matches homonyms with different authorship' do
+      let!(:smith) do
+        Protonym.create!(
+          name: 'Homonymus', rank_class: Ranks.lookup(:iczn, 'genus'),
+          parent: family.root, verbatim_author: 'Smith',
+          year_of_publication: 1900
+        )
+      end
+      let!(:jones) do
+        Protonym.create!(
+          name: 'Homonymus', rank_class: Ranks.lookup(:iczn, 'genus'),
+          parent: family.root, verbatim_author: 'Jones',
+          year_of_publication: 1950
+        )
+      end
+
+      def match_for(authorship)
+        allow(::Vendor::Colrapi).to receive(:search).and_return(
+          'result' => [
+            col_result_for_target(
+              id: 'TGT1', scientific_name: 'Homonymus', authorship:
+            )
+          ]
+        )
+        allow(::Vendor::Colrapi).to receive(:ancestors).and_return([])
+        level.call(term: 'Homonymus', project_id:, user_id:)
+          .first._col_extension
+      end
+
+      specify 'matches the one CoL\'s authorship agrees with' do
+        expect(match_for('Jones, 1950')[:target_taxonworks_id])
+          .to eq(jones.id)
+      end
+
+      specify 'ignores diacritics and case' do
+        jones.update!(verbatim_author: 'Jönes')
+        expect(match_for('JONES, 1950')[:target_taxonworks_id])
+          .to eq(jones.id)
+      end
+
+      specify 'is still ambiguous when neither agrees' do
+        expect(match_for('Jones, 1951')[:ambiguous_match])
+          .to eq(rank: 'genus', col_name: 'Homonymus', count: 2)
+      end
+
+      specify 'is still ambiguous when both agree' do
+        smith.update!(verbatim_author: 'Jones', year_of_publication: 1950)
+        expect(match_for('Jones, 1950')[:ambiguous_match])
+          .to eq(rank: 'genus', col_name: 'Homonymus', count: 2)
+      end
+    end
+
+    context 'when the target matches homonyms whose authorship differs ' \
+      'only in parentheses' do
+      let!(:moved) do
+        Protonym.create!(
+          name: 'parens', rank_class: Ranks.lookup(:iczn, 'species'),
+          parent: genus, verbatim_author: '(Walker)',
+          year_of_publication: 1851
+        )
+      end
+      let!(:unmoved) do
+        Protonym.create!(
+          name: 'parens', rank_class: Ranks.lookup(:iczn, 'species'),
+          parent: genus, verbatim_author: 'Walker',
+          year_of_publication: 1851
+        )
+      end
+
+      before do
+        allow(::Vendor::Colrapi).to receive(:search).and_return(
+          'result' => [
+            col_result_for_target(
+              id: 'TGT1', scientific_name: "#{genus.cached} parens",
+              rank: 'species', authorship: '(Walker, 1851)'
+            )
+          ]
+        )
+        allow(::Vendor::Colrapi).to receive(:ancestors).and_return([])
+      end
+
+      specify 'matches the one whose parentheses agree' do
+        result = level.call(
+          term: "#{genus.cached} parens", project_id:, user_id:
+        )
+        expect(result.first._col_extension[:target_taxonworks_id])
+          .to eq(moved.id)
+      end
+    end
+
+    context 'when the target matches one name, and CoL\'s authorship may be ' \
+      'another taxon\'s' do
+      # Trioza minuta (Mathur, 1975) vs Bactericera minuta (Crawford, 1910),
+      # originally Trioza minuta - CoL lists both as Trioza minuta.
+      let!(:mathur) do
+        Protonym.create!(
+          name: 'minuta', rank_class: Ranks.lookup(:iczn, 'species'),
+          parent: genus, verbatim_author: 'Mathur',
+          year_of_publication: 1975
+        )
+      end
+      let!(:crawford) do
+        other_genus = Protonym.create!(
+          name: 'Bactericera', rank_class: Ranks.lookup(:iczn, 'genus'),
+          parent: family.root
+        )
+        p = Protonym.create!(
+          name: 'minuta', rank_class: Ranks.lookup(:iczn, 'species'),
+          parent: other_genus, verbatim_author: 'Crawford',
+          year_of_publication: 1910
+        )
+        p.update_column(
+          :cached_original_combination, "#{genus.cached} minuta"
+        )
+        p
+      end
+
+      def match_for(authorship)
+        allow(::Vendor::Colrapi).to receive(:search).and_return(
+          'result' => [
+            col_result_for_target(
+              id: 'TGT1', scientific_name: "#{genus.cached} minuta",
+              rank: 'species', authorship:
+            )
+          ]
+        )
+        allow(::Vendor::Colrapi).to receive(:ancestors).and_return([])
+        level.call(term: "#{genus.cached} minuta", project_id:, user_id:)
+          .first._col_extension
+      end
+
+      specify 'matches the current name, and reports CoL\'s other ' \
+        'authorship' do
+        ext = match_for('Crawford, 1910')
+        expect(ext[:target_taxonworks_id]).to eq(mathur.id)
+        expect(ext[:authorship_mismatch]).to eq(
+          rank: 'species',
+          col_name: "#{genus.cached} minuta",
+          col_authorship: 'Crawford, 1910',
+          taxonworks_name: mathur.cached,
+          taxonworks_authorship: mathur.cached_author_year
+        )
+      end
+
+      specify 'reports nothing when the authorship agrees, ignoring ' \
+        'parentheses' do
+        ext = match_for('(Mathur, 1975)')
+        expect(ext[:target_taxonworks_id]).to eq(mathur.id)
+        expect(ext).not_to have_key(:authorship_mismatch)
+      end
+
+      specify 'reports nothing when CoL gives no authorship' do
+        expect(match_for(nil)).not_to have_key(:authorship_mismatch)
+      end
+
+      specify 'reports nothing when CoL\'s authorship has no year' do
+        expect(match_for('Crawford')).not_to have_key(:authorship_mismatch)
       end
     end
 
