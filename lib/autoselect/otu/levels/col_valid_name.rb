@@ -50,7 +50,9 @@ module Autoselect
         end
 
         def record_label_html(record, term = nil)
-          return record.name.to_s if record.respond_to?(:_col_extension)
+          if record.respond_to?(:_col_extension)
+            return ERB::Util.html_escape(record.name.to_s)
+          end
           super
         end
 

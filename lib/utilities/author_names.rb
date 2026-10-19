@@ -8,7 +8,7 @@
 #     # => { surnames: ['walker'], year: 1851, parenthesized: true }
 module Utilities::AuthorNames
 
-  AUTHOR_SEPARATOR_PATTERN = /\s*(?:&|;|\band\b|\bund\b)\s*/i
+  AUTHOR_SEPARATOR_PATTERN = /\s*(?:&|;|\band\b|\bund\b|\bet\b)\s*/i
 
   # `R`, `g.`, `R.`, `C.M.`, `F.G.A.M.`, `J.-P.`, `J-M.`, `Y-L`, `Ch.`,
   # `KB.`
@@ -24,10 +24,10 @@ module Utilities::AuthorNames
   #   surnames in author order, initials and name suffixes removed
   def self.surnames(author_string)
     s = author_string.to_s
-      .gsub(/<[^>]*>/, ' ')
-      .gsub(/\([^)]*\)/, ' ')
-      .gsub(/\bet\.?\s*al\b\.?/i, ' ')
-      .gsub(%r{/\s*\d{4}\b}, ' ')
+      .gsub(/<[^>]*>/, ' ') # remove <...>
+      .gsub(/\([^)]*\)/, ' ') # remove (...)
+      .gsub(/\bet\.?\s*al\b\.?/i, ' ') # remove 'et al'
+      .gsub(%r{/\s*\d{4}\b}, ' ') # remove years
 
     s.split(AUTHOR_SEPARATOR_PATTERN).flat_map { |chunk|
       chunk.split(',').filter_map { |token| surname_from_token(token) }
@@ -47,9 +47,7 @@ module Utilities::AuthorNames
   #   * surnames - folded (.fold), in order
   #   * year - the name's own: a "non Author, year" (homonym) suffix is
   #     dropped first
-  #   * parenthesized - ICZN parentheses (no longer in its original genus);
-  #     sources may add them by their own placement, so compare with and
-  #     without
+  #   * parenthesized - sensu ICZN;
   # nil when either surnames or year can't be found (e.g. "Lam.") - an
   # incomplete key compares with nothing.
   #
@@ -81,7 +79,9 @@ module Utilities::AuthorNames
 
   def self.surname_from_token(token)
     words = token
-      .sub(/\A[^[:alpha:]]+/, '')
+      .sub(/\A[^[:alpha:]]+/, '') # remove leading junk
+      # The second pattern here matches the position between '.' and any letter,
+      # like 'KB.Agwanda' (uncommon).
       .split(/\s+|(?<=\.)(?=[[:alpha:]])/)
       .map(&:strip)
       .reject { |w|
@@ -92,7 +92,6 @@ module Utilities::AuthorNames
     name = words.join(' ').sub(/[.\s]+\z/, '')
     name.presence
   end
-
   private_class_method :surname_from_token
 
 end

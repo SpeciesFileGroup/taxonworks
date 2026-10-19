@@ -156,9 +156,8 @@ describe Vendor::Colrapi, type: :model do
   # ── rank_class_for ────────────────────────────────────────────────────────────
 
   describe '.rank_class_for' do
-    # When col_code is recognized, that lookup is tried first so that e.g. plant
-    # names get ICN rank classes rather than ICZN ones. Falls back through all four
-    # codes in order so any rank resolves if possible.
+    # When col_code is recognized only that code's lookup is used; otherwise
+    # falls back through all four codes in order.
     it 'resolves species as ICN for botanical code' do
       result = described_class.rank_class_for('species', col_code: 'botanical')
       expect(result).to include('Icn')
@@ -179,6 +178,11 @@ describe Vendor::Colrapi, type: :model do
     it 'resolves genus as ICVCN for virus code (CoL\'s name for it)' do
       result = described_class.rank_class_for('genus', col_code: 'virus')
       expect(result).to include('Icvcn')
+    end
+
+    it 'doesn\'t fall back to another code when col_code is recognized' do
+      expect(described_class.rank_class_for('variety', col_code: 'zoological'))
+        .to be_nil
     end
 
     it 'falls back through all codes when col_code is nil' do

@@ -74,6 +74,14 @@ RSpec.describe Autoselect::Otu::Levels::CatalogueOfLife, type: :model do
     end
   end
 
+  describe '#record_label_html' do
+    it 'escapes CoL\'s name' do
+      record = OpenStruct.new(name: 'Aus <b>bus</b>', _col_extension: {})
+      expect(level.record_label_html(record))
+        .to eq('Aus &lt;b&gt;bus&lt;/b&gt;')
+    end
+  end
+
   describe '#record_info_html' do
     def result(existing_id)
       OpenStruct.new(

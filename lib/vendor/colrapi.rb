@@ -355,7 +355,7 @@ module Vendor
       # where the taxon is now, nothing about the name's own genus or family.
       non_accepted = col_status.present? &&
         !COL_ACCEPTED_STATUSES.include?(col_status.downcase)
-      accepted =
+      accepted_name =
         if col_status == 'synonym' && col_result['accepted']
           {
             col_name: col_result.dig('accepted', 'name', 'scientificName'),
@@ -402,7 +402,7 @@ module Vendor
       {
         col_key:, col_name:, col_status:, col_authorship:, col_year:, col_rank:,
         col_code:, col_dataset_id:, alignment:, non_accepted:,
-        **(accepted ? { accepted: } : {})
+        **(accepted_name ? { accepted: accepted_name} : {})
       }
     end
 
@@ -505,10 +505,11 @@ module Vendor
 
     # Maps a human-readable CoL rank string to a TaxonWorks rank_class string.
     #
-    # When col_code is recognized (e.g. 'botanical' → ICN_LOOKUP), that lookup
-    # is tried first so that plant names get ICN rank classes rather than ICZN
-    # ones. Falls back through all four codes in order so any rank resolves if
-    # possible.
+    # When col_code is recognized (e.g. 'botanical' → ICN_LOOKUP), only that
+    # code's lookup is used: a rank class from another code would fail
+    # Protonym's same-code validation against its parent (a zoological
+    # 'variety' is unknown, not ICN's). Otherwise falls back through all four
+    # codes in order so any rank resolves if possible.
     #
     # @param rank_string [String, nil] e.g. 'genus', 'family'
     # @param col_code [String, nil] 'zoological', 'botanical', 'bacterial',
@@ -519,10 +520,11 @@ module Vendor
       return nil if rank_string.blank?
       r = rank_string.to_s.downcase
 
-      primary = COL_CODE_LOOKUP_MAP[col_code]
-      lookups =
-        [primary, *COL_CODE_LOOKUP_MAP.values.excluding(primary)].compact
-      lookups.each do |lookup|
+      if (lookup = COL_CODE_LOOKUP_MAP[col_code])
+        return lookup[r]
+      end
+
+      COL_CODE_LOOKUP_MAP.values.each do |lookup|
         result = lookup[r]
         return result if result
       end

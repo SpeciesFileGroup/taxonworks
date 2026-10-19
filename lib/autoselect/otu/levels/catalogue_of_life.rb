@@ -30,7 +30,7 @@ module Autoselect
         end
 
         def record_label_html(record, term = nil)
-          record.name.to_s
+          ERB::Util.html_escape(record.name.to_s)
         end
 
         # @param term [String]

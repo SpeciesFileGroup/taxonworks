@@ -272,9 +272,10 @@ module Vendor
         # A species-group name may carry a subgenus or [sic] the key doesn't:
         # match #cached on the last epithet (#name) within the genus, and
         # either form on "Genus ... epithet" (the plain "Genus epithet" is
-        # matched exactly above). A superset - anything can sit between genus
-        # and last epithet, so "Aus bus cus" also finds "Aus xus cus", and
-        # "Aus bus" finds "Aus xus bus"; the keys below decide.
+        # matched exactly above). This finds a superset: anything can sit
+        # between genus and last epithet, so "Aus bus cus" also finds
+        # "Aus xus cus", and "Aus bus" finds "Aus xus bus"; the keys slice
+        # below restricts back to applicable names to be returned.
         multi_word.each do |k|
           words = k.split(' ')
           genus = ::ActiveRecord::Base.sanitize_sql_like(words.first)
@@ -283,8 +284,7 @@ module Vendor
             .or(t[:name].eq(words.last).and(t[:cached].matches("#{genus} %")))
             .or(t[:cached].matches("#{genus} % #{epithet}"))
             .or(
-              t[:cached_original_combination]
-                .matches("#{genus} % #{epithet}")
+              t[:cached_original_combination].matches("#{genus} % #{epithet}")
             )
         end
 

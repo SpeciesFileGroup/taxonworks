@@ -106,6 +106,12 @@ RSpec.describe Autoselect::Otu::Levels::ColValidName, type: :model do
       record = OpenStruct.new(name: 'Panthera leo', _col_extension: {})
       expect(level.record_label_html(record, 'Panthera')).to eq('Panthera leo')
     end
+
+    it 'escapes CoL\'s name' do
+      record = OpenStruct.new(name: 'Aus <b>bus</b>', _col_extension: {})
+      expect(level.record_label_html(record))
+        .to eq('Aus &lt;b&gt;bus&lt;/b&gt;')
+    end
   end
 
   describe '#record_info / #record_info_html' do

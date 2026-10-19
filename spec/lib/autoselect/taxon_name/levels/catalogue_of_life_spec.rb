@@ -766,6 +766,67 @@ RSpec.describe Autoselect::TaxonName::Levels::CatalogueOfLife, type: :model do
       end
     end
 
+    context 'when the target matches a TaxonWorks invalid name' do
+      let!(:invalid) do
+        Protonym.create!(
+          name: 'Invalidonomus', rank_class: Ranks.lookup(:iczn, 'genus'),
+          parent: family.root, project_id:, by: user_id
+        ).tap { |t| t.update_column(:cached_is_valid, false) }
+      end
+
+      before do
+        allow(::Vendor::Colrapi).to receive(:ancestors).and_return([])
+      end
+
+      def extension_for(status)
+        col_result = col_result_for_target(
+          id: 'TGT1', scientific_name: 'Invalidonomus'
+        ).merge('status' => status)
+        allow(::Vendor::Colrapi).to receive(:search)
+          .and_return('result' => [col_result])
+        level.call(term: 'Invalidonomus', project_id:, user_id:)
+          .first._col_extension
+      end
+
+      specify 'doesn\'t match it when CoL accepts the name' do
+        expect(extension_for('accepted')[:target_taxonworks_id]).to be_nil
+      end
+
+      specify 'matches the valid homonym, not ambiguously' do
+        valid = Protonym.create!(
+          name: 'Invalidonomus', rank_class: Ranks.lookup(:iczn, 'genus'),
+          parent: family.root, project_id:, by: user_id
+        )
+        ext = extension_for('accepted')
+        expect(ext[:ambiguous_match]).to be_nil
+        expect(ext[:target_taxonworks_id]).to eq(valid.id)
+      end
+
+      specify 'matches it when CoL has it as a synonym too' do
+        expect(extension_for('synonym')[:target_taxonworks_id])
+          .to eq(invalid.id)
+      end
+    end
+
+    context 'when the target\'s rank isn\'t one of its code\'s ranks' do
+      before do
+        allow(::Vendor::Colrapi).to receive(:search).and_return(
+          'result' => [
+            col_result_for_target(
+              id: 'TGT1', scientific_name: 'Aus bus cus', rank: 'variety',
+              code: 'zoological'
+            )
+          ]
+        )
+        allow(::Vendor::Colrapi).to receive(:ancestors).and_return([])
+      end
+
+      specify 'flags target_rank_unknown, even if another code has it' do
+        result = level.call(term: 'Aus bus cus', project_id:, user_id:)
+        expect(result.first._col_extension[:target_rank_unknown]).to be true
+      end
+    end
+
     context 'when a CoL usage has no scientificName' do
       let(:nameless) do
         col_result_for_target(id: 'TGT0', scientific_name: nil)
