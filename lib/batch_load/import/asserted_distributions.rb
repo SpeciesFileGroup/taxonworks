@@ -36,15 +36,46 @@ module BatchLoad
         g = BatchLoad::ColumnResolver.shape(row, @data_origin)
 
         if o.resolvable? && s.resolvable? && g.resolvable?
-          rp.objects[:asserted_distributions] = [
-            AssertedDistribution.new(
+          pair_key = [o.item.class.base_class.name, o.item.id, g.item.class.base_class.name, g.item.id]
+          citation_key = pair_key + [s.item.id]
+
+          if line = cited_lines[citation_key]
+            rp.parse_errors << "Duplicates the OTU, area and source of line #{line}."
+          elsif asserted_distribution = existing_asserted_distribution(pair_key, o.item, g.item)
+            # Another citation for an asserted distribution already in the
+            # database or on an earlier line.
+            cited_lines[citation_key] = i
+
+            # Reference persisted records by id so that citations aren't
+            # added to (and validated with) the shared in-memory record,
+            # where one invalid citation would invalidate the others.
+            citation_object =
+              if asserted_distribution.persisted?
+                { citation_object_id: asserted_distribution.id, citation_object_type: 'AssertedDistribution' }
+              else
+                { citation_object: asserted_distribution }
+              end
+
+            rp.objects[:citations] = [
+              Citation.new(
+                **citation_object,
+                source: s.item,
+                project_id: @project_id,
+                by: @user
+              )
+            ]
+          else
+            cited_lines[citation_key] = i
+            asserted_distribution = AssertedDistribution.new(
               asserted_distribution_object: o.item,
               source: s.item,
               asserted_distribution_shape: g.item,
               project_id: @project_id,
               by: @user
             )
-          ]
+            @asserted_distributions[pair_key] = asserted_distribution
+            rp.objects[:asserted_distributions] = [asserted_distribution]
+          end
         else
           rp.parse_errors += o.error_messages unless o.resolvable?
           rp.parse_errors += g.error_messages unless g.resolvable?
@@ -62,6 +93,25 @@ module BatchLoad
       end
     end
 
+    private
+
+    # @return [Hash]
+    #   [object type, object id, shape type, shape id, source id] => first line using it
+    def cited_lines
+      @cited_lines ||= {}
+    end
+
+    # @return [AssertedDistribution, nil]
+    #   the (present) asserted distribution for the object/shape pair, built
+    #   on an earlier line or already in the database
+    def existing_asserted_distribution(pair_key, object, shape)
+      @asserted_distributions[pair_key] ||= AssertedDistribution.where(
+        project_id: @project_id,
+        asserted_distribution_object: object,
+        asserted_distribution_shape: shape,
+        is_absent: [false, nil]
+      ).first
+    end
   end
 end
 

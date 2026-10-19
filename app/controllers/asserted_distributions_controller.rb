@@ -168,7 +168,7 @@ class AssertedDistributionsController < ApplicationController
     if params[:file] && digested_cookie_exists?(params[:file].tempfile, :batch_asserted_distributions_md5)
       @result = BatchLoad::Import::AssertedDistributions.new(**batch_params)
       if @result.create
-        flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} asserted distributions were created."
+        flash[:notice] = "Successfully proccessed file, #{@result.total_records_created} asserted distributions and citations were created."
         render 'asserted_distributions/batch_load/simple/create' and return
       else
         flash[:alert] = 'Batch import failed.'
