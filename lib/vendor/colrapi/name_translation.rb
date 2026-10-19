@@ -29,17 +29,22 @@ module Vendor
     #     accepted name is the same name once the subgenus is ignored (both
     #     have the same comparison key, see below) doesn't mean a TaxonWorks
     #     name matching it is outdated.
-    #   * searching: a query including the subgenus doesn't return a name CoL
-    #     gives without it ("Aphrophora (Aphrophora) binomoriensis" misses
-    #     "Aphrophora binomoriensis"), while a query without it still returns
-    #     names CoL gives with it ("Aedes aegypti" finds "Aedes (Stegomyia)
-    #     aegypti", "Aphrophora ambigua" finds both forms) - see .search_term.
+    #   * searching, CoL's /nameusage/search (Colrapi.nameusage_search, used
+    #     by .search_term's callers): a query including the subgenus doesn't
+    #     return a name CoL gives without it ("Aphrophora (Aphrophora)
+    #     binomoriensis" misses "Aphrophora binomoriensis"), while a query
+    #     without it still returns names CoL gives with it ("Aedes aegypti"
+    #     finds "Aedes (Stegomyia) aegypti", "Aphrophora ambigua" finds both
+    #     forms) - see .search_term.
     #     !! The single query in .search_term depends on that second half: it's
     #     observed CoL search behavior (2026-10), not documented. If CoL ever
     #     stops matching that way, names CoL gives with a subgenus silently go
     #     missing (e.g. Outdated Names reports them :undeterminable) and specs,
     #     which stub CoL, won't notice - a second query including the subgenus
     #     would then be needed.
+    #   * looking up, CoL's /nameusage?q= (Vendor::Colrapi.search, the
+    #     autoselect levels): matches only the exact string, so neither form
+    #     finds the other ("Aedes aegypti" finds nothing).
     #   * ICN infraspecific names include connecting terms ("Olea europaea
     #     subsp. africana"), same as TaxonWorks #cached.
     #   * [sic] is TaxonWorks-only (#cached), CoL doesn't send it.
@@ -56,9 +61,10 @@ module Vendor
     #
     # Asks of CoL - things CoL's API should handle rather than TaxonWorks
     # working around them. What we do in the meantime:
-    #   * search should find a name with or without its subgenus, both ways.
-    #     A query with the subgenus misses names CoL gives without one, so we
-    #     search without it (.search_term).
+    #   * /nameusage/search should find a name with or without its
+    #     subgenus, both ways. A query with the subgenus misses names CoL
+    #     gives without one, so we search without it (.search_term). (The
+    #     exact /nameusage?q= lookup is exact by design - not an ask.)
     #   * a name should come formatted the same way whatever its source
     #     (subgenus included or not, a synonym like its accepted name). We
     #     compare keys that ignore the subgenus.

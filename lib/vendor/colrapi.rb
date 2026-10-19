@@ -152,7 +152,9 @@ module Vendor
     end
     private_class_method :usage_status
 
-    # Searches the Catalogue of Life by name string.
+    # Searches the Catalogue of Life by name string - the exact string only
+    # (/nameusage?q=): no partial names, and a name with or without a
+    # subgenus misses the other form (see NameTranslation).
     #
     # The Colrapi gem takes dataset_id as a positional first argument.
     # Response structure: { 'total' => Integer, 'result' => Array }
