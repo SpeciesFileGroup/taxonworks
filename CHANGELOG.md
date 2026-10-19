@@ -14,6 +14,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Browse OTUs: `All` tab in Timeline panel
 - extend[]=citations param to /api/v1/leads
 - Batch add/remove AssertedEnvironments from Filter OTU and Collecting Event [#5128]
+- Citations by source: Add depictions to summarize OTUs list [#5141]
 
 ### Changed
 
@@ -34,6 +35,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 [#5133]: https://github.com/SpeciesFileGroup/taxonworks/issues/5133
 [#5136]: https://github.com/SpeciesFileGroup/taxonworks/issues/5136
 [#5137]: https://github.com/SpeciesFileGroup/taxonworks/issues/5137
+[#5141]: https://github.com/SpeciesFileGroup/taxonworks/issues/5141
 
 ## [0.66.1] - 2026-10-09
 

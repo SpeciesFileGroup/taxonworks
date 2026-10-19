@@ -9,6 +9,7 @@
           />
         </th>
         <th @click="sortTable('object_label')">Otu</th>
+        <th>Depictions</th>
         <th />
       </tr>
     </thead>
@@ -16,6 +17,7 @@
       v-for="item in list"
       :key="item.id"
       :otu="item"
+      :depictions="depictionsByOtu[item.id]"
       v-model="selected"
     />
   </table>
@@ -33,6 +35,11 @@ const props = defineProps({
   list: {
     type: Array,
     required: true
+  },
+
+  depictionsByOtu: {
+    type: Object,
+    default: () => ({})
   }
 })
 
