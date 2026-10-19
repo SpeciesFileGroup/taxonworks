@@ -305,8 +305,8 @@ per-model defaults most callers actually want:
   `AUTOSELECT_NEW_RECORD_COMPONENTS` (`AutoselectField/newRecordComponents.js`),
   keyed by `model`; `createComponent` overrides the lookup, `create: false` disables
   it outright.
-- `getObject` (default `false`) — when true, `select`/`update:modelValue` receive the
-  full fetched record (`GET /${model}/${id}.json`, or `getUrl` if given) instead of
+- `getObject` (default `false`) — when true, `select` (the picker's only event)
+  receives the full fetched record (`GET /${model}/${id}.json`, or `getUrl` if given) instead of
   the lightweight autoselect response item, mirroring `SmartSelector`'s own
   `getObject`/`getUrl`/`extend` (here `fetchParams`). Off by default since most
   callers only need `response_values`, not an extra round trip per selection.

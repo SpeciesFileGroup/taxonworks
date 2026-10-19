@@ -23,9 +23,14 @@ module Workbench::AutoselectHelper
   # @param current_label [String, nil]
   #   HTML label for `current`; defaults to the model's `<model>_autoselect_tag`
   # @param new_record_component [String, nil]
-  #   key of the component opened by `!n`, e.g. 'TaxonNameNewModal'
+  #   key of the component opened by `!n`, e.g. 'TaxonNameNewModal'. When nil
+  #   (or not a known key) the model's default applies
+  #   (`AUTOSELECT_NEW_RECORD_COMPONENTS`); there's no way to turn `!n` off
+  #   from here.
   # @param preferences_options_component [String, nil]
-  #   key of the component rendered inside the `!p` modal, e.g. 'ColDatasetPicker'
+  #   key of the component rendered inside the `!p` modal, e.g.
+  #   'ColDatasetPicker'. When nil (or not a known key) the default,
+  #   ColDatasetPicker, applies.
   def autoselect_field(
     model:,
     param:,

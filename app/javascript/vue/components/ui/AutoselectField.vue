@@ -421,13 +421,21 @@ function repositionTeleportedOverlays() {
   if (showHelp.value) updateHelpOverlayPosition()
 }
 
+// Set by focus() called before config loads, while the input is disabled.
+let focusWhenReady = false
+let unmounted = false
+
 onMounted(async () => {
   await fetchConfig()
+  // Unmounted while config loaded: onBeforeUnmount already ran, so the
+  // listener added below would never be removed.
+  if (unmounted) return
+
   currentLevel.value = getFirstVisibleLevelKey()
   ready.value = true
   window.addEventListener('resize', repositionTeleportedOverlays)
 
-  if (props.autofocus) {
+  if (props.autofocus || focusWhenReady) {
     // ready just flipped true, but the :disabled binding hasn't repainted yet.
     await nextTick()
     inputEl.value?.focus()
@@ -435,6 +443,7 @@ onMounted(async () => {
 })
 
 onBeforeUnmount(() => {
+  unmounted = true
   window.removeEventListener('resize', repositionTeleportedOverlays)
   cancelPinboardNoneFlash()
 })
@@ -597,12 +606,15 @@ function onInput() {
     return
   }
 
-  // Any other bang is a client-only operator that can't apply here (!N past
-  // the visible levels, !n without a new-record form, !e without an external
-  // level) or no operator at all: drop it rather than send it to the server
-  // as part of the term. Server operators (!r, !u) go through as typed.
-  if (!isServerOperator(text)) {
-    const stray = matchOperator(text, '[^\\s!]\\S*')
+  // Any other operator-shaped bang (! and a letter or number) is a
+  // client-only operator that can't apply here (!N past the visible levels,
+  // !n without a new-record form, !e without an external level): drop it
+  // rather than send it to the server as part of the term. Server operators
+  // (!r, !u) go through as typed, and so does other text with a bang in it
+  // ("bog !wet margin"). Not until config has loaded: before that every
+  // operator would look stray.
+  if (ready.value && !isServerOperator(text)) {
+    const stray = matchOperator(text, '(?:\\d+|[a-z])(?=\\s|$)')
     if (stray !== null) {
       text = stray.cleanTerm
       inputText.value = text
@@ -1012,7 +1024,14 @@ function getSearchText() {
   return inputText.value
 }
 
-defineExpose({ prefill, getSearchText })
+// Focuses the input, once config has loaded if it hasn't yet (the input is
+// disabled until then).
+function focus() {
+  if (ready.value) inputEl.value?.focus()
+  else focusWhenReady = true
+}
+
+defineExpose({ prefill, getSearchText, focus })
 </script>
 
 <style scoped>

@@ -84,10 +84,8 @@ function onSelect(item, searchText) {
 
 const autoselectFieldRef = useTemplateRef('autoselectFieldRef')
 
-// AutoselectField exposes prefill but has no focus method of its own, so reach
-// straight into the DOM.
 function setFocus() {
-  autoselectFieldRef.value?.$el?.querySelector('input')?.focus()
+  autoselectFieldRef.value?.focus()
 }
 
 defineExpose({

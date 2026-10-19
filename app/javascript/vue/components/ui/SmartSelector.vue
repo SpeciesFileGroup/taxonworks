@@ -58,6 +58,7 @@
             model="otus"
             param="otu_id"
             get-object
+            placeholder="Select an OTU"
             :autofocus="autofocus"
             @select="sendObject"
           />

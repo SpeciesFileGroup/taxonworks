@@ -6,6 +6,7 @@
         model="otus"
         param="otu_id"
         get-object
+        placeholder="Select an OTU"
         preferences-key="otu_for_taxon_determination"
         @select="setOtu"
       />
