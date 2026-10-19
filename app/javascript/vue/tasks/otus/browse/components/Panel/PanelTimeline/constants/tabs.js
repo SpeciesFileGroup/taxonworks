@@ -1,12 +1,14 @@
+export const TIMELINE_TAB_ALL = 'all'
 export const TIMELINE_TAB_BIOLOGY = 'biology'
 
 export const TIMELINE_TABS = [
-  /*   {
+  {
     label: 'All',
-    key: '',
-    value: '',
-    equal: true
-  }, */
+    kind: TIMELINE_TAB_ALL,
+    key: 'history-origin',
+    value: 'otu',
+    equal: false
+  },
   {
     label: 'Nomenclature',
     key: 'history-origin',

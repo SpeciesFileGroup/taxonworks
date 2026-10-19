@@ -49,6 +49,7 @@
           :preference-key="`tasks::filters::${ANATOMICAL_PART}`"
           :radial-object="true"
           @on-sort="(sorted) => (list = sorted)"
+          @remove="({ index }) => list.splice(index, 1)"
         >
           <template #graph="{ value }">
             <VBtn

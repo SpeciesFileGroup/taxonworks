@@ -410,8 +410,9 @@ class OtusController < ApplicationController
   # GET /api/v1/otus/:id/inventory/content
   def api_content
     topic_ids = [params[:topic_id]].flatten.compact.uniq
+    otu_ids = params[:coordinate_otus] == 'true' ? Otu.coordinate_otus(@otu.id).pluck(:id) : [@otu.id]
 
-    @public_content =  PublicContent.where(otu: @otu, project_id: sessions_current_project_id)
+    @public_content = PublicContent.where(otu_id: otu_ids, project_id: sessions_current_project_id)
     @public_content = @public_content.joins(:topic).where(topic_id: topic_ids) unless topic_ids.empty?
 
     render '/otus/api/v1/inventory/content'
