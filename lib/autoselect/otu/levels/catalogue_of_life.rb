@@ -41,25 +41,7 @@ module Autoselect
           taxon_name_level = ::Autoselect::TaxonName::Levels::CatalogueOfLife.new
           col_records = taxon_name_level.call(term:, operator:, project_id:, user_id:, dataset_id:)
 
-          otus_by_taxon_name = ::Autoselect::Otu::ColExistingOtu.otus_by_taxon_name(
-            col_records.map { |record| record._col_extension[:target_taxonworks_id] },
-            project_id:
-          )
-
-          col_records.map do |record|
-            otus =
-              otus_by_taxon_name[record._col_extension[:target_taxonworks_id]] || []
-            extension = record._col_extension.merge(
-              hook: ::Autoselect::Otu::ColExistingOtu.hook(otus)
-            )
-
-            OpenStruct.new(
-              id: nil,
-              name: record.cached,
-              taxon_name: nil,
-              _col_extension: extension
-            )
-          end
+          ::Autoselect::Otu::ColExistingOtu.wrap(col_records, project_id:)
         end
 
       end

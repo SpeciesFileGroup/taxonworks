@@ -63,6 +63,27 @@ module Autoselect
         }
       end
 
+      # @param records [Array<OpenStruct>] TaxonName CoL level pseudo-records
+      # @param project_id [Integer]
+      # @return [Array<OpenStruct>] the OTU CoL results for records, each
+      #   one's hook carrying its TaxonName's Otus (see .hook)
+      def self.wrap(records, project_id:)
+        otus_by_id = otus_by_taxon_name(
+          records.map { |record| record._col_extension[:target_taxonworks_id] },
+          project_id:
+        )
+
+        records.map do |record|
+          otus = otus_by_id[record._col_extension[:target_taxonworks_id]] || []
+          OpenStruct.new(
+            id: nil,
+            name: record.cached,
+            taxon_name: nil,
+            _col_extension: record._col_extension.merge(hook: hook(otus))
+          )
+        end
+      end
+
       # @param taxon_name_id [Integer]
       # @param project_id [Integer]
       # @param user_id [Integer]

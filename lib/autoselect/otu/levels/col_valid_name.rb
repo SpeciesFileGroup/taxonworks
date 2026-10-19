@@ -7,12 +7,10 @@ module Autoselect
       # was transcribed with an outdated/synonymized name, and the curator wants
       # the OTU CoL now recognizes.
       #
-      # Wraps TaxonName::ColValidName#resolve_target's pseudo-record with the OTU
-      # creation hook — flagged with `resolved_from:` so the confirmation UI can
-      # make clear this is the accepted name for what was typed, not a literal
-      # match on it. The one thing with no TaxonName-level equivalent: the hook
-      # carries the resolved name's existing Otu, if any (see
-      # Autoselect::Otu::ColExistingOtu).
+      # Wraps TaxonName::ColValidName#resolve_target's pseudo-record (flagged
+      # with `resolved_from:`) with the OTU creation hook. The one thing with
+      # no TaxonName-level equivalent: the hook carries the resolved name's
+      # existing Otu, if any (see Autoselect::Otu::ColExistingOtu).
       class ColValidName < ::Autoselect::Level
         # Source mark + "valid name for X" note rendering, shared with the
         # TaxonName-level equivalent this delegates to.
@@ -66,31 +64,11 @@ module Autoselect
           term:, operator: nil, project_id: nil, user_id: nil, dataset_id: nil,
           **_kwargs
         )
-          # The raw resolved pseudo-record, which carries the CoL alignment data
-          # the confirmation modal shows.
-          target = ::Autoselect::TaxonName::Levels::ColValidName.new.resolve_target(
-            term, project_id:, dataset_id:
-          )
+          target = ::Autoselect::TaxonName::Levels::ColValidName.new
+            .resolve_target(term, project_id:, dataset_id:)
           return [] if target.nil?
 
-          taxon_name_id = target._col_extension[:target_taxonworks_id]
-          otus = ::Autoselect::Otu::ColExistingOtu.otus_by_taxon_name(
-            [taxon_name_id], project_id:
-          )[taxon_name_id] || []
-
-          extension = target._col_extension.merge(
-            resolved_from: term,
-            hook: ::Autoselect::Otu::ColExistingOtu.hook(otus)
-          )
-
-          [
-            OpenStruct.new(
-              id: nil,
-              name: target.cached,
-              taxon_name: nil,
-              _col_extension: extension
-            )
-          ]
+          ::Autoselect::Otu::ColExistingOtu.wrap([target], project_id:)
         end
 
       end

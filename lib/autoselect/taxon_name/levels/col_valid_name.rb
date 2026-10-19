@@ -58,25 +58,15 @@ class Autoselect::TaxonName::Levels::ColValidName < ::Autoselect::Level
     **_kwargs
   )
     target = resolve_target(term, project_id:, dataset_id:)
-    return [] if target.nil?
-
-    [OpenStruct.new(
-      id: nil,
-      cached: target.cached,
-      name: target.cached,
-      rank_string: nil,
-      cached_valid_taxon_name_id: nil,
-      _col_extension: target._col_extension.merge(resolved_from: term)
-    )]
+    target ? [target] : []
   end
 
-  # The raw resolved pseudo-record — the accepted name's CoL
-  # alignment/extension data plus ColMatch's existing-TaxonName
-  # check — before #call's real-record-vs-creation-offer decision. nil
-  # when CoL resolves nothing usable.
+  # The resolved pseudo-record — the accepted name's CoL alignment/extension
+  # data plus ColMatch's existing-TaxonName check. nil when CoL resolves
+  # nothing usable.
   #
-  # When CoL followed synonymy, the extension's `resolved_synonym` holds
-  # the synonym it matched (nil otherwise).
+  # The extension's `resolved_from` is term; when CoL followed synonymy,
+  # `resolved_synonym` holds the synonym it matched (nil otherwise).
   #
   # @return [OpenStruct, nil]
   def resolve_target(term, project_id:, dataset_id: nil)
@@ -95,7 +85,7 @@ class Autoselect::TaxonName::Levels::ColValidName < ::Autoselect::Level
     followed = resolved[:matched_col_key] != resolved[:valid_col_key]
     resolved_synonym = followed ? resolved[:matched_name] : nil
     target._col_extension =
-      target._col_extension.merge(resolved_synonym:)
+      target._col_extension.merge(resolved_from: term, resolved_synonym:)
 
     target
   end

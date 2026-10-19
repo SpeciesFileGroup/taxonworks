@@ -41,7 +41,13 @@ RSpec.describe Autoselect::Otu::Levels::ColValidName, type: :model do
     end
 
     context 'when resolved and the name has no OTU' do
-      let(:target) { resolved_record(valid_name: 'Panthera leo') }
+      # resolve_target sets resolved_from.
+      let(:target) do
+        resolved_record(
+          valid_name: 'Panthera leo',
+          extra_extension: { resolved_from: 'Panthera leo persica' }
+        )
+      end
 
       before { stub_resolve_target(term: 'Panthera leo persica', target:) }
 
@@ -51,7 +57,7 @@ RSpec.describe Autoselect::Otu::Levels::ColValidName, type: :model do
         expect(result.first.name).to eq('Panthera leo')
       end
 
-      it 'flags it with resolved_from and an OTU creation hook with no ' \
+      it 'keeps resolved_from and adds an OTU creation hook with no ' \
         'existing OTU' do
         result = level.call(term: 'Panthera leo persica', project_id:, user_id:)
         ext = result.first._col_extension
