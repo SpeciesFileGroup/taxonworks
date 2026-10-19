@@ -11,9 +11,8 @@
 #     its ancestors)
 #   * anchor - the lowest row of CoL's chain (the target, else its nearest
 #     ancestor) that exactly one TaxonName in the project matches, by current
-#     form, rank, code and (for a name CoL accepts) validity. TaxonWorks'
-#     lineage is compared to CoL's from there up. No anchor: Create would make
-#     the whole chain.
+#     form, rank and code. TaxonWorks' lineage is compared to CoL's from there
+#     up. No anchor: Create would make the whole chain.
 #
 class Autoselect::TaxonName::ColMatch
 
@@ -71,14 +70,17 @@ class Autoselect::TaxonName::ColMatch
   #
   # A homonym at the anchor's row - more than one same-name, same-rank
   # candidate that authorship can't pick between (#agreeing_authorship) -
-  # blocks Create, same as a real conflict. A lone anchor whose authorship
+  # blocks Create, same as a real conflict. So does an anchor that is
+  # invalid in TaxonWorks where CoL accepts the name: nothing is created
+  # under, above or beside a TaxonWorks synonym. A lone anchor whose authorship
   # differs from CoL's is matched, the difference only reported
   # (#authorship_mismatch).
   #
   # @return [Hash] :alignment (kingdom-first, ancestors only — the target is
   #   reported separately below), :chain_consistent, :target_taxonworks_id,
   #   :target_global_id (only when the target itself matched), :ambiguous_match
-  #   (only when the walk was stopped by a homonym), :authorship_mismatch (only
+  #   (only when the walk was stopped by a homonym), :invalid_match (only when
+  #   it was stopped by a TaxonWorks synonym), :authorship_mismatch (only
   #   when the anchor's authorship differs from CoL's)
   def match_against_taxonworks(extension, col_name, col_rank)
     full_chain = extension[:alignment] + [{
@@ -90,10 +92,21 @@ class Autoselect::TaxonName::ColMatch
     }]
 
     anchor_index, anchor_candidates =
-      find_anchor(
-        full_chain, extension[:col_code],
-        valid_only: !extension[:non_accepted]
+      find_anchor(full_chain, extension[:col_code])
+
+    if anchor_candidates && !extension[:non_accepted] &&
+        anchor_candidates.none?(&:cached_is_valid)
+      row = full_chain[anchor_index]
+      invalid = anchor_candidates.first
+      return blocked_result(
+        extension,
+        invalid_match: {
+          rank: row[:rank], col_name: row[:col_name],
+          taxonworks_id: invalid.id, taxonworks_name: invalid.cached,
+          taxonworks_valid_name: invalid.valid_taxon_name&.cached
+        }
       )
+    end
 
     if anchor_candidates && anchor_candidates.length > 1
       row = full_chain[anchor_index]
@@ -166,11 +179,9 @@ class Autoselect::TaxonName::ColMatch
   # Protonym's original combination, or a Combination) is a taxon TaxonWorks
   # places differently, and its lineage would conflict with CoL's.
   #
-  # When CoL accepts the name (its ancestors always are), only valid
-  # TaxonNames count: an invalid one is a synonym in TaxonWorks, and Create
-  # would put the new name under it, Select hand it back. A CoL synonym has
-  # no ancestors to compare, so a TaxonWorks synonym of the same name is
-  # still the anchor (Select).
+  # A valid TaxonName is preferred over an invalid one of the same name. An
+  # invalid one alone still stops the walk, and the caller decides what it
+  # means: walking past it would have Create duplicate it.
   #
   # TODO: still missed - the same genus-group name at another genus-group rank
   # (CoL genus Erasmoneura vs TaxonWorks subgenus Erythroneura (Erasmoneura)):
@@ -178,10 +189,9 @@ class Autoselect::TaxonName::ColMatch
   #
   # @param full_chain [Array<Hash>] CoL's chain, kingdom-first, target last
   # @param col_code [String, nil] CoL nomenclatural code ('zoological', ...)
-  # @param valid_only [Boolean] whether only valid TaxonNames can match
   # @return [Array, nil] [index into full_chain, Array<TaxonName>] for that
   #   row, or nil when no row matches
-  def find_anchor(full_chain, col_code, valid_only:)
+  def find_anchor(full_chain, col_code)
     # CoL and TaxonWorks format some names differently (subgenus, species-group
     # names with/without subgenus, [sic]), so candidates are found and compared
     # by key.
@@ -193,8 +203,10 @@ class Autoselect::TaxonName::ColMatch
     (full_chain.length - 1).downto(0) do |i|
       row = full_chain[i]
       candidates = candidates_for(candidates_by_key, row, expected_code)
-      candidates = candidates.select(&:cached_is_valid) if valid_only
       next if candidates.empty?
+
+      valid = candidates.select(&:cached_is_valid)
+      candidates = valid if valid.any?
 
       if candidates.length > 1
         candidates = agreeing_authorship(candidates, row[:col_authorship])

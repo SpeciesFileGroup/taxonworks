@@ -186,6 +186,7 @@
             otuBlocked ||
             chainConflict ||
             isAmbiguous ||
+            invalidMatch ||
             nonAcceptedBlocked
         }"
       >
@@ -203,6 +204,18 @@
           {{ ext.ambiguous_match.count }} TaxonWorks records are named
           <em>{{ ext.ambiguous_match.col_name }}</em> at rank <em>{{ ext.ambiguous_match.rank }}</em> —
           there's no way to tell which one this lineage should use. Resolve this manually before creating.
+        </template>
+        <template v-else-if="invalidMatch">
+          TaxonWorks has
+          <a
+            :href="invalidMatchUrl"
+            target="_blank"
+            rel="noopener noreferrer"
+            ><em>{{ invalidMatch.taxonworks_name }}</em></a
+          >
+          as an invalid name<template v-if="invalidMatch.taxonworks_valid_name">
+            (valid name <em>{{ invalidMatch.taxonworks_valid_name }}</em>)</template
+          >, Catalogue of Life accepts it — resolve this before creating.
         </template>
         <template v-else-if="nonAcceptedBlocked">
           Catalogue of Life status: <em>{{ ext.col_status }}</em
@@ -376,6 +389,11 @@ const conflictRows = computed(() => (ext.value.alignment ?? []).filter((r) => r.
 // same-rank TaxonWorks candidate at some position — a homonym with no principled
 // way to pick between them, distinct from a genuine name disagreement.
 const isAmbiguous = computed(() => !!ext.value.ambiguous_match)
+const invalidMatch = computed(() => ext.value.invalid_match)
+const invalidMatchUrl = computed(
+  () =>
+    `${RouteNames.BrowseNomenclature}?taxon_name_id=${invalidMatch.value?.taxonworks_id}`
+)
 
 // Server-computed (Autoselect::TaxonName::ColMatch#authorship_mismatch): the
 // anchor matched by name, but its authorship differs from CoL's - usually a

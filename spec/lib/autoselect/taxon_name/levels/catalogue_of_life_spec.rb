@@ -770,12 +770,16 @@ RSpec.describe Autoselect::TaxonName::Levels::CatalogueOfLife, type: :model do
       let!(:invalid) do
         Protonym.create!(
           name: 'Invalidonomus', rank_class: Ranks.lookup(:iczn, 'genus'),
-          parent: family.root, project_id:, by: user_id
+          parent: family, project_id:, by: user_id
         ).tap { |t| t.update_column(:cached_is_valid, false) }
       end
 
       before do
-        allow(::Vendor::Colrapi).to receive(:ancestors).and_return([])
+        allow(::Vendor::Colrapi).to receive(:ancestors).and_return([
+          col_classification_entry(
+            id: 'F1', name: family.cached, rank: 'family'
+          )
+        ])
       end
 
       def extension_for(status)
@@ -788,23 +792,33 @@ RSpec.describe Autoselect::TaxonName::Levels::CatalogueOfLife, type: :model do
           .first._col_extension
       end
 
-      specify 'doesn\'t match it when CoL accepts the name' do
-        expect(extension_for('accepted')[:target_taxonworks_id]).to be_nil
+      specify 'blocks when CoL accepts the name, rather than anchoring ' \
+        'above it' do
+        ext = extension_for('accepted')
+        expect(ext[:chain_consistent]).to be false
+        expect(ext[:target_taxonworks_id]).to be_nil
+        expect(ext[:alignment].map { |r| r[:match] }).to all(eq('none'))
+        expect(ext[:invalid_match]).to include(
+          rank: 'genus', col_name: 'Invalidonomus',
+          taxonworks_id: invalid.id, taxonworks_name: 'Invalidonomus'
+        )
       end
 
-      specify 'matches the valid homonym, not ambiguously' do
+      specify 'matches a valid homonym instead, not ambiguously' do
         valid = Protonym.create!(
           name: 'Invalidonomus', rank_class: Ranks.lookup(:iczn, 'genus'),
-          parent: family.root, project_id:, by: user_id
+          parent: family, project_id:, by: user_id
         )
         ext = extension_for('accepted')
+        expect(ext[:invalid_match]).to be_nil
         expect(ext[:ambiguous_match]).to be_nil
         expect(ext[:target_taxonworks_id]).to eq(valid.id)
       end
 
       specify 'matches it when CoL has it as a synonym too' do
-        expect(extension_for('synonym')[:target_taxonworks_id])
-          .to eq(invalid.id)
+        ext = extension_for('synonym')
+        expect(ext[:invalid_match]).to be_nil
+        expect(ext[:target_taxonworks_id]).to eq(invalid.id)
       end
     end
 
