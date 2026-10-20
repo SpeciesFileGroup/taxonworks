@@ -12,6 +12,10 @@ module Vendor
     # CoL usage statuses under which a name is in use.
     COL_ACCEPTED_STATUSES = ['accepted', 'provisionally accepted'].freeze
 
+    # CoL usage statuses resolve_accepted_names follows to their accepted
+    # name.
+    COL_FOLLOWED_STATUSES = ['synonym', 'ambiguous synonym'].freeze
+
     # What CoL says about the status of a name.
     #
     # CoL is searched with NameTranslation.search_term, and its usages are
@@ -413,19 +417,23 @@ module Vendor
     # have to look up synonymy by hand before searching TaxonWorks.
     #
     # Every exact hit for name_string is resolved, in CoL's order: an accepted
-    # (or provisionally accepted) name to itself, a plain synonym to its
-    # accepted target. Several hits are homonyms - the same name in different
-    # codes (Pieris), or a later homonym CoL lists as a synonym of its
-    # replacement (Abies alba (Aiton) Michx. -> Picea glauca) - so each is
-    # resolved rather than picking one.
+    # (or provisionally accepted) name to itself, a synonym to its accepted
+    # target. Several hits are homonyms - the same name in different codes
+    # (Pieris), or a later homonym CoL lists as a synonym of its replacement
+    # (Abies alba (Aiton) Michx. -> Picea glauca) - so each is resolved rather
+    # than picking one.
     #
-    # Anything else is skipped. Ambiguous synonyms and misapplied names also
-    # carry an `accepted` usage in CoL, but an ambiguous synonym's is only one
-    # of several possible targets, and a misapplied name's is the taxon some
-    # author misidentified as the name, not what the name means.
+    # An ambiguous synonym is followed too. Its `accepted` is only one of the
+    # name's possible targets - a pro parte synonym (Abax brunnipes Letzner,
+    # 1852) is one hit per target - so the caller should say so; each target
+    # is still a valid name the user may mean.
     #
-    # Hits resolving to the same accepted name give it once, from the first
-    # hit, or from a hit that is the accepted name itself.
+    # Anything else is skipped. A misapplied name also carries an `accepted`
+    # usage, but it's the taxon some author misidentified as the name, not
+    # what the name means.
+    #
+    # Hits resolving to the same accepted name give it once, from the hit
+    # that is the accepted name itself, else a plain synonym, else the first.
     #
     # @param name_string [String]
     # @param dataset_id [String, nil] CoL dataset ID; falls back to the default
@@ -440,7 +448,9 @@ module Vendor
 
       resolved = hits.filter_map do |hit|
         matched_status = hit['status']
-        accepted = hit['accepted'] if matched_status == 'synonym'
+        if COL_FOLLOWED_STATUSES.include?(matched_status)
+          accepted = hit['accepted']
+        end
         next if accepted.nil? &&
           !COL_ACCEPTED_STATUSES.include?(matched_status.to_s.downcase)
 
@@ -469,16 +479,20 @@ module Vendor
         }
       end
 
-      direct_keys = resolved
-        .select { |r| r[:matched_col_key] == r[:valid_col_key] }
-        .map { |r| r[:valid_col_key] }
-
       resolved
-        .reject do |r|
-          r[:matched_col_key] != r[:valid_col_key] &&
-            direct_keys.include?(r[:valid_col_key])
+        .group_by { |r| r[:valid_col_key] }
+        .values
+        .map do |same_valid_name|
+          same_valid_name.min_by do |r|
+            if r[:matched_col_key] == r[:valid_col_key]
+              0
+            elsif r[:matched_status] == 'synonym'
+              1
+            else
+              2
+            end
+          end
         end
-        .uniq { |r| r[:valid_col_key] }
     end
 
     # The TaxonWorks Protonym#name for a CoL name: the last epithet of a

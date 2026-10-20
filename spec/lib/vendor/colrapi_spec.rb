@@ -616,15 +616,8 @@ describe Vendor::Colrapi, type: :model do
 
     # CoL attaches an `accepted` usage to these too, but it isn't what the
     # name means.
-    specify 'ambiguous synonyms and misapplied names are skipped' do
+    specify 'misapplied names are skipped' do
       stub_hits(
-        synonym_of(
-          col_nameusage_result(
-            id: 'AMB1', scientific_name: 'Crayracion',
-            status: 'ambiguous synonym'
-          ),
-          id: 'ACC2', name: 'Sphoeroides'
-        ),
         synonym_of(
           col_nameusage_result(
             id: 'MIS1', scientific_name: 'Crayracion', status: 'misapplied'
@@ -633,6 +626,50 @@ describe Vendor::Colrapi, type: :model do
         )
       )
       expect(described_class.resolve_accepted_names('Crayracion')).to eq([])
+    end
+
+    # A pro parte synonym: one hit per accepted name.
+    specify 'an ambiguous synonym resolves to each of its targets' do
+      stub_hits(
+        synonym_of(
+          col_nameusage_result(
+            id: 'AB1', scientific_name: 'Abax brunnipes',
+            status: 'ambiguous synonym'
+          ),
+          id: 'AP1', name: 'Abax parallelepipedus parallelepipedus'
+        ),
+        synonym_of(
+          col_nameusage_result(
+            id: 'AB2', scientific_name: 'Abax brunnipes',
+            status: 'ambiguous synonym'
+          ),
+          id: 'AC1', name: 'Abax carinatus carinatus'
+        )
+      )
+      results = described_class.resolve_accepted_names('Abax brunnipes')
+      expect(results.map { |r| [r[:valid_col_key], r[:matched_status]] })
+        .to eq([%w{AP1 ambiguous\ synonym}, %w{AC1 ambiguous\ synonym}])
+    end
+
+    specify 'an accepted name reached by an ambiguous and a plain synonym ' \
+      'comes from the plain one' do
+      stub_hits(
+        synonym_of(
+          col_nameusage_result(
+            id: 'AMB1', scientific_name: 'Aus bus',
+            status: 'ambiguous synonym'
+          ),
+          id: 'ACC1', name: 'Cus dus'
+        ),
+        synonym_of(
+          col_nameusage_result(
+            id: 'SYN1', scientific_name: 'Aus bus', status: 'synonym'
+          ),
+          id: 'ACC1', name: 'Cus dus'
+        )
+      )
+      results = described_class.resolve_accepted_names('Aus bus')
+      expect(results.map { |r| r[:matched_col_key] }).to eq(%w{SYN1})
     end
 
     specify 'a provisionally accepted hit resolves to itself' do

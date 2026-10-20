@@ -67,7 +67,8 @@ class Autoselect::TaxonName::Levels::ColValidName < ::Autoselect::Level
   #
   # The extension's `resolved_from` is term; when CoL followed synonymy,
   # `resolved_synonym` holds the synonym it matched, with its authorship
-  # (nil otherwise).
+  # (nil otherwise), and `resolved_ambiguous` is true when that synonym is
+  # an ambiguous one (this is only one of its valid names).
   #
   # @return [Array<OpenStruct>]
   def resolve_targets(term, project_id:, dataset_id: nil)
@@ -89,8 +90,11 @@ class Autoselect::TaxonName::Levels::ColValidName < ::Autoselect::Level
             [resolved[:matched_name], resolved[:matched_authorship]]
               .compact.join(' ')
           end
-        target._col_extension =
-          target._col_extension.merge(resolved_from: term, resolved_synonym:)
+        resolved_ambiguous =
+          followed && resolved[:matched_status] == 'ambiguous synonym'
+        target._col_extension = target._col_extension.merge(
+          resolved_from: term, resolved_synonym:, resolved_ambiguous:
+        )
 
         target
       end

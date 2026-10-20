@@ -19,6 +19,9 @@
 #     names, e.g. Abies alba (Aiton) Michx. to Picea glauca.
 #     What was typed is a poor stand-in: a partial, authored, or subgenus-form
 #     term differs from the result without any synonymy involved.
+#   * an "ambiguous synonym" badge after the note when X is one: this is
+#     only one of its valid names (e.g. a pro parte synonym gives a row per
+#     target).
 #
 # The source mark comes first: without it, a note sitting next to whatever
 # project-local info the record already carries gives no cue where it came from.
@@ -31,8 +34,9 @@ module Autoselect
 
       # @return [Array<String>] source tag ("TW"/"CoL"), then any non-accepted
       #   status, the rank, the code (see ColCodeBadge), and a "valid name for
-      #   X" note when CoL followed synonymy. Falls back to the ancestor's info
-      #   for anything without CoL provenance.
+      #   X" note when CoL followed synonymy (then "ambiguous synonym" when X
+      #   is one). Falls back to the ancestor's info for anything without CoL
+      #   provenance.
       def record_info(record)
         return super if resolved_from(record).nil?
 
@@ -73,6 +77,9 @@ module Autoselect
 
         if (synonym = resolved_synonym(record))
           badges << [%(valid name for "#{synonym}"), :warning]
+          if record._col_extension[:resolved_ambiguous]
+            badges << ['ambiguous synonym', :warning]
+          end
         end
 
         badges

@@ -85,6 +85,29 @@ RSpec.describe Autoselect::TaxonName::Levels::ColValidName, type: :model do
           .to eq('Panthera leo persica Meyer, 1826')
       end
 
+      it 'is not marked ambiguous' do
+        result = level.call(term: 'Panthera leo persica', project_id:, user_id:)
+        expect(result.first._col_extension[:resolved_ambiguous]).to be false
+      end
+
+      context 'and the synonym CoL followed is ambiguous' do
+        before do
+          allow(::Vendor::Colrapi).to receive(:resolve_accepted_names)
+            .with('Felis brunnipes', dataset_id: nil)
+            .and_return([{
+              input: 'Felis brunnipes', matched_name: 'Felis brunnipes',
+              matched_status: 'ambiguous synonym', matched_col_key: 'AMB1',
+              valid_name: 'Panthera leo', valid_col_key: 'VALID1',
+              valid_status: 'accepted', valid_col_result:, dataset_id: '3LR'
+            }])
+        end
+
+        it 'is marked ambiguous' do
+          result = level.call(term: 'Felis brunnipes', project_id:, user_id:)
+          expect(result.first._col_extension[:resolved_ambiguous]).to be true
+        end
+      end
+
       context 'and CoL followed no synonymy' do
         before do
           allow(::Vendor::Colrapi).to receive(:resolve_accepted_names)
@@ -212,6 +235,21 @@ RSpec.describe Autoselect::TaxonName::Levels::ColValidName, type: :model do
 
     it 'tags the TW source when the name is already a TaxonName' do
       expect(level.record_info(existing)).to eq(['TW', 'valid name for "Panthera leo persica"'])
+    end
+
+    it 'flags an ambiguous synonym after the note' do
+      record = OpenStruct.new(
+        name: 'Abax carinatus carinatus',
+        _col_extension: {
+          resolved_from: 'Abax brunnipes',
+          resolved_synonym: 'Abax brunnipes Letzner, 1852',
+          resolved_ambiguous: true
+        }
+      )
+      expect(level.record_info(record)).to eq([
+        'CoL', 'valid name for "Abax brunnipes Letzner, 1852"',
+        'ambiguous synonym'
+      ])
     end
 
     it 'omits the note when CoL followed no synonymy' do
