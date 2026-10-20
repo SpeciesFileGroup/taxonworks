@@ -6,8 +6,7 @@
 # (`_col_extension[:resolved_from]`), and this makes that provenance visible:
 #
 #   * a source mark — TW_ICON when the resolved name is already in TaxonWorks,
-#     COL_ICON when it would be created (see ColSourceMark) — so it's always
-#     clear the result came through CoL resolution, not a plain local match;
+#     COL_ICON when it would be created;
 #   * a status badge, but only when CoL's status isn't 'accepted' (i.e.
 #     'provisionally accepted' - Vendor::Colrapi.resolve_accepted_names gives
 #     nothing else). An 'accepted' badge on every row would be noise;
@@ -23,10 +22,6 @@
 #     only one of its valid names (e.g. a pro parte synonym gives a row per
 #     target).
 #
-# The source mark comes first: without it, a note sitting next to whatever
-# project-local info the record already carries gives no cue where it came from.
-#
-# The icons come from ColSourceMark, shared with the catalogue_of_life levels.
 module Autoselect
   module Levels
     module ColResolvedName
@@ -48,15 +43,16 @@ module Autoselect
       def record_info_html(record)
         return super if resolved_from(record).nil?
 
-        badges = col_resolved_badges(record).map do |text, modifier|
-          col_resolved_feedback_badge(text, modifier)
+        h = ApplicationController.helpers
+        badges = col_resolved_badges(record).map do |text, type|
+          h.feedback_badge_tag(text, type)
         end
         col_source_icon(record) + badges.join(' ')
       end
 
       private
 
-      # @return [Array<Array(String, Symbol)>] [text, feedback modifier] pairs
+      # @return [Array<Array(String, Symbol)>] [text, feedback type] pairs
       #   for everything after the source mark, in display order
       def col_resolved_badges(record)
         extension = record._col_extension
@@ -95,12 +91,10 @@ module Autoselect
       # The raw text CoL resolved to produce this record. nil for anything
       # without CoL provenance.
       def resolved_from(record)
-        return record._col_extension[:resolved_from] if record.respond_to?(:_col_extension)
+        if record.respond_to?(:_col_extension)
+          return record._col_extension[:resolved_from]
+        end
         nil
-      end
-
-      def col_resolved_feedback_badge(text, modifier)
-        "<span class=\"feedback feedback-thin feedback-#{modifier}\">#{ERB::Util.html_escape(text)}</span>"
       end
 
     end

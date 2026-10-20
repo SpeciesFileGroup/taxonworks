@@ -23,22 +23,24 @@ module Autoselect
         col_ext = record._col_extension
         return '' unless col_ext
 
+        h = ApplicationController.helpers
         parts = []
 
         if (status = col_ext[:col_status].presence)
-          # Anything other than an accepted name (synonym, ambiguous synonym, misapplied, …)
-          # gets a more aggressive alert style to draw attention to the nomenclatural caveat.
-          status_modifier = status.to_s.casecmp?('accepted') ? 'feedback-info' : 'feedback-warning'
-          parts << "<span class=\"feedback feedback-thin #{status_modifier}\">#{ERB::Util.html_escape(status)}</span>"
+          # Anything other than an accepted name (synonym, ambiguous synonym,
+          # misapplied, …) gets a more aggressive alert style to draw
+          # attention to the nomenclatural caveat.
+          type = status.to_s.casecmp?('accepted') ? :info : :warning
+          parts << h.feedback_badge_tag(status, type)
         end
 
         if (rank = col_ext[:col_rank].presence)
-          parts << "<span class=\"feedback feedback-thin feedback-light\">#{ERB::Util.html_escape(rank)}</span>"
+          parts << h.feedback_badge_tag(rank, :light)
         end
 
         # Only when the results span more than one code, see ColCodeBadge.
         if (acronym = col_ext[:col_code_acronym])
-          parts << "<span class=\"feedback feedback-thin feedback-light\">#{ERB::Util.html_escape(acronym)}</span>"
+          parts << h.feedback_badge_tag(acronym, :light)
         end
 
         col_source_icon(record) + parts.join(' ')
