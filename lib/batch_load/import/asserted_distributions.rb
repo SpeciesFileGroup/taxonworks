@@ -21,7 +21,9 @@ module BatchLoad
     #                         "ne_countries", "tdwg_l3", "tdwg_l2", "tdwg_l1", "tdwg_l4"]
     # @return [Integer]
     def build_asserted_distributions
-      i = 1
+      # Count data rows from 1 to match the line numbers of the input file
+      # table in the preview.
+      i = 0
       csv.each do |row|
         i += 1
 
@@ -38,10 +40,13 @@ module BatchLoad
         if o.resolvable? && s.resolvable? && g.resolvable?
           pair_key = [o.item.class.base_class.name, o.item.id, g.item.class.base_class.name, g.item.id]
           citation_key = pair_key + [s.item.id]
+          asserted_distribution = existing_asserted_distribution(pair_key, o.item, g.item)
 
           if line = cited_lines[citation_key]
             rp.parse_errors << "Duplicates the OTU, area and source of line #{line}."
-          elsif asserted_distribution = existing_asserted_distribution(pair_key, o.item, g.item)
+          elsif already_cited?(asserted_distribution, s.item)
+            rp.parse_errors << 'Source is already cited on the existing asserted distribution.'
+          elsif asserted_distribution
             # Another citation for an asserted distribution already in the
             # database or on an earlier line.
             cited_lines[citation_key] = i
@@ -82,7 +87,7 @@ module BatchLoad
           rp.parse_errors += s.error_messages unless s.resolvable?
         end
       end
-      @total_lines = i - 1
+      @total_lines = i
     end
 
     # @return [Boolean]
@@ -99,6 +104,15 @@ module BatchLoad
     #   [object type, object id, shape type, shape id, source id] => first line using it
     def cited_lines
       @cited_lines ||= {}
+    end
+
+    # Checked here, rather than left to Citation validation, so the error
+    # message isn't obscured by the (then also invalid) asserted distribution.
+    # @return [Boolean]
+    def already_cited?(asserted_distribution, source)
+      return false unless asserted_distribution&.persisted?
+
+      asserted_distribution.citations.where(source:, pages: nil).exists?
     end
 
     # @return [AssertedDistribution, nil]

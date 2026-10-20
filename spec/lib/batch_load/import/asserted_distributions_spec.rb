@@ -240,11 +240,11 @@ describe BatchLoad::Import::AssertedDistributions, type: :model do
   end
 
   context 'More than one citation for the same OTU and area' do
-    # line 2: new AD (otu 100, ga 110, source 120)
-    # line 3: same pair as line 2, new source -> citation on line 2's AD
-    # line 4: pair of an existing AD, new source -> citation on existing AD
-    # line 5: pair and source of an existing AD -> duplicate citation, invalid
-    # line 6: repeats line 3 -> parse error
+    # line 1: new AD (otu 100, ga 110, source 120)
+    # line 2: same pair as line 1, new source -> citation on line 1's AD
+    # line 3: pair of an existing AD, new source -> citation on existing AD
+    # line 4: pair and source of an existing AD -> parse error
+    # line 5: repeats line 2 -> parse error
     let(:file_name) { 'spec/files/batch/asserted_distribution/multiple_citations.tsv' }
     let(:upload_file) { Rack::Test::UploadedFile.new(file_name) }
     let(:import) { BatchLoad::Import::AssertedDistributions.new(
@@ -277,17 +277,22 @@ describe BatchLoad::Import::AssertedDistributions, type: :model do
       before { import }
 
       specify 'rows for an already seen pair are valid citations' do
+        expect(import.processed_rows[2].objects[:citations].first).to be_valid
         expect(import.processed_rows[3].objects[:citations].first).to be_valid
-        expect(import.processed_rows[4].objects[:citations].first).to be_valid
       end
 
-      specify 'existing citation is invalid' do
-        expect(import.processed_rows[5].objects[:citations].first).not_to be_valid
+      specify 'existing citation is a parse error' do
+        expect(import.processed_rows[4].parse_errors).to contain_exactly(
+          'Source is already cited on the existing asserted distribution.'
+        )
+        expect(import.processed_rows[4].all_objects).to be_empty
       end
 
       specify 'repeated line is a parse error' do
-        expect(import.processed_rows[6].parse_errors).to be_present
-        expect(import.processed_rows[6].all_objects).to be_empty
+        expect(import.processed_rows[5].parse_errors).to contain_exactly(
+          'Duplicates the OTU, area and source of line 2.'
+        )
+        expect(import.processed_rows[5].all_objects).to be_empty
       end
     end
 

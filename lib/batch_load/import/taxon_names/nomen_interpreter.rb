@@ -56,7 +56,8 @@ module BatchLoad
       i = 0
       taxon_names = {}
 
-      csv.each_with_index do |row, i|
+      csv.each do |row|
+        i += 1
 
         parse_result = BatchLoad::RowParse.new
         parse_result.row_number = i # check vs. header etc.
