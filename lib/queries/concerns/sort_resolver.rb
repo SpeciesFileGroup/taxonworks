@@ -20,11 +20,22 @@ module Queries::Concerns::SortResolver
 
   MAX_DEPTH = 3
 
+  # Classes no sort chain may reach. Sorting by a column leaks information
+  # about it even when its values are never rendered: someone who can create
+  # rows with chosen values can locate a hidden value by where those rows sort
+  # relative to it. Most tables are safe to allow by default because results
+  # are project-scoped and the data is already visible to project members.
+  # User breaks both assumptions: users are shared across projects, and most
+  # of their columns (email, sign-in times, is_administrator, preferences,
+  # footprints) are never shown to project members. RESTRICTED_COLUMN only
+  # catches credential-shaped names, so User is blocked as a whole and
+  # columns are opened one at a time below.
   BLACKLISTED_CLASSES = %w[User].freeze
 
   # The only columns of a BLACKLISTED_CLASSES class that may be sorted on,
   # and only as the final column of a chain (never as a hop to go further).
-  # Users see creators/updaters by name, never by id.
+  # User#name is already shown to project members (creator/updater columns,
+  # project member lists), so sorting by it reveals nothing new.
   BLACKLISTED_CLASS_SORTABLE_COLUMNS = { 'User' => %w[name].freeze }.freeze
   RESTRICTED_COLUMN = /(password|token|secret|digest|_ip\z|crypt)/i
   FOREIGN_KEY_COLUMN = /\A.+_id\z/
