@@ -15,6 +15,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - extend[]=citations param to /api/v1/leads
 - Batch add/remove AssertedEnvironments from Filter OTU and Collecting Event [#5128]
 - Citations by source: Add depictions to summarize OTUs list [#5141]
+- "Is data depiction" checkbox to Image viewer [#5144]
 
 ### Changed
 
@@ -36,6 +37,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 [#5136]: https://github.com/SpeciesFileGroup/taxonworks/issues/5136
 [#5137]: https://github.com/SpeciesFileGroup/taxonworks/issues/5137
 [#5141]: https://github.com/SpeciesFileGroup/taxonworks/issues/5141
+[#5144]: https://github.com/SpeciesFileGroup/taxonworks/issues/5144
 
 ## [0.66.1] - 2026-10-09
 
