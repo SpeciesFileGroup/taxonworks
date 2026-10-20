@@ -270,6 +270,21 @@ RSpec.describe Autoselect::TaxonName::Levels::CatalogueOfLife do
       end
     end
 
+    context 'botanical recombination' do
+      let(:record) {
+        OpenStruct.new(
+          cached: 'Picea glauca',
+          _col_extension: {
+            col_authorship: '(Moench) Voss', col_code: 'botanical'
+          }
+        )
+      }
+
+      it 'record_label shows both authors' do
+        expect(level.record_label(record)).to eq('Picea glauca (Moench) Voss')
+      end
+    end
+
     context 'when no authorship is available' do
       let(:record) { OpenStruct.new(cached: 'Homo', _col_extension: { col_authorship: nil }) }
 
