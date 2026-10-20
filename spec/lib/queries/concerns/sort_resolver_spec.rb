@@ -67,6 +67,18 @@ describe 'Queries::Concerns::SortResolver', type: :model do
         Queries::Note::Filter.send(:assoc, :creator, :email)
       }.to raise_error(ArgumentError, /not reachable for sorting/)
     end
+
+    specify 'rejects User reached through a has_many hop' do
+      expect {
+        klass.send(:build_sort_lambda, ::Project, [:users], 'email', :aggregate)
+      }.to raise_error(ArgumentError, /not reachable for sorting/)
+    end
+
+    specify 'allows User reached through a has_many hop when the terminal column is its display name' do
+      expect {
+        klass.send(:build_sort_lambda, ::Project, [:users], 'name', :aggregate)
+      }.not_to raise_error
+    end
   end
 
   context 'assoc() guardrails' do

@@ -19,20 +19,8 @@ module Queries::Loan::SortableFilterColumns
       end
 
       # created_by / updated_by display as user name; sort by users.name.
-      # Not `assoc()`-able: created_by_id/updated_by_id are plain housekeeping
-      # columns with no declared `belongs_to :created_by`/`:updated_by`
-      # association to reflect on (and User is blacklisted for sort-reachability
-      # regardless).
-      cols['created_by'] = sort_by_belongs_to_column(
-        joined_table: 'users', joined_column: 'name',
-        fk_expr: 'loans.created_by_id',
-        alias_prefix: 'sort_created_by'
-      )
-      cols['updated_by'] = sort_by_belongs_to_column(
-        joined_table: 'users', joined_column: 'name',
-        fk_expr: 'loans.updated_by_id',
-        alias_prefix: 'sort_updated_by'
-      )
+      cols['created_by'] = assoc(:creator, :name)
+      cols['updated_by'] = assoc(:updater, :name)
 
       # identifiers aggregate: sort by alphabetically first identifier cached.
       cols['identifiers'] = assoc(:identifiers, :cached, collapse: :aggregate)

@@ -228,4 +228,25 @@ describe Queries::Loan::Filter, type: :model, group: [:geo, :collection_objects,
     end
   end
 
+
+  context 'sort by housekeeping user name' do
+    let(:zed) { FactoryBot.create(:valid_user, name: 'Zed Zulu') }
+    let(:amy) { FactoryBot.create(:valid_user, name: 'Amy Alpha') }
+
+    # Create Zed's loan first so id order and name order disagree.
+    let!(:loan_zed) {
+      FactoryBot.create(:valid_loan).tap { |l| l.update_columns(created_by_id: zed.id, updated_by_id: zed.id) }
+    }
+    let!(:loan_amy) {
+      FactoryBot.create(:valid_loan).tap { |l| l.update_columns(created_by_id: amy.id, updated_by_id: amy.id) }
+    }
+
+    specify 'sort=created_by orders by creator name' do
+      expect(Queries::Loan::Filter.new(sort: 'created_by').all.to_a).to eq([loan_amy, loan_zed])
+    end
+
+    specify 'sort=-updated_by orders by updater name descending' do
+      expect(Queries::Loan::Filter.new(sort: '-updated_by').all.to_a).to eq([loan_zed, loan_amy])
+    end
+  end
 end

@@ -168,7 +168,8 @@ module Queries::Concerns::SortResolver
     def has_many_lateral(owner_alias, refl, remaining, column, collapse)
       raise ArgumentError, "sort path too deep: #{remaining.join('.')}" if remaining.length > MAX_DEPTH
 
-      from_sql, where, current_alias, current_klass = has_many_source(owner_alias, refl)
+      from_sql, where, current_alias, current_klass =
+        has_many_source(owner_alias, refl, terminal_column: (column if remaining.empty?))
 
       extra_joins = []
       remaining.each_with_index do |name, i|
@@ -219,7 +220,9 @@ module Queries::Concerns::SortResolver
     # itself, before any `remaining` hops. Handles plain polymorphic
     # has_many and has_many :through (walking through_reflection /
     # source_reflection) uniformly.
-    def has_many_source(owner_alias, refl)
+    # @param terminal_column [String, nil] see validate_target_class!; the
+    #   through table is never terminal.
+    def has_many_source(owner_alias, refl, terminal_column: nil)
       owner_klass = refl.active_record
 
       if refl.through_reflection
@@ -227,6 +230,8 @@ module Queries::Concerns::SortResolver
         src = refl.source_reflection
         thr_klass = thr.klass
         final_klass = src.klass
+        validate_target_class!(thr_klass)
+        validate_target_class!(final_klass, terminal_column:)
         thr_alias = has_many_source_alias(refl)
         final_alias = "#{thr_alias}_src"
 
@@ -240,6 +245,7 @@ module Queries::Concerns::SortResolver
         [from_sql, where, final_alias, final_klass]
       else
         target = refl.klass
+        validate_target_class!(target, terminal_column:)
         t_alias = has_many_source_alias(refl)
 
         where = ["#{t_alias}.#{refl.foreign_key} = #{owner_alias}.id"]
