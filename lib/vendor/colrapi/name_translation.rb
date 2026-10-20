@@ -53,8 +53,9 @@ module Vendor
     #  * col_name_key - for a name as CoL gives it
     #  * taxonworks_name_keys - for each form of a TaxonName (see .forms)
     #  * name_key - for a naked/unassociated name
-    # The key is never displayed or used to create anything, though it is what
-    # CoL is searched with (.search_term).
+    # The key is never displayed or used to create anything. (.search_term,
+    # what /nameusage/search is queried with, is close to it, but keeps a
+    # subgenus's whole name.)
     #
     # [Authorship is compared the same way, by
     # Utilities::AuthorNames.authorship_key.]
@@ -86,12 +87,15 @@ module Vendor
     #
     module NameTranslation
 
-      # The string to search CoL with for a name (TaxonWorks #cached or free
-      # text) so that every form CoL may give it in comes back.
+      # The string to search CoL's fuzzy /nameusage/search
+      # (::Colrapi.nameusage_search) with for a name (TaxonWorks #cached or
+      # free text) so that every form CoL may give it in comes back.
       #
-      # !! One query covers both forms only because CoL's search returns names
+      # !! One query covers both forms only because that search returns names
       # with a subgenus for a query without one - observed, not documented;
-      # see the search note above before relying on this elsewhere.
+      # see the search note above before relying on this elsewhere. It's no
+      # use with the exact /nameusage?q= (Vendor::Colrapi.search): there a
+      # query without the subgenus misses names CoL gives with one.
       #
       # A subgenus itself keeps its whole name: without the subgenus it would
       # be a search for its genus, whose many subgenera can push the one

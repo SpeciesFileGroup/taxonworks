@@ -18,10 +18,11 @@ module Vendor
 
     # What CoL says about the status of a name.
     #
-    # CoL is searched with NameTranslation.search_term, and its usages are
-    # compared to the name by NameTranslation key, not exact string - CoL
-    # doesn't write a name the same way TaxonWorks does, or even consistently
-    # (see NameTranslation). A usage whose key matches makes the name
+    # CoL's fuzzy /nameusage/search is queried with
+    # NameTranslation.search_term, and its usages are compared to the name by
+    # NameTranslation key, not exact string - CoL doesn't write a name the
+    # same way TaxonWorks does, or even consistently (see NameTranslation). A
+    # usage whose key matches makes the name
     #   * :accepted - accepted, or a synonym of a name with the same key (e.g.
     #     an original combination CoL lists under its own species)
     #   * :synonym - a synonym of a different name, i.e. outdated
@@ -432,8 +433,10 @@ module Vendor
     # usage, but it's the taxon some author misidentified as the name, not
     # what the name means.
     #
-    # Hits resolving to the same accepted name give it once, from the hit
-    # that is the accepted name itself, else a plain synonym, else the first.
+    # Several hits can resolve to the same accepted name; it's given once, and
+    # the hit kept for it (which the caller's "valid name for" note names)
+    # is, in order of preference: the accepted name itself, a plain synonym,
+    # an ambiguous synonym. Ties go to the hit CoL lists first.
     #
     # @param name_string [String]
     # @param dataset_id [String, nil] CoL dataset ID; falls back to the default

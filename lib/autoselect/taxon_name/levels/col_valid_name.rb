@@ -12,8 +12,6 @@
 # project, so the confirmation UI can still show (and offer to create)
 # missing ancestors.
 #
-# Autoselect::Otu::Levels::ColValidName reuses #resolve_targets directly
-# and adds its own existing-Otu hook.
 class Autoselect::TaxonName::Levels::ColValidName < ::Autoselect::Level
   include ::Autoselect::Levels::ColResolvedName
   include ::Autoselect::Levels::ColRecordLabel
