@@ -798,6 +798,29 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
       expect(q.all.map(&:id)).to eq([s_z.id, s_a.id])
     end
 
+    context 'collecting_event.geographic_area_name' do
+      let(:ga_zulu) { FactoryBot.create(:valid_geographic_area, name: 'Zulu') }
+      let(:ga_alpha) { FactoryBot.create(:valid_geographic_area, name: 'Alpha') }
+
+      # Zulu's specimen is created first so id order and name order disagree.
+      specify 'orders by the geographic area name, not its id' do
+        [[s_a, ga_zulu], [s_z, ga_alpha]].each do |specimen, area|
+          ce = FactoryBot.create(:valid_collecting_event)
+          ce.update_columns(geographic_area_id: area.id)
+          specimen.update_columns(collecting_event_id: ce.id)
+        end
+        q = Queries::CollectionObject::Filter.new(
+          collection_object_id: [s_a.id, s_z.id], sort: 'collecting_event.geographic_area_name'
+        )
+        expect(q.all.map(&:id)).to eq([s_z.id, s_a.id])
+      end
+
+      specify 'the raw geographic_area_id key is no longer sortable' do
+        expect(Queries::CollectionObject::Filter.sortable_columns_index)
+          .not_to include('collecting_event.geographic_area_id')
+      end
+    end
+
     context 'belongs_to: repository.name' do
       let!(:repo_alpha) { FactoryBot.create(:valid_repository, name: 'Alpha museum') }
       let!(:repo_zeta)  { FactoryBot.create(:valid_repository, name: 'Zeta museum') }

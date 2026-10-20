@@ -14,15 +14,7 @@ module Queries::FieldOccurrence::SortableFilterColumns
 
       sortable_assoc_columns(:collecting_event).each { |c, lam| cols["collecting_event.#{c}"] = lam }
 
-      # geographic_area_id is intentionally excluded from the auto-derived
-      # collecting_event columns above (it's a raw foreign key); kept as its
-      # own exception since it was already exposed and tested (mirrors
-      # CollectionObject::SortableFilterColumns).
-      cols['collecting_event.geographic_area_id'] = sort_by_belongs_to_column(
-        joined_table: 'collecting_events', joined_column: 'geographic_area_id',
-        fk_expr: 'field_occurrences.collecting_event_id',
-        alias_prefix: 'sort_ce_geographic_area_id'
-      )
+      cols['collecting_event.geographic_area_name'] = assoc(:collecting_event, :geographic_area, :name)
 
       sortable_assoc_columns(:dwc_occurrence).each { |c, lam| cols["dwc_occurrence.#{c}"] = lam }
 

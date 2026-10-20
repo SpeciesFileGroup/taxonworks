@@ -148,6 +148,7 @@ const extend = [
   'repository',
   'current_repository',
   'collecting_event',
+  'geographic_area_name',
   'taxon_determinations',
   'identifiers',
   'container_item',

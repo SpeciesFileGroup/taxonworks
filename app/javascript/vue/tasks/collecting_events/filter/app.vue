@@ -139,7 +139,7 @@ defineOptions({
   name: 'FilterCollectingEvent'
 })
 
-const extend = ['roles']
+const extend = ['roles', 'geographic_area_name']
 const hideFrozen = ref(false)
 
 const {

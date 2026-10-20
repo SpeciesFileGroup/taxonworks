@@ -16,6 +16,10 @@ class FieldOccurrencesController < ApplicationController
         @field_occurrences = ::Queries::FieldOccurrence::Filter.new(params).all
           .page(params[:page])
           .per(params[:per])
+
+        if helpers.extend_response_with('geographic_area_name')
+          @field_occurrences = @field_occurrences.includes(collecting_event: :geographic_area)
+        end
       }
     end
   end

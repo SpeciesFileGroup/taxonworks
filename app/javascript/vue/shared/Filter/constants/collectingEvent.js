@@ -11,7 +11,7 @@ export const COLLECTING_EVENT_PROPERTIES = [
   'verbatim_field_number',
   'verbatim_collectors',
   'verbatim_method',
-  'geographic_area_id',
+  'geographic_area_name',
   'minimum_elevation',
   'maximum_elevation',
   'elevation_precision',

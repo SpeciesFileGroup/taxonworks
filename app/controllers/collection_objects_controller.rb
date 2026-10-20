@@ -519,7 +519,9 @@ class CollectionObjectsController < ApplicationController
     end
 
     if helpers.extend_response_with('collecting_event')
-      collection_objects = collection_objects.includes(collecting_event: [:identifiers])
+      ce_includes = [:identifiers]
+      ce_includes.push(:geographic_area) if helpers.extend_response_with('geographic_area_name')
+      collection_objects = collection_objects.includes(collecting_event: ce_includes)
     end
 
     if helpers.extend_response_with('taxon_determinations')

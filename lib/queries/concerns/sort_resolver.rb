@@ -136,8 +136,7 @@ module Queries::Concerns::SortResolver
     # A single belongs_to/has_one hop. `has_one` (always effectively
     # correlated 1:1 by app invariant) is still built as a LATERAL rather
     # than a plain join, to avoid row multiplication if that invariant is
-    # ever violated -- same rationale as the pre-existing
-    # sort_by_polymorphic_has_one_column helper.
+    # ever violated.
     def single_hop_join(owner_klass, refl, owner_alias, alias_name)
       if refl.macro == :belongs_to
         raise ArgumentError, 'polymorphic belongs_to is not generically sortable; use custom()' if refl.polymorphic?

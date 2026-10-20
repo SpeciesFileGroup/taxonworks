@@ -16,6 +16,10 @@ class CollectingEventsController < ApplicationController
         @collecting_events = Queries::CollectingEvent::Filter.new(params).all
         .page(params[:page])
         .per(params[:per])
+
+        if helpers.extend_response_with('geographic_area_name')
+          @collecting_events = @collecting_events.includes(:geographic_area)
+        end
       }
     end
   end

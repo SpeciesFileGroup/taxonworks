@@ -38,33 +38,6 @@ module Queries::Concerns::Sortable
       }
     end
 
-    # Sort by a column on a polymorphic has_one association (e.g. dwc_occurrences
-    # on a CollectionObject). Returns one row per outer record via LATERAL.
-    # @param joined_table [String] e.g. 'dwc_occurrences'.
-    # @param joined_column [String] column on the joined table.
-    # @param owner_id_col [String] FK column on the joined table.
-    # @param owner_type_col [String] type discriminator column on the joined table.
-    # @param owner_type_value [String] type discriminator value (e.g. 'CollectionObject').
-    # @param parent_id_expr [String] SQL expression for the parent row id.
-    # @param alias_prefix [String] unique-per-callsite alias.
-    def sort_by_polymorphic_has_one_column(joined_table:, joined_column:, owner_id_col:, owner_type_col:, owner_type_value:, parent_id_expr:, alias_prefix:)
-      lat_alias = alias_prefix
-
-      ->(q, dir) {
-        q
-          .joins(<<~SQL.squish)
-            LEFT JOIN LATERAL (
-              SELECT #{joined_column} AS val
-              FROM #{joined_table}
-              WHERE #{owner_id_col} = (#{parent_id_expr})
-                AND #{owner_type_col} = '#{owner_type_value}'
-              LIMIT 1
-            ) AS #{lat_alias} ON true
-          SQL
-          .order(Arel.sql("#{lat_alias}.val #{dir == :desc ? 'DESC' : 'ASC'} NULLS LAST"))
-      }
-    end
-
     # @param rank [String] capitalized rank suffix matching the trailing
     #   segment of TaxonName#rank_class (e.g. 'Order', 'Family', 'Genus').
     # @param otu_id_expr [String] SQL expression evaluating to an otu id for

@@ -3,20 +3,9 @@
 module Queries::Loan::SortableFilterColumns
   extend ActiveSupport::Concern
 
-  SORTABLE_DIRECT_COLUMNS = %w[
-    id lender_address date_requested request_method date_sent date_received
-    date_return_expected is_gift recipient_address recipient_email
-    recipient_phone recipient_country supervisor_email supervisor_phone
-    date_closed recipient_honorific updated_at created_at
-  ].freeze
-
   class_methods do
     def sortable_columns_uncached
-      cols = {}
-
-      SORTABLE_DIRECT_COLUMNS.each do |c|
-        cols[c] = sort_by_direct_column("loans.#{c}")
-      end
+      cols = sortable_direct_columns
 
       # created_by / updated_by display as user name; sort by users.name.
       cols['created_by'] = assoc(:creator, :name)

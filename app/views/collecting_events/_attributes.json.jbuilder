@@ -41,6 +41,11 @@ if extend_response_with('roles')
   end
 end
 
+# Just the name, without the cost of the full geographic_area extension.
+if extend_response_with('geographic_area_name')
+  json.geographic_area_name collecting_event.geographic_area&.name
+end
+
 if extend_response_with('geographic_area')
   if collecting_event.geographic_area
     json.geographic_area do

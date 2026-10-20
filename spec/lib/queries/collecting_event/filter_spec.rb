@@ -275,5 +275,12 @@ describe Queries::CollectingEvent::Filter, type: :model, group: [:collecting_eve
     specify 'unknown sort key ignored' do
       expect(sorted_ids('no_such_column')).to contain_exactly(ce1.id, ce2.id)
     end
+
+    specify 'sort=geographic_area_name orders by area name, bare and section-prefixed' do
+      ce1.update_columns(geographic_area_id: FactoryBot.create(:valid_geographic_area, name: 'Zulu').id)
+      ce2.update_columns(geographic_area_id: FactoryBot.create(:valid_geographic_area, name: 'Alpha').id)
+      expect(sorted_ids('geographic_area_name')).to eq([ce2.id, ce1.id])
+      expect(sorted_ids('collecting_event.geographic_area_name')).to eq([ce2.id, ce1.id])
+    end
   end
 end

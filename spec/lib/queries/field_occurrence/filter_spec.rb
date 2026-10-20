@@ -24,6 +24,17 @@ describe Queries::FieldOccurrence::Filter, type: :model, group: [:field_occurren
       expect(q.all.map(&:id)).to eq([fo_z.id, fo_a.id])
     end
 
+    specify 'sort=collecting_event.geographic_area_name orders by area name' do
+      ga_zulu = FactoryBot.create(:valid_geographic_area, name: 'Zulu')
+      ga_alpha = FactoryBot.create(:valid_geographic_area, name: 'Alpha')
+      fo_a.collecting_event.update_columns(geographic_area_id: ga_zulu.id)
+      fo_z.collecting_event.update_columns(geographic_area_id: ga_alpha.id)
+      q = Queries::FieldOccurrence::Filter.new(
+        field_occurrence_id: [fo_a.id, fo_z.id], sort: 'collecting_event.geographic_area_name'
+      )
+      expect(q.all.map(&:id)).to eq([fo_z.id, fo_a.id])
+    end
+
     context 'belongs_to: collecting_event.verbatim_locality' do
       let!(:ce_a) { FactoryBot.create(:valid_collecting_event, verbatim_locality: 'Adirondacks') }
       let!(:ce_z) { FactoryBot.create(:valid_collecting_event, verbatim_locality: 'Zion') }

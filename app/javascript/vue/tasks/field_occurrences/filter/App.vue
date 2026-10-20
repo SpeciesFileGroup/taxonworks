@@ -115,6 +115,7 @@ defineOptions({
 
 const extend = [
   'collecting_event',
+  'geographic_area_name',
   'taxon_determinations',
   'identifiers',
   'dwc_occurrence'
