@@ -196,7 +196,8 @@
             chainConflict ||
             isAmbiguous ||
             invalidMatch ||
-            nonAcceptedBlocked
+            nonAcceptedBlocked ||
+            cannotCreate
         }"
       >
         <template v-if="otuBlocked">
