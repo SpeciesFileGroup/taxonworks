@@ -4,7 +4,6 @@ module Queries
     class Filter < Query::Filter
       include Queries::Concerns::DataAttributes
       include Queries::Concerns::Notes
-      include Queries::Concerns::Sortable
       include Queries::Concerns::SortResolver
       include Queries::Person::SortableFilterColumns
       include Queries::Concerns::Tags

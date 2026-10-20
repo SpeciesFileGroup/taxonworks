@@ -8,7 +8,6 @@ module Queries
       include Queries::Concerns::DataAttributes
       include Queries::Concerns::DateRanges
       include Queries::Concerns::Protocols
-      include Queries::Concerns::Sortable
       include Queries::Concerns::SortResolver
       include Queries::Extract::SortableFilterColumns
       include Queries::Concerns::Tags

@@ -54,12 +54,23 @@ module Queries::Concerns::SortResolver
     #   legitimately want either semantic depending on the column.
     #   :position  -- use the row with the lowest `position` column.
     #   :aggregate -- collapse to MIN(column) across all matching rows.
-    def assoc(*chain, collapse: nil)
+    # @param on [Class, nil]
+    #   An STI subclass of the filtered class to reflect the first hop on,
+    #   for associations declared only on that subclass, e.g.
+    #     assoc(:serial, :name, on: ::Source::Bibtex)
+    #   Rows of other subclasses simply have a NULL foreign key and sort last.
+    def assoc(*chain, collapse: nil, on: nil)
       *path, column = chain
       raise ArgumentError, 'assoc requires at least one association and a column' if path.empty?
       raise ArgumentError, "sort path too deep: #{(path + [column]).join('.')}" if path.length > MAX_DEPTH
 
-      build_sort_lambda(referenced_klass, path, column.to_s, collapse)
+      root_klass = referenced_klass
+      if on
+        raise ArgumentError, "#{on} is not a subclass of #{referenced_klass}" unless on < referenced_klass
+        root_klass = on
+      end
+
+      build_sort_lambda(root_klass, path, column.to_s, collapse)
     end
 
     # Escape hatch: a fully hand-written `->(q, dir) { ... }` lambda.

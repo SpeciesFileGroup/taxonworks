@@ -5,7 +5,6 @@ module Queries
       include Queries::Concerns::Citations
       include Queries::Concerns::DataAttributes
       include Queries::Concerns::Notes
-      include Queries::Concerns::Sortable
       include Queries::Concerns::SortResolver
       include Queries::Sound::SortableFilterColumns
 

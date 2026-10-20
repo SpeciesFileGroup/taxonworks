@@ -15,29 +15,6 @@ module Queries::Concerns::Sortable
   extend ActiveSupport::Concern
 
   class_methods do
-    # Sort by a column on the primary or already-joined table.
-    # @param qualified_column [String] e.g. 'collection_objects.total'.
-    def sort_by_direct_column(qualified_column)
-      ->(q, dir) {
-        q.order(Arel.sql("#{qualified_column} #{dir == :desc ? 'DESC' : 'ASC'} NULLS LAST"))
-      }
-    end
-
-    # Sort by a column on a 1:1 LEFT-JOINed table reached via a foreign key.
-    # @param joined_table [String] e.g. 'repositories'.
-    # @param joined_column [String] column on the joined table.
-    # @param fk_expr [String] SQL expression for the FK (e.g. 'collection_objects.repository_id').
-    # @param alias_prefix [String] unique-per-callsite alias.
-    def sort_by_belongs_to_column(joined_table:, joined_column:, fk_expr:, alias_prefix:)
-      lat_alias = alias_prefix
-
-      ->(q, dir) {
-        q
-          .joins("LEFT JOIN #{joined_table} AS #{lat_alias} ON #{lat_alias}.id = (#{fk_expr})")
-          .order(Arel.sql("#{lat_alias}.#{joined_column} #{dir == :desc ? 'DESC' : 'ASC'} NULLS LAST"))
-      }
-    end
-
     # @param rank [String] capitalized rank suffix matching the trailing
     #   segment of TaxonName#rank_class (e.g. 'Order', 'Family', 'Genus').
     # @param otu_id_expr [String] SQL expression evaluating to an otu id for

@@ -106,6 +106,28 @@ describe 'Queries::Concerns::SortResolver', type: :model do
       }.to raise_error(ArgumentError, /cannot be combined with further hops/)
     end
 
+    context 'on: (association declared on an STI subclass)' do
+      let(:source_filter) { Queries::Source::Filter }
+
+      specify 'the association is not reachable from the base class' do
+        expect {
+          source_filter.send(:assoc, :serial, :name)
+        }.to raise_error(ArgumentError, /no association/)
+      end
+
+      specify 'reflects on the given subclass' do
+        expect {
+          source_filter.send(:assoc, :serial, :name, on: ::Source::Bibtex)
+        }.not_to raise_error
+      end
+
+      specify 'rejects a class that is not a subclass of the filtered class' do
+        expect {
+          source_filter.send(:assoc, :serial, :name, on: ::Serial)
+        }.to raise_error(ArgumentError, /not a subclass/)
+      end
+    end
+
     specify 'rejects a bare belongs_to fk column as the terminal column' do
       expect {
         klass.send(:assoc, :repository, :id)

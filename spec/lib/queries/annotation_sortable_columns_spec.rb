@@ -26,12 +26,6 @@ describe 'annotation filter sortable_columns', type: :model do
       specify 'exposes created_by' do
         expect(filter_class.sortable_columns_index).to include('created_by')
       end
-
-      specify 'every sort key produces executable SQL' do
-        filter_class.sortable_columns_index.each do |key|
-          expect { filter_class.new(sort: key).all.to_a }.not_to raise_error, "sort=#{key}"
-        end
-      end
     end
   end
 

@@ -9,7 +9,6 @@ module Queries
       include Queries::Concerns::Citations
       include Queries::Concerns::Geo
       include Queries::Concerns::Confidences
-      include Queries::Concerns::Sortable
       include Queries::Concerns::SortResolver
       include Queries::AssertedDistribution::SortableFilterColumns
 

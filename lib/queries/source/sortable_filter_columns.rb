@@ -7,14 +7,8 @@ module Queries::Source::SortableFilterColumns
     def sortable_columns_uncached
       cols = sortable_direct_columns
 
-      # `belongs_to :serial` is only declared on Source::Bibtex, not the
-      # base Source STI class this filter reflects on -- assoc() can't
-      # walk it generically, so it stays hand-written.
-      cols['serial'] = sort_by_belongs_to_column(
-        joined_table: 'serials', joined_column: 'name',
-        fk_expr: 'sources.serial_id',
-        alias_prefix: 'sort_serial'
-      )
+      # `belongs_to :serial` is only declared on Source::Bibtex.
+      cols['serial'] = assoc(:serial, :name, on: ::Source::Bibtex)
 
       cols
     end

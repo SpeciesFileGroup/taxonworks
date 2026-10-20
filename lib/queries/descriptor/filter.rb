@@ -7,7 +7,6 @@ module Queries
       include Queries::Concerns::DataAttributes
       include Queries::Concerns::Depictions
       include Queries::Concerns::Notes
-      include Queries::Concerns::Sortable
       include Queries::Concerns::SortResolver
       include Queries::Descriptor::SortableFilterColumns
       include Queries::Concerns::Tags

@@ -8,7 +8,6 @@ module Queries
       include Queries::Concerns::Depictions
       include Queries::Concerns::Notes
       include Queries::Concerns::Protocols
-      include Queries::Concerns::Sortable
       include Queries::Concerns::SortResolver
       include Queries::FieldOccurrence::SortableFilterColumns
       include Queries::Concerns::Tags

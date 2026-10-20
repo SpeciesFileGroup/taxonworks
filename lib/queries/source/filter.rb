@@ -8,7 +8,6 @@ module Queries
       include Queries::Concerns::Attributes
       include Queries::Concerns::Empty
       include Queries::Concerns::Notes
-      include Queries::Concerns::Sortable
       include Queries::Concerns::SortResolver
       include Queries::Source::SortableFilterColumns
       include Queries::Concerns::Tags

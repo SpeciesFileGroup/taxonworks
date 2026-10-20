@@ -15,7 +15,6 @@ module Queries
       }.map(&:to_sym).freeze
 
       include Queries::Helpers
-      include Queries::Concerns::Sortable
       include Queries::Concerns::SortResolver
       include Queries::DwcOccurrence::SortableFilterColumns
       include Queries::Concerns::Users

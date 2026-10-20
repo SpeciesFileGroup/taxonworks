@@ -4,7 +4,6 @@ module Queries
       ATTRIBUTES = (::Namespace.core_attributes - %w{is_virtual}).map(&:to_sym).freeze
 
       include Queries::Concerns::Attributes
-      include Queries::Concerns::Sortable
       include Queries::Concerns::SortResolver
       include Queries::Namespace::SortableFilterColumns
 

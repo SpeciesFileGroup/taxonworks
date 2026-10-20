@@ -8,7 +8,6 @@ module Queries
       include Queries::Concerns::DataAttributes
       include Queries::Concerns::Depictions
       include Queries::Concerns::Notes
-      include Queries::Concerns::Sortable
       include Queries::Concerns::SortResolver
       include Queries::TaxonName::SortableFilterColumns
       include Queries::Concerns::Sounds

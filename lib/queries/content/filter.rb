@@ -6,7 +6,6 @@ module Queries
       include Queries::Concerns::Confidences
       include Queries::Concerns::DataAttributes
       include Queries::Concerns::Depictions
-      include Queries::Concerns::Sortable
       include Queries::Concerns::SortResolver
       include Queries::Content::SortableFilterColumns
 
