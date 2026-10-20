@@ -1,19 +1,13 @@
 module Queries
   module Depiction
     class Filter < Query::Filter
-      include Queries::Concerns::Sortable
+      include Queries::Concerns::SortResolver
       include Queries::Concerns::Tags
 
-      def self.sortable_columns
-        {
-          'id'                   => sort_by_direct_column('depictions.id'),
-          'depiction_object_type' => sort_by_direct_column('depictions.depiction_object_type'),
-          'caption'              => sort_by_direct_column('depictions.caption'),
-          'figure_label'         => sort_by_direct_column('depictions.figure_label'),
-          'created_at'           => sort_by_direct_column('depictions.created_at'),
-          'updated_at'           => sort_by_direct_column('depictions.updated_at'),
-          'created_by'           => sort_by_direct_column('depictions.created_by_id')
-        }
+      def self.sortable_columns_uncached
+        sortable_direct_columns.merge(
+          'created_by' => assoc(:creator, :name)
+        )
       end
 
       # We can't use distinct in SQL on XML column types,

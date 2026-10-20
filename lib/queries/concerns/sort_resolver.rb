@@ -21,8 +21,16 @@ module Queries::Concerns::SortResolver
   MAX_DEPTH = 3
 
   BLACKLISTED_CLASSES = %w[User].freeze
+
+  # The only columns of a BLACKLISTED_CLASSES class that may be sorted on,
+  # and only as the final column of a chain (never as a hop to go further).
+  # Users see creators/updaters by name, never by id.
+  BLACKLISTED_CLASS_SORTABLE_COLUMNS = { 'User' => %w[name].freeze }.freeze
   RESTRICTED_COLUMN = /(password|token|secret|digest|_ip\z|crypt)/i
   FOREIGN_KEY_COLUMN = /\A.+_id\z/
+
+  # Postgres has no ordering operator for these column types.
+  UNORDERABLE_SQL_TYPES = %w[xml json].freeze
 
   class_methods do
     # A column on this filter's own table.
@@ -87,6 +95,7 @@ module Queries::Concerns::SortResolver
       return false if col =~ FOREIGN_KEY_COLUMN
       return false if col =~ RESTRICTED_COLUMN
       return false if klass.respond_to?(:encrypted_attributes) && klass.encrypted_attributes&.key?(col)
+      return false if UNORDERABLE_SQL_TYPES.include?(klass.columns_hash[col]&.sql_type)
       true
     end
 
@@ -109,7 +118,7 @@ module Queries::Concerns::SortResolver
         end
 
         raise ArgumentError, "unsupported association macro #{refl.macro} for :#{name}" unless %i[belongs_to has_one].include?(refl.macro)
-        validate_target_class!(refl.klass)
+        validate_target_class!(refl.klass, terminal_column: (column if i == path.length - 1))
 
         alias_name = "sort_#{name}_#{i}"
         joins << single_hop_join(klass, refl, current_alias, alias_name)
@@ -166,7 +175,7 @@ module Queries::Concerns::SortResolver
         r = current_klass.reflect_on_association(name)
         raise ArgumentError, "no association :#{name} on #{current_klass}" unless r
         raise ArgumentError, 'only belongs_to/has_one supported after a has_many hop' unless %i[belongs_to has_one].include?(r.macro)
-        validate_target_class!(r.klass)
+        validate_target_class!(r.klass, terminal_column: (column if i == remaining.length - 1))
 
         nxt_alias = "sort_#{name}_r#{i}"
         extra_joins << plain_hop_join(current_klass, r, current_alias, nxt_alias)
@@ -267,10 +276,16 @@ module Queries::Concerns::SortResolver
         raise ArgumentError, "#{col} is encrypted and cannot be sorted on"
       end
       raise ArgumentError, "no column #{klass}##{col}" unless klass.column_names.include?(col)
+      raise ArgumentError, "#{col} is of a type that cannot be ordered" if UNORDERABLE_SQL_TYPES.include?(klass.columns_hash[col].sql_type)
     end
 
-    def validate_target_class!(klass)
-      raise ArgumentError, "#{klass} is not reachable for sorting" if BLACKLISTED_CLASSES.include?(klass.name)
+    # @param terminal_column [String, nil] the column sorted on when `klass`
+    #   is the last hop of the chain, nil when the chain continues past it.
+    def validate_target_class!(klass, terminal_column: nil)
+      return unless BLACKLISTED_CLASSES.include?(klass.name)
+      return if terminal_column && BLACKLISTED_CLASS_SORTABLE_COLUMNS[klass.name]&.include?(terminal_column.to_s)
+
+      raise ArgumentError, "#{klass} is not reachable for sorting"
     end
 
     def sort_direction(dir) = dir == :desc ? 'DESC' : 'ASC'

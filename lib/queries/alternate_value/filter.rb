@@ -4,20 +4,13 @@ module Queries
 
       include Queries::Helpers
       include Concerns::Polymorphic
-      include Queries::Concerns::Sortable
+      include Queries::Concerns::SortResolver
       polymorphic_klass(::AlternateValue)
 
-      def self.sortable_columns
-        {
-          'id'                               => sort_by_direct_column('alternate_values.id'),
-          'alternate_value_object_type'      => sort_by_direct_column('alternate_values.alternate_value_object_type'),
-          'type'                             => sort_by_direct_column('alternate_values.type'),
-          'value'                            => sort_by_direct_column('alternate_values.value'),
-          'alternate_value_object_attribute' => sort_by_direct_column('alternate_values.alternate_value_object_attribute'),
-          'created_at'                       => sort_by_direct_column('alternate_values.created_at'),
-          'updated_at'                       => sort_by_direct_column('alternate_values.updated_at'),
-          'created_by'                       => sort_by_direct_column('alternate_values.created_by_id')
-        }
+      def self.sortable_columns_uncached
+        sortable_direct_columns.merge(
+          'created_by' => assoc(:creator, :name)
+        )
       end
 
       PARAMS = [

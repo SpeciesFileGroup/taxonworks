@@ -37,6 +37,12 @@ describe 'Queries::Concerns::SortResolver', type: :model do
     specify 'allows an ordinary column' do
       expect { klass.send(:validate_column!, ::Repository, 'name') }.not_to raise_error
     end
+
+    specify 'rejects a column whose type has no ordering (xml)' do
+      expect {
+        klass.send(:validate_column!, ::Depiction, 'svg_clip')
+      }.to raise_error(ArgumentError, /cannot be ordered/)
+    end
   end
 
   context 'validate_target_class! guardrail' do
@@ -48,6 +54,18 @@ describe 'Queries::Concerns::SortResolver', type: :model do
 
     specify 'allows an ordinary class' do
       expect { klass.send(:validate_target_class!, ::Repository) }.not_to raise_error
+    end
+
+    specify 'allows User when the terminal column is its display name' do
+      expect {
+        Queries::Note::Filter.send(:assoc, :creator, :name)
+      }.not_to raise_error
+    end
+
+    specify 'rejects User for any other terminal column' do
+      expect {
+        Queries::Note::Filter.send(:assoc, :creator, :email)
+      }.to raise_error(ArgumentError, /not reachable for sorting/)
     end
   end
 
@@ -94,6 +112,12 @@ describe 'Queries::Concerns::SortResolver', type: :model do
       expect(cols).not_to have_key('repository_id')
       expect(cols).not_to have_key('project_id')
       expect(cols.values).to all(be_a(Proc))
+    end
+
+    specify 'sortable_direct_columns excludes columns whose type has no ordering' do
+      cols = Queries::Depiction::Filter.send(:sortable_direct_columns)
+      expect(cols).to have_key('caption')
+      expect(cols).not_to have_key('svg_clip')
     end
 
     specify 'sortable_assoc_columns includes the target class columns and excludes its fk-shaped ones' do
