@@ -139,6 +139,65 @@ describe 'Queries::Concerns::SortResolver', type: :model do
     end
   end
 
+  context 'has_one LATERAL' do
+    specify 'selects only the sort column when the has_one is the last hop' do
+      sql = Queries::CollectionObject::Filter.new(sort: 'dwc_occurrence.scientificName').all.to_sql
+      expect(sql).not_to include('SELECT *')
+      expect(sql).to include('SELECT sort_dwc_occurrence_0_t."scientificName" FROM dwc_occurrences')
+    end
+
+    context 'followed by a belongs_to hop' do
+      let(:sort) { Queries::Content::Filter.send(:assoc, :public_content, :otu, :name) }
+      let!(:content_z) { FactoryBot.create(:valid_content, otu: FactoryBot.create(:valid_otu, name: 'Zed')) }
+      let!(:content_a) { FactoryBot.create(:valid_content, otu: FactoryBot.create(:valid_otu, name: 'Alpha')) }
+
+      # content_z is created first so id order and name order disagree.
+      before { [content_z, content_a].each(&:publish) }
+
+      specify 'selects only the foreign key the next hop needs' do
+        sql = sort.call(::Content.all, :asc).to_sql
+        expect(sql).not_to include('SELECT *')
+        expect(sql).to include('SELECT sort_public_content_0_t."otu_id" FROM public_contents')
+      end
+
+      specify 'orders by the final column' do
+        expect(sort.call(::Content.where(id: [content_z.id, content_a.id]), :asc).to_a).to eq([content_a, content_z])
+      end
+    end
+  end
+
+  context 'association shapes the resolver cannot honor' do
+    specify 'rejects a scoped association (its conditions would be ignored)' do
+      expect {
+        Queries::Otu::Filter.send(:assoc, :origin_citation, :source, :cached)
+      }.to raise_error(ArgumentError, /has a scope/)
+    end
+
+    specify 'rejects a scoped association as a later hop' do
+      expect {
+        Queries::Content::Filter.send(:assoc, :otu, :origin_citation, :pages)
+      }.to raise_error(ArgumentError, /has a scope/)
+    end
+
+    specify 'rejects a scoped association inside a has_many LATERAL' do
+      expect {
+        klass.send(:assoc, :taxon_determinations, :otu, :origin_citation, :pages, collapse: :position)
+      }.to raise_error(ArgumentError, /has a scope/)
+    end
+
+    specify 'rejects has_one :through' do
+      expect {
+        Queries::Otu::Filter.send(:assoc, :source, :cached)
+      }.to raise_error(ArgumentError, /has_one :through/)
+    end
+
+    specify 'rejects has_one :through inside a has_many LATERAL' do
+      expect {
+        klass.send(:assoc, :taxon_determinations, :otu, :source, :cached, collapse: :position)
+      }.to raise_error(ArgumentError, /has_one :through/)
+    end
+  end
+
   context 'bulk auto-derivation' do
     specify 'sortable_direct_columns includes ordinary columns and excludes blacklisted-shaped ones' do
       cols = klass.send(:sortable_direct_columns)

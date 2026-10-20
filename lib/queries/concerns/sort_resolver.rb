@@ -129,6 +129,10 @@ module Queries::Concerns::SortResolver
       path.each_with_index do |name, i|
         refl = klass.reflect_on_association(name)
         raise ArgumentError, "no association :#{name} on #{klass}" unless refl
+        if refl.macro == :has_one && refl.through_reflection
+          raise ArgumentError, "has_one :through (:#{name}) is not generically sortable; use custom()"
+        end
+        validate_unscoped!(refl)
 
         if refl.macro == :has_many
           remaining = path[(i + 1)..]
@@ -143,7 +147,8 @@ module Queries::Concerns::SortResolver
         validate_target_class!(refl.klass, terminal_column: (column if i == path.length - 1))
 
         alias_name = "sort_#{name}_#{i}"
-        joins << single_hop_join(klass, refl, current_alias, alias_name)
+        next_name = path[i + 1]
+        joins << single_hop_join(klass, refl, current_alias, alias_name, columns_needed(refl.klass, next_name, column))
         klass = refl.klass
         current_alias = alias_name
       end
@@ -159,7 +164,11 @@ module Queries::Concerns::SortResolver
     # correlated 1:1 by app invariant) is still built as a LATERAL rather
     # than a plain join, to avoid row multiplication if that invariant is
     # ever violated.
-    def single_hop_join(owner_klass, refl, owner_alias, alias_name)
+    #
+    # @param columns [Array<String>] the target columns later SQL references
+    #   (see columns_needed); a has_one LATERAL selects only these, which is
+    #   measurably faster than SELECT * on wide tables like dwc_occurrences.
+    def single_hop_join(owner_klass, refl, owner_alias, alias_name, columns)
       if refl.macro == :belongs_to
         raise ArgumentError, 'polymorphic belongs_to is not generically sortable; use custom()' if refl.polymorphic?
 
@@ -175,12 +184,24 @@ module Queries::Concerns::SortResolver
         where << "#{inner}.#{target.inheritance_column} = #{quote(target.sti_name)}" if target.finder_needs_type_condition?
         <<~SQL.squish
           LEFT JOIN LATERAL (
-            SELECT * FROM #{target.table_name} #{inner}
+            SELECT #{columns.map { |c| %(#{inner}."#{c}") }.join(', ')} FROM #{target.table_name} #{inner}
             WHERE #{where.join(' AND ')}
             LIMIT 1
           ) AS #{alias_name} ON true
         SQL
       end
+    end
+
+    # The columns of `klass` (reached by a belongs_to/has_one hop) that the
+    # rest of the chain references: the sort column when this is the last
+    # hop, otherwise whatever the next hop joins on.
+    def columns_needed(klass, next_name, column)
+      return [column] if next_name.nil?
+
+      next_refl = klass.reflect_on_association(next_name)
+      raise ArgumentError, "no association :#{next_name} on #{klass}" unless next_refl
+
+      next_refl.macro == :belongs_to ? [next_refl.foreign_key.to_s] : ['id']
     end
 
     # Builds the LATERAL for a has_many (direct or :through) hop, optionally
@@ -196,6 +217,10 @@ module Queries::Concerns::SortResolver
       remaining.each_with_index do |name, i|
         r = current_klass.reflect_on_association(name)
         raise ArgumentError, "no association :#{name} on #{current_klass}" unless r
+        if r.macro == :has_one && r.through_reflection
+          raise ArgumentError, "has_one :through (:#{name}) is not generically sortable; use custom()"
+        end
+        validate_unscoped!(r)
         raise ArgumentError, 'only belongs_to/has_one supported after a has_many hop' unless %i[belongs_to has_one].include?(r.macro)
         validate_target_class!(r.klass, terminal_column: (column if i == remaining.length - 1))
 
@@ -308,6 +333,17 @@ module Queries::Concerns::SortResolver
 
     # @param terminal_column [String, nil] the column sorted on when `klass`
     #   is the last hop of the chain, nil when the chain continues past it.
+    # Association scopes (e.g. `-> { where(is_original: true) }`) are not
+    # applied by the SQL built here, so sorting through one would silently
+    # use the wrong rows. Write those with custom().
+    def validate_unscoped!(refl)
+      parts = [refl]
+      parts += [refl.through_reflection, refl.source_reflection] if refl.through_reflection
+      return if parts.none?(&:scope)
+
+      raise ArgumentError, ":#{refl.name} on #{refl.active_record} has a scope, which sorting does not apply; use custom()"
+    end
+
     def validate_target_class!(klass, terminal_column: nil)
       return unless BLACKLISTED_CLASSES.include?(klass.name)
       return if terminal_column && BLACKLISTED_CLASS_SORTABLE_COLUMNS[klass.name]&.include?(terminal_column.to_s)
