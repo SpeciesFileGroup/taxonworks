@@ -63,8 +63,9 @@ module Vendor
     # working around them. What we do in the meantime:
     #   * /nameusage/search should find a name with or without its
     #     subgenus, both ways. A query with the subgenus misses names CoL
-    #     gives without one, so we search without it (.search_term). (The
-    #     exact /nameusage?q= lookup is exact by design - not an ask.)
+    #     gives without one, so we search without it (.search_term) -
+    #     except for a subgenus itself. (The exact /nameusage?q= lookup is
+    #     exact by design - not an ask.)
     #   * a name should come formatted the same way whatever its source
     #     (subgenus included or not, a synonym like its accepted name). We
     #     compare keys that ignore the subgenus.
@@ -92,10 +93,19 @@ module Vendor
       # with a subgenus for a query without one - observed, not documented;
       # see the search note above before relying on this elsewhere.
       #
+      # A subgenus itself keeps its whole name: without the subgenus it would
+      # be a search for its genus, whose many subgenera can push the one
+      # wanted off the first page of results.
+      #
       # @param name [String, nil]
       # @return [String, nil]
       def self.search_term(name)
-        comparable(name)
+        return nil if name.nil?
+
+        name = ::Utilities::Nomenclature.unmisspell_name(name)
+        return name.strip if name.strip.match?(SUBGENUS_NAME)
+
+        without_subgenus(name)
       end
 
       # A whole subgenus name: "Genus (Subgenus)" (CoL zoological, and

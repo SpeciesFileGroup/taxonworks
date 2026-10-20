@@ -923,6 +923,14 @@ describe Vendor::Colrapi, type: :model do
       described_class.name_status(species)
     end
 
+    specify 'queries CoL for a subgenus by its whole name' do
+      expect(::Colrapi).to receive(:nameusage_search)
+        .with(q: 'Erythroneura (Erythroneura)', dataset_id: '3LR',
+          rank: 'subgenus')
+        .and_return(col_search_result)
+      described_class.name_status(species.parent)
+    end
+
     specify 'an invalid Protonym is looked up by its original combination' do
       species.update_columns(
         cached_is_valid: false,

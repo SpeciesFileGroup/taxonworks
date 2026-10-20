@@ -102,6 +102,16 @@ describe Vendor::Colrapi::NameTranslation, type: :model do
       expect(t.search_term('Aus bvs [sic]')).to eq('Aus bvs')
     end
 
+    specify 'a subgenus keeps its whole name' do
+      expect(t.search_term('Carabus (Megodontus)'))
+        .to eq('Carabus (Megodontus)')
+    end
+
+    specify 'a botanical subgenus keeps its whole name' do
+      expect(t.search_term('Acrobolbus subgen. Marsupellopsis'))
+        .to eq('Acrobolbus subgen. Marsupellopsis')
+    end
+
     specify 'ICN infraspecific connecting terms are kept' do
       expect(t.search_term('Olea europaea subsp. africana'))
         .to eq('Olea europaea subsp. africana')
