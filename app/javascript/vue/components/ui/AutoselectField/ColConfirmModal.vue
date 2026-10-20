@@ -18,7 +18,16 @@
       <table class="col-confirm-modal__table">
         <thead>
           <tr>
-            <th></th>
+            <th>
+              <input
+                v-if="checkableRowKeys.length"
+                type="checkbox"
+                title="Check or uncheck every name that can be created"
+                :checked="allRowsChecked"
+                :indeterminate="someRowsChecked && !allRowsChecked"
+                @change="toggleAllRows"
+              />
+            </th>
             <th>Rank</th>
             <th>CoL name</th>
             <th>TaxonWorks match</th>
@@ -339,6 +348,25 @@ const checkedRowKeys = ref(
   )
 )
 
+// rowKey values of the rows the user can check: CoL-only ('none') rows at a
+// rank TaxonWorks has.
+const checkableRowKeys = computed(() =>
+  ancestorRowsDistalFirst.value
+    .map((r, i) => [r, rowKey(r, i)])
+    .filter(([r]) => r.match === 'none' && !r.rank_unknown)
+    .map(([, key]) => key)
+)
+
+const allRowsChecked = computed(
+  () =>
+    checkableRowKeys.value.length > 0 &&
+    checkableRowKeys.value.every((key) => checkedRowKeys.value.has(key))
+)
+
+const someRowsChecked = computed(() =>
+  checkableRowKeys.value.some((key) => checkedRowKeys.value.has(key))
+)
+
 // The existing record selecting this result yields without creating anything: for
 // a hook result (e.g. the OTU levels) the hook's existing record, otherwise the
 // matched target TaxonName. id is null when there's none.
@@ -437,6 +465,12 @@ function toggleRow(key) {
   }
   // Force reactivity on Set mutation
   checkedRowKeys.value = new Set(checkedRowKeys.value)
+}
+
+function toggleAllRows() {
+  checkedRowKeys.value = allRowsChecked.value
+    ? new Set()
+    : new Set(checkableRowKeys.value)
 }
 
 function rowClass(row) {
