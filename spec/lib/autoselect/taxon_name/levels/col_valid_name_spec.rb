@@ -23,7 +23,7 @@ RSpec.describe Autoselect::TaxonName::Levels::ColValidName, type: :model do
 
   describe '#call' do
     context 'when CoL has no match for the term' do
-      before { allow(::Vendor::Colrapi).to receive(:resolve_accepted_name).and_return(nil) }
+      before { allow(::Vendor::Colrapi).to receive(:resolve_accepted_names).and_return([]) }
 
       it 'returns an empty array' do
         expect(level.call(term: 'Nonsense', project_id:, user_id:)).to eq([])
@@ -31,7 +31,7 @@ RSpec.describe Autoselect::TaxonName::Levels::ColValidName, type: :model do
     end
 
     context 'when CoL resolves the term' do
-      # The accepted nameusage hash resolve_accepted_name hands back for the valid name.
+      # The accepted nameusage hash resolve_accepted_names hands back for the valid name.
       let(:valid_col_result) do
         { 'id' => 'VALID1', 'status' => 'accepted',
           'name' => { 'scientificName' => 'Panthera leo', 'rank' => 'species', 'authorship' => 'Linnaeus, 1758' } }
@@ -47,14 +47,15 @@ RSpec.describe Autoselect::TaxonName::Levels::ColValidName, type: :model do
       end
 
       before do
-        allow(::Vendor::Colrapi).to receive(:resolve_accepted_name)
+        allow(::Vendor::Colrapi).to receive(:resolve_accepted_names)
           .with('Panthera leo persica', dataset_id: nil)
-          .and_return(
-            input: 'Panthera leo persica', matched_name: 'Panthera leo persica', matched_status: 'synonym',
+          .and_return([{
+            input: 'Panthera leo persica', matched_name: 'Panthera leo persica',
+            matched_authorship: 'Meyer, 1826', matched_status: 'synonym',
             matched_col_key: 'MATCHED1', valid_name: 'Panthera leo', valid_col_key: 'VALID1',
             valid_authorship: 'Linnaeus, 1758', valid_status: 'accepted',
             valid_col_result:, dataset_id: '3LR'
-          )
+          }])
         allow(::Autoselect::TaxonName::ColMatch).to receive(:new)
           .with(valid_col_result, hash_including(dataset_id: '3LR'))
           .and_return(fake_col_match)
@@ -78,21 +79,22 @@ RSpec.describe Autoselect::TaxonName::Levels::ColValidName, type: :model do
         expect(result.first._col_extension[:resolved_from]).to eq('Panthera leo persica')
       end
 
-      it 'records the synonym CoL followed' do
+      it 'records the synonym CoL followed, with its authorship' do
         result = level.call(term: 'Panthera leo persica', project_id:, user_id:)
-        expect(result.first._col_extension[:resolved_synonym]).to eq('Panthera leo persica')
+        expect(result.first._col_extension[:resolved_synonym])
+          .to eq('Panthera leo persica Meyer, 1826')
       end
 
       context 'and CoL followed no synonymy' do
         before do
-          allow(::Vendor::Colrapi).to receive(:resolve_accepted_name)
+          allow(::Vendor::Colrapi).to receive(:resolve_accepted_names)
             .with('Panthera le', dataset_id: nil)
-            .and_return(
+            .and_return([{
               input: 'Panthera le', matched_name: 'Panthera leo', matched_status: 'accepted',
               matched_col_key: 'VALID1', valid_name: 'Panthera leo', valid_col_key: 'VALID1',
               valid_authorship: 'Linnaeus, 1758', valid_status: 'accepted',
               valid_col_result:, dataset_id: '3LR'
-            )
+            }])
         end
 
         it 'records no synonym' do
@@ -127,10 +129,51 @@ RSpec.describe Autoselect::TaxonName::Levels::ColValidName, type: :model do
       end
     end
 
-    context 'when resolve_accepted_name returns no usable valid usage' do
+    # Pieris: a butterfly genus and a plant genus.
+    context 'when the term resolves to names in different codes' do
+      def resolved(key, code)
+        col_result = {
+          'id' => key, 'status' => 'accepted',
+          'name' => {
+            'scientificName' => 'Pieris', 'rank' => 'genus', 'code' => code
+          }
+        }
+        {
+          input: 'Pieris', matched_name: 'Pieris', matched_status: 'accepted',
+          matched_col_key: key, valid_name: 'Pieris', valid_col_key: key,
+          valid_status: 'accepted', valid_col_result: col_result,
+          dataset_id: '3LR'
+        }
+      end
+
       before do
-        allow(::Vendor::Colrapi).to receive(:resolve_accepted_name)
-          .and_return(valid_name: 'Something', valid_col_result: nil)
+        allow(::Vendor::Colrapi).to receive(:resolve_accepted_names)
+          .and_return([resolved('Z1', 'zoological'), resolved('B1', 'botanical')])
+        allow(::Autoselect::TaxonName::ColMatch).to receive(:new) do |col_result, **|
+          instance_double(
+            ::Autoselect::TaxonName::ColMatch,
+            call: OpenStruct.new(
+              cached: 'Pieris',
+              _col_extension: {
+                col_key: col_result['id'], col_rank: 'genus',
+                col_code: col_result.dig('name', 'code')
+              }
+            )
+          )
+        end
+      end
+
+      it 'returns a record for each, badged with its code' do
+        result = level.call(term: 'Pieris', project_id:, user_id:)
+        expect(result.map { |r| level.record_info(r) })
+          .to eq([%w{CoL genus ICZN}, %w{CoL genus ICN}])
+      end
+    end
+
+    context 'when resolve_accepted_names returns no usable valid usage' do
+      before do
+        allow(::Vendor::Colrapi).to receive(:resolve_accepted_names)
+          .and_return([{ valid_name: 'Something', valid_col_result: nil }])
       end
 
       it 'returns an empty array' do
@@ -207,11 +250,9 @@ RSpec.describe Autoselect::TaxonName::Levels::ColValidName, type: :model do
           .to eq(['CoL', 'species'])
       end
 
-      # resolve_accepted_name only follows a plain synonym; anything else
-      # resolves to itself, still not accepted.
       it 'flags a status other than accepted' do
-        expect(level.record_info(result(col_status: 'ambiguous synonym')))
-          .to eq(['CoL', 'ambiguous synonym', 'species'])
+        expect(level.record_info(result(col_status: 'provisionally accepted')))
+          .to eq(['CoL', 'provisionally accepted', 'species'])
       end
 
       it 'orders status and rank badges before the note' do

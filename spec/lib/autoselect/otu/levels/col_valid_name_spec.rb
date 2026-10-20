@@ -5,13 +5,13 @@ RSpec.describe Autoselect::Otu::Levels::ColValidName, type: :model do
 
   let(:fake_taxon_name_level) { instance_double(::Autoselect::TaxonName::Levels::ColValidName) }
 
-  # The OTU level uses TaxonName::ColValidName#resolve_target (the raw pseudo-record),
-  # not #call — it makes its own existing-Otu decision.
-  def stub_resolve_target(term:, target:)
+  # The OTU level uses TaxonName::ColValidName#resolve_targets (the raw
+  # pseudo-records), not #call — it makes its own existing-Otu decision.
+  def stub_resolve_targets(term:, target:)
     allow(::Autoselect::TaxonName::Levels::ColValidName).to receive(:new).and_return(fake_taxon_name_level)
-    allow(fake_taxon_name_level).to receive(:resolve_target)
+    allow(fake_taxon_name_level).to receive(:resolve_targets)
       .with(term, hash_including(project_id:))
-      .and_return(target)
+      .and_return([target].compact)
   end
 
   def resolved_record(valid_name:, extra_extension: {})
@@ -33,7 +33,7 @@ RSpec.describe Autoselect::Otu::Levels::ColValidName, type: :model do
 
   describe '#call' do
     context 'when CoL resolves nothing' do
-      before { stub_resolve_target(term: 'Nonsense', target: nil) }
+      before { stub_resolve_targets(term: 'Nonsense', target: nil) }
 
       it 'returns an empty array' do
         expect(level.call(term: 'Nonsense', project_id:, user_id:)).to eq([])
@@ -41,7 +41,7 @@ RSpec.describe Autoselect::Otu::Levels::ColValidName, type: :model do
     end
 
     context 'when resolved and the name has no OTU' do
-      # resolve_target sets resolved_from.
+      # resolve_targets sets resolved_from.
       let(:target) do
         resolved_record(
           valid_name: 'Panthera leo',
@@ -49,7 +49,7 @@ RSpec.describe Autoselect::Otu::Levels::ColValidName, type: :model do
         )
       end
 
-      before { stub_resolve_target(term: 'Panthera leo persica', target:) }
+      before { stub_resolve_targets(term: 'Panthera leo persica', target:) }
 
       it 'returns a single CoL result for the resolved valid name' do
         result = level.call(term: 'Panthera leo persica', project_id:, user_id:)
@@ -70,7 +70,7 @@ RSpec.describe Autoselect::Otu::Levels::ColValidName, type: :model do
       end
     end
 
-    # The existing OTU is found via the TaxonName resolve_target matched, so
+    # The existing OTU is found via the TaxonName resolve_targets matched, so
     # it's found even when CoL writes the name differently (see
     # Vendor::Colrapi::NameTranslation).
     context 'when resolved and the name already has an OTU' do
@@ -83,7 +83,7 @@ RSpec.describe Autoselect::Otu::Levels::ColValidName, type: :model do
           valid_name:,
           extra_extension: { target_taxonworks_id: taxon_name.id }
         )
-        stub_resolve_target(term: valid_name, target:)
+        stub_resolve_targets(term: valid_name, target:)
         level.call(term: valid_name, project_id:, user_id:)
       end
 

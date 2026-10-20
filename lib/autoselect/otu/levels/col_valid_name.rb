@@ -7,7 +7,7 @@ module Autoselect
       # was transcribed with an outdated/synonymized name, and the curator wants
       # the OTU CoL now recognizes.
       #
-      # Wraps TaxonName::ColValidName#resolve_target's pseudo-record (flagged
+      # Wraps TaxonName::ColValidName#resolve_targets' pseudo-records (flagged
       # with `resolved_from:`) with the OTU creation hook. The one thing with
       # no TaxonName-level equivalent: the hook carries the resolved name's
       # existing Otu, if any (see Autoselect::Otu::ColExistingOtu).
@@ -58,17 +58,16 @@ module Autoselect
         # @param project_id [Integer, nil]
         # @param dataset_id [String, nil] CoL dataset ID from user preferences;
         #   falls back to default when nil
-        # @return [Array<OpenStruct>] a single CoL result for the resolved valid
-        #   name, whose hook carries the name's existing Otu, if any
+        # @return [Array<OpenStruct>] a CoL result per resolved valid name,
+        #   whose hook carries the name's existing Otu, if any
         def call(
           term:, operator: nil, project_id: nil, user_id: nil, dataset_id: nil,
           **_kwargs
         )
-          target = ::Autoselect::TaxonName::Levels::ColValidName.new
-            .resolve_target(term, project_id:, dataset_id:)
-          return [] if target.nil?
+          targets = ::Autoselect::TaxonName::Levels::ColValidName.new
+            .resolve_targets(term, project_id:, dataset_id:)
 
-          ::Autoselect::Otu::ColExistingOtu.wrap([target], project_id:)
+          ::Autoselect::Otu::ColExistingOtu.wrap(targets, project_id:)
         end
 
       end

@@ -535,33 +535,41 @@ describe Vendor::Colrapi, type: :model do
     end
   end
 
-  # ── resolve_accepted_name ────────────────────────────────────────────────────
+  # ── resolve_accepted_names ───────────────────────────────────────────────────
 
-  describe '.resolve_accepted_name' do
+  describe '.resolve_accepted_names' do
+    def stub_hits(*hits)
+      allow(::Colrapi).to receive(:nameusage)
+        .and_return({ 'total' => hits.size, 'result' => hits })
+    end
+
+    def synonym_of(hit, id:, name:, authorship: 'Linnaeus, 1758')
+      hit.merge(
+        'accepted' => {
+          'id' => id,
+          'status' => 'accepted',
+          'name' => { 'scientificName' => name, 'authorship' => authorship }
+        }
+      )
+    end
+
     context 'when CoL has no results' do
-      before do
-        allow(::Colrapi).to receive(:nameusage).and_return({ 'total' => 0, 'result' => [] })
-      end
+      before { stub_hits }
 
-      it 'returns nil' do
-        expect(described_class.resolve_accepted_name('Nonexistens')).to be_nil
+      it 'returns nothing' do
+        expect(described_class.resolve_accepted_names('Nonexistens')).to eq([])
       end
     end
 
-    it 'fetches only the top hit' do
-      allow(::Colrapi).to receive(:nameusage).and_return({ 'total' => 0, 'result' => [] })
-      described_class.resolve_accepted_name('Homo sapiens')
-      expect(::Colrapi).to have_received(:nameusage).with('3LR', hash_including(limit: 1))
-    end
-
-    context 'when the top hit is accepted' do
+    context 'when the hit is accepted' do
       before do
-        allow(::Colrapi).to receive(:nameusage)
-          .and_return({ 'total' => 1, 'result' => [col_nameusage_result(id: '6MB3T', scientific_name: 'Homo sapiens', status: 'accepted')] })
+        stub_hits(col_nameusage_result(
+          id: '6MB3T', scientific_name: 'Homo sapiens', status: 'accepted'
+        ))
       end
 
       it 'resolves to the matched name itself' do
-        result = described_class.resolve_accepted_name('Homo sapiens')
+        result = described_class.resolve_accepted_names('Homo sapiens').first
         expect(result[:matched_name]).to eq('Homo sapiens')
         expect(result[:matched_status]).to eq('accepted')
         expect(result[:valid_name]).to eq('Homo sapiens')
@@ -570,31 +578,28 @@ describe Vendor::Colrapi, type: :model do
         expect(result[:dataset_id]).to eq('3LR')
       end
 
-      it 'returns the top hit itself as valid_col_result' do
-        result = described_class.resolve_accepted_name('Homo sapiens')
+      it 'returns the hit itself as valid_col_result' do
+        result = described_class.resolve_accepted_names('Homo sapiens').first
         expect(result[:valid_col_result]).to include('id' => '6MB3T')
-        expect(result[:valid_col_result].dig('name', 'scientificName')).to eq('Homo sapiens')
       end
     end
 
-    context 'when the top hit is a synonym with a single accepted target' do
+    context 'when the hit is a synonym with a single accepted target' do
       let(:synonym_result) do
-        col_nameusage_result(id: 'SYN1', scientific_name: 'Bison bison', status: 'synonym').merge(
-          'accepted' => {
-            'id'     => 'ACC1',
-            'status' => 'accepted',
-            'name'   => { 'scientificName' => 'Bos bison', 'authorship' => 'Linnaeus, 1758' }
-          }
+        synonym_of(
+          col_nameusage_result(
+            id: 'SYN1', scientific_name: 'Bison bison', status: 'synonym'
+          ),
+          id: 'ACC1', name: 'Bos bison'
         )
       end
 
-      before do
-        allow(::Colrapi).to receive(:nameusage).and_return({ 'total' => 1, 'result' => [synonym_result] })
-      end
+      before { stub_hits(synonym_result) }
 
       it 'resolves to the accepted target, not the matched synonym' do
-        result = described_class.resolve_accepted_name('Bison bison')
+        result = described_class.resolve_accepted_names('Bison bison').first
         expect(result[:matched_name]).to eq('Bison bison')
+        expect(result[:matched_authorship]).to eq('Linnaeus, 1758')
         expect(result[:matched_status]).to eq('synonym')
         expect(result[:matched_col_key]).to eq('SYN1')
         expect(result[:valid_name]).to eq('Bos bison')
@@ -604,64 +609,119 @@ describe Vendor::Colrapi, type: :model do
       end
 
       it 'returns the nested accepted usage as valid_col_result' do
-        result = described_class.resolve_accepted_name('Bison bison')
+        result = described_class.resolve_accepted_names('Bison bison').first
         expect(result[:valid_col_result]).to eq(synonym_result['accepted'])
       end
     end
 
-    # CoL attaches an `accepted` usage to ambiguous synonyms too, but it's only
-    # one of several possible targets.
-    context 'when the top hit is an ambiguous synonym' do
-      let(:ambiguous_result) do
-        col_nameusage_result(id: 'AMB1', scientific_name: 'Crayracion', status: 'ambiguous synonym').merge(
-          'accepted' => {
-            'id'     => 'ACC2',
-            'status' => 'accepted',
-            'name'   => { 'scientificName' => 'Sphoeroides', 'authorship' => 'Anonymous, 1798' }
-          }
+    # CoL attaches an `accepted` usage to these too, but it isn't what the
+    # name means.
+    specify 'ambiguous synonyms and misapplied names are skipped' do
+      stub_hits(
+        synonym_of(
+          col_nameusage_result(
+            id: 'AMB1', scientific_name: 'Crayracion',
+            status: 'ambiguous synonym'
+          ),
+          id: 'ACC2', name: 'Sphoeroides'
+        ),
+        synonym_of(
+          col_nameusage_result(
+            id: 'MIS1', scientific_name: 'Crayracion', status: 'misapplied'
+          ),
+          id: 'ACC3', name: 'Lagocephalus'
         )
-      end
-
-      before do
-        allow(::Colrapi).to receive(:nameusage).and_return({ 'total' => 1, 'result' => [ambiguous_result] })
-      end
-
-      it 'resolves to itself, same as an accepted name would' do
-        result = described_class.resolve_accepted_name('Crayracion')
-        expect(result[:valid_name]).to eq('Crayracion')
-        expect(result[:valid_col_key]).to eq('AMB1')
-        expect(result[:valid_status]).to eq('ambiguous synonym')
-        expect(result[:valid_col_result]).to eq(ambiguous_result)
-      end
+      )
+      expect(described_class.resolve_accepted_names('Crayracion')).to eq([])
     end
 
-    context 'when the top hit is a misapplied name' do
-      before do
-        allow(::Colrapi).to receive(:nameusage).and_return(
-          { 'total' => 1, 'result' => [
-            col_nameusage_result(id: 'MIS1', scientific_name: 'Felis leo', status: 'misapplied').merge(
-              'accepted' => { 'id' => 'ACC3', 'status' => 'accepted', 'name' => { 'scientificName' => 'Panthera leo' } }
-            )
-          ] }
-        )
-      end
+    specify 'a provisionally accepted hit resolves to itself' do
+      stub_hits(col_nameusage_result(
+        id: 'PRO1', scientific_name: 'Aus bus',
+        status: 'provisionally accepted'
+      ))
+      result = described_class.resolve_accepted_names('Aus bus').first
+      expect(result[:valid_col_key]).to eq('PRO1')
+      expect(result[:valid_status]).to eq('provisionally accepted')
+    end
 
-      it 'resolves to itself' do
-        result = described_class.resolve_accepted_name('Felis leo')
-        expect(result[:valid_col_key]).to eq('MIS1')
-        expect(result[:valid_status]).to eq('misapplied')
-      end
+    # Abies alba Mill. (accepted) and its later homonym Abies alba (Aiton)
+    # Michx., a synonym of Picea glauca; a misapplied use is skipped.
+    specify 'homonyms each resolve, in CoL order' do
+      stub_hits(
+        col_nameusage_result(
+          id: 'AA1', scientific_name: 'Abies alba', status: 'accepted'
+        ),
+        synonym_of(
+          col_nameusage_result(
+            id: 'AA2', scientific_name: 'Abies alba', status: 'synonym'
+          ),
+          id: 'PG1', name: 'Picea glauca', authorship: '(Moench) Voss'
+        ),
+        synonym_of(
+          col_nameusage_result(
+            id: 'AA3', scientific_name: 'Abies alba', status: 'misapplied'
+          ),
+          id: 'PO1', name: 'Picea omorika'
+        )
+      )
+      results = described_class.resolve_accepted_names('Abies alba')
+      expect(results.map { |r| r[:valid_col_key] }).to eq(%w{AA1 PG1})
+    end
+
+    specify 'an accepted name reached twice is given once, as itself' do
+      stub_hits(
+        synonym_of(
+          col_nameusage_result(
+            id: 'SYN1', scientific_name: 'Aus bus', status: 'synonym'
+          ),
+          id: 'ACC1', name: 'Aus bus'
+        ),
+        col_nameusage_result(
+          id: 'ACC1', scientific_name: 'Aus bus', status: 'accepted'
+        ),
+        synonym_of(
+          col_nameusage_result(
+            id: 'SYN2', scientific_name: 'Aus bus', status: 'synonym'
+          ),
+          id: 'ACC1', name: 'Aus bus'
+        )
+      )
+      results = described_class.resolve_accepted_names('Aus bus')
+      expect(results.map { |r| r[:matched_col_key] }).to eq(%w{ACC1})
+    end
+
+    specify 'two synonyms of one accepted name give it once' do
+      stub_hits(
+        synonym_of(
+          col_nameusage_result(
+            id: 'SYN1', scientific_name: 'Aus bus', status: 'synonym'
+          ),
+          id: 'ACC1', name: 'Cus dus'
+        ),
+        synonym_of(
+          col_nameusage_result(
+            id: 'SYN2', scientific_name: 'Aus bus', status: 'synonym'
+          ),
+          id: 'ACC1', name: 'Cus dus'
+        )
+      )
+      results = described_class.resolve_accepted_names('Aus bus')
+      expect(results.map { |r| r[:matched_col_key] }).to eq(%w{SYN1})
     end
 
     context 'with an explicit dataset_id' do
       before do
         allow(::Colrapi).to receive(:nameusage)
           .with('9802', hash_including(q: 'Mus musculus'))
-          .and_return({ 'total' => 1, 'result' => [col_nameusage_result(scientific_name: 'Mus musculus')] })
+          .and_return({ 'total' => 1, 'result' => [
+            col_nameusage_result(scientific_name: 'Mus musculus')
+          ] })
       end
 
       it 'passes the dataset through to the search and the result' do
-        result = described_class.resolve_accepted_name('Mus musculus', dataset_id: '9802')
+        result = described_class
+          .resolve_accepted_names('Mus musculus', dataset_id: '9802').first
         expect(result[:dataset_id]).to eq('9802')
       end
     end

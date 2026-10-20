@@ -8,14 +8,15 @@
 #   * a source mark — TW_ICON when the resolved name is already in TaxonWorks,
 #     COL_ICON when it would be created (see ColSourceMark) — so it's always
 #     clear the result came through CoL resolution, not a plain local match;
-#   * a status badge, but only when CoL's status isn't 'accepted'. The level's
-#     name promises a valid name, yet Vendor::Colrapi.resolve_accepted_name
-#     resolves a top hit to itself unless it's a plain synonym (ambiguous
-#     synonyms, misapplied names, ...) — those must not look like accepted
-#     names. An 'accepted' badge on every row would be noise;
+#   * a status badge, but only when CoL's status isn't 'accepted' (i.e.
+#     'provisionally accepted' - Vendor::Colrapi.resolve_accepted_names gives
+#     nothing else). An 'accepted' badge on every row would be noise;
 #   * a rank badge, as on the catalogue_of_life levels;
+#   * a code badge when the results span more than one code (ColCodeBadge);
 #   * a "valid name for X" note, but only when CoL actually followed synonymy,
-#     X being the synonym CoL matched (`_col_extension[:resolved_synonym]`).
+#     X being the synonym CoL matched, with its authorship
+#     (`_col_extension[:resolved_synonym]`) - homonyms resolve to different
+#     names, e.g. Abies alba (Aiton) Michx. to Picea glauca.
 #     What was typed is a poor stand-in: a partial, authored, or subgenus-form
 #     term differs from the result without any synonymy involved.
 #
@@ -29,9 +30,9 @@ module Autoselect
       include ::Autoselect::Levels::ColSourceMark
 
       # @return [Array<String>] source tag ("TW"/"CoL"), then any non-accepted
-      #   status, the rank, and a "valid name for X" note when CoL followed
-      #   synonymy. Falls back to the ancestor's info for anything without CoL
-      #   provenance.
+      #   status, the rank, the code (see ColCodeBadge), and a "valid name for
+      #   X" note when CoL followed synonymy. Falls back to the ancestor's info
+      #   for anything without CoL provenance.
       def record_info(record)
         return super if resolved_from(record).nil?
 
@@ -64,6 +65,10 @@ module Autoselect
 
         if (rank = extension[:col_rank].presence)
           badges << [rank, :light]
+        end
+
+        if (acronym = extension[:col_code_acronym])
+          badges << [acronym, :light]
         end
 
         if (synonym = resolved_synonym(record))

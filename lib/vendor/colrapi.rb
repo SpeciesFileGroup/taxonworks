@@ -409,55 +409,76 @@ module Vendor
     end
 
     # Resolves a free-text name (e.g. transcribed from a specimen label) to the
-    # name currently accepted by the Catalogue of Life, so a caller doesn't have
-    # to look up synonymy by hand before searching TaxonWorks.
+    # names currently accepted by the Catalogue of Life, so a caller doesn't
+    # have to look up synonymy by hand before searching TaxonWorks.
     #
-    # Takes CoL's top-ranked search hit for name_string as-is (no re-scoring
-    # here). When that hit is a plain synonym, follows it to its accepted
-    # target; anything else resolves to itself. Ambiguous synonyms and
-    # misapplied names also carry an `accepted` usage in CoL, but it's only one
-    # of several possible targets, so following it would present an arbitrary
-    # pick as the valid name.
+    # Every exact hit for name_string is resolved, in CoL's order: an accepted
+    # (or provisionally accepted) name to itself, a plain synonym to its
+    # accepted target. Several hits are homonyms - the same name in different
+    # codes (Pieris), or a later homonym CoL lists as a synonym of its
+    # replacement (Abies alba (Aiton) Michx. -> Picea glauca) - so each is
+    # resolved rather than picking one.
+    #
+    # Anything else is skipped. Ambiguous synonyms and misapplied names also
+    # carry an `accepted` usage in CoL, but an ambiguous synonym's is only one
+    # of several possible targets, and a misapplied name's is the taxon some
+    # author misidentified as the name, not what the name means.
+    #
+    # Hits resolving to the same accepted name give it once, from the first
+    # hit, or from a hit that is the accepted name itself.
     #
     # @param name_string [String]
     # @param dataset_id [String, nil] CoL dataset ID; falls back to the default
     #   hardwired ID when nil
-    # @return [Hash, nil] nil when CoL has no results, else
-    #   { input:, matched_name:, matched_status:, matched_col_key:,
-    #     valid_name:, valid_col_key:, valid_authorship:, valid_status:,
-    #     valid_col_result:, dataset_id: }
-    def self.resolve_accepted_name(name_string, dataset_id: nil)
-      top = search(name_string, dataset_id:, limit: 1)['result']&.first
-      return nil if top.nil?
-
-      # Full scientific name (e.g. "Homo sapiens"), not the single-word
-      # component protonym_name_from extracts for building TW Protonym trees —
-      # TaxonName/Otu#cached holds the full combination, so that's what a caller
-      # needs to search against.
-      matched_name = top.dig('name', 'scientificName')
-      matched_status = top['status']
+    # @return [Array<Hash>] empty when CoL resolves nothing, else each
+    #   { input:, matched_name:, matched_authorship:, matched_status:,
+    #     matched_col_key:, valid_name:, valid_col_key:, valid_authorship:,
+    #     valid_status:, valid_col_result:, dataset_id: }
+    def self.resolve_accepted_names(name_string, dataset_id: nil)
       target_dataset_id = dataset_id.presence || DATASETS[:col]
-      accepted = top['accepted'] if matched_status == 'synonym'
+      hits = search(name_string, dataset_id:)['result'] || []
 
-      # The full nameusage hash for the *valid* name — CoL nests the accepted
-      # usage (a complete nameusage record, same shape as a search result) right
-      # on the synonym hit.
-      valid_col_result = accepted || top
+      resolved = hits.filter_map do |hit|
+        matched_status = hit['status']
+        accepted = hit['accepted'] if matched_status == 'synonym'
+        next if accepted.nil? &&
+          !COL_ACCEPTED_STATUSES.include?(matched_status.to_s.downcase)
 
-      {
-        input: name_string,
-        matched_name:,
-        matched_status:,
-        matched_col_key: top['id'],
-        valid_name:
-          accepted ? accepted.dig('name', 'scientificName') : matched_name,
-        valid_col_key: accepted ? accepted['id'] : top['id'],
-        valid_authorship: valid_col_result.dig('name', 'authorship'),
-        valid_status:
-          accepted ? (accepted['status'] || 'accepted') : matched_status,
-        valid_col_result:,
-        dataset_id: target_dataset_id
-      }
+        # The full nameusage hash for the *valid* name - CoL nests the
+        # accepted usage (a complete nameusage record, same shape as a search
+        # result) right on the synonym hit.
+        valid_col_result = accepted || hit
+
+        {
+          input: name_string,
+          # Full scientific name (e.g. "Homo sapiens"), not the single-word
+          # component protonym_name_from extracts for building TW Protonym
+          # trees - TaxonName/Otu#cached holds the full combination, so
+          # that's what a caller needs to search against.
+          matched_name: hit.dig('name', 'scientificName'),
+          matched_authorship: hit.dig('name', 'authorship').presence,
+          matched_status:,
+          matched_col_key: hit['id'],
+          valid_name: valid_col_result.dig('name', 'scientificName'),
+          valid_col_key: valid_col_result['id'],
+          valid_authorship: valid_col_result.dig('name', 'authorship'),
+          valid_status:
+            accepted ? (accepted['status'] || 'accepted') : matched_status,
+          valid_col_result:,
+          dataset_id: target_dataset_id
+        }
+      end
+
+      direct_keys = resolved
+        .select { |r| r[:matched_col_key] == r[:valid_col_key] }
+        .map { |r| r[:valid_col_key] }
+
+      resolved
+        .reject do |r|
+          r[:matched_col_key] != r[:valid_col_key] &&
+            direct_keys.include?(r[:valid_col_key])
+        end
+        .uniq { |r| r[:valid_col_key] }
     end
 
     # The TaxonWorks Protonym#name for a CoL name: the last epithet of a
@@ -503,6 +524,18 @@ module Vendor
       'botanical'  => :icn,
       'bacterial'  => :icnp,
       'virus'      => :icvcn
+    }.freeze
+
+    # CoL's acronym for each of its nomenclatural codes (from its
+    # /vocab/nomCode; CoL gives phyto and phylo the same one).
+    COL_CODE_ACRONYMS = {
+      'zoological' => 'ICZN',
+      'botanical' => 'ICN',
+      'bacterial' => 'ICNP',
+      'virus' => 'ICVCN',
+      'cultivars' => 'ICNCP',
+      'phyto' => 'ICPN',
+      'phylo' => 'ICPN'
     }.freeze
 
     # Maps a human-readable CoL rank string to a TaxonWorks rank_class string.

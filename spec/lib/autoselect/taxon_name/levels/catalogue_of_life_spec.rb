@@ -862,6 +862,63 @@ RSpec.describe Autoselect::TaxonName::Levels::CatalogueOfLife, type: :model do
       end
     end
 
+    # Pieris: a butterfly genus (CoL has no authorship for it) and a plant
+    # genus.
+    context 'when the results span more than one code' do
+      before do
+        allow(::Vendor::Colrapi).to receive(:search).and_return(
+          'result' => [
+            col_result_for_target(
+              id: 'Z1', scientific_name: 'Pieris', code: 'zoological'
+            ),
+            col_result_for_target(
+              id: 'B1', scientific_name: 'Pieris', code: 'botanical',
+              authorship: 'D.Don'
+            )
+          ]
+        )
+        allow(::Vendor::Colrapi).to receive(:ancestors).and_return([])
+      end
+
+      it 'badges each with its code' do
+        result = level.call(term: 'Pieris', project_id:, user_id:)
+        expect(result.map { |r| level.record_info(r) })
+          .to eq([%w{accepted genus ICZN}, %w{accepted genus ICN}])
+        expect(level.record_info_html(result.first)).to include(
+          '<span class="feedback feedback-thin feedback-light">ICZN</span>'
+        )
+      end
+
+      it 'leaves the name itself alone' do
+        result = level.call(term: 'Pieris', project_id:, user_id:)
+        expect(result.map { |r| level.record_label(r) })
+          .to eq(['Pieris', 'Pieris D.Don'])
+      end
+    end
+
+    context 'when the results are all in one code' do
+      before do
+        allow(::Vendor::Colrapi).to receive(:search).and_return(
+          'result' => [
+            col_result_for_target(
+              id: 'Z1', scientific_name: 'Brandnewonoma', code: 'zoological'
+            ),
+            col_result_for_target(
+              id: 'Z2', scientific_name: 'Brandnewonoma', code: 'zoological',
+              authorship: 'Smith, 1900'
+            )
+          ]
+        )
+        allow(::Vendor::Colrapi).to receive(:ancestors).and_return([])
+      end
+
+      it 'shows no code badge' do
+        result = level.call(term: 'Brandnewonoma', project_id:, user_id:)
+        expect(result.map { |r| level.record_info(r) })
+          .to eq([%w{accepted genus}, %w{accepted genus}])
+      end
+    end
+
     context 'without a project_id' do
       before do
         allow(::Vendor::Colrapi).to receive(:search).and_return(

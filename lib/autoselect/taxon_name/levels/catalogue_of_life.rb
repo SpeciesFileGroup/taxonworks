@@ -25,7 +25,8 @@ class Autoselect::TaxonName::Levels::CatalogueOfLife < ::Autoselect::Level
   # @param dataset_id [String, nil] CoL dataset ID from user preferences;
   #   falls back to default when nil
   # @return [Array<OpenStruct>] pseudo-records compatible with TaxonName
-  #   autoselect format_results
+  #   autoselect format_results, marked with their code when they span more
+  #   than one (ColCodeBadge)
   def call(
     term:, operator: nil, project_id: nil, user_id: nil, dataset_id: nil,
     **_kwargs
@@ -34,11 +35,13 @@ class Autoselect::TaxonName::Levels::CatalogueOfLife < ::Autoselect::Level
     results = raw['result'] || []
     return [] if results.empty?
 
-    results.filter_map do |col_result|
+    records = results.filter_map do |col_result|
       ::Autoselect::TaxonName::ColMatch
         .new(col_result, project_id:, dataset_id:)
         .call
     end
+
+    ::Autoselect::Levels::ColCodeBadge.mark(records)
   end
 
 end

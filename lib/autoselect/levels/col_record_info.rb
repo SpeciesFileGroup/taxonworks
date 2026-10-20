@@ -2,7 +2,8 @@
 #
 # Shared mixin for CoL level classes. Provides styled record_info_html using
 # TaxonWorks feedback CSS classes to communicate CoL status at a glance, led by
-# a TaxonWorks/CoL source mark (see ColSourceMark).
+# a TaxonWorks/CoL source mark (see ColSourceMark), with a code badge when the
+# results span more than one code (see ColCodeBadge).
 module Autoselect
   module Levels
     module ColRecordInfo
@@ -11,7 +12,11 @@ module Autoselect
       def record_info(record)
         col_ext = record._col_extension
         return [] unless col_ext
-        [col_ext[:col_status].presence, col_ext[:col_rank].presence].compact
+        [
+          col_ext[:col_status].presence,
+          col_ext[:col_rank].presence,
+          col_ext[:col_code_acronym]
+        ].compact
       end
 
       def record_info_html(record)
@@ -29,6 +34,11 @@ module Autoselect
 
         if (rank = col_ext[:col_rank].presence)
           parts << "<span class=\"feedback feedback-thin feedback-light\">#{ERB::Util.html_escape(rank)}</span>"
+        end
+
+        # Only when the results span more than one code, see ColCodeBadge.
+        if (acronym = col_ext[:col_code_acronym])
+          parts << "<span class=\"feedback feedback-thin feedback-light\">#{ERB::Util.html_escape(acronym)}</span>"
         end
 
         col_source_icon(record) + parts.join(' ')
