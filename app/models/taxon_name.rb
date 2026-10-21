@@ -1443,6 +1443,10 @@ class TaxonName < ApplicationRecord
       cc = self
     else
       current_combination = TaxonNameRelationship.where_object_is_taxon_name(mobj).with_type_string('TaxonNameRelationship::CurrentCombination')
+      # TODO: default to mobj, not self - for a misspelling mobj is the
+      # correct spelling, so this gives "(Poir.) Poir." for "Poir." (a
+      # misspelling isn't a recombination of the name it misspells). See the
+      # pending 'misspelling author string' spec in current_combination_spec.
       cc = current_combination.empty? ? self : current_combination.first.subject_taxon_name
     end
 

@@ -18,7 +18,16 @@
       <table class="col-confirm-modal__table">
         <thead>
           <tr>
-            <th></th>
+            <th>
+              <input
+                v-if="checkableRowKeys.length"
+                type="checkbox"
+                title="Check or uncheck every name that can be created"
+                :checked="allRowsChecked"
+                :indeterminate="someRowsChecked && !allRowsChecked"
+                @change="toggleAllRows"
+              />
+            </th>
             <th>Rank</th>
             <th>CoL name</th>
             <th>TaxonWorks match</th>
@@ -27,10 +36,10 @@
           </tr>
         </thead>
         <tbody>
-          <!-- Ancestor rows: distal first (array is proximal→distal, so reversed) -->
+          <!-- Ancestor rows: distal first -->
           <tr
-            v-for="row in ancestorRowsDistalFirst"
-            :key="row.col_name + row.rank"
+            v-for="(row, index) in ancestorRowsDistalFirst"
+            :key="rowKey(row, index)"
             :class="rowClass(row)"
           >
             <td>
@@ -41,16 +50,44 @@
                 disabled
               />
               <input
-                v-else
+                v-else-if="row.match === 'conflict'"
                 type="checkbox"
-                :checked="checkedNames.has(row.col_name)"
-                @change="toggleRow(row.col_name)"
+                disabled
               />
+              <!-- A rank TaxonWorks has no equivalent for can't be created -->
+              <input
+                v-else-if="row.match === 'none' && row.rank_unknown"
+                type="checkbox"
+                disabled
+                title="Not a TaxonWorks rank - can't be created"
+              />
+              <input
+                v-else-if="row.match === 'none'"
+                type="checkbox"
+                :checked="checkedRowKeys.has(rowKey(row, index))"
+                @change="toggleRow(rowKey(row, index))"
+              />
+              <!-- 'extra' rows (TaxonWorks-only ancestors) get no checkbox — always
+                   sent to the server as parent anchors, never user-toggleable -->
             </td>
             <td>{{ row.rank }}</td>
-            <td>{{ row.col_name }}</td>
-            <td>{{ row.taxonworks_name ?? '—' }}</td>
-            <td>{{ row.col_authorship ?? '—' }}</td>
+            <td>{{ row.col_name ?? '—' }}</td>
+            <td>
+              {{ row.taxonworks_name ?? '—' }}
+              <span
+                v-if="isMismatchRow(row.rank) && row.match === 'exact'"
+                class="col-confirm-modal__note--warning"
+                >{{ authorshipMismatch.taxonworks_authorship }}</span
+              >
+            </td>
+            <td
+              :class="{
+                'col-confirm-modal__note--warning':
+                  isMismatchRow(row.rank) && row.match === 'exact'
+              }"
+            >
+              {{ row.col_authorship ?? '—' }}
+            </td>
             <td>
               <a
                 v-if="row.col_id"
@@ -77,8 +114,22 @@
             </td>
             <td>{{ ext.col_rank }}</td>
             <td>{{ ext.col_name }}</td>
-            <td>{{ ext.target_taxonworks_id ? ext.col_name : '—' }}</td>
-            <td>{{ ext.col_authorship ?? '—' }}</td>
+            <td>
+              {{ ext.target_taxonworks_id ? ext.col_name : '—' }}
+              <span
+                v-if="ext.target_taxonworks_id && isMismatchRow(ext.col_rank)"
+                class="col-confirm-modal__note--warning"
+                >{{ authorshipMismatch.taxonworks_authorship }}</span
+              >
+            </td>
+            <td
+              :class="{
+                'col-confirm-modal__note--warning':
+                  ext.target_taxonworks_id && isMismatchRow(ext.col_rank)
+              }"
+            >
+              {{ ext.col_authorship ?? '—' }}
+            </td>
             <td>
               <a
                 v-if="ext.col_key"
@@ -93,8 +144,106 @@
         </tbody>
       </table>
 
-      <p class="col-confirm-modal__note">
-        <template v-if="nothingToCreate">
+      <p
+        v-if="authorshipMismatch"
+        class="col-confirm-modal__note col-confirm-modal__note--warning horizontal-left-content gap-small middle"
+      >
+        <VIcon
+          name="attention"
+          medium
+          color="attention"
+        />
+        <span>
+          Authorship differs at <em>{{ authorshipMismatch.rank }}</em>:
+          TaxonWorks <em>{{ authorshipMismatch.taxonworks_name }}</em>
+          {{ authorshipMismatch.taxonworks_authorship }}, Catalogue of Life
+          <em>{{ authorshipMismatch.col_name }}</em>
+          {{ authorshipMismatch.col_authorship }}. That usually means a
+          different name - continue only if they're the same.
+        </span>
+      </p>
+
+      <p
+        v-if="ext.hook?.existing_id && ext.hook.existing_named"
+        class="col-confirm-modal__note"
+      >
+        Will use OTU <strong>{{ ext.hook.otu_label }}</strong>.
+      </p>
+
+      <p
+        v-else-if="ext.hook?.existing_id && ext.hook.otu_count > 1"
+        class="col-confirm-modal__note"
+      >
+        Will use the OTU with no name of its own,
+        <strong>{{ ext.hook.otu_label }}</strong>.
+        <span class="col-confirm-modal__note--warning">
+          There {{ otherOtuCount === 1 ? 'is' : 'are' }}
+          <a
+            :href="otuFilterUrl"
+            target="_blank"
+            rel="noopener noreferrer"
+            >{{ otherOtuCount }} other OTU{{ otherOtuCount === 1 ? '' : 's' }}</a
+          >
+          on this name.
+        </span>
+      </p>
+
+      <p
+        class="col-confirm-modal__note"
+        :class="{
+          'col-confirm-modal__note--warning':
+            otuBlocked ||
+            chainConflict ||
+            isAmbiguous ||
+            invalidMatch ||
+            nonAcceptedBlocked ||
+            cannotCreate
+        }"
+      >
+        <template v-if="otuBlocked">
+          This name has
+          <a
+            :href="otuFilterUrl"
+            target="_blank"
+            rel="noopener noreferrer"
+            >{{ ext.hook.otu_count }} OTUs</a
+          >
+          — select the one you want directly.
+        </template>
+        <template v-else-if="isAmbiguous">
+          {{ ext.ambiguous_match.count }} TaxonWorks records are named
+          <em>{{ ext.ambiguous_match.col_name }}</em> at rank <em>{{ ext.ambiguous_match.rank }}</em> —
+          there's no way to tell which one this lineage should use. Resolve this manually before creating.
+        </template>
+        <template v-else-if="invalidMatch">
+          TaxonWorks has
+          <a
+            :href="invalidMatchUrl"
+            target="_blank"
+            rel="noopener noreferrer"
+            ><em>{{ invalidMatch.taxonworks_name }}</em></a
+          >
+          as an invalid name<template v-if="invalidMatch.taxonworks_valid_name">
+            (valid name <em>{{ invalidMatch.taxonworks_valid_name }}</em>)</template
+          >, Catalogue of Life accepts it — resolve this before creating.
+        </template>
+        <template v-else-if="nonAcceptedBlocked">
+          Catalogue of Life status: <em>{{ ext.col_status }}</em
+          ><template v-if="ext.accepted">
+            of <em>{{ ext.accepted.col_name }}</em>
+            {{ ext.accepted.col_authorship }}</template
+          >. Catalogue of Life gives the name no classification of its own, so
+          it can't be created from here. Search with a different level instead.
+        </template>
+        <template v-else-if="chainConflict">
+          TaxonWorks and Catalogue of Life disagree at
+          <template v-for="(row, i) in conflictRows" :key="row.rank">
+            <template v-if="i > 0">, </template>
+            <em>{{ row.rank }}</em> (TaxonWorks: {{ row.taxonworks_name }} · CoL: {{ row.col_name }})
+          </template>
+          — resolve this before creating.
+        </template>
+        <template v-else-if="nothingToCreate">
           All names already exist in TaxonWorks. Click Select to use the existing record.
         </template>
         <template v-else-if="cannotCreate">
@@ -111,12 +260,18 @@
       <div class="col-confirm-modal__footer">
         <VBtn
           ref="confirmBtn"
-          :color="nothingToCreate ? 'default' : 'create'"
-          :disabled="isCreating || cannotCreate"
+          :color="nothingToCreate ? 'primary' : 'create'"
+          :disabled="
+            isCreating ||
+            cannotCreate ||
+            chainConflict ||
+            otuBlocked ||
+            nonAcceptedBlocked
+          "
           @click="doConfirm"
           @keydown.enter.prevent="doConfirm"
         >
-          {{ nothingToCreate ? 'Select' : (isCreating ? 'Creating…' : 'Create') }}
+          {{ confirmLabel }}
         </VBtn>
         <button
           class="button circle-button btn-undo button-default"
@@ -135,7 +290,10 @@
 import { ref, computed, onMounted, nextTick } from 'vue'
 import Modal from '@/components/ui/Modal.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 import AjaxCall from '@/helpers/ajaxCall'
+import { RouteNames } from '@/routes/routes'
+import qs from 'qs'
 
 const props = defineProps({
   item: { type: Object, required: true }
@@ -146,36 +304,149 @@ const emit = defineEmits(['confirm', 'cancel'])
 // Shorthand for the extension hash
 const ext = computed(() => props.item.extension)
 
-// Ancestor rows in distal→proximal order (alignment is proximal→distal, so reverse it)
-const ancestorRowsDistalFirst = computed(() =>
-  [...(ext.value.alignment ?? [])].reverse()
+// A hook result whose TaxonName has OTUs, none of which it can yield without
+// the user choosing (several named ones, or several unnamed): neither Select
+// nor Create - the user picks the OTU directly. The server refuses it too
+// (see Autoselect::Otu::ColExistingOtu).
+const otuBlocked = computed(
+  () => ext.value.hook?.otu_count > 0 && !ext.value.hook.existing_id
 )
 
-// Set of col_name values the user has checked for creation (match==='none' rows)
-const checkedNames = ref(
+// The named OTUs beside the unnamed one a hook result yields.
+const otherOtuCount = computed(() => (ext.value.hook?.otu_count ?? 1) - 1)
+
+// The OTU filter, listing every OTU on a hook result's TaxonName.
+const otuFilterUrl = computed(
+  () =>
+    `${RouteNames.FilterOtus}?${qs.stringify(
+      { taxon_name_id: [ext.value.hook?.taxon_name_id] },
+      { arrayFormat: 'brackets' }
+    )}`
+)
+
+// Ancestor rows in distal→proximal (kingdom-first) order — already how alignment
+// comes back from Vendor::Colrapi.classified_usage.
+const ancestorRowsDistalFirst = computed(() => ext.value.alignment ?? [])
+
+// Identifies an alignment row by CoL's id, not col_name, which TaxonWorks-only
+// ('extra') rows don't have. Those 'extra' rows also have no col_id, so they
+// fall back to their position in the (fixed) alignment.
+function rowKey(row, index) {
+  return row.col_id ?? `${row.rank}:${index}`
+}
+
+// Set of rowKey values the user has checked for creation (match==='none' rows).
+// Ranks above GenusGroup (family-group and higher) default to unchecked; ranks
+// TaxonWorks doesn't recognize are never checked.
+const checkedRowKeys = ref(
   new Set(
     (ext.value.alignment ?? [])
-      .filter((r) => r.match === 'none')
-      .map((r) => r.col_name)
+      .map((r, i) => [r, rowKey(r, i)])
+      .filter(
+        ([r]) => r.match === 'none' && !r.above_genus_group && !r.rank_unknown
+      )
+      .map(([, key]) => key)
   )
 )
 
-// True when nothing needs to be created: target already exists, no ancestor rows are
-// checked for creation, and this is a direct TaxonName result (not an OTU hook).
-const nothingToCreate = computed(
-  () =>
-    !ext.value.hook &&
-    checkedNames.value.size === 0 &&
-    !!ext.value.target_taxonworks_id
+// rowKey values of the rows the user can check: CoL-only ('none') rows at a
+// rank TaxonWorks has.
+const checkableRowKeys = computed(() =>
+  ancestorRowsDistalFirst.value
+    .map((r, i) => [r, rowKey(r, i)])
+    .filter(([r]) => r.match === 'none' && !r.rank_unknown)
+    .map(([, key]) => key)
 )
 
-// True when the target rank is unsupported by TaxonWorks AND no ancestor rows are
-// checked — clicking Create would create nothing, so the button should be disabled.
-const cannotCreate = computed(
+const allRowsChecked = computed(
   () =>
-    !nothingToCreate.value &&
-    checkedNames.value.size === 0 &&
-    !!ext.value.target_rank_unknown
+    checkableRowKeys.value.length > 0 &&
+    checkableRowKeys.value.every((key) => checkedRowKeys.value.has(key))
+)
+
+const someRowsChecked = computed(() =>
+  checkableRowKeys.value.some((key) => checkedRowKeys.value.has(key))
+)
+
+// The existing record selecting this result yields without creating anything: for
+// a hook result (e.g. the OTU levels) the hook's existing record, otherwise the
+// matched target TaxonName. id is null when there's none.
+const existingRecord = computed(() =>
+  ext.value.hook
+    ? {
+        id: ext.value.hook.existing_id ?? null,
+        global_id: ext.value.hook.existing_global_id ?? null
+      }
+    : {
+        id: ext.value.target_taxonworks_id ?? null,
+        global_id: ext.value.target_global_id ?? null
+      }
+)
+
+// True when nothing needs to be created: the record this result yields already
+// exists and no ancestor rows are checked for creation.
+const nothingToCreate = computed(
+  () => checkedRowKeys.value.size === 0 && !!existingRecord.value.id
+)
+
+// 'Create & select' when checked ancestors are created and the record this
+// result yields already exists, so both happen.
+const confirmLabel = computed(() => {
+  if (nothingToCreate.value) return 'Select'
+  if (isCreating.value) return 'Creating…'
+  return existingRecord.value.id ? 'Create & select' : 'Create'
+})
+
+// True when the target would have to be created but its rank isn't a TaxonWorks
+// rank — checked ancestors don't help, the target itself can't be made
+// (ColCreator refuses it too).
+const cannotCreate = computed(
+  () => !!ext.value.target_rank_unknown && !ext.value.target_taxonworks_id
+)
+
+// Server-computed (Autoselect::TaxonName::Levels::CatalogueOfLife#call, via
+// Autoselect::TaxonName::ColAncestryComparator): whether TaxonWorks' real ancestor
+// chain for the matched anchor actually agrees with CoL's classification, rank by
+// rank — not just independent per-row name matches. Undefined (older/other extension
+// shapes) is treated as consistent.
+const chainConsistent = computed(() => ext.value.chain_consistent !== false)
+
+// Rows where TaxonWorks' real ancestor and CoL disagree on the name at the same rank.
+const conflictRows = computed(() => (ext.value.alignment ?? []).filter((r) => r.match === 'conflict'))
+
+// Set instead of a real conflict when the walk found more than one same-name,
+// same-rank TaxonWorks candidate at some position — a homonym with no principled
+// way to pick between them, distinct from a genuine name disagreement.
+const isAmbiguous = computed(() => !!ext.value.ambiguous_match)
+const invalidMatch = computed(() => ext.value.invalid_match)
+const invalidMatchUrl = computed(
+  () =>
+    `${RouteNames.BrowseNomenclature}?taxon_name_id=${invalidMatch.value?.taxonworks_id}`
+)
+
+// Server-computed (Autoselect::TaxonName::ColMatch#authorship_mismatch): the
+// anchor matched by name, but its authorship differs from CoL's - usually a
+// different name sharing the string, sometimes the same name written
+// differently. Warns, doesn't block.
+const authorshipMismatch = computed(() => ext.value.authorship_mismatch)
+
+// The anchor row the mismatch is about, so the table shows both authorships
+// there instead of CoL's next to TaxonWorks' match.
+function isMismatchRow(rank) {
+  return authorshipMismatch.value?.rank === rank
+}
+
+// Only blocks Create itself — nothingToCreate's "Select" shortcut doesn't create or
+// reparent anything, so a pre-existing inconsistency among already-matched records
+// isn't this action's problem to block.
+const chainConflict = computed(() => !chainConsistent.value && !nothingToCreate.value)
+
+// Server-computed (Vendor::Colrapi.classified_usage): CoL doesn't accept the
+// target (synonym, misapplied, ...) and has no classification of its own for
+// it, so it can't be created (ColCreator refuses it too). Selecting it when
+// TaxonWorks already has the name is fine.
+const nonAcceptedBlocked = computed(
+  () => !!ext.value.non_accepted && !ext.value.target_taxonworks_id
 )
 
 // Returns a Checklistbank web URL including dataset context, falling back to
@@ -187,25 +458,33 @@ function clbTaxonUrl(datasetId, taxonId) {
   return `https://www.catalogueoflife.org/data/taxon/${taxonId}`
 }
 
-function toggleRow(colName) {
-  if (checkedNames.value.has(colName)) {
-    checkedNames.value.delete(colName)
+function toggleRow(key) {
+  if (checkedRowKeys.value.has(key)) {
+    checkedRowKeys.value.delete(key)
   } else {
-    checkedNames.value.add(colName)
+    checkedRowKeys.value.add(key)
   }
   // Force reactivity on Set mutation
-  checkedNames.value = new Set(checkedNames.value)
+  checkedRowKeys.value = new Set(checkedRowKeys.value)
+}
+
+function toggleAllRows() {
+  checkedRowKeys.value = allRowsChecked.value
+    ? new Set()
+    : new Set(checkableRowKeys.value)
 }
 
 function rowClass(row) {
-  if (row.col_name === errorColName.value)
-    return 'col-confirm-modal__row--error'
-  return row.match === 'exact' ? 'col-confirm-modal__row--exact' : ''
+  if (errorColId.value !== null && row.col_id === errorColId.value) return 'col-confirm-modal__row--error'
+  if (row.match === 'exact') return 'col-confirm-modal__row--exact'
+  if (row.match === 'extra') return 'col-confirm-modal__row--extra'
+  if (row.match === 'conflict') return 'col-confirm-modal__row--conflict'
+  return ''
 }
 
 const confirmBtn = ref(null)
 const isCreating = ref(false)
-const errorColName = ref(null)
+const errorColId = ref(null)
 
 onMounted(() => {
   nextTick(() => confirmBtn.value?.$el?.focus())
@@ -213,10 +492,7 @@ onMounted(() => {
 
 function doConfirm() {
   if (nothingToCreate.value) {
-    emit('confirm', {
-      id: ext.value.target_taxonworks_id,
-      global_id: ext.value.target_global_id ?? null
-    })
+    emit('confirm', { ...existingRecord.value })
     return
   }
   doCreate()
@@ -225,21 +501,32 @@ function doConfirm() {
 async function doCreate() {
   if (isCreating.value) return
   isCreating.value = true
-  errorColName.value = null
+  errorColId.value = null
 
-  // Build distal→proximal rows for the server.
-  // Exact-match ancestors pass their taxonworks_id so the server uses them as parent anchors.
-  // Unchecked none-match ancestors are excluded.
+  // Build distal→proximal rows for the server — alignment already comes back in that
+  // order (kingdom-first) from Vendor::Colrapi.classified_usage.
+  // 'exact', 'extra' and 'conflict' ancestors all pass their taxonworks_id (for a
+  // 'conflict' row that's TaxonWorks' own record at that rank): the server walks them
+  // as parent anchors so the chain it sees is a faithful, contiguous picture of the
+  // real TaxonWorks lineage. Dropping any of them here would leave a gap: the
+  // server would see an existing record under the wrong row above it with nothing
+  // inserted between, and refuse the request (ColCreator only reparents onto a row
+  // it just created).
+  // Unchecked 'none' rows are the only alignment rows left out.
   const ancestorRows = (ext.value.alignment ?? [])
-    .slice()
-    .reverse() // distal first
-    .filter((r) => r.match === 'exact' || checkedNames.value.has(r.col_name))
+    .filter(
+      (r, i) =>
+        r.match === 'exact' ||
+        r.match === 'extra' ||
+        r.match === 'conflict' ||
+        checkedRowKeys.value.has(rowKey(r, i))
+    )
     .map((r) => ({
       col_name: r.col_name,
       col_rank: r.rank,
       col_id: r.col_id ?? null,
       dataset_id: r.dataset_id ?? null,
-      taxonworks_id: r.match === 'exact' ? r.taxonworks_id : null,
+      taxonworks_id: r.match === 'none' ? null : r.taxonworks_id,
       col_authorship: r.col_authorship ?? null,
       col_year: null
     }))
@@ -249,7 +536,13 @@ async function doCreate() {
     col_rank: ext.value.col_rank,
     col_id: ext.value.col_key,
     dataset_id: ext.value.col_dataset_id ?? null,
-    taxonworks_id: null,
+    // When the target itself already exists locally (ext.target_taxonworks_id, set by
+    // TaxonName::Levels::CatalogueOfLife#call), pass it through so ColCreator reuses it
+    // instead of creating a duplicate — same as exact-match ancestor rows above. A hook
+    // flow (e.g. OTU creation) reaches here with an existing target when its own record
+    // doesn't exist yet, or when ancestor rows are checked; the create endpoint then
+    // makes (or reuses) its own record.
+    taxonworks_id: ext.value.target_taxonworks_id ?? null,
     col_authorship: ext.value.col_authorship ?? null,
     col_year: ext.value.col_year ?? null,
     col_status: ext.value.col_status ?? null
@@ -266,7 +559,7 @@ async function doCreate() {
     })
     emit('confirm', { id: body[yieldsKey], global_id: body.global_id ?? null })
   } catch (err) {
-    errorColName.value = err.response?.body?.failed_col_name ?? null
+    errorColId.value = err.response?.body?.failed_col_id ?? null
   } finally {
     isCreating.value = false
   }
@@ -290,14 +583,14 @@ async function doCreate() {
 
 .col-confirm-modal__table th,
 .col-confirm-modal__table td {
-  border: 1px solid var(--border-color, #ccc);
+  border: 1px solid var(--border-color);
   padding: 2px 5px;
   text-align: left;
   vertical-align: middle;
 }
 
 .col-confirm-modal__table th {
-  background: var(--input-bg-color, #f5f5f5);
+  background: var(--input-bg-color);
   font-weight: 600;
 }
 
@@ -305,9 +598,19 @@ async function doCreate() {
   background-color: rgba(0, 128, 0, 0.06);
 }
 
+/* An ancestor that exists in TaxonWorks at a rank where CoL's chain has
+   nothing - shown for context only, nothing to select or create. */
+.col-confirm-modal__row--extra {
+  background-color: rgba(0, 90, 200, 0.06);
+}
+
+.col-confirm-modal__row--conflict {
+  background-color: rgba(200, 0, 0, 0.08);
+}
+
 .col-confirm-modal__row--target {
   font-weight: 600;
-  border-top: 2px solid var(--border-color, #ccc);
+  border-top: 2px solid var(--border-color);
 }
 
 .col-confirm-modal__row--error {
@@ -316,12 +619,16 @@ async function doCreate() {
 
 .col-confirm-modal__note {
   font-size: 11px;
-  color: var(--text-color-muted, #777);
+  color: var(--text-muted-color);
   margin: 4px 0 0;
 }
 
+.col-confirm-modal__note--warning {
+  color: var(--color-destroy);
+}
+
 .col-confirm-modal__error {
-  color: var(--color-destroy, #c00);
+  color: var(--color-destroy);
   font-size: 12px;
   margin-top: 6px;
 }

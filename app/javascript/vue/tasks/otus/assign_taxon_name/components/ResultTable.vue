@@ -148,13 +148,11 @@
         </td>
 
         <td>
-          <AutoselectField
+          <AutoselectPicker
             :ref="(el) => setRefineRef(row.otuId, el)"
-            url="/taxon_names/autoselect"
+            model="taxon_names"
             param="taxon_name_id"
             :id="`refine-${row.otuId}`"
-            :new-record-component="TaxonNameNewModal"
-            :preferences-options-component="ColDatasetPicker"
             :disabled="row.set"
             placeholder="Refine..."
             @select="(item) => $emit('refine', row, item)"
@@ -197,10 +195,8 @@ import { computed, ref } from 'vue'
 import { PREDICTION, VISIBILITY } from '../constants'
 import { OTU } from '@/constants'
 import { RouteNames } from '@/routes/routes'
-import AutoselectField from '@/components/ui/AutoselectField.vue'
+import AutoselectPicker from '@/components/ui/AutoselectPicker.vue'
 import ButtonUnify from '@/components/ui/Button/ButtonUnify.vue'
-import TaxonNameNewModal from '@/components/ui/AutoselectField/TaxonNameNewModal.vue'
-import ColDatasetPicker from '@/components/ui/AutoselectField/ColDatasetPicker.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 
@@ -240,7 +236,7 @@ const selectedIds = computed(() =>
   props.rows.filter((r) => r.selected).map((r) => r.otuId)
 )
 
-// AutoselectField instances, keyed by OTU id, so a row's search can be driven from its button.
+// AutoselectPicker instances, keyed by OTU id, so a row's search can be driven from its button.
 const refineRefs = ref({})
 
 function setRefineRef(otuId, el) {

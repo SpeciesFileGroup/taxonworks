@@ -503,28 +503,44 @@ class OtusController < ApplicationController
   end
 
   # POST /otus/autoselect_col_create
-  # Creates TaxonNames from a CoL alignment then wraps the result in a new OTU.
+  # Creates TaxonNames from a CoL alignment then wraps the result in an OTU:
+  # the name's existing one when it's unambiguous, else a new one if it has
+  # none. When the user has to choose the OTU, nothing is created (see
+  # Autoselect::Otu::ColExistingOtu).
   def autoselect_col_create
-    tn_result = ::Autoselect::TaxonName::ColCreator.new(
-      rows:     autoselect_col_create_params,
-      col_code: params[:col_code],
-      project_id: sessions_current_project_id,
-      user_id:    sessions_current_user_id
-    ).call
+    tn_result = nil
+    otu = nil
 
-    otu = ::Otu.create!(
+    # ColCreator's own transaction joins this one, so an ambiguous OTU rolls
+    # back the TaxonNames too.
+    ::ActiveRecord::Base.transaction do
+      tn_result = ::Autoselect::TaxonName::ColCreator.new(
+        rows:     autoselect_col_create_params,
+        col_code: params[:col_code],
+        project_id: sessions_current_project_id,
+        user_id:    sessions_current_user_id
+      ).call
+
+      otu = ::Autoselect::Otu::ColExistingOtu.find_or_create_for(
+        tn_result[:taxon_name_id],
+        project_id: sessions_current_project_id,
+        user_id: sessions_current_user_id
+      )
+    end
+
+    render json: {
+      otu_id: otu.id,
       taxon_name_id: tn_result[:taxon_name_id],
-      project_id:    sessions_current_project_id,
-      created_by_id: sessions_current_user_id,
-      updated_by_id: sessions_current_user_id
-    )
-    render json: { otu_id: otu.id, taxon_name_id: tn_result[:taxon_name_id], global_id: otu.to_global_id.to_s }
+      global_id: otu.to_global_id.to_s
+    }
   rescue ::Autoselect::TaxonName::ColCreator::CreationError => e
     render json: {
       error:           e.message,
       failed_col_name: e.col_name,
       failed_col_id:   e.col_id
     }, status: :unprocessable_entity
+  rescue ::Autoselect::Otu::ColExistingOtu::AmbiguousOtuError => e
+    render json: { error: e.message }, status: :unprocessable_entity
   end
 
   # POST /otus/create_morphospecies_otu
