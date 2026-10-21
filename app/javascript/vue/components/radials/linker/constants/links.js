@@ -46,6 +46,12 @@ export const TASK_IMAGES_PACKAGER = {
   saveQuery: true,
 };
 
+export const TASK_LIGHT_TABLE = {
+  label: "Light table",
+  link: "/tasks/images/light_table/index",
+  saveQuery: true,
+};
+
 export const TASK_LOANS_DASHBOARD = {
   label: "Loan dashboard",
   link: "/tasks/loans/dashboard/",

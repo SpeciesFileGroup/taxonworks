@@ -1,0 +1,151 @@
+<template>
+  <div
+    v-if="lightTable.regions.length"
+    class="lt-region-bar"
+  >
+    <span class="lt-region-bar__label">{{ labels.regions }}</span>
+    <div
+      v-for="r in lightTable.regions"
+      :key="r.id"
+      class="lt-region-chip"
+      :style="{ '--lt-region-color': r.color }"
+      role="button"
+      :title="`Select ${memberCount(r.id)} image(s) (shift to add)`"
+      @click="selectMembers(r.id, $event)"
+    >
+      <span class="lt-region-chip__swatch" />
+      <input
+        class="lt-region-chip__name"
+        type="text"
+        :value="r.name"
+        :disabled="readonly"
+        @click.stop
+        @change="(e) => lightTable.updateRegion(r.id, { name: e.target.value })"
+      />
+      <span class="lt-region-chip__count">{{ memberCount(r.id) }}</span>
+      <VBtn
+        circle
+        x-small
+        variant="ghost"
+        color="default"
+        :title="`Zoom to ${r.name}`"
+        @click.stop="lightTable.fitRegion(r.id)"
+      >
+        <VIcon
+          name="zoomIn"
+          xx-small
+        />
+      </VBtn>
+      <VBtn
+        v-if="!readonly"
+        circle
+        x-small
+        variant="ghost"
+        color="default"
+        :title="`Remove ${labels.region.toLowerCase()} (images are kept)`"
+        @click.stop="lightTable.removeRegion(r.id)"
+      >
+        <VIcon
+          name="close"
+          xx-small
+        />
+      </VBtn>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { inject } from 'vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
+
+defineProps({
+  readonly: {
+    type: Boolean,
+    default: false
+  }
+})
+
+const lightTable = inject('lightTable')
+const labels = inject('ltLabels')
+
+function memberCount(regionId) {
+  return lightTable.membersOfRegion(regionId).length
+}
+
+function selectMembers(regionId, event) {
+  const ids = lightTable.membersOfRegion(regionId).map((it) => it.id)
+
+  if (event?.shiftKey) lightTable.addToSelection(ids)
+  else lightTable.selectOnly(ids)
+}
+</script>
+
+<style scoped>
+.lt-region-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-xxs) var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  font-size: var(--font-size-xs);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.lt-region-bar__label {
+  margin-right: var(--spacing-xxs);
+  color: var(--text-muted-color);
+}
+
+.lt-region-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px 2px 2px 6px;
+  background: var(--bg-muted);
+  border: 1px solid var(--border-color);
+  border-left: 4px solid var(--lt-region-color);
+  border-radius: var(--border-radius-small);
+  cursor: pointer;
+  user-select: none;
+}
+
+.lt-region-chip:hover {
+  background: var(--bg-hover);
+}
+
+.lt-region-chip__swatch {
+  width: 14px;
+  height: 14px;
+  background: var(--lt-region-color);
+  border-radius: 3px;
+}
+
+.lt-region-chip__name {
+  width: 130px;
+  min-width: 60px;
+  padding: 2px 4px;
+  font: inherit;
+  color: inherit;
+  background: transparent;
+  border: none;
+  border-radius: 3px;
+  cursor: text;
+}
+
+.lt-region-chip__name:hover,
+.lt-region-chip__name:focus {
+  background: var(--input-bg-color);
+}
+
+.lt-region-chip__count {
+  min-width: 20px;
+  padding: 2px 6px;
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
+  font-weight: 600;
+  background: var(--bg-foreground);
+  border-radius: 999px;
+}
+</style>

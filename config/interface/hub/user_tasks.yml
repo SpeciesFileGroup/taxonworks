@@ -1318,3 +1318,12 @@ new_asserted_environment_task:
     - biology
   status: prototype
   description: 'Create new asserted environments (ENVO terms characterizing OTUs, collecting events, and gazetteers), optionally cited.'
+
+index_light_table_task:
+  hub: true
+  name: 'Light table'
+  related:
+  categories:
+    - image
+  status: prototype
+  description: 'Lay out depictions and images side by side to compare them: move, rotate, scale, and group them, and save the arrangement.'
