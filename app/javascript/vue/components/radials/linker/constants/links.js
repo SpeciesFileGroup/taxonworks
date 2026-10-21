@@ -48,7 +48,7 @@ export const TASK_IMAGES_PACKAGER = {
 
 export const TASK_LIGHT_TABLE = {
   label: "Light table",
-  link: "/tasks/images/light_table/index",
+  link: "/tasks/images/light_table",
   saveQuery: true,
 };
 

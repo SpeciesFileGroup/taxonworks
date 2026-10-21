@@ -64,7 +64,7 @@ const RouteNames = {
   ImageMatrix: '/tasks/observation_matrices/image_matrix',
   InteractiveKeys: '/tasks/observation_matrices/interactive_key',
   LeadsHub: '/tasks/leads/hub',
-  LightTable: '/tasks/images/light_table/index',
+  LightTable: '/tasks/images/light_table',
   ManageBiocurationTask:
     '/tasks/controlled_vocabularies/biocuration/build_collection',
   ManageControlledVocabularyTask: '/tasks/controlled_vocabularies/manage',

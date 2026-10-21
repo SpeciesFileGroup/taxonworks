@@ -354,7 +354,7 @@ scope :tasks do
 
   scope :images do
     scope :light_table, controller: 'tasks/images/light_table' do
-      get :index, as: 'index_light_table_task'
+      get '/', action: :index, as: 'light_table_task'
     end
 
     scope :browse, controller: 'tasks/images/browse' do
