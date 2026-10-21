@@ -11,7 +11,8 @@ import {
 import { computeChanges, countChanges } from '../adapters/changes'
 import {
   LAYOUT_ITEM_GROUP_ITEM,
-  LAYOUT_ITEM_LIGHT_TABLE_ITEM
+  LAYOUT_ITEM_LIGHT_TABLE_ITEM,
+  LAYOUT_LIGHT_TABLE
 } from '@/constants'
 
 const MAX_PARALLEL_REQUESTS = 6
@@ -27,6 +28,9 @@ async function runAll(entries, request) {
 export default defineStore('lightTable', {
   state: () => ({
     composition: null,
+    draftName: '',
+    sessionKey: 0,
+    filterImages: [],
     initialItems: [],
     initialRegions: [],
     layout: null,
@@ -50,12 +54,22 @@ export default defineStore('lightTable', {
 
     hasChanges() {
       return this.changeCount > 0
+    },
+
+    isNew: (state) => !state.composition,
+
+    canSave() {
+      if (this.isSaving) return false
+
+      return this.isNew ? !!this.draftName.trim() : this.hasChanges
     }
   },
 
   actions: {
     reset() {
       this.composition = null
+      this.draftName = ''
+      this.sessionKey++
       this.initialItems = []
       this.initialRegions = []
       this.layout = null
@@ -118,9 +132,30 @@ export default defineStore('lightTable', {
       })
     },
 
+    async createComposition() {
+      const { body } = await Composition.create({
+        composition: {
+          name: this.draftName.trim(),
+          type: LAYOUT_LIGHT_TABLE
+        }
+      })
+
+      this.composition = body
+      this.draftName = ''
+    },
+
     async save() {
-      if (this.isSaving) return
+      if (!this.canSave) return
       this.isSaving = true
+
+      if (this.isNew) {
+        try {
+          await this.createComposition()
+        } catch {
+          this.isSaving = false
+          return
+        }
+      }
 
       const compositionId = this.composition.id
 

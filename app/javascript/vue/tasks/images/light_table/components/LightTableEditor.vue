@@ -1,9 +1,13 @@
 <template>
-  <SaveBar @close="emit('close')" />
+  <SaveBar
+    @open="emit('open')"
+    @new="emit('new')"
+  />
   <div class="light-table-editor">
     <SourcePanel
       class="light-table-editor__side"
       :placed-keys="placedKeys"
+      :filter-images="store.filterImages"
       @add="(payload) => addFromSource(payload)"
     />
     <div class="panel light-table-editor__canvas">
@@ -71,7 +75,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['close'])
+const emit = defineEmits(['open', 'new', 'image-query-loaded'])
 
 const store = useStore()
 const lightTableRef = ref(null)
@@ -148,13 +152,17 @@ function onDrop({ point, dataTransfer }) {
 function addImagesFromQuery(params) {
   Image.filter({ ...params, per: MAX_FILTER_IMAGES })
     .then(({ body }) => {
+      store.filterImages = body
       addFromSource({ objectType: IMAGE, objects: body })
     })
     .catch(() => {})
 }
 
 onMounted(() => {
-  if (props.imageQuery) addImagesFromQuery(props.imageQuery)
+  if (props.imageQuery) {
+    addImagesFromQuery(props.imageQuery)
+    emit('image-query-loaded')
+  }
 })
 </script>
 

@@ -1,7 +1,15 @@
 <template>
   <div class="panel content margin-medium-bottom">
     <div class="horizontal-left-content middle gap-small">
-      <template v-if="isEditing">
+      <input
+        v-if="store.isNew"
+        v-model="store.draftName"
+        type="text"
+        class="light-table-save-bar__name-input"
+        placeholder="Name this light table to save it"
+        aria-label="Light table name"
+      />
+      <template v-else-if="isEditing">
         <input
           v-model="nameDraft"
           type="text"
@@ -46,7 +54,13 @@
 
       <div class="horizontal-right-content middle gap-small full_width">
         <span
-          v-if="store.hasChanges"
+          v-if="store.isNew"
+          class="text-xs light-table-save-bar__saved"
+        >
+          Not saved yet
+        </span>
+        <span
+          v-else-if="store.hasChanges"
           class="text-xs"
         >
           {{ store.changeCount }} unsaved change(s)
@@ -60,7 +74,7 @@
         <VBtn
           color="create"
           medium
-          :disabled="!store.hasChanges || store.isSaving"
+          :disabled="!store.canSave"
           @click="store.save()"
         >
           {{ store.isSaving ? 'Saving...' : 'Save' }}
@@ -69,9 +83,18 @@
           color="primary"
           variant="outline"
           medium
-          @click="emit('close')"
+          @click="emit('open')"
         >
-          Change light table
+          Open light table
+        </VBtn>
+        <VBtn
+          color="primary"
+          variant="outline"
+          medium
+          :disabled="store.isNew && !store.hasChanges"
+          @click="emit('new')"
+        >
+          New light table
         </VBtn>
       </div>
     </div>
@@ -85,7 +108,7 @@ import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
 
-const emit = defineEmits(['close'])
+const emit = defineEmits(['open', 'new'])
 
 const store = useStore()
 const isEditing = ref(false)
@@ -110,6 +133,10 @@ function saveName() {
 .light-table-save-bar__name {
   margin: 0;
   white-space: nowrap;
+}
+
+.light-table-save-bar__name-input {
+  min-width: 260px;
 }
 
 .light-table-save-bar__saved {

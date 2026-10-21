@@ -1,75 +1,74 @@
 <template>
-  <div class="horizontal-left-content align-start gap-medium">
-    <div class="panel content light-table-picker__new">
-      <h3>New light table</h3>
-      <LayoutForm @create="(composition) => emit('select', composition)" />
-    </div>
-
-    <div class="panel content full_width">
-      <h3>Open a light table</h3>
-      <SmartSelector
-        ref="smartSelectorRef"
-        model="compositions"
-        :params="{ type: LAYOUT_LIGHT_TABLE }"
-        :autocomplete-params="{ type: LAYOUT_LIGHT_TABLE }"
-        pin-section="Compositions"
-        pin-type="Composition"
+  <div>
+    <div class="horizontal-left-content middle gap-small">
+      <VAutocomplete
+        class="full_width"
+        url="/compositions/autocomplete"
+        param="term"
+        label="label_html"
         placeholder="Search a light table..."
-        @selected="(composition) => emit('select', composition)"
+        :add-params="{ type: LAYOUT_LIGHT_TABLE }"
+        clear-after
+        @select="({ id }) => emit('select', { id })"
       />
-
-      <VSpinner v-if="isLoading" />
-      <p v-else-if="!compositions.length">No light tables yet.</p>
-      <table
-        v-else
-        class="table-striped full_width margin-medium-top"
-      >
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Description</th>
-            <th>Updated</th>
-            <th />
-          </tr>
-        </thead>
-        <tbody>
-          <tr
-            v-for="composition in compositions"
-            :key="composition.id"
-          >
-            <td>
-              <a
-                href="#"
-                @click.prevent="emit('select', composition)"
-              >{{
-                composition.name
-              }}</a>
-            </td>
-            <td>{{ composition.description }}</td>
-            <td>{{ formatDate(composition.updated_at) }}</td>
-            <td>
-              <div class="horizontal-right-content gap-small">
-                <ButtonPin
-                  :object-id="composition.id"
-                  type="Composition"
-                />
-                <VBtn
-                  circle
-                  color="destroy"
-                  title="Destroy light table"
-                  @click="destroyComposition(composition)"
-                >
-                  <VIcon
-                    name="trash"
-                    x-small
-                  />
-                </VBtn>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <ButtonPinned
+        section="Compositions"
+        type="Composition"
+        @get-id="(id) => emit('select', { id })"
+      />
     </div>
+
+    <VSpinner v-if="isLoading" />
+    <p v-else-if="!compositions.length">No light tables yet.</p>
+    <table
+      v-else
+      class="table-striped full_width margin-medium-top"
+    >
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Description</th>
+          <th>Updated</th>
+          <th />
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          v-for="composition in compositions"
+          :key="composition.id"
+        >
+          <td>
+            <a
+              href="#"
+              @click.prevent="emit('select', composition)"
+            >{{
+              composition.name
+            }}</a>
+          </td>
+          <td>{{ composition.description }}</td>
+          <td>{{ formatDate(composition.updated_at) }}</td>
+          <td>
+            <div class="horizontal-right-content gap-small">
+              <ButtonPin
+                :object-id="composition.id"
+                type="Composition"
+              />
+              <VBtn
+                circle
+                color="destroy"
+                title="Destroy light table"
+                @click="destroyComposition(composition)"
+              >
+                <VIcon
+                  name="trash"
+                  x-small
+                />
+              </VBtn>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </template>
 
@@ -77,17 +76,16 @@
 import { ref, onBeforeMount } from 'vue'
 import { Composition } from '@/routes/endpoints'
 import { LAYOUT_LIGHT_TABLE } from '@/constants'
-import LayoutForm from './LayoutForm.vue'
-import SmartSelector from '@/components/ui/SmartSelector.vue'
+import VAutocomplete from '@/components/ui/Autocomplete.vue'
+import ButtonPinned from '@/components/ui/Button/ButtonPinned.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import ButtonPin from '@/components/ui/Button/ButtonPin.vue'
 
-const emit = defineEmits(['select'])
+const emit = defineEmits(['select', 'destroyed'])
 
 const compositions = ref([])
-const smartSelectorRef = ref(null)
 const isLoading = ref(false)
 
 function formatDate(date) {
@@ -121,7 +119,7 @@ function destroyComposition(composition) {
       compositions.value = compositions.value.filter(
         (c) => c.id !== composition.id
       )
-      smartSelectorRef.value?.refresh(true)
+      emit('destroyed', composition.id)
       TW.workbench.alert.create(
         'Light table was successfully destroyed.',
         'notice'
@@ -133,8 +131,3 @@ function destroyComposition(composition) {
 onBeforeMount(loadCompositions)
 </script>
 
-<style scoped>
-.light-table-picker__new {
-  min-width: 320px;
-}
-</style>
