@@ -147,8 +147,7 @@ module Queries::Concerns::SortResolver
         validate_target_class!(refl.klass, terminal_column: (column if i == path.length - 1))
 
         alias_name = "sort_#{name}_#{i}"
-        next_name = path[i + 1]
-        joins << single_hop_join(klass, refl, current_alias, alias_name, columns_needed(refl.klass, next_name, column))
+        joins << single_hop_join(klass, refl, current_alias, alias_name)
         klass = refl.klass
         current_alias = alias_name
       end
@@ -160,48 +159,27 @@ module Queries::Concerns::SortResolver
       end
     end
 
-    # A single belongs_to/has_one hop. `has_one` (always effectively
-    # correlated 1:1 by app invariant) is still built as a LATERAL rather
-    # than a plain join, to avoid row multiplication if that invariant is
-    # ever violated.
+    # A single belongs_to/has_one hop, as a plain LEFT JOIN so the planner
+    # can choose between per-row index lookups (small results) and a hash
+    # join (large results); a LATERAL would force the per-row loop.
     #
-    # @param columns [Array<String>] the target columns later SQL references
-    #   (see columns_needed); a has_one LATERAL selects only these, which is
-    #   measurably faster than SELECT * on wide tables like dwc_occurrences.
-    def single_hop_join(owner_klass, refl, owner_alias, alias_name, columns)
+    # A has_one is trusted to mean at most one row. If that's ever violated
+    # (e.g. two dwc_occurrences for one CollectionObject) the owner row
+    # appears twice in the sorted results -- visible, and the duplicate is
+    # already a data error that breaks other things, so it's not hidden here.
+    def single_hop_join(owner_klass, refl, owner_alias, alias_name)
+      target = refl.klass
+
       if refl.macro == :belongs_to
         raise ArgumentError, 'polymorphic belongs_to is not generically sortable; use custom()' if refl.polymorphic?
-
-        target = refl.klass
         sql = %(LEFT JOIN #{target.table_name} AS #{alias_name} ON #{alias_name}.id = #{owner_alias}.#{refl.foreign_key})
-        sql += " AND #{alias_name}.#{target.inheritance_column} = #{quote(target.sti_name)}" if target.finder_needs_type_condition?
-        sql
       else
-        target = refl.klass
-        inner = "#{alias_name}_t"
-        where = ["#{inner}.#{refl.foreign_key} = #{owner_alias}.id"]
-        where << "#{inner}.#{refl.type} = #{quote(owner_klass.polymorphic_name)}" if refl.type.present?
-        where << "#{inner}.#{target.inheritance_column} = #{quote(target.sti_name)}" if target.finder_needs_type_condition?
-        <<~SQL.squish
-          LEFT JOIN LATERAL (
-            SELECT #{columns.map { |c| %(#{inner}."#{c}") }.join(', ')} FROM #{target.table_name} #{inner}
-            WHERE #{where.join(' AND ')}
-            LIMIT 1
-          ) AS #{alias_name} ON true
-        SQL
+        sql = %(LEFT JOIN #{target.table_name} AS #{alias_name} ON #{alias_name}.#{refl.foreign_key} = #{owner_alias}.id)
+        sql += " AND #{alias_name}.#{refl.type} = #{quote(owner_klass.polymorphic_name)}" if refl.type.present?
       end
-    end
 
-    # The columns of `klass` (reached by a belongs_to/has_one hop) that the
-    # rest of the chain references: the sort column when this is the last
-    # hop, otherwise whatever the next hop joins on.
-    def columns_needed(klass, next_name, column)
-      return [column] if next_name.nil?
-
-      next_refl = klass.reflect_on_association(next_name)
-      raise ArgumentError, "no association :#{next_name} on #{klass}" unless next_refl
-
-      next_refl.macro == :belongs_to ? [next_refl.foreign_key.to_s] : ['id']
+      sql += " AND #{alias_name}.#{target.inheritance_column} = #{quote(target.sti_name)}" if target.finder_needs_type_condition?
+      sql
     end
 
     # Builds the LATERAL for a has_many (direct or :through) hop, optionally

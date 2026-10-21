@@ -139,11 +139,14 @@ describe 'Queries::Concerns::SortResolver', type: :model do
     end
   end
 
-  context 'has_one LATERAL' do
-    specify 'selects only the sort column when the has_one is the last hop' do
+  context 'has_one hop' do
+    # A plain join lets the planner choose a hash join for large results;
+    # a LATERAL forces a per-row loop.
+    specify 'is a plain LEFT JOIN, not a LATERAL' do
       sql = Queries::CollectionObject::Filter.new(sort: 'dwc_occurrence.scientificName').all.to_sql
-      expect(sql).not_to include('SELECT *')
-      expect(sql).to include('SELECT sort_dwc_occurrence_0_t."scientificName" FROM dwc_occurrences')
+      expect(sql).not_to include('LATERAL')
+      expect(sql).to include('LEFT JOIN dwc_occurrences AS sort_dwc_occurrence_0 ON sort_dwc_occurrence_0.dwc_occurrence_object_id = collection_objects.id')
+      expect(sql).to include(%(sort_dwc_occurrence_0.dwc_occurrence_object_type = 'CollectionObject'))
     end
 
     context 'followed by a belongs_to hop' do
@@ -154,10 +157,10 @@ describe 'Queries::Concerns::SortResolver', type: :model do
       # content_z is created first so id order and name order disagree.
       before { [content_z, content_a].each(&:publish) }
 
-      specify 'selects only the foreign key the next hop needs' do
+      specify 'joins both hops directly' do
         sql = sort.call(::Content.all, :asc).to_sql
-        expect(sql).not_to include('SELECT *')
-        expect(sql).to include('SELECT sort_public_content_0_t."otu_id" FROM public_contents')
+        expect(sql).not_to include('LATERAL')
+        expect(sql).to include('LEFT JOIN otus AS sort_otu_1 ON sort_otu_1.id = sort_public_content_0.otu_id')
       end
 
       specify 'orders by the final column' do
