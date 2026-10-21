@@ -19,9 +19,6 @@
 </template>
 
 <script setup>
-// Light table task: lay out depictions and images, group them, and save the
-// arrangement as a Layout::LightTable. Ported from compare-images.
-
 import { computed, ref, onBeforeMount } from 'vue'
 import qs from 'qs'
 import { setParam } from '@/helpers'
@@ -35,8 +32,6 @@ import LightTableEditor from './components/LightTableEditor.vue'
 
 const store = useStore()
 
-// Image filter params (e.g. from the radial linker), added to the light
-// table once it is chosen
 const imageQuery = ref(null)
 
 useBeforeUnloadListener({ show: computed(() => store.hasChanges) })

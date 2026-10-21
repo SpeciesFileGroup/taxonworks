@@ -6,6 +6,7 @@
   >
     <div
       class="lt-region__header"
+      :data-lt-region-id="region.id"
       @pointerdown="onHeaderPointerDown"
     >
       <input
@@ -34,21 +35,6 @@
       </span>
       <template v-if="!readonly">
         <VBtn
-          v-if="memberCount"
-          circle
-          x-small
-          variant="ghost"
-          color="default"
-          title="Arrange images in a grid"
-          @click.stop="lightTable.packRegion(region.id)"
-          @pointerdown.stop
-        >
-          <VIcon
-            name="expand"
-            xx-small
-          />
-        </VBtn>
-        <VBtn
           circle
           x-small
           variant="ghost"
@@ -68,7 +54,7 @@
 </template>
 
 <script setup>
-import { inject, computed, ref, nextTick } from 'vue'
+import { inject, computed, ref, nextTick, watch } from 'vue'
 import { usePointerDrag } from '../composables/usePointerDrag.js'
 import { REGION_HEADER_H } from '../utils/geometry.js'
 import VBtn from '@/components/ui/VBtn/index.vue'
@@ -100,7 +86,7 @@ const style = computed(() => ({
   top: `${area.value.y}px`,
   width: `${area.value.w}px`,
   height: `${area.value.h}px`,
-  '--lt-region-color': props.region.color,
+  '--lt-region-color': lightTable.regionColor(props.region),
   '--lt-region-header-h': `${REGION_HEADER_H}px`
 }))
 
@@ -135,6 +121,13 @@ function commitName() {
   lightTable.updateRegion(props.region.id, { name: nameDraft.value })
   editingName.value = false
 }
+
+watch(lightTable.editRequest, (request) => {
+  if (request?.kind === 'region' && request.id === props.region.id) {
+    lightTable.editRequest.value = null
+    startNameEdit()
+  }
+})
 
 function cancelName() {
   editingName.value = false

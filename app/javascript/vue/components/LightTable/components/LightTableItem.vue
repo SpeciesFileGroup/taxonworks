@@ -2,6 +2,7 @@
   <div
     class="lt-item"
     :class="{ 'lt-item--selected': selected }"
+    :data-lt-item-id="item.id"
     :style="style"
     @pointerdown="onBodyPointerDown"
   >
@@ -84,7 +85,7 @@
 </template>
 
 <script setup>
-import { inject, computed, ref, nextTick } from 'vue'
+import { inject, computed, ref, nextTick, watch } from 'vue'
 import { usePointerDrag } from '../composables/usePointerDrag.js'
 import { MAX_ITEM_WIDTH } from '../composables/useLightTable.js'
 import { clipPathShapes } from '../utils/svg.js'
@@ -264,6 +265,13 @@ function commitLabel() {
   lightTable.setLabel(props.item.id, labelDraft.value)
   editingLabel.value = false
 }
+
+watch(lightTable.editRequest, (request) => {
+  if (request?.kind === 'item' && request.id === props.item.id) {
+    lightTable.editRequest.value = null
+    startLabelEdit()
+  }
+})
 
 function cancelLabel() {
   editingLabel.value = false

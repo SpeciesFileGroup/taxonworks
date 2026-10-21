@@ -19,7 +19,7 @@
 <script setup>
 import { ref } from 'vue'
 import { Image } from '@/routes/endpoints'
-import { OBJECT_IMAGE } from '../../constants'
+import { IMAGE } from '@/constants'
 import VAutocomplete from '@/components/ui/Autocomplete.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 
@@ -32,7 +32,7 @@ function addImage({ id }) {
 
   Image.find(id)
     .then(({ body }) => {
-      emit('add', { objectType: OBJECT_IMAGE, objects: [body] })
+      emit('add', { objectType: IMAGE, objects: [body] })
     })
     .catch(() => {})
     .finally(() => {

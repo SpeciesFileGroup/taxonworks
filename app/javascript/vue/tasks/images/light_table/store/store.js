@@ -9,12 +9,13 @@ import {
   regionKey
 } from '../adapters/compositionItem'
 import { computeChanges, countChanges } from '../adapters/changes'
-import { GROUP_TYPE, ITEM_TYPE } from '../constants'
+import {
+  LAYOUT_ITEM_GROUP_ITEM,
+  LAYOUT_ITEM_LIGHT_TABLE_ITEM
+} from '@/constants'
 
 const MAX_PARALLEL_REQUESTS = 6
 
-// Runs request(entry) for every entry, a few at a time. Failed requests
-// (already reported by ajaxCall) leave their changes pending.
 async function runAll(entries, request) {
   for (let i = 0; i < entries.length; i += MAX_PARALLEL_REQUESTS) {
     await Promise.allSettled(
@@ -26,14 +27,10 @@ async function runAll(entries, request) {
 export default defineStore('lightTable', {
   state: () => ({
     composition: null,
-    // Input of the light table, set only when a composition is loaded
     initialItems: [],
     initialRegions: [],
-    // The light table's current layout, see LightTable exportLayout()
     layout: null,
-    // Stored attributes by CompositionItem id
     baseline: { items: new Map(), groups: new Map() },
-    // light table id -> CompositionItem id
     serverIds: new Map(),
     isLoading: false,
     isSaving: false
@@ -78,9 +75,12 @@ export default defineStore('lightTable', {
             })
           ])
 
-        const groups = compositionItems.filter((c) => c.type === GROUP_TYPE)
+        const groups = compositionItems.filter(
+          (c) => c.type === LAYOUT_ITEM_GROUP_ITEM
+        )
         const items = compositionItems.filter(
-          (c) => c.type === ITEM_TYPE && c.composition_item_object
+          (c) =>
+            c.type === LAYOUT_ITEM_LIGHT_TABLE_ITEM && c.composition_item_object
         )
         const groupsById = new Map(groups.map((g) => [g.id, g]))
 
@@ -118,8 +118,6 @@ export default defineStore('lightTable', {
       })
     },
 
-    // Groups are created first so that new members can reference them, and
-    // destroyed last, once their members have left.
     async save() {
       if (this.isSaving) return
       this.isSaving = true
@@ -159,13 +157,16 @@ export default defineStore('lightTable', {
       try {
         let changes = this.changes
 
-        await runAll(changes.groupCreates, (c) => createItem(c, GROUP_TYPE))
+        await runAll(changes.groupCreates, (c) =>
+          createItem(c, LAYOUT_ITEM_GROUP_ITEM)
+        )
         await runAll(changes.groupUpdates, updateItem)
 
-        // Again, members of new groups now know their parent_id
         changes = this.changes
 
-        await runAll(changes.itemCreates, (c) => createItem(c, ITEM_TYPE))
+        await runAll(changes.itemCreates, (c) =>
+          createItem(c, LAYOUT_ITEM_LIGHT_TABLE_ITEM)
+        )
         await runAll(changes.itemUpdates, updateItem)
         await runAll(changes.itemDestroys, (c) =>
           destroyItem(c, this.baseline.items)
@@ -188,7 +189,7 @@ export default defineStore('lightTable', {
     },
 
     storeBaseline(compositionItem) {
-      if (compositionItem.type === GROUP_TYPE) {
+      if (compositionItem.type === LAYOUT_ITEM_GROUP_ITEM) {
         this.baseline.groups.set(
           compositionItem.id,
           groupAttributes(compositionItem)

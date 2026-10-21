@@ -23,6 +23,7 @@
       :readonly="readonly"
       :drop-types="dropTypes"
       @drop-external="(e) => emit('drop-external', e)"
+      @context-menu="({ target, event }) => contextMenuRef.open(target, event)"
     >
       <template #item-overlay="slotProps">
         <slot
@@ -31,11 +32,27 @@
         />
       </template>
     </LightTableCanvas>
+    <LightTableContextMenu
+      ref="contextMenuRef"
+      :readonly="readonly"
+    >
+      <template
+        v-for="name in CONTEXT_MENU_SLOTS.filter(
+          (n) => $slots[`${n}-context-menu`]
+        )"
+        :key="name"
+        #[name]="slotProps"
+      >
+        <slot
+          :name="`${name}-context-menu`"
+          v-bind="slotProps"
+        />
+      </template>
+    </LightTableContextMenu>
   </div>
 </template>
 
 <script setup>
-
 import {
   provide,
   ref,
@@ -50,6 +67,9 @@ import { useLightTable } from './composables/useLightTable.js'
 import LightTableCanvas from './components/LightTableCanvas.vue'
 import LightTableToolbar from './components/LightTableToolbar.vue'
 import LightTableRegionBar from './components/LightTableRegionBar.vue'
+import LightTableContextMenu from './components/LightTableContextMenu.vue'
+
+const CONTEXT_MENU_SLOTS = ['item', 'region', 'canvas']
 
 const props = defineProps({
   items: {
@@ -90,6 +110,7 @@ const panMode = ref(false)
 const isPointerInside = ref(false)
 const rootEl = ref(null)
 const canvasEl = ref(null)
+const contextMenuRef = ref(null)
 
 const labels = computed(() => ({
   region: 'Region',

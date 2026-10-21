@@ -1,6 +1,4 @@
-// Depictions and Images as light table items (without position)
-
-import { OBJECT_DEPICTION, OBJECT_IMAGE } from '../constants'
+import { DEPICTION, IMAGE } from '@/constants'
 
 const CONVERT_IMAGE_TYPES = ['image/tiff', 'image/heic']
 
@@ -24,7 +22,7 @@ export function depictionToSource(depiction) {
     viewBox: depiction.svg_view_box || null,
     clipPath: depiction.svg_clip || null,
     meta: {
-      objectType: OBJECT_DEPICTION,
+      objectType: DEPICTION,
       objectId: depiction.id,
       object: depiction
     }
@@ -38,7 +36,7 @@ export function imageToSource(image) {
     mediaWidth: image.width,
     mediaHeight: image.height,
     meta: {
-      objectType: OBJECT_IMAGE,
+      objectType: IMAGE,
       objectId: image.id,
       object: image
     }
@@ -46,7 +44,5 @@ export function imageToSource(image) {
 }
 
 export function objectToSource(type, object) {
-  return type === OBJECT_DEPICTION
-    ? depictionToSource(object)
-    : imageToSource(object)
+  return type === DEPICTION ? depictionToSource(object) : imageToSource(object)
 }

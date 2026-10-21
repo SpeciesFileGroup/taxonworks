@@ -4,6 +4,7 @@
     class="lt-canvas"
     :class="{ 'lt-canvas--pan': panMode }"
     @pointerdown="onBgPointerDown"
+    @contextmenu="onContextMenu"
     @dragover="onDragOver"
     @drop="onDrop"
   >
@@ -60,7 +61,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['drop-external'])
+const emit = defineEmits(['drop-external', 'context-menu'])
 
 const lightTable = inject('lightTable')
 const panMode = inject('panMode')
@@ -151,6 +152,24 @@ function onWheel(event) {
   const rect = rootEl.value.getBoundingClientRect()
   const factor = event.deltaY < 0 ? 1.1 : 1 / 1.1
   lightTable.viewport.zoomAt(event.clientX, event.clientY, factor, rect)
+}
+
+function onContextMenu(event) {
+  event.preventDefault()
+
+  const itemEl = event.target.closest('[data-lt-item-id]')
+  const regionEl = event.target.closest('[data-lt-region-id]')
+  const target = { kind: 'canvas', id: null, point: canvasPoint(event) }
+
+  if (itemEl) {
+    const id = itemEl.dataset.ltItemId
+    if (!lightTable.selection.has(id)) lightTable.selectOnly([id])
+    Object.assign(target, { kind: 'item', id })
+  } else if (regionEl) {
+    Object.assign(target, { kind: 'region', id: regionEl.dataset.ltRegionId })
+  }
+
+  emit('context-menu', { target, event })
 }
 
 function isAcceptedDrop(event) {

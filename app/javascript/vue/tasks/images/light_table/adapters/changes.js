@@ -1,6 +1,3 @@
-// What must be created, updated and destroyed so that the stored
-// CompositionItems match the light table's layout.
-
 import { itemToAttributes, regionToGroupAttributes } from './compositionItem'
 
 function changedAttributes(before, after) {
@@ -11,10 +8,6 @@ function changedAttributes(before, after) {
   return changed.length ? Object.fromEntries(changed) : null
 }
 
-// @param layout [Object] see LightTable exportLayout()
-// @param baseline [Object] { items: Map, groups: Map } stored attributes by
-//   CompositionItem id, see itemAttributes and groupAttributes
-// @param serverIds [Map] light table id -> CompositionItem id
 export function computeChanges({ layout, baseline, serverIds }) {
   const changes = {
     groupCreates: [],

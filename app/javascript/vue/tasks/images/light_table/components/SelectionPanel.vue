@@ -4,46 +4,48 @@
     <p v-if="!items.length">
       Nothing selected. Click an image, or drag on the table to select several.
     </p>
-    <ul
-      v-else
-      class="light-table-selection"
-    >
-      <li
-        v-for="item in items"
-        :key="item.id"
-        class="margin-small-bottom"
+    <template v-else>
+      <p class="text-xs light-table-selection__count">
+        {{ items.length }} selected
+      </p>
+      <div
+        v-for="row in rows"
+        :key="row.item.id"
+        class="light-table-selection__row"
       >
-        <div>
-          <span class="text-xs">{{ item.meta.objectType }}</span>
-          <a
-            :href="item.meta.object.object_url"
-            v-html="item.meta.object.object_tag"
+        <button
+          type="button"
+          class="light-table-selection__thumb"
+          title="Select only this image"
+          @click="emit('select', row.item.id)"
+        >
+          <img
+            :src="row.thumbUrl"
+            :alt="row.object.object_label"
           />
+        </button>
+        <div class="light-table-selection__text">
+          <span v-html="row.object.object_tag" />
+          <span
+            v-if="row.details"
+            class="text-xs light-table-selection__details"
+          >
+            {{ row.details }}
+          </span>
         </div>
-        <div v-if="item.meta.object.depiction_object">
-          <span class="text-xs">Depicts</span>
-          <a
-            :href="item.meta.object.depiction_object.object_url"
-            v-html="item.meta.object.depiction_object.object_tag"
-          />
-        </div>
-        <div v-if="regionNames[item.regionId]">
-          <span class="text-xs">{{ LABELS.region }}</span>
-          {{ regionNames[item.regionId] }}
-        </div>
-        <a
-          class="text-xs"
-          :href="`${RouteNames.BrowseImage}?image_id=${imageId(item)}`"
-        >Browse image</a>
-      </li>
-    </ul>
+        <RadialNavigator
+          v-if="row.object.global_id"
+          :global-id="row.object.global_id"
+        />
+      </div>
+    </template>
   </div>
 </template>
 
 <script setup>
 import { computed } from 'vue'
-import { RouteNames } from '@/routes/routes'
-import { LABELS, OBJECT_DEPICTION } from '../constants'
+import { DEPICTION } from '@/constants'
+import RadialNavigator from '@/components/radials/navigation/radial.vue'
 
 const props = defineProps({
   items: {
@@ -57,25 +59,78 @@ const props = defineProps({
   }
 })
 
+const emit = defineEmits(['select'])
+
 const regionNames = computed(() =>
   Object.fromEntries(props.regions.map((r) => [r.id, r.name]))
 )
 
-function imageId(item) {
-  return item.meta.objectType === OBJECT_DEPICTION
-    ? item.meta.object.image_id
-    : item.meta.objectId
-}
+const rows = computed(() =>
+  props.items.map((item) => {
+    const { object } = item.meta
+    const isDepiction = item.meta.objectType === DEPICTION
+    const image = isDepiction ? object.image : object
+
+    return {
+      item,
+      object: (isDepiction && object.depiction_object) || image,
+      thumbUrl: image.alternatives.thumb.image_file_url,
+      details: [item.label, regionNames.value[item.regionId]]
+        .filter(Boolean)
+        .join(' · ')
+    }
+  })
+)
 </script>
 
 <style scoped>
-.light-table-selection {
-  margin: 0;
-  padding-left: var(--spacing-md);
+.light-table-selection__count {
+  margin-top: 0;
+  color: var(--text-muted-color);
 }
 
-.light-table-selection .text-xs {
-  margin-right: var(--spacing-xxs);
+.light-table-selection__row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xxs) 0;
+  border-top: 1px solid var(--border-color);
+}
+
+.light-table-selection__text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.light-table-selection__details {
   color: var(--text-muted-color);
+}
+
+.light-table-selection__thumb {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  overflow: hidden;
+  background: var(--bg-muted);
+  border: 2px solid transparent;
+  border-radius: var(--border-radius-xsmall);
+  cursor: pointer;
+}
+
+.light-table-selection__thumb:hover,
+.light-table-selection__thumb:focus-visible {
+  border-color: var(--color-primary);
+}
+
+.light-table-selection__thumb img {
+  max-width: 100%;
+  max-height: 100%;
 }
 </style>

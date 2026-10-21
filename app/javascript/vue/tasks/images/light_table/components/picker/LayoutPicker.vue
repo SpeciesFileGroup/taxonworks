@@ -7,31 +7,16 @@
 
     <div class="panel content full_width">
       <h3>Open a light table</h3>
-      <VAutocomplete
-        url="/compositions/autocomplete"
-        param="term"
-        label="label_html"
+      <SmartSelector
+        ref="smartSelectorRef"
+        model="compositions"
+        :params="{ type: LAYOUT_LIGHT_TABLE }"
+        :autocomplete-params="{ type: LAYOUT_LIGHT_TABLE }"
+        pin-section="Compositions"
+        pin-type="Composition"
         placeholder="Search a light table..."
-        :add-params="{ type: COMPOSITION_TYPE }"
-        clear-after
-        @select="({ id }) => emit('select', { id })"
+        @selected="(composition) => emit('select', composition)"
       />
-
-      <div
-        v-if="quick.length"
-        class="horizontal-left-content gap-small margin-medium-top"
-      >
-        <span>Pinned and recent:</span>
-        <VBtn
-          v-for="composition in quick"
-          :key="composition.id"
-          color="primary"
-          variant="outline"
-          @click="emit('select', composition)"
-        >
-          {{ composition.name }}
-        </VBtn>
-      </div>
 
       <VSpinner v-if="isLoading" />
       <p v-else-if="!compositions.length">No light tables yet.</p>
@@ -91,9 +76,9 @@
 <script setup>
 import { ref, onBeforeMount } from 'vue'
 import { Composition } from '@/routes/endpoints'
-import { COMPOSITION_TYPE } from '../../constants'
+import { LAYOUT_LIGHT_TABLE } from '@/constants'
 import LayoutForm from './LayoutForm.vue'
-import VAutocomplete from '@/components/ui/Autocomplete.vue'
+import SmartSelector from '@/components/ui/SmartSelector.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
@@ -102,7 +87,7 @@ import ButtonPin from '@/components/ui/Button/ButtonPin.vue'
 const emit = defineEmits(['select'])
 
 const compositions = ref([])
-const quick = ref([])
+const smartSelectorRef = ref(null)
 const isLoading = ref(false)
 
 function formatDate(date) {
@@ -112,13 +97,9 @@ function formatDate(date) {
 function loadCompositions() {
   isLoading.value = true
 
-  Promise.all([
-    Composition.where({ type: COMPOSITION_TYPE, per: 100 }),
-    Composition.selectOptions({ type: COMPOSITION_TYPE })
-  ])
-    .then(([{ body: list }, { body: options }]) => {
-      compositions.value = list
-      quick.value = options.quick
+  Composition.where({ type: LAYOUT_LIGHT_TABLE, per: 100 })
+    .then(({ body }) => {
+      compositions.value = body
     })
     .catch(() => {})
     .finally(() => {
@@ -140,7 +121,7 @@ function destroyComposition(composition) {
       compositions.value = compositions.value.filter(
         (c) => c.id !== composition.id
       )
-      quick.value = quick.value.filter((c) => c.id !== composition.id)
+      smartSelectorRef.value?.refresh(true)
       TW.workbench.alert.create(
         'Light table was successfully destroyed.',
         'notice'

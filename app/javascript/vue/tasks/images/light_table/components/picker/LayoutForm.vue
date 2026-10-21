@@ -37,7 +37,7 @@
 <script setup>
 import { ref } from 'vue'
 import { Composition } from '@/routes/endpoints'
-import { COMPOSITION_TYPE } from '../../constants'
+import { LAYOUT_LIGHT_TABLE } from '@/constants'
 import VBtn from '@/components/ui/VBtn/index.vue'
 
 const emit = defineEmits(['create'])
@@ -53,7 +53,7 @@ function submit() {
     composition: {
       name: name.value.trim(),
       description: description.value.trim() || null,
-      type: COMPOSITION_TYPE
+      type: LAYOUT_LIGHT_TABLE
     }
   })
     .then(({ body }) => {

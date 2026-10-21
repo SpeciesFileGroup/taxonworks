@@ -8,12 +8,23 @@
       v-for="r in lightTable.regions"
       :key="r.id"
       class="lt-region-chip"
-      :style="{ '--lt-region-color': r.color }"
+      :style="{ '--lt-region-color': lightTable.regionColor(r) }"
       role="button"
       :title="`Select ${memberCount(r.id)} image(s) (shift to add)`"
       @click="selectMembers(r.id, $event)"
     >
-      <span class="lt-region-chip__swatch" />
+      <label
+        class="lt-region-chip__swatch"
+        :title="readonly ? undefined : `Change color of ${r.name}`"
+        @click.stop
+      >
+        <input
+          type="color"
+          :value="lightTable.regionColor(r)"
+          :disabled="readonly"
+          @input="(e) => lightTable.updateRegion(r.id, { color: e.target.value })"
+        />
+      </label>
       <input
         class="lt-region-chip__name"
         type="text"
@@ -25,21 +36,21 @@
       <span class="lt-region-chip__count">{{ memberCount(r.id) }}</span>
       <VBtn
         circle
-        x-small
+        small
         variant="ghost"
         color="default"
         :title="`Zoom to ${r.name}`"
         @click.stop="lightTable.fitRegion(r.id)"
       >
         <VIcon
-          name="zoomIn"
-          xx-small
+          name="focus"
+          x-small
         />
       </VBtn>
       <VBtn
         v-if="!readonly"
         circle
-        x-small
+        small
         variant="ghost"
         color="default"
         :title="`Remove ${labels.region.toLowerCase()} (images are kept)`"
@@ -47,7 +58,7 @@
       >
         <VIcon
           name="close"
-          xx-small
+          x-small
         />
       </VBtn>
     </div>
@@ -115,10 +126,29 @@ function selectMembers(regionId, event) {
 }
 
 .lt-region-chip__swatch {
+  position: relative;
+  overflow: hidden;
   width: 14px;
   height: 14px;
   background: var(--lt-region-color);
   border-radius: 3px;
+  cursor: pointer;
+}
+
+.lt-region-chip__swatch:focus-within {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+
+.lt-region-chip__swatch input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: none;
+  opacity: 0;
+  cursor: pointer;
 }
 
 .lt-region-chip__name {

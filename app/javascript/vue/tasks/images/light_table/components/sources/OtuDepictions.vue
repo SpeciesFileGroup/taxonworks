@@ -74,7 +74,8 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { Depiction } from '@/routes/endpoints'
-import { DRAG_TYPE, OBJECT_DEPICTION } from '../../constants'
+import { DEPICTION } from '@/constants'
+import { DRAG_TYPE } from '../../constants'
 import VAutocomplete from '@/components/ui/Autocomplete.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
@@ -83,7 +84,6 @@ import VSpinner from '@/components/ui/VSpinner.vue'
 const MAX_DEPICTIONS = 500
 
 const props = defineProps({
-  // `${objectType}:${objectId}` of what is on the light table
   placedKeys: {
     type: Set,
     required: true
@@ -101,11 +101,9 @@ const pendingDepictions = computed(() =>
 )
 
 function isPlaced(depiction) {
-  return props.placedKeys.has(`${OBJECT_DEPICTION}:${depiction.id}`)
+  return props.placedKeys.has(`${DEPICTION}:${depiction.id}`)
 }
 
-// The OTU's depictions, and those of its collection objects, observations,
-// type material etc.
 function selectOtu(item) {
   otu.value = item
   depictions.value = []
@@ -131,14 +129,10 @@ function clear() {
   depictions.value = []
 }
 
-// Payload: the depictions to add, the OTU and all the OTU's depiction ids,
-// see LightTableEditor
 function payload(list) {
   return {
-    objectType: OBJECT_DEPICTION,
-    objects: list,
-    otu: { id: otu.value.id, label: otu.value.label },
-    depictionIds: depictions.value.map((d) => d.id)
+    objectType: DEPICTION,
+    objects: list
   }
 }
 

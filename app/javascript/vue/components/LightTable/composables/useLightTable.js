@@ -1,4 +1,4 @@
-import { reactive, computed } from 'vue'
+import { reactive, computed, ref } from 'vue'
 import { useViewport } from './useViewport.js'
 import {
   REGION_HEADER_H,
@@ -80,11 +80,12 @@ function makeItem(img, z) {
   }
 }
 
-function makeRegion(r, color) {
+function makeRegion(r, paletteColor) {
   return {
     id: r.id ?? nextRid(),
     name: r.name ?? '',
-    color: r.color ?? color,
+    color: r.color ?? null,
+    paletteColor,
     x: r.x ?? 0,
     y: r.y ?? 0
   }
@@ -95,6 +96,8 @@ export function useLightTable() {
   const items = reactive([])
   const selection = reactive(new Set())
   const regions = reactive([])
+
+  const editRequest = ref(null)
 
   const selectedItems = computed(() =>
     items.filter((it) => selection.has(it.id))
@@ -110,8 +113,12 @@ export function useLightTable() {
     return areas
   })
 
+  function regionColor(region) {
+    return region.color || region.paletteColor
+  }
+
   function pickRegionColor() {
-    const used = new Set(regions.map((r) => r.color))
+    const used = new Set(regions.map(regionColor))
 
     return (
       DEFAULT_PALETTE.find((c) => !used.has(c)) ??
@@ -317,6 +324,24 @@ export function useLightTable() {
     })
   }
 
+  function rotateSelected(degrees, ids = [...selection]) {
+    ids.forEach((id) => {
+      const it = findById(id)
+      if (it) it.rotation = (it.rotation + degrees) % 360
+    })
+  }
+
+  function setScale(value, ids = [...selection]) {
+    ids.forEach((id) => {
+      const it = findById(id)
+      if (it) it.scale = value
+    })
+  }
+
+  function requestEdit(kind, id) {
+    editRequest.value = { kind, id }
+  }
+
   function setOpacity(value, ids = [...selection]) {
     const v = Math.min(1, Math.max(0, value))
 
@@ -423,16 +448,40 @@ export function useLightTable() {
     })
   }
 
-  function packRegion(id, { gap = 24 } = {}) {
+  function packRegion(id, { layout = 'grid', gap = 24 } = {}) {
     const members = membersOfRegion(id)
     const area = regionArea(id)
     if (!members.length || !area) return
 
+    const usableX = area.x + REGION_PAD
+    const usableY = area.y + REGION_HEADER_H + REGION_PAD
+
+    if (layout === 'row' || layout === 'column') {
+      const isRow = layout === 'row'
+      const boxes = members
+        .map((it) => ({ it, b: itemAABB(it) }))
+        .sort((a, b) => (isRow ? a.it.x - b.it.x : a.it.y - b.it.y))
+      const across = Math.max(...boxes.map(({ b }) => (isRow ? b.h : b.w)))
+      let cursor = isRow ? usableX : usableY
+
+      for (const { it, b } of boxes) {
+        if (isRow) {
+          it.x = cursor + b.w / 2
+          it.y = usableY + across / 2
+          cursor += b.w + gap
+        } else {
+          it.x = usableX + across / 2
+          it.y = cursor + b.h / 2
+          cursor += b.h + gap
+        }
+      }
+
+      return
+    }
+
     const cellW = Math.max(...members.map((it) => it.w * it.scale)) + gap
     const cellH = Math.max(...members.map((it) => it.h * it.scale)) + gap
     const { cols } = gridDimsForCount(members.length, cellW / cellH)
-    const usableX = area.x + REGION_PAD
-    const usableY = area.y + REGION_HEADER_H + REGION_PAD
 
     members.forEach((it, i) => {
       it.x = usableX + cellW * (i % cols) + cellW / 2
@@ -443,7 +492,9 @@ export function useLightTable() {
   function regionColorFor(item) {
     if (!item?.regionId) return null
 
-    return findRegionById(item.regionId)?.color ?? null
+    const region = findRegionById(item.regionId)
+
+    return region ? regionColor(region) : null
   }
 
   function getRegionOfItem(id) {
@@ -598,6 +649,10 @@ export function useLightTable() {
     bringForward,
     sendBackward,
     resetTransform,
+    rotateSelected,
+    setScale,
+    editRequest,
+    requestEdit,
     selectOnly,
     toggleSelect,
     addToSelection,
@@ -612,6 +667,7 @@ export function useLightTable() {
     claimSelected,
     packRegion,
     regionArea,
+    regionColor,
     regionColorFor,
     getRegionOfItem,
     membersOfRegion,

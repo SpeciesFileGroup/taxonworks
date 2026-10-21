@@ -16,32 +16,55 @@
         @change="store.setLayout"
         @select="(ids) => (selectedIds = ids)"
         @drop-external="onDrop"
+      >
+        <template #item-context-menu="{ items }">
+          <ItemContextMenu
+            :items="items"
+            @radial="openRadial"
+          />
+        </template>
+      </LightTable>
+      <RadialNavigator
+        v-if="radial.type === 'navigator'"
+        ref="radialNavigatorRef"
+        :global-id="radial.globalId"
+        :show-bottom="false"
+      />
+      <RadialAnnotator
+        v-if="radial.type === 'annotator'"
+        ref="radialAnnotatorRef"
+        :global-id="radial.globalId"
+        :show-bottom="false"
       />
     </div>
     <SelectionPanel
       class="light-table-editor__side"
       :items="selectedItems"
       :regions="store.layout?.regions || []"
+      @select="(id) => lightTableRef.selectOnly([id])"
     />
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, nextTick } from 'vue'
 import { Image } from '@/routes/endpoints'
 import { LightTable } from '@/components/LightTable'
-import { DRAG_TYPE, LABELS, OBJECT_DEPICTION, OBJECT_IMAGE } from '../constants'
+import { IMAGE } from '@/constants'
+import { DRAG_TYPE, LABELS } from '../constants'
 import { objectToSource } from '../adapters/source'
 import useStore from '../store/store'
 import SaveBar from './SaveBar.vue'
 import SelectionPanel from './SelectionPanel.vue'
 import SourcePanel from './sources/SourcePanel.vue'
+import ItemContextMenu from './ItemContextMenu.vue'
+import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
+import RadialNavigator from '@/components/radials/navigation/radial.vue'
 
 const MAX_FILTER_IMAGES = 500
 const DROP_OFFSET = 20
 
 const props = defineProps({
-  // Image filter params, e.g. from the radial linker
   imageQuery: {
     type: Object,
     default: null
@@ -53,6 +76,9 @@ const emit = defineEmits(['close'])
 const store = useStore()
 const lightTableRef = ref(null)
 const selectedIds = ref([])
+const radial = ref({ type: null, globalId: null })
+const radialNavigatorRef = ref(null)
+const radialAnnotatorRef = ref(null)
 
 const layoutItems = computed(() => store.layout?.items || [])
 
@@ -69,27 +95,6 @@ const selectedItems = computed(() => {
   return layoutItems.value.filter((it) => ids.has(it.id))
 })
 
-// The group of an OTU: the one holding most of its depictions. A group
-// references no object, its members do.
-function findOtuRegion(depictionIds) {
-  const ids = new Set(depictionIds)
-  const counts = new Map()
-
-  for (const item of lightTableRef.value.items) {
-    if (
-      item.regionId &&
-      item.meta.objectType === OBJECT_DEPICTION &&
-      ids.has(item.meta.objectId)
-    ) {
-      counts.set(item.regionId, (counts.get(item.regionId) || 0) + 1)
-    }
-  }
-
-  return [...counts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? null
-}
-
-// @param payload { objectType, objects, otu?, depictionIds? }, see sources/
-// @param point [Object] canvas coordinates of a drop
 function addFromSource(payload, point = null) {
   const lightTable = lightTableRef.value
   const sources = payload.objects
@@ -109,25 +114,9 @@ function addFromSource(payload, point = null) {
 
   if (!sources.length) return
 
-  let regionId = null
-  let isNewRegion = false
-
-  if (payload.otu) {
-    regionId = findOtuRegion(payload.depictionIds)
-
-    if (!regionId) {
-      isNewRegion = true
-      regionId = lightTable.createRegion({
-        name: payload.otu.label,
-        ...(point && { x: point.x, y: point.y })
-      })
-    }
-  }
-
   const ids = lightTable.addItems(
     sources.map((source, i) => ({
       ...source,
-      regionId,
       ...(point && {
         x: point.x + i * DROP_OFFSET,
         y: point.y + i * DROP_OFFSET
@@ -135,25 +124,31 @@ function addFromSource(payload, point = null) {
     }))
   )
 
-  if (isNewRegion && sources.length > 1) {
-    lightTable.packRegion(regionId)
-  }
-
   lightTable.selectOnly(ids)
+}
+
+async function openRadial({ type, globalId }) {
+  radial.value = { type, globalId }
+  await nextTick()
+
+  const radialRef =
+    type === 'navigator' ? radialNavigatorRef : radialAnnotatorRef
+
+  radialRef.value?.openRadialMenu()
 }
 
 function onDrop({ point, dataTransfer }) {
   try {
     addFromSource(JSON.parse(dataTransfer.getData(DRAG_TYPE)), point)
   } catch {
-    // not a payload of ours
+
   }
 }
 
 function addImagesFromQuery(params) {
   Image.filter({ ...params, per: MAX_FILTER_IMAGES })
     .then(({ body }) => {
-      addFromSource({ objectType: OBJECT_IMAGE, objects: body })
+      addFromSource({ objectType: IMAGE, objects: body })
     })
     .catch(() => {})
 }
