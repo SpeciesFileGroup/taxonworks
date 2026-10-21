@@ -412,13 +412,37 @@ module Queries
     end
 
     # @return [ActiveRecord::Relation]
+    #
+    # Rails reads table names out of string ORDER BY clauses (e.g.
+    # `sort_identifiers.val`) into `references_values`, and when a caller
+    # later adds `includes` it takes those for included tables and switches
+    # to a JOIN-based eager load: a DISTINCT ids query plus a matching COUNT,
+    # each joined to every included has_many. Sort joins are self-contained
+    # SQL and never refer to included associations, so the references they
+    # add are dropped here.
     def apply_sortable_columns(q)
+      # The list as it was before any sort was applied. Rails never modifies
+      # this array in place (adding a reference builds a new array), so the
+      # sort lambdas below can't change it.
+      references = q.references_values
+
       columns = self.class.sortable_columns
       order_by_columns.each do |c|
         spec = columns[c[:key]]
         next if spec.nil?
+        # Returns a new relation with the sort's joins and ORDER BY added;
+        # its references_values now also includes the sort's aliases, e.g.
+        # ['sort_identifiers'].
         q = spec.call(q, c[:dir])
       end
+
+      # Put back the list saved above. references_values is not SQL: the
+      # sort joins and ORDER BY stay as built, only the table names Rails
+      # inferred from the ORDER BY strings are dropped. `references_values=`
+      # changes the relation it's called on, so work on a copy (spawn) rather
+      # than the relation the last lambda returned.
+      q = q.spawn
+      q.references_values = references
       q
     end
 

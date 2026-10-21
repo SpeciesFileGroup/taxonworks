@@ -136,6 +136,25 @@ describe Queries::Query::Filter, type: [:model] do
       end
     end
 
+    context 'sort joins and association loading' do
+      # Controllers call `includes` on filter results to avoid N+1 queries.
+      # A sort's ORDER BY must not make Rails switch those to a JOIN-based
+      # eager load (a DISTINCT ids query plus a matching COUNT, both joined
+      # to every included has_many).
+      %w[identifiers.cached taxon_determinations.otu_name taxon_determinations.year_made].each do |key|
+        specify "sort=#{key} keeps includes as separate preload queries" do
+          rel = ::Queries::CollectionObject::Filter.new(sort: key).all.includes(:identifiers, :taxon_determinations)
+          expect(rel.eager_loading?).to be false
+        end
+      end
+
+      specify 'references set before sorting are kept' do
+        f = ::Queries::CollectionObject::Filter.new(sort: 'identifiers.cached')
+        rel = f.send(:apply_sortable_columns, ::CollectionObject.references(:identifiers))
+        expect(rel.references_values).to eq([:identifiers])
+      end
+    end
+
     context 'multi-column sort param (JSON:API)' do
       let(:f) { ::Queries::Otu::Filter.new({}) }
 
