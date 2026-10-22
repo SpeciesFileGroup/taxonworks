@@ -38,11 +38,10 @@
 
 <script setup>
 import { computed, ref, watch, onBeforeMount } from 'vue'
-import qs from 'qs'
 import { setParam } from '@/helpers'
 import { RouteNames } from '@/routes/routes'
 import { useBeforeUnloadListener } from '@/composables'
-import { LinkerStorage } from '@/shared/Filter/utils'
+import { useQueryParam } from '@/tasks/data_attributes/field_synchronize/composables'
 import useStore from './store/store'
 import VModal from '@/components/ui/Modal.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
@@ -86,15 +85,8 @@ function onDestroyed(id) {
 }
 
 onBeforeMount(async () => {
-  const { composition_id: compositionId, ...params } = {
-    ...qs.parse(window.location.search, {
-      ignoreQueryPrefix: true,
-      arrayLimit: 2500
-    }),
-    ...(LinkerStorage.getParameters() || {})
-  }
-
-  LinkerStorage.removeParameters()
+  const { composition_id: compositionId, ...params } =
+    useQueryParam().parameters
 
   if (Object.keys(params).length) {
     imageQuery.value = params
