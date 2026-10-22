@@ -16,6 +16,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Batch add/remove AssertedEnvironments from Filter OTU and Collecting Event [#5128]
 - Citations by source: Add depictions to summarize OTUs list [#5141]
 - "Is data depiction" checkbox to Image viewer [#5144]
+- Radial mass navigator: Edit slice
 
 ### Changed
 
