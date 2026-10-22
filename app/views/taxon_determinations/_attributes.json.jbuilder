@@ -19,7 +19,8 @@ end
 
 if taxon_determination.roles.any?
   json.determiner_roles do
-    json.array! taxon_determination.determiner_roles.order(:position).each do |role|
+    # sort_by, not order: order would re-query and skip a preload
+    json.array! taxon_determination.determiner_roles.sort_by(&:position).each do |role|
       json.extract! role, :id, :position, :type
       case role.agent_type
       when :person
