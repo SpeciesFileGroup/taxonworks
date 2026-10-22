@@ -215,25 +215,33 @@ module Queries::Concerns::SortResolver
           "collapse: is required for has_many hop :#{refl.name} -- pass collapse: :position or collapse: :aggregate"
       end
 
-      select_expr, tail_sql =
+      select_expr =
         case collapse
         when :aggregate
           raise ArgumentError, 'collapse: :aggregate cannot be combined with further hops' if remaining.any?
-          [%(MIN(#{current_alias}."#{column}")), '']
+          %(MIN(#{current_alias}."#{column}"))
         when :position
-          [%(#{current_alias}."#{column}"), "ORDER BY #{has_many_source_alias(refl)}.position LIMIT 1"]
+          # The first value by position, as an aggregate rather than
+          # `ORDER BY position LIMIT 1`: an aggregate with no GROUP BY always
+          # returns exactly one row, so Postgres can drop this join from the
+          # pagination COUNT; it never drops a LIMIT 1 subquery. `id` breaks
+          # ties between rows that share a position.
+          source_alias = has_many_source_alias(refl)
+          %{(array_agg(#{current_alias}."#{column}" ORDER BY #{source_alias}.position, #{source_alias}.id))[1]}
         else
           raise ArgumentError, "unknown collapse strategy #{collapse.inspect}"
         end
 
-      lat_alias = "sort_#{refl.name}"
+      # Includes the rest of the path and the column, so two keys through
+      # the same has_many (e.g. two taxon_determinations columns) get
+      # separate LATERALs.
+      lat_alias = ['sort', refl.name, *remaining, column].join('_')
       sql = <<~SQL.squish
         LEFT JOIN LATERAL (
           SELECT #{select_expr} AS val
           #{from_sql}
           #{extra_joins.join(' ')}
           WHERE #{where.join(' AND ')}
-          #{tail_sql}
         ) AS #{lat_alias} ON true
       SQL
 

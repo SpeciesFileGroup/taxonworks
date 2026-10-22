@@ -20,27 +20,14 @@ module Queries::FieldOccurrence::SortableFilterColumns
 
       # taxon_determinations.* uses the primary (lowest-position) determination
       # for each FO (TaxonDetermination is acts_as_list, position 1 = primary).
+      # otu_id goes through the otu's id: the resolver refuses raw foreign keys.
       ::Queries::CollectionObject::SortableFilterColumns::SORTABLE_TAXON_DETERMINATION_COLUMNS.each do |c|
-        # `otu_name` is joined through otus; the rest are direct td columns,
-        # still hand-written pending a similar migration pass.
-        if c == 'otu_name'
-          cols['taxon_determinations.otu_name'] = assoc(:taxon_determinations, :otu, :name, collapse: :position)
-        else
-          cols["taxon_determinations.#{c}"] = ->(q, dir) {
-            lat = "sort_td_#{c}"
-            q.joins(<<~SQL.squish)
-              LEFT JOIN LATERAL (
-                SELECT #{c} AS val
-                FROM taxon_determinations
-                WHERE taxon_determination_object_id = field_occurrences.id
-                  AND taxon_determination_object_type = 'FieldOccurrence'
-                ORDER BY position
-                LIMIT 1
-              ) AS #{lat} ON true
-            SQL
-            .order(Arel.sql("#{lat}.val #{dir == :desc ? 'DESC' : 'ASC'} NULLS LAST"))
-          }
-        end
+        cols["taxon_determinations.#{c}"] =
+          case c
+          when 'otu_id' then assoc(:taxon_determinations, :otu, :id, collapse: :position)
+          when 'otu_name' then assoc(:taxon_determinations, :otu, :name, collapse: :position)
+          else assoc(:taxon_determinations, c, collapse: :position)
+          end
       end
 
       cols['identifiers.cached'] = assoc(:identifiers, :cached, collapse: :aggregate)

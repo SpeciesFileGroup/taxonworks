@@ -881,6 +881,26 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
         # s_z's primary is aus_otu < s_a's primary is zus_otu
         expect(q.all.map(&:id)).to eq([s_z.id, s_a.id])
       end
+
+      specify 'a direct column uses the primary determination, not the lowest value' do
+        TaxonDetermination.create!(taxon_determination_object: s_a, otu: otu_a, position: 1, year_made: 2000)
+        TaxonDetermination.create!(taxon_determination_object: s_a, otu: otu_a, position: 2, year_made: 1900)
+        TaxonDetermination.create!(taxon_determination_object: s_z, otu: otu_a, position: 1, year_made: 1950)
+        q = Queries::CollectionObject::Filter.new(
+          collection_object_id: [s_a.id, s_z.id], sort: 'taxon_determinations.year_made'
+        )
+        expect(q.all.map(&:id)).to eq([s_z.id, s_a.id])
+      end
+
+      specify 'two determination keys in one sort' do
+        TaxonDetermination.create!(taxon_determination_object: s_a, otu: otu_a, position: 1, year_made: 2000)
+        TaxonDetermination.create!(taxon_determination_object: s_z, otu: otu_z, position: 1, year_made: 2000)
+        q = Queries::CollectionObject::Filter.new(
+          collection_object_id: [s_a.id, s_z.id],
+          sort: 'taxon_determinations.year_made,-taxon_determinations.otu_name'
+        )
+        expect(q.all.map(&:id)).to eq([s_z.id, s_a.id])
+      end
     end
 
     context 'identifiers.cached (aggregated)' do

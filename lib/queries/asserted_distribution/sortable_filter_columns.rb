@@ -40,14 +40,13 @@ module Queries::AssertedDistribution::SortableFilterColumns
       }
 
       # data_origin only exists on GeographicArea shapes; Gazetteer rows sort NULL.
+      # A plain join on the primary key, so Postgres can drop it from the
+      # pagination COUNT.
       cols['data_origin'] = ->(q, dir) {
         q.joins(<<~SQL.squish)
-          LEFT JOIN LATERAL (
-            SELECT data_origin FROM geographic_areas
-            WHERE asserted_distributions.asserted_distribution_shape_type = 'GeographicArea'
-              AND geographic_areas.id = asserted_distributions.asserted_distribution_shape_id
-            LIMIT 1
-          ) AS sort_ad_origin ON true
+          LEFT JOIN geographic_areas AS sort_ad_origin
+            ON sort_ad_origin.id = asserted_distributions.asserted_distribution_shape_id
+            AND asserted_distributions.asserted_distribution_shape_type = 'GeographicArea'
         SQL
         .order(Arel.sql("sort_ad_origin.data_origin #{dir == :desc ? 'DESC' : 'ASC'} NULLS LAST"))
       }

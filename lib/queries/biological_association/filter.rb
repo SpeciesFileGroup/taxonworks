@@ -96,13 +96,11 @@ module Queries
           q
             .joins(<<~SQL.squish)
               LEFT JOIN LATERAL (
-                SELECT cvt.name AS name
+                SELECT MIN(cvt.name) AS name
                 FROM biological_relationship_types brt
                 JOIN controlled_vocabulary_terms cvt ON cvt.id = brt.biological_property_id
                 WHERE brt.biological_relationship_id = biological_associations.biological_relationship_id
                   AND brt.type = '#{brt_type}'
-                ORDER BY cvt.name
-                LIMIT 1
               ) AS #{lat_alias} ON true
             SQL
             .order(Arel.sql("#{lat_alias}.name #{dir == :desc ? 'DESC' : 'ASC'} NULLS LAST"))

@@ -9,7 +9,9 @@
 #
 # Each helper inlines its SQL via LATERAL so the per-row subquery returns
 # at most one row -- this avoids the row multiplication you'd get from a
-# plain LEFT JOIN through taxon_name_hierarchies.
+# plain LEFT JOIN through taxon_name_hierarchies. Collapse to one row with
+# an aggregate (MIN), not LIMIT 1: Postgres can drop an aggregate LATERAL
+# from the pagination COUNT, never a LIMIT 1 one.
 module Queries::Concerns::Sortable
 
   extend ActiveSupport::Concern
@@ -29,14 +31,13 @@ module Queries::Concerns::Sortable
         q
           .joins(<<~SQL.squish)
             LEFT JOIN LATERAL (
-              SELECT tn.name AS name
+              SELECT MIN(tn.name) AS name
               FROM otus o
               JOIN taxon_name_hierarchies tnh ON tnh.descendant_id = o.taxon_name_id
               JOIN taxon_names tn
                 ON tn.id = tnh.ancestor_id
                 AND tn.rank_class LIKE '#{rank_class_like}'
               WHERE o.id = (#{otu_id_expr})
-              LIMIT 1
             ) AS #{lat_alias} ON true
           SQL
           .order(Arel.sql("#{lat_alias}.name #{dir == :desc ? 'DESC' : 'ASC'} NULLS LAST"))
