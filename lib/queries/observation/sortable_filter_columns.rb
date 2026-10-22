@@ -12,7 +12,7 @@ module Queries::Observation::SortableFilterColumns
       cols['type_label'] = direct(:type)
 
       # observation_object is a polymorphic type-dispatch display label
-      # (Otu/CollectionObject/AnatomicalPart), not expressible via assoc().
+      # (Otu/CollectionObject/AnatomicalPart), not expressible via association().
       cols['observation_object'] = sort_by_polymorphic_object_tag(
         id_expr:   'observations.observation_object_id',
         type_expr: 'observations.observation_object_type',

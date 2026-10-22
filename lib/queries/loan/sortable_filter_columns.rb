@@ -8,17 +8,17 @@ module Queries::Loan::SortableFilterColumns
       cols = sortable_direct_columns
 
       # created_by / updated_by display as user name; sort by users.name.
-      cols['created_by'] = assoc(:creator, :name)
-      cols['updated_by'] = assoc(:updater, :name)
+      cols['created_by'] = association(:creator, :name)
+      cols['updated_by'] = association(:updater, :name)
 
       # identifiers aggregate: sort by alphabetically first identifier cached.
-      cols['identifiers'] = assoc(:identifiers, :cached, collapse: :aggregate)
+      cols['identifiers'] = association(:identifiers, :cached, collapse: :aggregate)
 
       # recipient_name / supervisor_name aggregate people through the loan
       # role tables (has_many :through); sort by the alphabetically first
       # person's cached name.
-      cols['recipient_name'] = assoc(:loan_recipients, :cached, collapse: :aggregate)
-      cols['supervisor_name'] = assoc(:loan_supervisors, :cached, collapse: :aggregate)
+      cols['recipient_name'] = association(:loan_recipients, :cached, collapse: :aggregate)
+      cols['supervisor_name'] = association(:loan_supervisors, :cached, collapse: :aggregate)
 
       cols
     end

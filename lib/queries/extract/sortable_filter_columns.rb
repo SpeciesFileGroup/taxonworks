@@ -12,12 +12,12 @@ module Queries::Extract::SortableFilterColumns
       cols['date'] = direct(:year_made)
 
       # identifiers aggregate: MIN(cached) polymorphic on Extract.
-      cols['identifiers'] = assoc(:identifiers, :cached, collapse: :aggregate)
+      cols['identifiers'] = association(:identifiers, :cached, collapse: :aggregate)
 
       # Upstream (origin) OTUs. `related_origin_relationships` are
       # relationships where the extract is `new_object`, so origin OTUs
       # are `old_object` with `old_object_type = 'Otu'`. Filtering a
-      # has_many to one polymorphic type isn't expressible via assoc(),
+      # has_many to one polymorphic type isn't expressible via association(),
       # stays custom.
       cols['otus'] = ->(q, dir) {
         q.joins(<<~SQL.squish)

@@ -10,7 +10,7 @@ module Queries::CollectingEvent::SortableFilterColumns
     # column name when it's the top-level filter -- register both forms for
     # every column so either usage's sort button works.
     def sortable_columns_uncached
-      direct = sortable_direct_columns.merge('geographic_area_name' => assoc(:geographic_area, :name))
+      direct = sortable_direct_columns.merge('geographic_area_name' => association(:geographic_area, :name))
       cols = {}
       direct.each do |c, lam|
         cols[c] = lam

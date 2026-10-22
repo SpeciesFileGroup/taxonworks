@@ -58,13 +58,13 @@ describe 'Queries::Concerns::SortResolver', type: :model do
 
     specify 'allows User when the terminal column is its display name' do
       expect {
-        Queries::Note::Filter.send(:assoc, :creator, :name)
+        Queries::Note::Filter.send(:association, :creator, :name)
       }.not_to raise_error
     end
 
     specify 'rejects User for any other terminal column' do
       expect {
-        Queries::Note::Filter.send(:assoc, :creator, :email)
+        Queries::Note::Filter.send(:association, :creator, :email)
       }.to raise_error(ArgumentError, /not reachable for sorting/)
     end
 
@@ -81,28 +81,28 @@ describe 'Queries::Concerns::SortResolver', type: :model do
     end
   end
 
-  context 'assoc() guardrails' do
+  context 'association() guardrails' do
     specify 'rejects an association chain deeper than MAX_DEPTH' do
       expect {
-        klass.send(:assoc, :a, :b, :c, :d, :name)
+        klass.send(:association, :a, :b, :c, :d, :name)
       }.to raise_error(ArgumentError, /too deep/)
     end
 
     specify 'rejects an unknown association' do
       expect {
-        klass.send(:assoc, :no_such_association, :name)
+        klass.send(:association, :no_such_association, :name)
       }.to raise_error(ArgumentError, /no association/)
     end
 
     specify 'rejects a has_many hop with no collapse: given' do
       expect {
-        klass.send(:assoc, :identifiers, :cached)
+        klass.send(:association, :identifiers, :cached)
       }.to raise_error(ArgumentError, /collapse: is required/)
     end
 
     specify 'rejects collapse: :aggregate combined with further hops' do
       expect {
-        klass.send(:assoc, :taxon_determinations, :otu, :name, collapse: :aggregate)
+        klass.send(:association, :taxon_determinations, :otu, :name, collapse: :aggregate)
       }.to raise_error(ArgumentError, /cannot be combined with further hops/)
     end
 
@@ -111,30 +111,30 @@ describe 'Queries::Concerns::SortResolver', type: :model do
 
       specify 'the association is not reachable from the base class' do
         expect {
-          source_filter.send(:assoc, :serial, :name)
+          source_filter.send(:association, :serial, :name)
         }.to raise_error(ArgumentError, /no association/)
       end
 
       specify 'reflects on the given subclass' do
         expect {
-          source_filter.send(:assoc, :serial, :name, on: ::Source::Bibtex)
+          source_filter.send(:association, :serial, :name, on: ::Source::Bibtex)
         }.not_to raise_error
       end
 
       specify 'rejects a class that is not a subclass of the filtered class' do
         expect {
-          source_filter.send(:assoc, :serial, :name, on: ::Serial)
+          source_filter.send(:association, :serial, :name, on: ::Serial)
         }.to raise_error(ArgumentError, /not a subclass/)
       end
     end
 
     specify 'rejects a bare belongs_to fk column as the terminal column' do
       expect {
-        klass.send(:assoc, :repository, :id)
+        klass.send(:association, :repository, :id)
       }.not_to raise_error # 'id' itself is not FK-shaped
 
       expect {
-        klass.send(:assoc, :collecting_event, :geographic_area_id)
+        klass.send(:association, :collecting_event, :geographic_area_id)
       }.to raise_error(ArgumentError, /raw foreign key/)
     end
   end
@@ -150,7 +150,7 @@ describe 'Queries::Concerns::SortResolver', type: :model do
     end
 
     context 'followed by a belongs_to hop' do
-      let(:sort) { Queries::Content::Filter.send(:assoc, :public_content, :otu, :name) }
+      let(:sort) { Queries::Content::Filter.send(:association, :public_content, :otu, :name) }
       let!(:content_z) { FactoryBot.create(:valid_content, otu: FactoryBot.create(:valid_otu, name: 'Zed')) }
       let!(:content_a) { FactoryBot.create(:valid_content, otu: FactoryBot.create(:valid_otu, name: 'Alpha')) }
 
@@ -172,31 +172,31 @@ describe 'Queries::Concerns::SortResolver', type: :model do
   context 'association shapes the resolver cannot honor' do
     specify 'rejects a scoped association (its conditions would be ignored)' do
       expect {
-        Queries::Otu::Filter.send(:assoc, :origin_citation, :source, :cached)
+        Queries::Otu::Filter.send(:association, :origin_citation, :source, :cached)
       }.to raise_error(ArgumentError, /has a scope/)
     end
 
     specify 'rejects a scoped association as a later hop' do
       expect {
-        Queries::Content::Filter.send(:assoc, :otu, :origin_citation, :pages)
+        Queries::Content::Filter.send(:association, :otu, :origin_citation, :pages)
       }.to raise_error(ArgumentError, /has a scope/)
     end
 
     specify 'rejects a scoped association inside a has_many LATERAL' do
       expect {
-        klass.send(:assoc, :taxon_determinations, :otu, :origin_citation, :pages, collapse: :position)
+        klass.send(:association, :taxon_determinations, :otu, :origin_citation, :pages, collapse: :position)
       }.to raise_error(ArgumentError, /has a scope/)
     end
 
     specify 'rejects has_one :through' do
       expect {
-        Queries::Otu::Filter.send(:assoc, :source, :cached)
+        Queries::Otu::Filter.send(:association, :source, :cached)
       }.to raise_error(ArgumentError, /has_one :through/)
     end
 
     specify 'rejects has_one :through inside a has_many LATERAL' do
       expect {
-        klass.send(:assoc, :taxon_determinations, :otu, :source, :cached, collapse: :position)
+        klass.send(:association, :taxon_determinations, :otu, :source, :cached, collapse: :position)
       }.to raise_error(ArgumentError, /has_one :through/)
     end
   end
@@ -216,17 +216,17 @@ describe 'Queries::Concerns::SortResolver', type: :model do
       expect(cols).not_to have_key('svg_clip')
     end
 
-    specify 'sortable_assoc_columns includes the target class columns and excludes its fk-shaped ones' do
-      cols = klass.send(:sortable_assoc_columns, :repository)
+    specify 'sortable_association_columns includes the target class columns and excludes its fk-shaped ones' do
+      cols = klass.send(:sortable_association_columns, :repository)
       expect(cols).to have_key('name')
       expect(cols).to have_key('id')
       expect(cols).not_to have_key('created_by_id')
       expect(cols.values).to all(be_a(Proc))
     end
 
-    specify 'sortable_assoc_columns raises for an unknown association' do
+    specify 'sortable_association_columns raises for an unknown association' do
       expect {
-        klass.send(:sortable_assoc_columns, :no_such_association)
+        klass.send(:sortable_association_columns, :no_such_association)
       }.to raise_error(ArgumentError, /no association/)
     end
   end

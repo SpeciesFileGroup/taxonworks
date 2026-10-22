@@ -9,8 +9,8 @@ module Queries
 
       def self.sortable_columns_uncached
         sortable_direct_columns.merge(
-          'created_by'         => assoc(:creator, :name),
-          'keyword.object_tag' => assoc(:controlled_vocabulary_term, :name)
+          'created_by'         => association(:creator, :name),
+          'keyword.object_tag' => association(:controlled_vocabulary_term, :name)
         )
       end
 

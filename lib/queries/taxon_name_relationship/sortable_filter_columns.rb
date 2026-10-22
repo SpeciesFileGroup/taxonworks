@@ -12,8 +12,8 @@ module Queries::TaxonNameRelationship::SortableFilterColumns
       # alias for backward compatibility.
       cols['relationship'] = direct(:type)
 
-      cols['subject'] = assoc(:subject_taxon_name, :cached)
-      cols['object'] = assoc(:object_taxon_name, :cached)
+      cols['subject'] = association(:subject_taxon_name, :cached)
+      cols['object'] = association(:object_taxon_name, :cached)
 
       cols
     end

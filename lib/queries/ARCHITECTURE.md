@@ -20,7 +20,7 @@ These facets have corresponding UI elements.
 
 ### Sorting
 Filters accept a multi-column `sort` param (e.g. `sort=-updated_at,repository.name`), capped at `MAX_SORT_KEYS`; unknown keys are ignored.
-Each filter whitelists its keys in `sortable_columns_uncached`, usually in its own `sortable_filter_columns.rb`, using the `Queries::Concerns::SortResolver` DSL (`direct`, `assoc`, `custom`, `sortable_direct_columns`, `sortable_assoc_columns`).
+Each filter whitelists its keys in `sortable_columns_uncached`, usually in its own `sortable_filter_columns.rb`, using the `Queries::Concerns::SortResolver` helpers (`direct`, `association`, `custom`, `sortable_direct_columns`, `sortable_association_columns`), each of which returns a `->(query, dir)` sort lambda.
 
 * Sort on what users see: a display name, not an id. Raw foreign keys are rejected.
 * `User` is not reachable for sorting, except `User#name` as the final column. Sort order leaks information about hidden values, and unlike project data, `User` rows are cross-project and mostly not visible to project members. See the comment on `BLACKLISTED_CLASSES`.

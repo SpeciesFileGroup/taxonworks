@@ -7,8 +7,8 @@ module Queries
 
       def self.sortable_columns_uncached
         sortable_direct_columns.merge(
-          'created_by'                  => assoc(:creator, :name),
-          'confidence_level.object_tag' => assoc(:controlled_vocabulary_term, :name)
+          'created_by'                  => association(:creator, :name),
+          'confidence_level.object_tag' => association(:controlled_vocabulary_term, :name)
         )
       end
 

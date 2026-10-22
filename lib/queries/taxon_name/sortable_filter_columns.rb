@@ -17,7 +17,7 @@ module Queries::TaxonName::SortableFilterColumns
       # that in SQL by nulling out the self-referential case, so valid rows
       # all sort to the end (NULLS LAST). The join itself is a plain
       # belongs_to (:valid_taxon_name); the business rule on top isn't
-      # expressible via assoc(), so this stays custom.
+      # expressible via association(), so this stays custom.
       cols['valid_name'] = ->(q, dir) {
         q
           .joins('LEFT JOIN taxon_names AS sort_valid_name ON sort_valid_name.id = taxon_names.cached_valid_taxon_name_id')
@@ -27,7 +27,7 @@ module Queries::TaxonName::SortableFilterColumns
           ))
       }
 
-      cols['parent'] = assoc(:parent, :cached)
+      cols['parent'] = association(:parent, :cached)
 
       cols
     end

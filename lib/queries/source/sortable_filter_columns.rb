@@ -8,7 +8,7 @@ module Queries::Source::SortableFilterColumns
       cols = sortable_direct_columns
 
       # `belongs_to :serial` is only declared on Source::Bibtex.
-      cols['serial'] = assoc(:serial, :name, on: ::Source::Bibtex)
+      cols['serial'] = association(:serial, :name, on: ::Source::Bibtex)
 
       cols
     end

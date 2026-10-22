@@ -1,9 +1,9 @@
-# Builds `sortable_columns` ORDER BY lambdas from a small declarative spec
-# (association chain + column) via ActiveRecord reflection, instead of
-# hand-written SQL per column. Filters use the `direct`/`assoc`/`custom` DSL
-# below when declaring `sortable_columns`; `custom` remains the escape hatch
-# for cases that aren't a plain association walk (polymorphic type-dispatch
-# display labels, aggregates with non-standard semantics).
+# Builds `sortable_columns` ORDER BY lambdas from an association path and a
+# column via ActiveRecord reflection, instead of hand-written SQL per column.
+# Filters call the `direct`/`association`/`custom` helpers below, each of which
+# returns a lambda, when building `sortable_columns`; `custom` remains the
+# escape hatch for cases that aren't a plain association walk (polymorphic
+# type-dispatch display labels, aggregates with non-standard semantics).
 #
 # Security: only `belongs_to`/`has_one`/`has_many` associations *declared on
 # the model* are ever reachable -- there is no way to reach an arbitrary
@@ -12,9 +12,9 @@
 # The guardrails below (BLACKLISTED_CLASSES, RESTRICTED_COLUMN,
 # FOREIGN_KEY_COLUMN, MAX_DEPTH) protect the *authors* of `sortable_columns`
 # entries from accidentally exposing a credential column or an unbounded
-# join chain; violations raise immediately (at the `sort_by_*`/spec-run call
-# site), not silently, since these are developer-time mistakes, not
-# user-facing input errors.
+# join chain; violations raise immediately (from the `direct`/`association`
+# call, when `sortable_columns` is built), not silently, since these are
+# developer-time mistakes, not user-facing input errors.
 module Queries::Concerns::SortResolver
   extend ActiveSupport::Concern
 
@@ -50,13 +50,14 @@ module Queries::Concerns::SortResolver
       validate_column!(referenced_klass, column)
       table = referenced_klass.table_name
       col = column.to_s
+
       ->(q, dir) { q.order(Arel.sql(%(#{table}."#{col}" #{sort_direction(dir)} NULLS LAST))) }
     end
 
     # An association chain ending in a column, e.g.
-    #   assoc(:repository, :name)
-    #   assoc(:taxon_determinations, :otu, :name, collapse: :position)
-    #   assoc(:loan_recipients, :cached, collapse: :aggregate)
+    #   association(:repository, :name)
+    #   association(:taxon_determinations, :otu, :name, collapse: :position)
+    #   association(:loan_recipients, :cached, collapse: :aggregate)
     #
     # @param collapse [Symbol, nil]
     #   Required whenever the chain passes through a `has_many`/`has_many
@@ -68,16 +69,22 @@ module Queries::Concerns::SortResolver
     # @param on [Class, nil]
     #   An STI subclass of the filtered class to reflect the first hop on,
     #   for associations declared only on that subclass, e.g.
-    #     assoc(:serial, :name, on: ::Source::Bibtex)
+    #     association(:serial, :name, on: ::Source::Bibtex)
     #   Rows of other subclasses simply have a NULL foreign key and sort last.
-    def assoc(*chain, collapse: nil, on: nil)
+    def association(*chain, collapse: nil, on: nil)
       *path, column = chain
-      raise ArgumentError, 'assoc requires at least one association and a column' if path.empty?
-      raise ArgumentError, "sort path too deep: #{(path + [column]).join('.')}" if path.length > MAX_DEPTH
+      if path.empty?
+        raise ArgumentError, 'association requires at least one association and a column'
+      end
+      if path.length > MAX_DEPTH
+        raise ArgumentError, "sort path too deep: #{(path + [column]).join('.')}"
+      end
 
       root_klass = referenced_klass
       if on
-        raise ArgumentError, "#{on} is not a subclass of #{referenced_klass}" unless on < referenced_klass
+        if !(on < referenced_klass)
+          raise ArgumentError, "#{on} is not a subclass of #{referenced_klass}"
+        end
         root_klass = on
       end
 
@@ -98,12 +105,14 @@ module Queries::Concerns::SortResolver
 
     # Every non-blacklisted column on a belongs_to/has_one/has_many
     # association's target class, as a {column_name => lambda} hash.
-    # @param collapse [Symbol, nil] forwarded to `assoc` for has_many hops.
-    def sortable_assoc_columns(assoc_name, collapse: nil)
-      refl = referenced_klass.reflect_on_association(assoc_name)
-      raise ArgumentError, "no association :#{assoc_name} on #{referenced_klass}" unless refl
+    # @param collapse [Symbol, nil] forwarded to `association` for has_many hops.
+    def sortable_association_columns(association_name, collapse: nil)
+      refl = referenced_klass.reflect_on_association(association_name)
+      if !refl
+        raise ArgumentError, "no association :#{association_name} on #{referenced_klass}"
+      end
 
-      safe_columns(refl.klass).index_with { |c| assoc(assoc_name, c, collapse:) }
+      safe_columns(refl.klass).index_with { |c| association(association_name, c, collapse:) }
     end
 
     private
@@ -129,12 +138,16 @@ module Queries::Concerns::SortResolver
       path.each_with_index do |name, i|
         refl = klass.reflect_on_association(name)
         raise ArgumentError, "no association :#{name} on #{klass}" unless refl
+
         if refl.macro == :has_one && refl.through_reflection
           raise ArgumentError, "has_one :through (:#{name}) is not generically sortable; use custom()"
         end
         validate_unscoped!(refl)
 
         if refl.macro == :has_many
+          # The rest of the path (`remaining`) is walked inside the LATERAL,
+          # so the has_many collapses to one value per row; nothing more is
+          # joined out here.
           remaining = path[(i + 1)..]
           lat = has_many_lateral(current_alias, refl, remaining, column, collapse)
           return ->(q, dir) do
@@ -143,8 +156,12 @@ module Queries::Concerns::SortResolver
           end
         end
 
-        raise ArgumentError, "unsupported association macro #{refl.macro} for :#{name}" unless %i[belongs_to has_one].include?(refl.macro)
-        validate_target_class!(refl.klass, terminal_column: (column if i == path.length - 1))
+        if !%i[belongs_to has_one].include?(refl.macro)
+          raise ArgumentError, "unsupported association macro #{refl.macro} for :#{name}"
+        end
+        validate_target_class!(
+          refl.klass, terminal_column: (column if i == path.length - 1)
+        )
 
         alias_name = "sort_#{name}_#{i}"
         joins << single_hop_join(klass, refl, current_alias, alias_name)
@@ -153,6 +170,7 @@ module Queries::Concerns::SortResolver
       end
 
       validate_column!(klass, column)
+
       ->(q, dir) do
         joins.each { |j| q = q.joins(j) }
         q.order(Arel.sql(%(#{current_alias}."#{column}" #{sort_direction(dir)} NULLS LAST)))
@@ -173,14 +191,21 @@ module Queries::Concerns::SortResolver
       target = refl.klass
 
       if refl.macro == :belongs_to
-        raise ArgumentError, 'polymorphic belongs_to is not generically sortable; use custom()' if refl.polymorphic?
+        if refl.polymorphic?
+          raise ArgumentError, 'polymorphic belongs_to is not generically sortable; use custom()'
+        end
         sql = %(LEFT JOIN #{target.table_name} AS #{alias_name} ON #{alias_name}.id = #{owner_alias}.#{refl.foreign_key})
       else
         sql = %(LEFT JOIN #{target.table_name} AS #{alias_name} ON #{alias_name}.#{refl.foreign_key} = #{owner_alias}.id)
-        sql += " AND #{alias_name}.#{refl.type} = #{quote(owner_klass.polymorphic_name)}" if refl.type.present?
+        if refl.type.present?
+          sql += " AND #{alias_name}.#{refl.type} = #{quote(owner_klass.polymorphic_name)}"
+        end
       end
 
-      sql += " AND #{alias_name}.#{target.inheritance_column} = #{quote(target.sti_name)}" if target.finder_needs_type_condition?
+      if target.finder_needs_type_condition?
+        sql += " AND #{alias_name}.#{target.inheritance_column} = #{quote(target.sti_name)}"
+      end
+
       sql
     end
 
@@ -190,19 +215,26 @@ module Queries::Concerns::SortResolver
     def has_many_lateral(owner_alias, refl, remaining, column, collapse)
       raise ArgumentError, "sort path too deep: #{remaining.join('.')}" if remaining.length > MAX_DEPTH
 
-      from_sql, where, current_alias, current_klass =
-        has_many_source(owner_alias, refl, terminal_column: (column if remaining.empty?))
+      from_sql, where, current_alias, current_klass = has_many_source(
+        owner_alias, refl, terminal_column: (column if remaining.empty?)
+      )
 
       extra_joins = []
       remaining.each_with_index do |name, i|
         r = current_klass.reflect_on_association(name)
-        raise ArgumentError, "no association :#{name} on #{current_klass}" unless r
+        if !r
+          raise ArgumentError, "no association :#{name} on #{current_klass}"
+        end
         if r.macro == :has_one && r.through_reflection
           raise ArgumentError, "has_one :through (:#{name}) is not generically sortable; use custom()"
         end
         validate_unscoped!(r)
-        raise ArgumentError, 'only belongs_to/has_one supported after a has_many hop' unless %i[belongs_to has_one].include?(r.macro)
-        validate_target_class!(r.klass, terminal_column: (column if i == remaining.length - 1))
+        if !%i[belongs_to has_one].include?(r.macro)
+          raise ArgumentError, 'only belongs_to/has_one supported after a has_many hop'
+        end
+        validate_target_class!(
+          r.klass, terminal_column: (column if i == remaining.length - 1)
+        )
 
         nxt_alias = "sort_#{name}_r#{i}"
         extra_joins << plain_hop_join(current_klass, r, current_alias, nxt_alias)
@@ -220,7 +252,9 @@ module Queries::Concerns::SortResolver
       select_expr =
         case collapse
         when :aggregate
-          raise ArgumentError, 'collapse: :aggregate cannot be combined with further hops' if remaining.any?
+          if remaining.any?
+            raise ArgumentError, 'collapse: :aggregate cannot be combined with further hops'
+          end
           %(MIN(#{current_alias}."#{column}"))
         when :position
           # The first value by position, as an aggregate rather than
@@ -270,8 +304,12 @@ module Queries::Concerns::SortResolver
         final_alias = "#{thr_alias}_src"
 
         where = ["#{thr_alias}.#{thr.foreign_key} = #{owner_alias}.id"]
-        where << "#{thr_alias}.#{thr.type} = #{quote(owner_klass.polymorphic_name)}" if thr.type.present?
-        where << "#{thr_alias}.#{thr_klass.inheritance_column} = #{quote(thr_klass.sti_name)}" if thr_klass.finder_needs_type_condition?
+        if thr.type.present?
+          where << "#{thr_alias}.#{thr.type} = #{quote(owner_klass.polymorphic_name)}"
+        end
+        if thr_klass.finder_needs_type_condition?
+          where << "#{thr_alias}.#{thr_klass.inheritance_column} = #{quote(thr_klass.sti_name)}"
+        end
 
         from_sql = "FROM #{thr_klass.table_name} #{thr_alias} " \
           "JOIN #{final_klass.table_name} #{final_alias} ON #{final_alias}.id = #{thr_alias}.#{src.foreign_key}"
@@ -283,8 +321,12 @@ module Queries::Concerns::SortResolver
         t_alias = has_many_source_alias(refl)
 
         where = ["#{t_alias}.#{refl.foreign_key} = #{owner_alias}.id"]
-        where << "#{t_alias}.#{refl.type} = #{quote(owner_klass.polymorphic_name)}" if refl.type.present?
-        where << "#{t_alias}.#{target.inheritance_column} = #{quote(target.sti_name)}" if target.finder_needs_type_condition?
+        if refl.type.present?
+          where << "#{t_alias}.#{refl.type} = #{quote(owner_klass.polymorphic_name)}"
+        end
+        if target.finder_needs_type_condition?
+          where << "#{t_alias}.#{target.inheritance_column} = #{quote(target.sti_name)}"
+        end
 
         ["FROM #{target.table_name} #{t_alias}", where, t_alias, target]
       end
@@ -298,25 +340,40 @@ module Queries::Concerns::SortResolver
     def plain_hop_join(owner_klass, refl, owner_alias, alias_name)
       target = refl.klass
       if refl.macro == :belongs_to
-        raise ArgumentError, 'polymorphic belongs_to is not generically sortable; use custom()' if refl.polymorphic?
+        if refl.polymorphic?
+          raise ArgumentError, 'polymorphic belongs_to is not generically sortable; use custom()'
+        end
         sql = "LEFT JOIN #{target.table_name} #{alias_name} ON #{alias_name}.id = #{owner_alias}.#{refl.foreign_key}"
       else
         sql = "LEFT JOIN #{target.table_name} #{alias_name} ON #{alias_name}.#{refl.foreign_key} = #{owner_alias}.id"
-        sql += " AND #{alias_name}.#{refl.type} = #{quote(owner_klass.polymorphic_name)}" if refl.type.present?
+        if refl.type.present?
+          sql += " AND #{alias_name}.#{refl.type} = #{quote(owner_klass.polymorphic_name)}"
+        end
       end
-      sql += " AND #{alias_name}.#{target.inheritance_column} = #{quote(target.sti_name)}" if target.finder_needs_type_condition?
+      if target.finder_needs_type_condition?
+        sql += " AND #{alias_name}.#{target.inheritance_column} = #{quote(target.sti_name)}"
+      end
+
       sql
     end
 
     def validate_column!(klass, column)
       col = column.to_s
-      raise ArgumentError, "#{col} looks like a raw foreign key, sort through the association instead" if col =~ FOREIGN_KEY_COLUMN
-      raise ArgumentError, "#{col} is a restricted column" if col =~ RESTRICTED_COLUMN
+      if col =~ FOREIGN_KEY_COLUMN
+        raise ArgumentError, "#{col} looks like a raw foreign key, sort through the association instead"
+      end
+      if col =~ RESTRICTED_COLUMN
+        raise ArgumentError, "#{col} is a restricted column"
+      end
       if klass.respond_to?(:encrypted_attributes) && klass.encrypted_attributes&.key?(col)
         raise ArgumentError, "#{col} is encrypted and cannot be sorted on"
       end
-      raise ArgumentError, "no column #{klass}##{col}" unless klass.column_names.include?(col)
-      raise ArgumentError, "#{col} is of a type that cannot be ordered" if UNORDERABLE_SQL_TYPES.include?(klass.columns_hash[col].sql_type)
+      if !klass.column_names.include?(col)
+        raise ArgumentError, "no column #{klass}##{col}"
+      end
+      if UNORDERABLE_SQL_TYPES.include?(klass.columns_hash[col].sql_type)
+        raise ArgumentError, "#{col} is of a type that cannot be ordered"
+      end
     end
 
     # @param terminal_column [String, nil] the column sorted on when `klass`
@@ -326,7 +383,9 @@ module Queries::Concerns::SortResolver
     # use the wrong rows. Write those with custom().
     def validate_unscoped!(refl)
       parts = [refl]
-      parts += [refl.through_reflection, refl.source_reflection] if refl.through_reflection
+      if refl.through_reflection
+        parts += [refl.through_reflection, refl.source_reflection]
+      end
       return if parts.none?(&:scope)
 
       raise ArgumentError, ":#{refl.name} on #{refl.active_record} has a scope, which sorting does not apply; use custom()"
@@ -334,7 +393,8 @@ module Queries::Concerns::SortResolver
 
     def validate_target_class!(klass, terminal_column: nil)
       return unless BLACKLISTED_CLASSES.include?(klass.name)
-      return if terminal_column && BLACKLISTED_CLASS_SORTABLE_COLUMNS[klass.name]&.include?(terminal_column.to_s)
+      return if terminal_column &&
+        BLACKLISTED_CLASS_SORTABLE_COLUMNS[klass.name]&.include?(terminal_column.to_s)
 
       raise ArgumentError, "#{klass} is not reachable for sorting"
     end

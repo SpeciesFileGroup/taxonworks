@@ -8,8 +8,8 @@ module Queries
 
       def self.sortable_columns_uncached
         sortable_direct_columns.merge(
-          'created_by'          => assoc(:creator, :name),
-          'document.object_tag' => assoc(:document, :document_file_file_name)
+          'created_by'          => association(:creator, :name),
+          'document.object_tag' => association(:document, :document_file_file_name)
         )
       end
 

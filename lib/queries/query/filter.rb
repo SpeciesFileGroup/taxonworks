@@ -285,8 +285,7 @@ module Queries
     # expensive query).
     attr_accessor :sort
 
-    # See `sort` above. Sent to the frontend by
-    # QueriesController#sortable_columns, which stops adding keys past it.
+    # See `sort` above.
     MAX_SORT_KEYS = 5
 
     # @return Hash
@@ -388,7 +387,7 @@ module Queries
     end
 
     # Subclasses override sortable_columns_uncached (not this method) to
-    # whitelist sortable columns. Each entry is
+    # whitelist sortable columns. Each hash value is a lambda:
     #   'column.key' => ->(query, dir) { query.order(...) }
     # Unknown keys received in `sort` are silently ignored.
     #
@@ -417,25 +416,22 @@ module Queries
     # Rails reads table names out of string ORDER BY clauses (e.g.
     # `sort_identifiers.val`) into `references_values`, and when a caller
     # later adds `includes` it takes those for included tables and switches
-    # to a JOIN-based eager load: a DISTINCT ids query plus a matching COUNT,
-    # each joined to every included has_many. Sort joins are self-contained
-    # SQL and never refer to included associations, so the references they
-    # add are dropped here.
+    # to a JOIN-based eager load (a DISTINCT ids query plus a matching COUNT,
+    # each joined to every included has_many) - that's slow and unnecessary.
+    # Sort joins are self-contained SQL and never refer to included
+    # associations, so the references they add are dropped here.
     def apply_sortable_columns(q)
-      # The list as it was before any sort was applied. Rails never modifies
-      # this array in place (adding a reference builds a new array), so the
-      # sort lambdas below can't change it.
       references = q.references_values
 
-      columns = self.class.sortable_columns
+      apply_sort_by_key = self.class.sortable_columns
       sorted = false
       order_by_columns.each do |c|
-        spec = columns[c[:key]]
-        next if spec.nil?
+        apply_sort = apply_sort_by_key[c[:key]]
+        next if apply_sort.nil?
         # Returns a new relation with the sort's joins and ORDER BY added;
         # its references_values now also includes the sort's aliases, e.g.
-        # ['sort_identifiers'].
-        q = spec.call(q, c[:dir])
+        # ['sort_identifiers'], which we'll drop all at once later.
+        q = apply_sort.call(q, c[:dir])
         sorted = true
       end
 

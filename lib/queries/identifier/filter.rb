@@ -9,7 +9,7 @@ module Queries
 
       def self.sortable_columns_uncached
         sortable_direct_columns.merge(
-          'created_by' => assoc(:creator, :name)
+          'created_by' => association(:creator, :name)
         )
       end
 

@@ -4,7 +4,7 @@
 # Everything below id/updated_at/created_at is polymorphic type-dispatch or
 # a closure-tree taxonomy walk (see sort_by_relationship_name,
 # sort_by_taxonomy, sort_by_object_tag, sort_by_biological_property below in
-# filter.rb) -- none of that is expressible via assoc(), so it stays
+# filter.rb) -- none of that is expressible via association(), so it stays
 # hand-written.
 module Queries::BiologicalAssociation::SortableFilterColumns
   extend ActiveSupport::Concern

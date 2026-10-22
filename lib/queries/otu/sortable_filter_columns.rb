@@ -3,7 +3,7 @@
 #
 # `otu`/`otu_taxonomy_*` are a display-name COALESCE and closure-tree
 # taxonomy walks (see sort_by_display_name/sort_by_otu_taxonomy below in
-# filter.rb) -- neither is expressible via assoc(), so they stay
+# filter.rb) -- neither is expressible via association(), so they stay
 # hand-written.
 module Queries::Otu::SortableFilterColumns
   extend ActiveSupport::Concern

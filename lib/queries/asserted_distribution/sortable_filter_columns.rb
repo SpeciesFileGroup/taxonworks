@@ -1,9 +1,6 @@
-# `sortable_columns` for Queries::AssertedDistribution::Filter. Split out
-# from filter.rb, same rationale as CollectionObject::SortableFilterColumns.
-#
 # asserted_distribution_shape/data_origin/object_object_tag/citations all
 # involve polymorphic type-dispatch (or an aggregate combined with a further
-# hop) that isn't expressible via assoc()/collapse: :aggregate, so they stay
+# hop) that isn't expressible via association()/collapse: :aggregate, so they stay
 # hand-written.
 module Queries::AssertedDistribution::SortableFilterColumns
   extend ActiveSupport::Concern

@@ -8,7 +8,7 @@ module Queries::Content::SortableFilterColumns
       cols = sortable_direct_columns
 
       # OTU shows the taxon_name.cached fallback to otu.name; a COALESCE
-      # across a two-hop path isn't expressible via assoc(), stays custom.
+      # across a two-hop path isn't expressible via association(), stays custom.
       cols['otu'] = ->(q, dir) {
         q.order(Arel.sql(<<~SQL.squish))
           (
@@ -19,7 +19,7 @@ module Queries::Content::SortableFilterColumns
         SQL
       }
 
-      cols['topic'] = assoc(:topic, :name)
+      cols['topic'] = association(:topic, :name)
 
       cols
     end

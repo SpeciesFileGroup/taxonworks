@@ -10,8 +10,8 @@ module Queries
 
       def self.sortable_columns_uncached
         sortable_direct_columns.merge(
-          'created_by'    => assoc(:creator, :name),
-          'source.cached' => assoc(:source, :cached)
+          'created_by'    => association(:creator, :name),
+          'source.cached' => association(:source, :cached)
         )
       end
 

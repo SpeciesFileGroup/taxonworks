@@ -1,5 +1,3 @@
-# `sortable_columns` for Queries::AnatomicalPart::Filter. Split out from
-# filter.rb, same rationale as CollectionObject::SortableFilterColumns.
 module Queries::AnatomicalPart::SortableFilterColumns
   extend ActiveSupport::Concern
 
