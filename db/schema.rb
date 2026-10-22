@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_21_000001) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_22_000001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -1062,7 +1062,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_21_000001) do
     t.index ["dwc_occurrence_object_id", "dwc_occurrence_object_type"], name: "index_dwc_occurrences_on_object_unique", unique: true
     t.index ["otu_id"], name: "index_dwc_occurrences_on_otu_id"
     t.index ["project_id", "id"], name: "index_dwco_on_project_id"
-    t.index ["project_id"], name: "index_dwc_occurrences_on_project_id"
     t.index ["rebuild_set", "id"], name: "index_dwc_occurrences_on_rebuild_set_and_id"
     t.index ["stateProvince"], name: "index_dwc_occurrences_on_stateProvince"
     t.index ["updated_at"], name: "index_dwc_occurrences_on_updated_at"
