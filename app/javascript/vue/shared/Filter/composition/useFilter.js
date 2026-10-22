@@ -3,10 +3,9 @@ import {
   STORAGE_FILTER_QUERY_STATE_PARAMETER,
   STORAGE_FILTER_QUERY_KEY
 } from '@/constants'
-import { getParametersFromSession } from '../utils'
+import { getParametersFromSession, fetchSortableColumns } from '../utils'
 import { sortArrayByReference } from '@/helpers'
 import getPagination from '@/helpers/getPagination'
-import ajaxCall from '@/helpers/ajaxCall'
 import qs from 'qs'
 
 export default function (
@@ -153,13 +152,9 @@ export default function (
     localStorage.removeItem(STORAGE_FILTER_QUERY_KEY)
 
     if (sortableColumnsResource) {
-      ajaxCall('get', `/queries/${sortableColumnsResource}/sortable_columns.json`)
-        .then((response) => {
-          state.sortableKeys = Array.isArray(response.body) ? response.body : []
-        })
-        .catch(() => {
-          state.sortableKeys = []
-        })
+      fetchSortableColumns(sortableColumnsResource).then((keys) => {
+        state.sortableKeys = keys
+      })
     }
 
     if (Object.keys(urlParameters).length) {

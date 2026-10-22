@@ -87,7 +87,13 @@
         </li>
       </ul>
       <div
-        v-if="availableToAdd.length"
+        v-if="availableToAdd.length && atMaxSortKeys"
+        class="sort-panel__empty padding-small"
+      >
+        At most {{ maxSortKeys }} columns can be sorted at once.
+      </div>
+      <div
+        v-else-if="availableToAdd.length"
         class="sort-panel__adder horizontal-left-content gap-small padding-small"
       >
         <select
@@ -130,6 +136,7 @@
 import { computed, ref, useTemplateRef } from 'vue'
 import { humanize } from '@/helpers/strings'
 import { useClickOutside } from '@/composables/useClickOutside.js'
+import { maxSortKeys } from '@/shared/Filter/utils'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 
@@ -170,8 +177,13 @@ const availableToAdd = computed(() => {
     .sort((a, b) => a.label.localeCompare(b.label))
 })
 
+// The backend ignores keys past its limit.
+const atMaxSortKeys = computed(
+  () => maxSortKeys.value != null && sortKeys.value.length >= maxSortKeys.value
+)
+
 function addPending() {
-  if (!pendingAddKey.value) return
+  if (!pendingAddKey.value || atMaxSortKeys.value) return
   sortKeys.value = [...sortKeys.value, { key: pendingAddKey.value, dir: 'asc' }]
   pendingAddKey.value = ''
 }

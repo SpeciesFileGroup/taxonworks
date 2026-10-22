@@ -320,6 +320,7 @@ import { vResizeColumn } from '@/directives/resizeColumn.js'
 import { humanize } from '@/helpers/strings'
 import { sanitizeHtml } from '@/helpers'
 import { useUserPreference } from '@/composables'
+import { maxSortKeys } from '@/shared/Filter/utils'
 import ColumnHeaderActions from './ColumnHeaderActions.vue'
 import VLock from '@/components/ui/VLock/index.vue'
 import RadialNavigation from '@/components/radials/navigation/radial.vue'
@@ -724,7 +725,8 @@ function isSortable(key) {
 }
 
 // Cycle: empty -> asc -> desc -> removed.
-// Shift-click appends to the current sort list and cycles within it.
+// Shift-click appends to the current sort list and cycles within it, up to
+// the backend's limit.
 // Plain click replaces the list with the clicked column.
 function sortTable(sortProperty, { shiftKey } = {}) {
   let next
@@ -732,6 +734,13 @@ function sortTable(sortProperty, { shiftKey } = {}) {
     next = [...sortKeys.value]
     const idx = next.findIndex((s) => s.key === sortProperty)
     if (idx === -1) {
+      if (maxSortKeys.value != null && next.length >= maxSortKeys.value) {
+        TW.workbench.alert.create(
+          `At most ${maxSortKeys.value} columns can be sorted at once.`,
+          'notice'
+        )
+        return
+      }
       next.push({ key: sortProperty, dir: 'asc' })
     } else if (next[idx].dir === 'asc') {
       next[idx] = { key: sortProperty, dir: 'desc' }

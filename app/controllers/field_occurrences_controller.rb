@@ -125,8 +125,6 @@ class FieldOccurrencesController < ApplicationController
 
   private
 
-  # Preloads what _attributes.json.jbuilder renders for each requested
-  # extend, so the query count doesn't grow with the number of rows.
   def add_includes_to_filter_result(field_occurrences)
     %i[identifiers dwc_occurrence].each do |e|
       field_occurrences = field_occurrences.includes(e) if helpers.extend_response_with(e.to_s)

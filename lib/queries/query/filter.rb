@@ -285,7 +285,8 @@ module Queries
     # expensive query).
     attr_accessor :sort
 
-    # See `sort` above.
+    # See `sort` above. Sent to the frontend by
+    # QueriesController#sortable_columns, which stops adding keys past it.
     MAX_SORT_KEYS = 5
 
     # @return Hash

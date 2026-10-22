@@ -1,6 +1,6 @@
 import { ref, computed, watch } from 'vue'
 import useFilter from '@/shared/Filter/composition/useFilter.js'
-import ajaxCall from '@/helpers/ajaxCall'
+import { fetchSortableColumns } from '@/shared/Filter/utils'
 import qs from 'qs'
 import {
   Tag,
@@ -142,13 +142,9 @@ export default function useAnnotationFilter() {
         sortableKeys.value = []
         return
       }
-      ajaxCall('get', `/queries/${resource}/sortable_columns.json`)
-        .then((response) => {
-          sortableKeys.value = Array.isArray(response.body) ? response.body : []
-        })
-        .catch(() => {
-          sortableKeys.value = []
-        })
+      fetchSortableColumns(resource).then((keys) => {
+        sortableKeys.value = keys
+      })
     },
     { immediate: true }
   )
