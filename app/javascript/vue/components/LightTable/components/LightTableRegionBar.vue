@@ -10,7 +10,6 @@
       class="lt-region-chip"
       :style="{ '--lt-region-color': lightTable.regionColor(r) }"
       role="button"
-      :title="`Select ${memberCount(r.id)} image(s) (shift to add)`"
       @click="selectMembers(r.id, $event)"
     >
       <label
@@ -33,31 +32,22 @@
         @click.stop
         @change="(e) => lightTable.updateRegion(r.id, { name: e.target.value })"
       />
-      <span class="lt-region-chip__count">{{ memberCount(r.id) }}</span>
+      <span
+        v-tooltip="`Select ${memberCount(r.id)} image(s) (shift to add)`"
+        class="lt-region-chip__count"
+      >
+        {{ memberCount(r.id) }}
+      </span>
       <VBtn
         circle
         small
         variant="ghost"
         color="default"
-        :title="`Zoom to ${r.name}`"
-        @click.stop="lightTable.fitRegion(r.id)"
+        title="More options"
+        @click.stop="openMenu(r.id, $event)"
       >
         <VIcon
-          name="focus"
-          x-small
-        />
-      </VBtn>
-      <VBtn
-        v-if="!readonly"
-        circle
-        small
-        variant="ghost"
-        color="default"
-        :title="`Remove ${labels.region.toLowerCase()} (images are kept)`"
-        @click.stop="lightTable.removeRegion(r.id)"
-      >
-        <VIcon
-          name="close"
+          name="hamburger"
           x-small
         />
       </VBtn>
@@ -67,6 +57,7 @@
 
 <script setup>
 import { inject } from 'vue'
+import { vTooltip } from '@/directives'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 
@@ -77,11 +68,22 @@ defineProps({
   }
 })
 
+const emit = defineEmits(['context-menu'])
+
 const lightTable = inject('lightTable')
 const labels = inject('ltLabels')
 
 function memberCount(regionId) {
   return lightTable.membersOfRegion(regionId).length
+}
+
+function openMenu(regionId, event) {
+  const { left, bottom } = event.currentTarget.getBoundingClientRect()
+
+  emit('context-menu', {
+    target: { kind: 'region', id: regionId },
+    event: { clientX: left, clientY: bottom }
+  })
 }
 
 function selectMembers(regionId, event) {

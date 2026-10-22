@@ -16,7 +16,10 @@
         </template>
       </LightTableToolbar>
     </slot>
-    <LightTableRegionBar :readonly="readonly" />
+    <LightTableRegionBar
+      :readonly="readonly"
+      @context-menu="({ target, event }) => contextMenuRef.open(target, event)"
+    />
     <LightTableCanvas
       ref="canvasEl"
       class="lt-root__canvas"
