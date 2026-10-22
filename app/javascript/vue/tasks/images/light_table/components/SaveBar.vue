@@ -34,7 +34,7 @@
         </VBtn>
       </template>
       <template v-else>
-        <h3 class="light-table-save-bar__name">{{ store.composition.name }}</h3>
+        <span class="light-table-save-bar__name">{{ store.composition.name }}</span>
         <VBtn
           circle
           color="primary"
@@ -59,12 +59,17 @@
         >
           Not saved yet
         </span>
-        <span
-          v-else-if="store.hasChanges"
-          class="text-xs"
-        >
-          {{ store.changeCount }} unsaved change(s)
-        </span>
+        <template v-else-if="store.hasChanges">
+          <VIcon
+            name="attention"
+            color="attention"
+            small
+            title="You have unsaved changes."
+          />
+          <span class="text-xs">
+            {{ store.changeCount }} unsaved change(s)
+          </span>
+        </template>
         <span
           v-else
           class="text-xs light-table-save-bar__saved"
@@ -85,7 +90,7 @@
           medium
           @click="emit('open')"
         >
-          Open light table
+          Open
         </VBtn>
         <VBtn
           color="primary"
@@ -94,7 +99,7 @@
           :disabled="store.isNew && !store.hasChanges"
           @click="emit('new')"
         >
-          New light table
+          New
         </VBtn>
       </div>
     </div>

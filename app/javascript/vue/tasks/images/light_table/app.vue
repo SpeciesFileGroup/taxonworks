@@ -5,6 +5,11 @@
       full-screen
       legend="Loading light table..."
     />
+    <VSpinner
+      v-if="store.isSaving"
+      full-screen
+      legend="Saving light table..."
+    />
     <LightTableEditor
       v-if="isReady"
       :key="store.sessionKey"

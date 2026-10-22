@@ -37,18 +37,22 @@
           v-for="composition in compositions"
           :key="composition.id"
         >
-          <td>
-            <a
-              href="#"
-              @click.prevent="emit('select', composition)"
-            >{{
-              composition.name
-            }}</a>
-          </td>
+          <td>{{ composition.name }}</td>
           <td>{{ composition.description }}</td>
           <td>{{ formatDate(composition.updated_at) }}</td>
           <td>
             <div class="horizontal-right-content gap-small">
+              <VBtn
+                circle
+                color="primary"
+                title="Edit light table"
+                @click="emit('select', composition)"
+              >
+                <VIcon
+                  name="pencil"
+                  x-small
+                />
+              </VBtn>
               <ButtonPin
                 :object-id="composition.id"
                 type="Composition"
