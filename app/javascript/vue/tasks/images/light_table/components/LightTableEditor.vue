@@ -178,13 +178,13 @@ onMounted(() => {
 }
 
 .light-table-editor__canvas {
-  height: calc(100vh - 220px);
+  height: calc(100vh - 140px);
   min-height: 480px;
   overflow: hidden;
 }
 
 .light-table-editor__side {
-  max-height: calc(100vh - 220px);
+  max-height: calc(100vh - 140px);
   overflow-y: auto;
 }
 </style>

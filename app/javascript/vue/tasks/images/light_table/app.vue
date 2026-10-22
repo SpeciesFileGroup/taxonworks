@@ -1,5 +1,5 @@
 <template>
-  <div class="margin-medium-top">
+  <div>
     <VSpinner
       v-if="store.isLoading"
       full-screen

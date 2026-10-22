@@ -1,5 +1,5 @@
 <template>
-  <div class="panel content margin-medium-bottom">
+  <div class="panel content margin-medium-bottom rounded-tr-none rounded-tl-none">
     <div class="horizontal-left-content middle gap-small">
       <input
         v-if="store.isNew"
