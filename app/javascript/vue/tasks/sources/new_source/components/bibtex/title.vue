@@ -1,12 +1,10 @@
 <template>
   <div class="label-above">
     <label>Title</label>
-    <button
-      type="button"
-      @click="setItalics"
-    >
-      <i>Italics</i>
-    </button>
+    <ItalicsButton
+      v-model="source.title"
+      :textarea="titleRef"
+    />
     <textarea
       id="title"
       ref="title"
@@ -18,6 +16,7 @@
 
 <script setup>
 import { useTemplateRef } from 'vue'
+import ItalicsButton from './ItalicsButton.vue'
 
 const source = defineModel({
   type: Object,
@@ -25,20 +24,4 @@ const source = defineModel({
 })
 
 const titleRef = useTemplateRef('title')
-
-function setItalics() {
-  const { title } = source.value
-  const { selectionStart, selectionEnd } = titleRef.value
-
-  const titleStart = title.slice(0, selectionStart)
-  const titleEnd = title.slice(selectionEnd)
-
-  source.value.title =
-    selectionStart === selectionEnd
-      ? `${titleStart}<i></i>${titleEnd}`
-      : `${titleStart}<i>${title.slice(
-          selectionStart,
-          selectionEnd
-        )}</i>${titleEnd}`
-}
 </script>
