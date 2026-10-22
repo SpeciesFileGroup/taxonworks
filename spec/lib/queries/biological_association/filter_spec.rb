@@ -683,14 +683,75 @@ describe Queries::BiologicalAssociation::Filter, type: :model, group: [:filter] 
           expect(q.all.map(&:id)).to eq([ba_bus.id, ba_aus_obj.id, ba_zus_obj.id])
         end
 
-        specify 'BAs whose object is not an OTU sort to the end' do
-          # ba3 has Specimen (o3) as object
+        specify 'BAs whose object has no taxonomy sort to the end' do
+          # ba3 has an undetermined Specimen (o3) as object
           q = query.new(
             biological_association_id: [ba3.id, ba_aus_obj.id],
             sort: 'object_taxonomy_genus'
           )
-          # OTU-backed row first, polymorphic-non-OTU row last (NULLS LAST)
           expect(q.all.map(&:id)).to eq([ba_aus_obj.id, ba3.id])
+        end
+
+        # Sorted on the valid name of the object's OTU (a CollectionObject's
+        # is that of its first determination), which is what the table's
+        # `taxonomy` shows for these objects.
+        context 'sorted on the taxonomy of the object\'s OTU' do
+          let(:species_aus) {
+            Protonym.create!(name: 'aus', rank_class: Ranks.lookup(:iczn, :species), parent: gen_aus)
+          }
+          let(:species_zus) {
+            Protonym.create!(name: 'zus', rank_class: Ranks.lookup(:iczn, :species), parent: gen_zus)
+          }
+
+          def ba_with_object(object)
+            BiologicalAssociation.create!(
+              biological_association_subject: o1,
+              biological_association_object: object,
+              biological_relationship: r1
+            )
+          end
+
+          # Reloaded, as the table loads it: creating a CO memoizes its
+          # (then empty) taxonomy target while building its DwC record.
+          def family_shown(ba)
+            BiologicalAssociation.find(ba.id).biological_association_object.taxonomy['family']
+          end
+
+          specify 'an OTU on a synonym uses the valid name' do
+            TaxonNameRelationship::Iczn::Invalidating::Synonym.create!(
+              subject_taxon_name: species_zus, object_taxon_name: species_aus
+            )
+            ba_synonym = ba_with_object(Otu.create!(taxon_name: species_zus))
+
+            expect(family_shown(ba_synonym)).to eq('Aulidae')
+            q = query.new(
+              biological_association_id: [ba_zus_obj.id, ba_synonym.id],
+              sort: 'object_taxonomy_family'
+            )
+            expect(q.all.map(&:id)).to eq([ba_synonym.id, ba_zus_obj.id])
+          end
+
+          specify 'a CollectionObject uses its current determination' do
+            co = Specimen.create!
+            TaxonDetermination.create!(taxon_determination_object: co, otu: otu_aus)
+            ba_co = ba_with_object(co)
+
+            expect(family_shown(ba_co)).to eq('Aulidae')
+            q = query.new(
+              biological_association_id: [ba_zus_obj.id, ba_co.id],
+              sort: 'object_taxonomy_family'
+            )
+            expect(q.all.map(&:id)).to eq([ba_co.id, ba_zus_obj.id])
+          end
+
+          specify 'an undetermined CollectionObject sorts last' do
+            ba_co = ba_with_object(Specimen.create!)
+            q = query.new(
+              biological_association_id: [ba_co.id, ba_zus_obj.id],
+              sort: 'object_taxonomy_family'
+            )
+            expect(q.all.map(&:id)).to eq([ba_zus_obj.id, ba_co.id])
+          end
         end
       end
 
@@ -768,17 +829,24 @@ describe Queries::BiologicalAssociation::Filter, type: :model, group: [:filter] 
           expect(q.all.map(&:id)).to eq([ba_subj_aus.id, ba_subj_zus.id])
         end
 
-        specify 'CollectionObject objects sort by buffered_collecting_event' do
-          co_a = Specimen.create!(buffered_collecting_event: 'Adirondacks')
-          co_z = Specimen.create!(buffered_collecting_event: 'Zion')
-          ba_co_a = BiologicalAssociation.create!(
-            biological_association_subject: o1,
-            biological_association_object: co_a,
-            biological_relationship: r1
-          )
+        # The tag shows the CollectionObject's identifier, then its
+        # determination; the sort uses only the determination's OTU.
+        specify 'CollectionObject objects sort by their determination\'s OTU' do
+          ns = FactoryBot.create(:valid_namespace)
+          co_z = Specimen.create!
+          co_a = Specimen.create!
+          Identifier::Local::CatalogNumber.create!(identifier_object: co_z, namespace: ns, identifier: '001')
+          Identifier::Local::CatalogNumber.create!(identifier_object: co_a, namespace: ns, identifier: '002')
+          TaxonDetermination.create!(taxon_determination_object: co_z, otu: otu_zus)
+          TaxonDetermination.create!(taxon_determination_object: co_a, otu: otu_aus)
           ba_co_z = BiologicalAssociation.create!(
             biological_association_subject: o1,
             biological_association_object: co_z,
+            biological_relationship: r1
+          )
+          ba_co_a = BiologicalAssociation.create!(
+            biological_association_subject: o1,
+            biological_association_object: co_a,
             biological_relationship: r1
           )
           q = query.new(
@@ -786,6 +854,20 @@ describe Queries::BiologicalAssociation::Filter, type: :model, group: [:filter] 
             sort: 'object_object_tag'
           )
           expect(q.all.map(&:id)).to eq([ba_co_a.id, ba_co_z.id])
+        end
+
+        specify 'undetermined CollectionObject objects sort last' do
+          co = Specimen.create!(buffered_collecting_event: 'Aaa')
+          ba_co = BiologicalAssociation.create!(
+            biological_association_subject: o1,
+            biological_association_object: co,
+            biological_relationship: r1
+          )
+          q = query.new(
+            biological_association_id: [ba_co.id, ba_obj_zus.id],
+            sort: 'object_object_tag'
+          )
+          expect(q.all.map(&:id)).to eq([ba_obj_zus.id, ba_co.id])
         end
       end
 

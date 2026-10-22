@@ -48,44 +48,8 @@ module Queries::Extract::SortableFilterColumns
         .order(Arel.sql("sort_ex_origin_type.type #{dir == :desc ? 'DESC' : 'ASC'} NULLS LAST"))
       }
 
-      # Upstream origin labels (mirrors views/extracts/_attributes: uses
-      # `label_for(old_object)`). Approximates label_for via CASE on
-      # old_object_type -- Otu, CollectionObject, AnatomicalPart. Extract
-      # (self-origin) has no cached label; falls through to NULL.
-      cols['origins'] = ->(q, dir) {
-        q.joins(<<~SQL.squish)
-          LEFT JOIN LATERAL (
-            SELECT MIN(
-              CASE orl.old_object_type
-              WHEN 'Otu' THEN (
-                SELECT COALESCE(tn.cached, o.name)
-                FROM otus o
-                LEFT JOIN taxon_names tn ON tn.id = o.taxon_name_id
-                WHERE o.id = orl.old_object_id
-                LIMIT 1
-              )
-              WHEN 'CollectionObject' THEN (
-                SELECT buffered_collecting_event
-                FROM collection_objects
-                WHERE id = orl.old_object_id
-                LIMIT 1
-              )
-              WHEN 'AnatomicalPart' THEN (
-                SELECT cached
-                FROM anatomical_parts
-                WHERE id = orl.old_object_id
-                LIMIT 1
-              )
-              ELSE NULL
-              END
-            ) AS label
-            FROM origin_relationships orl
-            WHERE orl.new_object_id = extracts.id
-              AND orl.new_object_type = 'Extract'
-          ) AS sort_ex_origins ON true
-        SQL
-        .order(Arel.sql("sort_ex_origins.label #{dir == :desc ? 'DESC' : 'ASC'} NULLS LAST"))
-      }
+      # No `origins` sort: the column is a list of labels rendered in Ruby
+      # (label_for each origin object), with no simple value to sort on.
 
       cols
     end

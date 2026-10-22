@@ -1005,6 +1005,25 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
       expect(q.all.map(&:id)).to eq([otu_bbb.id, otu_zzz.id])
     end
 
+    # The table shows the OTU's `taxonomy`, built from its valid name.
+    specify 'sort=otu_taxonomy_genus uses the valid name, as the table shows' do
+      species_valid = Protonym.create!(name: 'aaa', rank_class: Ranks.lookup(:iczn, :species), parent: gen_bbb)
+      species_synonym = Protonym.create!(name: 'zzz', rank_class: Ranks.lookup(:iczn, :species), parent: gen_zzz)
+      TaxonNameRelationship::Iczn::Invalidating::Synonym.create!(
+        subject_taxon_name: species_synonym, object_taxon_name: species_valid
+      )
+      gen_ccc = Protonym.create!(name: 'Ccc', rank_class: Ranks.lookup(:iczn, :genus), parent: fam_aus)
+      otu_ccc = Otu.create!(name: nil, taxon_name: gen_ccc)
+      otu_synonym = Otu.create!(name: nil, taxon_name: species_synonym)
+
+      expect(Array(otu_synonym.taxonomy['genus']).compact.join(' ')).to eq('Bbb')
+      q = Queries::Otu::Filter.new(
+        otu_id: [otu_zzz.id, otu_ccc.id, otu_synonym.id], sort: 'otu_taxonomy_genus'
+      )
+      # Bbb (valid genus of the synonym) < Ccc < Zzz
+      expect(q.all.map(&:id)).to eq([otu_synonym.id, otu_ccc.id, otu_zzz.id])
+    end
+
     specify 'sort=-otu_taxonomy_family orders by ancestor family desc' do
       q = Queries::Otu::Filter.new(
         otu_id: [otu_zzz.id, otu_bbb.id], sort: '-otu_taxonomy_family'

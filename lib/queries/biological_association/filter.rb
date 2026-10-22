@@ -107,26 +107,23 @@ module Queries
         }
       end
 
-      # Polymorphic sort across all of BA's subject/object types.
+      # The subject's/object's tag is rendered in Ruby; sort on the taxon it
+      # shows (see Queries::Concerns::Sortable).
       def self.sort_by_object_tag(side:)
-        sort_by_polymorphic_object_tag(
+        sort_by_object_otu_name(
           id_expr:   "biological_associations.biological_association_#{side}_id",
           type_expr: "biological_associations.biological_association_#{side}_type",
           alias_prefix: "sort_objtag_#{side}"
         )
       end
 
-      # Walks the closure-tree ancestry of the OTU's taxon name to the ancestor at
-      # the given rank. Constrained to BA rows whose `<side>_type = 'Otu'`; other
-      # polymorphic types yield NULL and sort to the end.
+      # The subject's/object's taxonomy at the given rank, from its OTU (see
+      # Queries::Concerns::Sortable).
       def self.sort_by_taxonomy(side:, rank:)
-        sort_by_otu_taxonomy(
+        sort_by_object_taxonomy(
           rank: rank,
-          otu_id_expr: <<~SQL.squish,
-            CASE WHEN biological_associations.biological_association_#{side}_type = 'Otu'
-                 THEN biological_associations.biological_association_#{side}_id
-            END
-          SQL
+          id_expr: "biological_associations.biological_association_#{side}_id",
+          type_expr: "biological_associations.biological_association_#{side}_type",
           alias_prefix: "sort_tax_#{side}_#{rank.downcase}"
         )
       end

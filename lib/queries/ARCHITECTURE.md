@@ -23,6 +23,7 @@ Filters accept a multi-column `sort` param (e.g. `sort=-updated_at,repository.na
 Each filter whitelists its keys in `sortable_columns_uncached`, usually in its own `sortable_filter_columns.rb`, using the `Queries::Concerns::SortResolver` helpers (`direct`, `association`, `custom`, `sortable_direct_columns`, `sortable_association_columns`), each of which returns a `->(query, dir)` sort lambda.
 
 * Sort on what users see: a display name, not an id. Raw foreign keys are rejected.
+* Sort on database values: a column, or a simple aggregate of columns (MIN, first by position, joined as displayed). Don't rebuild Ruby rendering (helpers, `taxonomy`) in SQL; for a cell assembled in Ruby, sort on a simple value it visibly contains (e.g. its taxon, see `Queries::Concerns::Sortable`), or offer no sort.
 * `User` is not reachable for sorting, except `User#name` as the final column. Sort order leaks information about hidden values, and unlike project data, `User` rows are cross-project and mostly not visible to project members. See the comment on `BLACKLISTED_CLASSES`.
 * Credential-shaped, encrypted, and unorderable (`xml`, `json`) columns are excluded.
 * Sort joins must let Postgres drop them from the pagination `COUNT`: join to a primary key, or collapse a `LATERAL` with an aggregate (`MIN`, `(array_agg(... ORDER BY ...))[1]`), never `LIMIT 1`. A `has_one` sort needs a unique index on the target's foreign key (+ type).

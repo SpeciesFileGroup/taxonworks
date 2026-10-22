@@ -1,30 +1,34 @@
-# Helpers for declaring `sortable_columns` entries that need joins more
-# complex than a single ORDER BY clause -- specifically the recurring
-# patterns of (a) walking closure_tree to an ancestor at a given rank, and
-# (b) dispatching on a polymorphic _type column to per-type display columns.
+# Helpers for declaring `sortable_columns` entries for cells that the filter
+# tables assemble in Ruby (object tags, taxonomy) rather than read from a
+# column. Rather than rebuilding that rendering in SQL, these sort on a
+# simple value the cell visibly contains: the taxon of the row's OTU.
 #
-# Both helpers return a lambda suitable as a `sortable_columns` value,
-# `->(query, dir) { ... }`. Callers supply the SQL fragments that identify
-# the row-local OTU id (or polymorphic id/type) for their model.
+# The row's OTU, by object type:
+# * Otu: itself
+# * CollectionObject/FieldOccurrence: the OTU of its first determination
+# * AnatomicalPart: its origin OTU
+# Other types, and objects with no OTU, sort last.
 #
-# Each helper inlines its SQL via LATERAL so the per-row subquery returns
-# at most one row -- this avoids the row multiplication you'd get from a
-# plain LEFT JOIN through taxon_name_hierarchies. Collapse to one row with
-# an aggregate (MIN), not LIMIT 1: Postgres can drop an aggregate LATERAL
-# from the pagination COUNT, never a LIMIT 1 one.
+# Each helper returns a lambda suitable as a `sortable_columns` value,
+# `->(query, dir) { ... }`. Callers supply SQL expressions for the object's
+# id and its (base class) type: a polymorphic _type column, or a quoted
+# literal such as `'Otu'`.
+#
+# Each helper inlines its SQL via a LATERAL that always returns exactly one
+# row (a SELECT with no FROM, or an aggregate), never `LIMIT 1`: Postgres can
+# drop such a LATERAL from the pagination COUNT, never a LIMIT 1 one.
 module Queries::Concerns::Sortable
 
   extend ActiveSupport::Concern
 
   class_methods do
+    # The name at a rank in the classification of the valid name of the
+    # object's OTU (the name itself or an ancestor).
     # @param rank [String] capitalized rank suffix matching the trailing
     #   segment of TaxonName#rank_class (e.g. 'Order', 'Family', 'Genus').
-    # @param otu_id_expr [String] SQL expression evaluating to an otu id for
-    #   the outer row. May reference outer columns. Used inside the LATERAL.
     # @param alias_prefix [String] unique-per-callsite alias so multiple
     #   sort keys can coexist in a single query.
-    def sort_by_otu_taxonomy(rank:, otu_id_expr:, alias_prefix:)
-      rank_class_like = "%::#{rank}"
+    def sort_by_object_taxonomy(rank:, id_expr:, type_expr:, alias_prefix:)
       lat_alias = alias_prefix
 
       ->(q, dir) {
@@ -33,55 +37,64 @@ module Queries::Concerns::Sortable
             LEFT JOIN LATERAL (
               SELECT MIN(tn.name) AS name
               FROM otus o
-              JOIN taxon_name_hierarchies tnh ON tnh.descendant_id = o.taxon_name_id
+              JOIN taxon_names n ON n.id = o.taxon_name_id
+              JOIN taxon_name_hierarchies tnh ON tnh.descendant_id = n.cached_valid_taxon_name_id
               JOIN taxon_names tn
                 ON tn.id = tnh.ancestor_id
-                AND tn.rank_class LIKE '#{rank_class_like}'
-              WHERE o.id = (#{otu_id_expr})
+                AND tn.rank_class LIKE '%::#{rank}'
+              WHERE o.id = (#{object_otu_id_sql(id_expr:, type_expr:)})
             ) AS #{lat_alias} ON true
           SQL
           .order(Arel.sql("#{lat_alias}.name #{dir == :desc ? 'DESC' : 'ASC'} NULLS LAST"))
       }
     end
 
-    # @param id_expr [String] SQL expression evaluating to the polymorphic
-    #   target id (e.g. `biological_associations.biological_association_object_id`).
-    # @param type_expr [String] SQL expression evaluating to the polymorphic
-    #   target type string (e.g. `biological_associations.biological_association_object_type`).
+    # The name of the object's OTU: its taxon name, else its own name.
     # @param alias_prefix [String] unique-per-callsite alias.
-    def sort_by_polymorphic_object_tag(id_expr:, type_expr:, alias_prefix:)
+    def sort_by_object_otu_name(id_expr:, type_expr:, alias_prefix:)
       lat_alias = alias_prefix
 
       ->(q, dir) {
         q
           .joins(<<~SQL.squish)
             LEFT JOIN LATERAL (
-              SELECT CASE (#{type_expr})
-                WHEN 'Otu' THEN (
-                  SELECT COALESCE(tn.cached, o.name)
-                  FROM otus o
-                  LEFT JOIN taxon_names tn ON tn.id = o.taxon_name_id
-                  WHERE o.id = (#{id_expr})
-                  LIMIT 1
-                )
-                WHEN 'CollectionObject' THEN (
-                  SELECT buffered_collecting_event
-                  FROM collection_objects
-                  WHERE id = (#{id_expr})
-                  LIMIT 1
-                )
-                WHEN 'AnatomicalPart' THEN (
-                  SELECT cached
-                  FROM anatomical_parts
-                  WHERE id = (#{id_expr})
-                  LIMIT 1
-                )
-                ELSE NULL
-              END AS tag
+              SELECT (
+                SELECT COALESCE(tn.cached, o.name)
+                FROM otus o
+                LEFT JOIN taxon_names tn ON tn.id = o.taxon_name_id
+                WHERE o.id = (#{object_otu_id_sql(id_expr:, type_expr:)})
+              ) AS name
             ) AS #{lat_alias} ON true
           SQL
-          .order(Arel.sql("#{lat_alias}.tag #{dir == :desc ? 'DESC' : 'ASC'} NULLS LAST"))
+          .order(Arel.sql("#{lat_alias}.name #{dir == :desc ? 'DESC' : 'ASC'} NULLS LAST"))
       }
+    end
+
+    private
+
+    # See "The row's OTU" above.
+    def object_otu_id_sql(id_expr:, type_expr:)
+      determined = ->(object_type) {
+        <<~SQL.squish
+          SELECT td.otu_id
+          FROM taxon_determinations td
+          WHERE td.taxon_determination_object_id = (#{id_expr})
+            AND td.taxon_determination_object_type = '#{object_type}'
+          ORDER BY td.position
+          LIMIT 1
+        SQL
+      }
+
+      <<~SQL.squish
+        CASE (#{type_expr})
+        WHEN 'Otu' THEN (#{id_expr})
+        WHEN 'CollectionObject' THEN (#{determined.('CollectionObject')})
+        WHEN 'FieldOccurrence' THEN (#{determined.('FieldOccurrence')})
+        WHEN 'AnatomicalPart' THEN (
+          SELECT ap.cached_otu_id FROM anatomical_parts ap WHERE ap.id = (#{id_expr})
+        )
+        END
+      SQL
     end
   end
 end
