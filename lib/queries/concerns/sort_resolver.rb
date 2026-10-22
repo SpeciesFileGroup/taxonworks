@@ -164,9 +164,11 @@ module Queries::Concerns::SortResolver
     # join (large results); a LATERAL would force the per-row loop.
     #
     # A has_one is trusted to mean at most one row. If that's ever violated
-    # (e.g. two dwc_occurrences for one CollectionObject) the owner row
-    # appears twice in the sorted results -- visible, and the duplicate is
-    # already a data error that breaks other things, so it's not hidden here.
+    # the owner row appears twice in the sorted results -- visible, and the
+    # duplicate is already a data error that breaks other things, so it's not
+    # hidden here. A unique index on the target's foreign key (+ type), as on
+    # dwc_occurrences, enforces it, and also lets Postgres drop the join from
+    # the pagination COUNT.
     def single_hop_join(owner_klass, refl, owner_alias, alias_name)
       target = refl.klass
 

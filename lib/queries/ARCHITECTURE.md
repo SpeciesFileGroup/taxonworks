@@ -25,7 +25,7 @@ Each filter whitelists its keys in `sortable_columns_uncached`, usually in its o
 * Sort on what users see: a display name, not an id. Raw foreign keys are rejected.
 * `User` is not reachable for sorting, except `User#name` as the final column. Sort order leaks information about hidden values, and unlike project data, `User` rows are cross-project and mostly not visible to project members. See the comment on `BLACKLISTED_CLASSES`.
 * Credential-shaped, encrypted, and unorderable (`xml`, `json`) columns are excluded.
-* Hand-written (`custom`) sort joins must let Postgres drop them from the pagination `COUNT`: join to a primary key, or collapse a `LATERAL` with an aggregate (`MIN`, `(array_agg(... ORDER BY ...))[1]`), never `LIMIT 1`.
+* Sort joins must let Postgres drop them from the pagination `COUNT`: join to a primary key, or collapse a `LATERAL` with an aggregate (`MIN`, `(array_agg(... ORDER BY ...))[1]`), never `LIMIT 1`. A `has_one` sort needs a unique index on the target's foreign key (+ type).
 * `spec/lib/queries/sortable_columns_spec.rb` runs `EXPLAIN` on every key of every filter, and checks that sorting adds no joins to the count.
 
 ###  Use of `.distinct`

@@ -40,10 +40,8 @@ describe 'Queries::Query::Filter sortable_columns', type: :model do
   # for the sort join. Join removal happens at plan time, so EXPLAIN on an
   # empty database shows it.
   #
-  # dwc_occurrence is a has_one plain join; without a unique index on
-  # (dwc_occurrence_object_type, dwc_occurrence_object_id) Postgres can't
-  # prove it's at most one row, so those keys are exempt.
-  COUNT_JOIN_EXEMPT = /\Adwc_occurrence\./
+  # A has_one sort (e.g. dwc_occurrence) is a plain join, so it needs a unique
+  # index on the target's foreign key (+ type) for Postgres to drop it.
 
   plan_join_count = ->(sql) {
     ActiveRecord::Base.connection.select_all("EXPLAIN #{sql}").rows.flatten
@@ -58,7 +56,6 @@ describe 'Queries::Query::Filter sortable_columns', type: :model do
       unsorted = plan_join_count.(count_sql.({}))
 
       failures = filter_class.sortable_columns_index.filter_map do |key|
-        next if key.match?(COUNT_JOIN_EXEMPT)
         key if plan_join_count.(count_sql.(sort: key)) > unsorted
       end
 
