@@ -48,7 +48,7 @@ end
 
 if extend_response_with('identifiers')
   json.identifiers do
-    json.array! collection_object.identifiers.each do |i|
+    json.array! identifiers_in_position_order(collection_object.identifiers) do |i|
       json.cached i.cached
     end
   end

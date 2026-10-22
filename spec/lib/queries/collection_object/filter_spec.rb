@@ -903,20 +903,32 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
       end
     end
 
-    context 'identifiers.cached (aggregated)' do
+    context 'identifiers.cached (joined, as displayed)' do
       let!(:ns) { FactoryBot.create(:valid_namespace) }
+      let!(:s_m) { FactoryBot.create(:valid_specimen) }
 
-      specify 'sorts by the alphabetically first identifier per CO' do
-        Identifier::Local::CatalogNumber.create!(
-          identifier_object: s_a, namespace: ns, identifier: '999'
+      def add_identifier(object, identifier, position)
+        i = Identifier::Local::CatalogNumber.create!(
+          identifier_object: object, namespace: ns, identifier:
         )
-        Identifier::Local::CatalogNumber.create!(
-          identifier_object: s_z, namespace: ns, identifier: '001'
-        )
+        i.update_column(:position, position)
+      end
+
+      # The table shows each CO's identifiers in position order, joined with
+      # ' | ', and the sort uses that same string. Sorting by the smallest
+      # identifier instead would put s_a ('aa') first.
+      specify 'sorts by the identifiers joined in position order, NULL positions last' do
+        add_identifier(s_a, 'zz', 1)
+        add_identifier(s_a, 'aa', 2)
+        add_identifier(s_z, 'mm', 1)
+        add_identifier(s_m, 'ab', nil)
+        add_identifier(s_m, 'pp', 1)
+
         q = Queries::CollectionObject::Filter.new(
-          collection_object_id: [s_a.id, s_z.id], sort: 'identifiers.cached'
+          collection_object_id: [s_a.id, s_z.id, s_m.id], sort: 'identifiers.cached'
         )
-        expect(q.all.map(&:id)).to eq([s_z.id, s_a.id])
+        # 'mm' < 'pp | ab' < 'zz | aa'; NULL first would put 'ab | pp' first.
+        expect(q.all.map(&:id)).to eq([s_z.id, s_m.id, s_a.id])
       end
     end
 

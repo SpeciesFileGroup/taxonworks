@@ -30,7 +30,7 @@ module Queries::FieldOccurrence::SortableFilterColumns
           end
       end
 
-      cols['identifiers.cached'] = association(:identifiers, :cached, collapse: :aggregate)
+      cols['identifiers.cached'] = association(:identifiers, :cached, collapse: :joined)
 
       cols
     end

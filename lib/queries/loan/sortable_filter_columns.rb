@@ -11,8 +11,8 @@ module Queries::Loan::SortableFilterColumns
       cols['created_by'] = association(:creator, :name)
       cols['updated_by'] = association(:updater, :name)
 
-      # identifiers aggregate: sort by alphabetically first identifier cached.
-      cols['identifiers'] = association(:identifiers, :cached, collapse: :aggregate)
+      # Sort by the identifiers as the table shows them: in position order, joined.
+      cols['identifiers'] = association(:identifiers, :cached, collapse: :joined)
 
       # recipient_name / supervisor_name aggregate people through the loan
       # role tables (has_many :through); sort by the alphabetically first

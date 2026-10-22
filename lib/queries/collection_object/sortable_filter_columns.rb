@@ -41,9 +41,9 @@ module Queries::CollectionObject::SortableFilterColumns
           end
       end
 
-      # identifiers.cached aggregates many identifiers per CO. Sort by the
-      # alphabetically first identifier; rows with no identifier sort last.
-      cols['identifiers.cached'] = association(:identifiers, :cached, collapse: :aggregate)
+      # Sort by the identifiers as the table shows them: in position order,
+      # joined; rows with no identifier sort last.
+      cols['identifiers.cached'] = association(:identifiers, :cached, collapse: :joined)
 
       cols
     end

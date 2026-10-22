@@ -11,8 +11,8 @@ module Queries::Extract::SortableFilterColumns
       # `date` is the existing wire-format key for year_made.
       cols['date'] = direct(:year_made)
 
-      # identifiers aggregate: MIN(cached) polymorphic on Extract.
-      cols['identifiers'] = association(:identifiers, :cached, collapse: :aggregate)
+      # Sort by the identifiers as the table shows them: in position order, joined.
+      cols['identifiers'] = association(:identifiers, :cached, collapse: :joined)
 
       # Upstream (origin) OTUs. `related_origin_relationships` are
       # relationships where the extract is `new_object`, so origin OTUs

@@ -43,6 +43,11 @@ module Queries::Concerns::SortResolver
   # Postgres has no ordering operator for these column types.
   UNORDERABLE_SQL_TYPES = %w[xml json].freeze
 
+  # Separates the values of a `collapse: :joined` sort. Filter tables show
+  # multi-valued cells (e.g. identifiers) joined with this, the same
+  # separator as DwC exports, so the sort is on the string users see.
+  JOINED_SEPARATOR = ' | '.freeze
+
   class_methods do
     # A column on this filter's own table.
     # @param column [Symbol, String]
@@ -66,6 +71,8 @@ module Queries::Concerns::SortResolver
     #   legitimately want either semantic depending on the column.
     #   :position  -- use the row with the lowest `position` column.
     #   :aggregate -- collapse to MIN(column) across all matching rows.
+    #   :joined    -- all values in `position` order, joined with
+    #                 JOINED_SEPARATOR, as filter tables display them.
     # @param on [Class, nil]
     #   An STI subclass of the filtered class to reflect the first hop on,
     #   for associations declared only on that subclass, e.g.
@@ -246,7 +253,7 @@ module Queries::Concerns::SortResolver
 
       if collapse.nil?
         raise ArgumentError,
-          "collapse: is required for has_many hop :#{refl.name} -- pass collapse: :position or collapse: :aggregate"
+          "collapse: is required for has_many hop :#{refl.name} -- pass collapse: :position, :aggregate or :joined"
       end
 
       select_expr =
@@ -264,6 +271,12 @@ module Queries::Concerns::SortResolver
           # ties between rows that share a position.
           source_alias = has_many_source_alias(refl)
           %{(array_agg(#{current_alias}."#{column}" ORDER BY #{source_alias}.position, #{source_alias}.id))[1]}
+        when :joined
+          # Also a single aggregate, so also dropped from the COUNT. NULL
+          # positions come last (ASC default); the display must order its
+          # values the same way for the sort to match what it shows.
+          source_alias = has_many_source_alias(refl)
+          %{string_agg(#{current_alias}."#{column}"::text, #{quote(JOINED_SEPARATOR)} ORDER BY #{source_alias}.position, #{source_alias}.id)}
         else
           raise ArgumentError, "unknown collapse strategy #{collapse.inspect}"
         end

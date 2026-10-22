@@ -1,4 +1,5 @@
 import { ProjectMember } from '@/routes/endpoints'
+import { IDENTIFIER_SEPARATOR } from '@/shared/Filter/constants'
 
 export async function listParser(list) {
   const { body } = await ProjectMember.all()
@@ -10,7 +11,7 @@ export async function listParser(list) {
   return list.map((item) => ({
     id: item.id,
     global_id: item.global_id,
-    identifiers: item.identifiers?.map((i) => i.cached).join('; '),
+    identifiers: item.identifiers?.map((i) => i.cached).join(IDENTIFIER_SEPARATOR),
     lender_address: item.lender_address,
     date_requested: item.date_requested,
     request_method: item.request_method,

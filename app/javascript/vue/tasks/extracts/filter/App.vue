@@ -91,6 +91,7 @@ import useFilter from '@/shared/Filter/composition/useFilter.js'
 import useFilterView from '@/shared/Filter/composition/useFilterView.js'
 import extend from '@/tasks/extracts/new_extract/const/extendRequest'
 import { ATTRIBUTES } from './constants/attributes'
+import { listParser } from './utils/listParser'
 import { EXTRACT } from '@/constants/index.js'
 import { Extract } from '@/routes/endpoints'
 import { ref } from 'vue'
@@ -111,6 +112,7 @@ const {
   urlRequest,
   sortableKeys
 } = useFilter(Extract, {
+  listParser,
   initParameters: { extend },
   sortableColumnsResource: 'extracts'
 })

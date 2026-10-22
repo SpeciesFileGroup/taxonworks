@@ -22,7 +22,7 @@ end
 
 if extend_response_with('identifiers')
   json.identifiers do
-    json.array! extract.identifiers.pluck(:cached)
+    json.array! identifiers_in_position_order(extract.identifiers).map(&:cached)
   end
 end
 

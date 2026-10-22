@@ -152,6 +152,14 @@ module IdentifiersHelper
     }
   end
 
+  # @return [Array<Identifier>]
+  #   In position order, then id, with NULL positions last: the same order
+  #   as the filter tables' identifiers sort (SQL `ORDER BY position, id`).
+  #   Sorts in Ruby, so preloaded identifiers aren't queried again.
+  def identifiers_in_position_order(identifiers)
+    identifiers.sort_by { |i| [i.position.nil? ? 1 : 0, i.position || 0, i.id] }
+  end
+
   private
 
   def visible_identifiers(object)
