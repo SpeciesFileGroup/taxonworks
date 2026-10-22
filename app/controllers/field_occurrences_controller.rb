@@ -13,13 +13,9 @@ class FieldOccurrencesController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @field_occurrences = ::Queries::FieldOccurrence::Filter.new(params).all
+        @field_occurrences = add_includes_to_filter_result(::Queries::FieldOccurrence::Filter.new(params).all)
           .page(params[:page])
           .per(params[:per])
-
-        if helpers.extend_response_with('geographic_area_name')
-          @field_occurrences = @field_occurrences.includes(collecting_event: :geographic_area)
-        end
       }
     end
   end
@@ -128,6 +124,28 @@ class FieldOccurrencesController < ApplicationController
   end
 
   private
+
+  # Preloads what _attributes.json.jbuilder renders for each requested
+  # extend, so the query count doesn't grow with the number of rows.
+  def add_includes_to_filter_result(field_occurrences)
+    %i[identifiers dwc_occurrence].each do |e|
+      field_occurrences = field_occurrences.includes(e) if helpers.extend_response_with(e.to_s)
+    end
+
+    if helpers.extend_response_with('collecting_event')
+      ce_includes = [:identifiers]
+      ce_includes.push(:geographic_area) if helpers.extend_response_with('geographic_area_name')
+      field_occurrences = field_occurrences.includes(collecting_event: ce_includes)
+    end
+
+    if helpers.extend_response_with('taxon_determinations')
+      field_occurrences = field_occurrences.includes(
+        taxon_determinations: [:otu, :roles, determiner_roles: [:person, :organization]]
+      )
+    end
+
+    field_occurrences
+  end
 
   def set_field_occurrence
     @field_occurrence = FieldOccurrence.where(project_id: sessions_current_project_id).find(params[:id])

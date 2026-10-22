@@ -9,8 +9,8 @@
       :csv-options="csvOptions"
       v-model="parameters"
       v-model:append="append"
-      @filter="makeFilterRequest({ ...parameters, extend, page: 1 })"
-      @per="makeFilterRequest({ ...parameters, extend, page: 1 })"
+      @filter="makeFilterRequest({ ...parameters, extend, exclude, page: 1 })"
+      @per="makeFilterRequest({ ...parameters, extend, exclude, page: 1 })"
       @nextpage="loadPage"
       @reset="resetFilter"
     >
@@ -120,6 +120,7 @@ const extend = [
   'identifiers',
   'dwc_occurrence'
 ]
+const exclude = ['object_labels']
 const hideFrozen = ref(false)
 
 const {
@@ -147,7 +148,7 @@ const {
   sortableKeys
 } = useFilter(FieldOccurrence, {
   listParser,
-  initParameters: { extend },
+  initParameters: { extend, exclude },
   sortableColumnsResource: 'field_occurrences'
 })
 
@@ -161,7 +162,8 @@ const {
   parameters,
   makeFilterRequest,
   objectType: FIELD_OCCURRENCE,
-  extend
+  extend,
+  exclude
 })
 
 const sortLabels = computed(() => {

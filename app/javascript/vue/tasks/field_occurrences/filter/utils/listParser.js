@@ -30,7 +30,6 @@ export async function listParser(list, { parameters }) {
   return list.map((item) => ({
     id: item.id,
     global_id: item.global_id,
-    label: item.object_tag,
     field_occurrence: {
       id: item.id,
       is_absent: item.is_absent ? 'Yes' : 'No',
