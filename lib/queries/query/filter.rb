@@ -427,6 +427,7 @@ module Queries
       references = q.references_values
 
       columns = self.class.sortable_columns
+      sorted = false
       order_by_columns.each do |c|
         spec = columns[c[:key]]
         next if spec.nil?
@@ -434,7 +435,12 @@ module Queries
         # its references_values now also includes the sort's aliases, e.g.
         # ['sort_identifiers'].
         q = spec.call(q, c[:dir])
+        sorted = true
       end
+
+      # Tiebreak on id: rows with equal sort values otherwise come back in
+      # any order, and paging through them can skip or repeat rows.
+      q = q.order(table[:id].asc) if sorted
 
       # Put back the list saved above. references_values is not SQL: the
       # sort joins and ORDER BY stay as built, only the table names Rails

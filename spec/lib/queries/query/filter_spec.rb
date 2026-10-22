@@ -155,6 +155,20 @@ describe Queries::Query::Filter, type: [:model] do
       end
     end
 
+    context 'sort tiebreak' do
+      # Without a unique last key, rows with equal sort values come back in
+      # any order, and paging through them can skip or repeat rows.
+      specify 'ends the ORDER BY with the id' do
+        sql = ::Queries::CollectionObject::Filter.new(sort: '-collecting_event.verbatim_locality').all.to_sql
+        expect(sql).to end_with('NULLS LAST, "collection_objects"."id" ASC')
+      end
+
+      specify 'adds no ordering when no sort key is known' do
+        rel = ::Queries::CollectionObject::Filter.new(sort: 'not_a_key').all
+        expect(rel.order_values).to be_empty
+      end
+    end
+
     context 'multi-column sort param (JSON:API)' do
       let(:f) { ::Queries::Otu::Filter.new({}) }
 
