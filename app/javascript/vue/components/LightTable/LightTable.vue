@@ -18,7 +18,9 @@
     </slot>
     <LightTableRegionBar
       :readonly="readonly"
-      @context-menu="({ target, event }) => contextMenuRef.open(target, event)"
+      @context-menu="
+        ({ target, element }) => contextMenuRef.openBelow(target, element)
+      "
     />
     <LightTableCanvas
       ref="canvasEl"
@@ -62,10 +64,10 @@ import {
   computed,
   watch,
   onMounted,
-  onBeforeUnmount,
   toRef,
   nextTick
 } from 'vue'
+import { useEventListener } from '@/composables'
 import { useLightTable } from './composables/useLightTable.js'
 import LightTableCanvas from './components/LightTableCanvas.vue'
 import LightTableToolbar from './components/LightTableToolbar.vue'
@@ -202,18 +204,14 @@ function onKeyUp(e) {
   if (e.code === 'Space') panMode.value = false
 }
 
+useEventListener(window, 'keydown', onKeyDown)
+useEventListener(window, 'keyup', onKeyUp)
+
 onMounted(() => {
-  window.addEventListener('keydown', onKeyDown)
-  window.addEventListener('keyup', onKeyUp)
   lightTable.setCanvasRectProvider(
     () => canvasEl.value?.getCanvasRect?.() ?? null
   )
   fitLoaded()
-})
-
-onBeforeUnmount(() => {
-  window.removeEventListener('keydown', onKeyDown)
-  window.removeEventListener('keyup', onKeyUp)
 })
 
 function clientToCanvas(clientX, clientY) {

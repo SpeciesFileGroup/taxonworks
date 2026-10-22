@@ -1,6 +1,6 @@
 <template>
-  <ContextMenu
-    ref="contextMenuRef"
+  <LightTableMenu
+    ref="menuRef"
     class="lt-context-menu"
   >
     <template v-if="target?.kind === 'item'">
@@ -245,12 +245,12 @@
         />
       </div>
     </template>
-  </ContextMenu>
+  </LightTableMenu>
 </template>
 
 <script setup>
 import { inject, computed, ref } from 'vue'
-import ContextMenu from '@/components/ui/Context/ContextMenu.vue'
+import LightTableMenu from './LightTableMenu.vue'
 import LightTableMenuItem from './LightTableMenuItem.vue'
 import LightTableSubmenu from './LightTableSubmenu.vue'
 
@@ -281,7 +281,7 @@ defineProps({
 const lightTable = inject('lightTable')
 const labels = inject('ltLabels')
 
-const contextMenuRef = ref(null)
+const menuRef = ref(null)
 const target = ref(null)
 
 const regionLabel = computed(() => labels.value.region.toLowerCase())
@@ -309,21 +309,18 @@ function createRegionAt(point) {
 
 function open(newTarget, event) {
   target.value = newTarget
-  contextMenuRef.value.openContextMenu({ x: event.clientX, y: event.clientY })
+  menuRef.value.openAt({ x: event.clientX, y: event.clientY })
 }
 
-defineExpose({ open })
+function openBelow(newTarget, element) {
+  target.value = newTarget
+  menuRef.value.openBelow(element)
+}
+
+defineExpose({ open, openBelow })
 </script>
 
 <style scoped>
-.lt-context-menu {
-  z-index: 1000;
-  width: auto;
-  min-width: 220px;
-  overflow: visible;
-  border-radius: var(--border-radius-small);
-}
-
 .lt-context-menu__header {
   padding: var(--spacing-xs) var(--spacing-sm);
   overflow: hidden;

@@ -78,11 +78,9 @@ function memberCount(regionId) {
 }
 
 function openMenu(regionId, event) {
-  const { left, bottom } = event.currentTarget.getBoundingClientRect()
-
   emit('context-menu', {
     target: { kind: 'region', id: regionId },
-    event: { clientX: left, clientY: bottom }
+    element: event.currentTarget
   })
 }
 

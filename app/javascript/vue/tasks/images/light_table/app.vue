@@ -3,12 +3,12 @@
     <VSpinner
       v-if="store.isLoading"
       full-screen
-      legend="Loading light table..."
+      legend="Loading..."
     />
     <VSpinner
       v-if="store.isSaving"
       full-screen
-      legend="Saving light table..."
+      legend="Saving..."
     />
     <LightTableEditor
       v-if="isReady"

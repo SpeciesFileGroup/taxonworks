@@ -24,20 +24,15 @@
         <template #item-context-menu="{ items }">
           <ItemContextMenu
             :items="items"
-            @radial="openRadial"
+            @radial="openItemRadial"
           />
         </template>
       </LightTable>
-      <RadialNavigator
-        v-if="radial.type === 'navigator'"
-        ref="radialNavigatorRef"
-        :global-id="radial.globalId"
-        :show-bottom="false"
-      />
-      <RadialAnnotator
-        v-if="radial.type === 'annotator'"
-        ref="radialAnnotatorRef"
-        :global-id="radial.globalId"
+      <component
+        :is="radial.component"
+        v-if="radial"
+        ref="radialRef"
+        v-bind="radial.props"
         :show-bottom="false"
       />
     </div>
@@ -54,7 +49,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, nextTick } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { Image } from '@/routes/endpoints'
 import { LightTable } from '@/components/LightTable'
 import { IMAGE } from '@/constants'
@@ -67,9 +62,15 @@ import SourcePanel from './sources/SourcePanel.vue'
 import ItemContextMenu from './ItemContextMenu.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
+import { useRadialOpener } from '../composables/useRadialOpener'
 
 const MAX_FILTER_IMAGES = 500
 const DROP_OFFSET = 20
+
+const RADIAL_COMPONENTS = {
+  annotator: RadialAnnotator,
+  navigator: RadialNavigator
+}
 
 const props = defineProps({
   imageQuery: {
@@ -83,9 +84,7 @@ const emit = defineEmits(['open', 'new', 'image-query-loaded'])
 const store = useStore()
 const lightTableRef = ref(null)
 const selectedIds = ref([])
-const radial = ref({ type: null, globalId: null })
-const radialNavigatorRef = ref(null)
-const radialAnnotatorRef = ref(null)
+const { radial, radialRef, openRadial } = useRadialOpener()
 
 const layoutItems = computed(() => store.layout?.items || [])
 
@@ -134,14 +133,8 @@ function addFromSource(payload, point = null) {
   lightTable.selectOnly(ids)
 }
 
-async function openRadial({ type, globalId }) {
-  radial.value = { type, globalId }
-  await nextTick()
-
-  const radialRef =
-    type === 'navigator' ? radialNavigatorRef : radialAnnotatorRef
-
-  radialRef.value?.openRadialMenu()
+function openItemRadial({ type, globalId }) {
+  openRadial({ component: RADIAL_COMPONENTS[type], props: { globalId } })
 }
 
 function onDrop({ point, dataTransfer }) {

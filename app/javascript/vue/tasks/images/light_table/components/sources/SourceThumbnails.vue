@@ -35,8 +35,8 @@
 
 <script setup>
 import { computed } from 'vue'
-import { DEPICTION } from '@/constants'
 import { DRAG_TYPE } from '../../constants'
+import { getImage, getThumbUrl } from '../../adapters/source'
 import VBtn from '@/components/ui/VBtn/index.vue'
 
 const props = defineProps({
@@ -72,9 +72,7 @@ function isPlaced(object) {
 }
 
 function thumbUrl(object) {
-  const image = props.objectType === DEPICTION ? object.image : object
-
-  return image.alternatives.thumb.image_file_url
+  return getThumbUrl(getImage({ objectType: props.objectType, object }))
 }
 
 function payload(list) {

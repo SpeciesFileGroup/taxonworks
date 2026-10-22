@@ -19,6 +19,7 @@
 import { computed } from 'vue'
 import { LightTableMenuItem, LightTableSubmenu } from '@/components/LightTable'
 import { DEPICTION } from '@/constants'
+import { capitalize, decamelize } from '@/helpers'
 
 const RADIALS = [
   { type: 'annotator', label: 'Annotations' },
@@ -37,13 +38,6 @@ const emit = defineEmits(['radial'])
 const meta = computed(() => props.items[0]?.meta)
 const isDepiction = computed(() => meta.value?.objectType === DEPICTION)
 
-function humanize(className) {
-  return className
-    .replace(/([a-z])([A-Z])/g, '$1 $2')
-    .replace(/^./, (c) => c.toUpperCase())
-    .replace(/ (.)/g, (_, c) => ` ${c.toLowerCase()}`)
-}
-
 const radialTargets = computed(() => {
   if (!meta.value) return []
   const { object } = meta.value
@@ -54,7 +48,7 @@ const radialTargets = computed(() => {
         { label: 'Depiction', object },
         {
           label: object.depiction_object?.base_class
-            ? humanize(object.depiction_object.base_class)
+            ? capitalize(decamelize(object.depiction_object.base_class))
             : 'Depicted object',
           object: object.depiction_object
         }

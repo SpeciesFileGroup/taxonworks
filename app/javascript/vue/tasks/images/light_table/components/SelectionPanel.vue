@@ -57,6 +57,7 @@
 <script setup>
 import { computed } from 'vue'
 import { DEPICTION } from '@/constants'
+import { getImage, getThumbUrl } from '../adapters/source'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import SelectionRadials from './SelectionRadials.vue'
@@ -83,12 +84,12 @@ const rows = computed(() =>
   props.items.map((item) => {
     const { object } = item.meta
     const isDepiction = item.meta.objectType === DEPICTION
-    const image = isDepiction ? object.image : object
+    const image = getImage(item.meta)
 
     return {
       item,
       object: (isDepiction && object.depiction_object) || image,
-      thumbUrl: image.alternatives.thumb.image_file_url,
+      thumbUrl: getThumbUrl(image),
       details: [item.label, regionNames.value[item.regionId]]
         .filter(Boolean)
         .join(' · ')

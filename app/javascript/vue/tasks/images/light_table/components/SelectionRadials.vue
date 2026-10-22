@@ -13,8 +13,8 @@
         x-small
       />
     </VBtn>
-    <ContextMenu
-      ref="contextMenuRef"
+    <LightTableMenu
+      ref="menuRef"
       class="light-table-selection-radials__menu"
     >
       <LightTableSubmenu
@@ -23,40 +23,43 @@
         :label="`${group.label} (${group.ids.length})`"
       >
         <LightTableMenuItem
-          v-for="radial in group.radials"
-          :key="radial.label"
-          :label="radial.label"
-          @click="openRadial(radial, group)"
+          v-for="item in group.radials"
+          :key="item.label"
+          :label="item.label"
+          @click="openGroupRadial(item, group)"
         />
       </LightTableSubmenu>
-    </ContextMenu>
+    </LightTableMenu>
     <component
-      :is="active.component"
-      v-if="active"
+      :is="radial.component"
+      v-if="radial"
       ref="radialRef"
-      :key="active.key"
+      :key="radial.key"
+      v-bind="radial.props"
       :show-bottom="false"
-      :ids="active.ids"
-      :count="active.ids.length"
-      :object-type="active.objectType"
-      :model="active.objectType"
     />
   </div>
 </template>
 
 <script setup>
-import { computed, nextTick, ref, shallowRef } from 'vue'
+import { computed, ref } from 'vue'
 import {
   COLLECTION_OBJECT,
   DEPICTION,
   DWC_OCCURRENCE,
   IMAGE
 } from '@/constants'
-import { LightTableMenuItem, LightTableSubmenu } from '@/components/LightTable'
+import {
+  LightTableMenu,
+  LightTableMenuItem,
+  LightTableSubmenu
+} from '@/components/LightTable'
+import { capitalize, decamelize } from '@/helpers'
+import { getImage } from '../adapters/source'
+import { useRadialOpener } from '../composables/useRadialOpener'
 import * as FILTER_LINKS from '@/components/radials/filter/links'
 import * as LINKER_LIST from '@/components/radials/linker/links/index.js'
 import { ANNOTATORS } from '@/components/radials/mass/constants/annotators.js'
-import ContextMenu from '@/components/ui/Context/ContextMenu.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import RadialFilter from '@/components/radials/filter/radial.vue'
@@ -101,15 +104,8 @@ const props = defineProps({
   }
 })
 
-const contextMenuRef = ref(null)
-const radialRef = ref(null)
-const active = shallowRef(null)
-
-function humanize(className) {
-  return className
-    .replace(/([a-z])([A-Z])/g, '$1 $2')
-    .replace(/ (.)/g, (_, c) => ` ${c.toLowerCase()}`)
-}
+const menuRef = ref(null)
+const { radial, radialRef, openRadial } = useRadialOpener()
 
 const groups = computed(() => {
   const idsByType = new Map()
@@ -123,49 +119,42 @@ const groups = computed(() => {
   props.items.forEach(({ meta }) => {
     const { object } = meta
 
+    add(IMAGE, getImage(meta).id)
+
     if (meta.objectType === DEPICTION) {
-      add(IMAGE, object.image_id)
       add(DEPICTION, object.id)
       add(object.depiction_object_type, object.depiction_object_id)
-    } else {
-      add(IMAGE, object.id)
     }
   })
 
   return [...idsByType].map(([objectType, ids]) => ({
     objectType,
-    label: humanize(objectType),
+    label: capitalize(decamelize(objectType)),
     ids: [...ids],
     radials: RADIALS.filter((radial) => radial.supports(objectType))
   }))
 })
 
 function openMenu(event) {
-  const { left, bottom } = event.currentTarget.getBoundingClientRect()
-
-  contextMenuRef.value.openContextMenu({ x: left, y: bottom })
+  menuRef.value.openBelow(event.currentTarget)
 }
 
-async function openRadial(radial, group) {
-  active.value = {
-    key: `${group.objectType}-${radial.label}`,
-    component: radial.component,
-    objectType: group.objectType,
-    ids: group.ids
-  }
-
-  await nextTick()
-  radialRef.value?.openRadialMenu()
+function openGroupRadial(item, group) {
+  openRadial({
+    component: item.component,
+    key: `${group.objectType}-${item.label}`,
+    props: {
+      ids: group.ids,
+      count: group.ids.length,
+      objectType: group.objectType,
+      model: group.objectType
+    }
+  })
 }
 </script>
 
 <style scoped>
 .light-table-selection-radials__menu {
-  z-index: 1000;
-  width: auto;
-  min-width: 220px;
-  overflow: visible;
   padding: var(--spacing-xxs) 0;
-  border-radius: var(--border-radius-small);
 }
 </style>

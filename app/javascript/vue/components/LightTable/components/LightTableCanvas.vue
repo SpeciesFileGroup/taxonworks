@@ -43,7 +43,8 @@
 </template>
 
 <script setup>
-import { inject, provide, ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { inject, provide, ref, computed } from 'vue'
+import { useEventListener } from '@/composables'
 import { usePointerDrag } from '../composables/usePointerDrag.js'
 import { useMarquee } from '../composables/useMarquee.js'
 import LightTableItem from './LightTableItem.vue'
@@ -193,13 +194,7 @@ function onDrop(event) {
   })
 }
 
-onMounted(() => {
-  rootEl.value.addEventListener('wheel', onWheel, { passive: false })
-})
-
-onBeforeUnmount(() => {
-  rootEl.value?.removeEventListener('wheel', onWheel)
-})
+useEventListener(rootEl, 'wheel', onWheel, { passive: false })
 
 defineExpose({
   getCanvasRect: () => rootEl.value?.getBoundingClientRect() ?? null

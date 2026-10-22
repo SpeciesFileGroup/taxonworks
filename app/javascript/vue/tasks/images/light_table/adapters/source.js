@@ -1,6 +1,4 @@
-import { DEPICTION, IMAGE } from '@/constants'
-
-const CONVERT_IMAGE_TYPES = ['image/tiff', 'image/heic']
+import { CONVERT_IMAGE_TYPES, DEPICTION, IMAGE } from '@/constants'
 
 function imageSrc(image) {
   return CONVERT_IMAGE_TYPES.includes(image.content_type)
@@ -45,4 +43,12 @@ export function imageToSource(image) {
 
 export function objectToSource(type, object) {
   return type === DEPICTION ? depictionToSource(object) : imageToSource(object)
+}
+
+export function getImage({ objectType, object }) {
+  return objectType === DEPICTION ? object.image : object
+}
+
+export function getThumbUrl(image) {
+  return image.alternatives.thumb.image_file_url
 }
