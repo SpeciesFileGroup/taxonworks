@@ -29,6 +29,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Browse OTUs: Timeline shows citations for all taxon names when it should only show the current one
 - Biological Properties usage count now returns the number of Biological Associations using a Biological Relationship that has that property on its subject, object, or both sides
 - Filter TNR: After destroying a record in filter taxon name relationships the record still displays [#5137]
+- Browse OTU: OTU distribution map does not load for Combinations [#5152]
 
 [#200]: https://github.com/SpeciesFileGroup/taxonpages/issues/200
 [#5116]: https://github.com/SpeciesFileGroup/taxonworks/issues/5116
@@ -39,6 +40,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 [#5137]: https://github.com/SpeciesFileGroup/taxonworks/issues/5137
 [#5141]: https://github.com/SpeciesFileGroup/taxonworks/issues/5141
 [#5144]: https://github.com/SpeciesFileGroup/taxonworks/issues/5144
+[#5152]: https://github.com/SpeciesFileGroup/taxonworks/issues/5152
 
 ## [0.66.1] - 2026-10-09
 
