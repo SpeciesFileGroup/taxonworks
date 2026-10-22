@@ -5,9 +5,12 @@
       Nothing selected. Click an image, or drag on the table to select several.
     </p>
     <template v-else>
-      <p class="text-xs light-table-selection__count">
-        {{ items.length }} selected
-      </p>
+      <div class="flex-separate middle">
+        <p class="text-xs light-table-selection__count">
+          {{ items.length }} selected
+        </p>
+        <SelectionRadials :items="items" />
+      </div>
       <div
         v-for="row in rows"
         :key="row.item.id"
@@ -33,10 +36,19 @@
             {{ row.details }}
           </span>
         </div>
-        <RadialNavigator
-          v-if="row.object.global_id"
-          :global-id="row.object.global_id"
-        />
+        <VBtn
+          circle
+          small
+          variant="ghost"
+          color="default"
+          title="Deselect"
+          @click="emit('deselect', row.item.id)"
+        >
+          <VIcon
+            name="close"
+            x-small
+          />
+        </VBtn>
       </div>
     </template>
   </div>
@@ -45,7 +57,9 @@
 <script setup>
 import { computed } from 'vue'
 import { DEPICTION } from '@/constants'
-import RadialNavigator from '@/components/radials/navigation/radial.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
+import SelectionRadials from './SelectionRadials.vue'
 
 const props = defineProps({
   items: {
@@ -59,7 +73,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['select'])
+const emit = defineEmits(['select', 'deselect'])
 
 const regionNames = computed(() =>
   Object.fromEntries(props.regions.map((r) => [r.id, r.name]))
@@ -85,7 +99,7 @@ const rows = computed(() =>
 
 <style scoped>
 .light-table-selection__count {
-  margin-top: 0;
+  margin: 0;
   color: var(--text-muted-color);
 }
 

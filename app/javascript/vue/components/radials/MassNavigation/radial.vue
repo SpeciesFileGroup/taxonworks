@@ -36,6 +36,7 @@
       />
 
       <VBtn
+        v-if="showBottom"
         title="Radial navigator"
         color="radial"
         circle
@@ -72,6 +73,11 @@ defineOptions({
 })
 
 const props = defineProps({
+  showBottom: {
+    type: Boolean,
+    default: true
+  },
+
   ids: {
     type: Array,
     default: () => []
@@ -190,4 +196,6 @@ function loadMetadata(model) {
       isLoading.value = false
     })
 }
+
+defineExpose({ openRadialMenu })
 </script>

@@ -46,6 +46,9 @@
       :items="selectedItems"
       :regions="store.layout?.regions || []"
       @select="(id) => lightTableRef.selectOnly([id])"
+      @deselect="
+        (id) => lightTableRef.selectOnly(selectedIds.filter((i) => i !== id))
+      "
     />
   </div>
 </template>

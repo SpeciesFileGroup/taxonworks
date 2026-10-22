@@ -1,5 +1,6 @@
 <template>
   <RadialBatch
+    ref="radialBatchRef"
     v-bind="attrs"
     title="Radial collection object"
     :slices="SLICES"
@@ -8,7 +9,7 @@
 </template>
 
 <script setup>
-import { computed, useAttrs } from 'vue'
+import { computed, ref, useAttrs } from 'vue'
 import { COLLECTION_OBJECT } from '@/constants'
 import RadialBatch from '@/components/radials/shared/RadialBatch.vue'
 import SliceTaxonDetermination from './components/SliceTaxonDetermination.vue'
@@ -26,6 +27,7 @@ defineOptions({
 })
 
 const attrs = useAttrs()
+const radialBatchRef = ref(null)
 
 // Setting a type designation on the full, unbounded set of unchecked filter
 // results is too easy to trigger by accident, so this slice is only offered
@@ -43,4 +45,8 @@ const SLICES = computed(() => ({
   'Preparation type': SlicePreparationType,
   ...(isOnlyIds.value ? { 'Type material': SliceTypeMaterial } : {})
 }))
+
+defineExpose({
+  openRadialMenu: () => radialBatchRef.value?.openRadialMenu()
+})
 </script>

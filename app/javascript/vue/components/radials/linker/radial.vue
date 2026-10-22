@@ -23,6 +23,7 @@
       </template>
     </modal>
     <VBtn
+      v-if="showBottom"
       class="circle-button"
       color="radial"
       :title="title"
@@ -60,6 +61,11 @@ defineOptions({
 })
 
 const props = defineProps({
+  showBottom: {
+    type: Boolean,
+    default: true
+  },
+
   disabled: {
     type: Boolean,
     default: false
@@ -266,4 +272,6 @@ watch(isVisible, (newVal) => {
     objParameters.value = getFilterAttributes()
   }
 })
+
+defineExpose({ openRadialMenu })
 </script>
