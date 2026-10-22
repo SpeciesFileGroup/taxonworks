@@ -48,6 +48,8 @@ import VSpinner from '@/components/ui/VSpinner.vue'
 import LayoutPicker from './components/picker/LayoutPicker.vue'
 import LightTableEditor from './components/LightTableEditor.vue'
 
+const TASK = 'Light table'
+
 const UNSAVED_MESSAGE =
   'You have unsaved changes. Are you sure you want to leave?'
 
@@ -84,7 +86,20 @@ function onDestroyed(id) {
   if (store.composition?.id === id) store.reset()
 }
 
+function addShortcutsDescription() {
+  TW.workbench.keyboard.createLegend('space', 'Hold to pan the table', TASK)
+  TW.workbench.keyboard.createLegend(
+    'del',
+    'Remove selected images from the table',
+    TASK
+  )
+  TW.workbench.keyboard.createLegend('esc', 'Clear selection', TASK)
+  TW.workbench.keyboard.createLegend('ctrl+a', 'Select all images', TASK)
+}
+
 onBeforeMount(async () => {
+  addShortcutsDescription()
+
   const { composition_id: compositionId, ...params } =
     useQueryParam().parameters
 
