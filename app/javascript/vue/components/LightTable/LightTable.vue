@@ -227,6 +227,7 @@ defineExpose({
   selection: lightTable.selection,
   addItems: lightTable.addItems,
   removeItems: lightTable.removeItems,
+  updateItemMeta: lightTable.updateItemMeta,
   createRegion: lightTable.createRegion,
   updateRegion: lightTable.updateRegion,
   removeRegion: lightTable.removeRegion,

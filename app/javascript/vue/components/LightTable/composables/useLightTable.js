@@ -238,6 +238,11 @@ export function useLightTable() {
     if (it) Object.assign(it, patch)
   }
 
+  function updateItemMeta(id, patch) {
+    const it = findById(id)
+    if (it) Object.assign(it.meta, patch)
+  }
+
   function setLabel(id, label) {
     const it = findById(id)
     if (it) it.label = label
@@ -517,6 +522,8 @@ export function useLightTable() {
         z: it.z,
         regionId: it.regionId,
         label: it.label,
+        viewBox: it.viewBox,
+        clipPath: it.clipPath,
         meta: it.meta
       })),
       regions: regions.map((r) => ({
@@ -643,6 +650,7 @@ export function useLightTable() {
     transformItem,
     setOpacity,
     setLabel,
+    updateItemMeta,
     nudgeSelected,
     bringToFront,
     sendToBack,

@@ -28,7 +28,7 @@ describe 'Light table task', type: :feature do
       end
       let!(:item) do
         LayoutItem::LightTableItem.create!(
-          composition: light_table, parent: group, composition_item_object: depiction,
+          composition: light_table, parent: group, composition_item_object: depiction.image,
           x: 10.5, y: 20, width: 200, height: 150, zoom: 1.5, rotation_z: 30, opacity: 80, z: 2,
           **housekeeping
         )
@@ -168,7 +168,7 @@ describe 'Light table task', type: :feature do
               image: FactoryBot.create(:tiny_random_image, **housekeeping),
               depiction_object: FactoryBot.create(:valid_specimen, **housekeeping),
               **housekeeping
-            ),
+            ).image,
             x: 400, y: 300, width: 200, height: 150, **housekeeping
           )
         end
@@ -196,6 +196,55 @@ describe 'Light table task', type: :feature do
           expect(page).to have_text('Group A')
           expect(page).to have_button('Layout')
           expect(page).not_to have_button('Grid')
+        end
+      end
+
+      context 'applying an OTU from the selection panel' do
+        let(:otu) { FactoryBot.create(:valid_otu, **housekeeping) }
+
+        def select_otu_to_assign
+          find('.lt-item').click
+          click_button 'Assign OTU...'
+          within('.modal-container') do
+            find('.autoselect__input').set(otu.name)
+          end
+          find('.autoselect__dropdown-item', text: otu.name).hover.click
+        end
+
+        def apply_otu
+          select_otu_to_assign
+          within('.modal-container') do
+            yield if block_given?
+            click_button 'Assign'
+          end
+          expect(page).not_to have_css('.modal-container')
+        end
+
+        specify 'a depicted collection object gets a new determination' do
+          apply_otu do
+            expect(page).to have_text('1 collection object(s) / field occurrence(s) will get a new determination')
+          end
+
+          expect(depiction.depiction_object.reload.current_otu).to eq(otu)
+          expect(page).to have_text('All changes saved')
+        end
+
+        specify 'the context menu opens the assign OTU modal' do
+          find('.lt-item').right_click
+          find('.lt-context-menu button', text: 'Assign OTU...').click
+
+          expect(page).not_to have_css('.lt-context-menu')
+          expect(page).to have_css('.modal-container', text: 'Assign OTU to 1 image(s)')
+        end
+
+        specify 'an image already on the OTU is left as is' do
+          Depiction.create!(image: depiction.image, depiction_object: otu, **housekeeping)
+
+          select_otu_to_assign
+          within('.modal-container') do
+            expect(page).to have_text('1 already on this OTU, nothing will be done')
+            expect(page).to have_button('Assign', disabled: true)
+          end
         end
       end
 
@@ -246,6 +295,7 @@ describe 'Light table task', type: :feature do
 
       expect(page).to have_css('.lt-item', count: 1)
       expect(page).to have_text('Not saved yet')
+      expect(page).not_to have_text('Loading...')
 
       find('.lt-item').right_click
       find('.lt-context-menu button', text: 'Remove from table').click
@@ -263,6 +313,101 @@ describe 'Light table task', type: :feature do
 
       light_table = Layout::LightTable.find_by(name: 'From filter')
       expect(light_table.composition_items.first.composition_item_object).to eq(image)
+    end
+
+    context 'assigning an OTU to an image sent from a filter', js: true do
+      let(:housekeeping) { {by: @user, project: @project} }
+      let(:image) { FactoryBot.create(:tiny_random_image, **housekeeping) }
+      let(:otu) { FactoryBot.create(:valid_otu, **housekeeping) }
+
+      # Nested records (e.g. a determination, an origin relationship) take
+      # their housekeeping from Current
+      before do
+        Current.user_id = @user.id
+        Current.project_id = @project.id
+      end
+
+      def assign_otu(summary)
+        visit light_table_task_path(image_id: [image.id])
+        expect(page).to have_css('.lt-item', count: 1)
+        expect(page).not_to have_text('Loading...')
+
+        find('.lt-item').click
+        click_button 'Assign OTU...'
+        within('.modal-container') do
+          find('.autoselect__input').set(otu.name)
+        end
+        find('.autoselect__dropdown-item', text: otu.name).hover.click
+        within('.modal-container') do
+          expect(page).to have_text(summary)
+          click_button 'Assign' if block_given? && yield
+        end
+      end
+
+      specify 'an image without depictions gets a depiction of the OTU' do
+        assign_otu('1 image(s) will get a new depiction of this OTU') { true }
+
+        expect(page).not_to have_css('.modal-container')
+        expect(Depiction.where(image:, depiction_object: otu).count).to eq(1)
+      end
+
+      specify 'a depiction of another OTU is moved to the OTU' do
+        depiction = Depiction.create!(
+          image:, depiction_object: FactoryBot.create(:valid_otu, **housekeeping), **housekeeping
+        )
+
+        assign_otu('1 depiction(s) will be moved to this OTU') { true }
+
+        expect(page).not_to have_css('.modal-container')
+        expect(depiction.reload.depiction_object).to eq(otu)
+      end
+
+      specify 'a depicted field occurrence gets a new determination' do
+        field_occurrence = FactoryBot.create(:valid_field_occurrence, **housekeeping)
+        Depiction.create!(image:, depiction_object: field_occurrence, **housekeeping)
+
+        assign_otu('1 collection object(s) / field occurrence(s) will get a new determination') { true }
+
+        expect(page).not_to have_css('.modal-container')
+        expect(field_occurrence.reload.current_otu).to eq(otu)
+      end
+
+      specify 'an anatomical part that originates from an OTU is not supported' do
+        anatomical_part = FactoryBot.create(:valid_anatomical_part, :under_otu)
+        Depiction.create!(image:, depiction_object: anatomical_part, **housekeeping)
+
+        assign_otu('1 anatomical part(s) originate from an OTU, not supported yet')
+
+        within('.modal-container') do
+          expect(page).to have_button('Assign', disabled: true)
+        end
+        expect(anatomical_part.reload.cached_otu_id).not_to eq(otu.id)
+      end
+    end
+
+    specify 'depictions added from an OTU are saved as their image', js: true do
+      otu = FactoryBot.create(:valid_otu, by: @user, project: @project)
+      depiction = Depiction.create!(
+        image: FactoryBot.create(:tiny_random_image, by: @user, project: @project),
+        depiction_object: otu, by: @user, project: @project
+      )
+      visit light_table_task_path
+
+      within('.panel', text: 'Add images') do
+        fill_in placeholder: 'Search an OTU...', with: otu.name
+      end
+      find('.vue-autocomplete-list li', text: otu.name).click
+      within('.panel', text: 'Add images') do
+        find('.light-table-sources__thumb').click
+      end
+      expect(page).to have_css('.lt-item', count: 1)
+
+      fill_in placeholder: 'Name this light table to save it', with: 'From OTU'
+      click_button 'Save'
+      expect(page).to have_text('All changes saved')
+
+      item = Layout::LightTable.find_by(name: 'From OTU').composition_items.first
+      expect(item.composition_item_object).to eq(depiction.image)
     end
 =end
   end

@@ -36,7 +36,12 @@
 <script setup>
 import { computed } from 'vue'
 import { DRAG_TYPE } from '../../constants'
-import { getImage, getThumbUrl } from '../../adapters/source'
+import {
+  getImage,
+  getImageId,
+  getThumbUrl,
+  imageKey
+} from '../../adapters/source'
 import VBtn from '@/components/ui/VBtn/index.vue'
 
 const props = defineProps({
@@ -68,7 +73,7 @@ const pendingObjects = computed(() =>
 )
 
 function isPlaced(object) {
-  return props.placedKeys.has(`${props.objectType}:${object.id}`)
+  return props.placedKeys.has(imageKey(getImageId(props.objectType, object)))
 }
 
 function thumbUrl(object) {

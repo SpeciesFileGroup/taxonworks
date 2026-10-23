@@ -5,11 +5,19 @@
       Nothing selected. Click an image, or drag on the table to select several.
     </p>
     <template v-else>
-      <div class="flex-separate middle">
+      <div class="flex-separate middle margin-small-bottom">
         <p class="text-xs light-table-selection__count">
           {{ items.length }} selected
         </p>
-        <SelectionRadials :items="items" />
+        <div class="horizontal-right-content middle gap-small">
+          <VBtn
+            color="primary"
+            @click="emit('apply-otu')"
+          >
+            Assign OTU...
+          </VBtn>
+          <SelectionRadials :items="items" />
+        </div>
       </div>
       <div
         v-for="row in rows"
@@ -24,11 +32,15 @@
         >
           <img
             :src="row.thumbUrl"
-            :alt="row.object.object_label"
+            :alt="row.image.object_label"
           />
         </button>
         <div class="light-table-selection__text">
-          <span v-html="row.object.object_tag" />
+          <span
+            v-for="object in row.objects"
+            :key="object.global_id"
+            v-html="object.object_tag"
+          />
           <span
             v-if="row.details"
             class="text-xs light-table-selection__details"
@@ -56,7 +68,6 @@
 
 <script setup>
 import { computed } from 'vue'
-import { DEPICTION } from '@/constants'
 import { getImage, getThumbUrl } from '../adapters/source'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
@@ -74,7 +85,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['select', 'deselect'])
+const emit = defineEmits(['select', 'deselect', 'apply-otu'])
 
 const regionNames = computed(() =>
   Object.fromEntries(props.regions.map((r) => [r.id, r.name]))
@@ -82,13 +93,15 @@ const regionNames = computed(() =>
 
 const rows = computed(() =>
   props.items.map((item) => {
-    const { object } = item.meta
-    const isDepiction = item.meta.objectType === DEPICTION
     const image = getImage(item.meta)
+    const depictedObjects = (item.meta.depictions || [])
+      .map((d) => d.depiction_object)
+      .filter(Boolean)
 
     return {
       item,
-      object: (isDepiction && object.depiction_object) || image,
+      image,
+      objects: depictedObjects.length ? depictedObjects : [image],
       thumbUrl: getThumbUrl(image),
       details: [item.label, regionNames.value[item.regionId]]
         .filter(Boolean)

@@ -25,6 +25,7 @@
           <ItemContextMenu
             :items="items"
             @radial="openItemRadial"
+            @assign-otu="isApplyOtuVisible = true"
           />
         </template>
       </LightTable>
@@ -44,22 +45,31 @@
       @deselect="
         (id) => lightTableRef.selectOnly(selectedIds.filter((i) => i !== id))
       "
+      @apply-otu="isApplyOtuVisible = true"
     />
   </div>
+  <ApplyOtuModal
+    v-if="isApplyOtuVisible"
+    :items="selectedItems"
+    @close="isApplyOtuVisible = false"
+    @applied="onOtuApplied"
+  />
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { Image } from '@/routes/endpoints'
 import { LightTable } from '@/components/LightTable'
-import { IMAGE } from '@/constants'
+import { ANATOMICAL_PART, IMAGE } from '@/constants'
+import { DETERMINABLE_TYPES } from '../adapters/applyOtu'
 import { DRAG_TYPE, LABELS } from '../constants'
-import { objectToSource } from '../adapters/source'
+import { imageKey, objectToSource } from '../adapters/source'
 import useStore from '../store/store'
 import SaveBar from './SaveBar.vue'
 import SelectionPanel from './SelectionPanel.vue'
 import SourcePanel from './sources/SourcePanel.vue'
 import ItemContextMenu from './ItemContextMenu.vue'
+import ApplyOtuModal from './ApplyOtuModal.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import { useRadialOpener } from '../composables/useRadialOpener'
@@ -84,6 +94,7 @@ const emit = defineEmits(['open', 'new', 'image-query-loaded'])
 const store = useStore()
 const lightTableRef = ref(null)
 const selectedIds = ref([])
+const isApplyOtuVisible = ref(false)
 const { radial, radialRef, openRadial } = useRadialOpener()
 
 const layoutItems = computed(() => store.layout?.items || [])
@@ -91,7 +102,7 @@ const layoutItems = computed(() => store.layout?.items || [])
 const placedKeys = computed(
   () =>
     new Set(
-      layoutItems.value.map((it) => `${it.meta.objectType}:${it.meta.objectId}`)
+      layoutItems.value.map((it) => imageKey(it.meta.objectId))
     )
 )
 
@@ -103,11 +114,17 @@ const selectedItems = computed(() => {
 
 function addFromSource(payload, point = null) {
   const lightTable = lightTableRef.value
+  const keys = new Set(placedKeys.value)
   const sources = payload.objects
     .map((object) => objectToSource(payload.objectType, object))
-    .filter(
-      (s) => !placedKeys.value.has(`${s.meta.objectType}:${s.meta.objectId}`)
-    )
+    .filter((s) => {
+      const key = imageKey(s.meta.objectId)
+
+      if (keys.has(key)) return false
+      keys.add(key)
+
+      return true
+    })
 
   const skipped = payload.objects.length - sources.length
 
@@ -131,6 +148,42 @@ function addFromSource(payload, point = null) {
   )
 
   lightTable.selectOnly(ids)
+
+  return loadDepictions(ids)
+}
+
+async function loadDepictions(ids) {
+  const lightTable = lightTableRef.value
+  const items = ids
+    .map((id) => lightTable.items.find((it) => it.id === id))
+    .filter(Boolean)
+  const depictionsByImage = await store.loadImageDepictions(
+    items.map((it) => it.meta.objectId)
+  )
+
+  items.forEach((it) => {
+    lightTable.updateItemMeta(it.id, {
+      depictions: depictionsByImage.get(it.meta.objectId) || []
+    })
+  })
+}
+
+function onOtuApplied({ hasDeterminations }) {
+  const determinedTypes = [...DETERMINABLE_TYPES, ANATOMICAL_PART]
+  const ids = new Set(selectedIds.value)
+
+  if (hasDeterminations) {
+    layoutItems.value
+      .filter((it) =>
+        it.meta.depictions?.some((d) =>
+          determinedTypes.includes(d.depiction_object_type)
+        )
+      )
+      .forEach((it) => ids.add(it.id))
+  }
+
+  isApplyOtuVisible.value = false
+  loadDepictions([...ids])
 }
 
 function openItemRadial({ type, globalId }) {
@@ -146,12 +199,18 @@ function onDrop({ point, dataTransfer }) {
 }
 
 function addImagesFromQuery(params) {
+  store.isLoading = true
+
   Image.filter({ ...params, per: MAX_FILTER_IMAGES })
     .then(({ body }) => {
       store.filterImages = body
-      addFromSource({ objectType: IMAGE, objects: body })
+
+      return addFromSource({ objectType: IMAGE, objects: body })
     })
     .catch(() => {})
+    .finally(() => {
+      store.isLoading = false
+    })
 }
 
 onMounted(() => {

@@ -45,14 +45,7 @@ export function computeChanges({ layout, baseline, serverIds }) {
     const attributes = itemToAttributes(item, region, parentId)
 
     if (!id) {
-      changes.itemCreates.push({
-        key: item.id,
-        attributes: {
-          ...attributes,
-          composition_item_object_type: item.meta.objectType,
-          composition_item_object_id: item.meta.objectId
-        }
-      })
+      changes.itemCreates.push({ key: item.id, attributes })
       continue
     }
 

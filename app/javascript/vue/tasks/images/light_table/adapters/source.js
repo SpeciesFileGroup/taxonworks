@@ -6,39 +6,32 @@ function imageSrc(image) {
     : image.image_file_url
 }
 
-export function depictionToSource(depiction) {
-  const { image } = depiction
-
-  return {
-    src: imageSrc(image),
-    alt:
-      depiction.caption ||
-      depiction.figure_label ||
-      `Depiction ${depiction.id}`,
-    mediaWidth: image.width,
-    mediaHeight: image.height,
-    viewBox: depiction.svg_view_box || null,
-    clipPath: depiction.svg_clip || null,
-    meta: {
-      objectType: DEPICTION,
-      objectId: depiction.id,
-      object: depiction
-    }
-  }
-}
-
-export function imageToSource(image) {
+export function imageToSource(
+  image,
+  { depictions = [], viewBox = null, clipPath = null } = {}
+) {
   return {
     src: imageSrc(image),
     alt: image.image_original_filename || `Image ${image.id}`,
     mediaWidth: image.width,
     mediaHeight: image.height,
+    viewBox,
+    clipPath,
     meta: {
       objectType: IMAGE,
       objectId: image.id,
-      object: image
+      object: image,
+      depictions
     }
   }
+}
+
+export function depictionToSource(depiction) {
+  return imageToSource(depiction.image, {
+    depictions: [depiction],
+    viewBox: depiction.svg_view_box || null,
+    clipPath: depiction.svg_clip || null
+  })
 }
 
 export function objectToSource(type, object) {
@@ -47,6 +40,14 @@ export function objectToSource(type, object) {
 
 export function getImage({ objectType, object }) {
   return objectType === DEPICTION ? object.image : object
+}
+
+export function getImageId(objectType, object) {
+  return objectType === DEPICTION ? object.image_id : object.id
+}
+
+export function imageKey(imageId) {
+  return `${IMAGE}:${imageId}`
 }
 
 export function getThumbUrl(image) {

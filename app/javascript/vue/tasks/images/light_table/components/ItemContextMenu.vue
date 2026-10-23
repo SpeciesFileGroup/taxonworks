@@ -1,4 +1,8 @@
 <template>
+  <LightTableMenuItem
+    label="Assign OTU..."
+    @click="emit('assign-otu')"
+  />
   <template v-if="items.length === 1 && radialTargets.length">
     <LightTableSubmenu
       v-for="radial in RADIALS"
@@ -18,7 +22,6 @@
 <script setup>
 import { computed } from 'vue'
 import { LightTableMenuItem, LightTableSubmenu } from '@/components/LightTable'
-import { DEPICTION } from '@/constants'
 import { capitalize, decamelize } from '@/helpers'
 
 const RADIALS = [
@@ -33,27 +36,33 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['radial'])
+const emit = defineEmits(['radial', 'assign-otu'])
 
 const meta = computed(() => props.items[0]?.meta)
-const isDepiction = computed(() => meta.value?.objectType === DEPICTION)
+
+function objectTypeLabel(object) {
+  return object?.base_class
+    ? capitalize(decamelize(object.base_class))
+    : 'Depicted object'
+}
 
 const radialTargets = computed(() => {
   if (!meta.value) return []
-  const { object } = meta.value
+  const depictions = meta.value.depictions || []
+  const hasMany = depictions.length > 1
 
-  const targets = isDepiction.value
-    ? [
-        { label: 'Image', object: object.image },
-        { label: 'Depiction', object },
-        {
-          label: object.depiction_object?.base_class
-            ? capitalize(decamelize(object.depiction_object.base_class))
-            : 'Depicted object',
-          object: object.depiction_object
-        }
+  const targets = [
+    { label: 'Image', object: meta.value.object },
+    ...depictions.flatMap((depiction) => {
+      const depicted = depiction.depiction_object
+      const suffix = hasMany && depicted ? `: ${depicted.object_label}` : ''
+
+      return [
+        { label: `Depiction${suffix}`, object: depiction },
+        { label: `${objectTypeLabel(depicted)}${suffix}`, object: depicted }
       ]
-    : [{ label: 'Image', object }]
+    })
+  ]
 
   return targets
     .filter((target) => target.object?.global_id)

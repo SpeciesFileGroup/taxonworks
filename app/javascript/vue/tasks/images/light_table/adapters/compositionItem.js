@@ -33,11 +33,19 @@ export function groupToRegion(group) {
   }
 }
 
-export function compositionItemToItem(compositionItem, group) {
+export function compositionItemToItem(compositionItem, group, depictions) {
   const source = objectToSource(
     compositionItem.composition_item_object_type,
     compositionItem.composition_item_object
   )
+
+  source.meta.depictions = depictions ?? source.meta.depictions
+
+  if (compositionItem.svg_view_box) {
+    source.viewBox = compositionItem.svg_view_box
+    source.clipPath = compositionItem.svg_clip || null
+  }
+
   const size =
     compositionItem.width && compositionItem.height
       ? { w: compositionItem.width, h: compositionItem.height }
@@ -81,6 +89,8 @@ export function regionToGroupAttributes(region) {
 
 export function itemAttributes(compositionItem) {
   return {
+    composition_item_object_type: compositionItem.composition_item_object_type,
+    composition_item_object_id: compositionItem.composition_item_object_id,
     parent_id: compositionItem.parent_id || null,
     text: compositionItem.text || null,
     x: round(compositionItem.x || 0),
@@ -90,7 +100,9 @@ export function itemAttributes(compositionItem) {
     height: compositionItem.height || null,
     zoom: round(compositionItem.zoom || 1),
     rotation_z: round(compositionItem.rotation_z || 0),
-    opacity: compositionItem.opacity == null ? 100 : compositionItem.opacity
+    opacity: compositionItem.opacity == null ? 100 : compositionItem.opacity,
+    svg_view_box: compositionItem.svg_view_box || null,
+    svg_clip: compositionItem.svg_clip || null
   }
 }
 
@@ -100,6 +112,8 @@ export function itemToAttributes(item, region, parentId) {
   const height = Math.round(item.h)
 
   return itemAttributes({
+    composition_item_object_type: item.meta.objectType,
+    composition_item_object_id: item.meta.objectId,
     parent_id: parentId,
     text: item.label,
     x: item.x - width / 2 - offset.x,
@@ -109,6 +123,8 @@ export function itemToAttributes(item, region, parentId) {
     height,
     zoom: item.scale,
     rotation_z: item.rotation,
-    opacity: Math.round(item.opacity * 100)
+    opacity: Math.round(item.opacity * 100),
+    svg_view_box: item.viewBox,
+    svg_clip: item.clipPath
   })
 }

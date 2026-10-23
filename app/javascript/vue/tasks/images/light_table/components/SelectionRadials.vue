@@ -117,14 +117,12 @@ const groups = computed(() => {
   }
 
   props.items.forEach(({ meta }) => {
-    const { object } = meta
-
     add(IMAGE, getImage(meta).id)
 
-    if (meta.objectType === DEPICTION) {
-      add(DEPICTION, object.id)
-      add(object.depiction_object_type, object.depiction_object_id)
-    }
+    meta.depictions?.forEach((depiction) => {
+      add(DEPICTION, depiction.id)
+      add(depiction.depiction_object_type, depiction.depiction_object_id)
+    })
   })
 
   return [...idsByType].map(([objectType, ids]) => ({

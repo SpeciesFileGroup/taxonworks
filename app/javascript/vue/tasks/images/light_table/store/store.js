@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { Composition, CompositionItem } from '@/routes/endpoints'
+import { Composition, CompositionItem, Depiction } from '@/routes/endpoints'
 import {
   compositionItemToItem,
   groupAttributes,
@@ -9,6 +9,7 @@ import {
   regionKey
 } from '../adapters/compositionItem'
 import { computeChanges, countChanges } from '../adapters/changes'
+import { getImageId } from '../adapters/source'
 import {
   LAYOUT_ITEM_GROUP_ITEM,
   LAYOUT_ITEM_LIGHT_TABLE_ITEM,
@@ -16,8 +17,10 @@ import {
 } from '@/constants'
 
 const MAX_PARALLEL_REQUESTS = 6
+const IMAGES_PER_DEPICTION_REQUEST = 50
+const MAX_DEPICTIONS_PER_REQUEST = 1000
 
-async function runAll(entries, request) {
+export async function runAll(entries, request) {
   for (let i = 0; i < entries.length; i += MAX_PARALLEL_REQUESTS) {
     await Promise.allSettled(
       entries.slice(i, i + MAX_PARALLEL_REQUESTS).map(request)
@@ -85,7 +88,7 @@ export default defineStore('lightTable', {
           await Promise.all([
             Composition.find(id),
             Composition.compositionItems(id, {
-              extend: ['composition_item_object', 'depiction_object']
+              extend: ['composition_item_object']
             })
           ])
 
@@ -97,6 +100,11 @@ export default defineStore('lightTable', {
             c.type === LAYOUT_ITEM_LIGHT_TABLE_ITEM && c.composition_item_object
         )
         const groupsById = new Map(groups.map((g) => [g.id, g]))
+        const depictionsByImage = await this.loadImageDepictions(
+          items.map((c) =>
+            getImageId(c.composition_item_object_type, c.composition_item_object)
+          )
+        )
 
         this.reset()
         this.composition = composition
@@ -113,11 +121,42 @@ export default defineStore('lightTable', {
 
         this.initialRegions = groups.map(groupToRegion)
         this.initialItems = items.map((c) =>
-          compositionItemToItem(c, groupsById.get(c.parent_id))
+          compositionItemToItem(
+            c,
+            groupsById.get(c.parent_id),
+            depictionsByImage.get(
+              getImageId(
+                c.composition_item_object_type,
+                c.composition_item_object
+              )
+            ) || []
+          )
         )
       } finally {
         this.isLoading = false
       }
+    },
+
+    async loadImageDepictions(imageIds) {
+      const ids = [...new Set(imageIds)]
+      const depictionsByImage = new Map(ids.map((id) => [id, []]))
+      const chunks = []
+
+      for (let i = 0; i < ids.length; i += IMAGES_PER_DEPICTION_REQUEST) {
+        chunks.push(ids.slice(i, i + IMAGES_PER_DEPICTION_REQUEST))
+      }
+
+      await runAll(chunks, async (chunk) => {
+        const { body } = await Depiction.filter({
+          image_id: chunk,
+          per: MAX_DEPICTIONS_PER_REQUEST,
+          extend: ['depiction_object']
+        })
+
+        body.forEach((d) => depictionsByImage.get(d.image_id)?.push(d))
+      })
+
+      return depictionsByImage
     },
 
     setLayout(layout) {
