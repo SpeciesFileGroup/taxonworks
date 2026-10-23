@@ -13,9 +13,8 @@ class ImagesController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @images = Queries::Image::Filter.new(params).all
-          .where(project_id: sessions_current_project_id)
-          .page(params[:page]).per(params[:per])
+        @images = ordered_page(Queries::Image::Filter.new(params).all
+          .where(project_id: sessions_current_project_id))
       }
     end
   end

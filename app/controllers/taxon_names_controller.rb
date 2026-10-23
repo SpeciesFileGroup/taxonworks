@@ -14,9 +14,7 @@ class TaxonNamesController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @taxon_names = ::Queries::TaxonName::Filter.new(params).all
-        .page(params[:page])
-        .per(params[:per])
+        @taxon_names = ordered_page(::Queries::TaxonName::Filter.new(params).all)
       }
     end
   end

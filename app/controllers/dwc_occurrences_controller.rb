@@ -8,10 +8,8 @@ class DwcOccurrencesController < ApplicationController
 
   # .json only
   def index
-    @dwc_occurrences = Queries::DwcOccurrence::Filter.new(params).all
-      .where(project_id: sessions_current_project_id)
-      .page(params[:page])
-      .per(params[:per] || 1)
+    @dwc_occurrences = ordered_page(Queries::DwcOccurrence::Filter.new(params).all
+      .where(project_id: sessions_current_project_id), default_per: 1)
   end
 
   def api_index

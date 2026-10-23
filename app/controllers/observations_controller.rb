@@ -15,11 +15,9 @@ class ObservationsController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @observations = Queries::Observation::Filter.new(params)
+        @observations = ordered_page(Queries::Observation::Filter.new(params)
           .all
-          .where(project_id: sessions_current_project_id)
-          .page(params[:page])
-          .per(params[:per])
+          .where(project_id: sessions_current_project_id))
       }
     end
   end

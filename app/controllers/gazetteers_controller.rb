@@ -17,10 +17,8 @@ class GazetteersController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json do
-        @gazetteers = ::Queries::Gazetteer::Filter.new(params).all
-          .includes(:geographic_item)
-          .page(params[:page])
-          .per(params[:per])
+        @gazetteers = ordered_page(::Queries::Gazetteer::Filter.new(params).all
+          .includes(:geographic_item))
       end
     end
   end

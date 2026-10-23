@@ -15,9 +15,7 @@ class BiologicalAssociationsGraphsController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @biological_associations_graphs = ::Queries::BiologicalAssociationsGraph::Filter.new(params).all
-          .page(params[:page])
-          .per(params[:per])
+        @biological_associations_graphs = ordered_page(::Queries::BiologicalAssociationsGraph::Filter.new(params).all)
       }
     end
   end

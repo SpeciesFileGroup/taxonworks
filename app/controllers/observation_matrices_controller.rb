@@ -16,10 +16,8 @@ class ObservationMatricesController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @observation_matrices = ::Queries::ObservationMatrix::Filter.new(params).all
-          .where(project_id: sessions_current_project_id)
-          .page(params[:page])
-          .per(params[:per])
+        @observation_matrices = ordered_page(::Queries::ObservationMatrix::Filter.new(params).all
+          .where(project_id: sessions_current_project_id))
       }
     end
   end

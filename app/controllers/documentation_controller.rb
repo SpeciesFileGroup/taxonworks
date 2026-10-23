@@ -12,8 +12,7 @@ class DocumentationController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @documentation = ::Queries::Documentation::Filter.new(params).all.where(project_id: sessions_current_project_id).
-        page(params[:page]).per(params[:per] || 500)
+        @documentation = ordered_page(::Queries::Documentation::Filter.new(params).all.where(project_id: sessions_current_project_id), default_per: 500)
       }
     end
   end

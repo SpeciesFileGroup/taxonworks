@@ -24,11 +24,7 @@ class CollectionObjectsController < ApplicationController
       format.json do
         collection_objects = ::Queries::CollectionObject::Filter.new(params).all
 
-        @collection_objects = add_includes_to_filter_result(collection_objects)
-
-        @collection_objects = @collection_objects
-          .page(params[:page])
-          .per(params[:per])
+        @collection_objects = ordered_page(add_includes_to_filter_result(collection_objects))
       end
     end
   end
@@ -88,7 +84,7 @@ class CollectionObjectsController < ApplicationController
 
   # Render DWC fields *only*
   def dwc_index
-    objects = ::Queries::CollectionObject::Filter.new(params).all.order('collection_objects.id').includes(:dwc_occurrence).page(params[:page]).per(params[:per]).all
+    objects = ordered_page(::Queries::CollectionObject::Filter.new(params).all.includes(:dwc_occurrence))
     assign_pagination(objects)
 
     # Default to *exclude* some big fields, like geo-spatial wkt
@@ -146,12 +142,12 @@ class CollectionObjectsController < ApplicationController
   # Intent is DWC fields + quick summary fields for reports
   # !! As currently implemented rebuilds DWC all
   def report
-    @collection_objects = ::Queries::CollectionObject::Filter.new(params).all.order('collection_objects.id').includes(:dwc_occurrence).page(params[:page]).per(params[:per] || 500)
+    @collection_objects = ordered_page(::Queries::CollectionObject::Filter.new(params).all.includes(:dwc_occurrence), default_per: 500)
   end
 
   # /collection_objects/preview?<filter params>
   def preview
-    @collection_objects = ::Queries::CollectionObject::Filter.new(params).all.order('collection_objects.id').includes(:dwc_occurrence).page(params[:page]).per(params[:per] || 500)
+    @collection_objects = ordered_page(::Queries::CollectionObject::Filter.new(params).all.includes(:dwc_occurrence), default_per: 500)
   end
 
   # GET /collection_objects/depictions/1

@@ -13,9 +13,7 @@ class FieldOccurrencesController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @field_occurrences = add_includes_to_filter_result(::Queries::FieldOccurrence::Filter.new(params).all)
-          .page(params[:page])
-          .per(params[:per])
+        @field_occurrences = ordered_page(add_includes_to_filter_result(::Queries::FieldOccurrence::Filter.new(params).all))
       }
     end
   end

@@ -15,10 +15,7 @@ class AnatomicalPartsController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json do
-        @anatomical_parts = ::Queries::AnatomicalPart::Filter.new(params).all
-          .page(params[:page])
-          .per(params[:per])
-          .order('anatomical_parts.cached')
+        @anatomical_parts = ordered_page(::Queries::AnatomicalPart::Filter.new(params).all, default_order: ['anatomical_parts.cached'])
       end
     end
   end

@@ -33,6 +33,7 @@ set → order → page composes into one SQL query. Each step keeps its contract
 * A set with `DISTINCT`, `GROUP BY` or a `from(...)` subquery (see "Use of `.distinct`" below) can't be ordered by joined columns. The pager reduces it to `Model.where(id: set)` before ordering.
 * The pager applies the matched `sort` keys (e.g. `sort=-updated_at,repository.name`, capped at `MAX_SORT_KEYS`; unknown keys are ignored), then always `id ASC` as a tiebreak or fallback, then Kaminari `page`/`per`. Anything that truncates goes through the pager, so a page or "first N" is always in a stable order.
 * `recent=true` is shorthand for a leading `-updated_at` key (`-created_at` with `recent_target=created_at`); explicit `sort` keys follow it.
+* `order_by=match_identifiers` likewise puts `match_identifiers` first: records in the order their identifiers were given to the match identifiers facet (see `Queries::Sort::MatchIdentifiers`).
 * There is no `paginate` param: the pager always pages.
 
 ### Sort keys

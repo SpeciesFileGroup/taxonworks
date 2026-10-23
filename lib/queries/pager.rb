@@ -18,7 +18,15 @@
 #     ignored, and only the first MAX_SORT_KEYS are used.
 #   recent - true puts `-updated_at` (`-created_at` when
 #     `recent_target=created_at`) before any `sort` keys
-#   page, per - Kaminari's; `per` defaults to Kaminari's default_per_page
+#   order_by - 'match_identifiers' puts `match_identifiers` first (sent by
+#     the match identifiers facet, independent of the table's `sort`)
+#   page, per - Kaminari's; `per` defaults to `default_per`, else Kaminari's
+#     default_per_page
+#
+# Options:
+#   default_order - `.order` arguments used only when no sort keys apply
+#     (e.g. a controller's usual order); `id` still follows
+#   default_per - see `per`
 #
 # See "Sorting and paging" in lib/queries/ARCHITECTURE.md.
 module Queries
@@ -26,18 +34,24 @@ module Queries
 
     MAX_SORT_KEYS = Queries::Sort::Base::MAX_SORT_KEYS
 
-    attr_reader :set, :params
+    attr_reader :set, :params, :default_order, :default_per
 
     # @param set [ActiveRecord::Relation]
-    # @param params [Hash, ActionController::Parameters]
-    def initialize(set, params = {})
+    # @param params [Hash, ActionController::Parameters, nil] or given
+    #   inline, e.g. `Queries::Pager.new(set, sort: 'name')`
+    # @param default_order [Array, nil] see Options above
+    # @param default_per [Integer, nil] see Options above
+    def initialize(set, params = nil, default_order: nil, default_per: nil, **inline_params)
+      params ||= inline_params
       @set = set
       @params = (params.respond_to?(:to_unsafe_h) ? params.to_unsafe_h : params.to_h).with_indifferent_access
+      @default_order = default_order
+      @default_per = default_per
     end
 
     # @return [ActiveRecord::Relation] the ordered page
     def all
-      ordered.page(params[:page]).per(params[:per])
+      ordered.page(params[:page]).per(params[:per].presence || default_per)
     end
 
     # @return [ActiveRecord::Relation] the whole set, ordered
@@ -45,7 +59,10 @@ module Queries
       q = plain_set
       references = q.references_values
 
-      sort_entries.each do |key, dir|
+      entries = sort_entries
+      q = q.order(*Array.wrap(default_order)) if entries.empty? && default_order.present?
+
+      entries.each do |key, dir|
         if key == Queries::Sort::MatchIdentifiers::KEY
           q = Queries::Sort::MatchIdentifiers.new(klass, params).apply(q)
         else
@@ -75,6 +92,7 @@ module Queries
     def sort_entries
       requested = parse_sort(params[:sort]).first(MAX_SORT_KEYS)
       requested.unshift([recent_target, :desc]) if recent?
+      requested.unshift([Queries::Sort::MatchIdentifiers::KEY, :asc]) if params[:order_by].to_s == Queries::Sort::MatchIdentifiers::KEY
 
       requested
         .select { |key, _| sortable?(key) }

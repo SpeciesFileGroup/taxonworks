@@ -13,9 +13,7 @@ class CollectingEventsController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @collecting_events = Queries::CollectingEvent::Filter.new(params).all
-        .page(params[:page])
-        .per(params[:per])
+        @collecting_events = ordered_page(Queries::CollectingEvent::Filter.new(params).all)
 
         if helpers.extend_response_with('geographic_area_name')
           @collecting_events = @collecting_events.includes(:geographic_area)

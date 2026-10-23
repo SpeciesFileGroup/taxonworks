@@ -14,9 +14,7 @@ class TaxonNameRelationshipsController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @taxon_name_relationships = Queries::TaxonNameRelationship::Filter.new(params).all
-          .page(params[:page])
-          .per(params[:per])
+        @taxon_name_relationships = ordered_page(Queries::TaxonNameRelationship::Filter.new(params).all)
       }
     end
   end

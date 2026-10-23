@@ -15,17 +15,14 @@ class BiologicalAssociationsController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @biological_associations = Queries::BiologicalAssociation::Filter.new(params)
+        @biological_associations = ordered_page(Queries::BiologicalAssociation::Filter.new(params)
           .all
           .where(project_id: sessions_current_project_id)
           .includes(
             citations: [:source, { citation_topics: :topic }],
             biological_relationship: :biological_relationship_types
           )
-          .preload(:biological_association_subject, :biological_association_object)
-          .page(params[:page])
-          .per(params[:per])
-          .load
+          .preload(:biological_association_subject, :biological_association_object)).load
 
         co_fo_subjects = @biological_associations
           .filter_map { |ba| ba.biological_association_subject if ['CollectionObject', 'FieldOccurrence'].include?(ba.biological_association_subject_type) }

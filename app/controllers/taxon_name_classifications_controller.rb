@@ -15,10 +15,8 @@ class TaxonNameClassificationsController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @taxon_name_classifications = Queries::TaxonNameClassification::Filter.new(params)
-          .all
-          .page(params[:page])
-          .per(params[:per])
+        @taxon_name_classifications = ordered_page(Queries::TaxonNameClassification::Filter.new(params)
+          .all)
       }
     end
   end

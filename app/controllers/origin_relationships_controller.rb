@@ -12,10 +12,8 @@ class OriginRelationshipsController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json{
-        @origin_relationships = Queries::OriginRelationship::Filter.new(params)
-          .all
-          .page(params[:page])
-          .per(params[:per])
+        @origin_relationships = ordered_page(Queries::OriginRelationship::Filter.new(params)
+          .all)
       }
     end
   end

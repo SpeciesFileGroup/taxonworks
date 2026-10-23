@@ -13,10 +13,9 @@ class ExtractsController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @extracts = Queries::Extract::Filter
+        @extracts = ordered_page(Queries::Extract::Filter
           .new(params).all
-          .where(project_id: sessions_current_project_id)
-          .page(params[:page]).per(params[:per])
+          .where(project_id: sessions_current_project_id))
       }
     end
   end

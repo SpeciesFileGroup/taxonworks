@@ -13,10 +13,7 @@ class SourcesController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @sources = Queries::Source::Filter.new(params).all
-        .order(:cached)
-        .page(params[:page])
-        .per(params[:per])
+        @sources = ordered_page(Queries::Source::Filter.new(params).all, default_order: [:cached])
       }
       format.bib {
         # TODO - handle count and download

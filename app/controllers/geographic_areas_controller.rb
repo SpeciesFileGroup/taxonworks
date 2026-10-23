@@ -13,10 +13,8 @@ class GeographicAreasController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @geographic_areas = ::Queries::GeographicArea::Filter.new(params).all
-          .includes(:geographic_items)
-          .page(params[:page])
-          .per(params[:per])
+        @geographic_areas = ordered_page(::Queries::GeographicArea::Filter.new(params).all
+          .includes(:geographic_items))
           # .order('geographic_items.cached_total_area, geographic_area.name')
       }
     end

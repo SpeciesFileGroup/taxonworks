@@ -12,11 +12,9 @@ class BiocurationClassificationsController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @biocuration_classifications = ::Queries::BiocurationClassification::Filter.new(params)
+        @biocuration_classifications = ordered_page(::Queries::BiocurationClassification::Filter.new(params)
           .all
-          .where(project_id: sessions_current_project_id)
-          .page(params[:page])
-          .per(params[:per])
+          .where(project_id: sessions_current_project_id))
       }
     end
   end

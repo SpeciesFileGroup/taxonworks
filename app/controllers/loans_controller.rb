@@ -14,9 +14,7 @@ class LoansController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @loans = ::Queries::Loan::Filter.new(params).all
-          .page(params[:page])
-          .per(params[:per])
+        @loans = ordered_page(::Queries::Loan::Filter.new(params).all)
       }
     end
   end

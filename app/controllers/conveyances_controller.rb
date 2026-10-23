@@ -19,8 +19,7 @@ class ConveyancesController < ApplicationController
           .all
           .where(project_id: sessions_current_project_id)
           .where(Queries::Annotator::polymorphic_params(params, Conveyance)) # TODO: -> configured?
-          .page(params[:page])
-          .per(params[:per])
+        @conveyances = ordered_page(@conveyances)
       }
     end
   end

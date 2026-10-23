@@ -13,9 +13,7 @@ class DataAttributesController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @data_attributes = Queries::DataAttribute::Filter.new(params).all
-          .page(params[:page])
-          .per(params[:per])
+        @data_attributes = ordered_page(Queries::DataAttribute::Filter.new(params).all)
       }
     end
   end

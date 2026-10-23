@@ -13,7 +13,7 @@ class ContentsController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @contents = ::Queries::Content::Filter.new(params).all.page(params[:page]).per(params[:per])
+        @contents = ordered_page(::Queries::Content::Filter.new(params).all)
       }
     end
   end

@@ -272,6 +272,12 @@ describe Queries::Pager, type: :model do
       expect(pager_ids.(set, p)).to eq([co3.id, co1.id, co2.id])
     end
 
+    specify 'order_by=match_identifiers puts it first, before sort' do
+      p = params.except(:sort).merge(order_by: 'match_identifiers', sort: '-id')
+      set = Queries::CollectionObject::Filter.new(p).all
+      expect(pager_ids.(set, p)).to eq([co2.id, co1.id, co3.id])
+    end
+
     specify 'total_count is not inflated' do
       set = Queries::CollectionObject::Filter.new(params).all
       expect(Queries::Pager.new(set, params).all.total_count).to eq(3)
