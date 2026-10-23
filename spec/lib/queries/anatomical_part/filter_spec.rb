@@ -23,8 +23,7 @@ describe Queries::AnatomicalPart::Filter, type: :model do
     let!(:ap_z) { FactoryBot.create(:valid_anatomical_part, name: 'Zeta part') }
 
     def sorted_ids(sort_key)
-      Queries::AnatomicalPart::Filter.new(sort: sort_key)
-        .all.where(id: [ap_a.id, ap_z.id]).pluck(:id)
+      Queries::Pager.new(Queries::AnatomicalPart::Filter.new(sort: sort_key).all, sort: sort_key).ordered.where(id: [ap_a.id, ap_z.id]).pluck(:id)
     end
 
     specify 'sort=name orders alphabetically' do

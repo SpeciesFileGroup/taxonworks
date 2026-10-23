@@ -36,14 +36,14 @@ set → order → page composes into one SQL query. Each step keeps its contract
 * There is no `paginate` param: the pager always pages.
 
 ### Sort keys
-Each model declares its keys in `Queries::<Model>::Sort`, in `lib/queries/<model>/sort.rb` next to `filter.rb` and `autocomplete.rb`, using the `Queries::Concerns::SortResolver` helpers (`direct`, `association`, `custom`, `sortable_direct_columns`, `sortable_association_columns`), each of which returns a `->(query, dir)` sort lambda. `Queries::Sort::Base` provides `updated_at` and `created_at` for every model.
+Each model declares its keys in `Queries::<Model>::Sort`, in `lib/queries/<model>/sort.rb` next to `filter.rb` and `autocomplete.rb`, using the `Queries::Sort::Resolver` helpers (`direct`, `association`, `custom`, `sortable_direct_columns`, `sortable_association_columns`), each of which returns a `->(query, dir)` sort lambda. `Queries::Sort::Base` provides `updated_at` and `created_at` for every model.
 
 * Sort on what users see: a display name, not an id. Raw foreign keys are rejected.
-* Sort on database values: a column, or a simple aggregate of columns (MIN, first by position, joined as displayed). Don't rebuild Ruby rendering (helpers, `taxonomy`) in SQL; for a cell assembled in Ruby, sort on a simple value it visibly contains (e.g. its taxon, see `Queries::Concerns::Sortable`), or offer no sort.
-* `User` is not reachable for sorting, except `User#name` as the final column. Sort order leaks information about hidden values, and unlike project data, `User` rows are cross-project and mostly not visible to project members. See the comment on `BLACKLISTED_CLASSES`.
+* Sort on database values: a column, or a simple aggregate of columns (MIN, first by position, joined as displayed). Don't rebuild Ruby rendering (helpers, `taxonomy`) in SQL; for a cell assembled in Ruby, sort on a simple value it visibly contains (e.g. its taxon, see `Queries::Sort::ObjectOtu`), or offer no sort.
+* `User` is not reachable for sorting, except `User#name` as the final column. Sort order leaks information about hidden values, and unlike project data, `User` rows are cross-project and mostly not visible to project members. See the comment on `Queries::Sort::Resolver::BLACKLISTED_CLASSES`.
 * Credential-shaped, encrypted, and unorderable (`xml`, `json`) columns are excluded.
 * Sort joins must let Postgres drop them from the pagination `COUNT`: join to a primary key, or collapse a `LATERAL` with an aggregate (`MIN`, `(array_agg(... ORDER BY ...))[1]`), never `LIMIT 1`. A `has_one` sort needs a unique index on the target's foreign key (+ type).
-* `spec/lib/queries/sortable_columns_spec.rb` runs `EXPLAIN` on every key of every filter, and checks that sorting adds no joins to the count.
+* `spec/lib/queries/sort/columns_spec.rb` runs `EXPLAIN` on every key of every `Sort` class, and checks that sorting adds no joins to the count.
 
 ###  Use of `.distinct`
 The `.distinct` clause should be assigned at the facet level, if necessary.  We've removed it at the final stage primarily because `.distinct` doesn't work on our current JSON storage formats. Once we migrate them to JSONB (perhaps), we could return to using distinct at the `.all` level, which would be preferred.

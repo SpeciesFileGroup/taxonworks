@@ -1,14 +1,7 @@
 module Queries
   module Depiction
     class Filter < Query::Filter
-      include Queries::Concerns::SortResolver
       include Queries::Concerns::Tags
-
-      def self.sortable_columns_uncached
-        sortable_direct_columns.merge(
-          'created_by' => association(:creator, :name)
-        )
-      end
 
       # We can't use distinct in SQL on XML column types,
       # this may come back to bite us if we try to use

@@ -16,8 +16,6 @@ module Queries
       include Queries::Concerns::Geo
       include Queries::Concerns::Notes
       include Queries::Concerns::Protocols
-      include Queries::Concerns::SortResolver
-      include Queries::CollectingEvent::SortableFilterColumns
       include Queries::Concerns::Tags
       include Queries::Helpers
 

@@ -528,8 +528,7 @@ describe Queries::Person::Filter, type: :model, group: :people do
     let!(:ps_z) { Person.create!(last_name: 'Zebra', first_name: 'Alice') }
 
     def sorted_ids(sort_key)
-      Queries::Person::Filter.new(sort: sort_key)
-        .all.where(id: [ps_a.id, ps_z.id]).pluck(:id)
+      Queries::Pager.new(Queries::Person::Filter.new(sort: sort_key).all, sort: sort_key).ordered.where(id: [ps_a.id, ps_z.id]).pluck(:id)
     end
 
     specify 'sort=last_name orders alphabetically' do

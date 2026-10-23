@@ -6,8 +6,6 @@ module Queries
       include Queries::Concerns::Confidences
       include Queries::Concerns::DataAttributes
       include Queries::Concerns::Depictions
-      include Queries::Concerns::SortResolver
-      include Queries::Content::SortableFilterColumns
 
       PARAMS = [
         :exact,
@@ -19,7 +17,6 @@ module Queries
         otu_id: [],
         content_id: [],
       ].freeze
-
 
       # @return [Boolean, nil]
       attr_accessor :exact

@@ -80,8 +80,7 @@ describe ::Queries::Content::Filter, type: :model do
     let!(:c_z) { FactoryBot.create(:valid_content, text: 'Zeta text') }
 
     def sorted_ids(sort_key)
-      Queries::Content::Filter.new(sort: sort_key)
-        .all.where(id: [c_a.id, c_z.id]).pluck(:id)
+      Queries::Pager.new(Queries::Content::Filter.new(sort: sort_key).all, sort: sort_key).ordered.where(id: [c_a.id, c_z.id]).pluck(:id)
     end
 
     specify 'sort=text orders alphabetically' do

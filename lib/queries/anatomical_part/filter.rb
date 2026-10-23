@@ -5,8 +5,6 @@ module Queries
       include Queries::Concerns::Citations
       include Queries::Concerns::DataAttributes
       include Queries::Concerns::PreparationTypes
-      include Queries::Concerns::SortResolver
-      include Queries::AnatomicalPart::SortableFilterColumns
 
       PARAMS = [
         :anatomical_part_id,

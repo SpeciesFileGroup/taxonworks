@@ -670,8 +670,7 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
     }
 
     def sorted_ids(sort_key)
-      Queries::Image::Filter.new(sort: sort_key)
-        .all.where(id: [img_a.id, img_z.id]).pluck(:id)
+      Queries::Pager.new(Queries::Image::Filter.new(sort: sort_key).all, sort: sort_key).ordered.where(id: [img_a.id, img_z.id]).pluck(:id)
     end
 
     specify 'sort=user_file_name orders alphabetically' do

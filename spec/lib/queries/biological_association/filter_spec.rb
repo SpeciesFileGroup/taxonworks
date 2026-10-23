@@ -554,13 +554,13 @@ describe Queries::BiologicalAssociation::Filter, type: :model, group: [:filter] 
 
   context 'sort param' do
     specify 'sort=id orders ascending by id' do
-      q = query.new(sort: 'id')
-      expect(q.all.map(&:id)).to eq([ba1.id, ba2.id, ba3.id])
+      q = Queries::Pager.new(query.new(sort: 'id').all, sort: 'id')
+      expect(q.ordered.map(&:id)).to eq([ba1.id, ba2.id, ba3.id])
     end
 
     specify 'sort=-id orders descending by id' do
-      q = query.new(sort: '-id')
-      expect(q.all.map(&:id)).to eq([ba3.id, ba2.id, ba1.id])
+      q = Queries::Pager.new(query.new(sort: '-id').all, sort: '-id')
+      expect(q.ordered.map(&:id)).to eq([ba3.id, ba2.id, ba1.id])
     end
 
     specify 'sort=-updated_at orders by updated_at desc' do
@@ -568,24 +568,24 @@ describe Queries::BiologicalAssociation::Filter, type: :model, group: [:filter] 
       ba3.touch
       ba2.touch
       ba1.touch
-      q = query.new(sort: '-updated_at')
-      expect(q.all.map(&:id)).to eq([ba1.id, ba2.id, ba3.id])
+      q = Queries::Pager.new(query.new(sort: '-updated_at').all, sort: '-updated_at')
+      expect(q.ordered.map(&:id)).to eq([ba1.id, ba2.id, ba3.id])
     end
 
     specify 'unknown sort keys are ignored' do
-      q = query.new(sort: 'no_such_column,-id')
-      expect(q.all.map(&:id)).to eq([ba3.id, ba2.id, ba1.id])
+      q = Queries::Pager.new(query.new(sort: 'no_such_column,-id').all, sort: 'no_such_column,-id')
+      expect(q.ordered.map(&:id)).to eq([ba3.id, ba2.id, ba1.id])
     end
 
     specify 'sort works alongside filter facets' do
-      q = query.new(biological_relationship_id: [r1.id], sort: '-id')
-      expect(q.all.map(&:id)).to eq([ba2.id, ba1.id])
+      q = Queries::Pager.new(query.new(biological_relationship_id: [r1.id], sort: '-id').all, biological_relationship_id: [r1.id], sort: '-id')
+      expect(q.ordered.map(&:id)).to eq([ba2.id, ba1.id])
     end
 
     specify 'sort param survives via ActionController::Parameters' do
       p = ActionController::Parameters.new(sort: '-id')
-      q = query.new(p)
-      expect(q.all.map(&:id)).to eq([ba3.id, ba2.id, ba1.id])
+      q = Queries::Pager.new(query.new(p).all, p)
+      expect(q.ordered.map(&:id)).to eq([ba3.id, ba2.id, ba1.id])
     end
 
     context 'derived columns' do
@@ -604,17 +604,19 @@ describe Queries::BiologicalAssociation::Filter, type: :model, group: [:filter] 
           biological_relationship: r_alpha
         )
 
-        q = query.new(
+        q = Queries::Pager.new(query.new(
           biological_association_id: [ba_a.id, ba_z.id],
           sort: 'biological_relationship'
-        )
-        expect(q.all.map(&:id)).to eq([ba_a.id, ba_z.id])
+        ).all, biological_association_id: [ba_a.id, ba_z.id],
+          sort: 'biological_relationship')
+        expect(q.ordered.map(&:id)).to eq([ba_a.id, ba_z.id])
 
-        q = query.new(
+        q = Queries::Pager.new(query.new(
           biological_association_id: [ba_a.id, ba_z.id],
           sort: '-biological_relationship'
-        )
-        expect(q.all.map(&:id)).to eq([ba_z.id, ba_a.id])
+        ).all, biological_association_id: [ba_a.id, ba_z.id],
+          sort: '-biological_relationship')
+        expect(q.ordered.map(&:id)).to eq([ba_z.id, ba_a.id])
       end
 
       context 'taxonomy sorts' do
@@ -650,19 +652,21 @@ describe Queries::BiologicalAssociation::Filter, type: :model, group: [:filter] 
         }
 
         specify 'sort=object_taxonomy_genus orders BAs by object OTU genus name' do
-          q = query.new(
+          q = Queries::Pager.new(query.new(
             biological_association_id: [ba_zus_obj.id, ba_aus_obj.id],
             sort: 'object_taxonomy_genus'
-          )
-          expect(q.all.map(&:id)).to eq([ba_aus_obj.id, ba_zus_obj.id])
+          ).all, biological_association_id: [ba_zus_obj.id, ba_aus_obj.id],
+            sort: 'object_taxonomy_genus')
+          expect(q.ordered.map(&:id)).to eq([ba_aus_obj.id, ba_zus_obj.id])
         end
 
         specify 'sort=-object_taxonomy_family orders BAs by object family desc' do
-          q = query.new(
+          q = Queries::Pager.new(query.new(
             biological_association_id: [ba_zus_obj.id, ba_aus_obj.id],
             sort: '-object_taxonomy_family'
-          )
-          expect(q.all.map(&:id)).to eq([ba_zus_obj.id, ba_aus_obj.id])
+          ).all, biological_association_id: [ba_zus_obj.id, ba_aus_obj.id],
+            sort: '-object_taxonomy_family')
+          expect(q.ordered.map(&:id)).to eq([ba_zus_obj.id, ba_aus_obj.id])
         end
 
         specify 'multi-key sort: family asc, then genus desc' do
@@ -675,21 +679,23 @@ describe Queries::BiologicalAssociation::Filter, type: :model, group: [:filter] 
             biological_relationship: r1
           )
 
-          q = query.new(
+          q = Queries::Pager.new(query.new(
             biological_association_id: [ba_zus_obj.id, ba_aus_obj.id, ba_bus.id],
             sort: 'object_taxonomy_family,-object_taxonomy_genus'
-          )
+          ).all, biological_association_id: [ba_zus_obj.id, ba_aus_obj.id, ba_bus.id],
+            sort: 'object_taxonomy_family,-object_taxonomy_genus')
           # Aulidae before Xulidae; within Aulidae: Bus desc-before-Aus
-          expect(q.all.map(&:id)).to eq([ba_bus.id, ba_aus_obj.id, ba_zus_obj.id])
+          expect(q.ordered.map(&:id)).to eq([ba_bus.id, ba_aus_obj.id, ba_zus_obj.id])
         end
 
         specify 'BAs whose object has no taxonomy sort to the end' do
           # ba3 has an undetermined Specimen (o3) as object
-          q = query.new(
+          q = Queries::Pager.new(query.new(
             biological_association_id: [ba3.id, ba_aus_obj.id],
             sort: 'object_taxonomy_genus'
-          )
-          expect(q.all.map(&:id)).to eq([ba_aus_obj.id, ba3.id])
+          ).all, biological_association_id: [ba3.id, ba_aus_obj.id],
+            sort: 'object_taxonomy_genus')
+          expect(q.ordered.map(&:id)).to eq([ba_aus_obj.id, ba3.id])
         end
 
         # Sorted on the valid name of the object's OTU (a CollectionObject's
@@ -724,11 +730,12 @@ describe Queries::BiologicalAssociation::Filter, type: :model, group: [:filter] 
             ba_synonym = ba_with_object(Otu.create!(taxon_name: species_zus))
 
             expect(family_shown(ba_synonym)).to eq('Aulidae')
-            q = query.new(
+            q = Queries::Pager.new(query.new(
               biological_association_id: [ba_zus_obj.id, ba_synonym.id],
               sort: 'object_taxonomy_family'
-            )
-            expect(q.all.map(&:id)).to eq([ba_synonym.id, ba_zus_obj.id])
+            ).all, biological_association_id: [ba_zus_obj.id, ba_synonym.id],
+              sort: 'object_taxonomy_family')
+            expect(q.ordered.map(&:id)).to eq([ba_synonym.id, ba_zus_obj.id])
           end
 
           specify 'a CollectionObject uses its current determination' do
@@ -737,20 +744,22 @@ describe Queries::BiologicalAssociation::Filter, type: :model, group: [:filter] 
             ba_co = ba_with_object(co)
 
             expect(family_shown(ba_co)).to eq('Aulidae')
-            q = query.new(
+            q = Queries::Pager.new(query.new(
               biological_association_id: [ba_zus_obj.id, ba_co.id],
               sort: 'object_taxonomy_family'
-            )
-            expect(q.all.map(&:id)).to eq([ba_co.id, ba_zus_obj.id])
+            ).all, biological_association_id: [ba_zus_obj.id, ba_co.id],
+              sort: 'object_taxonomy_family')
+            expect(q.ordered.map(&:id)).to eq([ba_co.id, ba_zus_obj.id])
           end
 
           specify 'an undetermined CollectionObject sorts last' do
             ba_co = ba_with_object(Specimen.create!)
-            q = query.new(
+            q = Queries::Pager.new(query.new(
               biological_association_id: [ba_co.id, ba_zus_obj.id],
               sort: 'object_taxonomy_family'
-            )
-            expect(q.all.map(&:id)).to eq([ba_zus_obj.id, ba_co.id])
+            ).all, biological_association_id: [ba_co.id, ba_zus_obj.id],
+              sort: 'object_taxonomy_family')
+            expect(q.ordered.map(&:id)).to eq([ba_zus_obj.id, ba_co.id])
           end
         end
       end
@@ -781,19 +790,21 @@ describe Queries::BiologicalAssociation::Filter, type: :model, group: [:filter] 
         }
 
         specify 'sort=object_object_tag orders OTU objects by taxon_name.cached' do
-          q = query.new(
+          q = Queries::Pager.new(query.new(
             biological_association_id: [ba_obj_zus.id, ba_obj_aus.id],
             sort: 'object_object_tag'
-          )
-          expect(q.all.map(&:id)).to eq([ba_obj_aus.id, ba_obj_zus.id])
+          ).all, biological_association_id: [ba_obj_zus.id, ba_obj_aus.id],
+            sort: 'object_object_tag')
+          expect(q.ordered.map(&:id)).to eq([ba_obj_aus.id, ba_obj_zus.id])
         end
 
         specify 'sort=-object_object_tag desc' do
-          q = query.new(
+          q = Queries::Pager.new(query.new(
             biological_association_id: [ba_obj_zus.id, ba_obj_aus.id],
             sort: '-object_object_tag'
-          )
-          expect(q.all.map(&:id)).to eq([ba_obj_zus.id, ba_obj_aus.id])
+          ).all, biological_association_id: [ba_obj_zus.id, ba_obj_aus.id],
+            sort: '-object_object_tag')
+          expect(q.ordered.map(&:id)).to eq([ba_obj_zus.id, ba_obj_aus.id])
         end
 
         specify 'falls back to otus.name when taxon_name is absent' do
@@ -804,11 +815,12 @@ describe Queries::BiologicalAssociation::Filter, type: :model, group: [:filter] 
             biological_relationship: r1
           )
           # 'Aus' (cached) < 'Mus' (name) < 'Zus' (cached)
-          q = query.new(
+          q = Queries::Pager.new(query.new(
             biological_association_id: [ba_obj_zus.id, ba_obj_aus.id, ba_no_tn.id],
             sort: 'object_object_tag'
-          )
-          expect(q.all.map(&:id)).to eq([ba_obj_aus.id, ba_no_tn.id, ba_obj_zus.id])
+          ).all, biological_association_id: [ba_obj_zus.id, ba_obj_aus.id, ba_no_tn.id],
+            sort: 'object_object_tag')
+          expect(q.ordered.map(&:id)).to eq([ba_obj_aus.id, ba_no_tn.id, ba_obj_zus.id])
         end
 
         specify 'sort=subject_object_tag works symmetrically' do
@@ -822,11 +834,12 @@ describe Queries::BiologicalAssociation::Filter, type: :model, group: [:filter] 
             biological_association_object: o1,
             biological_relationship: r1
           )
-          q = query.new(
+          q = Queries::Pager.new(query.new(
             biological_association_id: [ba_subj_zus.id, ba_subj_aus.id],
             sort: 'subject_object_tag'
-          )
-          expect(q.all.map(&:id)).to eq([ba_subj_aus.id, ba_subj_zus.id])
+          ).all, biological_association_id: [ba_subj_zus.id, ba_subj_aus.id],
+            sort: 'subject_object_tag')
+          expect(q.ordered.map(&:id)).to eq([ba_subj_aus.id, ba_subj_zus.id])
         end
 
         # The tag shows the CollectionObject's identifier, then its
@@ -849,11 +862,12 @@ describe Queries::BiologicalAssociation::Filter, type: :model, group: [:filter] 
             biological_association_object: co_a,
             biological_relationship: r1
           )
-          q = query.new(
+          q = Queries::Pager.new(query.new(
             biological_association_id: [ba_co_z.id, ba_co_a.id],
             sort: 'object_object_tag'
-          )
-          expect(q.all.map(&:id)).to eq([ba_co_a.id, ba_co_z.id])
+          ).all, biological_association_id: [ba_co_z.id, ba_co_a.id],
+            sort: 'object_object_tag')
+          expect(q.ordered.map(&:id)).to eq([ba_co_a.id, ba_co_z.id])
         end
 
         specify 'undetermined CollectionObject objects sort last' do
@@ -863,11 +877,12 @@ describe Queries::BiologicalAssociation::Filter, type: :model, group: [:filter] 
             biological_association_object: co,
             biological_relationship: r1
           )
-          q = query.new(
+          q = Queries::Pager.new(query.new(
             biological_association_id: [ba_co.id, ba_obj_zus.id],
             sort: 'object_object_tag'
-          )
-          expect(q.all.map(&:id)).to eq([ba_obj_zus.id, ba_co.id])
+          ).all, biological_association_id: [ba_co.id, ba_obj_zus.id],
+            sort: 'object_object_tag')
+          expect(q.ordered.map(&:id)).to eq([ba_obj_zus.id, ba_co.id])
         end
       end
 
@@ -906,21 +921,23 @@ describe Queries::BiologicalAssociation::Filter, type: :model, group: [:filter] 
         }
 
         specify 'sort=biological_property_subject orders by the SubjectType property' do
-          q = query.new(
+          q = Queries::Pager.new(query.new(
             biological_association_id: [ba_z_subj.id, ba_a_subj.id],
             sort: 'biological_property_subject'
-          )
+          ).all, biological_association_id: [ba_z_subj.id, ba_a_subj.id],
+            sort: 'biological_property_subject')
           # ba_a_subj has Alpha, ba_z_subj has Zeta
-          expect(q.all.map(&:id)).to eq([ba_a_subj.id, ba_z_subj.id])
+          expect(q.ordered.map(&:id)).to eq([ba_a_subj.id, ba_z_subj.id])
         end
 
         specify 'sort=biological_property_object uses the ObjectType property' do
-          q = query.new(
+          q = Queries::Pager.new(query.new(
             biological_association_id: [ba_z_subj.id, ba_a_subj.id],
             sort: 'biological_property_object'
-          )
+          ).all, biological_association_id: [ba_z_subj.id, ba_a_subj.id],
+            sort: 'biological_property_object')
           # ba_z_subj has Alpha as object, ba_a_subj has Zeta as object — reversed
-          expect(q.all.map(&:id)).to eq([ba_z_subj.id, ba_a_subj.id])
+          expect(q.ordered.map(&:id)).to eq([ba_z_subj.id, ba_a_subj.id])
         end
       end
     end

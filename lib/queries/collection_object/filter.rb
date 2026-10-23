@@ -12,8 +12,6 @@ module Queries
       include Queries::Concerns::Depictions
       include Queries::Concerns::Notes
       include Queries::Concerns::Protocols
-      include Queries::Concerns::SortResolver
-      include Queries::CollectionObject::SortableFilterColumns
       include Queries::Concerns::Tags
 
       PARAMS = [
@@ -82,6 +80,7 @@ module Queries
         preparation_type_id: [],
         taxon_name_id: [],
       ].inject([{}]) { |ary, k| k.is_a?(Hash) ? ary.last.merge!(k) : ary.unshift(k); ary }.freeze
+
 
       # @return [Array]
       #   of ImportDataset ids

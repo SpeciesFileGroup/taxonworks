@@ -124,20 +124,6 @@ module Queries
     #  !! use the false pattern only for internal calls (e.g. rewriting
     attr_accessor :project_id
 
-    # Apply pagination within Filter scope
-    #   true - apply per and page
-    #   false, nil - ignored
-    attr_accessor :paginate
-
-    # @return Integer, nil
-    #   required if paginate == true
-    attr_accessor :page
-
-    # @return Integer, nil
-    #   paginate must equal true
-    #   page must be !nil?
-    attr_accessor :per
-
     # @return [Array]
     # @params object_global_id
     #   Rails global ids.
@@ -226,14 +212,6 @@ module Queries
     attr_accessor :sound_query
 
     # @return Boolean
-    #   Applies an order on updated.
-    attr_accessor :recent
-
-    # @return symbol :created_at, :updated_at
-    #   defaults to :updated_at if blank
-    attr_accessor :recent_target
-
-    # @return Boolean
     #   When true api_except_params is applied and
     #   other restrictions are placed:
     #     - :venn param is ignored
@@ -255,38 +233,6 @@ module Queries
     # When false, the B venn query will use only the single page indicated by
     # whatever paging parameters are set on the query.
     attr_accessor :venn_ignore_pagination
-
-    # @return symbol
-    #   must match a existing parameter name (used to check if values provided)
-    #
-    # @param order_by [String, Symbol]
-    #   the kind of sort to apply.
-    #
-    # Supported values:
-    #   * `match_identifiers` - sort by the order of the identifiers in provided
-    #
-    # !! Does not sub-sort
-    #
-    attr_accessor :order_by
-
-    # @return [String, Array<String>, nil]
-    # Multi-column sort param, JSON:API format.
-    #
-    #   sort=-updated_at,object.family,-object.genus
-    #
-    # Each column is one entry, optionally prefixed with `-` for descending
-    # or `+`/none for ascending. Comma-separated when sent as a single string;
-    # also accepts an Array of such strings.
-    #
-    # Column keys must be present in subclass's `.sortable_columns` whitelist;
-    # unknown keys are silently ignored. Only the first MAX_SORT_KEYS entries
-    # are honored; the rest are silently dropped (each key can independently
-    # add a join, so an unbounded count is an easy way to force an
-    # expensive query).
-    attr_accessor :sort
-
-    # See `sort` above.
-    MAX_SORT_KEYS = 5
 
     # @return Hash
     #  the parsed/permitted params
@@ -312,9 +258,6 @@ module Queries
       # Reference to query_params, i.e. always permitted
       @api = boolean_param(query_params, :api)
 
-      @recent = boolean_param(query_params, :recent)
-      @recent_target = query_params[:recent_target]
-
       @object_global_id = query_params[:object_global_id]
 
       @venn = query_params[:venn]
@@ -334,13 +277,6 @@ module Queries
                       query_params[:project_id]
                     end
 
-      @paginate = boolean_param(query_params, :paginate)
-      @per = query_params[:per]
-      @page = query_params[:page]
-
-      @order_by = query_params[:order_by]
-      @sort = query_params[:sort]
-
       @roll_call = false
 
       # After this point, if you started with ActionController::Parameters,
@@ -359,109 +295,12 @@ module Queries
       set_user_dates(params)
     end
 
-    def order_by
-      return nil if @order_by.blank?
-      @order_by.to_sym
-    end
-
-    # @return [Array<Hash>] structured form of the `sort` param, truncated to
-    #   MAX_SORT_KEYS entries.
-    #   e.g. [{ key: 'updated_at', dir: :desc }, { key: 'id', dir: :asc }]
-    def order_by_columns
-      return [] if @sort.blank?
-      Array(@sort)
-        .flat_map { |s| s.to_s.split(',') }
-        .map(&:strip)
-        .reject(&:blank?)
-        .first(MAX_SORT_KEYS)
-        .map do |entry|
-          case entry[0]
-          when '-'
-            { key: entry[1..], dir: :desc }
-          when '+'
-            { key: entry[1..], dir: :asc }
-          else
-            { key: entry, dir: :asc }
-          end
-        end
-    end
-
-    # Subclasses override sortable_columns_uncached (not this method) to
-    # whitelist sortable columns. Each hash value is a lambda:
-    #   'column.key' => ->(query, dir) { query.order(...) }
-    # Unknown keys received in `sort` are silently ignored.
-    #
-    # Memoized per class: sortable_columns_uncached is a pure function of
-    # the class's own schema/associations (reflection, column_names), so
-    # it's the same for the lifetime of the class -- building it can cost
-    # several milliseconds for wide/joined filters (see SortResolver), and
-    # there's no reason to pay that more than once per class per process.
-    def self.sortable_columns
-      @sortable_columns ||= sortable_columns_uncached
-    end
-
-    def self.sortable_columns_uncached
-      {}
-    end
-
-    # The flat list of keys the frontend can use to sort. Exposed via
-    # QueriesController#sortable_columns so the UI can hide sort buttons
-    # for columns that aren't backend-sortable.
-    def self.sortable_columns_index
-      sortable_columns.keys
-    end
-
-    # @return [ActiveRecord::Relation]
-    #
-    # Rails reads table names out of string ORDER BY clauses (e.g.
-    # `sort_identifiers.val`) into `references_values`, and when a caller
-    # later adds `includes` it takes those for included tables and switches
-    # to a JOIN-based eager load (a DISTINCT ids query plus a matching COUNT,
-    # each joined to every included has_many) - that's slow and unnecessary.
-    # Sort joins are self-contained SQL and never refer to included
-    # associations, so the references they add are dropped here.
-    def apply_sortable_columns(q)
-      references = q.references_values
-
-      apply_sort_by_key = self.class.sortable_columns
-      sorted = false
-      order_by_columns.each do |c|
-        apply_sort = apply_sort_by_key[c[:key]]
-        next if apply_sort.nil?
-        # Returns a new relation with the sort's joins and ORDER BY added;
-        # its references_values now also includes the sort's aliases, e.g.
-        # ['sort_identifiers'], which we'll drop all at once later.
-        q = apply_sort.call(q, c[:dir])
-        sorted = true
-      end
-
-      # Tiebreak on id: rows with equal sort values otherwise come back in
-      # any order, and paging through them can skip or repeat rows.
-      q = q.order(table[:id].asc) if sorted
-
-      # Put back the list saved above. references_values is not SQL: the
-      # sort joins and ORDER BY stay as built, only the table names Rails
-      # inferred from the ORDER BY strings are dropped. `references_values=`
-      # changes the relation it's called on, so work on a copy (spawn) rather
-      # than the relation the last lambda returned.
-      q = q.spawn
-      q.references_values = references
-      q
-    end
-
     def object_global_id
       [@object_global_id].flatten.compact
     end
 
     def project_id
       [@project_id].flatten.compact
-    end
-
-    def recent_target
-      return :updated_at if @recent_target.blank?
-      r = @recent_target.to_s.downcase.to_sym
-      return :updated_at unless [:updated_at, :created_at].include?(r)
-      r
     end
 
     def venn_mode
@@ -619,9 +458,6 @@ module Queries
       h.unshift(:venn_ignore_pagination)
       h.unshift(:venn_mode)
       h.unshift(:venn)
-      h.unshift(:per)
-      h.unshift(:page)
-      h.unshift(:paginate)
 
       # Rails' permit() format requires a specific structure:
       #   [:scalar_param1, :scalar_param2, {array_or_nested: [...]}]
@@ -657,9 +493,6 @@ module Queries
         p.unshift(:venn_ignore_pagination)
         p.unshift(:venn_mode)
         p.unshift(:venn)
-        p.unshift(:per)
-        p.unshift(:page)
-        p.unshift(:paginate)
 
         if !p.last.kind_of?(Hash)
           p << {}
@@ -729,53 +562,6 @@ module Queries
       end
 
       true
-    end
-
-    def paging_state
-      if paginate
-        {
-          paginate: true,
-          per:,
-          page:,
-          # This shouldn't be here, but see order_by processing for identifiers
-          # in #all.
-          ordered: order_by.present? || order_by_columns.any?
-        }
-      else
-        { paginate: false }
-      end
-    end
-
-    def disable_paging
-      r = paging_state
-
-      self.paginate = false
-
-      r
-    end
-
-    # @param query [ActiveQuery]
-    def set_paging(query)
-      self.class.set_paging(query, paging_state)
-    end
-
-    # @param query [ActiveQuery]
-    # @param state [Hash] see #paging_state
-    # @return [ActiveQuery] query with paging set to state
-    def self.set_paging(query, state)
-      return query if !state
-      state = state.symbolize_keys
-
-      if state[:paginate]
-        if state[:ordered]
-          # Order has already been set.
-          query = query.page(state[:page]).per(state[:per])
-        else
-          query = query.order(:id).page(state[:page]).per(state[:per])
-        end
-      end
-
-      query
     end
 
     # Returns id= facet, automatically
@@ -923,10 +709,25 @@ module Queries
     end
 
     def apply_venn(query)
-      Queries.venn(query, venn_query.all, venn_mode)
+      Queries.venn(query, venn_set, venn_mode)
+    end
+
+    # The B query of a venn. Unless venn_ignore_pagination, a B with paging
+    # params contributes only that page (in its order, see Queries::Pager).
+    def venn_set
+      b = venn_query
+      p = venn_params
+      return b.all if venn_ignore_pagination || (p.keys & %w[page per]).empty?
+
+      ::Queries::Pager.new(b.all, p).all
     end
 
     def venn_query
+      self.class.new(ActionController::Parameters.new(venn_params))
+    end
+
+    # @return [Hash] the params of the `venn` URL
+    def venn_params
       u = ::Addressable::URI.parse(venn).query
       # Brackets may be multi-encoded
       t = nil
@@ -938,12 +739,7 @@ module Queries
         i += 1
       end
 
-      p = ::Rack::Utils.parse_nested_query(u) # nested supports brackets
-      p = p.except('per', 'page', 'paginate') if venn_ignore_pagination
-
-      a = ActionController::Parameters.new(p)
-
-      self.class.new(a)
+      ::Rack::Utils.parse_nested_query(u) # nested supports brackets
     end
 
     # @return Boolean
@@ -1005,31 +801,11 @@ module Queries
         q = apply_venn(q)
       end
 
-      # TODO: collides with recent, and needs isolation/generic application
-      # probably through native .order() use.
-      # Order in general likely belongs outside the scope of filters, but
-      # see this param use, where we depend on the incoming values
-      #
-      # See spec/lib/queries/otu/filter_spec.rb for tests
-
-      # See lib/queries/concerns/identifiers.rb
-      if order_by
-        q = match_identifier_order_by(q)
-      elsif order_by_columns.any?
-        q = apply_sortable_columns(q)
-      end
-
-      if recent
-        q = referenced_klass.from(q.all, table.name).order(recent_target => :desc)
-      end
-
       if api
         if referenced_klass.column_names.include?('is_public')
           q = q.where(is_public: [nil, true])
         end
       end
-
-      q = set_paging(q)
 
       # TODO: canonically address whether or not to use `.distinct` at this point, we should be able to, however
       # some incoming queries may have joins/group/etc. alone?! I.e. why can't we?

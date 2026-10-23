@@ -57,9 +57,9 @@ describe Queries::CollectingEvent::Filter, type: :model, group: [:collecting_eve
     expect(query.all).to contain_exactly(ce1)
   end
 
-  specify '#recent' do
-    query.recent = true
-    expect(query.all.map(&:id)).to contain_exactly(ce2.id, ce1.id)
+  specify 'recent (via Queries::Pager)' do
+    ce1.touch
+    expect(Queries::Pager.new(query.all, recent: true).ordered.map(&:id)).to eq([ce1.id, ce2.id])
   end
 
   context 'otus' do
@@ -260,8 +260,7 @@ describe Queries::CollectingEvent::Filter, type: :model, group: [:collecting_eve
 
   context 'sort param' do
     def sorted_ids(sort_key)
-      Queries::CollectingEvent::Filter.new(sort: sort_key)
-        .all.where(id: [ce1.id, ce2.id]).pluck(:id)
+      Queries::Pager.new(Queries::CollectingEvent::Filter.new(sort: sort_key).all, sort: sort_key).ordered.where(id: [ce1.id, ce2.id]).pluck(:id)
     end
 
     specify 'sort=verbatim_locality orders alphabetically' do

@@ -10,9 +10,6 @@ module Queries
       include Queries::Concerns::Notes
       include Queries::Concerns::Notes
       include Queries::Concerns::Protocols
-      include Queries::Concerns::Sortable
-      include Queries::Concerns::SortResolver
-      include Queries::Observation::SortableFilterColumns
       include Queries::Concerns::Tags
       include Queries::Concerns::Geo
 
@@ -52,7 +49,6 @@ module Queries
         sound_id: [],
         taxon_name_id: [],
       ].freeze
-
 
       # @return Array
       attr_accessor :observation_id

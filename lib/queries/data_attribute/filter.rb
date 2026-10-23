@@ -3,15 +3,7 @@ module Queries
     class Filter < Query::Filter
 
       include Concerns::Polymorphic
-      include Queries::Concerns::SortResolver
       polymorphic_klass(::DataAttribute)
-
-      def self.sortable_columns_uncached
-        sortable_direct_columns.merge(
-          'created_by'                      => association(:creator, :name),
-          'controlled_vocabulary_term.name' => association(:predicate, :name)
-        )
-      end
 
       PARAMS = [
         *::DataAttribute.related_foreign_keys.map(&:to_sym),

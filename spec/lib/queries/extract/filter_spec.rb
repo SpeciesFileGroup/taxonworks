@@ -133,8 +133,7 @@ describe Queries::Extract::Filter, type: :model, group: [:dna, :collection_objec
     }
 
     def sorted_ids(sort_key)
-      Queries::Extract::Filter.new(sort: sort_key)
-        .all.where(id: [e_a.id, e_z.id]).pluck(:id)
+      Queries::Pager.new(Queries::Extract::Filter.new(sort: sort_key).all, sort: sort_key).ordered.where(id: [e_a.id, e_z.id]).pluck(:id)
     end
 
     specify 'sort=verbatim_anatomical_origin orders alphabetically' do

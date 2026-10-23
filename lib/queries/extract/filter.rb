@@ -8,8 +8,6 @@ module Queries
       include Queries::Concerns::DataAttributes
       include Queries::Concerns::DateRanges
       include Queries::Concerns::Protocols
-      include Queries::Concerns::SortResolver
-      include Queries::Extract::SortableFilterColumns
       include Queries::Concerns::Tags
       include Queries::Helpers
 
@@ -33,7 +31,6 @@ module Queries
         repository_id: [],
         taxon_name_id: [],
       ].freeze
-
 
       # @return [Array of Repository#id]
       attr_accessor :repository_id

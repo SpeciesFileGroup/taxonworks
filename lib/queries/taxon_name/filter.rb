@@ -8,8 +8,6 @@ module Queries
       include Queries::Concerns::DataAttributes
       include Queries::Concerns::Depictions
       include Queries::Concerns::Notes
-      include Queries::Concerns::SortResolver
-      include Queries::TaxonName::SortableFilterColumns
       include Queries::Concerns::Sounds
       include Queries::Concerns::Tags
 
@@ -42,7 +40,6 @@ module Queries
         :otus,
         :rank,
         :relation_to_relationship,
-        :sort,
         :taxon_name_relationship_target,
         :synonymify,
         :taxon_name_author_id_or,
@@ -77,7 +74,6 @@ module Queries
         taxon_name_relationship_type_either: [],
         type: [],
       ].freeze
-
 
       # @param ancestors [Boolean, 'true', 'false', nil]
       # @return Boolean
@@ -322,11 +318,6 @@ module Queries
       #   'true' - treat the ids in taxon_name_author_id as "and" (only TaxonNames with all and only all will match)
       attr_accessor :taxon_name_author_id_or
 
-      # @return [String, nil]
-      # @param sort [String, nil]
-      #   one of :classification, :alphabetical
-      attr_accessor :sort
-
       # @return [Array]
       #   taxon_name_ids for which all Combinations will be returned
       attr_accessor :combination_taxon_name_id
@@ -387,7 +378,6 @@ module Queries
         @parent_id = params[:parent_id]
         @rank = params[:rank]
         @relation_to_relationship = params[:relation_to_relationship]
-        @sort = params[:sort]
         @synonymify = boolean_param(params, :synonymify)
         @taxon_name_author_id = params[:taxon_name_author_id]
         @taxon_name_author_id_or = boolean_param(params, :taxon_name_author_id_or)
@@ -1112,29 +1102,8 @@ module Queries
         ::TaxonName.from('(' + s + ') as taxon_names')
       end
 
-      def order_clause(query)
-        case sort
-        when 'alphabetical'
-          ::TaxonName.select('*').from(
-            query.order('taxon_names.cached'), :inner_query
-          )
-        when 'classification'
-          ::TaxonName.select('*').from(
-            query
-              .joins('INNER JOIN taxon_name_hierarchies ON taxon_names.id = taxon_name_hierarchies.descendant_id')
-              .order('taxon_name_hierarchies.generations, taxon_name_hierarchies.ancestor_id, taxon_names.cached'),
-            :inner_query
-          )
-        else
-          query
-        end
-      end
-
       # @return [ActiveRecord::Relation]
       def all(nil_empty = false)
-        # Everything below subqueries on q in some way, so q can't have paging
-        # enabled.
-        paging_state = disable_paging
         q = super
 
         # Order matters, use this first to go up
@@ -1144,14 +1113,6 @@ module Queries
         q = validify_result(q) if validify
         q = combinationify_result(q) if combinationify
         q = synonimify_result(q) if synonymify
-
-        # Then sort
-        if sort
-          q = order_clause(q)
-          paging_state[:ordered] = true
-        end
-
-        q = self.class.set_paging(q, paging_state)
 
         q
       end

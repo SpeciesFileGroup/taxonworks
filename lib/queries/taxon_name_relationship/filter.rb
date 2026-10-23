@@ -5,8 +5,6 @@ module Queries
 
       include Queries::Concerns::Citations
       include Queries::Concerns::Notes
-      include Queries::Concerns::SortResolver
-      include Queries::TaxonNameRelationship::SortableFilterColumns
       include Queries::Concerns::Verifiers
 
       PARAMS = [
@@ -26,7 +24,6 @@ module Queries
         taxon_name_relationship_set: [],
         taxon_name_relationship_type: [],
       ].freeze
-
 
       # @param ancestors [Boolean, nil]
       #   Operate on ancestors of taxon_name_ids if true

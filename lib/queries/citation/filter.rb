@@ -5,15 +5,7 @@ module Queries
       include Queries::Helpers
 
       include Concerns::Polymorphic
-      include Queries::Concerns::SortResolver
       polymorphic_klass(::Citation)
-
-      def self.sortable_columns_uncached
-        sortable_direct_columns.merge(
-          'created_by'    => association(:creator, :name),
-          'source.cached' => association(:source, :cached)
-        )
-      end
 
       PARAMS = [
         *::Citation.related_foreign_keys.map(&:to_sym),

@@ -4,8 +4,6 @@ module Queries
       ATTRIBUTES = (::Namespace.core_attributes - %w{is_virtual}).map(&:to_sym).freeze
 
       include Queries::Concerns::Attributes
-      include Queries::Concerns::SortResolver
-      include Queries::Namespace::SortableFilterColumns
 
       PARAMS =  [
         :institution,
@@ -16,7 +14,6 @@ module Queries
         :verbatim_name,
         namespace_id: [],
       ].freeze
-
 
       attr_accessor :namespace_id
 

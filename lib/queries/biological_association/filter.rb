@@ -9,9 +9,6 @@ module Queries
       include Queries::Concerns::Depictions
       include Queries::Concerns::DataAttributes
       include Queries::Concerns::Geo
-      include Queries::Concerns::Sortable
-      include Queries::Concerns::SortResolver
-      include Queries::BiologicalAssociation::SortableFilterColumns
 
       PARAMS = [
         :anatomical_part_id,
@@ -74,59 +71,6 @@ module Queries
       API_PARAM_EXCLUSIONS = [
         :any_global_id
       ]
-
-      def self.sort_by_relationship_name
-        ->(q, dir) {
-          q
-            .joins('LEFT JOIN biological_relationships AS sort_br ON sort_br.id = biological_associations.biological_relationship_id')
-            .order(Arel.sql("sort_br.name #{dir == :desc ? 'DESC' : 'ASC'} NULLS LAST"))
-        }
-      end
-
-      # Sort by the name of the BiologicalProperty associated with this BA's
-      # biological_relationship for the given side. If a relationship has multiple
-      # properties on a side, picks the alphabetically first.
-      def self.sort_by_biological_property(side:)
-        brt_type = side == 'subject' ?
-          'BiologicalRelationshipType::BiologicalRelationshipSubjectType' :
-          'BiologicalRelationshipType::BiologicalRelationshipObjectType'
-        lat_alias = "sort_prop_#{side}"
-
-        ->(q, dir) {
-          q
-            .joins(<<~SQL.squish)
-              LEFT JOIN LATERAL (
-                SELECT MIN(cvt.name) AS name
-                FROM biological_relationship_types brt
-                JOIN controlled_vocabulary_terms cvt ON cvt.id = brt.biological_property_id
-                WHERE brt.biological_relationship_id = biological_associations.biological_relationship_id
-                  AND brt.type = '#{brt_type}'
-              ) AS #{lat_alias} ON true
-            SQL
-            .order(Arel.sql("#{lat_alias}.name #{dir == :desc ? 'DESC' : 'ASC'} NULLS LAST"))
-        }
-      end
-
-      # The subject's/object's tag is rendered in Ruby; sort on the taxon it
-      # shows (see Queries::Concerns::Sortable).
-      def self.sort_by_object_tag(side:)
-        sort_by_object_otu_name(
-          id_expr:   "biological_associations.biological_association_#{side}_id",
-          type_expr: "biological_associations.biological_association_#{side}_type",
-          alias_prefix: "sort_objtag_#{side}"
-        )
-      end
-
-      # The subject's/object's taxonomy at the given rank, from its OTU (see
-      # Queries::Concerns::Sortable).
-      def self.sort_by_taxonomy(side:, rank:)
-        sort_by_object_taxonomy(
-          rank: rank,
-          id_expr: "biological_associations.biological_association_#{side}_id",
-          type_expr: "biological_associations.biological_association_#{side}_type",
-          alias_prefix: "sort_tax_#{side}_#{rank.downcase}"
-        )
-      end
 
       # @return Boolean, nil
       #  if true then return relationships *excluding*

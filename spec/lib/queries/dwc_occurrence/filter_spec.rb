@@ -72,8 +72,7 @@ describe Queries::DwcOccurrence::Filter, type: :model, group: [:dwc_occurrence] 
     let!(:s_z) { Specimen.create!.tap { |s| perform_enqueued_jobs; s.dwc_occurrence.update_column(:catalogNumber, 'ZZZ-9') } }
 
     def sorted_ids(sort_key)
-      Queries::DwcOccurrence::Filter.new(sort: sort_key)
-        .all.where(id: [s_a.dwc_occurrence.id, s_z.dwc_occurrence.id]).pluck(:id)
+      Queries::Pager.new(Queries::DwcOccurrence::Filter.new(sort: sort_key).all, sort: sort_key).ordered.where(id: [s_a.dwc_occurrence.id, s_z.dwc_occurrence.id]).pluck(:id)
     end
 
     specify 'sort=catalogNumber orders alphabetically' do

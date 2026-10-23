@@ -5,8 +5,6 @@ module Queries
       include Queries::Concerns::Citations
       include Queries::Concerns::DataAttributes
       include Queries::Concerns::Notes
-      include Queries::Concerns::SortResolver
-      include Queries::Sound::SortableFilterColumns
 
       PARAMS = [
         :conveyance_object_type,
@@ -27,7 +25,6 @@ module Queries
         otu_id: [],
         otu_scope: [],
       ].freeze
-
 
       # @return [Array]
       attr_accessor :collecting_event_id

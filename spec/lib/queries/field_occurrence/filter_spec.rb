@@ -11,17 +11,17 @@ describe Queries::FieldOccurrence::Filter, type: :model, group: [:field_occurren
     let!(:fo_z) { FactoryBot.create(:valid_field_occurrence, total: 9, no_dwc_occurrence: true) }
 
     specify 'sort=field_occurrence.total orders ascending by direct column' do
-      q = Queries::FieldOccurrence::Filter.new(
+      q = Queries::Pager.new(Queries::FieldOccurrence::Filter.new(
         field_occurrence_id: [fo_z.id, fo_a.id], sort: 'field_occurrence.total'
-      )
-      expect(q.all.map(&:id)).to eq([fo_a.id, fo_z.id])
+      ).all, field_occurrence_id: [fo_z.id, fo_a.id], sort: 'field_occurrence.total')
+      expect(q.ordered.map(&:id)).to eq([fo_a.id, fo_z.id])
     end
 
     specify 'sort=-field_occurrence.id desc' do
-      q = Queries::FieldOccurrence::Filter.new(
+      q = Queries::Pager.new(Queries::FieldOccurrence::Filter.new(
         field_occurrence_id: [fo_a.id, fo_z.id], sort: '-field_occurrence.id'
-      )
-      expect(q.all.map(&:id)).to eq([fo_z.id, fo_a.id])
+      ).all, field_occurrence_id: [fo_a.id, fo_z.id], sort: '-field_occurrence.id')
+      expect(q.ordered.map(&:id)).to eq([fo_z.id, fo_a.id])
     end
 
     specify 'sort=collecting_event.geographic_area_name orders by area name' do
@@ -29,10 +29,10 @@ describe Queries::FieldOccurrence::Filter, type: :model, group: [:field_occurren
       ga_alpha = FactoryBot.create(:valid_geographic_area, name: 'Alpha')
       fo_a.collecting_event.update_columns(geographic_area_id: ga_zulu.id)
       fo_z.collecting_event.update_columns(geographic_area_id: ga_alpha.id)
-      q = Queries::FieldOccurrence::Filter.new(
+      q = Queries::Pager.new(Queries::FieldOccurrence::Filter.new(
         field_occurrence_id: [fo_a.id, fo_z.id], sort: 'collecting_event.geographic_area_name'
-      )
-      expect(q.all.map(&:id)).to eq([fo_z.id, fo_a.id])
+      ).all, field_occurrence_id: [fo_a.id, fo_z.id], sort: 'collecting_event.geographic_area_name')
+      expect(q.ordered.map(&:id)).to eq([fo_z.id, fo_a.id])
     end
 
     context 'belongs_to: collecting_event.verbatim_locality' do
@@ -42,10 +42,10 @@ describe Queries::FieldOccurrence::Filter, type: :model, group: [:field_occurren
       specify do
         fo_a.update!(collecting_event: ce_z)
         fo_z.update!(collecting_event: ce_a)
-        q = Queries::FieldOccurrence::Filter.new(
+        q = Queries::Pager.new(Queries::FieldOccurrence::Filter.new(
           field_occurrence_id: [fo_a.id, fo_z.id], sort: 'collecting_event.verbatim_locality'
-        )
-        expect(q.all.map(&:id)).to eq([fo_z.id, fo_a.id])
+        ).all, field_occurrence_id: [fo_a.id, fo_z.id], sort: 'collecting_event.verbatim_locality')
+        expect(q.ordered.map(&:id)).to eq([fo_z.id, fo_a.id])
       end
     end
 
@@ -59,10 +59,10 @@ describe Queries::FieldOccurrence::Filter, type: :model, group: [:field_occurren
         DwcOccurrence.create!(
           dwc_occurrence_object: fo_z, scientificName: 'Aus dus', basisOfRecord: 'HumanObservation'
         )
-        q = Queries::FieldOccurrence::Filter.new(
+        q = Queries::Pager.new(Queries::FieldOccurrence::Filter.new(
           field_occurrence_id: [fo_a.id, fo_z.id], sort: 'dwc_occurrence.scientificName'
-        )
-        expect(q.all.map(&:id)).to eq([fo_z.id, fo_a.id])
+        ).all, field_occurrence_id: [fo_a.id, fo_z.id], sort: 'dwc_occurrence.scientificName')
+        expect(q.ordered.map(&:id)).to eq([fo_z.id, fo_a.id])
       end
     end
 
@@ -82,11 +82,11 @@ describe Queries::FieldOccurrence::Filter, type: :model, group: [:field_occurren
         TaxonDetermination.create!(taxon_determination_object: fo_a, otu: otu_z, position: 1)
         TaxonDetermination.create!(taxon_determination_object: fo_a, otu: otu_a, position: 2)
         TaxonDetermination.create!(taxon_determination_object: fo_z, otu: otu_a, position: 1)
-        q = Queries::FieldOccurrence::Filter.new(
+        q = Queries::Pager.new(Queries::FieldOccurrence::Filter.new(
           field_occurrence_id: [fo_a.id, fo_z.id], sort: 'taxon_determinations.otu_name'
-        )
+        ).all, field_occurrence_id: [fo_a.id, fo_z.id], sort: 'taxon_determinations.otu_name')
         # fo_z's primary is aus_otu < fo_a's primary is zus_otu
-        expect(q.all.map(&:id)).to eq([fo_z.id, fo_a.id])
+        expect(q.ordered.map(&:id)).to eq([fo_z.id, fo_a.id])
       end
     end
 
@@ -100,18 +100,18 @@ describe Queries::FieldOccurrence::Filter, type: :model, group: [:field_occurren
         Identifier::Local::CatalogNumber.create!(
           identifier_object: fo_z, namespace: ns, identifier: '001'
         )
-        q = Queries::FieldOccurrence::Filter.new(
+        q = Queries::Pager.new(Queries::FieldOccurrence::Filter.new(
           field_occurrence_id: [fo_a.id, fo_z.id], sort: 'identifiers.cached'
-        )
-        expect(q.all.map(&:id)).to eq([fo_z.id, fo_a.id])
+        ).all, field_occurrence_id: [fo_a.id, fo_z.id], sort: 'identifiers.cached')
+        expect(q.ordered.map(&:id)).to eq([fo_z.id, fo_a.id])
       end
     end
 
     specify 'unknown sort key ignored' do
-      q = Queries::FieldOccurrence::Filter.new(
+      q = Queries::Pager.new(Queries::FieldOccurrence::Filter.new(
         field_occurrence_id: [fo_a.id, fo_z.id], sort: 'no_such_column'
-      )
-      expect(q.all.map(&:id)).to contain_exactly(fo_a.id, fo_z.id)
+      ).all, field_occurrence_id: [fo_a.id, fo_z.id], sort: 'no_such_column')
+      expect(q.ordered.map(&:id)).to contain_exactly(fo_a.id, fo_z.id)
     end
   end
 end

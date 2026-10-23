@@ -6,9 +6,6 @@ module Queries
       include Queries::Concerns::DataAttributes
       include Queries::Concerns::Depictions
       include Queries::Concerns::Geo
-      include Queries::Concerns::Sortable
-      include Queries::Concerns::SortResolver
-      include Queries::Otu::SortableFilterColumns
       include Queries::Concerns::Tags
       include Queries::Concerns::Notes
       include Queries::Concerns::Confidences
@@ -69,24 +66,6 @@ module Queries
       #
       # !! This param is not like the others. !!  See parallel in TaxonName filter 'validify'.
       attr_accessor :coordinatify
-
-
-      # OTU's display value (otu_tag) is essentially the taxon_name.cached
-      # falling back to otu.name. Use a scalar subquery so we don't add a
-      # second `taxon_names` alias to the outer FROM -- callers like the
-      # OTU controller chain `.order(:cached, 'otus.name')` after `.all`,
-      # and having taxon_names in the FROM twice makes bare `cached`
-      # ambiguous.
-      def self.sort_by_display_name
-        ->(q, dir) {
-          q.order(Arel.sql(<<~SQL.squish))
-            COALESCE(
-              (SELECT tn.cached FROM taxon_names tn WHERE tn.id = otus.taxon_name_id),
-              otus.name
-            ) #{dir == :desc ? 'DESC' : 'ASC'} NULLS LAST
-          SQL
-        }
-      end
 
       # @param name [String, Array]
       # @return Array

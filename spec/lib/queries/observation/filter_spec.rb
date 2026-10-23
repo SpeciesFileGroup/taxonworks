@@ -70,8 +70,7 @@ describe Queries::Observation::Filter, type: :model, group: [:observation_matrix
     }
 
     def sorted_ids(sort_key)
-      Queries::Observation::Filter.new(sort: sort_key)
-        .all.where(id: [obs_a.id, obs_z.id]).pluck(:id)
+      Queries::Pager.new(Queries::Observation::Filter.new(sort: sort_key).all, sort: sort_key).ordered.where(id: [obs_a.id, obs_z.id]).pluck(:id)
     end
 
     specify 'sort=object_tag orders by observations.cached' do

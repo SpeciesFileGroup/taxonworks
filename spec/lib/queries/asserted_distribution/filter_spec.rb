@@ -515,8 +515,7 @@ describe Queries::AssertedDistribution::Filter, type: :model, group: [:geo, :col
     let!(:ad_z) { FactoryBot.create(:valid_asserted_distribution, asserted_distribution_object: otu_z) }
 
     def sorted_ids(sort_key)
-      Queries::AssertedDistribution::Filter.new(sort: sort_key)
-        .all.where(id: [ad_a.id, ad_z.id]).pluck(:id)
+      Queries::Pager.new(Queries::AssertedDistribution::Filter.new(sort: sort_key).all, sort: sort_key).ordered.where(id: [ad_a.id, ad_z.id]).pluck(:id)
     end
 
     specify 'sort=object_object_tag orders by OTU taxon_name.cached' do

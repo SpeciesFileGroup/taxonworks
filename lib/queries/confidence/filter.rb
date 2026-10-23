@@ -2,15 +2,7 @@ module Queries
   module Confidence
     class Filter < Query::Filter
       include Concerns::Polymorphic
-      include Queries::Concerns::SortResolver
       polymorphic_klass(::Confidence)
-
-      def self.sortable_columns_uncached
-        sortable_direct_columns.merge(
-          'created_by'                  => association(:creator, :name),
-          'confidence_level.object_tag' => association(:controlled_vocabulary_term, :name)
-        )
-      end
 
       PARAMS = [
         *::Confidence.related_foreign_keys.map(&:to_sym),

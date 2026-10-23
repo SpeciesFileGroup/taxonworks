@@ -11,8 +11,7 @@ describe Queries::Sound::Filter, type: :model, group: [:filter, :sound] do
     }
 
     def sorted_ids(sort_key)
-      Queries::Sound::Filter.new(sort: sort_key)
-        .all.where(id: [snd_a.id, snd_z.id]).pluck(:id)
+      Queries::Pager.new(Queries::Sound::Filter.new(sort: sort_key).all, sort: sort_key).ordered.where(id: [snd_a.id, snd_z.id]).pluck(:id)
     end
 
     specify 'sort=name orders alphabetically' do

@@ -4,15 +4,7 @@ module Queries
     class Filter < Query::Filter
 
       include Concerns::Polymorphic
-      include Queries::Concerns::SortResolver
       polymorphic_klass(::Tag)
-
-      def self.sortable_columns_uncached
-        sortable_direct_columns.merge(
-          'created_by'         => association(:creator, :name),
-          'keyword.object_tag' => association(:controlled_vocabulary_term, :name)
-        )
-      end
 
       PARAMS = [
         *::Tag.related_foreign_keys.map(&:to_sym),

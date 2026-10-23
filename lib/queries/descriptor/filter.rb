@@ -7,8 +7,6 @@ module Queries
       include Queries::Concerns::DataAttributes
       include Queries::Concerns::Depictions
       include Queries::Concerns::Notes
-      include Queries::Concerns::SortResolver
-      include Queries::Descriptor::SortableFilterColumns
       include Queries::Concerns::Tags
 
       include Queries::Helpers
@@ -26,7 +24,6 @@ module Queries
         descriptor_type: [],
         observation_matrix_id: [],
       ].freeze
-
 
       # @param name [String, Symbol]
       #   matches against name, short_name, description, description_name, key_name

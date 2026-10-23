@@ -202,8 +202,7 @@ describe Queries::Loan::Filter, type: :model, group: [:geo, :collection_objects,
     let!(:l_z) { FactoryBot.create(:valid_loan, recipient_email: 'zzz@x') }
 
     def sorted_ids(sort_key)
-      Queries::Loan::Filter.new(sort: sort_key)
-        .all.where(id: [l_a.id, l_z.id]).pluck(:id)
+      Queries::Pager.new(Queries::Loan::Filter.new(sort: sort_key).all, sort: sort_key).ordered.where(id: [l_a.id, l_z.id]).pluck(:id)
     end
 
     specify 'sort=recipient_email direct column' do
@@ -242,11 +241,11 @@ describe Queries::Loan::Filter, type: :model, group: [:geo, :collection_objects,
     }
 
     specify 'sort=created_by orders by creator name' do
-      expect(Queries::Loan::Filter.new(sort: 'created_by').all.to_a).to eq([loan_amy, loan_zed])
+      expect(Queries::Pager.new(Queries::Loan::Filter.new(sort: 'created_by').all, sort: 'created_by').ordered.to_a).to eq([loan_amy, loan_zed])
     end
 
     specify 'sort=-updated_by orders by updater name descending' do
-      expect(Queries::Loan::Filter.new(sort: '-updated_by').all.to_a).to eq([loan_zed, loan_amy])
+      expect(Queries::Pager.new(Queries::Loan::Filter.new(sort: '-updated_by').all, sort: '-updated_by').ordered.to_a).to eq([loan_zed, loan_amy])
     end
   end
 end

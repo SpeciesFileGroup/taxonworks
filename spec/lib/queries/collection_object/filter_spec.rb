@@ -104,30 +104,16 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
     end
 
    specify 'page 1' do
-      h = { paginate: true, per: 1, page: 3}
+      h = { per: 1, page: 3 }
       q = Queries::CollectionObject::Filter.new(h)
-      expect(q.all.order(:id).all.last).to eq(Specimen.last)
+      expect(Queries::Pager.new(q.all, h).all.to_a).to eq([Specimen.order(:id).third])
     end
 
     specify 'per' do
-      h = { paginate: true, per: 1 }
+      h = { per: 1 }
       q = Queries::CollectionObject::Filter.new(h)
-      expect(q.all.size).to eq(1)
+      expect(Queries::Pager.new(q.all, h).all.size).to eq(1)
     end
-  end
-
-  specify 'nested pagination' do
-    s1 = FactoryBot.create(:valid_specimen, collecting_event: FactoryBot.create(:valid_collecting_event) )
-    s2 = FactoryBot.create(:valid_specimen, collecting_event: FactoryBot.create(:valid_collecting_event) )
-    s3 = FactoryBot.create(:valid_specimen, collecting_event: FactoryBot.create(:valid_collecting_event) )
-
-    # Get the second CE
-    h = { collecting_event_query: {paginate: true, per: 1, page: 2 } }
-
-    p = ActionController::Parameters.new(h)
-    q = Queries::CollectionObject::Filter.new(p)
-
-    expect(q.all.unscope(:order).order(:id).first).to eq( s2 )
   end
 
   specify 'CollectingEvent params are permitted' do
@@ -446,9 +432,9 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
       expect(query.base_collecting_event_query.class.name).to eq('Queries::CollectingEvent::Filter')
     end
 
-    specify '#recent' do
-      query.recent = true
-      expect(query.all.pluck(:id)).to contain_exactly(co1.id, co2.id)
+    specify 'recent (via Queries::Pager)' do
+      co1.touch
+      expect(Queries::Pager.new(query.all, recent: true).ordered.pluck(:id)).to eq([co1.id, co2.id])
     end
 
     specify '#collecting_event_id' do
@@ -784,18 +770,19 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
     }
 
     specify 'sort=collection_object.total orders by direct column ascending' do
-      q = Queries::CollectionObject::Filter.new(
+      q = Queries::Pager.new(Queries::CollectionObject::Filter.new(
         collection_object_id: [s_z.id, s_a.id], sort: 'collection_object.total'
-      )
-      expect(q.all.map(&:id)).to eq([s_a.id, s_z.id])
+      ).all, collection_object_id: [s_z.id, s_a.id], sort: 'collection_object.total')
+      expect(q.ordered.map(&:id)).to eq([s_a.id, s_z.id])
     end
 
     specify 'sort=-collection_object.buffered_collecting_event desc' do
-      q = Queries::CollectionObject::Filter.new(
+      q = Queries::Pager.new(Queries::CollectionObject::Filter.new(
         collection_object_id: [s_a.id, s_z.id],
         sort: '-collection_object.buffered_collecting_event'
-      )
-      expect(q.all.map(&:id)).to eq([s_z.id, s_a.id])
+      ).all, collection_object_id: [s_a.id, s_z.id],
+        sort: '-collection_object.buffered_collecting_event')
+      expect(q.ordered.map(&:id)).to eq([s_z.id, s_a.id])
     end
 
     context 'collecting_event.geographic_area_name' do
@@ -809,14 +796,14 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
           ce.update_columns(geographic_area_id: area.id)
           specimen.update_columns(collecting_event_id: ce.id)
         end
-        q = Queries::CollectionObject::Filter.new(
+        q = Queries::Pager.new(Queries::CollectionObject::Filter.new(
           collection_object_id: [s_a.id, s_z.id], sort: 'collecting_event.geographic_area_name'
-        )
-        expect(q.all.map(&:id)).to eq([s_z.id, s_a.id])
+        ).all, collection_object_id: [s_a.id, s_z.id], sort: 'collecting_event.geographic_area_name')
+        expect(q.ordered.map(&:id)).to eq([s_z.id, s_a.id])
       end
 
       specify 'the raw geographic_area_id key is no longer sortable' do
-        expect(Queries::CollectionObject::Filter.sortable_columns_index)
+        expect(Queries::CollectionObject::Sort.keys)
           .not_to include('collecting_event.geographic_area_id')
       end
     end
@@ -828,10 +815,10 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
       specify do
         s_a.update!(repository: repo_zeta)
         s_z.update!(repository: repo_alpha)
-        q = Queries::CollectionObject::Filter.new(
+        q = Queries::Pager.new(Queries::CollectionObject::Filter.new(
           collection_object_id: [s_a.id, s_z.id], sort: 'repository.name'
-        )
-        expect(q.all.map(&:id)).to eq([s_z.id, s_a.id])
+        ).all, collection_object_id: [s_a.id, s_z.id], sort: 'repository.name')
+        expect(q.ordered.map(&:id)).to eq([s_z.id, s_a.id])
       end
     end
 
@@ -842,10 +829,10 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
       specify do
         s_a.update!(collecting_event: ce_z)
         s_z.update!(collecting_event: ce_a)
-        q = Queries::CollectionObject::Filter.new(
+        q = Queries::Pager.new(Queries::CollectionObject::Filter.new(
           collection_object_id: [s_a.id, s_z.id], sort: 'collecting_event.verbatim_locality'
-        )
-        expect(q.all.map(&:id)).to eq([s_z.id, s_a.id])
+        ).all, collection_object_id: [s_a.id, s_z.id], sort: 'collecting_event.verbatim_locality')
+        expect(q.ordered.map(&:id)).to eq([s_z.id, s_a.id])
       end
     end
 
@@ -857,10 +844,10 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
         DwcOccurrence.create!(
           dwc_occurrence_object: s_z, scientificName: 'Aus dus', basisOfRecord: 'PreservedSpecimen'
         )
-        q = Queries::CollectionObject::Filter.new(
+        q = Queries::Pager.new(Queries::CollectionObject::Filter.new(
           collection_object_id: [s_a.id, s_z.id], sort: 'dwc_occurrence.scientificName'
-        )
-        expect(q.all.map(&:id)).to eq([s_z.id, s_a.id])
+        ).all, collection_object_id: [s_a.id, s_z.id], sort: 'dwc_occurrence.scientificName')
+        expect(q.ordered.map(&:id)).to eq([s_z.id, s_a.id])
       end
     end
 
@@ -875,31 +862,32 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
         TaxonDetermination.create!(taxon_determination_object: s_a, otu: otu_z, position: 1)
         TaxonDetermination.create!(taxon_determination_object: s_a, otu: otu_a, position: 2)
         TaxonDetermination.create!(taxon_determination_object: s_z, otu: otu_a, position: 1)
-        q = Queries::CollectionObject::Filter.new(
+        q = Queries::Pager.new(Queries::CollectionObject::Filter.new(
           collection_object_id: [s_a.id, s_z.id], sort: 'taxon_determinations.otu_name'
-        )
+        ).all, collection_object_id: [s_a.id, s_z.id], sort: 'taxon_determinations.otu_name')
         # s_z's primary is aus_otu < s_a's primary is zus_otu
-        expect(q.all.map(&:id)).to eq([s_z.id, s_a.id])
+        expect(q.ordered.map(&:id)).to eq([s_z.id, s_a.id])
       end
 
       specify 'a direct column uses the primary determination, not the lowest value' do
         TaxonDetermination.create!(taxon_determination_object: s_a, otu: otu_a, position: 1, year_made: 2000)
         TaxonDetermination.create!(taxon_determination_object: s_a, otu: otu_a, position: 2, year_made: 1900)
         TaxonDetermination.create!(taxon_determination_object: s_z, otu: otu_a, position: 1, year_made: 1950)
-        q = Queries::CollectionObject::Filter.new(
+        q = Queries::Pager.new(Queries::CollectionObject::Filter.new(
           collection_object_id: [s_a.id, s_z.id], sort: 'taxon_determinations.year_made'
-        )
-        expect(q.all.map(&:id)).to eq([s_z.id, s_a.id])
+        ).all, collection_object_id: [s_a.id, s_z.id], sort: 'taxon_determinations.year_made')
+        expect(q.ordered.map(&:id)).to eq([s_z.id, s_a.id])
       end
 
       specify 'two determination keys in one sort' do
         TaxonDetermination.create!(taxon_determination_object: s_a, otu: otu_a, position: 1, year_made: 2000)
         TaxonDetermination.create!(taxon_determination_object: s_z, otu: otu_z, position: 1, year_made: 2000)
-        q = Queries::CollectionObject::Filter.new(
+        q = Queries::Pager.new(Queries::CollectionObject::Filter.new(
           collection_object_id: [s_a.id, s_z.id],
           sort: 'taxon_determinations.year_made,-taxon_determinations.otu_name'
-        )
-        expect(q.all.map(&:id)).to eq([s_z.id, s_a.id])
+        ).all, collection_object_id: [s_a.id, s_z.id],
+          sort: 'taxon_determinations.year_made,-taxon_determinations.otu_name')
+        expect(q.ordered.map(&:id)).to eq([s_z.id, s_a.id])
       end
     end
 
@@ -924,19 +912,19 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
         add_identifier(s_m, 'ab', nil)
         add_identifier(s_m, 'pp', 1)
 
-        q = Queries::CollectionObject::Filter.new(
+        q = Queries::Pager.new(Queries::CollectionObject::Filter.new(
           collection_object_id: [s_a.id, s_z.id, s_m.id], sort: 'identifiers.cached'
-        )
+        ).all, collection_object_id: [s_a.id, s_z.id, s_m.id], sort: 'identifiers.cached')
         # 'mm' < 'pp | ab' < 'zz | aa'; NULL first would put 'ab | pp' first.
-        expect(q.all.map(&:id)).to eq([s_z.id, s_m.id, s_a.id])
+        expect(q.ordered.map(&:id)).to eq([s_z.id, s_m.id, s_a.id])
       end
     end
 
     specify 'unknown sort key ignored' do
-      q = Queries::CollectionObject::Filter.new(
+      q = Queries::Pager.new(Queries::CollectionObject::Filter.new(
         collection_object_id: [s_a.id, s_z.id], sort: 'no_such_column'
-      )
-      expect(q.all.map(&:id)).to contain_exactly(s_a.id, s_z.id)
+      ).all, collection_object_id: [s_a.id, s_z.id], sort: 'no_such_column')
+      expect(q.ordered.map(&:id)).to contain_exactly(s_a.id, s_z.id)
     end
   end
 end

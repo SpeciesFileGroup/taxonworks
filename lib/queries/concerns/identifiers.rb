@@ -186,11 +186,9 @@ module Queries::Concerns::Identifiers
 
   # @return Array
   def identifiers_to_match
-    ids = match_identifiers.strip.split(match_identifiers_delimiter).flatten.map(&:strip).uniq
-    if match_identifiers_type == 'internal'
-      ids = ids.select{|i| i =~ /^\d+$/}
-    end
-    ids
+    ::Queries::Sort::MatchIdentifiers.identifiers(
+      match_identifiers, delimiter: match_identifiers_delimiter, type: match_identifiers_type
+    )
   end
 
   def match_identifiers_facet
@@ -440,60 +438,6 @@ module Queries::Concerns::Identifiers
 
   def autocomplete_identifier_matching_cached_fragments_anywhere
     referenced_klass.joins(:identifiers).where(with_identifier_cached_like_fragments.to_sql)
-  end
-
-  def match_identifier_order_by(target_query)
-    case order_by
-    when :match_identifiers
-      if match_identifiers.present?
-
-        ids = if match_identifiers_caseless != false # nil or true
-                identifiers_to_match.map(&:downcase)
-              else
-                identifiers_to_match
-              end
-
-        return target_query if ids.empty?
-
-        case match_identifiers_type # rubocop:disable Metrics/BlockNesting
-        when 'internal'
-          o = "array_position(ARRAY[#{ids.join(',')}], #{table.name}.id)"
-          target_query = target_query.order(Arel.sql(o))
-        else
-
-          if match_identifiers_caseless != false # nil or true
-            # caseless
-
-            # TODO: optimize, this was done hastily
-            o = "array_position(ARRAY[#{ids.collect{|i| ApplicationRecord.connection.quote(i)}.join(',')}], LOWER(sid.cached)) s"
-
-            i = ::Identifier
-              .from('identifiers sid')
-              .where('LOWER(sid.cached) IN (?)', ids) # This is required to de-duplicate for some reason ?!
-              .select("sid.*, #{o}")
-
-            target_query = target_query.with(sid: i)
-              .joins("JOIN sid on sid.identifier_object_id = #{table.name}.id AND sid.identifier_object_type = '#{referenced_klass.base_class.name}'")
-              .order('sid.s')
-
-          else
-
-            # TODO: optimize, this was done hastily
-            o = "array_position(ARRAY[#{ids.collect{|i| ApplicationRecord.connection.quote(i)}.join(',')}], sid.cached) s"
-
-            i = ::Identifier
-              .from('identifiers sid')
-              .where(sid: {cached: ids}) # This is required to de-duplicate for some reason ?!
-              .select("sid.*, #{o}")
-
-            target_query = target_query.with(sid: i)
-              .joins("JOIN sid on sid.identifier_object_id = #{table.name}.id AND sid.identifier_object_type = '#{referenced_klass.base_class.name}'")
-              .order('sid.s')
-          end
-        end
-      end
-    end
-    target_query
   end
 
   # def substring

@@ -22,8 +22,7 @@ describe Queries::Namespace::Filter, type: :model, group: [:filter] do
     }
 
     def sorted_ids(sort_key)
-      Queries::Namespace::Filter.new(sort: sort_key)
-        .all.where(id: [ns_a.id, ns_z.id]).pluck(:id)
+      Queries::Pager.new(Queries::Namespace::Filter.new(sort: sort_key).all, sort: sort_key).ordered.where(id: [ns_a.id, ns_z.id]).pluck(:id)
     end
 
     specify 'sort=name orders alphabetically' do

@@ -315,6 +315,24 @@ describe Otu, type: :model, group: :otu do
       expect(o1.reload.taxon_name).to eq t
     end
 
+    # The radial passes the filter's `sort` along; batch code uses the set
+    # with `.distinct`, which an ORDER BY would break.
+    specify 'sync, with a sort param' do
+      o0 = Otu.create!(taxon_name:t0, name: 'o1')
+      o1 = Otu.create!(taxon_name:t0, name: 'o2')
+
+      params = {
+        async_cutoff: 3,
+        otu: { taxon_name_id: t.id },
+        otu_query: { otu_id: [o0.id, o1.id], sort: 'otu', recent: true }
+      }
+
+      response = Otu.batch_update(params).to_json
+
+      expect(response[:updated]).to include(o0.id, o1.id)
+      expect(o0.reload.taxon_name).to eq t
+    end
+
     specify 'async' do
       o0 = Otu.create!(taxon_name:t0, name: 'o1')
       o1 = Otu.create!(taxon_name:t0, name: 'o2')

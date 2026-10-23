@@ -8,8 +8,6 @@ module Queries
       include Queries::Concerns::Attributes
       include Queries::Concerns::Empty
       include Queries::Concerns::Notes
-      include Queries::Concerns::SortResolver
-      include Queries::Source::SortableFilterColumns
       include Queries::Concerns::Tags
 
       PARAMS = [
@@ -51,7 +49,6 @@ module Queries
         taxon_name_id: [],
         topic_id: [],
       ].freeze
-
 
       # @project_id from Queries::Query
       #   used in context of in_project when provided

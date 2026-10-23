@@ -17,6 +17,14 @@ module PaginationHeaders
   included do
     protected
 
+    # @param set [ActiveRecord::Relation] e.g. `Queries::Otu::Filter.new(params).all`
+    # @return [ActiveRecord::Relation] the set ordered by the `sort`/`recent`
+    #   params (always ending in id) and paged by `page`/`per`. See
+    #   "Sorting and paging" in lib/queries/ARCHITECTURE.md.
+    def ordered_page(set)
+      ::Queries::Pager.new(set, params).all
+    end
+
     def set_pagination_headers(name)
       scope = instance_variable_get("@#{name}")
       scope.tap do |d|

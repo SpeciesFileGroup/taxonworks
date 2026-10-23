@@ -4,8 +4,6 @@ module Queries
       include Queries::Concerns::Tags
       include Queries::Concerns::Citations
       include Queries::Concerns::Notes
-      include Queries::Concerns::SortResolver
-      include Queries::Image::SortableFilterColumns
 
       PARAMS = [
         :biocuration_class_id,
@@ -64,7 +62,6 @@ module Queries
         source_id: [],
         taxon_name_id: [],
       ].freeze
-
 
       # @return [Array]
       #   images depicting collecting_object

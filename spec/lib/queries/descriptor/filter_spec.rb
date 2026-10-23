@@ -17,8 +17,7 @@ describe Queries::Descriptor::Filter, type: :model, group: [:observation_matrix]
     let!(:d_z) { Descriptor::Continuous.create!(name: 'Zeta descriptor') }
 
     def sorted_ids(sort_key)
-      Queries::Descriptor::Filter.new(sort: sort_key)
-        .all.where(id: [d_a.id, d_z.id]).pluck(:id)
+      Queries::Pager.new(Queries::Descriptor::Filter.new(sort: sort_key).all, sort: sort_key).ordered.where(id: [d_a.id, d_z.id]).pluck(:id)
     end
 
     specify 'sort=name orders alphabetically' do

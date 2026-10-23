@@ -9,8 +9,6 @@ module Queries
       include Queries::Concerns::Citations
       include Queries::Concerns::Geo
       include Queries::Concerns::Confidences
-      include Queries::Concerns::SortResolver
-      include Queries::AssertedDistribution::SortableFilterColumns
 
       PARAMS = [
         :asserted_distribution_id,
@@ -46,7 +44,6 @@ module Queries
         source_id: [],
         taxon_name_id: []
       ].freeze
-
 
       # @param asserted_distribution_id [Array, Integer, String]
       # @return [Array]

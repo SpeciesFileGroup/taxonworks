@@ -100,14 +100,12 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
     let!(:o2) { Otu.create!(taxon_name: s2) }
     let!(:o3) { Otu.create!(name: 'none') }
 
-    # See lib/queries/query/filter.rb for application
-    specify 'order_by match_identifiers' do
+    # See Queries::Sort::MatchIdentifiers
+    specify 'sort=match_identifiers (via Queries::Pager)' do
       ids = [ o3.id, o1.id, o2.id]
 
-      q.match_identifiers = ids.join(',')
-      q.order_by = 'match_identifiers'
-      q.match_identifiers_type = 'internal'
-      expect(q.all.pluck(:id)).to eq(ids)
+      p = { match_identifiers: ids.join(','), match_identifiers_type: 'internal', sort: 'match_identifiers' }
+      expect(Queries::Pager.new(Queries::Otu::Filter.new(p).all, p).ordered.pluck(:id)).to eq(ids)
     end
 
     specify 'with synonymy' do
@@ -999,10 +997,10 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
     let!(:otu_bbb) { Otu.create!(name: nil, taxon_name: gen_bbb) }
 
     specify 'sort=otu_taxonomy_genus orders by ancestor genus name' do
-      q = Queries::Otu::Filter.new(
+      q = Queries::Pager.new(Queries::Otu::Filter.new(
         otu_id: [otu_zzz.id, otu_bbb.id], sort: 'otu_taxonomy_genus'
-      )
-      expect(q.all.map(&:id)).to eq([otu_bbb.id, otu_zzz.id])
+      ).all, otu_id: [otu_zzz.id, otu_bbb.id], sort: 'otu_taxonomy_genus')
+      expect(q.ordered.map(&:id)).to eq([otu_bbb.id, otu_zzz.id])
     end
 
     # The table shows the OTU's `taxonomy`, built from its valid name.
@@ -1017,18 +1015,18 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
       otu_synonym = Otu.create!(name: nil, taxon_name: species_synonym)
 
       expect(Array(otu_synonym.taxonomy['genus']).compact.join(' ')).to eq('Bbb')
-      q = Queries::Otu::Filter.new(
+      q = Queries::Pager.new(Queries::Otu::Filter.new(
         otu_id: [otu_zzz.id, otu_ccc.id, otu_synonym.id], sort: 'otu_taxonomy_genus'
-      )
+      ).all, otu_id: [otu_zzz.id, otu_ccc.id, otu_synonym.id], sort: 'otu_taxonomy_genus')
       # Bbb (valid genus of the synonym) < Ccc < Zzz
-      expect(q.all.map(&:id)).to eq([otu_synonym.id, otu_ccc.id, otu_zzz.id])
+      expect(q.ordered.map(&:id)).to eq([otu_synonym.id, otu_ccc.id, otu_zzz.id])
     end
 
     specify 'sort=-otu_taxonomy_family orders by ancestor family desc' do
-      q = Queries::Otu::Filter.new(
+      q = Queries::Pager.new(Queries::Otu::Filter.new(
         otu_id: [otu_zzz.id, otu_bbb.id], sort: '-otu_taxonomy_family'
-      )
-      expect(q.all.map(&:id)).to eq([otu_zzz.id, otu_bbb.id])
+      ).all, otu_id: [otu_zzz.id, otu_bbb.id], sort: '-otu_taxonomy_family')
+      expect(q.ordered.map(&:id)).to eq([otu_zzz.id, otu_bbb.id])
     end
 
     specify 'multi-key sort: family asc, then genus desc' do
@@ -1037,23 +1035,25 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
       gen_ccc = Protonym.create!(name: 'Ccc', rank_class: Ranks.lookup(:iczn, :genus), parent: fam_aus)
       otu_ccc = Otu.create!(name: nil, taxon_name: gen_ccc)
 
-      q = Queries::Otu::Filter.new(
+      q = Queries::Pager.new(Queries::Otu::Filter.new(
         otu_id: [otu_zzz.id, otu_bbb.id, otu_ccc.id],
         sort: 'otu_taxonomy_family,-otu_taxonomy_genus'
-      )
+      ).all, otu_id: [otu_zzz.id, otu_bbb.id, otu_ccc.id],
+        sort: 'otu_taxonomy_family,-otu_taxonomy_genus')
       # Aus family (Ccc, Bbb by desc genus), then Xus family (Zzz)
-      expect(q.all.map(&:id)).to eq([otu_ccc.id, otu_bbb.id, otu_zzz.id])
+      expect(q.ordered.map(&:id)).to eq([otu_ccc.id, otu_bbb.id, otu_zzz.id])
     end
 
     specify 'sort=otu uses taxon_name.cached with otus.name fallback' do
       otu_no_tn = Otu.create!(name: 'Mus', taxon_name: nil)
-      q = Queries::Otu::Filter.new(
+      q = Queries::Pager.new(Queries::Otu::Filter.new(
         otu_id: [otu_zzz.id, otu_bbb.id, otu_no_tn.id],
         sort: 'otu'
-      )
+      ).all, otu_id: [otu_zzz.id, otu_bbb.id, otu_no_tn.id],
+        sort: 'otu')
       # taxon_names.cached is the full-name cached string; genus name at least
       # starts with the genus letter, so Bbb < Mus < Zzz.
-      expect(q.all.map(&:id)).to eq([otu_bbb.id, otu_no_tn.id, otu_zzz.id])
+      expect(q.ordered.map(&:id)).to eq([otu_bbb.id, otu_no_tn.id, otu_zzz.id])
     end
   end
   end
