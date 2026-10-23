@@ -8,6 +8,7 @@ Filters work by merging `and` (e.g. `table[:id].in(otu_id)`) and `merge` (e.g. `
 
 * `And` and `merge` clauses can be identifies as by the post-fix `_facet` on their names
 * All `_id` params are singular, regarless as to whether the accept an Array
+* `Filter#all` returns a set: one row per record, never ordered or paged. See "Sorting and paging".
 
 ### Default facets
 There are several near "global" facets that are applied to all filters for example
@@ -18,9 +19,24 @@ and `project_id_facet` applies project_id.  These defaults live in `Queries::Fil
 Filters have concerns where sharing facets is of use. `And` and `merge` clauses (sets of facets) are automatically applied to the filter result.
 These facets have corresponding UI elements.
 
-### Sorting
-Filters accept a multi-column `sort` param (e.g. `sort=-updated_at,repository.name`), capped at `MAX_SORT_KEYS`; unknown keys are ignored.
-Each filter whitelists its keys in `sortable_columns_uncached`, usually in its own `sortable_filter_columns.rb`, using the `Queries::Concerns::SortResolver` helpers (`direct`, `association`, `custom`, `sortable_direct_columns`, `sortable_association_columns`), each of which returns a `->(query, dir)` sort lambda.
+## Sorting and paging
+Filters return sets. `Filter#all` never orders or pages. A caller that needs an ordered slice passes the set to `Queries::Pager`; a caller that needs the set (batch updates, counts, `where(id: filter.all)`, `.distinct`, exports) uses `filter.all` and gets no ORDER BY.
+
+set → order → page composes into one SQL query. Each step keeps its contract, so the steps never conflict:
+
+| Step | Takes | Gives | Must not |
+|---|---|---|---|
+| Filter (`#all`) | params | a set: one row per record, no ORDER BY, no LIMIT | order or page |
+| Order (`Queries::<Model>::Sort`) | a set | the same set, ordered | add or remove rows |
+| Page (`Queries::Pager`) | an ordered set | a slice | change the order |
+
+* A set with `DISTINCT`, `GROUP BY` or a `from(...)` subquery (see "Use of `.distinct`" below) can't be ordered by joined columns. The pager reduces it to `Model.where(id: set)` before ordering.
+* The pager applies the matched `sort` keys (e.g. `sort=-updated_at,repository.name`, capped at `MAX_SORT_KEYS`; unknown keys are ignored), then always `id ASC` as a tiebreak or fallback, then Kaminari `page`/`per`. Anything that truncates goes through the pager, so a page or "first N" is always in a stable order.
+* `recent=true` is shorthand for a leading `-updated_at` key (`-created_at` with `recent_target=created_at`); explicit `sort` keys follow it.
+* There is no `paginate` param: the pager always pages.
+
+### Sort keys
+Each model declares its keys in `Queries::<Model>::Sort`, in `lib/queries/<model>/sort.rb` next to `filter.rb` and `autocomplete.rb`, using the `Queries::Concerns::SortResolver` helpers (`direct`, `association`, `custom`, `sortable_direct_columns`, `sortable_association_columns`), each of which returns a `->(query, dir)` sort lambda. `Queries::Sort::Base` provides `updated_at` and `created_at` for every model.
 
 * Sort on what users see: a display name, not an id. Raw foreign keys are rejected.
 * Sort on database values: a column, or a simple aggregate of columns (MIN, first by position, joined as displayed). Don't rebuild Ruby rendering (helpers, `taxonomy`) in SQL; for a cell assembled in Ruby, sort on a simple value it visibly contains (e.g. its taxon, see `Queries::Concerns::Sortable`), or offer no sort.
