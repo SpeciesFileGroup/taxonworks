@@ -78,8 +78,8 @@
 
 mark {
   font-weight: 700;
-  color: var(--color-on-attention);
-  background-color: var(--color-attention);
+  color: inherit;
+  background-color: color-mix(in srgb, var(--color-attention) 50%, transparent);
   padding: 0 0.08em;
   border-radius: 0.15em;
   a {
