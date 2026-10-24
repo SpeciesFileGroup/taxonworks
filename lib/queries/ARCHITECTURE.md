@@ -35,6 +35,7 @@ set → order → page composes into one SQL query. Each step keeps its contract
 * `recent=true` is shorthand for a leading `-updated_at` key (`-created_at` with `recent_target=created_at`); explicit `sort` keys follow it.
 * `order_by=match_identifiers` likewise puts `match_identifiers` first: records in the order their identifiers were given to the match identifiers facet (see `Queries::Sort::MatchIdentifiers`).
 * There is no `paginate` param: the pager always pages.
+* For now the pager is internal (UI endpoints) only. API actions (`api_index` etc.) keep their own `.order('<table>.id').page.per` and don't accept `sort`/`recent`, until API sorting is settled and documented.
 
 ### Sort keys
 Each model declares its keys in `Queries::<Model>::Sort`, in `lib/queries/<model>/sort.rb` next to `filter.rb` and `autocomplete.rb`, using the `Queries::Sort::Resolver` helpers (`direct`, `association`, `custom`, `sortable_direct_columns`, `sortable_association_columns`), each of which returns a `->(query, dir)` sort lambda. `Queries::Sort::Base` provides `updated_at` and `created_at` for every model.

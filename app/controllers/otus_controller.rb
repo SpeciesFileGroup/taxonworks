@@ -269,14 +269,15 @@ class OtusController < ApplicationController
   def api_index
     q = ::Queries::Otu::Filter.new(params.merge!(api: true)).all
       .where(project_id: sessions_current_project_id)
+      .order('otus.id')
 
     respond_to do |format|
       format.json {
-        @otus = ordered_page(q)
+        @otus = q.page(params[:page]).per(params[:per])
         render '/otus/api/v1/index'
       }
       format.csv {
-        @otus = q.order(:id)
+        @otus = q
         send_data Export::CSV.generate_csv(
           @otus,
           exclude_columns: %w{updated_by_id created_by_id project_id},
