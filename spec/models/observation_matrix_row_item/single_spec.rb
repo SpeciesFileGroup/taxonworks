@@ -59,6 +59,23 @@ RSpec.describe ObservationMatrixRowItem::Single, type: :model, group: :observati
           expect(r.cached_observation_matrix_row_item_id).to eq observation_matrix_row_item.id
         end
       end
+
+      context 'changing the observation_matrix' do
+        let(:other_observation_matrix) { FactoryBot.create(:valid_observation_matrix) }
+
+        before { observation_matrix_row_item.update!(observation_matrix: other_observation_matrix) }
+
+        specify 'removes the row from the previous matrix' do
+          expect(ObservationMatrixRow.where(observation_matrix:).count).to eq 0
+        end
+
+        specify 'adds a row to the new matrix' do
+          r = ObservationMatrixRow.where(observation_matrix: other_observation_matrix).first
+          expect(r.observation_object).to eq otu
+          expect(r.reference_count).to eq 1
+          expect(r.cached_observation_matrix_row_item_id).to eq observation_matrix_row_item.id
+        end
+      end
     end
 
     specify 'observation can only be added once to observation_matrix_row_item' do

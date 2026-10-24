@@ -144,6 +144,19 @@ RSpec.describe ObservationMatrixColumnItem::Dynamic::Tag, type: :model, group: :
       end
     end
 
+    context 'changing the observation_matrix' do
+      let(:other_observation_matrix) { FactoryBot.create(:valid_observation_matrix) }
+
+      before { observation_matrix_column_item.update!(observation_matrix: other_observation_matrix) }
+
+      specify 'columns move to the new matrix' do
+        expect(ObservationMatrixColumn.where(observation_matrix:).count).to eq 0
+        expect(ObservationMatrixColumn.where(observation_matrix: other_observation_matrix)
+          .pluck(:descriptor_id, :reference_count))
+          .to contain_exactly([descriptor1.id, 1], [descriptor2.id, 1], [descriptor3.id, 1])
+      end
+    end
+
     context 'moving a tag to another descriptor' do
       let(:descriptor4) { FactoryBot.create(:valid_descriptor) }
 

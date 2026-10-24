@@ -41,7 +41,8 @@ class ObservationMatrixRowItem < ApplicationRecord
   after_create :update_matrix_rows
   after_update :move_matrix_row, if: -> {
     saved_change_to_observation_object_id? ||
-      saved_change_to_observation_object_type?
+      saved_change_to_observation_object_type? ||
+      saved_change_to_observation_matrix_id?
   }
   after_destroy :cleanup_matrix_rows
 
@@ -58,15 +59,15 @@ class ObservationMatrixRowItem < ApplicationRecord
     end
   end
 
-  # Decrement the previous observation_object's row, increment the new one
+  # Decrement the previous observation_object's row (in the previous matrix),
+  # increment the new one
   def move_matrix_row
     if observation_object_id_before_last_save
-      mr = ObservationMatrixRow.where(
-        observation_matrix:,
-        observation_object_id: observation_object_id_before_last_save,
-        observation_object_type: observation_object_type_before_last_save
-      ).first
-      decrement_matrix_row_reference_count(mr) if !mr.nil?
+      cleanup_single_matrix_row_for(
+        observation_object_type_before_last_save,
+        observation_object_id_before_last_save,
+        observation_matrix_id_before_last_save
+      )
     end
     update_matrix_rows
   end
@@ -92,6 +93,17 @@ class ObservationMatrixRowItem < ApplicationRecord
   # Not named "destroy_" because it doesn't always delete row
   def cleanup_single_matrix_row(object)
     mr = ObservationMatrixRow.where(observation_matrix:, observation_object: object).first
+    decrement_matrix_row_reference_count(mr) if !mr.nil?
+  end
+
+  # As cleanup_single_matrix_row, for an object that needn't be loaded
+  def cleanup_single_matrix_row_for(
+    observation_object_type, observation_object_id,
+    observation_matrix_id = self.observation_matrix_id
+  )
+    mr = ObservationMatrixRow.where(
+      observation_matrix_id:, observation_object_type:, observation_object_id:
+    ).first
     decrement_matrix_row_reference_count(mr) if !mr.nil?
   end
 

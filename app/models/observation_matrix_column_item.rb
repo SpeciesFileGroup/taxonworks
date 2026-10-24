@@ -40,7 +40,8 @@ class ObservationMatrixColumnItem < ApplicationRecord
   after_create :update_matrix_columns
   after_update :move_matrix_column, if: -> {
     saved_change_to_descriptor_id? ||
-      saved_change_to_controlled_vocabulary_term_id?
+      saved_change_to_controlled_vocabulary_term_id? ||
+      saved_change_to_observation_matrix_id?
   }
   after_destroy :cleanup_matrix_columns
 
@@ -67,10 +68,15 @@ class ObservationMatrixColumnItem < ApplicationRecord
     end
   end
 
-  # Decrement the previous descriptors' columns, increment the new ones
+  # Decrement the previous descriptors' columns (in the previous matrix),
+  # increment the new ones
   def move_matrix_column
     descriptor_ids_before_last_save.each do |id|
-      cleanup_single_matrix_column(id)
+      mc = ObservationMatrixColumn.where(
+        descriptor_id: id,
+        observation_matrix_id: observation_matrix_id_before_last_save
+      ).first
+      decrement_matrix_column_reference_count(mc) if !mc.nil?
     end
     update_matrix_columns
   end

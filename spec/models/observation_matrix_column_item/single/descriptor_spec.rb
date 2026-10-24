@@ -71,6 +71,23 @@ RSpec.describe ObservationMatrixColumnItem::Single::Descriptor, type: :model, gr
             expect(c.cached_observation_matrix_column_item_id).to eq observation_matrix_column_item.id
           end
         end
+
+        context 'changing the observation_matrix' do
+          let(:other_observation_matrix) { FactoryBot.create(:valid_observation_matrix) }
+
+          before { observation_matrix_column_item.update!(observation_matrix: other_observation_matrix) }
+
+          specify 'removes the column from the previous matrix' do
+            expect(ObservationMatrixColumn.where(observation_matrix:).count).to eq 0
+          end
+
+          specify 'adds a column to the new matrix' do
+            c = ObservationMatrixColumn.where(observation_matrix: other_observation_matrix).first
+            expect(c.descriptor_id).to eq descriptor.id
+            expect(c.reference_count).to eq 1
+            expect(c.cached_observation_matrix_column_item_id).to eq observation_matrix_column_item.id
+          end
+        end
       end
 
       specify 'descriptor can only be added once to observation_matrix_column_item' do
