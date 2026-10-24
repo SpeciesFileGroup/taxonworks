@@ -8,7 +8,8 @@ export default defineStore('content', {
       content: {
         id: undefined,
         global_id: undefined,
-        text: ''
+        text: '',
+        is_public: false
       },
       topic: undefined,
       otu: undefined,
@@ -27,6 +28,7 @@ export default defineStore('content', {
       this.content.id = data.id
       this.content.global_id = data.global_id
       this.content.text = data.text
+      this.content.is_public = !!data.public_content
 
       setParam(RouteNames.ContentEditor, {
         content_id: data.id

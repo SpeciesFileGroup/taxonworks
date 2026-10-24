@@ -1,5 +1,6 @@
 class AssertedEnvironmentsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
+  include DataControllerConfiguration::BatchByFilterScope
 
   # No update - AssertedEnvironments are only ever created or destroyed, never
   # edited in place.
@@ -124,6 +125,13 @@ class AssertedEnvironmentsController < ApplicationController
       :asserted_environment_object_id, :asserted_environment_object_type,
       :uri, :uri_label, :position,
       citations_attributes: [:is_original, :source_id, :pages]
+    )
+  end
+
+  def batch_by_filter_scope_params
+    params.require(:params).permit(
+      :uri, :uri_label,
+      citation: [:source_id, :pages, :is_original]
     )
   end
 

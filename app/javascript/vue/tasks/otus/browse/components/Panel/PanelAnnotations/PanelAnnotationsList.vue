@@ -6,7 +6,12 @@
         v-for="item in list"
         :key="item.id"
       >
-        <span v-html="item.object_tag" />
+        <slot
+          name="item"
+          :item="item"
+        >
+          <span v-html="item.object_tag" />
+        </slot>
       </li>
     </ul>
   </div>
@@ -28,17 +33,15 @@ defineProps({
 
 <style lang="scss" scoped>
 .annotation-group-title {
-  margin: 0 0 var(--spacing-xs);
+  margin: 0 0 var(--spacing-xxs);
   font-size: var(--font-size-sm);
   font-weight: 600;
+  color: var(--text-muted-color);
 }
 
 .annotation-group-list {
   margin: 0;
   padding-left: var(--spacing-md);
-
-  li {
-    line-height: 1.5;
-  }
+  list-style: inside;
 }
 </style>

@@ -64,7 +64,8 @@ import { computed, ref } from 'vue'
 import VModal from '@/components/ui/Modal.vue'
 
 const CUSTOM_OPTIONS = {
-  AllTasks: 'allTasks'
+  AllTasks: 'allTasks',
+  Edit: 'Edit'
 }
 
 defineOptions({
@@ -123,7 +124,22 @@ const menuOptions = computed(() => {
     })
   }
 
-  const slices = [...taskSlices]
+  const slices = [
+    ...taskSlices,
+    {
+      label: 'Edit',
+      name: { task: CUSTOM_OPTIONS.Edit },
+      radius: 30,
+      svgAttributes: {
+        class: 'slice'
+      },
+      icon: {
+        url: Icons.Edit,
+        width: '20',
+        height: '20'
+      }
+    }
+  ]
 
   return {
     width: 500,
@@ -157,10 +173,25 @@ function openLink(url) {
   })
 }
 
+function openEdit() {
+  const { base = {}, resource_path: resourcePath } = metadata.value
+
+  if (base.edit) {
+    openLink(base.edit)
+  } else {
+    props.ids.forEach((id) => {
+      window.open(`${resourcePath}/${id}/edit`, '_blank')
+    })
+  }
+}
+
 function selectRadialOption({ name: { task, url } }) {
   switch (task) {
     case CUSTOM_OPTIONS.AllTasks:
       isAlltaskSelected.value = true
+      break
+    case CUSTOM_OPTIONS.Edit:
+      openEdit()
       break
     default:
       openLink(url)

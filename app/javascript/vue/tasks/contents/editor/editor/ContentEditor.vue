@@ -17,7 +17,10 @@
             <template v-if="store.content.id">
               <div class="flex-row gap-small middle">
                 <span>Publish content</span>
-                <PublishContent :content-id="store.content.id" />
+                <PublishContent
+                  :content-id="store.content.id"
+                  @change="(value) => (store.content.is_public = value)"
+                />
               </div>
               <RadialAnnotator
                 type="annotations"
@@ -126,7 +129,7 @@ import PublishContent from './PublishContent.vue'
 import OtuButton from '@/components/otu/otu'
 import useContentStore from '../store/store.js'
 
-const extend = ['otu', 'topic']
+const extend = ['otu', 'topic', 'public_content']
 const config = {
   status: false,
   spellChecker: false
@@ -192,7 +195,8 @@ function update() {
     content: {
       text: store.content.text,
       otu_id: store.otu.id,
-      topic_id: store.topic.id
+      topic_id: store.topic.id,
+      is_public: store.content.is_public
     },
     extend
   }

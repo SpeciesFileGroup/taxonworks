@@ -29,6 +29,7 @@ module Workbench::NavigationHelper
     return {
       klass: k,
       id: k.tableize.singularize + '_id',
+      resource_path: '/' + k.tableize,
       tasks: tasks,
       base: b
     }
@@ -272,14 +273,6 @@ module Workbench::NavigationHelper
     else
       content_tag(:em, 'Data no longer available.', class: :warning)
     end
-  end
-
-  # @return [<a> tag, nil]
-  #   a link to the related data page
-  def related_data_link_tag(object)
-    return nil if object.nil?
-    p = "related_#{member_base_path(metamorphosize_if(object))}_path"
-    content_tag(:li, link_to('Related data', send(p, object))) if controller.respond_to?(p)
   end
 
   def a_to_z_links(targets = [])
