@@ -135,7 +135,8 @@ class Container < ApplicationRecord
   def available_space
     # Check size first: counting is a query, and most containers have no size.
     return nil if size.nil?
-    size - container_items.count
+    # size, not count: uses preloaded children when there are any.
+    size - container_items.size
   end
 
   # @return [Integer, nil]

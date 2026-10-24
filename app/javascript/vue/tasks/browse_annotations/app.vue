@@ -29,7 +29,6 @@
           v-if="annotationType"
           :list="list"
           :attributes="currentAttributes"
-          :backend-sort="true"
           :sortable-keys="sortableKeys"
           v-model="selectedIds"
           v-model:sort-keys="sortKeys"
@@ -46,7 +45,7 @@
         />
         <VToggle
           v-model="hideFrozen"
-          title="Hide/show non-frozen columns"
+          title="Hide non-frozen columns"
         >
           <VIcon
             :name="hideFrozen ? 'contract' : 'expand'"
@@ -110,7 +109,8 @@ watch(
     const sortString = serializeSortKeys(next)
     if (sortString === parameters.value.sort) return
     parameters.value.sort = sortString
-    if (!annotationType.value) return
+    // No type picked or no search yet: the sort applies to the next search.
+    if (!annotationType.value || !window.location.search) return
     makeFilterRequest({
       ...parameters.value,
       annotation_type: annotationType.value,
@@ -119,6 +119,16 @@ watch(
     })
   },
   { deep: true }
+)
+
+// URL sort param (set by useFilter from the URL after setup, or by browser
+// navigation) -> sort indicators.
+watch(
+  () => parameters.value.sort,
+  (next) => {
+    if (next === serializeSortKeys(sortKeys.value)) return
+    sortKeys.value = parseSortParam(next)
+  }
 )
 
 function handleFilter() {

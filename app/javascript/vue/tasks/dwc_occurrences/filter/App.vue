@@ -24,7 +24,6 @@
           ref="filterListRef"
           :list="list"
           :attributes="ATTRIBUTES"
-          :backend-sort="true"
           :sortable-keys="sortableKeys"
           :preference-key="`tasks::filters::${DWC_OCCURRENCE}`"
           :radial-annotator="false"
@@ -48,7 +47,7 @@
         />
         <VToggle
           v-model="hideFrozen"
-          title="Hide/show non-frozen columns"
+          title="Hide non-frozen columns"
         >
           <VIcon
             :name="hideFrozen ? 'contract' : 'expand'"

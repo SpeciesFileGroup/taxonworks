@@ -214,7 +214,11 @@ module Queries::Concerns::Identifiers
       return nil
     end
 
-    a = referenced_klass_union([a, match_identifiers_container_match ]) if referenced_klass.is_containable?
+    # Also items in containers with these identifiers, where the filter can
+    # match containers (Queries::Concerns::Containable).
+    if respond_to?(:match_identifiers_container_match) && referenced_klass.try(:is_containable?)
+      a = referenced_klass_union([a, match_identifiers_container_match ])
+    end
     a
   end
 

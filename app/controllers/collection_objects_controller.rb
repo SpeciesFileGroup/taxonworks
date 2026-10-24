@@ -522,12 +522,14 @@ class CollectionObjectsController < ApplicationController
 
     if helpers.extend_response_with('taxon_determinations')
       collection_objects = collection_objects.includes(
-        taxon_determinations: [:otu, :roles, determiner_roles: [:person, :organization]]
+        taxon_determinations: [:otu, determiner_roles: [:person, :organization]]
       )
     end
 
     if helpers.extend_response_with('container_item') || helpers.extend_response_with('container')
-      collection_objects = collection_objects.includes(container_item: { parent: { contained_object: :identifiers } })
+      # A parent's contained_object is always a Container; its own container_item
+      # children back container_items (available space, '... inside').
+      collection_objects = collection_objects.includes(container_item: { parent: { contained_object: [:identifiers, { container_item: :children }] } })
     end
 
     collection_objects

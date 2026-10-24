@@ -34,6 +34,8 @@ describe 'CollectionObject filter.json queries', type: :feature do
         creator: @user, updater: @user, project: @project)
 
       container = factory_bot_create_for_user_and_project(:valid_container_box, @user, @project)
+      # A sized container reports its available space, which counts its items.
+      container.update!(size_x: 3, size_y: 3, size_z: 1)
       Identifier::Local::ContainerCode.create!(
         identifier_object: container, namespace:, identifier: "box#{Container.count}#{i}",
         creator: @user, updater: @user, project: @project)
@@ -66,6 +68,7 @@ describe 'CollectionObject filter.json queries', type: :feature do
     expect(rows.size).to eq(5)
     expect(rows.map { |r| r['taxon_determinations'].first['determiner_roles'].size }).to all(eq(1))
     expect(rows.map { |r| r['container']['identifier'] }).to all(be_present)
+    expect(rows.map { |r| r['container']['available_space'] }).to all(eq(8))
 
     expect(five.size).to eq(two.size), "#{two.size} queries for 2 rows, #{five.size} for 5:\n#{five.join("\n")}"
   end

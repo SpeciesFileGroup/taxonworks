@@ -1,5 +1,3 @@
-# Authored with assistance from Claude (Anthropic)
-#
 # The `match_identifiers` sort key: orders records in the order their
 # identifiers (or internal ids) were given in the `match_identifiers` param,
 # see the matching facet in Queries::Concerns::Identifiers.

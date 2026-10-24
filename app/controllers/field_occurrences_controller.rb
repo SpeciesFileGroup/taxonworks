@@ -136,7 +136,7 @@ class FieldOccurrencesController < ApplicationController
 
     if helpers.extend_response_with('taxon_determinations')
       field_occurrences = field_occurrences.includes(
-        taxon_determinations: [:otu, :roles, determiner_roles: [:person, :organization]]
+        taxon_determinations: [:otu, determiner_roles: [:person, :organization]]
       )
     end
 

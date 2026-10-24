@@ -9,8 +9,8 @@
       :list="list"
       :csv-options="csvOptions"
       v-model:append="append"
-      @filter="makeFilterRequest({ ...parameters, extend, page: 1 })"
-      @per="makeFilterRequest({ ...parameters, extend, page: 1 })"
+      @filter="makeFilterRequest({ ...parameters, extend, exclude, page: 1 })"
+      @per="makeFilterRequest({ ...parameters, extend, exclude, page: 1 })"
       @nextpage="loadPage"
       @reset="resetFilter"
     >
@@ -31,7 +31,7 @@
           :disabled="!list.length"
           :parameters="parameters"
           :count="pagination?.total || 0"
-          @update="() => makeFilterRequest({ ...parameters, extend })"
+          @update="() => makeFilterRequest({ ...parameters, extend, exclude })"
         />
       </template>
 
@@ -41,7 +41,7 @@
             :disabled="!list.length"
             :ids="sortedSelectedIds"
             :count="sortedSelectedIds.length"
-            @update="() => makeFilterRequest({ ...parameters, extend })"
+            @update="() => makeFilterRequest({ ...parameters, extend, exclude })"
           />
           <TableLayoutSelector
             v-model="currentLayout"
@@ -73,7 +73,6 @@
           v-model:sort-keys="sortKeys"
           v-model:hide-unfrozen="hideFrozen"
           v-model:unsaved-view-changes="unsavedViewChanges"
-          :backend-sort="true"
           :sortable-keys="sortableKeys"
           :layout="currentLayout"
           :list="list"
@@ -87,7 +86,7 @@
       <template #nav-settings-start>
         <SortPanel
           v-model:sort-keys="sortKeys"
-          :labels="SORT_LABELS"
+          :labels="sortLabels"
           :sortable-keys="sortableKeys"
         />
         <SaveViewButton
@@ -96,7 +95,7 @@
         />
         <VToggle
           v-model="hideFrozen"
-          title="Hide/show non-frozen columns"
+          title="Hide non-frozen columns"
         >
           <VIcon
             :name="hideFrozen ? 'contract' : 'expand'"
@@ -130,16 +129,18 @@ import { listParser } from './utils/listParser.js'
 import { COLLECTING_EVENT } from '@/constants/index.js'
 import { computed, ref, reactive, onMounted, onBeforeMount } from 'vue'
 import { sortArray } from '@/helpers/arrays'
-import { humanize } from '@/helpers/strings'
 import { CollectingEvent } from '@/routes/endpoints'
 import { LAYOUTS } from './constants/layouts.js'
 import { useTableLayoutConfiguration } from '@/components/Filter/composables/useTableLayoutConfiguration.js'
+import { layoutSortLabels } from '@/shared/Filter/utils'
 
 defineOptions({
   name: 'FilterCollectingEvent'
 })
 
 const extend = ['roles', 'geographic_area_name']
+// The table doesn't show object tags, and building them costs queries per row.
+const exclude = ['object_labels']
 const hideFrozen = ref(false)
 
 const {
@@ -198,7 +199,7 @@ const {
   sortableKeys
 } = useFilter(CollectingEvent, {
   listParser,
-  initParameters: { extend },
+  initParameters: { extend, exclude },
   sortableColumnsResource: 'collecting_events'
 })
 
@@ -213,24 +214,13 @@ const {
   makeFilterRequest,
   objectType: COLLECTING_EVENT,
   extend,
+  exclude,
   sortableKeys
 })
 
-// Layouts are user-picked so no fixed ATTRIBUTES map exists; humanize each
-// backend-declared sortable key for the SortPanel picker. The backend
-// registers both bare and layout-prefixed forms so column header buttons
-// work in all layouts -- for the picker we prefer the prefixed form and
-// humanize just the column portion.
-const SORT_LABELS = computed(() => {
-  const keys = sortableKeys.value || []
-  const prefixed = keys.filter((k) => k.includes('.'))
-  const source = prefixed.length ? prefixed : keys
-  return source.reduce((acc, key) => {
-    const bare = key.includes('.') ? key.split('.').slice(1).join('.') : key
-    acc[key] = humanize(bare)
-    return acc
-  }, {})
-})
+const sortLabels = computed(() =>
+  layoutSortLabels(currentLayout.value?.properties)
+)
 
 const csvOptions = useCSVOptions({ layout: currentLayout, list })
 const isMouseDown = ref(false)

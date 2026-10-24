@@ -70,11 +70,19 @@ const selectedRoles = computed({
 })
 
 const people = ref([])
+// Ids from the URL whose person couldn't be loaded (e.g. deleted). Kept in
+// the filter, so it still matches what the URL asked for.
+const unresolvedIds = ref([])
+let hydrating = false
 
 watch(
   people,
   (newVal) => {
-    params.value.person_id = newVal.map((p) => p.id)
+    if (hydrating) return
+    params.value.person_id = [
+      ...newVal.map((p) => p.id),
+      ...unresolvedIds.value
+    ]
   },
   { deep: true }
 )
@@ -84,23 +92,32 @@ watch(
   (newVal, oldVal) => {
     if (!newVal?.length && oldVal?.length) {
       people.value = []
+      unresolvedIds.value = []
     }
   }
 )
 
-onBeforeMount(() => {
-  // person_id comes in as objects `{id, ...}` from in-page selection but as
-  // raw integers when hydrated from URL params. Handle both.
-  const ids =
-    params.value?.person_id?.map((p) =>
-      typeof p === 'object' ? p.id : p
-    ) || []
+onBeforeMount(async () => {
+  // person_id holds ids (the watcher above stores ids; the URL gives ids).
+  const ids = (params.value?.person_id || []).filter((id) => id != null)
+  if (!ids.length) return
 
-  ids.forEach((id) => {
-    if (id == null) return
-    People.find(id).then(({ body }) => {
-      addToArray(people.value, body)
-    })
+  // Load all of them before touching person_id, so a slow or failed lookup
+  // can't drop ids from the filter in the meantime.
+  hydrating = true
+  const results = await Promise.allSettled(ids.map((id) => People.find(id)))
+  const found = []
+  const unresolved = []
+  results.forEach((r, i) => {
+    if (r.status === 'fulfilled') found.push(r.value.body)
+    else unresolved.push(ids[i])
   })
+  unresolvedIds.value = unresolved
+  // Keep anyone picked while the lookups ran.
+  people.value = [
+    ...found,
+    ...people.value.filter((p) => !found.some((f) => f.id === p.id))
+  ]
+  hydrating = false
 })
 </script>

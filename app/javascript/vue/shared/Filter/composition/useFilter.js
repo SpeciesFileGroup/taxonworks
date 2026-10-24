@@ -88,7 +88,12 @@ export default function (
     const urlParams = qs.stringify(params, { arrayFormat: 'brackets' })
 
     state.urlRequest = [url, urlParams].join('?')
-    history.pushState(null, null, `${window.location.pathname}?${urlParams}`)
+    // Keep the hash: it holds the table's view state (freeze/hide/order).
+    history.pushState(
+      null,
+      null,
+      `${window.location.pathname}?${urlParams}${window.location.hash}`
+    )
   }
 
   const removeEmptyParameters = (params) => {
@@ -127,7 +132,7 @@ export default function (
     state.urlRequest = ''
     state.pagination = undefined
     state.selectedIds = []
-    history.pushState(null, null, `${window.location.pathname}`)
+    history.pushState(null, null, `${window.location.pathname}${window.location.hash}`)
   }
 
   onBeforeMount(() => {

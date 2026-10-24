@@ -53,7 +53,6 @@
           v-model:sort-keys="sortKeys"
           v-model:hide-unfrozen="hideFrozen"
           v-model:unsaved-view-changes="unsavedViewChanges"
-          :backend-sort="true"
           radial-object
           @remove="({ index }) => list.splice(index, 1)"
         />
@@ -97,7 +96,6 @@ import SaveViewButton from '@/components/Filter/Table/SaveViewButton.vue'
 import RadialMatrix from '@/components/radials/matrix/radial.vue'
 import { useFilter, useCSVOptions } from '@/shared/Filter/composition'
 import useFilterView from '@/shared/Filter/composition/useFilterView.js'
-import { humanize } from '@/helpers/strings.js'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import VToggle from '@/components/ui/VToggle.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
@@ -108,6 +106,7 @@ import { FIELD_OCCURRENCE } from '@/constants/index.js'
 import { FieldOccurrence } from '@/routes/endpoints'
 import { useTableLayoutConfiguration } from '@/components/Filter/composables/useTableLayoutConfiguration.js'
 import { computed, ref } from 'vue'
+import { layoutSortLabels } from '@/shared/Filter/utils'
 
 defineOptions({
   name: 'FilterFieldOccurrences'
@@ -167,19 +166,9 @@ const {
   sortableKeys
 })
 
-const sortLabels = computed(() => {
-  const map = {}
-  const properties = currentLayout.value?.properties || {}
-  for (const [group, cols] of Object.entries(properties)) {
-    if (Array.isArray(cols)) {
-      const groupLabel = humanize(group)
-      for (const col of cols) {
-        map[`${group}.${col}`] = `${groupLabel} · ${col}`
-      }
-    }
-  }
-  return map
-})
+const sortLabels = computed(() =>
+  layoutSortLabels(currentLayout.value?.properties)
+)
 
 const csvOptions = useCSVOptions({ layout: currentLayout, list })
 </script>

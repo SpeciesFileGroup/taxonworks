@@ -28,7 +28,6 @@
           v-model:sort-keys="sortKeys"
           v-model:hide-unfrozen="hideFrozen"
           v-model:unsaved-view-changes="unsavedViewChanges"
-          :backend-sort="true"
           @remove="({ index }) => list.splice(index, 1)"
         />
       </template>

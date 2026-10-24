@@ -1,5 +1,3 @@
-# Authored with assistance from Claude (Anthropic)
-#
 # Shared endpoints that expose metadata about `Queries::*` classes.
 # Currently just `#sortable_columns` -- the frontend calls this on filter
 # task mount so it can hide sort buttons for columns the backend doesn't

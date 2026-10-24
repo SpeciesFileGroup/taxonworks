@@ -23,7 +23,6 @@
           v-model:sort-keys="sortKeys"
           v-model:hide-unfrozen="hideFrozen"
           v-model:unsaved-view-changes="unsavedViewChanges"
-          :backend-sort="true"
           :sortable-keys="sortableKeys"
           :list="list"
           :attributes="ATTRIBUTES"

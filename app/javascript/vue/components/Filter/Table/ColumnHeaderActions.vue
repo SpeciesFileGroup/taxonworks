@@ -1,5 +1,5 @@
 <template>
-  <div class="horizontal-left-content gap-small column-header-controls">
+  <div class="horizontal-left-content gap-small">
     <VLock
       :value="columnKey"
       v-model="freeze"

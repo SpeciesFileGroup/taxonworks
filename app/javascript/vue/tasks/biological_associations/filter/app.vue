@@ -40,7 +40,6 @@
           v-model="selectedIds"
           v-model:sort-keys="sortKeys"
           v-model:unsaved-view-changes="unsavedViewChanges"
-          :backend-sort="true"
           :sortable-keys="sortableKeys"
           :attributes="ATTRIBUTES"
           :header-groups="HEADERS"

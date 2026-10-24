@@ -344,6 +344,26 @@ describe Queries::Query::Filter, type: [:model] do
     end
   end
 
+  # The facet also matches container identifiers, but only for containable
+  # models whose filter can build that match. (SQL errors from other parts of
+  # a filter, e.g. Download's default scope in a union, are not checked here.)
+  context 'match_identifiers facet' do
+    filters.select { |f| f.method_defined?(:match_identifiers_facet) }.each do |f|
+      specify "#{f.name} calls only methods it has" do
+        q = f.new(match_identifiers: '1,2', match_identifiers_type: 'internal')
+        error = begin
+          q.all.to_a
+          nil
+        rescue NameError => e
+          e
+        rescue ActiveRecord::StatementInvalid
+          nil
+        end
+        expect(error).to be_nil
+      end
+    end
+  end
+
   # See "Sorting and paging" in lib/queries/ARCHITECTURE.md: ordering and
   # paging are applied by Queries::Pager, never by the filter.
   context '#all returns a set, never ordered or paged' do

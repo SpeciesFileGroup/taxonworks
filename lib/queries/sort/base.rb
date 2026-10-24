@@ -1,5 +1,3 @@
-# Authored with assistance from Claude (Anthropic)
-#
 # The sort keys of one model. Subclass per model as `Queries::<Model>::Sort`
 # in `lib/queries/<model>/sort.rb`, overriding `columns_uncached` with the
 # `Queries::Sort::Resolver` helpers (`direct`, `association`, `custom`, ...).

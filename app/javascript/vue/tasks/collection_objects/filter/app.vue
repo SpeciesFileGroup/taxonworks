@@ -78,7 +78,6 @@
           v-model="selectedIds"
           v-model:sort-keys="sortKeys"
           v-model:unsaved-view-changes="unsavedViewChanges"
-          :backend-sort="true"
           :sortable-keys="sortableKeys"
           :list="list"
           :layout="currentLayout"
@@ -141,7 +140,7 @@ import { useTableLayoutConfiguration } from '@/components/Filter/composables/use
 import { LAYOUTS } from './constants/layouts.js'
 import { listParser } from './utils/listParser.js'
 import { useCSVOptions, useFilter } from '@/shared/Filter/composition'
-import { humanize } from '@/helpers/strings.js'
+import { layoutSortLabels } from '@/shared/Filter/utils'
 
 const extend = [
   'dwc_occurrence',
@@ -224,19 +223,9 @@ const {
   sortableKeys
 })
 
-const sortLabels = computed(() => {
-  const map = {}
-  const properties = currentLayout.value?.properties || {}
-  for (const [group, cols] of Object.entries(properties)) {
-    if (Array.isArray(cols)) {
-      const groupLabel = humanize(group)
-      for (const col of cols) {
-        map[`${group}.${col}`] = `${groupLabel} · ${col}`
-      }
-    }
-  }
-  return map
-})
+const sortLabels = computed(() =>
+  layoutSortLabels(currentLayout.value?.properties)
+)
 
 </script>
 

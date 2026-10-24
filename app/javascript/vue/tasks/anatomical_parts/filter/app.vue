@@ -49,7 +49,6 @@
           v-model:sort-keys="sortKeys"
           v-model:hide-unfrozen="hideFrozen"
           v-model:unsaved-view-changes="unsavedViewChanges"
-          :backend-sort="true"
           :sortable-keys="sortableKeys"
           :attributes="ATTRIBUTES"
           :list="list"
@@ -78,7 +77,7 @@
         />
         <VToggle
           v-model="hideFrozen"
-          title="Hide/show non-frozen columns"
+          title="Hide non-frozen columns"
         >
           <VIcon
             :name="hideFrozen ? 'contract' : 'expand'"

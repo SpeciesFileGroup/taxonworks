@@ -16,33 +16,33 @@
     </VBtn>
     <div
       v-if="isOpen"
-      class="sort-panel"
+      class="sort-panel panel"
     >
       <div class="sort-panel__header padding-small">
         <strong>Sort</strong>
       </div>
       <div
         v-if="!sortKeys.length && !availableToAdd.length"
-        class="sort-panel__empty padding-medium"
+        class="subtle padding-medium"
       >
         No sorts applied. Click a column sort button to add one.
       </div>
       <div
         v-else-if="!sortKeys.length"
-        class="sort-panel__empty padding-medium"
+        class="subtle padding-medium"
       >
         No sorts applied. Pick a column below to add one, or click a column sort button.
       </div>
       <ul
         v-else
-        class="no-list-style padding-xsmall"
+        class="no_bullets padding-xsmall"
       >
         <li
           v-for="(entry, index) in sortKeys"
           :key="entry.key"
           class="horizontal-left-content gap-small padding-xsmall"
         >
-          <span class="sort-panel__precedence">{{ index + 1 }}</span>
+          <span class="sort-panel__precedence font-bold">{{ index + 1 }}</span>
           <span class="flex-grow-1">{{ labelFor(entry.key) }}</span>
           <VBtn
             :color="'primary'"
@@ -88,7 +88,7 @@
       </ul>
       <div
         v-if="availableToAdd.length && atMaxSortKeys"
-        class="sort-panel__empty padding-small"
+        class="subtle padding-small"
       >
         At most {{ maxSortKeys }} columns can be sorted at once.
       </div>
@@ -98,7 +98,7 @@
       >
         <select
           v-model="pendingAddKey"
-          class="flex-grow-1"
+          class="normal-input flex-grow-1"
         >
           <option value="">Add sort column…</option>
           <option
@@ -244,27 +244,15 @@ function clearAll() {
   right: 0;
   z-index: 100;
   min-width: 320px;
-  background: var(--panel-bg-color, #fff);
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 .sort-panel__header {
   border-bottom: 1px solid var(--border-color);
-}
-.sort-panel__empty {
-  color: var(--text-color-muted, #888);
 }
 .sort-panel__footer {
   border-top: 1px solid var(--border-color);
 }
 .sort-panel__precedence {
-  font-weight: 700;
   min-width: 1.25em;
   text-align: right;
-}
-.no-list-style {
-  list-style: none;
-  margin: 0;
 }
 </style>

@@ -10,7 +10,7 @@ end
 if extend_response_with('container') && collection_object.container_item&.container.present?
   json.container do
     json.partial! '/containers/attributes', container: collection_object.container_item.container, extensions: false
-    json.identifier label_for_identifier(collection_object.container_item.container.identifiers.first)
+    json.identifier label_for_identifier(collection_object.container_item.container.identifiers.min_by(&:id))
   end
 end
 

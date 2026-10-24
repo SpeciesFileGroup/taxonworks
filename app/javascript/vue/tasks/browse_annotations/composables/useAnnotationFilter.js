@@ -30,21 +30,6 @@ const SERVICES = {
   documentation: Documentation
 }
 
-// annotationType (frontend key) -> backend resource for
-// /queries/:resource/sortable_columns.json
-const SORTABLE_RESOURCE_BY_TYPE = {
-  tags: 'tags',
-  notes: 'notes',
-  confidences: 'confidences',
-  data_attributes: 'data_attributes',
-  citations: 'citations',
-  identifiers: 'identifiers',
-  alternate_values: 'alternate_values',
-  attributions: 'attributions',
-  depictions: 'depictions',
-  documentation: 'documentation'
-}
-
 function getNestedValue(obj, path) {
   return path.split('.').reduce((acc, key) => acc?.[key], obj)
 }
@@ -137,13 +122,12 @@ export default function useAnnotationFilter() {
         sortableKeys.value = null
         return
       }
-      const resource = SORTABLE_RESOURCE_BY_TYPE[nextType]
-      if (!resource) {
-        sortableKeys.value = []
-        return
-      }
-      fetchSortableColumns(resource).then((keys) => {
-        sortableKeys.value = keys
+      // Each annotation type key is its backend resource name. Ignore a
+      // response that arrives after the user switched to another type.
+      fetchSortableColumns(nextType).then((keys) => {
+        if (annotationType.value === nextType) {
+          sortableKeys.value = keys
+        }
       })
     },
     { immediate: true }

@@ -5,8 +5,8 @@
 // Filter task app.vue files call this alongside useFilter and drop the
 // returned template ref onto FilterList/TableResults.
 
-import { computed, onMounted, ref, useTemplateRef, watch } from 'vue'
-import { useUserPreference } from '@/composables'
+import { computed, ref, useTemplateRef, watch } from 'vue'
+import { useUserPreference, useUserPreferences } from '@/composables'
 import { serializeSortKeys, parseSortParam } from '@/helpers/arrays.js'
 import { maxSortKeys } from '@/shared/Filter/utils'
 
@@ -31,6 +31,7 @@ export default function useFilterView({
     `tasks::filters::${objectType}::sortKeys`,
     []
   )
+  const { loaded: preferencesLoaded } = useUserPreferences()
   const filterListRef = useTemplateRef('filterListRef')
   const unsavedViewChanges = ref(false)
   const sortKeys = ref(parseSortParam(parameters.value.sort))
@@ -59,29 +60,32 @@ export default function useFilterView({
     return result
   }
 
-  function hydrateSortKeysFromPref(pref) {
-    suppressNextFetch = true
-    sortKeys.value = applicableSortKeys(JSON.parse(JSON.stringify(pref)))
+  function savedSortKeys() {
+    return applicableSortKeys(JSON.parse(JSON.stringify(sortKeysPref.value ?? [])))
   }
 
-  onMounted(() => {
-    if (!parameters.value.sort && sortKeysPref.value?.length) {
-      hydrateSortKeysFromPref(sortKeysPref.value)
+  // Saved sort, applied during setup when preferences are already loaded
+  // (sessionStorage cache): before useFilter's onBeforeMount sends the first
+  // request, so that request is sorted too. A `sort` in the URL (or session
+  // state) is merged in afterwards by useFilter and wins.
+  if (preferencesLoaded.value && !parameters.value.sort) {
+    const saved = savedSortKeys()
+    if (saved.length) {
+      sortKeys.value = saved
+      parameters.value.sort = serializeSortKeys(saved)
     }
-  })
+  }
 
-  // Handle async pref load (cold-start, no sessionStorage cache). Fires
-  // once when the pref becomes non-empty. Skipped if the URL supplied a
-  // sort or the user has already touched sortKeys.
-  let asyncHydrated = false
-  watch(sortKeysPref, (pref) => {
-    if (asyncHydrated) return
-    asyncHydrated = true
-    if (parameters.value.sort) return
-    if (sortKeys.value?.length) return
-    if (pref?.length) {
-      hydrateSortKeysFromPref(pref)
-    }
+  // Cold start: preferences arrive later. Apply the saved sort once, when
+  // they finish loading (not on later preference changes), unless a sort is
+  // already set. If results are already showing (a request has set the URL
+  // query), refetch so the list matches the sort shown.
+  watch(preferencesLoaded, (loaded) => {
+    if (!loaded || parameters.value.sort || sortKeys.value?.length) return
+    const saved = savedSortKeys()
+    if (!saved.length) return
+    suppressNextFetch = !window.location.search
+    sortKeys.value = saved
   })
 
   // sort keys change (user click, panel edit) -> URL param + refetch
@@ -94,7 +98,9 @@ export default function useFilterView({
         return
       }
       parameters.value.sort = sortString
-      if (suppressNextFetch) {
+      // No search yet (nothing in the URL query): just record the sort for
+      // the first search, rather than fetching an unfiltered list.
+      if (suppressNextFetch || !window.location.search) {
         suppressNextFetch = false
         return
       }
@@ -110,7 +116,21 @@ export default function useFilterView({
     () => parameters.value.sort,
     (next) => {
       if (next === serializeSortKeys(sortKeys.value)) return
+      // The request that set this sort has run (or is running) already.
+      suppressNextFetch = true
       sortKeys.value = applicableSortKeys(parseSortParam(next))
+    }
+  )
+
+  // Reset replaces `parameters`: back to the saved sort, as on a fresh load.
+  watch(
+    () => parameters.value,
+    (next, previous) => {
+      if (next === previous || next.sort) return
+      const saved = savedSortKeys()
+      if (sortKeysEqual(saved, sortKeys.value)) return
+      suppressNextFetch = true
+      sortKeys.value = saved
     }
   )
 

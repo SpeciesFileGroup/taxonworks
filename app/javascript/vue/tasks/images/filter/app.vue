@@ -41,7 +41,7 @@
       <template #nav-settings-start>
         <SortPanel
           v-model:sort-keys="sortKeys"
-          :labels="SORT_LABELS"
+          :labels="sortLabels"
           :sortable-keys="sortableKeys"
         />
         <SaveViewButton
@@ -72,10 +72,13 @@ import SaveViewButton from '@/components/Filter/Table/SaveViewButton.vue'
 import DepictionList from './components/DepictionList.vue'
 import { IMAGE } from '@/constants/index.js'
 import { Image } from '@/routes/endpoints'
+import { sortKeyLabels } from '@/shared/Filter/utils'
+import { computed } from 'vue'
 
 // Images render as a gallery (no column headers), so sort options are only
-// reachable through the SortPanel picker. Keep the label map here.
-const SORT_LABELS = {
+// reachable through the SortPanel picker: it offers every backend sort key,
+// named here where the humanized key reads poorly.
+const SORT_LABEL_OVERRIDES = {
   id: 'ID',
   user_file_name: 'User file name',
   image_file_file_name: 'File name',
@@ -103,6 +106,10 @@ const {
 } = useFilter(Image, {
   sortableColumnsResource: 'images'
 })
+
+const sortLabels = computed(() =>
+  sortKeyLabels(sortableKeys.value || [], SORT_LABEL_OVERRIDES)
+)
 
 const {
   sortKeys,

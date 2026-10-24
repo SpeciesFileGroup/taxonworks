@@ -45,7 +45,6 @@
           v-model:sort-keys="sortKeys"
           v-model:hide-unfrozen="hideFrozen"
           v-model:unsaved-view-changes="unsavedViewChanges"
-          :backend-sort="true"
           radial-object
           @remove="({ index }) => list.splice(index, 1)"
         >

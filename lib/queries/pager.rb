@@ -1,5 +1,3 @@
-# Authored with assistance from Claude (Anthropic)
-#
 # Orders a set, then pages it:
 #
 #   set = Queries::Otu::Filter.new(params).all
