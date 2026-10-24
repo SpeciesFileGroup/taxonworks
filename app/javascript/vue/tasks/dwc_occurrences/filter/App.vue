@@ -109,7 +109,8 @@ const {
 } = useFilterView({
   parameters,
   makeFilterRequest,
-  objectType: DWC_OCCURRENCE
+  objectType: DWC_OCCURRENCE,
+  sortableKeys
 })
 </script>
 

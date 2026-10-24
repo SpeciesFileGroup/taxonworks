@@ -154,7 +154,8 @@ const {
   parameters,
   makeFilterRequest,
   objectType: BIOLOGICAL_ASSOCIATION,
-  extend
+  extend,
+  sortableKeys
 })
 
 const sortLabels = computed(() => {

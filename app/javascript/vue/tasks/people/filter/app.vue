@@ -105,7 +105,8 @@ const {
 } = useFilterView({
   parameters,
   makeFilterRequest,
-  objectType: PERSON
+  objectType: PERSON,
+  sortableKeys
 })
 </script>
 

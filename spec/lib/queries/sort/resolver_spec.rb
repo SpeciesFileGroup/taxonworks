@@ -145,8 +145,8 @@ describe 'Queries::Sort::Resolver', type: :model do
     specify 'is a plain LEFT JOIN, not a LATERAL' do
       sql = Queries::Pager.new(CollectionObject.all, sort: 'dwc_occurrence.scientificName').all.to_sql
       expect(sql).not_to include('LATERAL')
-      expect(sql).to include('LEFT JOIN dwc_occurrences AS sort_dwc_occurrence_0 ON sort_dwc_occurrence_0.dwc_occurrence_object_id = collection_objects.id')
-      expect(sql).to include(%(sort_dwc_occurrence_0.dwc_occurrence_object_type = 'CollectionObject'))
+      expect(sql).to include('LEFT JOIN dwc_occurrences AS sort_dwc_occurrence ON sort_dwc_occurrence.dwc_occurrence_object_id = collection_objects.id')
+      expect(sql).to include(%(sort_dwc_occurrence.dwc_occurrence_object_type = 'CollectionObject'))
     end
 
     context 'followed by a belongs_to hop' do
@@ -160,7 +160,7 @@ describe 'Queries::Sort::Resolver', type: :model do
       specify 'joins both hops directly' do
         sql = sort.call(::Content.all, :asc).to_sql
         expect(sql).not_to include('LATERAL')
-        expect(sql).to include('LEFT JOIN otus AS sort_otu_1 ON sort_otu_1.id = sort_public_content_0.otu_id')
+        expect(sql).to include('LEFT JOIN otus AS sort_public_content_otu ON sort_public_content_otu.id = sort_public_content.otu_id')
       end
 
       specify 'orders by the final column' do
@@ -228,6 +228,59 @@ describe 'Queries::Sort::Resolver', type: :model do
       expect {
         klass.send(:sortable_association_columns, :no_such_association)
       }.to raise_error(ArgumentError, /no association/)
+    end
+  end
+
+  context 'has_many :through shapes' do
+    # The LATERAL walks one through table and one belongs_to source. Other
+    # shapes would join the wrong columns, and skip the User and scope checks
+    # for the classes in the middle of the chain.
+    specify 'rejects a nested has_many :through' do
+      expect {
+        Queries::TaxonName::Sort.send(:association, :collection_objects, :total, collapse: :aggregate)
+      }.to raise_error(ArgumentError, /use custom\(\)/)
+    end
+
+    specify 'rejects a has_many source' do
+      expect {
+        Queries::TaxonName::Sort.send(:association, :taxon_determinations, :position, collapse: :position)
+      }.to raise_error(ArgumentError, /use custom\(\)/)
+    end
+
+    specify 'rejects a through belongs_to' do
+      expect {
+        klass.send(:association, :georeferences, :error_radius, collapse: :aggregate)
+      }.to raise_error(ArgumentError, /use custom\(\)/)
+    end
+  end
+
+  context 'join aliases' do
+    # Two keys reaching an association of the same name through different
+    # parents must not share an alias.
+    specify 'differ for the same association reached through different parents' do
+      by_repository = klass.send(:association, :repository, :identifiers, :cached, collapse: :joined)
+      by_current = klass.send(:association, :current_repository, :identifiers, :cached, collapse: :joined)
+
+      q = by_current.call(by_repository.call(CollectionObject.all, :asc), :asc)
+      expect { q.to_a }.not_to raise_error
+    end
+  end
+
+  context 'STI targets' do
+    let(:otu) { FactoryBot.create(:valid_otu) }
+    # Biocuration groups tag biocuration classes.
+    let(:biocuration_class) { FactoryBot.create(:valid_biocuration_class) }
+    let(:group) { BiocurationGroup.create!(name: 'Aaa group', definition: 'A group of biocuration classes.') }
+    let(:keyword) { Keyword.create!(name: 'Zzz keyword', definition: 'A keyword for sorting by.') }
+
+    # A join to a class with STI subclasses includes the subclasses' rows,
+    # as the association itself does.
+    specify 'a non-leaf STI target includes its subclasses' do
+      tag_z = Tag.create!(keyword:, tag_object: otu)
+      tag_a = Tag.create!(keyword: group, tag_object: biocuration_class)
+      sort = Queries::Tag::Sort.send(:association, :keyword, :name)
+
+      expect(sort.call(Tag.where(id: [tag_z.id, tag_a.id]), :asc).to_a).to eq([tag_a, tag_z])
     end
   end
 end

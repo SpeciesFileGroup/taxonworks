@@ -127,7 +127,8 @@ const {
   parameters,
   makeFilterRequest,
   objectType: EXTRACT,
-  extend
+  extend,
+  sortableKeys
 })
 </script>
 

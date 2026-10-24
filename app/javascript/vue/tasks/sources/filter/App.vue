@@ -160,7 +160,8 @@ const {
   parameters,
   makeFilterRequest,
   objectType: SOURCE,
-  extend
+  extend,
+  sortableKeys
 })
 
 const csvOptions = {

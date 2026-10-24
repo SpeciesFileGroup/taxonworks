@@ -8,6 +8,7 @@
 import { computed, onMounted, ref, useTemplateRef, watch } from 'vue'
 import { useUserPreference } from '@/composables'
 import { serializeSortKeys, parseSortParam } from '@/helpers/arrays.js'
+import { maxSortKeys } from '@/shared/Filter/utils'
 
 function sortKeysEqual(a, b) {
   if (!Array.isArray(a) || !Array.isArray(b)) return false
@@ -23,7 +24,8 @@ export default function useFilterView({
   makeFilterRequest,
   objectType,
   extend = [],
-  exclude = undefined
+  exclude = undefined,
+  sortableKeys = ref(null)
 }) {
   const sortKeysPref = useUserPreference(
     `tasks::filters::${objectType}::sortKeys`,
@@ -42,9 +44,24 @@ export default function useFilterView({
   // makeFilterRequest call.
   let suppressNextFetch = false
 
+  // Keys the backend sorts by, at most maxSortKeys of them. A saved pref or
+  // URL can hold keys that are no longer sortable (renamed, removed); the
+  // backend ignores those, so showing them would show a sort that isn't
+  // applied. Until sortableKeys loads, keys are kept as given.
+  function applicableSortKeys(keys) {
+    let result = keys
+    if (Array.isArray(sortableKeys.value)) {
+      result = result.filter(({ key }) => sortableKeys.value.includes(key))
+    }
+    if (maxSortKeys.value != null) {
+      result = result.slice(0, maxSortKeys.value)
+    }
+    return result
+  }
+
   function hydrateSortKeysFromPref(pref) {
     suppressNextFetch = true
-    sortKeys.value = JSON.parse(JSON.stringify(pref))
+    sortKeys.value = applicableSortKeys(JSON.parse(JSON.stringify(pref)))
   }
 
   onMounted(() => {
@@ -93,7 +110,19 @@ export default function useFilterView({
     () => parameters.value.sort,
     (next) => {
       if (next === serializeSortKeys(sortKeys.value)) return
-      sortKeys.value = parseSortParam(next)
+      sortKeys.value = applicableSortKeys(parseSortParam(next))
+    }
+  )
+
+  // Sortable keys arrive after hydration: drop keys that turn out not to be
+  // sortable. No refetch, the backend already ignored them.
+  watch(
+    [sortableKeys, maxSortKeys],
+    () => {
+      const applicable = applicableSortKeys(sortKeys.value)
+      if (sortKeysEqual(applicable, sortKeys.value)) return
+      suppressNextFetch = true
+      sortKeys.value = applicable
     }
   )
 

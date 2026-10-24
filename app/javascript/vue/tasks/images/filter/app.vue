@@ -111,7 +111,8 @@ const {
 } = useFilterView({
   parameters,
   makeFilterRequest,
-  objectType: IMAGE
+  objectType: IMAGE,
+  sortableKeys
 })
 </script>
 

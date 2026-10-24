@@ -65,7 +65,16 @@ import AssertedDistributionSlice from './components/AssertedDistributionSlice.vu
 import { computed, ref } from 'vue'
 import { removeEmptyProperties } from '@/helpers/objects.js'
 
-const EXCLUDE_PARAMETERS = ['per', 'page', 'extend']
+// Batch actions act on the whole set, so paging and ordering params don't apply
+const EXCLUDE_PARAMETERS = [
+  'per',
+  'page',
+  'extend',
+  'sort',
+  'recent',
+  'recent_target',
+  'order_by'
+]
 const SLICES = {
   'Update Taxon name': TaxonNameSlice,
   'Add asserted distribution': AssertedDistributionSlice

@@ -132,7 +132,8 @@ const {
   parameters,
   makeFilterRequest,
   objectType: TAXON_NAME,
-  extend
+  extend,
+  sortableKeys
 })
 </script>
 

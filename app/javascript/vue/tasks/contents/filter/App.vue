@@ -114,7 +114,8 @@ const {
   parameters,
   makeFilterRequest,
   objectType: CONTENT,
-  extend
+  extend,
+  sortableKeys
 })
 
 const tsvDownload = computed(() => [

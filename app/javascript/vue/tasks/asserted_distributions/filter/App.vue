@@ -184,7 +184,8 @@ const {
   parameters,
   makeFilterRequest,
   objectType: ASSERTED_DISTRIBUTION,
-  extend
+  extend,
+  sortableKeys
 })
 
 function loadMap(id) {

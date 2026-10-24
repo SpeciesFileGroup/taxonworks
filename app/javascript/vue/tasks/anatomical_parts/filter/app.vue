@@ -150,7 +150,8 @@ const {
 } = useFilterView({
   parameters,
   makeFilterRequest,
-  objectType: ANATOMICAL_PART
+  objectType: ANATOMICAL_PART,
+  sortableKeys
 })
 
 function loadGraph(id) {

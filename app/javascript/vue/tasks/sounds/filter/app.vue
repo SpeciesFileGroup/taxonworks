@@ -104,7 +104,8 @@ const {
 } = useFilterView({
   parameters,
   makeFilterRequest,
-  objectType: SOUND
+  objectType: SOUND,
+  sortableKeys
 })
 </script>
 

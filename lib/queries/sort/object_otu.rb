@@ -80,7 +80,7 @@ module Queries::Sort::ObjectOtu
           FROM taxon_determinations td
           WHERE td.taxon_determination_object_id = (#{id_expr})
             AND td.taxon_determination_object_type = '#{object_type}'
-          ORDER BY td.position
+          ORDER BY td.position, td.id
           LIMIT 1
         SQL
       }

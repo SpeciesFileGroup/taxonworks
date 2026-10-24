@@ -81,7 +81,16 @@ import { ANNOTATORS } from './constants/annotators.js'
 import { Metadata } from '@/routes/endpoints'
 import { computed, ref, onBeforeMount } from 'vue'
 
-const EXCLUDE_PARAMETERS = ['per', 'page', 'extend']
+// Batch actions act on the whole set, so paging and ordering params don't apply
+const EXCLUDE_PARAMETERS = [
+  'per',
+  'page',
+  'extend',
+  'sort',
+  'recent',
+  'recent_target',
+  'order_by'
+]
 
 defineOptions({
   name: 'RadialBatchAnnotator'

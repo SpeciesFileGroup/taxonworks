@@ -212,7 +212,8 @@ const {
   parameters,
   makeFilterRequest,
   objectType: COLLECTING_EVENT,
-  extend
+  extend,
+  sortableKeys
 })
 
 // Layouts are user-picked so no fixed ATTRIBUTES map exists; humanize each

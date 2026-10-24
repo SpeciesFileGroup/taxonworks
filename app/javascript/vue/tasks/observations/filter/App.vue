@@ -128,7 +128,8 @@ const {
   parameters,
   makeFilterRequest,
   objectType: OBSERVATION,
-  extend
+  extend,
+  sortableKeys
 })
 </script>
 

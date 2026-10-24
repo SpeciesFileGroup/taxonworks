@@ -121,6 +121,7 @@ const {
 } = useFilterView({
   parameters,
   makeFilterRequest,
-  objectType: TAXON_NAME_RELATIONSHIP
+  objectType: TAXON_NAME_RELATIONSHIP,
+  sortableKeys
 })
 </script>

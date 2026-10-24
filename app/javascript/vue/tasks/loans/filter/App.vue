@@ -109,7 +109,8 @@ const {
   parameters,
   makeFilterRequest,
   objectType: LOAN,
-  extend
+  extend,
+  sortableKeys
 })
 </script>
 

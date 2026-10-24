@@ -163,7 +163,8 @@ const {
   makeFilterRequest,
   objectType: FIELD_OCCURRENCE,
   extend,
-  exclude
+  exclude,
+  sortableKeys
 })
 
 const sortLabels = computed(() => {

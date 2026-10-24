@@ -156,7 +156,7 @@ module Queries::Sort::Resolver
           # so the has_many collapses to one value per row; nothing more is
           # joined out here.
           remaining = path[(i + 1)..]
-          lat = has_many_lateral(current_alias, refl, remaining, column, collapse)
+          lat = has_many_lateral(current_alias, refl, remaining, column, collapse, prefix: path[0...i])
           return ->(q, dir) do
             joins.each { |j| q = q.joins(j) }
             q.joins(lat[:sql]).order(Arel.sql(%(#{lat[:alias]}.val #{sort_direction(dir)} NULLS LAST)))
@@ -170,7 +170,7 @@ module Queries::Sort::Resolver
           refl.klass, terminal_column: (column if i == path.length - 1)
         )
 
-        alias_name = "sort_#{name}_#{i}"
+        alias_name = sort_alias(path[0..i])
         joins << single_hop_join(klass, refl, current_alias, alias_name)
         klass = refl.klass
         current_alias = alias_name
@@ -209,9 +209,7 @@ module Queries::Sort::Resolver
         end
       end
 
-      if target.finder_needs_type_condition?
-        sql += " AND #{alias_name}.#{target.inheritance_column} = #{quote(target.sti_name)}"
-      end
+      sql += " AND #{type_condition_sql(target, alias_name)}" if target.finder_needs_type_condition?
 
       sql
     end
@@ -219,7 +217,8 @@ module Queries::Sort::Resolver
     # Builds the LATERAL for a has_many (direct or :through) hop, optionally
     # continuing through further belongs_to/has_one hops (`remaining`)
     # *inside* the LATERAL before collapsing to a single value.
-    def has_many_lateral(owner_alias, refl, remaining, column, collapse)
+    # @param prefix [Array<Symbol>] the hops before this one, for the alias
+    def has_many_lateral(owner_alias, refl, remaining, column, collapse, prefix: [])
       raise ArgumentError, "sort path too deep: #{remaining.join('.')}" if remaining.length > MAX_DEPTH
 
       from_sql, where, current_alias, current_klass = has_many_source(
@@ -281,10 +280,10 @@ module Queries::Sort::Resolver
           raise ArgumentError, "unknown collapse strategy #{collapse.inspect}"
         end
 
-      # Includes the rest of the path and the column, so two keys through
-      # the same has_many (e.g. two taxon_determinations columns) get
-      # separate LATERALs.
-      lat_alias = ['sort', refl.name, *remaining, column].join('_')
+      # The whole path and the column, so two keys through the same has_many
+      # (e.g. two taxon_determinations columns), or through has_manys of the
+      # same name on different parents, get separate LATERALs.
+      lat_alias = sort_alias([*prefix, refl.name, *remaining, column])
       sql = <<~SQL.squish
         LEFT JOIN LATERAL (
           SELECT #{select_expr} AS val
@@ -309,6 +308,7 @@ module Queries::Sort::Resolver
       if refl.through_reflection
         thr = refl.through_reflection
         src = refl.source_reflection
+        validate_through_shape!(refl)
         thr_klass = thr.klass
         final_klass = src.klass
         validate_target_class!(thr_klass)
@@ -320,9 +320,7 @@ module Queries::Sort::Resolver
         if thr.type.present?
           where << "#{thr_alias}.#{thr.type} = #{quote(owner_klass.polymorphic_name)}"
         end
-        if thr_klass.finder_needs_type_condition?
-          where << "#{thr_alias}.#{thr_klass.inheritance_column} = #{quote(thr_klass.sti_name)}"
-        end
+        where << type_condition_sql(thr_klass, thr_alias) if thr_klass.finder_needs_type_condition?
 
         from_sql = "FROM #{thr_klass.table_name} #{thr_alias} " \
           "JOIN #{final_klass.table_name} #{final_alias} ON #{final_alias}.id = #{thr_alias}.#{src.foreign_key}"
@@ -337,9 +335,7 @@ module Queries::Sort::Resolver
         if refl.type.present?
           where << "#{t_alias}.#{refl.type} = #{quote(owner_klass.polymorphic_name)}"
         end
-        if target.finder_needs_type_condition?
-          where << "#{t_alias}.#{target.inheritance_column} = #{quote(target.sti_name)}"
-        end
+        where << type_condition_sql(target, t_alias) if target.finder_needs_type_condition?
 
         ["FROM #{target.table_name} #{t_alias}", where, t_alias, target]
       end
@@ -363,9 +359,7 @@ module Queries::Sort::Resolver
           sql += " AND #{alias_name}.#{refl.type} = #{quote(owner_klass.polymorphic_name)}"
         end
       end
-      if target.finder_needs_type_condition?
-        sql += " AND #{alias_name}.#{target.inheritance_column} = #{quote(target.sti_name)}"
-      end
+      sql += " AND #{type_condition_sql(target, alias_name)}" if target.finder_needs_type_condition?
 
       sql
     end
@@ -410,6 +404,41 @@ module Queries::Sort::Resolver
         BLACKLISTED_CLASS_SORTABLE_COLUMNS[klass.name]&.include?(terminal_column.to_s)
 
       raise ArgumentError, "#{klass} is not reachable for sorting"
+    end
+
+    # The LATERAL for a has_many :through joins exactly one through table to
+    # one belongs_to source. Other shapes would join the wrong columns, and
+    # nested ones skip the User and scope checks for the classes between.
+    def validate_through_shape!(refl)
+      thr = refl.through_reflection
+      src = refl.source_reflection
+      shape =
+        if thr.through_reflection || src.through_reflection
+          'a nested :through'
+        elsif !%i[has_many has_one].include?(thr.macro) || thr.polymorphic?
+          "through a #{thr.macro}"
+        elsif src.macro != :belongs_to || src.polymorphic?
+          "a #{src.polymorphic? ? 'polymorphic ' : ''}#{src.macro} source"
+        end
+      return if shape.nil?
+
+      raise ArgumentError, "has_many :through :#{refl.name} on #{refl.active_record} is #{shape}, which is not generically sortable; use custom()"
+    end
+
+    # `type IN (...)` for klass and its STI subclasses, as the association
+    # itself selects them.
+    def type_condition_sql(klass, table_alias)
+      names = ([klass] + klass.descendants).map(&:sti_name).uniq
+      "#{table_alias}.#{klass.inheritance_column} IN (#{names.map { |n| quote(n) }.join(', ')})"
+    end
+
+    # Postgres truncates identifiers past 63 bytes, which could make two long
+    # aliases equal again, so long ones end in a digest instead.
+    def sort_alias(parts)
+      name = ['sort', *parts].join('_')
+      return name if name.length <= 63
+
+      "#{name[0, 50]}_#{Digest::MD5.hexdigest(name)[0, 12]}"
     end
 
     def sort_direction(dir) = dir == :desc ? 'DESC' : 'ASC'

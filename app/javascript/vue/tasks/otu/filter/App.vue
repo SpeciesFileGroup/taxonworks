@@ -141,7 +141,8 @@ const {
   parameters,
   makeFilterRequest,
   objectType: OTU,
-  extend
+  extend,
+  sortableKeys
 })
 
 const extendDownload = computed(() => [

@@ -220,7 +220,8 @@ const {
   makeFilterRequest,
   objectType: COLLECTION_OBJECT,
   extend,
-  exclude
+  exclude,
+  sortableKeys
 })
 
 const sortLabels = computed(() => {

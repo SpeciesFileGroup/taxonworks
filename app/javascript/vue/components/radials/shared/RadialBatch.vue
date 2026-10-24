@@ -80,7 +80,16 @@ import VBtn from '@/components/ui/VBtn/index.vue'
 import { useRadialBatch } from '@/components/radials/shared/useRadialBatch'
 import { useUserPreference } from '@/composables'
 
-const EXCLUDE_PARAMETERS = ['per', 'page', 'extend']
+// Batch actions act on the whole set, so paging and ordering params don't apply
+const EXCLUDE_PARAMETERS = [
+  'per',
+  'page',
+  'extend',
+  'sort',
+  'recent',
+  'recent_target',
+  'order_by'
+]
 
 defineOptions({
   name: 'RadialBatch'
