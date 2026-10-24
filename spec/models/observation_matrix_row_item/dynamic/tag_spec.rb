@@ -122,6 +122,20 @@ RSpec.describe ObservationMatrixRowItem::Dynamic::Tag, type: :model, group: :obs
         end
       end
 
+      context 'moving a tag to another object' do
+        let(:otu3) { FactoryBot.create(:valid_otu) }
+
+        before { tag1.update!(tag_object: otu3) }
+
+        specify 'the row moves to the new object' do
+          expect(ObservationMatrixRow.all.map(&:observation_object)).to contain_exactly(otu2, co1, otu3)
+        end
+
+        specify 'reference_counts are unchanged' do
+          expect(ObservationMatrixRow.all.pluck(:reference_count)).to contain_exactly(1, 1, 1)
+        end
+      end
+
       specify 'keyword/controlled_vocabulary_term can only be added once to an observation_matrix_row_item' do
         expect(ObservationMatrixRowItem::Dynamic::Tag.new(observation_matrix: observation_matrix, observation_object: keyword).valid?).to be_falsey
       end

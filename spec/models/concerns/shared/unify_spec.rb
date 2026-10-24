@@ -968,6 +968,74 @@ describe 'Shared::Unify', type: :model do
     end
   end
 
+  # Unify moves tags, which maintain the rows/columns of dynamic (keyword)
+  # matrix items.
+  context 'Descriptors in observation matrices via a dynamic keyword' do
+    let(:om) { FactoryBot.create(:valid_observation_matrix) }
+    let(:keyword) { FactoryBot.create(:valid_keyword) }
+    let(:d1) { FactoryBot.create(:valid_descriptor) }
+    let(:d2) { FactoryBot.create(:valid_descriptor) }
+    let!(:tag2) { FactoryBot.create(:valid_tag, keyword:, tag_object: d2) }
+    let!(:item) {
+      ObservationMatrixColumnItem::Dynamic::Tag.create!(
+        observation_matrix: om, controlled_vocabulary_term: keyword)
+    }
+
+    context 'when only the removed descriptor is tagged' do
+      specify 'unify succeeds' do
+        expect(d1.unify(d2)[:result][:unified]).to be(true)
+      end
+
+      specify 'the column moves to the kept descriptor' do
+        d1.unify(d2)
+        expect(ObservationMatrixColumn.where(observation_matrix: om)
+          .pluck(:descriptor_id, :reference_count))
+          .to contain_exactly([d1.id, 1])
+      end
+    end
+
+    context 'when the removed descriptor is also a single item' do
+      let!(:single_item) {
+        ObservationMatrixColumnItem::Single::Descriptor.create!(
+          observation_matrix: om, descriptor: d2)
+      }
+
+      specify 'unify succeeds' do
+        expect(d1.unify(d2)[:result][:unified]).to be(true)
+      end
+
+      specify 'the column moves to the kept descriptor' do
+        d1.unify(d2)
+        expect(ObservationMatrixColumn.where(observation_matrix: om)
+          .pluck(:descriptor_id, :reference_count,
+            :cached_observation_matrix_column_item_id))
+          .to contain_exactly([d1.id, 2, single_item.id])
+      end
+    end
+  end
+
+  context 'Otus in observation matrices via a dynamic keyword' do
+    let(:om) { FactoryBot.create(:valid_observation_matrix) }
+    let(:keyword) { FactoryBot.create(:valid_keyword) }
+    let!(:tag2) { FactoryBot.create(:valid_tag, keyword:, tag_object: o2) }
+    let!(:item) {
+      ObservationMatrixRowItem::Dynamic::Tag.create!(
+        observation_matrix: om, observation_object: keyword)
+    }
+
+    specify 'unify succeeds' do
+      expect(o1.unify(o2)[:result][:unified]).to be(true)
+    end
+
+    specify 'the row moves to the kept otu' do
+      o1.unify(o2)
+      expect(ObservationMatrixRow.where(observation_matrix: om)
+        .pluck(:observation_object_type, :observation_object_id,
+          :reference_count))
+        .to contain_exactly(['Otu', o1.id, 1])
+    end
+  end
+
   context 'Keywords with dynamic observation matrix column items' do
     let(:om) { FactoryBot.create(:valid_observation_matrix) }
     let(:k1) { FactoryBot.create(:valid_keyword) }

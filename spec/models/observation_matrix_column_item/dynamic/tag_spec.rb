@@ -144,6 +144,17 @@ RSpec.describe ObservationMatrixColumnItem::Dynamic::Tag, type: :model, group: :
       end
     end
 
+    context 'moving a tag to another descriptor' do
+      let(:descriptor4) { FactoryBot.create(:valid_descriptor) }
+
+      before { tag1.update!(tag_object: descriptor4) }
+
+      specify 'the column moves to the new descriptor' do
+        expect(ObservationMatrixColumn.all.pluck(:descriptor_id, :reference_count))
+          .to contain_exactly([descriptor2.id, 1], [descriptor3.id, 1], [descriptor4.id, 1])
+      end
+    end
+
     specify 'updating an attribute other than keyword does not change reference_count' do
       observation_matrix_column_item.update!(position: 5)
       expect(ObservationMatrixColumn.all.pluck(:reference_count)).to contain_exactly(1, 1, 1)
