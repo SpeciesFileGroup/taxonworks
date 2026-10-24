@@ -187,6 +187,12 @@ class Depiction < ApplicationRecord
   #  Deprecate for calls to unify() ?!
   def remove_media_observation2
     if v = depiction_object_id_previously_was
+      # An enclosing Shared::Unify#unify destroys the observation itself, after
+      # its remaining relations (notes, tags, ...) have been moved.
+      return if UnifyDestroyContext.objects_in_destroy&.include?(
+        { id: v, type: 'Observation' }
+      )
+
       o = Observation::Media.find(v)
       if o.depictions.size == 0
         o.destroy!

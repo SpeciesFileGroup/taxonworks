@@ -869,10 +869,10 @@ describe 'Shared::Unify', type: :model do
     expect( b[:details]['Asserted distributions'].dig(:deduplicated)).to eq(1)
   end
 
-  # Moving the last Depiction off an Observation::Media destroys that
-  # observation via a Depiction callback, i.e. a nested dedup unify's
-  # remove_object can disappear before unify itself destroys it.
-  context 'when a nested dedup unify remove_object is destroyed by a callback' do
+  # Moving the last Depiction off an Observation::Media normally destroys that
+  # observation via a Depiction callback; within unify the callback must defer
+  # to unify, which moves the remaining relations first.
+  context 'when a nested dedup unify moves the last depiction off an Observation::Media' do
     let(:d1) { Descriptor::Media.create!(name: 'keep') }
     let(:d2) { Descriptor::Media.create!(name: 'remove') }
     let!(:observation1) {
@@ -906,6 +906,14 @@ describe 'Shared::Unify', type: :model do
       d1.unify(d2)
       expect(observation1.depictions.reload.map(&:id))
         .to contain_exactly(depiction1.id, depiction2.id)
+    end
+
+    specify 'annotations after depictions end up on the kept observation' do
+      note = FactoryBot.create(:valid_note, note_object: observation2)
+      tag = FactoryBot.create(:valid_tag, tag_object: observation2)
+      d1.unify(d2)
+      expect(observation1.notes.reload.map(&:id)).to contain_exactly(note.id)
+      expect(observation1.tags.reload.map(&:id)).to contain_exactly(tag.id)
     end
 
     specify 'preview does not raise' do

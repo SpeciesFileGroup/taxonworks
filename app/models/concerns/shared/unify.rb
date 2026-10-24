@@ -185,14 +185,9 @@ module Shared::Unify
         elsif s[:result][:unified] != false
 
           begin
-            # A callback triggered while moving relations may already have
-            # destroyed remove_object (e.g. Depiction destroys an
-            # Observation::Media once its last depiction is moved away).
-            if remove_object.class.where(id: remove_object.id).exists?
-              remove_object.reload # reset all in-memory has_many caches that would prevent destroy
+            remove_object.reload # reset all in-memory has_many caches that would prevent destroy
 
-              remove_object.destroy! if will_destroy
-            end
+            remove_object.destroy! if will_destroy
 
           rescue ActiveRecord::InvalidForeignKey => e
             # InvalidForeignKey comes from the DB adapter, so e has no `.record`.
