@@ -36,6 +36,22 @@ describe 'Queries::Sort::Base columns', type: :model do
     end
   end
 
+  # Rails reads table names out of a string ORDER BY into references_values,
+  # and a caller's later `includes` then switches to a slow JOIN-based eager
+  # load (a DISTINCT ids query plus a COUNT, each joined to every included
+  # has_many). An ORDER BY built as an Arel node (see `order_by_sql` in
+  # Queries::Sort::Resolver) adds no references.
+  sort_classes.each do |sort_class|
+    specify "#{sort_class.name}: no sort key adds references" do
+      failures = sort_class.columns.filter_map do |key, sort|
+        refs = sort.call(sort_class.referenced_klass.all, :asc).references_values
+        "#{key}: #{refs.join(', ')}" if refs.any?
+      end
+
+      expect(failures).to be_empty, "string ORDER BY, use order_by_sql:\n#{failures.join("\n")}"
+    end
+  end
+
   # Kaminari's pagination COUNT drops ORDER BY/LIMIT/OFFSET but keeps joins.
   # Postgres removes an unused LEFT JOIN from the plan only when it can prove
   # the join returns at most one row: a join on the target's primary key, or

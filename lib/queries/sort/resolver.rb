@@ -56,7 +56,7 @@ module Queries::Sort::Resolver
       table = referenced_klass.table_name
       col = column.to_s
 
-      ->(q, dir) { q.order(Arel.sql(%(#{table}."#{col}" #{sort_direction(dir)} NULLS LAST))) }
+      ->(q, dir) { order_by_sql(q, %(#{table}."#{col}"), dir) }
     end
 
     # An association chain ending in a column, e.g.
@@ -159,7 +159,7 @@ module Queries::Sort::Resolver
           lat = has_many_lateral(current_alias, refl, remaining, column, collapse, prefix: path[0...i])
           return ->(q, dir) do
             joins.each { |j| q = q.joins(j) }
-            q.joins(lat[:sql]).order(Arel.sql(%(#{lat[:alias]}.val #{sort_direction(dir)} NULLS LAST)))
+            order_by_sql(q.joins(lat[:sql]), "#{lat[:alias]}.val", dir)
           end
         end
 
@@ -180,7 +180,7 @@ module Queries::Sort::Resolver
 
       ->(q, dir) do
         joins.each { |j| q = q.joins(j) }
-        q.order(Arel.sql(%(#{current_alias}."#{column}" #{sort_direction(dir)} NULLS LAST)))
+        order_by_sql(q, %(#{current_alias}."#{column}"), dir)
       end
     end
 
@@ -441,7 +441,14 @@ module Queries::Sort::Resolver
       "#{name[0, 50]}_#{Digest::MD5.hexdigest(name)[0, 12]}"
     end
 
-    def sort_direction(dir) = dir == :desc ? 'DESC' : 'ASC'
+    # Orders query by the SQL expression, NULLS LAST. Built as an Arel node:
+    # a string ORDER BY makes Rails add the table names it contains to
+    # references_values, and a caller's later `includes` then switches to a
+    # slow JOIN-based eager load. Use this for every sort key.
+    def order_by_sql(query, expr, dir)
+      node = Arel.sql(expr)
+      query.order((dir == :desc ? node.desc : node.asc).nulls_last)
+    end
 
     def quote(value) = ActiveRecord::Base.connection.quote(value)
   end

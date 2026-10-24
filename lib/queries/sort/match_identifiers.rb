@@ -52,7 +52,7 @@ module Queries
 
         if @type == 'internal'
           ids = @identifiers.map(&:to_i)
-          return query.order(Arel.sql("array_position(ARRAY[#{ids.join(',')}]::bigint[], #{table}.id::bigint)"))
+          return query.order(Arel.sql("array_position(ARRAY[#{ids.join(',')}]::bigint[], #{table}.id::bigint)").asc)
         end
 
         values = @caseless ? @identifiers.map(&:downcase) : @identifiers
@@ -66,7 +66,7 @@ module Queries
 
         query.with(sid: matched)
           .joins("JOIN sid ON sid.identifier_object_id = #{table}.id AND sid.identifier_object_type = #{ApplicationRecord.connection.quote(@klass.base_class.name)}")
-          .order(Arel.sql('sid.s'))
+          .order(Arel.sql('sid.s').asc)
       end
     end
   end

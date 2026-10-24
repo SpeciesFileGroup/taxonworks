@@ -8,14 +8,13 @@ class Queries::Descriptor::Sort < Queries::Sort::Base
       # single row -- collapse: :aggregate only supports MIN, so this stays
       # hand-written.
       cols['character_states'] = ->(q, dir) {
-        q.joins(<<~SQL.squish)
+        order_by_sql(q.joins(<<~SQL.squish), "sort_desc_cs.n", dir)
           LEFT JOIN LATERAL (
             SELECT COUNT(*) AS n
             FROM character_states
             WHERE character_states.descriptor_id = descriptors.id
           ) AS sort_desc_cs ON true
         SQL
-        .order(Arel.sql("sort_desc_cs.n #{dir == :desc ? 'DESC' : 'ASC'} NULLS LAST"))
       }
 
       cols

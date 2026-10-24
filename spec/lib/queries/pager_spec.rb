@@ -278,6 +278,11 @@ describe Queries::Pager, type: :model do
       expect(pager_ids.(set, p)).to eq([co2.id, co1.id, co3.id])
     end
 
+    specify 'adds no references' do
+      set = Queries::CollectionObject::Filter.new(params).all
+      expect(Queries::Sort::MatchIdentifiers.new(CollectionObject, params.with_indifferent_access).apply(set).references_values).to eq([])
+    end
+
     specify 'total_count is not inflated' do
       set = Queries::CollectionObject::Filter.new(params).all
       expect(Queries::Pager.new(set, params).all.total_count).to eq(3)

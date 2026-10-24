@@ -31,11 +31,11 @@ class Queries::Otu::Sort < Queries::Sort::Base
     # ambiguous.
     def sort_by_display_name
       ->(q, dir) {
-        q.order(Arel.sql(<<~SQL.squish))
+        order_by_sql(q, <<~SQL.squish, dir)
           COALESCE(
             (SELECT tn.cached FROM taxon_names tn WHERE tn.id = otus.taxon_name_id),
             otus.name
-          ) #{dir == :desc ? 'DESC' : 'ASC'} NULLS LAST
+          )
         SQL
       }
     end

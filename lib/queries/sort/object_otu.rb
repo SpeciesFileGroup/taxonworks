@@ -32,20 +32,18 @@ module Queries::Sort::ObjectOtu
       lat_alias = alias_prefix
 
       ->(q, dir) {
-        q
-          .joins(<<~SQL.squish)
-            LEFT JOIN LATERAL (
-              SELECT MIN(tn.name) AS name
-              FROM otus o
-              JOIN taxon_names n ON n.id = o.taxon_name_id
-              JOIN taxon_name_hierarchies tnh ON tnh.descendant_id = n.cached_valid_taxon_name_id
-              JOIN taxon_names tn
-                ON tn.id = tnh.ancestor_id
-                AND tn.rank_class LIKE '%::#{rank}'
-              WHERE o.id = (#{object_otu_id_sql(id_expr:, type_expr:)})
-            ) AS #{lat_alias} ON true
-          SQL
-          .order(Arel.sql("#{lat_alias}.name #{dir == :desc ? 'DESC' : 'ASC'} NULLS LAST"))
+        order_by_sql(q.joins(<<~SQL.squish), "#{lat_alias}.name", dir)
+          LEFT JOIN LATERAL (
+            SELECT MIN(tn.name) AS name
+            FROM otus o
+            JOIN taxon_names n ON n.id = o.taxon_name_id
+            JOIN taxon_name_hierarchies tnh ON tnh.descendant_id = n.cached_valid_taxon_name_id
+            JOIN taxon_names tn
+              ON tn.id = tnh.ancestor_id
+              AND tn.rank_class LIKE '%::#{rank}'
+            WHERE o.id = (#{object_otu_id_sql(id_expr:, type_expr:)})
+          ) AS #{lat_alias} ON true
+        SQL
       }
     end
 
@@ -55,18 +53,16 @@ module Queries::Sort::ObjectOtu
       lat_alias = alias_prefix
 
       ->(q, dir) {
-        q
-          .joins(<<~SQL.squish)
-            LEFT JOIN LATERAL (
-              SELECT (
-                SELECT COALESCE(tn.cached, o.name)
-                FROM otus o
-                LEFT JOIN taxon_names tn ON tn.id = o.taxon_name_id
-                WHERE o.id = (#{object_otu_id_sql(id_expr:, type_expr:)})
-              ) AS name
-            ) AS #{lat_alias} ON true
-          SQL
-          .order(Arel.sql("#{lat_alias}.name #{dir == :desc ? 'DESC' : 'ASC'} NULLS LAST"))
+        order_by_sql(q.joins(<<~SQL.squish), "#{lat_alias}.name", dir)
+          LEFT JOIN LATERAL (
+            SELECT (
+              SELECT COALESCE(tn.cached, o.name)
+              FROM otus o
+              LEFT JOIN taxon_names tn ON tn.id = o.taxon_name_id
+              WHERE o.id = (#{object_otu_id_sql(id_expr:, type_expr:)})
+            ) AS name
+          ) AS #{lat_alias} ON true
+        SQL
       }
     end
 

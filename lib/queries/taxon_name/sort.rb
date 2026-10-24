@@ -16,12 +16,11 @@ class Queries::TaxonName::Sort < Queries::Sort::Base
       # belongs_to (:valid_taxon_name); the business rule on top isn't
       # expressible via association(), so this stays custom.
       cols['valid_name'] = ->(q, dir) {
-        q
-          .joins('LEFT JOIN taxon_names AS sort_valid_name ON sort_valid_name.id = taxon_names.cached_valid_taxon_name_id')
-          .order(Arel.sql(
-            "CASE WHEN sort_valid_name.id = taxon_names.id THEN NULL ELSE sort_valid_name.cached END " \
-            "#{dir == :desc ? 'DESC' : 'ASC'} NULLS LAST"
-          ))
+        order_by_sql(
+          q.joins('LEFT JOIN taxon_names AS sort_valid_name ON sort_valid_name.id = taxon_names.cached_valid_taxon_name_id'),
+          'CASE WHEN sort_valid_name.id = taxon_names.id THEN NULL ELSE sort_valid_name.cached END',
+          dir
+        )
       }
 
       cols['parent'] = association(:parent, :cached)
@@ -31,15 +30,14 @@ class Queries::TaxonName::Sort < Queries::Sort::Base
 
       # Higher names before lower: depth below the root, then name.
       cols['classification'] = ->(q, dir) {
-        q
-          .joins(<<~SQL.squish)
-            LEFT JOIN LATERAL (
-              SELECT MAX(tnh.generations) AS depth
-              FROM taxon_name_hierarchies tnh
-              WHERE tnh.descendant_id = taxon_names.id
-            ) AS sort_classification ON true
-          SQL
-          .order(Arel.sql("sort_classification.depth #{sort_direction(dir)} NULLS LAST, taxon_names.cached ASC NULLS LAST"))
+        by_depth = order_by_sql(q.joins(<<~SQL.squish), 'sort_classification.depth', dir)
+          LEFT JOIN LATERAL (
+            SELECT MAX(tnh.generations) AS depth
+            FROM taxon_name_hierarchies tnh
+            WHERE tnh.descendant_id = taxon_names.id
+          ) AS sort_classification ON true
+        SQL
+        order_by_sql(by_depth, 'taxon_names.cached', :asc)
       }
 
       cols

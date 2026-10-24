@@ -57,7 +57,6 @@ module Queries
     # @return [ActiveRecord::Relation] the whole set, ordered
     def ordered
       q = plain_set
-      references = q.references_values
 
       entries = sort_entries
       q = q.order(*Array.wrap(default_order)) if entries.empty? && default_order.present?
@@ -72,19 +71,7 @@ module Queries
 
       # Always last: a tiebreak for equal sort values, or the whole order when
       # there are no sort keys. Without it, paging can skip or repeat rows.
-      q = q.order(klass.arel_table[:id].asc)
-
-      # Rails reads table names out of string ORDER BY clauses (e.g.
-      # `sort_identifiers.val`) into `references_values`, and when a caller
-      # later adds `includes` it takes those for included tables and switches
-      # to a JOIN-based eager load (a DISTINCT ids query plus a matching
-      # COUNT, each joined to every included has_many). Sort joins are
-      # self-contained SQL and never refer to included associations, so put
-      # back the references the set had. `references_values=` changes the
-      # relation it's called on, so work on a copy.
-      q = q.spawn
-      q.references_values = references
-      q
+      q.order(id: :asc)
     end
 
     # @return [Array<Array(String, Symbol)>] [key, :asc|:desc] pairs that

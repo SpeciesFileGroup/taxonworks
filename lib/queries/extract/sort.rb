@@ -17,7 +17,7 @@ class Queries::Extract::Sort < Queries::Sort::Base
       # has_many to one polymorphic type isn't expressible via association(),
       # stays custom.
       cols['otus'] = ->(q, dir) {
-        q.joins(<<~SQL.squish)
+        order_by_sql(q.joins(<<~SQL.squish), "sort_ex_otus.name", dir)
           LEFT JOIN LATERAL (
             SELECT MIN(COALESCE(tn.cached, o.name)) AS name
             FROM origin_relationships orl
@@ -28,13 +28,12 @@ class Queries::Extract::Sort < Queries::Sort::Base
               AND orl.new_object_type = 'Extract'
           ) AS sort_ex_otus ON true
         SQL
-        .order(Arel.sql("sort_ex_otus.name #{dir == :desc ? 'DESC' : 'ASC'} NULLS LAST"))
       }
 
       # Upstream origin types (Otu / CollectionObject / AnatomicalPart /
       # Extract). Sort by the alphabetically-first old_object_type.
       cols['originsType'] = ->(q, dir) {
-        q.joins(<<~SQL.squish)
+        order_by_sql(q.joins(<<~SQL.squish), "sort_ex_origin_type.type", dir)
           LEFT JOIN LATERAL (
             SELECT MIN(old_object_type) AS type
             FROM origin_relationships
@@ -42,7 +41,6 @@ class Queries::Extract::Sort < Queries::Sort::Base
               AND new_object_type = 'Extract'
           ) AS sort_ex_origin_type ON true
         SQL
-        .order(Arel.sql("sort_ex_origin_type.type #{dir == :desc ? 'DESC' : 'ASC'} NULLS LAST"))
       }
 
       # No `origins` sort: the column is a list of labels rendered in Ruby

@@ -26,9 +26,7 @@ class Queries::BiologicalAssociation::Sort < Queries::Sort::Base
 
     def sort_by_relationship_name
       ->(q, dir) {
-        q
-          .joins('LEFT JOIN biological_relationships AS sort_br ON sort_br.id = biological_associations.biological_relationship_id')
-          .order(Arel.sql("sort_br.name #{dir == :desc ? 'DESC' : 'ASC'} NULLS LAST"))
+        order_by_sql(q.joins('LEFT JOIN biological_relationships AS sort_br ON sort_br.id = biological_associations.biological_relationship_id'), "sort_br.name", dir)
       }
     end
 
@@ -42,17 +40,15 @@ class Queries::BiologicalAssociation::Sort < Queries::Sort::Base
       lat_alias = "sort_prop_#{side}"
 
       ->(q, dir) {
-        q
-          .joins(<<~SQL.squish)
-            LEFT JOIN LATERAL (
-              SELECT MIN(cvt.name) AS name
-              FROM biological_relationship_types brt
-              JOIN controlled_vocabulary_terms cvt ON cvt.id = brt.biological_property_id
-              WHERE brt.biological_relationship_id = biological_associations.biological_relationship_id
-                AND brt.type = '#{brt_type}'
-            ) AS #{lat_alias} ON true
-          SQL
-          .order(Arel.sql("#{lat_alias}.name #{dir == :desc ? 'DESC' : 'ASC'} NULLS LAST"))
+        order_by_sql(q.joins(<<~SQL.squish), "#{lat_alias}.name", dir)
+          LEFT JOIN LATERAL (
+            SELECT MIN(cvt.name) AS name
+            FROM biological_relationship_types brt
+            JOIN controlled_vocabulary_terms cvt ON cvt.id = brt.biological_property_id
+            WHERE brt.biological_relationship_id = biological_associations.biological_relationship_id
+              AND brt.type = '#{brt_type}'
+          ) AS #{lat_alias} ON true
+        SQL
       }
     end
 
