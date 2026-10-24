@@ -38,7 +38,10 @@ class ObservationMatrixColumnItem < ApplicationRecord
   validate :other_subclass_attributes_not_set, if: -> { !type.blank? }
 
   after_create :update_matrix_columns
-  after_update :move_matrix_column, if: :saved_change_to_descriptor_id?
+  after_update :move_matrix_column, if: -> {
+    saved_change_to_descriptor_id? ||
+      saved_change_to_controlled_vocabulary_term_id?
+  }
   after_destroy :cleanup_matrix_columns
 
   # @return [Array]
@@ -64,10 +67,10 @@ class ObservationMatrixColumnItem < ApplicationRecord
     end
   end
 
-  # Decrement the previous descriptor's column, increment the new one
+  # Decrement the previous descriptors' columns, increment the new ones
   def move_matrix_column
-    if descriptor_id_before_last_save
-      cleanup_single_matrix_column(descriptor_id_before_last_save)
+    descriptor_ids_before_last_save.each do |id|
+      cleanup_single_matrix_column(id)
     end
     update_matrix_columns
   end
@@ -125,6 +128,14 @@ class ObservationMatrixColumnItem < ApplicationRecord
   # override
   def descriptors
     false
+  end
+
+  # @return [Array]
+  #    ids of the descriptors "defined" by this matrix column item before its
+  #    last save
+  # override
+  def descriptor_ids_before_last_save
+    []
   end
 
   # @return [Array] of ObservationMatrixColumnItems

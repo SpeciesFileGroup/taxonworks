@@ -130,6 +130,25 @@ RSpec.describe ObservationMatrixColumnItem::Dynamic::Tag, type: :model, group: :
       end
     end
 
+    context 'changing the keyword' do
+      let(:other_keyword) { FactoryBot.create(:valid_keyword) }
+      let!(:descriptor4) { FactoryBot.create(:valid_descriptor) }
+      let!(:tag4) { Tag.create!(keyword: other_keyword, tag_object: descriptor3) }
+      let!(:tag5) { Tag.create!(keyword: other_keyword, tag_object: descriptor4) }
+
+      before { observation_matrix_column_item.update!(controlled_vocabulary_term: other_keyword) }
+
+      specify 'columns are those of the new keyword' do
+        expect(ObservationMatrixColumn.all.pluck(:descriptor_id, :reference_count))
+          .to contain_exactly([descriptor3.id, 1], [descriptor4.id, 1])
+      end
+    end
+
+    specify 'updating an attribute other than keyword does not change reference_count' do
+      observation_matrix_column_item.update!(position: 5)
+      expect(ObservationMatrixColumn.all.pluck(:reference_count)).to contain_exactly(1, 1, 1)
+    end
+
     specify 'keyword/controlled vocabulary term can only be added once to observation_matrix_column_item' do
       expect(ObservationMatrixColumnItem::Dynamic::Tag.new(observation_matrix: observation_matrix, controlled_vocabulary_term: keyword).valid?).to be_falsey
     end
