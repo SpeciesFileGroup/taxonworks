@@ -476,6 +476,17 @@ function writeViewStateToFragment({ freeze, hide, order }) {
   )
 }
 
+function clearViewStateFragment() {
+  const params = new URLSearchParams(window.location.hash.slice(1))
+  ;['freeze', 'hide', 'order'].forEach((k) => params.delete(k))
+  const next = params.toString()
+  history.replaceState(
+    null,
+    '',
+    `${window.location.pathname}${window.location.search}${next ? `#${next}` : ''}`
+  )
+}
+
 const orderedAttributeKeys = computed(() => {
   const known = Object.keys(props.attributes || {})
   if (!columnOrder.value.length) return known
@@ -900,7 +911,9 @@ function saveViewAsDefault() {
   hideUnfrozenPref.value = hideUnfrozen.value
   columnOrderPref.value = JSON.parse(JSON.stringify(columnOrder.value))
   // The view is now the default, so the fragment has nothing to override.
-  writeViewStateToFragment({ freeze: freezeColumn.value, hide: hideUnfrozen.value, order: columnOrder.value })
+  // Cleared directly: the prefs set above are saved asynchronously, so
+  // comparing against them here would still see the old values.
+  clearViewStateFragment()
 }
 
 // Compare current freeze/hide session state against pref; drives the
