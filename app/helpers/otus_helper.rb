@@ -26,19 +26,19 @@ module OtusHelper
 
   def otu_tag(otu)
     return nil if otu.nil?
-    return  tag.span(tag.b(otu.name), class: :otu_tag) unless otu.taxon_name.present?
+    return  tag.span(otu.name, class: :otu_tag) unless otu.taxon_name.present?
 
     if otu.taxon_name.is_combination?
       if otu.name?
         tag.span(
-          [ tag.b(otu.name),
-            otu.taxon_name.cached_html
+          [ h(otu.name),
+            tag.span(otu.taxon_name.cached_html&.html_safe, class: :otu_tag_taxon_name)
           ].join(' ' + tag.em('==') + ' ').html_safe,
         class: :otu_tag
         )
       else
         tag.span(
-          (otu.taxon_name.cached_html + ' ' + TaxonNamesHelper::COMBINATION_MARK).html_safe,
+          (tag.span(otu.taxon_name.cached_html&.html_safe, class: :otu_tag_taxon_name) + ' ' + TaxonNamesHelper::COMBINATION_MARK).html_safe,
           class: :otu_tag
         )
       end
@@ -47,14 +47,14 @@ module OtusHelper
       if otu.taxon_name.is_valid?
         if otu.name
           tag.span(
-            [ otu.taxon_name.cached_html,
-              tag.b(otu.name)
+            [ tag.span(otu.taxon_name.cached_html&.html_safe, class: :otu_tag_taxon_name),
+              h(otu.name)
             ].compact.join('&nbsp;').html_safe,
           class: :otu_tag
           )
         else
           tag.span(
-            full_taxon_name_tag(otu.taxon_name),
+            tag.span(full_taxon_name_tag(otu.taxon_name), class: :otu_tag_taxon_name),
             class: :otu_tag
           )
         end
@@ -62,13 +62,11 @@ module OtusHelper
       else # invalid taxon name
         tag.span(
           [
-            [ full_taxon_name_tag(otu.taxon_name),
-              ( otu.name ? tag.b(otu.name) : nil )
+            [ tag.span(full_taxon_name_tag(otu.taxon_name), class: [:otu_tag_taxon_name, :otu_tag_taxon_name_invalid]),
+              ( otu.name ? h(otu.name) : nil )
             ].compact.join('&nbsp;'),
 
-          [ full_taxon_name_tag(otu.taxon_name.valid_taxon_name),
-            ( otu.name ? tag.b(otu.name) : nil )
-          ].compact.join('&nbsp;')
+          tag.span(full_taxon_name_tag(otu.taxon_name.valid_taxon_name), class: :otu_tag_taxon_name)
           ].join(' ' + tag.em('now') + ' ').html_safe,
           class: :otu_tag
         )

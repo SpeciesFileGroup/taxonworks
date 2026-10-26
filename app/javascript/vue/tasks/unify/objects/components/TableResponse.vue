@@ -31,9 +31,8 @@
                   v-for="error in errors"
                   :key="error.id"
                   class="text-error-color"
-                >
-                  {{ error.message }}
-                </li>
+                  v-html="error.message"
+                />
               </ul>
             </div>
           </td>

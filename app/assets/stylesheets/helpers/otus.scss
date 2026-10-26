@@ -6,11 +6,27 @@
   .otu_tag_taxon_name {
     border: 1px solid var(--otu-tag-border-color);
     border-radius: var(--border-radius-xsmall);
-    padding: 2px 6px;
+    padding: 0.125rem 0.375rem;
     color: var(--otu-tag-color);
     background: var(--otu-tag-bg);
     line-height: 1.5;
     -webkit-box-decoration-break: clone;
     box-decoration-break: clone;
+
+
+/*     color: var(--text-color);
+    background-color: var(--badge-default-bg);
+    white-space: nowrap;
+    padding: 0.125rem 0.375rem;
+    border-radius: 4px;
+    width: min-content; */
+  }
+
+  .otu_tag_taxon_name_invalid {
+    background-color: color-mix(
+      in srgb,
+      var(--taxon-name-invalid-color) 15%,
+      transparent
+    );
   }
 }

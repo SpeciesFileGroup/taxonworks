@@ -61,6 +61,8 @@ module TaxonNames
       e = {
         label: paper_catalog_li_tag(catalog_entry_item, catalog_object, :browse_nomenclature_task_path),
         year: catalog_entry_item.nomenclature_date&.year,
+        protonym_ids: catalog_entry_item.protonym_ids,
+        source_id: catalog_entry_item.source&.id
       }
     end
 

@@ -52,7 +52,11 @@
                 <RadialObject :global-id="image.global_id" />
               </li>
               <li>
-                <RadialNavigation :global-id="image.global_id" />
+                <RadialNavigation
+                  :global-id="image.global_id"
+                  :redirect="false"
+                  @delete="removeImage"
+                />
               </li>
               <li>
                 <DepictionList :image-id="[image.id]" />
@@ -123,7 +127,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['update:modelValue'])
+const emit = defineEmits(['update:modelValue', 'remove'])
 const showModal = ref(false)
 
 const imageIds = computed({
@@ -133,6 +137,11 @@ const imageIds = computed({
 
 const setModalView = (value) => {
   showModal.value = value
+}
+
+function removeImage() {
+  setModalView(false)
+  emit('remove', { item: props.image })
 }
 
 const urlSrc = () => {

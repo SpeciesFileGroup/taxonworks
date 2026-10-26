@@ -33,6 +33,7 @@ module Workbench::NavigationHelper
     return {
       klass: k,
       id: k.tableize.singularize + '_id',
+      resource_path: '/' + k.tableize,
       tasks: tasks,
       base: b
     }
