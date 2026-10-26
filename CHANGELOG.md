@@ -18,11 +18,13 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - "Is data depiction" checkbox to Image viewer [#5144]
 - Radial mass navigator: Edit slice
 - New source: Italic button to Abstract field
+- Taxon name pills to OTU tags
 
 ### Changed
 
 - Browse OTUs: Contents are now grouped by OTU when there is more than one. [#5136]
 - `/taxon_names/<id>/inventory/catalog` sends sources in chronological order [#200]
+- Autocompletes: Removed bold and softened the yellow highlight for matching text [#5151]
 
 ### Fixed
 
@@ -42,6 +44,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 [#5137]: https://github.com/SpeciesFileGroup/taxonworks/issues/5137
 [#5141]: https://github.com/SpeciesFileGroup/taxonworks/issues/5141
 [#5144]: https://github.com/SpeciesFileGroup/taxonworks/issues/5144
+[#5151]: https://github.com/SpeciesFileGroup/taxonworks/issues/5151
 [#5152]: https://github.com/SpeciesFileGroup/taxonworks/issues/5152
 
 ## [0.66.1] - 2026-10-09
