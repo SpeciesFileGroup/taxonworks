@@ -36,6 +36,7 @@ class ObservationMatrixColumnItem < ApplicationRecord
 
   validates_presence_of :observation_matrix
   validate :other_subclass_attributes_not_set, if: -> { !type.blank? }
+  validate :column_objects_unchanged_outside_unify, on: :update
 
   after_create :update_matrix_columns
   after_update :move_matrix_column, if: -> {
@@ -68,17 +69,48 @@ class ObservationMatrixColumnItem < ApplicationRecord
     end
   end
 
-  # Decrement the previous descriptors' columns (in the previous matrix),
-  # increment the new ones
+  # Unify moved this item off of the object it's unifying away (the only way
+  # these attributes change): decrement the previous descriptors' columns (in
+  # the previous matrix), increment the new ones
   def move_matrix_column
-    descriptor_ids_before_last_save.each do |id|
+    previous_ids = descriptor_ids_before_last_save
+    current = descriptors
+    same_matrix =
+      observation_matrix_id_before_last_save == observation_matrix_id
+
+    if same_matrix # columns in both sets are left untouched
+      unchanged_ids = previous_ids & current.map(&:id)
+      previous_ids -= unchanged_ids
+      current = current.reject { |d| unchanged_ids.include?(d.id) }
+    end
+
+    # One descriptor replaced by another: repoint a column that would
+    # otherwise be deleted, so it keeps its position
+    if same_matrix && previous_ids.size == 1 && current.size == 1
+      mc = ObservationMatrixColumn.where(
+        descriptor_id: previous_ids.first, observation_matrix_id:
+      ).first
+
+      if mc&.reference_count == 1 &&
+          !ObservationMatrixColumn.where(
+            descriptor_id: current.first.id, observation_matrix_id:
+          ).exists?
+        mc.update_columns(descriptor_id: current.first.id)
+        return
+      end
+    end
+
+    previous_ids.each do |id|
       mc = ObservationMatrixColumn.where(
         descriptor_id: id,
         observation_matrix_id: observation_matrix_id_before_last_save
       ).first
       decrement_matrix_column_reference_count(mc) if !mc.nil?
     end
-    update_matrix_columns
+
+    current.each do |d|
+      update_single_matrix_column(d)
+    end
   end
 
   def cleanup_single_matrix_column(descriptor_id, mc = nil)
@@ -322,6 +354,24 @@ class ObservationMatrixColumnItem < ApplicationRecord
   def other_subclass_attributes_not_set
     (ALL_STI_ATTRIBUTES - self.class.subclass_attributes).each do |atr|
       errors.add(atr, 'is not valid for this type of observation matrix column item') if !send(atr).blank?
+    end
+  end
+
+  # What an item covers, and its matrix, are only changed by
+  # Shared::Unify#unify, moving items off of the object it unifies away;
+  # see #move_matrix_column.
+  def column_objects_unchanged_outside_unify
+    {
+      descriptor_id: 'Descriptor',
+      controlled_vocabulary_term_id: 'ControlledVocabularyTerm',
+      observation_matrix_id: 'ObservationMatrix'
+    }.each do |attribute, type|
+      next if !attribute_changed?(attribute)
+      if !UnifyContext.objects_in_unify&.include?(
+        { id: attribute_was(attribute), type: }
+      )
+        errors.add(attribute, 'can not be changed')
+      end
     end
   end
 

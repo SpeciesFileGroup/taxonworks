@@ -37,6 +37,7 @@ class ObservationMatrixRowItem < ApplicationRecord
   belongs_to :observation_object, polymorphic: true, inverse_of: :observation_matrix_row_items
 
   validates_presence_of :observation_matrix, :observation_object
+  validate :observation_objects_unchanged_outside_unify, on: :update
 
   after_create :update_matrix_rows
   after_update :move_matrix_row, if: -> {
@@ -59,10 +60,30 @@ class ObservationMatrixRowItem < ApplicationRecord
     end
   end
 
-  # Decrement the previous observation_object's row (in the previous matrix),
-  # increment the new one
+  # Unify moved this item off of the object it's unifying away (the only way
+  # these attributes change): decrement the previous observation_object's row
+  # (in the previous matrix), increment the new one
   def move_matrix_row
     if observation_object_id_before_last_save
+      # One object replaced by another: repoint a row that would otherwise be
+      # deleted, so it keeps its position
+      if observation_matrix_id_before_last_save == observation_matrix_id
+        mr = ObservationMatrixRow.where(
+          observation_matrix_id:,
+          observation_object_type: observation_object_type_before_last_save,
+          observation_object_id: observation_object_id_before_last_save
+        ).first
+
+        if mr&.reference_count == 1 &&
+            !ObservationMatrixRow.where(
+              observation_matrix_id:, observation_object_type:,
+              observation_object_id:
+            ).exists?
+          mr.update_columns(observation_object_type:, observation_object_id:)
+          return
+        end
+      end
+
       cleanup_single_matrix_row_for(
         observation_object_type_before_last_save,
         observation_object_id_before_last_save,
@@ -195,6 +216,26 @@ class ObservationMatrixRowItem < ApplicationRecord
   end
 
   private
+
+  # What an item covers, and its matrix, are only changed by
+  # Shared::Unify#unify, moving items off of the object it unifies away;
+  # see #move_matrix_row.
+  def observation_objects_unchanged_outside_unify
+    if observation_object_id_changed? || observation_object_type_changed?
+      if !UnifyContext.objects_in_unify&.include?(
+        { id: observation_object_id_was, type: observation_object_type_was }
+      )
+        errors.add(:observation_object, 'can not be changed')
+      end
+    end
+
+    if observation_matrix_id_changed? &&
+        !UnifyContext.objects_in_unify&.include?(
+          { id: observation_matrix_id_was, type: 'ObservationMatrix' }
+        )
+      errors.add(:observation_matrix, 'can not be changed')
+    end
+  end
 
   # @return [Array]
   def self.create_for_tags(tag_scope, observation_matrix_id)

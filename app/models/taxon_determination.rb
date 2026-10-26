@@ -176,7 +176,7 @@ class TaxonDetermination < ApplicationRecord
     # committed to being destroyed by an enclosing Shared::Unify#unify call -
     # it's not losing its last determination, it's going away entirely, so
     # the "must have at least one" guard below is moot.
-    return if taxon_determination_object && UnifyDestroyContext.objects_in_destroy&.include?(
+    return if taxon_determination_object && UnifyContext.objects_in_destroy&.include?(
       { id: taxon_determination_object.id, type: taxon_determination_object.class.base_class.name }
     )
 

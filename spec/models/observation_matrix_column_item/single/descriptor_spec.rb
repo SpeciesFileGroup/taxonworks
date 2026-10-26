@@ -56,10 +56,25 @@ RSpec.describe ObservationMatrixColumnItem::Single::Descriptor, type: :model, gr
           expect(ObservationMatrixColumn.first.reference_count).to eq 1
         end
 
+        specify 'descriptor can not be changed outside of unify' do
+          expect(observation_matrix_column_item.update(descriptor: FactoryBot.create(:valid_descriptor))).to be_falsey
+          expect(observation_matrix_column_item.errors.include?(:descriptor_id)).to be_truthy
+        end
+
+        specify 'observation_matrix can not be changed outside of unify' do
+          expect(observation_matrix_column_item.update(observation_matrix: FactoryBot.create(:valid_observation_matrix))).to be_falsey
+          expect(observation_matrix_column_item.errors.include?(:observation_matrix_id)).to be_truthy
+        end
+
+        # As unify does, moving the item off of the descriptor it unifies away
         context 'changing the descriptor' do
           let(:other_descriptor) { FactoryBot.create(:valid_descriptor) }
 
-          before { observation_matrix_column_item.update!(descriptor: other_descriptor) }
+          before {
+            UnifyContext.set(objects_in_unify: Set[{ id: descriptor.id, type: 'Descriptor' }]) {
+              observation_matrix_column_item.update!(descriptor: other_descriptor)
+            }
+          }
 
           specify 'removes the previous descriptor column' do
             expect(ObservationMatrixColumn.where(descriptor: descriptor).count).to eq 0
@@ -75,7 +90,11 @@ RSpec.describe ObservationMatrixColumnItem::Single::Descriptor, type: :model, gr
         context 'changing the observation_matrix' do
           let(:other_observation_matrix) { FactoryBot.create(:valid_observation_matrix) }
 
-          before { observation_matrix_column_item.update!(observation_matrix: other_observation_matrix) }
+          before {
+            UnifyContext.set(objects_in_unify: Set[{ id: observation_matrix.id, type: 'ObservationMatrix' }]) {
+              observation_matrix_column_item.update!(observation_matrix: other_observation_matrix)
+            }
+          }
 
           specify 'removes the column from the previous matrix' do
             expect(ObservationMatrixColumn.where(observation_matrix:).count).to eq 0

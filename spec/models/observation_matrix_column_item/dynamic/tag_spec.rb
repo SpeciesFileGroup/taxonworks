@@ -130,13 +130,23 @@ RSpec.describe ObservationMatrixColumnItem::Dynamic::Tag, type: :model, group: :
       end
     end
 
+    specify 'keyword can not be changed outside of unify' do
+      expect(observation_matrix_column_item.update(controlled_vocabulary_term: FactoryBot.create(:valid_keyword))).to be_falsey
+      expect(observation_matrix_column_item.errors.include?(:controlled_vocabulary_term_id)).to be_truthy
+    end
+
+    # As unify does, moving the item off of the keyword it unifies away
     context 'changing the keyword' do
       let(:other_keyword) { FactoryBot.create(:valid_keyword) }
       let!(:descriptor4) { FactoryBot.create(:valid_descriptor) }
       let!(:tag4) { Tag.create!(keyword: other_keyword, tag_object: descriptor3) }
       let!(:tag5) { Tag.create!(keyword: other_keyword, tag_object: descriptor4) }
 
-      before { observation_matrix_column_item.update!(controlled_vocabulary_term: other_keyword) }
+      before {
+        UnifyContext.set(objects_in_unify: Set[{ id: keyword.id, type: 'ControlledVocabularyTerm' }]) {
+          observation_matrix_column_item.update!(controlled_vocabulary_term: other_keyword)
+        }
+      }
 
       specify 'columns are those of the new keyword' do
         expect(ObservationMatrixColumn.all.pluck(:descriptor_id, :reference_count))
@@ -144,10 +154,33 @@ RSpec.describe ObservationMatrixColumnItem::Dynamic::Tag, type: :model, group: :
       end
     end
 
+    context 'changing the keyword when a descriptor has both keywords' do
+      let(:other_keyword) { FactoryBot.create(:valid_keyword) }
+      let!(:tag4) { Tag.create!(keyword: other_keyword, tag_object: descriptor3) }
+      let!(:column3) {
+        ObservationMatrixColumn.find_by(descriptor: descriptor3, observation_matrix:)
+      }
+
+      before {
+        UnifyContext.set(objects_in_unify: Set[{ id: keyword.id, type: 'ControlledVocabularyTerm' }]) {
+          observation_matrix_column_item.update!(controlled_vocabulary_term: other_keyword)
+        }
+      }
+
+      specify 'the shared column is kept, not recreated' do
+        expect(ObservationMatrixColumn.all.pluck(:id, :position, :reference_count))
+          .to contain_exactly([column3.id, column3.position, 1])
+      end
+    end
+
     context 'changing the observation_matrix' do
       let(:other_observation_matrix) { FactoryBot.create(:valid_observation_matrix) }
 
-      before { observation_matrix_column_item.update!(observation_matrix: other_observation_matrix) }
+      before {
+        UnifyContext.set(objects_in_unify: Set[{ id: observation_matrix.id, type: 'ObservationMatrix' }]) {
+          observation_matrix_column_item.update!(observation_matrix: other_observation_matrix)
+        }
+      }
 
       specify 'columns move to the new matrix' do
         expect(ObservationMatrixColumn.where(observation_matrix:).count).to eq 0

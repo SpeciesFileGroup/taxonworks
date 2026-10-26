@@ -192,7 +192,7 @@ class Citation < ApplicationRecord
     # being destroyed by an enclosing Shared::Unify#unify call - it's not
     # losing its last citation, it's going away entirely, so the "must have
     # at least one citation" guard below is moot.
-    return if citation_object && UnifyDestroyContext.objects_in_destroy&.include?(
+    return if citation_object && UnifyContext.objects_in_destroy&.include?(
       { id: citation_object.id, type: citation_object.class.base_class.name }
     )
 

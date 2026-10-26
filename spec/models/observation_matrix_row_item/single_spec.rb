@@ -44,10 +44,25 @@ RSpec.describe ObservationMatrixRowItem::Single, type: :model, group: :observati
         expect(ObservationMatrixRow.first.reference_count).to eq 1
       end
 
+      specify 'observation_object can not be changed outside of unify' do
+        expect(observation_matrix_row_item.update(observation_object: FactoryBot.create(:valid_otu))).to be_falsey
+        expect(observation_matrix_row_item.errors.include?(:observation_object)).to be_truthy
+      end
+
+      specify 'observation_matrix can not be changed outside of unify' do
+        expect(observation_matrix_row_item.update(observation_matrix: FactoryBot.create(:valid_observation_matrix))).to be_falsey
+        expect(observation_matrix_row_item.errors.include?(:observation_matrix)).to be_truthy
+      end
+
+      # As unify does, moving the item off of the object it unifies away
       context 'changing the observation_object' do
         let(:collection_object) { FactoryBot.create(:valid_collection_object) }
 
-        before { observation_matrix_row_item.update!(observation_object: collection_object) }
+        before {
+          UnifyContext.set(objects_in_unify: Set[{ id: otu.id, type: 'Otu' }]) {
+            observation_matrix_row_item.update!(observation_object: collection_object)
+          }
+        }
 
         specify 'removes the previous observation_object row' do
           expect(ObservationMatrixRow.where(observation_object: otu).count).to eq 0
@@ -63,7 +78,11 @@ RSpec.describe ObservationMatrixRowItem::Single, type: :model, group: :observati
       context 'changing the observation_matrix' do
         let(:other_observation_matrix) { FactoryBot.create(:valid_observation_matrix) }
 
-        before { observation_matrix_row_item.update!(observation_matrix: other_observation_matrix) }
+        before {
+          UnifyContext.set(objects_in_unify: Set[{ id: observation_matrix.id, type: 'ObservationMatrix' }]) {
+            observation_matrix_row_item.update!(observation_matrix: other_observation_matrix)
+          }
+        }
 
         specify 'removes the row from the previous matrix' do
           expect(ObservationMatrixRow.where(observation_matrix:).count).to eq 0

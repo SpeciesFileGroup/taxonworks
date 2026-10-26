@@ -189,7 +189,7 @@ class Depiction < ApplicationRecord
     if v = depiction_object_id_previously_was
       # An enclosing Shared::Unify#unify destroys the observation itself, after
       # its remaining relations (notes, tags, ...) have been moved.
-      return if UnifyDestroyContext.objects_in_destroy&.include?(
+      return if UnifyContext.objects_in_destroy&.include?(
         { id: v, type: 'Observation' }
       )
 

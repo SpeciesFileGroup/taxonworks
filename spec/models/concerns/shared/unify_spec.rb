@@ -934,6 +934,21 @@ describe 'Shared::Unify', type: :model do
         observation_matrix: om, descriptor: d2)
     }
 
+    context 'when unifying only the column items' do
+      specify 'unify succeeds' do
+        expect(d1.unify(d2, only: [:observation_matrix_column_items])[:result][:unified])
+          .to be(true)
+      end
+
+      specify 'the column moves to the kept descriptor' do
+        d1.unify(d2, only: [:observation_matrix_column_items])
+        expect(ObservationMatrixColumn.where(observation_matrix: om)
+          .pluck(:descriptor_id, :reference_count))
+          .to contain_exactly([d1.id, 1])
+        expect(Descriptor.where(id: d2.id).exists?).to be(true)
+      end
+    end
+
     context 'when only the removed descriptor is in the matrix' do
       specify 'unify succeeds' do
         expect(d1.unify(d2)[:result][:unified]).to be(true)
@@ -945,6 +960,25 @@ describe 'Shared::Unify', type: :model do
           .pluck(:descriptor_id, :reference_count,
             :cached_observation_matrix_column_item_id))
           .to contain_exactly([d1.id, 1, item2.id])
+      end
+
+      specify 'the column keeps its position' do
+        da = FactoryBot.create(:valid_descriptor)
+        db = FactoryBot.create(:valid_descriptor)
+        ObservationMatrixColumnItem::Single::Descriptor.create!(
+          observation_matrix: om, descriptor: da)
+        ObservationMatrixColumnItem::Single::Descriptor.create!(
+          observation_matrix: om, descriptor: db)
+        ObservationMatrixColumn.sort(
+          ObservationMatrixColumn.where(descriptor: [da, d2, db])
+            .sort_by { |c| [da, d2, db].map(&:id).index(c.descriptor_id) }
+            .map(&:id)
+        )
+
+        d1.unify(d2)
+        expect(ObservationMatrixColumn.where(observation_matrix: om)
+          .order(:position).pluck(:descriptor_id))
+          .to eq([da.id, d1.id, db.id])
       end
     end
 
@@ -1090,6 +1124,21 @@ describe 'Shared::Unify', type: :model do
         observation_matrix: om, observation_object: o2)
     }
 
+    context 'when unifying only the row items' do
+      specify 'unify succeeds' do
+        expect(o1.unify(o2, only: [:observation_matrix_row_items])[:result][:unified])
+          .to be(true)
+      end
+
+      specify 'the row moves to the kept otu' do
+        o1.unify(o2, only: [:observation_matrix_row_items])
+        expect(ObservationMatrixRow.where(observation_matrix: om)
+          .pluck(:observation_object_id, :reference_count))
+          .to contain_exactly([o1.id, 1])
+        expect(Otu.where(id: o2.id).exists?).to be(true)
+      end
+    end
+
     specify 'observation_matrix_rows are not unified directly' do
       expect(o1.merge_relations.map(&:name))
         .not_to include(:observation_matrix_rows)
@@ -1106,6 +1155,25 @@ describe 'Shared::Unify', type: :model do
           .pluck(:observation_object_id, :reference_count,
             :cached_observation_matrix_row_item_id))
           .to contain_exactly([o1.id, 1, item2.id])
+      end
+
+      specify 'the row keeps its position' do
+        oa = FactoryBot.create(:valid_otu)
+        ob = FactoryBot.create(:valid_otu)
+        ObservationMatrixRowItem::Single.create!(
+          observation_matrix: om, observation_object: oa)
+        ObservationMatrixRowItem::Single.create!(
+          observation_matrix: om, observation_object: ob)
+        ObservationMatrixRow.sort(
+          ObservationMatrixRow.where(observation_object: [oa, o2, ob])
+            .sort_by { |r| [oa, o2, ob].map(&:id).index(r.observation_object_id) }
+            .map(&:id)
+        )
+
+        o1.unify(o2)
+        expect(ObservationMatrixRow.where(observation_matrix: om)
+          .order(:position).pluck(:observation_object_id))
+          .to eq([oa.id, o1.id, ob.id])
       end
     end
 
@@ -1232,10 +1300,10 @@ describe 'Shared::Unify', type: :model do
     expect(b[:details]['Citations'][:deduplicated]).to eq(1)
   end
 
-  # Citation#prevent_if_required consults UnifyDestroyContext.objects_in_destroy
+  # Citation#prevent_if_required consults UnifyContext.objects_in_destroy
   # (populated by Shared::Unify#unify, keyed by {id:, type:} rather than
   # object reference, since citation_object may be a different in-memory
-  # instance than whatever unify holds - see UnifyDestroyContext) to decide
+  # instance than whatever unify holds - see UnifyContext) to decide
   # whether citation_object is already slated for destruction regardless.
   # citation1 and citation2 here are on two entirely unrelated
   # AssertedDistributions - neither ad1 nor ad2 is being unified with the
@@ -1257,7 +1325,7 @@ describe 'Shared::Unify', type: :model do
     expect(ad2.reload.citations.count).to eq(1)
   end
 
-  # Same guard, same UnifyDestroyContext mechanism, on the other model that
+  # Same guard, same UnifyContext mechanism, on the other model that
   # has the identical "must have at least one" before_destroy shape
   # (Shared::TaxonDeterminationRequired mirrors Shared::CitationRequired, and
   # FieldOccurrence#requires_taxon_determination? is unconditionally true,
