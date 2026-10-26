@@ -153,6 +153,14 @@ class CollectionObject < ApplicationRecord
 
   before_validation :assign_type_if_total_or_ranged_lot_category_id_provided
 
+  # TODO: we shouldn't be touching rows directly. It's here because
+  # Dynamic::TaxonName row items are never told when a CollectionObject's
+  # membership changes (its determinations) or when one is destroyed or
+  # unified, so they can't release their rows and destroying this object
+  # would leave rows pointing at nothing. Remove this once those items track
+  # membership.
+  after_destroy :delete_observation_matrix_rows_stopgap
+
   validates_presence_of :type
   validate :check_that_either_total_or_ranged_lot_category_id_is_present
   validate :check_that_both_of_category_and_total_are_not_present
@@ -771,6 +779,12 @@ class CollectionObject < ApplicationRecord
   end
 
   protected
+
+  def delete_observation_matrix_rows_stopgap
+    # TODO: bad, see the comment on the callback assignment.
+    ObservationMatrixRow.where(observation_object: self).delete_all
+  end
+
 
   def collecting_event_belongs_to_project
     if collecting_event&.persisted? && (Current.project_id || project_id)

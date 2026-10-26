@@ -14,6 +14,7 @@ module  Shared
       extend ActiveSupport::Concern
       included do
         around_save :member_synchronize_matrices
+        after_destroy :member_remove_from_matrices
       end
 
       module ClassMethods
@@ -36,6 +37,14 @@ module  Shared
       end
 
       def member_of_new_matrix_column_items
+        []
+      end
+
+      # Row items this (destroyed) instance is currently a member of through
+      # its own attributes (e.g. Otu#taxon_name_id).
+      # !! Membership through tags is released by Tag's own matrix hooks, don't
+      # include it here. TODO: behavior should be uniform.
+      def member_of_current_matrix_row_items
         []
       end
 
@@ -91,6 +100,11 @@ module  Shared
         columns.each do |mci|
           mci.cleanup_single_matrix_column(self)
         end
+      end
+
+      # The row items this instance was a member of release its rows
+      def member_remove_from_matrices
+        member_remove_matrix_rows(member_of_current_matrix_row_items)
       end
 
       def member_synchronize_matrices

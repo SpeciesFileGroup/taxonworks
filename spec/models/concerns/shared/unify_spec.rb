@@ -1048,6 +1048,54 @@ describe 'Shared::Unify', type: :model do
     end
   end
 
+  context 'Otus in observation matrices via a dynamic taxon name' do
+    let(:om) { FactoryBot.create(:valid_observation_matrix) }
+    let(:root) { FactoryBot.create(:root_taxon_name) }
+    let(:genus) {
+      Protonym.create!(name: 'Aus', parent: root,
+        rank_class: Ranks.lookup(:iczn, :genus))
+    }
+    let(:in_scope) { Otu.create!(taxon_name: genus) }
+    let!(:item) {
+      ObservationMatrixRowItem::Dynamic::TaxonName.create!(
+        observation_matrix: om, observation_object: genus)
+    }
+
+    specify 'the removed otu row is removed when the kept otu is out of scope' do
+      in_scope.reload
+      expect(o1.unify(in_scope)[:result][:unified]).to be(true)
+      expect(ObservationMatrixRow.where(observation_matrix: om).count).to eq(0)
+    end
+  end
+
+  context 'CollectionObjects in observation matrices via a dynamic taxon name' do
+    let(:om) { FactoryBot.create(:valid_observation_matrix) }
+    let(:root) { FactoryBot.create(:root_taxon_name) }
+    let(:genus) {
+      Protonym.create!(name: 'Aus', parent: root,
+        rank_class: Ranks.lookup(:iczn, :genus))
+    }
+    let(:co1) { FactoryBot.create(:valid_specimen) }
+    let!(:co2) {
+      s = FactoryBot.create(:valid_specimen)
+      FactoryBot.create(:valid_taxon_determination,
+        otu: Otu.create!(taxon_name: genus), taxon_determination_object: s)
+      s
+    }
+    let!(:item) {
+      ObservationMatrixRowItem::Dynamic::TaxonName.create!(
+        observation_matrix: om, observation_object: genus)
+    }
+
+    specify 'unify leaves no row pointing at the removed collection object' do
+      expect(ObservationMatrixRow.where(observation_object: co2).count).to eq(1)
+      expect(co1.unify(co2)[:result][:unified]).to be(true)
+      expect(ObservationMatrixRow.where(
+        observation_object_type: 'CollectionObject', observation_object_id: co2.id
+      ).count).to eq(0)
+    end
+  end
+
   context 'Otus in observation matrices via a dynamic keyword' do
     let(:om) { FactoryBot.create(:valid_observation_matrix) }
     let(:keyword) { FactoryBot.create(:valid_keyword) }
