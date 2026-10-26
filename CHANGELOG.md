@@ -25,6 +25,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Browse OTUs: Contents are now grouped by OTU when there is more than one. [#5136]
 - `/taxon_names/<id>/inventory/catalog` sends sources in chronological order [#200]
 - Autocompletes: Removed bold and softened the yellow highlight for matching text [#5151]
+- Filter Biological Associations: change default taxon name search to `or` mode [#5153]
 
 ### Fixed
 
@@ -46,6 +47,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 [#5144]: https://github.com/SpeciesFileGroup/taxonworks/issues/5144
 [#5151]: https://github.com/SpeciesFileGroup/taxonworks/issues/5151
 [#5152]: https://github.com/SpeciesFileGroup/taxonworks/issues/5152
+[#5153]: https://github.com/SpeciesFileGroup/taxonworks/issues/5153
 
 ## [0.66.1] - 2026-10-09
 
