@@ -179,7 +179,7 @@
   }
 
   .task_name {
-    font-size: 18px;
+    font-size: var(--font-size-lg);
     max-width: 330px;
     font-weight: var(--font-weight-medium);
 

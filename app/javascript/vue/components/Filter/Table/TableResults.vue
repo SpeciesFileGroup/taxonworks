@@ -722,7 +722,7 @@ thead .freeze {
 
 .header-row-attributes {
   th {
-    font-weight: 700;
+    font-weight: var(--font-weight-semibold);
   }
 }
 

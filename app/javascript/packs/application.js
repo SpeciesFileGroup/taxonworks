@@ -19,8 +19,8 @@ if (
 }
 
 import 'easymde/dist/easymde.min.css'
-import '@fontsource-variable/inter/opsz.css'
-import '@fontsource-variable/inter/opsz-italic.css'
+import '@fontsource-variable/ibm-plex-sans/wght.css'
+import '@fontsource-variable/ibm-plex-sans/wght-italic.css'
 import '@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css'
 import 'leaflet/dist/leaflet.css'
 import 'leaflet.markercluster/dist/MarkerCluster.css'

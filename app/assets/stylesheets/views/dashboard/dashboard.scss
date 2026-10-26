@@ -62,7 +62,7 @@
   .project-item.active {
     border-color: var(--color-primary);
     background-color: var(--bg-hover);
-    font-weight: bold;
+    font-weight: var(--font-weight-semibold);
   }
 
   .link-list {
