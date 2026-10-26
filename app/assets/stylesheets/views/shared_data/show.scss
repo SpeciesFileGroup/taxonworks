@@ -77,14 +77,18 @@
 }
 
 mark {
-  font-weight: 700;
   color: inherit;
   background-color: color-mix(in srgb, var(--color-attention) 50%, transparent);
-  padding: 0 0.08em;
   border-radius: 0.15em;
+  padding: 0;
   a {
     font-weight: 700;
   }
+}
+
+em mark,
+i mark {
+  margin: 0 -0.08em;
 }
 
 // Italic text leans right into whatever follows it, and whatever comes before
