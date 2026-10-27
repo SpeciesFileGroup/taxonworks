@@ -1081,6 +1081,22 @@ describe 'Shared::Unify', type: :model do
             :cached_observation_matrix_column_item_id))
           .to contain_exactly([d1.id, 2, single_item.id])
       end
+
+      context 'when unifying only the column items' do
+        specify 'the removed descriptor keeps its column for the keyword' do
+          column2 = ObservationMatrixColumn.find_by(
+            observation_matrix: om, descriptor: d2)
+
+          d1.unify(d2, only: [:observation_matrix_column_items])
+          expect(ObservationMatrixColumn.where(observation_matrix: om)
+            .pluck(:id, :descriptor_id, :reference_count,
+              :cached_observation_matrix_column_item_id))
+            .to contain_exactly(
+              [column2.id, d2.id, 1, nil],
+              [anything, d1.id, 1, single_item.id]
+            )
+        end
+      end
     end
   end
 
@@ -1151,6 +1167,53 @@ describe 'Shared::Unify', type: :model do
         .pluck(:observation_object_type, :observation_object_id,
           :reference_count))
         .to contain_exactly(['Otu', o1.id, 1])
+    end
+
+    context 'when the removed otu is also a single item' do
+      let!(:single_item) {
+        ObservationMatrixRowItem::Single.create!(
+          observation_matrix: om, observation_object: o2)
+      }
+
+      specify 'the row moves to the kept otu' do
+        o1.unify(o2)
+        expect(ObservationMatrixRow.where(observation_matrix: om)
+          .pluck(:observation_object_id, :reference_count,
+            :cached_observation_matrix_row_item_id))
+          .to contain_exactly([o1.id, 2, single_item.id])
+      end
+
+      context 'when unifying only the row items' do
+        specify 'the removed otu keeps its row for the keyword' do
+          row2 = ObservationMatrixRow.find_by(
+            observation_matrix: om, observation_object: o2)
+
+          o1.unify(o2, only: [:observation_matrix_row_items])
+          expect(ObservationMatrixRow.where(observation_matrix: om)
+            .pluck(:id, :observation_object_id, :reference_count,
+              :cached_observation_matrix_row_item_id))
+            .to contain_exactly(
+              [row2.id, o2.id, 1, nil],
+              [anything, o1.id, 1, single_item.id]
+            )
+        end
+      end
+    end
+
+    context 'when only the kept otu is tagged and the removed otu is a single item' do
+      let!(:tag2) { FactoryBot.create(:valid_tag, keyword:, tag_object: o1) }
+      let!(:single_item) {
+        ObservationMatrixRowItem::Single.create!(
+          observation_matrix: om, observation_object: o2)
+      }
+
+      specify 'the kept otu row counts both' do
+        o1.unify(o2)
+        expect(ObservationMatrixRow.where(observation_matrix: om)
+          .pluck(:observation_object_id, :reference_count,
+            :cached_observation_matrix_row_item_id))
+          .to contain_exactly([o1.id, 2, single_item.id])
+      end
     end
   end
 

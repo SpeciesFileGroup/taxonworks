@@ -76,33 +76,34 @@ module  Shared
 
       # Rows
 
-       def member_add_matrix_rows(rows)
-        rows.each do |mri|
+       def member_add_matrix_rows(row_items)
+        row_items.each do |mri|
           mri.update_single_matrix_row(self)
         end
       end
 
-      def member_remove_matrix_rows(rows)
-        rows.each do |mri|
+      def member_remove_matrix_rows(row_items)
+        row_items.each do |mri|
           mri.cleanup_single_matrix_row(self)
         end
       end
 
       # Columns
 
-      def member_add_matrix_columns(columns)
-        columns.each do |mci|
+      def member_add_matrix_columns(column_items)
+        column_items.each do |mci|
           mci.update_single_matrix_column(self)
         end
       end
 
-      def member_remove_matrix_columns(columns)
-        columns.each do |mci|
+      def member_remove_matrix_columns(column_items)
+        column_items.each do |mci|
           mci.cleanup_single_matrix_column(self)
         end
       end
 
-      # The row items this instance was a member of release its rows
+      # Decrement (or delete) this destroyed instance's rows, through the row
+      # items it was a member of
       def member_remove_from_matrices
         return if !ObservationMatrix.where(project_id:).any?
         member_remove_matrix_rows(member_of_current_matrix_row_items)
