@@ -227,10 +227,10 @@ watch(
   { deep: true }
 )
 
-async function saveDigitalization() {
-  const ok =
+async function confirmCollectingEventChanges() {
+  return (
     underThreshold.value ||
-    collectingEventStore.isUnsaved ||
+    !collectingEventStore.isUnsaved ||
     (await confirmationModalRef.value.show({
       title: 'Save',
       message: `The collecting event was modified and is used by over ${MAX_CO_LIMIT}. Are you sure you want to proceed?`,
@@ -238,6 +238,11 @@ async function saveDigitalization() {
       cancelButton: 'Cancel',
       typeButton: 'submit'
     }))
+  )
+}
+
+async function saveDigitalization() {
+  const ok = await confirmCollectingEventChanges()
 
   if (ok) {
     if (!settings.value.saving) {
@@ -250,8 +255,10 @@ function resetStore() {
   store.dispatch(ActionNames.ResetStore)
 }
 
-function saveAndNew() {
-  if (!settings.value.saving) {
+async function saveAndNew() {
+  const ok = await confirmCollectingEventChanges()
+
+  if (ok && !settings.value.saving) {
     store
       .dispatch(ActionNames.SaveDigitalization, {
         resetAfter: true

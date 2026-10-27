@@ -34,6 +34,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Filter TNR: After destroying a record in filter taxon name relationships the record still displays [#5137]
 - Browse OTU: OTU distribution map does not load for Combinations [#5152]
 - Field Occurrences don't fill in taxonomy columns (family, genus, etc.) when included in Darwin Core exports
+- CSD: Saving a CO with a CE that has multiple uses displays a confirmation modal even if it has not been modified [#5146]
 
 [#200]: https://github.com/SpeciesFileGroup/taxonpages/issues/200
 [#5116]: https://github.com/SpeciesFileGroup/taxonworks/issues/5116
@@ -44,6 +45,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 [#5137]: https://github.com/SpeciesFileGroup/taxonworks/issues/5137
 [#5141]: https://github.com/SpeciesFileGroup/taxonworks/issues/5141
 [#5144]: https://github.com/SpeciesFileGroup/taxonworks/issues/5144
+[#5146]: https://github.com/SpeciesFileGroup/taxonworks/issues/5146
 [#5151]: https://github.com/SpeciesFileGroup/taxonworks/issues/5151
 [#5152]: https://github.com/SpeciesFileGroup/taxonworks/issues/5152
 
