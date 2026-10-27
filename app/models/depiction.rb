@@ -189,7 +189,7 @@ class Depiction < ApplicationRecord
     if v = depiction_object_id_previously_was
       # An enclosing Shared::Unify#unify destroys the observation itself, after
       # its remaining relations (notes, tags, ...) have been moved.
-      return if UnifyContext.objects_in_destroy&.include?(
+      return if UnifyDestroyContext.objects_in_destroy&.include?(
         { id: v, type: 'Observation' }
       )
 
@@ -202,7 +202,7 @@ class Depiction < ApplicationRecord
 
   def remove_media_observation
     # As in remove_media_observation2, e.g. when unify dedups this depiction
-    return if UnifyContext.objects_in_destroy&.include?(
+    return if UnifyDestroyContext.objects_in_destroy&.include?(
       { id: depiction_object_id, type: 'Observation' }
     )
 

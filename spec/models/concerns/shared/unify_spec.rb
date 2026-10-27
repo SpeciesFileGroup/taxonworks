@@ -1447,10 +1447,10 @@ describe 'Shared::Unify', type: :model do
     expect(b[:details]['Citations'][:deduplicated]).to eq(1)
   end
 
-  # Citation#prevent_if_required consults UnifyContext.objects_in_destroy
+  # Citation#prevent_if_required consults UnifyDestroyContext.objects_in_destroy
   # (populated by Shared::Unify#unify, keyed by {id:, type:} rather than
   # object reference, since citation_object may be a different in-memory
-  # instance than whatever unify holds - see UnifyContext) to decide
+  # instance than whatever unify holds - see UnifyDestroyContext) to decide
   # whether citation_object is already slated for destruction regardless.
   # citation1 and citation2 here are on two entirely unrelated
   # AssertedDistributions - neither ad1 nor ad2 is being unified with the
@@ -1472,7 +1472,7 @@ describe 'Shared::Unify', type: :model do
     expect(ad2.reload.citations.count).to eq(1)
   end
 
-  # Same guard, same UnifyContext mechanism, on the other model that
+  # Same guard, same UnifyDestroyContext mechanism, on the other model that
   # has the identical "must have at least one" before_destroy shape
   # (Shared::TaxonDeterminationRequired mirrors Shared::CitationRequired, and
   # FieldOccurrence#requires_taxon_determination? is unconditionally true,

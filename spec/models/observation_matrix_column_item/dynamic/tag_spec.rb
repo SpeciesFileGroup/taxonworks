@@ -130,11 +130,6 @@ RSpec.describe ObservationMatrixColumnItem::Dynamic::Tag, type: :model, group: :
       end
     end
 
-    specify 'keyword can not be changed outside of unify' do
-      expect(observation_matrix_column_item.update(controlled_vocabulary_term: FactoryBot.create(:valid_keyword))).to be_falsey
-      expect(observation_matrix_column_item.errors.include?(:controlled_vocabulary_term_id)).to be_truthy
-    end
-
     # As unify does, moving the item off of the keyword it unifies away
     context 'changing the keyword' do
       let(:other_keyword) { FactoryBot.create(:valid_keyword) }
@@ -143,9 +138,7 @@ RSpec.describe ObservationMatrixColumnItem::Dynamic::Tag, type: :model, group: :
       let!(:tag5) { Tag.create!(keyword: other_keyword, tag_object: descriptor4) }
 
       before {
-        UnifyContext.set(objects_in_unify: Set[{ id: keyword.id, type: 'ControlledVocabularyTerm' }]) {
-          observation_matrix_column_item.update!(controlled_vocabulary_term: other_keyword)
-        }
+        observation_matrix_column_item.update!(controlled_vocabulary_term: other_keyword)
       }
 
       specify 'columns are those of the new keyword' do
@@ -162,9 +155,7 @@ RSpec.describe ObservationMatrixColumnItem::Dynamic::Tag, type: :model, group: :
       }
 
       before {
-        UnifyContext.set(objects_in_unify: Set[{ id: keyword.id, type: 'ControlledVocabularyTerm' }]) {
-          observation_matrix_column_item.update!(controlled_vocabulary_term: other_keyword)
-        }
+        observation_matrix_column_item.update!(controlled_vocabulary_term: other_keyword)
       }
 
       specify 'the shared column is kept, not recreated' do
@@ -177,9 +168,7 @@ RSpec.describe ObservationMatrixColumnItem::Dynamic::Tag, type: :model, group: :
       let(:other_observation_matrix) { FactoryBot.create(:valid_observation_matrix) }
 
       before {
-        UnifyContext.set(objects_in_unify: Set[{ id: observation_matrix.id, type: 'ObservationMatrix' }]) {
-          observation_matrix_column_item.update!(observation_matrix: other_observation_matrix)
-        }
+        observation_matrix_column_item.update!(observation_matrix: other_observation_matrix)
       }
 
       specify 'columns move to the new matrix' do

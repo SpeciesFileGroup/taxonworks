@@ -36,7 +36,6 @@ class ObservationMatrixColumnItem < ApplicationRecord
 
   validates_presence_of :observation_matrix
   validate :other_subclass_attributes_not_set, if: -> { !type.blank? }
-  validate :column_objects_unchanged_outside_unify, on: :update
 
   after_create :update_matrix_columns
   after_update :move_matrix_column, if: -> {
@@ -69,9 +68,9 @@ class ObservationMatrixColumnItem < ApplicationRecord
     end
   end
 
-  # Unify moved this item off of the object it's unifying away (the only way
-  # these attributes change): decrement the previous descriptors' columns (in
-  # the previous matrix), increment the new ones
+  # The item now covers other descriptors (e.g. unify moved it to the kept
+  # descriptor or keyword) and/or is in another matrix: decrement the previous
+  # descriptors' columns (in the previous matrix), increment the new ones
   def move_matrix_column
     previous_ids = descriptor_ids_before_last_save
     current = descriptors
@@ -354,24 +353,6 @@ class ObservationMatrixColumnItem < ApplicationRecord
   def other_subclass_attributes_not_set
     (ALL_STI_ATTRIBUTES - self.class.subclass_attributes).each do |atr|
       errors.add(atr, 'is not valid for this type of observation matrix column item') if !send(atr).blank?
-    end
-  end
-
-  # What an item covers, and its matrix, are only changed by
-  # Shared::Unify#unify, moving items off of the object it unifies away;
-  # see #move_matrix_column.
-  def column_objects_unchanged_outside_unify
-    {
-      descriptor_id: 'Descriptor',
-      controlled_vocabulary_term_id: 'ControlledVocabularyTerm',
-      observation_matrix_id: 'ObservationMatrix'
-    }.each do |attribute, type|
-      next if !attribute_changed?(attribute)
-      if !UnifyContext.objects_in_unify&.include?(
-        { id: attribute_was(attribute), type: }
-      )
-        errors.add(attribute, 'can not be changed')
-      end
     end
   end
 

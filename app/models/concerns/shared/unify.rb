@@ -124,23 +124,18 @@ module Shared::Unify
     # Whether this call intends to fully destroy remove_object (as opposed
     # to only:/except: moving some data between the two objects).
     will_destroy = only.empty? && except.empty?
-    remove_object_key = {
-      id: remove_object.id, type: remove_object.class.base_class.name
-    }
+    destroy_key = { id: remove_object.id, type: remove_object.class.base_class.name }
 
     self.class.transaction do
       # before_unify # potential hooks, appear not to be required
 
-      # Record remove_object as being unified (and committed-to-destruction)
-      # *before* any related records are touched below, so those related
-      # records can see, for the whole duration of this call (including any
-      # nested unify a dedup triggers), that it's being unified (and already
-      # slated for destruction).
-      UnifyContext.objects_in_unify ||= Set.new
-      UnifyContext.objects_in_unify << remove_object_key
+      # Record remove_object as committed-to-destruction *before* any related
+      # records are touched below, so those related records can see, for the
+      # whole duration of this call (including any nested unify a dedup
+      # triggers), that it's already slated for destruction.
       if will_destroy
-        UnifyContext.objects_in_destroy ||= Set.new
-        UnifyContext.objects_in_destroy << remove_object_key
+        UnifyDestroyContext.objects_in_destroy ||= Set.new
+        UnifyDestroyContext.objects_in_destroy << destroy_key
       end
 
       begin
@@ -223,10 +218,7 @@ module Shared::Unify
           end
         end
       ensure
-        UnifyContext.objects_in_unify&.delete(remove_object_key)
-        if will_destroy
-          UnifyContext.objects_in_destroy&.delete(remove_object_key)
-        end
+        UnifyDestroyContext.objects_in_destroy&.delete(destroy_key) if will_destroy
       end
 
       # after_unify # potential hooks, appear not to be required
