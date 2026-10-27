@@ -4,13 +4,25 @@ import {
   STORAGE_FILTER_QUERY_KEY
 } from '@/constants'
 import { getParametersFromSession, fetchSortableColumns } from '../utils'
+import useFilterView from './useFilterView.js'
 import { sortArrayByReference } from '@/helpers'
 import getPagination from '@/helpers/getPagination'
 import qs from 'qs'
 
+// @param initParameters [Object] sent with every request (e.g. extend,
+//   exclude), never taken from the URL
+// @param sortableColumnsResource [String] the backend resource whose sort
+//   keys gate the table's sort, e.g. 'collection_objects'
+// @param objectType [String] when given, also sets up the table's view
+//   state (sort, saved default), see useFilterView
 export default function (
   service,
-  { listParser, initParameters = {}, sortableColumnsResource } = {}
+  {
+    listParser,
+    initParameters = {},
+    sortableColumnsResource,
+    objectType
+  } = {}
 ) {
   const DEFAULT_PER = 50
   const DEFAULT_PARAMETERS = {
@@ -27,8 +39,13 @@ export default function (
     isLoading: false,
     initParameters,
     urlRequest: '',
-    sortableKeys: null // null = not yet loaded / not applicable; array = loaded
+    sortableKeys: null, // null = not yet loaded / not applicable; array = loaded
+    maxSortKeys: null // null = no limit known
   })
+
+  // Only the latest request's response is shown: an earlier one can arrive
+  // later (e.g. a refetch for a new sort while the first search runs).
+  let latestRequest = 0
 
   const sortedSelectedIds = computed(() =>
     sortArrayByReference({
@@ -39,22 +56,33 @@ export default function (
     })
   )
 
-  const makeFilterRequest = (params = state.parameters) => {
+  // @param append [Boolean] add to the list rather than replace it;
+  //   defaults to the append toggle
+  const makeFilterRequest = (
+    params = state.parameters,
+    { append = state.append } = {}
+  ) => {
     const payload = removeEmptyParameters({
+      ...state.initParameters,
       ...params,
       ...DEFAULT_PARAMETERS
     })
+    const request = ++latestRequest
 
     state.isLoading = true
 
     return service
       .filter(payload)
       .then(async (response) => {
+        if (request !== latestRequest) return
+
         const result = listParser
           ? await listParser(response.body, { parameters: state.parameters })
           : response.body
 
-        if (state.append) {
+        if (request !== latestRequest) return
+
+        if (append) {
           let concat = result.concat(state.list)
 
           concat = concat.filter(
@@ -80,7 +108,7 @@ export default function (
       })
       .catch(() => {})
       .finally(() => {
-        state.isLoading = false
+        if (request === latestRequest) state.isLoading = false
       })
   }
 
@@ -102,6 +130,9 @@ export default function (
     for (const key in params) {
       const value = params[key]
 
+      // An empty sort is an explicitly cleared one, see useSortKeys.
+      if (key === 'sort' && value === '') continue
+
       if (
         value === undefined ||
         value === '' ||
@@ -120,12 +151,13 @@ export default function (
 
     makeFilterRequest({
       ...state.parameters,
-      ...state.initParameters,
       ...params
     })
   }
 
   const resetFilter = () => {
+    // Drops any response still on its way.
+    latestRequest++
     state.parameters = { per: state.parameters.per ?? DEFAULT_PER }
     state.list = []
     state.isLoading = false
@@ -157,21 +189,33 @@ export default function (
     localStorage.removeItem(STORAGE_FILTER_QUERY_KEY)
 
     if (sortableColumnsResource) {
-      fetchSortableColumns(sortableColumnsResource).then((keys) => {
-        state.sortableKeys = keys
+      fetchSortableColumns(sortableColumnsResource).then((result) => {
+        if (!result) return
+        state.sortableKeys = result.columns
+        state.maxSortKeys = result.maxSortKeys
       })
     }
 
     if (Object.keys(urlParameters).length) {
-      makeFilterRequest({
-        ...state.parameters,
-        ...initParameters
-      })
+      makeFilterRequest({ ...state.parameters })
     }
   })
 
+  const refs = toRefs(state)
+
+  const view = objectType
+    ? useFilterView({
+        parameters: refs.parameters,
+        makeFilterRequest,
+        objectType,
+        sortableKeys: refs.sortableKeys,
+        maxSortKeys: refs.maxSortKeys
+      })
+    : {}
+
   return {
-    ...toRefs(state),
+    ...refs,
+    ...view,
     makeFilterRequest,
     loadPage,
     resetFilter,

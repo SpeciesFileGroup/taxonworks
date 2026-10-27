@@ -119,16 +119,7 @@ module Queries::Concerns::Identifiers
     end
 
     def match_identifiers_delimiter
-      return ',' if @match_identifiers_delimiter.nil?
-
-      case @match_identifiers_delimiter
-      when '\n', "\n"
-        return "\n"
-      when '\t', "\t"
-        return "\t"
-      else
-        return @match_identifiers_delimiter
-      end
+      ::Queries::Sort::MatchIdentifiers.normalize_delimiter(@match_identifiers_delimiter)
     end
 
     def identifier_type

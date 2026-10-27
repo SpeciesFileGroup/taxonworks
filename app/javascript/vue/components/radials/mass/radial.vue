@@ -80,17 +80,8 @@ import { RadialAnnotatorEventEmitter } from '@/utils/index.js'
 import { ANNOTATORS } from './constants/annotators.js'
 import { Metadata } from '@/routes/endpoints'
 import { computed, ref, onBeforeMount } from 'vue'
+import { RESULT_PARAMETERS } from '@/shared/Filter/constants'
 
-// Batch actions act on the whole set, so paging and ordering params don't apply
-const EXCLUDE_PARAMETERS = [
-  'per',
-  'page',
-  'extend',
-  'sort',
-  'recent',
-  'recent_target',
-  'order_by'
-]
 
 defineOptions({
   name: 'RadialBatchAnnotator'
@@ -135,7 +126,7 @@ const {
   params,
   selectSlice
 } = useRadialBatch({
-  excludeParameters: EXCLUDE_PARAMETERS,
+  excludeParameters: RESULT_PARAMETERS,
   props,
   slices: props.nestedQuery ? annotatorComponents.all : annotatorComponents.ids
 })

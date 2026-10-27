@@ -12,17 +12,7 @@ class Queries::FieldOccurrence::Sort < Queries::Sort::Base
 
       sortable_association_columns(:dwc_occurrence).each { |c, lam| cols["dwc_occurrence.#{c}"] = lam }
 
-      # taxon_determinations.* uses the primary (lowest-position) determination
-      # for each FO (TaxonDetermination is acts_as_list, position 1 = primary).
-      # otu_id goes through the otu's id: the resolver refuses raw foreign keys.
-      ::Queries::CollectionObject::Sort::SORTABLE_TAXON_DETERMINATION_COLUMNS.each do |c|
-        cols["taxon_determinations.#{c}"] =
-          case c
-          when 'otu_id' then association(:taxon_determinations, :otu, :id, collapse: :position)
-          when 'otu_name' then association(:taxon_determinations, :otu, :name, collapse: :position)
-          else association(:taxon_determinations, c, collapse: :position)
-          end
-      end
+      cols.merge!(taxon_determination_columns)
 
       cols['identifiers.cached'] = association(:identifiers, :cached, collapse: :joined)
 

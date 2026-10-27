@@ -12,14 +12,16 @@ describe ContainersHelper, type: :helper do
     }
 
     # Filter tables preload identifiers, which come back in no particular
-    # order; the label must not depend on that.
-    specify 'uses the first identifier by id, also when identifiers are preloaded' do
+    # order; the label must not depend on that. First is by position, as
+    # identifiers are listed everywhere else.
+    specify 'uses the first identifier by position, also when identifiers are preloaded' do
       # Rewrite the first identifier so it no longer comes first in the table.
       first_identifier.update_column(:updated_at, Time.current)
+      first_identifier.update_column(:position, 3)
 
       preloaded = Container.includes(:identifiers).find(container.id)
-      expect(helper.label_for_container_container(preloaded)).to eq(helper.label_for_identifier(first_identifier))
-      expect(helper.label_for_container_container(Container.find(container.id))).to eq(helper.label_for_identifier(first_identifier))
+      expect(helper.label_for_container_container(preloaded)).to eq(helper.label_for_identifier(second_identifier))
+      expect(helper.label_for_container_container(Container.find(container.id))).to eq(helper.label_for_identifier(second_identifier))
     end
   end
 end

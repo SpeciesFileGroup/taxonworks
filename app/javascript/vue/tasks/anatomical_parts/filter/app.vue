@@ -50,6 +50,7 @@
           v-model:hide-unfrozen="hideFrozen"
           v-model:unsaved-view-changes="unsavedViewChanges"
           :sortable-keys="sortableKeys"
+          :max-sort-keys="maxSortKeys"
           :attributes="ATTRIBUTES"
           :list="list"
           :preference-key="`tasks::filters::${ANATOMICAL_PART}`"
@@ -70,6 +71,7 @@
           v-model:sort-keys="sortKeys"
           :labels="ATTRIBUTES"
           :sortable-keys="sortableKeys"
+          :max-sort-keys="maxSortKeys"
         />
         <SaveViewButton
           v-if="hasUnsavedChanges"
@@ -106,7 +108,6 @@ import VSpinner from '@/components/ui/VSpinner.vue'
 import VToggle from '@/components/ui/VToggle.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import useFilter from '@/shared/Filter/composition/useFilter.js'
-import useFilterView from '@/shared/Filter/composition/useFilterView.js'
 import { listParser } from './utils/listParser.js'
 import { ANATOMICAL_PART } from '@/constants/index.js'
 import { AnatomicalPart } from '@/routes/endpoints'
@@ -134,23 +135,17 @@ const {
   selectedIds,
   sortedSelectedIds,
   urlRequest,
-  sortableKeys
-} = useFilter(AnatomicalPart, {
-  listParser,
-  sortableColumnsResource: 'anatomical_parts'
-})
-
-const {
+  sortableKeys,
   sortKeys,
   unsavedViewChanges,
   hasUnsavedChanges,
   filterListRef,
-  saveViewAsDefault
-} = useFilterView({
-  parameters,
-  makeFilterRequest,
-  objectType: ANATOMICAL_PART,
-  sortableKeys
+  saveViewAsDefault,
+  maxSortKeys
+} = useFilter(AnatomicalPart, {
+  listParser,
+  sortableColumnsResource: 'anatomical_parts',
+  objectType: ANATOMICAL_PART
 })
 
 function loadGraph(id) {

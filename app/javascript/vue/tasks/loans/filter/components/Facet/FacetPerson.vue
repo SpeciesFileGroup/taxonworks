@@ -3,7 +3,7 @@
     <h3>Person (Recipient/Supervisor)</h3>
     <SmartSelector
       model="people"
-      @selected="addToArray(people, $event)"
+      @selected="add"
     />
     <DisplayList
       v-if="people.length"
@@ -11,7 +11,7 @@
       soft-delete
       :warning="false"
       :list="people"
-      @delete="removeFromArray(people, $event)"
+      @delete-index="remove"
     />
 
     <p>
@@ -35,10 +35,10 @@
   </FacetContainer>
 </template>
 <script setup>
-import { ref, computed, watch, onBeforeMount } from 'vue'
+import { computed, onBeforeMount } from 'vue'
 import { People } from '@/routes/endpoints'
 import { ROLE_LOAN_RECIPIENT, ROLE_LOAN_SUPERVISOR } from '@/constants/index.js'
-import { addToArray, removeFromArray } from '@/helpers/arrays'
+import { useHydratedFacetList, missingRecord } from '@/components/Filter/composables/useHydratedFacetList.js'
 import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
 import DisplayList from '@/components/displayList.vue'
@@ -69,55 +69,21 @@ const selectedRoles = computed({
   }
 })
 
-const people = ref([])
-// Ids from the URL whose person couldn't be loaded (e.g. deleted). Kept in
-// the filter, so it still matches what the URL asked for.
-const unresolvedIds = ref([])
-let hydrating = false
-
-watch(
-  people,
-  (newVal) => {
-    if (hydrating) return
-    params.value.person_id = [
-      ...newVal.map((p) => p.id),
-      ...unresolvedIds.value
-    ]
+const {
+  list: people,
+  hydrate,
+  add,
+  remove
+} = useHydratedFacetList({
+  ids: () => params.value.person_id,
+  write: (items) => {
+    params.value.person_id = items.map((item) => item.id)
   },
-  { deep: true }
-)
+  load: (id) => People.find(id).then(({ body }) => body),
+  missing: missingRecord
+})
 
-watch(
-  () => params.value.person_id,
-  (newVal, oldVal) => {
-    if (!newVal?.length && oldVal?.length) {
-      people.value = []
-      unresolvedIds.value = []
-    }
-  }
-)
-
-onBeforeMount(async () => {
-  // person_id holds ids (the watcher above stores ids; the URL gives ids).
-  const ids = (params.value?.person_id || []).filter((id) => id != null)
-  if (!ids.length) return
-
-  // Load all of them before touching person_id, so a slow or failed lookup
-  // can't drop ids from the filter in the meantime.
-  hydrating = true
-  const results = await Promise.allSettled(ids.map((id) => People.find(id)))
-  const found = []
-  const unresolved = []
-  results.forEach((r, i) => {
-    if (r.status === 'fulfilled') found.push(r.value.body)
-    else unresolved.push(ids[i])
-  })
-  unresolvedIds.value = unresolved
-  // Keep anyone picked while the lookups ran.
-  people.value = [
-    ...found,
-    ...people.value.filter((p) => !found.some((f) => f.id === p.id))
-  ]
-  hydrating = false
+onBeforeMount(() => {
+  hydrate(params.value?.person_id)
 })
 </script>

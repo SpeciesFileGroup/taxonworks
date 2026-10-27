@@ -33,9 +33,18 @@ module TaxonDeterminationsHelper
   # @return [String]
   #   the "by" clause of the determination
   def taxon_determination_by(taxon_determination)
+    # Preloaded roles when there are any (as by filter tables), else two queries.
+    people, organizations =
+      if taxon_determination.determiner_roles.loaded?
+        roles = taxon_determination.determiner_roles
+        [roles.filter_map(&:person), roles.filter_map(&:organization)]
+      else
+        [taxon_determination.determiners, taxon_determination.determiners_organization]
+      end
+
     names = [
-      taxon_determination.determiners.collect{|d| d.last_name },
-      taxon_determination.determiners_organization.collect{|d| d.name }
+      people.collect{|d| d.last_name },
+      organizations.collect{|d| d.name }
     ].reduce([], :concat).to_sentence
 
     names.blank? ? nil : "by #{names}"

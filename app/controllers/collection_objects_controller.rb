@@ -1,5 +1,6 @@
 class CollectionObjectsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
+  include OccurrenceFilterIncludes
 
   before_action :set_collection_object, only: [
     :show, :edit, :update, :destroy, :navigation, :containerize,
@@ -25,6 +26,7 @@ class CollectionObjectsController < ApplicationController
         collection_objects = ::Queries::CollectionObject::Filter.new(params).all
 
         @collection_objects = ordered_page(add_includes_to_filter_result(collection_objects))
+        preload_sized_container_items(@collection_objects)
       end
     end
   end
@@ -497,42 +499,31 @@ class CollectionObjectsController < ApplicationController
     }
   end
 
-  # An experiment to balance query/rendering times vs. extend[] requests
-  # Likely suggests we need some fundamental changes.
-  # @param CollectionObject::Filter.new() instance
   def add_includes_to_filter_result(collection_objects)
-    a = %i(identifiers dwc_occurrence repository current_repository)
-
-    x = []
-    a.each do |e|
-      if helpers.extend_response_with(e.to_s)
-        x.push e
-      end
-    end
-
-    if x.any?
-      collection_objects = collection_objects.includes(*x)
-    end
-
-    if helpers.extend_response_with('collecting_event')
-      ce_includes = [:identifiers]
-      ce_includes.push(:geographic_area) if helpers.extend_response_with('geographic_area_name')
-      collection_objects = collection_objects.includes(collecting_event: ce_includes)
-    end
-
-    if helpers.extend_response_with('taxon_determinations')
-      collection_objects = collection_objects.includes(
-        taxon_determinations: [:otu, determiner_roles: [:person, :organization]]
-      )
-    end
+    collection_objects = add_occurrence_includes(collection_objects, %i(identifiers dwc_occurrence repository current_repository))
 
     if helpers.extend_response_with('container_item') || helpers.extend_response_with('container')
-      # A parent's contained_object is always a Container; its own container_item
-      # children back container_items (available space, '... inside').
-      collection_objects = collection_objects.includes(container_item: { parent: { contained_object: [:identifiers, { container_item: :children }] } })
+      # A parent's contained_object is always a Container.
+      collection_objects = collection_objects.includes(container_item: { parent: { contained_object: [:identifiers, :container_item] } })
     end
 
     collection_objects
+  end
+
+  # A container's available_space counts its items, but only when it has a
+  # size, which also bounds how many there are. Preload those items for sized
+  # containers only: an unsized one (e.g. a drawer) can hold thousands.
+  def preload_sized_container_items(collection_objects)
+    return if !(helpers.extend_response_with('container_item') || helpers.extend_response_with('container'))
+
+    container_items = collection_objects
+      .filter_map { |co| co.container_item&.parent&.contained_object }
+      .uniq
+      .select(&:size)
+      .filter_map(&:container_item)
+    return if container_items.empty?
+
+    ActiveRecord::Associations::Preloader.new(records: container_items, associations: :children).call
   end
 
 end

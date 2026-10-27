@@ -1,5 +1,6 @@
 class FieldOccurrencesController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
+  include OccurrenceFilterIncludes
 
   before_action :set_field_occurrence, only: %i[ show edit update destroy api_dwc]
 
@@ -124,23 +125,7 @@ class FieldOccurrencesController < ApplicationController
   private
 
   def add_includes_to_filter_result(field_occurrences)
-    %i[identifiers dwc_occurrence].each do |e|
-      field_occurrences = field_occurrences.includes(e) if helpers.extend_response_with(e.to_s)
-    end
-
-    if helpers.extend_response_with('collecting_event')
-      ce_includes = [:identifiers]
-      ce_includes.push(:geographic_area) if helpers.extend_response_with('geographic_area_name')
-      field_occurrences = field_occurrences.includes(collecting_event: ce_includes)
-    end
-
-    if helpers.extend_response_with('taxon_determinations')
-      field_occurrences = field_occurrences.includes(
-        taxon_determinations: [:otu, determiner_roles: [:person, :organization]]
-      )
-    end
-
-    field_occurrences
+    add_occurrence_includes(field_occurrences, %i[identifiers dwc_occurrence])
   end
 
   def set_field_occurrence

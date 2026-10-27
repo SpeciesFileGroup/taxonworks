@@ -112,21 +112,22 @@ export default function useAnnotationFilter() {
   )
 
   const sortableKeys = ref(null)
+  const maxSortKeys = ref(null)
 
   // Refetch the backend sortable-columns whitelist whenever the user picks a
-  // different annotation type. Each backend filter class has its own list.
+  // different annotation type. Each backend filter class has its own list,
+  // so the previous type's is dropped until the new one arrives.
   watch(
     annotationType,
     (nextType) => {
-      if (!nextType) {
-        sortableKeys.value = null
-        return
-      }
+      sortableKeys.value = null
+      if (!nextType) return
       // Each annotation type key is its backend resource name. Ignore a
       // response that arrives after the user switched to another type.
-      fetchSortableColumns(nextType).then((keys) => {
-        if (annotationType.value === nextType) {
-          sortableKeys.value = keys
+      fetchSortableColumns(nextType).then((result) => {
+        if (result && annotationType.value === nextType) {
+          sortableKeys.value = result.columns
+          maxSortKeys.value = result.maxSortKeys
         }
       })
     },
@@ -153,6 +154,7 @@ export default function useAnnotationFilter() {
     annotationTypes,
     currentAttributes,
     setAnnotationType,
-    sortableKeys
+    sortableKeys,
+    maxSortKeys
   }
 }

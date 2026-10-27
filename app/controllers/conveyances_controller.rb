@@ -19,7 +19,8 @@ class ConveyancesController < ApplicationController
           .all
           .where(project_id: sessions_current_project_id)
           .where(Queries::Annotator::polymorphic_params(params, Conveyance)) # TODO: -> configured?
-        @conveyances = ordered_page(@conveyances)
+        # Position order: an annotator lists one object's conveyances.
+        @conveyances = ordered_page(@conveyances, default_order: ['conveyances.position'])
       }
     end
   end

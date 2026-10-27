@@ -9,8 +9,8 @@
       :list="list"
       :csv-options="csvOptions"
       v-model:append="append"
-      @filter="makeFilterRequest({ ...parameters, extend, exclude, page: 1 })"
-      @per="makeFilterRequest({ ...parameters, extend, exclude, page: 1 })"
+      @filter="makeFilterRequest({ ...parameters, page: 1 })"
+      @per="makeFilterRequest({ ...parameters, page: 1 })"
       @nextpage="loadPage"
       @reset="resetFilter"
     >
@@ -31,7 +31,7 @@
           :disabled="!list.length"
           :parameters="parameters"
           :count="pagination?.total || 0"
-          @update="() => makeFilterRequest({ ...parameters, extend, exclude })"
+          @update="() => makeFilterRequest({ ...parameters })"
         />
       </template>
 
@@ -41,7 +41,7 @@
             :disabled="!list.length"
             :ids="sortedSelectedIds"
             :count="sortedSelectedIds.length"
-            @update="() => makeFilterRequest({ ...parameters, extend, exclude })"
+            @update="() => makeFilterRequest({ ...parameters })"
           />
           <TableLayoutSelector
             v-model="currentLayout"
@@ -74,7 +74,9 @@
           v-model:hide-unfrozen="hideFrozen"
           v-model:unsaved-view-changes="unsavedViewChanges"
           :sortable-keys="sortableKeys"
+          :max-sort-keys="maxSortKeys"
           :layout="currentLayout"
+          @reorder:layout="reorderLayoutColumns"
           :list="list"
           :preference-key="`tasks::filters::${COLLECTING_EVENT}`"
           :radial-object="false"
@@ -88,6 +90,7 @@
           v-model:sort-keys="sortKeys"
           :labels="sortLabels"
           :sortable-keys="sortableKeys"
+          :max-sort-keys="maxSortKeys"
         />
         <SaveViewButton
           v-if="hasUnsavedChanges"
@@ -117,7 +120,6 @@ import FloatMap from '@/components/ui/map/FloatMap.vue'
 import FilterLayout from '@/components/layout/Filter/FilterLayout.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import { useFilter, useCSVOptions } from '@/shared/Filter/composition'
-import useFilterView from '@/shared/Filter/composition/useFilterView.js'
 import RadialCollectingEvent from '@/components/radials/ce/radial.vue'
 import FilterList from '@/components/Filter/Table/TableResults.vue'
 import SortPanel from '@/components/Filter/Table/SortPanel.vue'
@@ -127,7 +129,7 @@ import VToggle from '@/components/ui/VToggle.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import { listParser } from './utils/listParser.js'
 import { COLLECTING_EVENT } from '@/constants/index.js'
-import { computed, ref, reactive, onMounted, onBeforeMount } from 'vue'
+import { computed, ref, reactive, onMounted, onBeforeUnmount } from 'vue'
 import { sortArray } from '@/helpers/arrays'
 import { CollectingEvent } from '@/routes/endpoints'
 import { LAYOUTS } from './constants/layouts.js'
@@ -149,6 +151,7 @@ const {
   layouts,
   properties,
   updatePropertiesPositions,
+  reorderLayoutColumns,
   saveLayoutPreferences,
   resetPreferences,
   forceUpdatePreference
@@ -196,26 +199,18 @@ const {
   selectedIds,
   sortedSelectedIds,
   urlRequest,
-  sortableKeys
-} = useFilter(CollectingEvent, {
-  listParser,
-  initParameters: { extend, exclude },
-  sortableColumnsResource: 'collecting_events'
-})
-
-const {
+  sortableKeys,
   sortKeys,
   unsavedViewChanges,
   hasUnsavedChanges,
   filterListRef,
-  saveViewAsDefault
-} = useFilterView({
-  parameters,
-  makeFilterRequest,
-  objectType: COLLECTING_EVENT,
-  extend,
-  exclude,
-  sortableKeys
+  saveViewAsDefault,
+  maxSortKeys
+} = useFilter(CollectingEvent, {
+  listParser,
+  initParameters: { extend, exclude },
+  sortableColumnsResource: 'collecting_events',
+  objectType: COLLECTING_EVENT
 })
 
 const sortLabels = computed(() =>
@@ -248,7 +243,7 @@ onMounted(() => {
   document.addEventListener('mouseup', onMouseUp)
 })
 
-onBeforeMount(() => {
+onBeforeUnmount(() => {
   document.removeEventListener('mousedown', onMouseDown)
   document.removeEventListener('mouseup', onMouseUp)
 })

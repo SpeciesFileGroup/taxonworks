@@ -8,8 +8,8 @@
       :list="list"
       v-model="parameters"
       v-model:append="append"
-      @filter="makeFilterRequest({ ...parameters, extend, page: 1 })"
-      @per="makeFilterRequest({ ...parameters, extend, page: 1 })"
+      @filter="makeFilterRequest({ ...parameters, page: 1 })"
+      @per="makeFilterRequest({ ...parameters, page: 1 })"
       @nextpage="loadPage"
       @reset="resetFilter"
     >
@@ -18,7 +18,7 @@
           :disabled="!list.length"
           :parameters="parameters"
           :count="pagination?.total || 0"
-          @update="() => makeFilterRequest({ ...parameters, extend })"
+          @update="() => makeFilterRequest({ ...parameters })"
         />
       </template>
       <template #nav-right>
@@ -31,7 +31,7 @@
           :disabled="!list.length"
           :ids="sortedSelectedIds"
           :count="sortedSelectedIds.length"
-          @update="() => makeFilterRequest({ ...parameters, extend })"
+          @update="() => makeFilterRequest({ ...parameters })"
         />
       </template>
       <template #facets>
@@ -45,6 +45,7 @@
           v-model:hide-unfrozen="hideFrozen"
           v-model:unsaved-view-changes="unsavedViewChanges"
           :sortable-keys="sortableKeys"
+          :max-sort-keys="maxSortKeys"
           :attributes="ATTRIBUTES"
           :list="list"
           :preference-key="`tasks::filters::${TAXON_NAME}`"
@@ -56,6 +57,7 @@
           v-model:sort-keys="sortKeys"
           :labels="ATTRIBUTES"
           :sortable-keys="sortableKeys"
+          :max-sort-keys="maxSortKeys"
         />
         <SaveViewButton
           v-if="hasUnsavedChanges"
@@ -88,7 +90,6 @@ import SortPanel from '@/components/Filter/Table/SortPanel.vue'
 import SaveViewButton from '@/components/Filter/Table/SaveViewButton.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import useFilter from '@/shared/Filter/composition/useFilter.js'
-import useFilterView from '@/shared/Filter/composition/useFilterView.js'
 import RadialLabel from '@/components/radials/label/radial.vue'
 import RadialNomenclature from '@/components/radials/nomenclature/radial.vue'
 import VToggle from '@/components/ui/VToggle.vue'
@@ -114,25 +115,18 @@ const {
   selectedIds,
   sortedSelectedIds,
   urlRequest,
-  sortableKeys
-} = useFilter(TaxonName, {
-  listParser,
-  initParameters: { extend },
-  sortableColumnsResource: 'taxon_names'
-})
-
-const {
+  sortableKeys,
   sortKeys,
   unsavedViewChanges,
   hasUnsavedChanges,
   filterListRef,
-  saveViewAsDefault
-} = useFilterView({
-  parameters,
-  makeFilterRequest,
-  objectType: TAXON_NAME,
-  extend,
-  sortableKeys
+  saveViewAsDefault,
+  maxSortKeys
+} = useFilter(TaxonName, {
+  listParser,
+  initParameters: { extend },
+  sortableColumnsResource: 'taxon_names',
+  objectType: TAXON_NAME
 })
 </script>
 

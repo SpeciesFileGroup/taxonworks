@@ -8,8 +8,8 @@
       :list="list"
       :url-request="urlRequest"
       v-model:append="append"
-      @filter="makeFilterRequest({ ...parameters, extend, page: 1 })"
-      @per="makeFilterRequest({ ...parameters, extend, page: 1 })"
+      @filter="makeFilterRequest({ ...parameters, page: 1 })"
+      @per="makeFilterRequest({ ...parameters, page: 1 })"
       @nextpage="loadPage"
       @reset="resetFilter"
     >
@@ -18,7 +18,7 @@
           :disabled="!list.length"
           :parameters="parameters"
           :count="pagination?.total || 0"
-          @update="() => makeFilterRequest({ ...parameters, extend })"
+          @update="() => makeFilterRequest({ ...parameters })"
         />
       </template>
       <template #nav-right>
@@ -27,7 +27,7 @@
             :disabled="!list.length"
             :ids="sortedSelectedIds"
             :count="sortedSelectedIds.length"
-            @update="() => makeFilterRequest({ ...parameters, extend })"
+            @update="() => makeFilterRequest({ ...parameters })"
           />
         </div>
       </template>
@@ -41,6 +41,7 @@
           v-model:sort-keys="sortKeys"
           v-model:unsaved-view-changes="unsavedViewChanges"
           :sortable-keys="sortableKeys"
+          :max-sort-keys="maxSortKeys"
           :attributes="ATTRIBUTES"
           :header-groups="HEADERS"
           :list="list"
@@ -53,8 +54,9 @@
       <template #nav-settings-start>
         <SortPanel
           v-model:sort-keys="sortKeys"
-          :labels="sortLabels"
+          :labels="SORT_LABELS"
           :sortable-keys="sortableKeys"
+          :max-sort-keys="maxSortKeys"
         />
         <SaveViewButton
           v-if="hasUnsavedChanges"
@@ -95,8 +97,7 @@ import { listParser } from './utils/listParser'
 import { BIOLOGICAL_ASSOCIATION } from '@/constants/index.js'
 import { BiologicalAssociation } from '@/routes/endpoints'
 import { ATTRIBUTES } from './constants/attributes.js'
-import useFilterView from '@/shared/Filter/composition/useFilterView.js'
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 
 const hideFrozen = ref(false)
 
@@ -136,37 +137,28 @@ const {
   selectedIds,
   sortedSelectedIds,
   urlRequest,
-  sortableKeys
-} = useFilter(BiologicalAssociation, {
-  listParser,
-  initParameters: { extend },
-  sortableColumnsResource: 'biological_associations'
-})
-
-const {
+  sortableKeys,
   sortKeys,
   unsavedViewChanges,
   hasUnsavedChanges,
   filterListRef,
-  saveViewAsDefault
-} = useFilterView({
-  parameters,
-  makeFilterRequest,
-  objectType: BIOLOGICAL_ASSOCIATION,
-  extend,
-  sortableKeys
+  saveViewAsDefault,
+  maxSortKeys
+} = useFilter(BiologicalAssociation, {
+  listParser,
+  initParameters: { extend },
+  sortableColumnsResource: 'biological_associations',
+  objectType: BIOLOGICAL_ASSOCIATION
 })
 
-const sortLabels = computed(() => {
-  const map = {}
-  for (const [key, label] of Object.entries(ATTRIBUTES)) {
+const SORT_LABELS = Object.fromEntries(
+  Object.entries(ATTRIBUTES).map(([key, label]) => {
     let side = null
     if (key.startsWith('subject_') || key.endsWith('_subject')) side = 'Subject'
     else if (key.startsWith('object_') || key.endsWith('_object')) side = 'Object'
-    map[key] = side ? `${side} · ${label}` : label
-  }
-  return map
-})
+    return [key, side ? `${side} · ${label}` : label]
+  })
+)
 </script>
 
 <script>

@@ -11,8 +11,8 @@
       only-extend-download
       v-model="parameters"
       v-model:append="append"
-      @filter="makeFilterRequest({ ...parameters, extend, page: 1 })"
-      @per="makeFilterRequest({ ...parameters, extend, page: 1 })"
+      @filter="makeFilterRequest({ ...parameters, page: 1 })"
+      @per="makeFilterRequest({ ...parameters, page: 1 })"
       @nextpage="loadPage"
       @reset="resetFilter"
     >
@@ -27,6 +27,7 @@
           v-model:hide-unfrozen="hideFrozen"
           v-model:unsaved-view-changes="unsavedViewChanges"
           :sortable-keys="sortableKeys"
+          :max-sort-keys="maxSortKeys"
           :attributes="ATTRIBUTES"
           :list="list"
           :preference-key="`tasks::filters::${CONTENT}`"
@@ -38,6 +39,7 @@
           v-model:sort-keys="sortKeys"
           :labels="ATTRIBUTES"
           :sortable-keys="sortableKeys"
+          :max-sort-keys="maxSortKeys"
         />
         <SaveViewButton
           v-if="hasUnsavedChanges"
@@ -75,7 +77,6 @@ import VToggle from '@/components/ui/VToggle.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import TsvDownload from './components/TsvDownload.vue'
 import useFilter from '@/shared/Filter/composition/useFilter.js'
-import useFilterView from '@/shared/Filter/composition/useFilterView.js'
 import { listParser } from './utils/listParser'
 import { ATTRIBUTES } from './constants/attributes'
 import { Content } from '@/routes/endpoints'
@@ -96,25 +97,18 @@ const {
   selectedIds,
   sortedSelectedIds,
   urlRequest,
-  sortableKeys
-} = useFilter(Content, {
-  listParser,
-  initParameters: { extend },
-  sortableColumnsResource: 'contents'
-})
-
-const {
+  sortableKeys,
   sortKeys,
   unsavedViewChanges,
   hasUnsavedChanges,
   filterListRef,
-  saveViewAsDefault
-} = useFilterView({
-  parameters,
-  makeFilterRequest,
-  objectType: CONTENT,
-  extend,
-  sortableKeys
+  saveViewAsDefault,
+  maxSortKeys
+} = useFilter(Content, {
+  listParser,
+  initParameters: { extend },
+  sortableColumnsResource: 'contents',
+  objectType: CONTENT
 })
 
 const tsvDownload = computed(() => [

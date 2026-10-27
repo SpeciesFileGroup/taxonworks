@@ -60,7 +60,8 @@ import DisplayList from '@/components/displayList.vue'
 import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
 import { Organization, People } from '@/routes/endpoints'
 import { URLParamsToJSON } from '@/helpers/url/parse.js'
-import { onMounted, ref, watch } from 'vue'
+import { onMounted, ref } from 'vue'
+import { useHydratedFacetList, missingRecord } from '@/components/Filter/composables/useHydratedFacetList.js'
 
 const props = defineProps({
   paramAll: {
@@ -99,64 +100,57 @@ const params = defineModel({
   default: () => ({})
 })
 
-const list = ref([])
-const isPeopleView = ref(true)
+const SERVICES = { Person: People, Organization }
 
-watch(
-  params,
-  (newVal) => {
-    if (!newVal[props.paramPeople]?.length && list.value.length) {
-      list.value = []
-    }
-  }
-)
-
-watch(
+const {
   list,
-  () => {
-    params.value[props.paramPeople] = list.value
-      .filter((item) => item.type == 'Person')
-      .map((item) => item.entity.id)
-
-    params.value[props.paramOrganization] = list.value
-      .filter((item) => item.type == 'Organization')
-      .map((item) => item.entity.id)
+  hydrate,
+  add,
+  remove: removeEntity
+} = useHydratedFacetList({
+  ids: () => [
+    ...(params.value[props.paramPeople] ?? []),
+    ...(params.value[props.paramOrganization] ?? [])
+  ],
+  write: (items) => {
+    params.value[props.paramPeople] = idsOfType(items, 'Person')
+    params.value[props.paramOrganization] = idsOfType(items, 'Organization')
   },
-  { deep: true }
-)
+  load: ({ id, type }) =>
+    SERVICES[type].find(id).then(({ body }) => makeEntity(body, type)),
+  missing: ({ id, type }) => makeEntity(missingRecord(id), type),
+  key: (item) => `${item.type}:${item.entity.id}`
+})
+const isPeopleView = ref(true)
 
 onMounted(() => {
   const urlParams = URLParamsToJSON(location.href)
 
   params.value[props.paramAll] = urlParams[props.paramAll]
 
-  const peopleIds = urlParams[props.paramPeople] || []
-  peopleIds.forEach((id) => {
-    People.find(id).then(({ body }) => {
-      addEntity(body, 'Person')
-    })
-  })
-
-  const organizationIds = urlParams[props.paramOrganization] || []
-  organizationIds.forEach((id) => {
-    Organization.find(id).then(({ body }) => {
-      addEntity(body, 'Organization')
-    })
-  })
+  hydrate([
+    ...(urlParams[props.paramPeople] || []).map((id) => ({ id, type: 'Person' })),
+    ...(urlParams[props.paramOrganization] || []).map((id) => ({
+      id,
+      type: 'Organization'
+    }))
+  ])
 })
 
-function addEntity(entity, type) {
-  if (!list.value.find((item) => item.id === entity.id && item.type == type)) {
-    list.value.push({
-      entity,
-      type,
-      display: type == 'Person' ? entity.cached : entity.object_tag,
-    })
+function idsOfType(items, type) {
+  return items.filter((item) => item.type == type).map((item) => item.entity.id)
+}
+
+function makeEntity(entity, type) {
+  return {
+    entity,
+    type,
+    display: type == 'Person' ? entity.cached : entity.object_tag
   }
 }
 
-function removeEntity(index) {
-  list.value.splice(index, 1)
+function addEntity(entity, type) {
+  add(makeEntity(entity, type))
 }
 </script>
 <style scoped>

@@ -136,7 +136,6 @@
 import { computed, ref, useTemplateRef } from 'vue'
 import { humanize } from '@/helpers/strings'
 import { useClickOutside } from '@/composables/useClickOutside.js'
-import { maxSortKeys } from '@/shared/Filter/utils'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 
@@ -150,6 +149,12 @@ const props = defineProps({
   // key appears in this array are surfaced in the picker.
   sortableKeys: {
     type: Array,
+    default: null
+  },
+
+  // The most sort keys the backend applies; null when not known.
+  maxSortKeys: {
+    type: Number,
     default: null
   }
 })
@@ -179,7 +184,8 @@ const availableToAdd = computed(() => {
 
 // The backend ignores keys past its limit.
 const atMaxSortKeys = computed(
-  () => maxSortKeys.value != null && sortKeys.value.length >= maxSortKeys.value
+  () =>
+    props.maxSortKeys != null && sortKeys.value.length >= props.maxSortKeys
 )
 
 function addPending() {

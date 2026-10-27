@@ -715,15 +715,15 @@ module Queries
     # The B query of a venn. Unless venn_ignore_pagination, a B with paging
     # params contributes only that page (in its order, see Queries::Pager).
     def venn_set
-      b = venn_query
       p = venn_params
+      b = venn_query(p)
       return b.all if venn_ignore_pagination || (p.keys & %w[page per]).empty?
 
       ::Queries::Pager.new(b.all, p).all
     end
 
-    def venn_query
-      self.class.new(ActionController::Parameters.new(venn_params))
+    def venn_query(params = venn_params)
+      self.class.new(ActionController::Parameters.new(params))
     end
 
     # @return [Hash] the params of the `venn` URL

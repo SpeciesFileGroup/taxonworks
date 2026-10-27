@@ -38,6 +38,15 @@ describe 'Queries::Sort::Resolver', type: :model do
       expect { klass.send(:validate_column!, ::Repository, 'name') }.not_to raise_error
     end
 
+    # Rails keeps encrypted attribute names as a Set of symbols.
+    specify 'rejects an encrypted column' do
+      allow(::Repository).to receive(:encrypted_attributes).and_return(Set[:name])
+      expect {
+        klass.send(:validate_column!, ::Repository, 'name')
+      }.to raise_error(ArgumentError, /encrypted/)
+      expect(klass.send(:column_safe?, ::Repository, 'name')).to be false
+    end
+
     specify 'rejects a column whose type has no ordering (xml)' do
       expect {
         klass.send(:validate_column!, ::Depiction, 'svg_clip')

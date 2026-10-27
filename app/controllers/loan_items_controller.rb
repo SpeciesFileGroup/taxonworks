@@ -14,10 +14,10 @@ class LoanItemsController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @loan_items = LoanItem.where(filter_params)
-          .with_project_id(sessions_current_project_id)
-          .page(params[:page])
-          .per(params[:per])
+        @loan_items = ordered_page(
+          LoanItem.where(filter_params).with_project_id(sessions_current_project_id),
+          default_order: ['loan_items.position']
+        )
       }
     end
   end

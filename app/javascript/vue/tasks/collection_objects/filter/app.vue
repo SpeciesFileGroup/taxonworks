@@ -10,8 +10,8 @@
       :csv-options="csvOptions"
       v-model="parameters"
       v-model:append="append"
-      @filter="makeFilterRequest({ ...parameters, extend, exclude, page: 1 })"
-      @per="makeFilterRequest({ ...parameters, extend, exclude, page: 1 })"
+      @filter="makeFilterRequest({ ...parameters, page: 1 })"
+      @per="makeFilterRequest({ ...parameters, page: 1 })"
       @nextpage="loadPage"
       @reset="resetFilter"
     >
@@ -20,7 +20,7 @@
           :disabled="!list.length"
           :parameters="parameters"
           :count="pagination?.total || 0"
-          @update="() => makeFilterRequest({ ...parameters, extend, exclude })"
+          @update="() => makeFilterRequest({ ...parameters })"
         />
         <RadialLoan
           :disabled="!list.length"
@@ -39,7 +39,7 @@
             :ids="sortedSelectedIds"
             :count="sortedSelectedIds.length"
             @update="
-              () => makeFilterRequest({ ...parameters, extend, exclude })
+              () => makeFilterRequest({ ...parameters })
             "
           />
           <RadialLoan
@@ -79,8 +79,10 @@
           v-model:sort-keys="sortKeys"
           v-model:unsaved-view-changes="unsavedViewChanges"
           :sortable-keys="sortableKeys"
+          :max-sort-keys="maxSortKeys"
           :list="list"
           :layout="currentLayout"
+          @reorder:layout="reorderLayoutColumns"
           v-model:hide-unfrozen="hideFrozen"
           :preference-key="`tasks::filters::${COLLECTION_OBJECT}`"
           radial-object
@@ -92,6 +94,7 @@
           v-model:sort-keys="sortKeys"
           :labels="sortLabels"
           :sortable-keys="sortableKeys"
+          :max-sort-keys="maxSortKeys"
         />
         <SaveViewButton
           v-if="hasUnsavedChanges"
@@ -133,7 +136,6 @@ import RadialLoan from '@/components/radials/loan/radial.vue'
 import RadialMatrix from '@/components/radials/matrix/radial.vue'
 import RadialCollectionObject from '@/components/radials/co/radial.vue'
 import { computed, ref } from 'vue'
-import useFilterView from '@/shared/Filter/composition/useFilterView.js'
 import { CollectionObject } from '@/routes/endpoints'
 import { COLLECTION_OBJECT } from '@/constants/index.js'
 import { useTableLayoutConfiguration } from '@/components/Filter/composables/useTableLayoutConfiguration.js'
@@ -163,6 +165,7 @@ const {
   layouts,
   properties,
   updatePropertiesPositions,
+  reorderLayoutColumns,
   saveLayoutPreferences,
   resetPreferences,
   forceUpdatePreference
@@ -180,11 +183,18 @@ const {
   selectedIds,
   sortedSelectedIds,
   urlRequest,
-  sortableKeys
+  sortableKeys,
+  sortKeys,
+  unsavedViewChanges,
+  hasUnsavedChanges,
+  filterListRef,
+  saveViewAsDefault,
+  maxSortKeys
 } = useFilter(CollectionObject, {
   initParameters: { extend, exclude },
   listParser,
-  sortableColumnsResource: 'collection_objects'
+  sortableColumnsResource: 'collection_objects',
+  objectType: COLLECTION_OBJECT
 })
 
 const csvOptions = useCSVOptions({ layout: currentLayout, list })
@@ -203,25 +213,9 @@ const extendDownload = computed(() => [
 ])
 
 function removeCOFromList(ids) {
-  L
   list.value = list.value.filter((item) => !ids.includes(item.id))
   selectedIds.value = selectedIds.value.filter((id) => !ids.includes(id))
 }
-
-const {
-  sortKeys,
-  unsavedViewChanges,
-  hasUnsavedChanges,
-  filterListRef,
-  saveViewAsDefault
-} = useFilterView({
-  parameters,
-  makeFilterRequest,
-  objectType: COLLECTION_OBJECT,
-  extend,
-  exclude,
-  sortableKeys
-})
 
 const sortLabels = computed(() =>
   layoutSortLabels(currentLayout.value?.properties)

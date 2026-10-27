@@ -30,6 +30,7 @@
           :list="list"
           :attributes="currentAttributes"
           :sortable-keys="sortableKeys"
+          :max-sort-keys="maxSortKeys"
           v-model="selectedIds"
           v-model:sort-keys="sortKeys"
           v-model:hide-unfrozen="hideFrozen"
@@ -42,6 +43,7 @@
           v-model:sort-keys="sortKeys"
           :labels="currentAttributes"
           :sortable-keys="sortableKeys"
+          :max-sort-keys="maxSortKeys"
         />
         <VToggle
           v-model="hideFrozen"
@@ -72,8 +74,8 @@ import VSpinner from '@/components/ui/VSpinner.vue'
 import VToggle from '@/components/ui/VToggle.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import useAnnotationFilter from './composables/useAnnotationFilter.js'
-import { serializeSortKeys, parseSortParam } from '@/helpers/arrays.js'
-import { ref, watch } from 'vue'
+import useSortKeys from '@/shared/Filter/composition/useSortKeys.js'
+import { ref } from 'vue'
 
 defineOptions({
   name: 'FilterAnnotations'
@@ -96,40 +98,19 @@ const {
   annotationType,
   currentAttributes,
   setAnnotationType,
-  sortableKeys
+  sortableKeys,
+  maxSortKeys
 } = useAnnotationFilter()
 
-const sortKeys = ref(parseSortParam(parameters.value.sort))
-
-// User clicks a column header (or edits SortPanel) -> update the URL param
-// and re-request the current page from the server.
-watch(
-  sortKeys,
-  (next) => {
-    const sortString = serializeSortKeys(next)
-    if (sortString === parameters.value.sort) return
-    parameters.value.sort = sortString
-    // No type picked or no search yet: the sort applies to the next search.
-    if (!annotationType.value || !window.location.search) return
-    makeFilterRequest({
-      ...parameters.value,
-      annotation_type: annotationType.value,
-      extend: ['annotated_object'],
-      page: 1
-    })
-  },
-  { deep: true }
-)
-
-// URL sort param (set by useFilter from the URL after setup, or by browser
-// navigation) -> sort indicators.
-watch(
-  () => parameters.value.sort,
-  (next) => {
-    if (next === serializeSortKeys(sortKeys.value)) return
-    sortKeys.value = parseSortParam(next)
-  }
-)
+const { sortKeys } = useSortKeys({
+  parameters,
+  makeFilterRequest,
+  sortableKeys,
+  maxSortKeys,
+  // No type picked or no search yet: the sort applies to the next search.
+  canFetch: () => !!annotationType.value && !!window.location.search,
+  requestParameters: () => ({ annotation_type: annotationType.value })
+})
 
 function handleFilter() {
   if (!annotationType.value) return
@@ -137,7 +118,6 @@ function handleFilter() {
   makeFilterRequest({
     ...parameters.value,
     annotation_type: annotationType.value,
-    extend: ['annotated_object'],
     page: 1
   })
 }

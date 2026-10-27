@@ -167,6 +167,7 @@
             ]"
             v-bind="freezeBindings(attr)"
             draggable="true"
+            @mousedown.capture="armColumnDrag"
             @dragstart="(e) => onColumnDragStart(e, attr)"
             @dragover="(e) => onColumnDragOver(e, attr)"
             @drop="(e) => onColumnDrop(e, attr)"
@@ -192,7 +193,8 @@
               ]"
               :data-th-column="`${key}.${property}`"
               v-bind="freezeBindings(`${key}.${property}`)"
-              draggable="true"
+              :draggable="Array.isArray(properties)"
+              @mousedown.capture="armColumnDrag"
               @dragstart="(e) => onColumnDragStart(e, `${key}.${property}`)"
               @dragover="(e) => onColumnDragOver(e, `${key}.${property}`)"
               @drop="(e) => onColumnDrop(e, `${key}.${property}`)"
@@ -319,7 +321,6 @@ import { vResizeColumn } from '@/directives/resizeColumn.js'
 import { humanize } from '@/helpers/strings'
 import { sanitizeHtml } from '@/helpers'
 import { useUserPreference, useUserPreferences } from '@/composables'
-import { maxSortKeys } from '@/shared/Filter/utils'
 import ColumnHeaderActions from './ColumnHeaderActions.vue'
 import VLock from '@/components/ui/VLock/index.vue'
 import RadialNavigation from '@/components/radials/navigation/radial.vue'
@@ -379,11 +380,18 @@ const props = defineProps({
   sortableKeys: {
     type: Array,
     default: null
+  },
+
+  // The most sort keys the backend applies; null when not known.
+  maxSortKeys: {
+    type: Number,
+    default: null
   }
 })
 
 const emit = defineEmits([
   'remove',
+  'reorder:layout',
   'update:modelValue',
   'update:sortKeys',
   'mouseover:row',
@@ -413,17 +421,22 @@ const hideUnfrozenPref = props.preferenceKey
   : ref(false)
 const freezeColumnLeftPosition = ref({})
 
-// Column reorder state. For attributes mode entries are bare attribute keys
-// (e.g. 'name'); for layout mode entries are composite keys
-// ('collecting_event.verbatim_locality'). A single flat array works because
-// no table mixes both modes. Reordering across layout sections is not
-// supported -- see drag handlers.
+// Column order of an attributes table (attribute keys, e.g. 'name'), empty
+// for their natural order. A layout's column order is the layout's own: a
+// drag there emits `reorder:layout` for the layout to apply and save, so
+// the layout selector shows it and its Reset clears it. Reordering across
+// layout sections is not supported -- see drag handlers.
 const columnOrder = ref([])
 const columnOrderPref = props.preferenceKey
   ? useUserPreference(`${props.preferenceKey}::columnOrder`, [])
   : ref([])
 const draggedColumnKey = ref(null)
 let draggedColumnSection = null
+// Whether the current mousedown can start a column drag: not when it's on a
+// column's resize bar (which stops the event before it reaches the th).
+let columnDragArmed = false
+
+const { loaded: preferencesLoaded } = useUserPreferences()
 
 // URL fragment sync for view state: `#freeze=key1,key2&hide=true&order=...`.
 // Fragment stays out of the query string so it doesn't hit the server or
@@ -431,10 +444,32 @@ let draggedColumnSection = null
 // differs from the user's saved default (pref), including "off" values
 // (`freeze=`, `hide=false`, `order=`), so a reload or shared link shows the
 // same view. On mount, the fragment overrides the pref.
+const VIEW_STATE_PARAMS = ['freeze', 'hide', 'order']
+
+// @return [Object] the fragment's view state params, and its other parts
+//   (e.g. an anchor, `#top`) as written
+function splitFragment() {
+  const parts = window.location.hash.slice(1).split('&').filter(Boolean)
+  const isViewState = (part) => VIEW_STATE_PARAMS.includes(part.split('=')[0])
+  return {
+    params: new URLSearchParams(parts.filter(isViewState).join('&')),
+    other: parts.filter((part) => !isViewState(part))
+  }
+}
+
+function setFragment(params, other) {
+  const next = [...other, params.toString()].filter(Boolean).join('&')
+  const nextHash = next ? `#${next}` : ''
+  if (window.location.hash === nextHash) return
+  history.replaceState(
+    null,
+    '',
+    `${window.location.pathname}${window.location.search}${nextHash}`
+  )
+}
+
 function readViewStateFromFragment() {
-  const hash = window.location.hash.slice(1)
-  if (!hash) return { freeze: null, hide: null, order: null }
-  const params = new URLSearchParams(hash)
+  const { params } = splitFragment()
   const rawFreeze = params.get('freeze')
   const rawHide = params.get('hide')
   const rawOrder = params.get('order')
@@ -452,8 +487,11 @@ function readViewStateFromFragment() {
 }
 
 function writeViewStateToFragment({ freeze, hide, order }) {
-  const hash = window.location.hash.slice(1)
-  const params = new URLSearchParams(hash)
+  // The fragment holds differences from the saved default: until that's
+  // loaded, there's nothing to compare against (an "off" value would look
+  // like the default and be dropped).
+  if (props.preferenceKey && !preferencesLoaded.value) return
+  const { params, other } = splitFragment()
   if (freeze !== undefined) {
     if (arraysEqual(freeze ?? [], freezeColumnPref.value ?? [])) params.delete('freeze')
     else params.set('freeze', (freeze ?? []).join(','))
@@ -466,25 +504,11 @@ function writeViewStateToFragment({ freeze, hide, order }) {
     if (arraysEqual(order ?? [], columnOrderPref.value ?? [])) params.delete('order')
     else params.set('order', (order ?? []).join(','))
   }
-  const next = params.toString()
-  const nextHash = next ? `#${next}` : ''
-  if (window.location.hash === nextHash) return
-  history.replaceState(
-    null,
-    '',
-    `${window.location.pathname}${window.location.search}${nextHash}`
-  )
+  setFragment(params, other)
 }
 
 function clearViewStateFragment() {
-  const params = new URLSearchParams(window.location.hash.slice(1))
-  ;['freeze', 'hide', 'order'].forEach((k) => params.delete(k))
-  const next = params.toString()
-  history.replaceState(
-    null,
-    '',
-    `${window.location.pathname}${window.location.search}${next ? `#${next}` : ''}`
-  )
+  setFragment(new URLSearchParams(), splitFragment().other)
 }
 
 const orderedAttributeKeys = computed(() => {
@@ -495,15 +519,13 @@ const orderedAttributeKeys = computed(() => {
   return [...inOrder, ...missing]
 })
 
-// Reorder columns within a single layout section. Cross-section reordering
-// isn't supported -- sections group semantically distinct data types.
 // Computed once per change, not per row: the body template calls
 // orderedLayoutColumns for every row.
 const orderedLayoutColumnsBySection = computed(() =>
   Object.fromEntries(
     Object.entries(props.layout?.properties || {}).map(([k, ps]) => [
       k,
-      computeOrderedLayoutColumns(k, ps)
+      getColumns(k, ps)
     ])
   )
 )
@@ -511,32 +533,8 @@ const orderedLayoutColumnsBySection = computed(() =>
 function orderedLayoutColumns(sectionKey, properties) {
   return (
     orderedLayoutColumnsBySection.value[sectionKey] ??
-    computeOrderedLayoutColumns(sectionKey, properties)
+    getColumns(sectionKey, properties)
   )
-}
-
-function computeOrderedLayoutColumns(sectionKey, properties) {
-  const raw = getColumns(sectionKey, properties)
-  if (!columnOrder.value.length) return raw
-  const prefix = `${sectionKey}.`
-  const inOrder = columnOrder.value
-    .filter((k) => k.startsWith(prefix))
-    .map((k) => k.slice(prefix.length))
-    .filter((k) => raw.includes(k))
-  const missing = raw.filter((k) => !inOrder.includes(k))
-  return [...inOrder, ...missing]
-}
-
-// Flatten current visible column order across attributes + layout sections
-// into a single array of the same key shape stored in columnOrder. Used as
-// the working list when reorder-in-place a dragged column.
-function currentFlatColumnOrder() {
-  if (props.layout?.properties) {
-    return Object.entries(props.layout.properties).flatMap(([k, ps]) =>
-      orderedLayoutColumns(k, ps).map((p) => `${k}.${p}`)
-    )
-  }
-  return orderedAttributeKeys.value
 }
 
 // In layout mode keys are '<section>.<column>' and reordering stays within a
@@ -546,7 +544,16 @@ function columnSection(key) {
   return props.layout?.properties ? key.split('.')[0] : null
 }
 
+function armColumnDrag(e) {
+  columnDragArmed = !e.target.closest('.vue-column-resize-bar')
+}
+
 function onColumnDragStart(e, key) {
+  if (!columnDragArmed) {
+    e.preventDefault()
+    return
+  }
+  columnDragArmed = false
   draggedColumnKey.value = key
   draggedColumnSection = columnSection(key)
   e.dataTransfer.effectAllowed = 'move'
@@ -570,17 +577,39 @@ function onColumnDrop(e, key) {
   if (targetSection !== draggedColumnSection) return
   e.preventDefault()
 
-  const flat = currentFlatColumnOrder()
-  const next = [...flat]
-  const fromIdx = next.indexOf(dragged)
-  const toIdx = next.indexOf(key)
-  if (fromIdx === -1 || toIdx === -1) return
-  const [item] = next.splice(fromIdx, 1)
+  if (targetSection) {
+    const section = targetSection
+    const prefix = `${section}.`
+    const columns = moveItem(
+      orderedLayoutColumns(section, props.layout.properties[section]),
+      dragged.slice(prefix.length),
+      key.slice(prefix.length)
+    )
+    if (columns) emit('reorder:layout', { section, columns })
+    return
+  }
+
+  const next = moveItem(orderedAttributeKeys.value, dragged, key)
+  if (!next) return
+  // Back in the natural order is no order.
+  columnOrder.value = arraysEqual(next, Object.keys(props.attributes || {}))
+    ? []
+    : next
+}
+
+// @return [Array|null] list with item moved to where target is
+function moveItem(list, item, target) {
+  const next = [...list]
+  const fromIdx = next.indexOf(item)
+  const toIdx = next.indexOf(target)
+  if (fromIdx === -1 || toIdx === -1) return null
+  next.splice(fromIdx, 1)
   next.splice(toIdx, 0, item)
-  columnOrder.value = next
+  return next
 }
 
 function onColumnDragEnd() {
+  columnDragArmed = false
   draggedColumnKey.value = null
   draggedColumnSection = null
 }
@@ -765,9 +794,9 @@ function sortTable(sortProperty, { shiftKey } = {}) {
     next = [...sortKeys.value]
     const idx = next.findIndex((s) => s.key === sortProperty)
     if (idx === -1) {
-      if (maxSortKeys.value != null && next.length >= maxSortKeys.value) {
+      if (props.maxSortKeys != null && next.length >= props.maxSortKeys) {
         TW.workbench.alert.create(
-          `At most ${maxSortKeys.value} columns can be sorted at once.`,
+          `At most ${props.maxSortKeys} columns can be sorted at once.`,
           'notice'
         )
         return
@@ -815,15 +844,16 @@ onMounted(() => {
     fromFragment.freeze ?? freezeColumnPref.value ?? []
   hideUnfrozen.value =
     fromFragment.hide ?? hideUnfrozenPref.value ?? false
-  columnOrder.value =
-    fromFragment.order ?? columnOrderPref.value ?? []
+  columnOrder.value = isLayoutConfig.value
+    ? []
+    : (fromFragment.order ?? columnOrderPref.value ?? [])
 })
 
 // Cold start (no sessionStorage cache): preferences arrive after mount.
 // Apply them once, when they finish loading -- not on later changes, e.g. a
 // preference saved in another tab -- and only where the fragment and the
-// user haven't already set the state.
-const { loaded: preferencesLoaded } = useUserPreferences()
+// user haven't already set the state. Then bring the fragment up to date,
+// as its writes waited for the preferences.
 watch(preferencesLoaded, (loaded) => {
   if (!loaded || !props.preferenceKey) return
   const fromFragment = readViewStateFromFragment()
@@ -833,9 +863,18 @@ watch(preferencesLoaded, (loaded) => {
   if (fromFragment.hide == null && !hideUnfrozen.value) {
     hideUnfrozen.value = !!hideUnfrozenPref.value
   }
-  if (fromFragment.order == null && !columnOrder.value.length) {
+  if (
+    !isLayoutConfig.value &&
+    fromFragment.order == null &&
+    !columnOrder.value.length
+  ) {
     columnOrder.value = [...(columnOrderPref.value ?? [])]
   }
+  writeViewStateToFragment({
+    freeze: freezeColumn.value,
+    hide: hideUnfrozen.value,
+    order: isLayoutConfig.value ? undefined : columnOrder.value
+  })
 })
 
 watch(
@@ -850,7 +889,9 @@ watch(hideUnfrozen, (next) =>
 
 watch(
   columnOrder,
-  (next) => writeViewStateToFragment({ order: next }),
+  (next) => {
+    if (!isLayoutConfig.value) writeViewStateToFragment({ order: next })
+  },
   { deep: true }
 )
 
@@ -909,7 +950,10 @@ function saveViewAsDefault() {
   // Deep-clone to strip Vue reactive proxies before persisting.
   freezeColumnPref.value = JSON.parse(JSON.stringify(freezeColumn.value))
   hideUnfrozenPref.value = hideUnfrozen.value
-  columnOrderPref.value = JSON.parse(JSON.stringify(columnOrder.value))
+  // A layout's column order is saved with the layout.
+  if (!isLayoutConfig.value) {
+    columnOrderPref.value = JSON.parse(JSON.stringify(columnOrder.value))
+  }
   // The view is now the default, so the fragment has nothing to override.
   // Cleared directly: the prefs set above are saved asynchronously, so
   // comparing against them here would still see the old values.
@@ -940,7 +984,8 @@ watch(
     }
     const freezeDirty = !arraysEqual(fz, fzPref ?? [])
     const hideDirty = hd !== (hdPref ?? false)
-    const orderDirty = !arraysEqual(ord, ordPref ?? [])
+    const orderDirty =
+      !isLayoutConfig.value && !arraysEqual(ord, ordPref ?? [])
     unsavedViewChanges.value = freezeDirty || hideDirty || orderDirty
   },
   { deep: true, immediate: true }

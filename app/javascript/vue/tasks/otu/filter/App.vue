@@ -10,8 +10,8 @@
       only-extend-download
       v-model="parameters"
       v-model:append="append"
-      @filter="makeFilterRequest({ ...parameters, extend, page: 1 })"
-      @per="makeFilterRequest({ ...parameters, extend, page: 1 })"
+      @filter="makeFilterRequest({ ...parameters, page: 1 })"
+      @per="makeFilterRequest({ ...parameters, page: 1 })"
       @nextpage="loadPage"
       @reset="resetFilter"
     >
@@ -21,7 +21,7 @@
           :disabled="!list.length"
           :object-type="OTU"
           use-new-key-slice
-          @update="() => makeFilterRequest({ ...parameters, extend })"
+          @update="() => makeFilterRequest({ ...parameters })"
         />
       </template>
       <template #nav-right>
@@ -29,14 +29,14 @@
           :disabled="!list.length"
           :ids="sortedSelectedIds"
           :count="sortedSelectedIds.length"
-          @update="() => makeFilterRequest({ ...parameters, extend })"
+          @update="() => makeFilterRequest({ ...parameters })"
         />
         <RadialMatrix
           :object-type="OTU"
           :disabled="!list.length"
           :ids="sortedSelectedIds"
           use-new-key-slice
-          @update="() => makeFilterRequest({ ...parameters, extend })"
+          @update="() => makeFilterRequest({ ...parameters })"
         />
       </template>
       <template #facets>
@@ -48,6 +48,7 @@
           :list="list"
           :attributes="ATTRIBUTES"
           :sortable-keys="sortableKeys"
+          :max-sort-keys="maxSortKeys"
           :preference-key="`tasks::filters::${OTU}`"
           v-model="selectedIds"
           v-model:sort-keys="sortKeys"
@@ -62,6 +63,7 @@
           v-model:sort-keys="sortKeys"
           :labels="ATTRIBUTES"
           :sortable-keys="sortableKeys"
+          :max-sort-keys="maxSortKeys"
         />
         <SaveViewButton
           v-if="hasUnsavedChanges"
@@ -94,7 +96,6 @@ import FilterList from '@/components/Filter/Table/TableResults.vue'
 import SortPanel from '@/components/Filter/Table/SortPanel.vue'
 import SaveViewButton from '@/components/Filter/Table/SaveViewButton.vue'
 import useFilter from '@/shared/Filter/composition/useFilter.js'
-import useFilterView from '@/shared/Filter/composition/useFilterView.js'
 import RadialMatrix from '@/components/radials/matrix/radial.vue'
 import RadialOtu from '@/components/radials/otu/radial.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
@@ -123,25 +124,18 @@ const {
   selectedIds,
   sortedSelectedIds,
   urlRequest,
-  sortableKeys
-} = useFilter(Otu, {
-  listParser,
-  initParameters: { extend },
-  sortableColumnsResource: 'otus'
-})
-
-const {
+  sortableKeys,
   sortKeys,
   unsavedViewChanges,
   hasUnsavedChanges,
   filterListRef,
-  saveViewAsDefault
-} = useFilterView({
-  parameters,
-  makeFilterRequest,
-  objectType: OTU,
-  extend,
-  sortableKeys
+  saveViewAsDefault,
+  maxSortKeys
+} = useFilter(Otu, {
+  listParser,
+  initParameters: { extend },
+  sortableColumnsResource: 'otus',
+  objectType: OTU
 })
 
 const extendDownload = computed(() => [

@@ -42,6 +42,7 @@
           v-model:sort-keys="sortKeys"
           :labels="sortLabels"
           :sortable-keys="sortableKeys"
+          :max-sort-keys="maxSortKeys"
         />
         <SaveViewButton
           v-if="hasUnsavedChanges"
@@ -66,7 +67,6 @@ import SortPanel from '@/components/Filter/Table/SortPanel.vue'
 import SaveViewButton from '@/components/Filter/Table/SaveViewButton.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import useFilter from '@/shared/Filter/composition/useFilter.js'
-import useFilterView from '@/shared/Filter/composition/useFilterView.js'
 import RadialMatrix from '@/components/radials/matrix/radial.vue'
 import { SOUND } from '@/constants/index.js'
 import { Sound } from '@/routes/endpoints'
@@ -75,12 +75,7 @@ import { computed } from 'vue'
 
 // Sounds uses a custom audio-player list, not TableResults, so sort options
 // are only reachable through the SortPanel picker.
-const SORT_LABEL_OVERRIDES = {
-  id: 'ID',
-  name: 'Name',
-  updated_at: 'Updated at',
-  created_at: 'Created at'
-}
+const SORT_LABEL_OVERRIDES = { id: 'ID' }
 
 const {
   append,
@@ -94,25 +89,19 @@ const {
   selectedIds,
   sortedSelectedIds,
   urlRequest,
-  sortableKeys
+  sortableKeys,
+  sortKeys,
+  hasUnsavedChanges,
+  saveViewAsDefault,
+  maxSortKeys
 } = useFilter(Sound, {
-  sortableColumnsResource: 'sounds'
+  sortableColumnsResource: 'sounds',
+  objectType: SOUND
 })
 
 const sortLabels = computed(() =>
   sortKeyLabels(sortableKeys.value || [], SORT_LABEL_OVERRIDES)
 )
-
-const {
-  sortKeys,
-  hasUnsavedChanges,
-  saveViewAsDefault
-} = useFilterView({
-  parameters,
-  makeFilterRequest,
-  objectType: SOUND,
-  sortableKeys
-})
 </script>
 
 <script>

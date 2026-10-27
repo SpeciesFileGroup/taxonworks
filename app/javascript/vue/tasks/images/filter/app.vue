@@ -41,8 +41,9 @@
       <template #nav-settings-start>
         <SortPanel
           v-model:sort-keys="sortKeys"
-          :labels="sortLabels"
+          :labels="SORT_LABELS"
           :sortable-keys="sortableKeys"
+          :max-sort-keys="maxSortKeys"
         />
         <SaveViewButton
           v-if="hasUnsavedChanges"
@@ -66,29 +67,37 @@ import ListComponent from './components/list'
 import SelectAll from '@/tasks/collection_objects/filter/components/selectAll.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import useFilter from '@/shared/Filter/composition/useFilter.js'
-import useFilterView from '@/shared/Filter/composition/useFilterView.js'
 import SortPanel from '@/components/Filter/Table/SortPanel.vue'
 import SaveViewButton from '@/components/Filter/Table/SaveViewButton.vue'
 import DepictionList from './components/DepictionList.vue'
 import { IMAGE } from '@/constants/index.js'
 import { Image } from '@/routes/endpoints'
 import { sortKeyLabels } from '@/shared/Filter/utils'
-import { computed } from 'vue'
 
 // Images render as a gallery (no column headers), so sort options are only
 // reachable through the SortPanel picker: it offers every backend sort key,
 // named here where the humanized key reads poorly.
-const SORT_LABEL_OVERRIDES = {
-  id: 'ID',
-  user_file_name: 'User file name',
-  image_file_file_name: 'File name',
-  image_file_file_size: 'File size',
-  image_file_content_type: 'Content type',
-  height: 'Height',
-  width: 'Width',
-  updated_at: 'Updated at',
-  created_at: 'Created at'
-}
+// The keys offered: the backend also sorts by internals (file
+// fingerprints, metadata) that mean nothing in a picker.
+const SORT_LABELS = sortKeyLabels(
+  [
+    'id',
+    'user_file_name',
+    'image_file_file_name',
+    'image_file_file_size',
+    'image_file_content_type',
+    'height',
+    'width',
+    'updated_at',
+    'created_at'
+  ],
+  {
+    id: 'ID',
+    image_file_file_name: 'File name',
+    image_file_file_size: 'File size',
+    image_file_content_type: 'Content type'
+  }
+)
 
 const {
   append,
@@ -102,24 +111,14 @@ const {
   selectedIds,
   sortedSelectedIds,
   urlRequest,
-  sortableKeys
-} = useFilter(Image, {
-  sortableColumnsResource: 'images'
-})
-
-const sortLabels = computed(() =>
-  sortKeyLabels(sortableKeys.value || [], SORT_LABEL_OVERRIDES)
-)
-
-const {
+  sortableKeys,
   sortKeys,
   hasUnsavedChanges,
-  saveViewAsDefault
-} = useFilterView({
-  parameters,
-  makeFilterRequest,
-  objectType: IMAGE,
-  sortableKeys
+  saveViewAsDefault,
+  maxSortKeys
+} = useFilter(Image, {
+  sortableColumnsResource: 'images',
+  objectType: IMAGE
 })
 </script>
 

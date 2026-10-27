@@ -38,9 +38,17 @@ describe Queries::Pager, type: :model do
       expect(pager_ids.(otu_set, sort: 'not_a_sortable_key,-name')).to eq([otu_c.id, otu_b.id, otu_a.id])
     end
 
-    specify 'caps the number of sort keys' do
-      keys = (['not_a_sortable_key'] * Queries::Pager::MAX_SORT_KEYS) + ['-name']
-      expect(pager_ids.(otu_set, sort: keys.join(','))).to eq([otu_c.id, otu_a.id, otu_b.id])
+    specify 'unknown and repeated keys do not count toward the cap' do
+      keys = (['not_a_sortable_key', 'updated_at'] * Queries::Pager::MAX_SORT_KEYS) + ['-name']
+      expect(Queries::Pager.new(otu_set, sort: keys.join(',')).sort_entries)
+        .to eq([['updated_at', :asc], ['name', :desc]])
+    end
+
+    specify 'caps the number of sort keys, recent and order_by included' do
+      keys = Queries::Sort::Base.for(Otu).keys.first(Queries::Pager::MAX_SORT_KEYS + 2)
+      entries = Queries::Pager.new(otu_set, sort: keys.join(','), recent: 'true').sort_entries
+      expect(entries.length).to eq(Queries::Pager::MAX_SORT_KEYS)
+      expect(entries.first).to eq(['updated_at', :desc])
     end
 
     specify 'accepts ActionController::Parameters' do
@@ -66,6 +74,11 @@ describe Queries::Pager, type: :model do
 
     specify 'drops unknown keys and repeats' do
       expect(entries.('nope,name,-name')).to eq([['name', :asc]])
+    end
+
+    specify 'recent is read like other boolean params' do
+      expect(Queries::Pager.new(Otu.all, recent: 'TRUE').sort_entries).to eq([['updated_at', :desc]])
+      expect(Queries::Pager.new(Otu.all, recent: 'false').sort_entries).to eq([])
     end
 
     specify 'recent puts the timestamp first, without repeating it' do
@@ -181,6 +194,22 @@ describe Queries::Pager, type: :model do
       set = Otu.from(Otu.where(id: ids), :otus)
       expect(pager_ids.(set, sort: 'otu')).to eq(expected)
     end
+
+    specify 'a GROUP BY set not grouped by id' do
+      set = Otu.where(id: ids).group(:taxon_name_id).select('MIN(otus.id) AS id')
+      expect(pager_ids.(set, sort: 'otu')).to eq(expected)
+    end
+
+    specify 'a DISTINCT set conditioned on an included association' do
+      set = Otu.where(id: ids).includes(:taxon_name).where(taxon_names: {name: %w[Zus Yus]}).references(:taxon_names).distinct
+      expect(pager_ids.(set, sort: 'otu')).to eq(expected)
+    end
+
+    specify 'a DISTINCT set keeps its select' do
+      set = Otu.where(id: ids).select(:id, :name, :taxon_name_id).distinct
+      record = Queries::Pager.new(set, sort: 'otu').all.first
+      expect(record.has_attribute?(:updated_at)).to be false
+    end
   end
 
   context 'sort classes' do
@@ -234,6 +263,11 @@ describe Queries::Pager, type: :model do
       expect(pager_ids.(set, sort: 'classification').first).to eq(family.id)
     end
 
+    specify 'sort=-classification reverses depth and name' do
+      set = Queries::TaxonName::Filter.new(taxon_name_id: names).all
+      expect(pager_ids.(set, sort: '-classification')).to eq([genus_b.id, genus_a.id, family.id])
+    end
+
     specify 'orders an ancestrify result (a from-subquery set)' do
       set = Queries::TaxonName::Filter.new(taxon_name_id: [genus_b.id, genus_a.id], ancestrify: true).all
       expected = TaxonName.where(id: set.map(&:id)).order(cached: :desc, id: :asc).pluck(:id)
@@ -276,6 +310,46 @@ describe Queries::Pager, type: :model do
       p = params.except(:sort).merge(order_by: 'match_identifiers', sort: '-id')
       set = Queries::CollectionObject::Filter.new(p).all
       expect(pager_ids.(set, p)).to eq([co2.id, co1.id, co3.id])
+    end
+
+    specify 'reverses with -match_identifiers' do
+      p = params.merge(sort: '-match_identifiers')
+      set = Queries::CollectionObject::Filter.new(p).all
+      expect(pager_ids.(set, p)).to eq([co3.id, co1.id, co2.id])
+    end
+
+    specify 'a record with several matching identifiers appears once' do
+      Identifier::Local::CatalogNumber.create!(namespace: FactoryBot.create(:valid_namespace, short_name: 'Other'), identifier: '444', identifier_object: co2)
+      p = params.merge(match_identifiers: params[:match_identifiers] + ',Other 444')
+      set = Queries::CollectionObject::Filter.new(p).all
+      expect(pager_ids.(set, p)).to eq([co2.id, co1.id, co3.id])
+      expect(Queries::Pager.new(set, p).all.total_count).to eq(3)
+    end
+
+    specify 'a record matched through its container sorts by the container identifier' do
+      container = FactoryBot.create(:valid_container)
+      container.identifiers << FactoryBot.build(:valid_identifier_local, namespace:, identifier: 'box')
+      co4 = Specimen.create!(contained_in: container)
+      p = params.merge(match_identifiers: "#{namespace.short_name} box," + params[:match_identifiers])
+      set = Queries::CollectionObject::Filter.new(p).all
+      expect(pager_ids.(set, p)).to eq([co4.id, co2.id, co1.id, co3.id])
+    end
+
+    specify 'an internal id out of the bigint range is ignored' do
+      p = { match_identifiers_type: 'internal', match_identifiers: "#{co2.id},99999999999999999999999", sort: 'match_identifiers' }
+      set = Queries::CollectionObject::Filter.new(p).all
+      expect(pager_ids.(set, p)).to eq([co2.id])
+    end
+
+    specify 'caseless=False is case sensitive, as in the facet' do
+      p = params.merge(match_identifiers: "#{namespace.short_name} 333,#{namespace.short_name.swapcase} 111,#{namespace.short_name} 222", match_identifiers_caseless: 'False')
+      set = Queries::CollectionObject::Filter.new(p).all
+      expect(pager_ids.(set, p)).to eq([co3.id, co2.id])
+    end
+
+    specify 'an unknown match_identifiers_type is no sort, so default_order applies' do
+      p = params.merge(match_identifiers_type: 'nope', sort: nil, order_by: 'match_identifiers')
+      expect(Queries::Pager.new(CollectionObject.all, p).sort_entries).to eq([])
     end
 
     specify 'adds no references' do

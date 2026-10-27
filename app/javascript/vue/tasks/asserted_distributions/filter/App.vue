@@ -10,13 +10,13 @@
       v-model:append="append"
       @filter="
         () => {
-          makeFilterRequest({ ...parameters, extend, page: 1 })
+          makeFilterRequest({ ...parameters, page: 1 })
           resetMap()
         }
       "
       @per="
         () => {
-          makeFilterRequest({ ...parameters, extend, page: 1 })
+          makeFilterRequest({ ...parameters, page: 1 })
           resetMap()
         }
       "
@@ -37,14 +37,14 @@
         <RadialAssertedDistribution
           :disabled="!list.length"
           :parameters="parameters"
-          @update="() => makeFilterRequest({ ...parameters, extend })"
+          @update="() => makeFilterRequest({ ...parameters })"
         />
       </template>
       <template #nav-right>
         <RadialAssertedDistribution
           :disabled="!list.length"
           :ids="sortedSelectedIds"
-          @update="() => makeFilterRequest({ ...parameters, extend })"
+          @update="() => makeFilterRequest({ ...parameters })"
         />
       </template>
       <template #facets>
@@ -66,6 +66,7 @@
           v-model:hide-unfrozen="hideFrozen"
           v-model:unsaved-view-changes="unsavedViewChanges"
           :sortable-keys="sortableKeys"
+          :max-sort-keys="maxSortKeys"
           :attributes="ATTRIBUTES"
           :list="list"
           :preference-key="`tasks::filters::${ASSERTED_DISTRIBUTION}`"
@@ -94,6 +95,7 @@
           v-model:sort-keys="sortKeys"
           :labels="ATTRIBUTES"
           :sortable-keys="sortableKeys"
+          :max-sort-keys="maxSortKeys"
         />
         <SaveViewButton
           v-if="hasUnsavedChanges"
@@ -128,7 +130,6 @@ import VSpinner from '@/components/ui/VSpinner.vue'
 import VToggle from '@/components/ui/VToggle.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import useFilter from '@/shared/Filter/composition/useFilter.js'
-import useFilterView from '@/shared/Filter/composition/useFilterView.js'
 import FilterList from '@/components/Filter/Table/TableResults.vue'
 import SortPanel from '@/components/Filter/Table/SortPanel.vue'
 import SaveViewButton from '@/components/Filter/Table/SaveViewButton.vue'
@@ -166,25 +167,18 @@ const {
   selectedIds,
   sortedSelectedIds,
   urlRequest,
-  sortableKeys
-} = useFilter(AssertedDistribution, {
-  listParser,
-  initParameters: { extend },
-  sortableColumnsResource: 'asserted_distributions'
-})
-
-const {
+  sortableKeys,
   sortKeys,
   unsavedViewChanges,
   hasUnsavedChanges,
   filterListRef,
-  saveViewAsDefault
-} = useFilterView({
-  parameters,
-  makeFilterRequest,
-  objectType: ASSERTED_DISTRIBUTION,
-  extend,
-  sortableKeys
+  saveViewAsDefault,
+  maxSortKeys
+} = useFilter(AssertedDistribution, {
+  listParser,
+  initParameters: { extend },
+  sortableColumnsResource: 'asserted_distributions',
+  objectType: ASSERTED_DISTRIBUTION
 })
 
 function loadMap(id) {

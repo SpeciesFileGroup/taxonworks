@@ -66,6 +66,20 @@ module Queries::Sort::ObjectOtu
       }
     end
 
+    # `taxon_determinations.<column>` keys for a model with taxon
+    # determinations (CollectionObject, FieldOccurrence), each from its
+    # primary (lowest-position) determination.
+    # @return [Hash{String => Proc}]
+    def taxon_determination_columns
+      {
+        'taxon_determinations.otu_name' => association(:taxon_determinations, :otu, :name, collapse: :position),
+        'taxon_determinations.year_made' => association(:taxon_determinations, :year_made, collapse: :position),
+        'taxon_determinations.month_made' => association(:taxon_determinations, :month_made, collapse: :position),
+        'taxon_determinations.day_made' => association(:taxon_determinations, :day_made, collapse: :position),
+        'taxon_determinations.print_label' => association(:taxon_determinations, :print_label, collapse: :position)
+      }
+    end
+
     private
 
     # See "The row's OTU" above.

@@ -12,8 +12,9 @@
 # Params:
 #   sort - comma-separated keys (or an Array), `-` prefix for descending,
 #     e.g. `-updated_at,repository.name`. Keys are those of the model's
-#     Queries::Sort::Base subclass, plus `match_identifiers`. Unknown keys are
-#     ignored, and only the first MAX_SORT_KEYS are used.
+#     Queries::Sort::Base subclass, plus `match_identifiers`. Unknown and
+#     repeated keys are ignored, and only the first MAX_SORT_KEYS of the rest
+#     (`recent` and `order_by` included) are used.
 #   recent - true puts `-updated_at` (`-created_at` when
 #     `recent_target=created_at`) before any `sort` keys
 #   order_by - 'match_identifiers' puts `match_identifiers` first (sent by
@@ -29,6 +30,7 @@
 # See "Sorting and paging" in lib/queries/ARCHITECTURE.md.
 module Queries
   class Pager
+    include Queries::Helpers
 
     MAX_SORT_KEYS = Queries::Sort::Base::MAX_SORT_KEYS
 
@@ -61,7 +63,7 @@ module Queries
 
       entries.each do |key, dir|
         if key == Queries::Sort::MatchIdentifiers::KEY
-          q = Queries::Sort::MatchIdentifiers.new(klass, params).apply(q)
+          q = match_identifiers.apply(q, dir)
         else
           q = sort_class.columns[key].call(q, dir)
         end
@@ -75,13 +77,14 @@ module Queries
     # @return [Array<Array(String, Symbol)>] [key, :asc|:desc] pairs that
     #   will be applied, in order
     def sort_entries
-      requested = parse_sort(params[:sort]).first(MAX_SORT_KEYS)
+      requested = parse_sort(params[:sort])
       requested.unshift([recent_target, :desc]) if recent?
       requested.unshift([Queries::Sort::MatchIdentifiers::KEY, :asc]) if params[:order_by].to_s == Queries::Sort::MatchIdentifiers::KEY
 
       requested
         .select { |key, _| sortable?(key) }
         .uniq { |key, _| key }
+        .first(MAX_SORT_KEYS)
     end
 
     def sort_class
@@ -94,19 +97,41 @@ module Queries
       set.klass
     end
 
+    def match_identifiers
+      @match_identifiers ||= Queries::Sort::MatchIdentifiers.new(klass, params)
+    end
+
     # A set with DISTINCT, GROUP BY, a custom select or a `from(...)` subquery
     # can't be ordered by a joined column directly, so reduce it to "these
     # ids" first. A plain set is used as is.
     def plain_set
       return set.except(:order, :limit, :offset) if plain?(set)
 
-      ids = set.except(:order, :limit, :offset, :includes, :preload, :eager_load)
-        .reselect(klass.arel_table[:id])
-
-      klass.unscoped.where(id: ids)
+      q = klass.unscoped.where(id: set_ids)
         .includes(set.includes_values)
         .preload(set.preload_values)
         .eager_load(set.eager_load_values)
+
+      # Keep a narrowed select (e.g. one leaving out a large column). A
+      # grouped set's select may hold aggregates, which need its GROUP BY.
+      q = q.select(set.select_values) if set.group_values.empty? && set.select_values.any?
+      q
+    end
+
+    # The set's ids, as a subquery.
+    def set_ids
+      s = set.except(:order, :limit, :offset, :includes, :preload, :eager_load)
+
+      # Its WHERE may reference eager loaded tables; join them instead.
+      s = s.left_outer_joins(set.includes_values + set.eager_load_values) if set.eager_loading?
+
+      # Only grouped by id is a GROUP BY known to select `id` alone, others
+      # may select it from an aggregate (`MIN(id) AS id`).
+      if s.group_values.empty? || s.group_values.map(&:to_s).all? { |g| ['id', "#{klass.table_name}.id"].include?(g.delete('"')) }
+        s.reselect(klass.arel_table[:id])
+      else
+        klass.unscoped.from(s, klass.table_name).select(klass.arel_table[:id])
+      end
     end
 
     def plain?(relation)
@@ -118,11 +143,13 @@ module Queries
     end
 
     def sortable?(key)
-      key == Queries::Sort::MatchIdentifiers::KEY || sort_class.columns.key?(key)
+      return match_identifiers.active? if key == Queries::Sort::MatchIdentifiers::KEY
+
+      sort_class.columns.key?(key)
     end
 
     def recent?
-      [true, 'true', '1', 1].include?(params[:recent])
+      boolean_param(params, :recent) == true
     end
 
     def recent_target

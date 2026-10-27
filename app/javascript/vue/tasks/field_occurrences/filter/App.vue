@@ -9,8 +9,8 @@
       :csv-options="csvOptions"
       v-model="parameters"
       v-model:append="append"
-      @filter="makeFilterRequest({ ...parameters, extend, exclude, page: 1 })"
-      @per="makeFilterRequest({ ...parameters, extend, exclude, page: 1 })"
+      @filter="makeFilterRequest({ ...parameters, page: 1 })"
+      @per="makeFilterRequest({ ...parameters, page: 1 })"
       @nextpage="loadPage"
       @reset="resetFilter"
     >
@@ -47,7 +47,9 @@
           ref="filterListRef"
           :list="list"
           :layout="currentLayout"
+          @reorder:layout="reorderLayoutColumns"
           :sortable-keys="sortableKeys"
+          :max-sort-keys="maxSortKeys"
           :preference-key="`tasks::filters::${FIELD_OCCURRENCE}`"
           v-model="selectedIds"
           v-model:sort-keys="sortKeys"
@@ -62,6 +64,7 @@
           v-model:sort-keys="sortKeys"
           :labels="sortLabels"
           :sortable-keys="sortableKeys"
+          :max-sort-keys="maxSortKeys"
         />
         <SaveViewButton
           v-if="hasUnsavedChanges"
@@ -95,7 +98,6 @@ import SortPanel from '@/components/Filter/Table/SortPanel.vue'
 import SaveViewButton from '@/components/Filter/Table/SaveViewButton.vue'
 import RadialMatrix from '@/components/radials/matrix/radial.vue'
 import { useFilter, useCSVOptions } from '@/shared/Filter/composition'
-import useFilterView from '@/shared/Filter/composition/useFilterView.js'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import VToggle from '@/components/ui/VToggle.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
@@ -128,6 +130,7 @@ const {
   layouts,
   properties,
   updatePropertiesPositions,
+  reorderLayoutColumns,
   saveLayoutPreferences,
   resetPreferences,
   forceUpdatePreference
@@ -144,26 +147,18 @@ const {
   selectedIds,
   makeFilterRequest,
   resetFilter,
-  sortableKeys
-} = useFilter(FieldOccurrence, {
-  listParser,
-  initParameters: { extend, exclude },
-  sortableColumnsResource: 'field_occurrences'
-})
-
-const {
+  sortableKeys,
   sortKeys,
   unsavedViewChanges,
   hasUnsavedChanges,
   filterListRef,
-  saveViewAsDefault
-} = useFilterView({
-  parameters,
-  makeFilterRequest,
-  objectType: FIELD_OCCURRENCE,
-  extend,
-  exclude,
-  sortableKeys
+  saveViewAsDefault,
+  maxSortKeys
+} = useFilter(FieldOccurrence, {
+  listParser,
+  initParameters: { extend, exclude },
+  sortableColumnsResource: 'field_occurrences',
+  objectType: FIELD_OCCURRENCE
 })
 
 const sortLabels = computed(() =>

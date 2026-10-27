@@ -132,9 +132,14 @@ module Queries::Sort::Resolver
       col = column.to_s
       return false if col =~ FOREIGN_KEY_COLUMN
       return false if col =~ RESTRICTED_COLUMN
-      return false if klass.respond_to?(:encrypted_attributes) && klass.encrypted_attributes&.key?(col)
+      return false if encrypted?(klass, col)
       return false if UNORDERABLE_SQL_TYPES.include?(klass.columns_hash[col]&.sql_type)
       true
+    end
+
+    # Rails keeps encrypted attribute names as a Set of symbols.
+    def encrypted?(klass, column)
+      klass.respond_to?(:encrypted_attributes) && klass.encrypted_attributes.to_a.map(&:to_s).include?(column.to_s)
     end
 
     def build_sort_lambda(root_klass, path, column, collapse)
@@ -201,9 +206,9 @@ module Queries::Sort::Resolver
         if refl.polymorphic?
           raise ArgumentError, 'polymorphic belongs_to is not generically sortable; use custom()'
         end
-        sql = %(LEFT JOIN #{target.table_name} AS #{alias_name} ON #{alias_name}.id = #{owner_alias}.#{refl.foreign_key})
+        sql = %(LEFT JOIN #{target.table_name} AS #{alias_name} ON #{alias_name}.#{refl.association_primary_key} = #{owner_alias}.#{refl.foreign_key})
       else
-        sql = %(LEFT JOIN #{target.table_name} AS #{alias_name} ON #{alias_name}.#{refl.foreign_key} = #{owner_alias}.id)
+        sql = %(LEFT JOIN #{target.table_name} AS #{alias_name} ON #{alias_name}.#{refl.foreign_key} = #{owner_alias}.#{refl.active_record_primary_key})
         if refl.type.present?
           sql += " AND #{alias_name}.#{refl.type} = #{quote(owner_klass.polymorphic_name)}"
         end
@@ -219,8 +224,6 @@ module Queries::Sort::Resolver
     # *inside* the LATERAL before collapsing to a single value.
     # @param prefix [Array<Symbol>] the hops before this one, for the alias
     def has_many_lateral(owner_alias, refl, remaining, column, collapse, prefix: [])
-      raise ArgumentError, "sort path too deep: #{remaining.join('.')}" if remaining.length > MAX_DEPTH
-
       from_sql, where, current_alias, current_klass = has_many_source(
         owner_alias, refl, terminal_column: (column if remaining.empty?)
       )
@@ -316,14 +319,15 @@ module Queries::Sort::Resolver
         thr_alias = has_many_source_alias(refl)
         final_alias = "#{thr_alias}_src"
 
-        where = ["#{thr_alias}.#{thr.foreign_key} = #{owner_alias}.id"]
+        where = ["#{thr_alias}.#{thr.foreign_key} = #{owner_alias}.#{thr.active_record_primary_key}"]
         if thr.type.present?
           where << "#{thr_alias}.#{thr.type} = #{quote(owner_klass.polymorphic_name)}"
         end
         where << type_condition_sql(thr_klass, thr_alias) if thr_klass.finder_needs_type_condition?
+        where << type_condition_sql(final_klass, final_alias) if final_klass.finder_needs_type_condition?
 
         from_sql = "FROM #{thr_klass.table_name} #{thr_alias} " \
-          "JOIN #{final_klass.table_name} #{final_alias} ON #{final_alias}.id = #{thr_alias}.#{src.foreign_key}"
+          "JOIN #{final_klass.table_name} #{final_alias} ON #{final_alias}.#{src.association_primary_key} = #{thr_alias}.#{src.foreign_key}"
 
         [from_sql, where, final_alias, final_klass]
       else
@@ -331,7 +335,7 @@ module Queries::Sort::Resolver
         validate_target_class!(target, terminal_column:)
         t_alias = has_many_source_alias(refl)
 
-        where = ["#{t_alias}.#{refl.foreign_key} = #{owner_alias}.id"]
+        where = ["#{t_alias}.#{refl.foreign_key} = #{owner_alias}.#{refl.active_record_primary_key}"]
         if refl.type.present?
           where << "#{t_alias}.#{refl.type} = #{quote(owner_klass.polymorphic_name)}"
         end
@@ -352,9 +356,9 @@ module Queries::Sort::Resolver
         if refl.polymorphic?
           raise ArgumentError, 'polymorphic belongs_to is not generically sortable; use custom()'
         end
-        sql = "LEFT JOIN #{target.table_name} #{alias_name} ON #{alias_name}.id = #{owner_alias}.#{refl.foreign_key}"
+        sql = "LEFT JOIN #{target.table_name} #{alias_name} ON #{alias_name}.#{refl.association_primary_key} = #{owner_alias}.#{refl.foreign_key}"
       else
-        sql = "LEFT JOIN #{target.table_name} #{alias_name} ON #{alias_name}.#{refl.foreign_key} = #{owner_alias}.id"
+        sql = "LEFT JOIN #{target.table_name} #{alias_name} ON #{alias_name}.#{refl.foreign_key} = #{owner_alias}.#{refl.active_record_primary_key}"
         if refl.type.present?
           sql += " AND #{alias_name}.#{refl.type} = #{quote(owner_klass.polymorphic_name)}"
         end
@@ -372,7 +376,7 @@ module Queries::Sort::Resolver
       if col =~ RESTRICTED_COLUMN
         raise ArgumentError, "#{col} is a restricted column"
       end
-      if klass.respond_to?(:encrypted_attributes) && klass.encrypted_attributes&.key?(col)
+      if encrypted?(klass, col)
         raise ArgumentError, "#{col} is encrypted and cannot be sorted on"
       end
       if !klass.column_names.include?(col)

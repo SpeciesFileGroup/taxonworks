@@ -34,6 +34,7 @@
           v-model:hide-unfrozen="hideFrozen"
           v-model:unsaved-view-changes="unsavedViewChanges"
           :sortable-keys="sortableKeys"
+          :max-sort-keys="maxSortKeys"
           :attributes="ATTRIBUTES"
           :list="list"
           :preference-key="`tasks::filters::${TAXON_NAME_RELATIONSHIP}`"
@@ -44,6 +45,7 @@
           v-model:sort-keys="sortKeys"
           :labels="ATTRIBUTES"
           :sortable-keys="sortableKeys"
+          :max-sort-keys="maxSortKeys"
         />
         <SaveViewButton
           v-if="hasUnsavedChanges"
@@ -80,7 +82,6 @@ import VToggle from '@/components/ui/VToggle.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import RadialTaxonNameRelationship from '@/components/radials/taxon_name_relationship/radial.vue'
 import useFilter from '@/shared/Filter/composition/useFilter.js'
-import useFilterView from '@/shared/Filter/composition/useFilterView.js'
 import { listParser } from '../utils/listParser.js'
 import { TAXON_NAME_RELATIONSHIP } from '@/constants/index.js'
 import { TaxonNameRelationship } from '@/routes/endpoints'
@@ -105,22 +106,16 @@ const {
   selectedIds,
   sortedSelectedIds,
   urlRequest,
-  sortableKeys
-} = useFilter(TaxonNameRelationship, {
-  listParser,
-  sortableColumnsResource: 'taxon_name_relationships'
-})
-
-const {
+  sortableKeys,
   sortKeys,
   unsavedViewChanges,
   hasUnsavedChanges,
   filterListRef,
-  saveViewAsDefault
-} = useFilterView({
-  parameters,
-  makeFilterRequest,
-  objectType: TAXON_NAME_RELATIONSHIP,
-  sortableKeys
+  saveViewAsDefault,
+  maxSortKeys
+} = useFilter(TaxonNameRelationship, {
+  listParser,
+  sortableColumnsResource: 'taxon_name_relationships',
+  objectType: TAXON_NAME_RELATIONSHIP
 })
 </script>

@@ -1,6 +1,7 @@
 import { chunkArray } from '@/helpers/arrays'
 import { DataAttribute, Georeference } from '@/routes/endpoints'
 import { getDataAttributesFor } from '@/shared/Filter/utils'
+import { IDENTIFIER_SEPARATOR } from '@/shared/Filter/constants'
 
 function setCEWithGeoreferences(list, georeferences) {
   return list.map((item) => {
@@ -57,7 +58,7 @@ export async function listParser(list, { parameters }) {
         roles: (item?.collector_roles || [])
           .map((role) => role.person.cached)
           .join('; '),
-        identifiers: identifiers.map((i) => i.cached).join('; ')
+        identifiers: identifiers.map((i) => i.cached).join(IDENTIFIER_SEPARATOR)
       },
       data_attributes: getDataAttributesFor(body, item.id)
     }

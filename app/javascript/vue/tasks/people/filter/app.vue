@@ -10,6 +10,7 @@
       v-model:append="append"
       v-model="parameters"
       @filter="makeFilterRequest({ ...parameters, page: 1 })"
+      @per="makeFilterRequest({ ...parameters, page: 1 })"
       @nextpage="loadPage"
       @reset="resetFilter"
     >
@@ -24,6 +25,7 @@
           v-model:hide-unfrozen="hideFrozen"
           v-model:unsaved-view-changes="unsavedViewChanges"
           :sortable-keys="sortableKeys"
+          :max-sort-keys="maxSortKeys"
           :list="list"
           :attributes="ATTRIBUTES"
           :preference-key="`tasks::filters::${PERSON}`"
@@ -35,6 +37,7 @@
           v-model:sort-keys="sortKeys"
           :labels="ATTRIBUTES"
           :sortable-keys="sortableKeys"
+          :max-sort-keys="maxSortKeys"
         />
         <SaveViewButton
           v-if="hasUnsavedChanges"
@@ -70,7 +73,6 @@ import VSpinner from '@/components/ui/VSpinner.vue'
 import VToggle from '@/components/ui/VToggle.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import useFilter from '@/shared/Filter/composition/useFilter.js'
-import useFilterView from '@/shared/Filter/composition/useFilterView.js'
 import { ATTRIBUTES } from './constants/attributes.js'
 import { PERSON } from '@/constants/index.js'
 import { People } from '@/routes/endpoints'
@@ -90,22 +92,16 @@ const {
   selectedIds,
   sortedSelectedIds,
   urlRequest,
-  sortableKeys
-} = useFilter(People, {
-  sortableColumnsResource: 'people'
-})
-
-const {
+  sortableKeys,
   sortKeys,
   unsavedViewChanges,
   hasUnsavedChanges,
   filterListRef,
-  saveViewAsDefault
-} = useFilterView({
-  parameters,
-  makeFilterRequest,
-  objectType: PERSON,
-  sortableKeys
+  saveViewAsDefault,
+  maxSortKeys
+} = useFilter(People, {
+  sortableColumnsResource: 'people',
+  objectType: PERSON
 })
 </script>
 

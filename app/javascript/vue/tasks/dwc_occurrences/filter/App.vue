@@ -11,8 +11,8 @@
       :radial-navigator="false"
       v-model="parameters"
       v-model:append="append"
-      @filter="makeFilterRequest({ ...parameters, extend, page: 1 })"
-      @per="makeFilterRequest({ ...parameters, extend, page: 1 })"
+      @filter="makeFilterRequest({ ...parameters, page: 1 })"
+      @per="makeFilterRequest({ ...parameters, page: 1 })"
       @nextpage="loadPage"
       @reset="resetFilter"
     >
@@ -25,6 +25,7 @@
           :list="list"
           :attributes="ATTRIBUTES"
           :sortable-keys="sortableKeys"
+          :max-sort-keys="maxSortKeys"
           :preference-key="`tasks::filters::${DWC_OCCURRENCE}`"
           :radial-annotator="false"
           :radial-navigator="false"
@@ -40,6 +41,7 @@
           v-model:sort-keys="sortKeys"
           :labels="ATTRIBUTES"
           :sortable-keys="sortableKeys"
+          :max-sort-keys="maxSortKeys"
         />
         <SaveViewButton
           v-if="hasUnsavedChanges"
@@ -72,7 +74,6 @@ import FilterList from '@/components/Filter/Table/TableResults.vue'
 import SortPanel from '@/components/Filter/Table/SortPanel.vue'
 import SaveViewButton from '@/components/Filter/Table/SaveViewButton.vue'
 import useFilter from '@/shared/Filter/composition/useFilter.js'
-import useFilterView from '@/shared/Filter/composition/useFilterView.js'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import VToggle from '@/components/ui/VToggle.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
@@ -94,22 +95,16 @@ const {
   selectedIds,
   makeFilterRequest,
   resetFilter,
-  sortableKeys
-} = useFilter(DwcOcurrence, {
-  sortableColumnsResource: 'dwc_occurrences'
-})
-
-const {
+  sortableKeys,
   sortKeys,
   unsavedViewChanges,
   hasUnsavedChanges,
   filterListRef,
-  saveViewAsDefault
-} = useFilterView({
-  parameters,
-  makeFilterRequest,
-  objectType: DWC_OCCURRENCE,
-  sortableKeys
+  saveViewAsDefault,
+  maxSortKeys
+} = useFilter(DwcOcurrence, {
+  sortableColumnsResource: 'dwc_occurrences',
+  objectType: DWC_OCCURRENCE
 })
 </script>
 

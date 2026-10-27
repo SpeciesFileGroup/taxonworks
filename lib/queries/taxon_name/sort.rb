@@ -28,7 +28,8 @@ class Queries::TaxonName::Sort < Queries::Sort::Base
       # Formerly the TaxonName filter's own `sort` modes.
       cols['alphabetical'] = direct(:cached)
 
-      # Higher names before lower: depth below the root, then name.
+      # Higher names before lower: depth below the root, then name; both
+      # reversed when descending.
       cols['classification'] = ->(q, dir) {
         by_depth = order_by_sql(q.joins(<<~SQL.squish), 'sort_classification.depth', dir)
           LEFT JOIN LATERAL (
@@ -37,7 +38,7 @@ class Queries::TaxonName::Sort < Queries::Sort::Base
             WHERE tnh.descendant_id = taxon_names.id
           ) AS sort_classification ON true
         SQL
-        order_by_sql(by_depth, 'taxon_names.cached', :asc)
+        order_by_sql(by_depth, 'taxon_names.cached', dir)
       }
 
       cols

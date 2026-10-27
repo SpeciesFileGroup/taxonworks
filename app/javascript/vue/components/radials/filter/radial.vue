@@ -51,9 +51,10 @@ import VModal from '@/components/ui/Modal.vue'
 import Qs from 'qs'
 import { randomUUID } from '@/helpers'
 import * as FILTER_LINKS from './links'
+import { RESULT_PARAMETERS } from '@/shared/Filter/constants'
 
 const MAX_LINK_SIZE = 2048
-const EXCLUDE_PARAMETERS = ['page', 'per', 'extend', 'venn', 'venn_mode']
+const EXCLUDE_PARAMETERS = [...RESULT_PARAMETERS, 'venn', 'venn_mode']
 
 const uuid = randomUUID()
 
