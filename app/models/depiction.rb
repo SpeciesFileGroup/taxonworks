@@ -201,6 +201,11 @@ class Depiction < ApplicationRecord
   end
 
   def remove_media_observation
+    # As in remove_media_observation2, e.g. when unify dedups this depiction
+    return if UnifyContext.objects_in_destroy&.include?(
+      { id: depiction_object_id, type: 'Observation' }
+    )
+
     if depiction_object.depictions.size == 0
       depiction_object.destroy!
     end

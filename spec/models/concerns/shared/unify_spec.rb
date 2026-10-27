@@ -923,6 +923,42 @@ describe 'Shared::Unify', type: :model do
     end
   end
 
+  # Destroying the last Depiction of an Observation::Media normally destroys
+  # that observation via a Depiction callback; within unify the callback must
+  # defer to unify.
+  context 'when a dedup destroys the last depiction of an Observation::Media' do
+    let(:descriptor) { Descriptor::Media.create!(name: 'media') }
+    let!(:observation1) {
+      FactoryBot.create(:valid_observation, type: 'Observation::Media',
+        descriptor:, observation_object: o1)
+    }
+    let!(:observation2) {
+      FactoryBot.create(:valid_observation, type: 'Observation::Media',
+        descriptor:, observation_object: o2)
+    }
+    let!(:depiction1) {
+      FactoryBot.create(:valid_depiction, depiction_object: observation1)
+    }
+    let!(:depiction2) {
+      Depiction.create!(depiction_object: observation2, image: depiction1.image)
+    }
+
+    specify 'unify succeeds' do
+      result = observation1.unify(observation2)
+      expect(result[:result][:unified]).to be(true)
+      expect(result[:details]['Depictions'][:deduplicated]).to eq(1)
+    end
+
+    specify 'annotations after depictions end up on the kept observation' do
+      note = FactoryBot.create(:valid_note, note_object: observation2)
+      observation1.unify(observation2)
+      expect(Observation.where(id: observation2.id).exists?).to be(false)
+      expect(observation1.depictions.reload.map(&:id))
+        .to contain_exactly(depiction1.id)
+      expect(observation1.notes.reload.map(&:id)).to contain_exactly(note.id)
+    end
+  end
+
   # ObservationMatrixColumns are derived from ObservationMatrixColumnItems,
   # unify moves the items and lets them maintain the columns.
   context 'Descriptors in observation matrices' do
