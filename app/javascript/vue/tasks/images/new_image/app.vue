@@ -90,8 +90,7 @@ const images = computed({
 const isSaving = computed(() => store.getters[GetterNames.GetSettings].saving)
 
 function clearDataCreated() {
-  store.commit(MutationNames.SetDepictions, [])
-  store.commit(MutationNames.SetAttributionsCreated, [])
+  store.dispatch(ActionNames.ClearImages)
 }
 function removeImage(image) {
   store.dispatch(ActionNames.RemoveImage, image)

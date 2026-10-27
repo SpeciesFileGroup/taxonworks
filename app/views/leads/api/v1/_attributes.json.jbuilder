@@ -3,7 +3,7 @@ if lead.nil?
 else
   json.extract! lead, :id, :parent_id, :otu_id, :text, :origin_label,
     :description, :redirect_id, :link_out, :link_out_text, :position,
-    :project_id, :created_at,
+    :is_virtual, :project_id, :created_at,
     :updated_at, :observation_matrix_id
 
   if lead[:otus_count]
@@ -21,6 +21,12 @@ else
 
   if !local_assigns[:has_descendant_lead_items].nil?
     json.has_descendant_lead_items has_descendant_lead_items
+  end
+
+  if extend_response_with('citations')
+    json.citations do
+      json.array! lead.citations, partial: '/citations/api/v1/attributes', as: :citation
+    end
   end
 
 end

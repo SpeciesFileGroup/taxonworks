@@ -15,12 +15,6 @@ class Topic < ControlledVocabularyTerm
   has_many :public_contents, inverse_of: :topic, dependent: :destroy
   has_many :otus, through: :contents
 
-  # TODO: Layout handling as a concern
-  has_many :otu_page_layout_sections, -> {
-    where(otu_page_layout_sections:
-          {type: 'OtuPageLayoutSection::StandardSection'}) }, inverse_of: :topic
-  has_many :otu_page_layouts, through: :otu_page_layout_sections
-
   scope :used_on_klass, -> (klass) { joins(:citations).where(citations: {citation_object_type: klass}) }
 
   # TODO: Deprecate for CVT + params (if not already done)
@@ -79,7 +73,7 @@ class Topic < ControlledVocabularyTerm
     r = used_recently(user_id, project_id, klass, target)
     h = {
       quick: [],
-      pinboard: Topic.pinned_by(user_id).where(project_id:).to_a,
+      pinboard: Topic.pinned_by(user_id).where(project_id:).pinboard_ordered.to_a,
       recent: []
     }
 

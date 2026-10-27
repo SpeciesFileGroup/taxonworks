@@ -52,7 +52,7 @@
           <th>Created</th>
           <th>Images</th>
           <th>Sounds</th>
-          <th />
+          <th>Field occurrence</th>
         </tr>
       </thead>
       <tbody>
@@ -82,7 +82,10 @@
             />
           </td>
           <td class="w-2">
-            <div class="flex-row gap-small">
+            <div
+              :key="fo.otu_global_id"
+              class="flex-row gap-small"
+            >
               <RadialAnnotator :global-id="fo.otu_global_id" />
               <RadialObject :global-id="fo.otu_global_id" />
               <RadialNavigator :global-id="fo.otu_global_id" />
@@ -95,7 +98,10 @@
           <td class="w-2">
             <div class="flex-row gap-small">
               <RadialAnnotator :global-id="fo.global_id" />
-              <RadialObject :global-id="fo.global_id" />
+              <RadialObject
+                :global-id="fo.global_id"
+                @change="(event) => onQuickFormsChange(fo.id, event)"
+              />
               <RadialNavigator :global-id="fo.global_id" />
             </div>
           </td>
@@ -137,6 +143,28 @@ async function load(page = 1) {
   } finally {
     isLoading.value = false
   }
+}
+
+function onQuickFormsChange(fieldOccurrenceId, { slice }) {
+  if (slice === 'taxon_determinations') {
+    refreshRow(fieldOccurrenceId)
+  }
+}
+
+// Replace the row in place rather than reloading the page, which would unmount
+// the open quick forms.
+async function refreshRow(fieldOccurrenceId) {
+  try {
+    const { body } = await FieldOccurrence.iNatRecent({
+      field_occurrence_id: [fieldOccurrenceId]
+    })
+    const updated = body.field_occurrences[0]
+    const index =
+      fieldOccurrences.value.findIndex((fo) => fo.id === fieldOccurrenceId)
+    if (updated && index !== -1) {
+      fieldOccurrences.value[index] = updated
+    }
+  } catch {}
 }
 
 onMounted(load)

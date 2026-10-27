@@ -8,7 +8,12 @@
         </div>
       </template>
       <template #body>
-        <ModelSelector v-model="model" />
+        <VSpinner v-if="isLoadingTypes" />
+        <ModelSelector
+          v-else
+          v-model="model"
+          :types="unifiableTypes"
+        />
       </template>
     </BlockLayout>
 
@@ -130,6 +135,8 @@ import ModelSelector from './components/ModelSelector.vue'
 import PrewiewMerge from './components/PreviewMerge.vue'
 import CompareAttributes from './components/CompareAttributes.vue'
 import { MAP_MODEL } from './constants'
+import { Unify } from '@/routes/endpoints'
+import VSpinner from '@/components/ui/VSpinner.vue'
 import { ID_PARAM_FOR } from '@/components/radials/filter/constants/idParams'
 
 const MAX_TOTAL = 250
@@ -139,6 +146,8 @@ defineOptions({
 })
 
 const model = ref(null)
+const unifiableTypes = ref([])
+const isLoadingTypes = ref(true)
 const only = ref([])
 const destroyObject = ref(null)
 const destroyRef = ref(null)
@@ -178,6 +187,15 @@ function handleMerge() {
 }
 
 onMounted(() => {
+  Unify.types()
+    .then(({ body }) => {
+      unifiableTypes.value = body
+    })
+    .catch(() => {})
+    .finally(() => {
+      isLoadingTypes.value = false
+    })
+
   const params = URLParamsToJSON(window.location.href)
 
   Object.entries(params).forEach(([key, value]) => {

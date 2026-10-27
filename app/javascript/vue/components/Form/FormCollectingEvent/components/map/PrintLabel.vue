@@ -12,7 +12,7 @@
         <button
           class="button normal-input button-default"
           type="button"
-          :disabled="!isEmpty"
+          :disabled="!isCopyAvailable"
           @click="copyLabel"
         >
           Copy verbatim label
@@ -73,7 +73,9 @@ const store = useStore()
 const identifierStore = useIdentifierStore()
 const georeferenceStore = useGeoreferenceStore()
 
-const isEmpty = computed(() => store.label.text.length === 0)
+const isCopyAvailable = computed(
+  () => store.label.text.length === 0 && collectingEvent.value.verbatim_label
+)
 
 function copyLabel() {
   store.label.text = collectingEvent.value.verbatim_label

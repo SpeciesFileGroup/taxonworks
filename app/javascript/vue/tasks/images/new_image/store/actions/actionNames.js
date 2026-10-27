@@ -4,7 +4,7 @@ const ActionNames = {
   ApplyPixelToCentimeter: 'applyPixelToCentimeter',
   ApplyTags: 'applyTags',
   ApplySource: 'applySource',
-  SetAllApplied: 'setAllApplied',
+  ClearImages: 'clearImages',
   ResetStore: 'resetStore',
   RemoveImage: 'removeImage'
 }

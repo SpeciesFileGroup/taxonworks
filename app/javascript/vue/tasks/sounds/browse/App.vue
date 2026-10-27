@@ -1,55 +1,62 @@
 <template>
-  <div id="app">
-    <div class="flex-separate middle margin-medium-top">
-      <VSpinner
-        v-if="isLoading"
-        full-screen
-      />
-      <VAutocomplete
-        v-if="store.sound"
-        url="/sounds/autocomplete"
-        param="term"
-        label="label_html"
-        placeholder="Search a sound..."
-        @get-item="(item) => loadData(item.id)"
-      />
-    </div>
-    <div class="app-container gap-medium">
-      <HeaderBar
-        :sound="store.sound"
-        @select="loadData"
-      />
-      <template v-if="store.sound">
-        <PanelSound :sound="store.sound" />
-        <PanelConveyances :conveyances="store.conveyances" />
+  <div class="container-xl mx-auto">
+    <VSpinner
+      v-if="isLoading"
+      full-screen
+    />
+    <HeaderBar
+      ref="headerBarRef"
+      :sound="store.sound"
+      @select="loadData"
+    />
+    <div
+      v-if="store.sound"
+      class="browse-layout gap-medium"
+    >
+      <div class="flex-col gap-medium">
+        <PanelSound
+          ref="panelSoundRef"
+          :sound="store.sound"
+          :conveyances="store.conveyances"
+        />
+        <PanelConveyances
+          :conveyances="store.conveyances"
+          @play="({ start, end }) => panelSoundRef?.playRegion(start, end)"
+        />
+      </div>
+      <div class="flex-col gap-medium browse-sidebar">
+        <PanelMetadata :sound="store.sound" />
         <PanelAnnotations
           :object-id="store.sound.id"
           :object-type="store.sound.base_class"
         />
-      </template>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { onBeforeMount, ref } from 'vue'
-import { URLParamsToJSON } from '@/helpers'
+import { onBeforeMount, ref, useTemplateRef } from 'vue'
+import { getPlatformKey, URLParamsToJSON } from '@/helpers'
 import { RouteNames } from '@/routes/routes.js'
-import { usePopstateListener } from '@/composables'
+import { useHotkey, usePopstateListener } from '@/composables'
 import useStore from './store/store.js'
 import PanelSound from './components/Panel/PanelSound.vue'
 import PanelConveyances from './components/Panel/PanelConveyances.vue'
 import PanelAnnotations from './components/Panel/PanelAnnotations.vue'
+import PanelMetadata from './components/Panel/PanelMetadata.vue'
 import HeaderBar from './components/HeaderBar.vue'
-import VAutocomplete from '@/components/ui/Autocomplete.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import setParam from '@/helpers/setParam'
 
 defineOptions({
   name: 'BrowseSound'
 })
+
 const store = useStore()
 const isLoading = ref(false)
+const headerBarRef = useTemplateRef('headerBarRef')
+const panelSoundRef = useTemplateRef('panelSoundRef')
 
 function loadData(soundId) {
   setParam(RouteNames.BrowseSound, 'sound_id', soundId)
@@ -73,18 +80,45 @@ function loadDataFromIdParameter() {
   }
 }
 
+useHotkey([
+  {
+    keys: [getPlatformKey(), 'f'],
+    preventDefault: true,
+    handler() {
+      headerBarRef.value?.setFocus()
+    }
+  }
+])
+
+TW.workbench.keyboard.createLegend(
+  `${getPlatformKey()}+f`,
+  'Search a sound',
+  'Browse sound'
+)
+
 onBeforeMount(loadDataFromIdParameter)
 usePopstateListener(loadDataFromIdParameter)
 </script>
 
 <style scoped>
-#app {
-  margin: 0 auto;
-  width: 1240px;
+.browse-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  align-items: start;
 }
 
-.app-container {
-  display: grid;
-  grid-column: 1fr 2fr 1fr;
+.browse-sidebar {
+  position: sticky;
+  top: var(--spacing-md);
+}
+
+@media (max-width: 1100px) {
+  .browse-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .browse-sidebar {
+    position: static;
+  }
 }
 </style>

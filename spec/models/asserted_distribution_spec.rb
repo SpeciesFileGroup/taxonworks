@@ -647,6 +647,28 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
         .to contain_exactly(geographic_area.id, geographic_area.id)
     end
 
+    specify 'non-async create creates for biological associations' do
+      ba1 = FactoryBot.create(:valid_biological_association)
+      ba2 = FactoryBot.create(:valid_biological_association)
+
+      r = AssertedDistribution.batch_template_create(
+        preview: false,
+        async_cutoff: 10,
+        object_query: { biological_association_id: [ba1.id, ba2.id] },
+        object_type: 'BiologicalAssociation',
+        template_asserted_distribution:
+      )
+
+      expect(r.updated.count).to eq(2)
+      expect(
+        AssertedDistribution.all.map { |ad|
+          [ad.asserted_distribution_object_type, ad.asserted_distribution_object_id]
+        }
+      ).to contain_exactly(
+        ['BiologicalAssociation', ba1.id], ['BiologicalAssociation', ba2.id]
+      )
+    end
+
     specify 'non-async create returns correct counts' do
       AssertedDistribution.create!(
         template_asserted_distribution.merge(asserted_distribution_object: otu)

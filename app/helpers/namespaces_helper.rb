@@ -5,7 +5,7 @@ module NamespacesHelper
     namespace.short_name + ': ' + namespace.name
   end
 
-  def namespace_autocomplete_tag(namespace)
+  def namespace_autocomplete_tag(namespace, term = nil)
     return nil if namespace.nil?
     r = []
 
@@ -21,7 +21,7 @@ module NamespacesHelper
       r.push content_tag(:span, namespace.institution, class: [:feedback, 'feedback-thin', 'feedback-secondary'] )
     end
 
-    r.join('<br/>').html_safe
+    mark_tag(r.join('<br/>'), term)
   end
 
   def namespace_link(namespace)

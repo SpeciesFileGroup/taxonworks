@@ -18,14 +18,6 @@ describe Topic, type: :model do
         expect(topic).to respond_to(:otus)
       end
 
-      specify 'otu_page_layout_sections' do
-        expect(topic.otu_page_layout_sections << OtuPageLayoutSection.new).to be_truthy
-      end
-
-      specify 'otu_page_layouts' do
-        expect(topic.otu_page_layouts << OtuPageLayout.new).to be_truthy
-      end
-
     end
   end
 

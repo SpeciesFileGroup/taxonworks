@@ -5,7 +5,7 @@ export default function () {
     collection_object: {
       preparation_type_id: this.preparationTypeId,
       collecting_event_id: this.createdCE?.id,
-      total: 1
+      total: this.total
     }
   }
 

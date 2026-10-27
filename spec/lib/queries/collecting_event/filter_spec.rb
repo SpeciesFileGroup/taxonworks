@@ -42,6 +42,15 @@ describe Queries::CollectingEvent::Filter, type: :model, group: [:collecting_eve
     expect(query.all).to be_empty
   end
 
+  specify '#asserted_environment_query_facet' do
+    FactoryBot.create(:asserted_environment, uri_label: 'temperate forest biome', asserted_environment_object: ce1)
+
+    query = Queries::CollectingEvent::Filter.new(
+      asserted_environment_query: {uri_label: 'temperate forest biome'}
+    )
+    expect(query.all).to contain_exactly(ce1)
+  end
+
   specify '#use_max 1' do
     Specimen.create!(collecting_event: ce2)
     query.use_max = 1
@@ -142,6 +151,23 @@ describe Queries::CollectingEvent::Filter, type: :model, group: [:collecting_eve
     query.start_date = '1999-1-1'
     query.end_date = '2001-1-1'
     expect(query.all.map(&:id)).to contain_exactly()
+  end
+
+  specify 'between date range 3 - year only does not raise' do
+    query.start_date = '2000'
+    query.end_date = '2020'
+    expect(query.start_month).to eq(1)
+    expect(query.start_day).to eq(1)
+    expect(query.end_month).to eq(12)
+    expect(query.end_day).to eq(31)
+    expect(query.all.map(&:id)).to contain_exactly(ce1.id, ce2.id)
+  end
+
+  specify 'between date range 4 - year and month only defaults day to last day of month' do
+    query.start_date = '2000-1'
+    query.end_date = '2000-2'
+    expect(query.end_day).to eq(29) # 2000 is a leap year
+    expect(query.all.map(&:id)).to contain_exactly(ce2.id)
   end
 
   specify '#in_labels' do

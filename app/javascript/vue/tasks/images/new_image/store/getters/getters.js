@@ -19,11 +19,11 @@ import getTaxonDetermination from './getTaxonDetermination'
 import getTaxonDeterminations from './getTaxonDeterminations'
 import getYearCopyright from './getYearCopyright'
 import getTagsForImage from './getTagsForImage'
-import getApplied from './getApplied'
+import getImageAppliedStatus from './getImageAppliedStatus'
 import isAllApplied from './isAllApplied'
 
 const GetterNames = {
-  GetApplied: 'getApplied',
+  GetImageAppliedStatus: 'getImageAppliedStatus',
   GetAttributions: 'getAttributions',
   GetCitations: 'getCitations',
   GetCollectionObject: 'getCollectionObject',
@@ -49,7 +49,7 @@ const GetterNames = {
 }
 
 const GetterFunctions = {
-  [GetterNames.GetApplied]: getApplied,
+  [GetterNames.GetImageAppliedStatus]: getImageAppliedStatus,
   [GetterNames.GetAttributions]: getAttributions,
   [GetterNames.GetCitations]: getCitations,
   [GetterNames.GetCollectionObject]: getCollectionObject,

@@ -3,6 +3,7 @@
     <div class="flex flex-separate middle">
       <h1>Browse collection object</h1>
       <VAutocomplete
+        ref="autocomplete"
         class="autocomplete"
         url="/collection_objects/autocomplete"
         placeholder="Search a collection object"
@@ -58,6 +59,7 @@ import PanelDerived from './components/Panel/PanelDerived.vue'
 import setParam from '@/helpers/setParam'
 
 const store = useStore()
+const autocomplete = ref(null)
 const collectingEvent = computed(
   () => store.getters[GetterNames.GetCollectingEvent]
 )
@@ -96,6 +98,13 @@ const shortcuts = ref([
         window.open(`${RouteNames.DigitizeTask}?collection_object_id=${id}`)
       }
     }
+  },
+  {
+    keys: [getPlatformKey(), 'f'],
+    preventDefault: true,
+    handler() {
+      autocomplete.value?.setFocus()
+    }
   }
 ])
 
@@ -104,6 +113,12 @@ useHotkey(shortcuts.value)
 TW.workbench.keyboard.createLegend(
   getPlatformKey() + '+t',
   'Open comprehensive specimen digitization',
+  'Browse collection object'
+)
+
+TW.workbench.keyboard.createLegend(
+  getPlatformKey() + '+f',
+  'Search',
   'Browse collection object'
 )
 </script>

@@ -11,6 +11,8 @@ import qs from 'qs'
 
 // @param initParameters [Object] sent with every request (e.g. extend,
 //   exclude), never taken from the URL
+// @param defaultParameters [Object] the parameters to start from when the
+//   URL has none, and after a reset
 // @param sortableColumnsResource [String] the backend resource whose sort
 //   keys gate the table's sort, e.g. 'collection_objects'
 // @param objectType [String] when given, also sets up the table's view
@@ -20,6 +22,7 @@ export default function (
   {
     listParser,
     initParameters = {},
+    defaultParameters = {},
     sortableColumnsResource,
     objectType
   } = {}
@@ -158,7 +161,10 @@ export default function (
   const resetFilter = () => {
     // Drops any response still on its way.
     latestRequest++
-    state.parameters = { per: state.parameters.per ?? DEFAULT_PER }
+    state.parameters = {
+      per: state.parameters.per ?? DEFAULT_PER,
+      ...defaultParameters
+    }
     state.list = []
     state.isLoading = false
     state.urlRequest = ''
@@ -183,6 +189,10 @@ export default function (
     exclude.forEach((param) => {
       delete urlParameters[param]
     })
+
+    if (!Object.keys(urlParameters).length) {
+      Object.assign(state.parameters, defaultParameters)
+    }
 
     Object.assign(state.parameters, urlParameters)
 

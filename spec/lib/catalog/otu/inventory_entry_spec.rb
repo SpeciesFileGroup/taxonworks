@@ -14,6 +14,26 @@ describe Catalog::Otu::InventoryEntry, group: :catalogs, type: :spinup do
     end
   end
 
+  context 'with citations directly on the otu' do
+    let!(:citation) { Citation.create!(citation_object: otu, source: source) }
+
+    specify 'includes citations on the otu itself' do
+      entry = Catalog::Otu::InventoryEntry.new(otu)
+      expect(entry.items.map(&:object)).to contain_exactly(otu)
+      expect(entry.items.map(&:citation)).to contain_exactly(citation)
+    end
+
+    specify 'includes otu citations from coordinate otus' do
+      coordinate_otu = Otu.create!(taxon_name: species, name: 'Coordinate OTU')
+      coordinate_source = FactoryBot.create(:valid_source)
+      coordinate_citation = Citation.create!(citation_object: coordinate_otu, source: coordinate_source)
+
+      entry = Catalog::Otu::InventoryEntry.new(otu)
+      expect(entry.items.map(&:object)).to contain_exactly(otu, coordinate_otu)
+      expect(entry.items.map(&:citation)).to contain_exactly(citation, coordinate_citation)
+    end
+  end
+
   context 'with belongs_to associations' do
     let!(:citation) { Citation.create!(citation_object: species, source: source) }
 
@@ -152,6 +172,21 @@ describe Catalog::Otu::InventoryEntry, group: :catalogs, type: :spinup do
       items = entry.items
       common_name_citations = items.select { |i| i.object == common_name }.map(&:citation)
       expect(common_name_citations).to contain_exactly(citation1, citation2)
+    end
+  end
+
+  context 'ordering' do
+    let!(:coordinate_otu) { Otu.create!(taxon_name: species, name: 'Coordinate OTU') }
+    let!(:common_name) { CommonName.create!(otu: otu, name: 'Test Name', geographic_area: FactoryBot.create(:valid_geographic_area)) }
+    let!(:otu_citation) { Citation.create!(citation_object: otu, source: FactoryBot.create(:valid_source)) }
+    let!(:coordinate_otu_citation) { Citation.create!(citation_object: coordinate_otu, source: FactoryBot.create(:valid_source)) }
+    let!(:common_name_citation) { Citation.create!(citation_object: common_name, source: FactoryBot.create(:valid_source)) }
+
+    specify 'main otu, then coordinate otus, then related objects' do
+      entry = Catalog::Otu::InventoryEntry.new(otu)
+      citations = entry.items.map(&:citation)
+      expect(citations.index(otu_citation)).to be < citations.index(coordinate_otu_citation)
+      expect(citations.index(coordinate_otu_citation)).to be < citations.index(common_name_citation)
     end
   end
 end

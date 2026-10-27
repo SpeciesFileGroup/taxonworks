@@ -2,7 +2,8 @@ import { defineStore } from 'pinia'
 import {
   AnatomicalPart,
   AssertedDistribution,
-  BiologicalAssociation
+  BiologicalAssociation,
+  Citation
 } from '@/routes/endpoints'
 import { BIOLOGICAL_ASSOCIATION } from '@/constants'
 import { smartSelectorRefresh } from '@/helpers/smartSelector/index.js'
@@ -49,6 +50,7 @@ function makeBiologicalAssociationItem(item) {
       id: item.biological_relationship_id,
       object_tag: item.biological_relationship.object_tag
     },
+    citations: item.citations || [],
     citation: item.citations?.[0] || makeCitation()
   }
 }
@@ -114,7 +116,15 @@ function makeAssertedDistributionPayload({
   }
 }
 
-const extend = ['subject', 'object', 'biological_relationship', 'citations']
+// `source` is what nests citation.source, needed to link each citation to
+// /tasks/nomenclature/by_source
+const extend = [
+  'subject',
+  'object',
+  'biological_relationship',
+  'citations',
+  'source'
+]
 
 export const useStore = defineStore('NewBiologicalAssociation', {
   state: () => ({
@@ -366,15 +376,20 @@ export const useStore = defineStore('NewBiologicalAssociation', {
       } catch {}
     },
 
-    removeBiologicalAssociation(item) {
-      BiologicalAssociation.destroy(item.id).then(() => {
-        removeFromArray(this.biologicalAssociations, item)
+    removeBiologicalAssociationCitation(citation) {
+      const biologicalAssociation = this.biologicalAssociations.find(
+        (ba) => ba.id === citation.citation_object_id
+      )
 
-        TW.workbench.alert.create(
-          'Biological association was successfully destroyed.',
-          'notice'
-        )
-      })
+      Citation.destroy(citation.id)
+        .then(() => {
+          if (biologicalAssociation) {
+            removeFromArray(biologicalAssociation.citations, citation)
+            biologicalAssociation.citation =
+              biologicalAssociation.citations[0] || makeCitation()
+          }
+        })
+        .catch(() => {})
     },
 
     reset() {

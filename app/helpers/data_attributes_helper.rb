@@ -11,15 +11,16 @@ module DataAttributesHelper
     content_tag(:span, s.html_safe, class: [:annotation__data_attribute])
   end
 
-  def data_attribute_autocomplete_tag(data_attribute)
+  def data_attribute_autocomplete_tag(data_attribute, term = nil)
     return nil if data_attribute.nil?
-    [
+    s = [
       [ content_tag(:span, data_attribute.predicate_name, class: [:feedback, 'feedback-thin', 'feedback-primary']),
         content_tag(:span, data_attribute.value, class: [:feedback, 'feedback-thin', 'feedback-primary']),
         content_tag(:span, data_attribute.type, class: [:feedback, 'feedback-thin', 'feedback-secondary']),
-        content_tag(:span, data_attribute.attribute_subject_type, class: [:feedback, 'feedback-thin', 'feedback-light'])].join('&nbsp;').html_safe,
+        content_tag(:span, data_attribute.attribute_subject_type, class: [:feedback, 'feedback-thin', 'feedback-light'])].join('&nbsp;'),
     content_tag(:div, object_tag(data_attribute.annotated_object.metamorphosize))
-    ].join.html_safe
+    ].join
+    mark_tag(s, term)
   end
 
   # TODO deprecate

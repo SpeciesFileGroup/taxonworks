@@ -133,7 +133,7 @@ class Sequence < ApplicationRecord
           .limit(5)
     recent_sequences = Sequence.where(id: r.first(10) )
 
-    pinboard_sequences = Sequence.pinned_by(user_id).where(project_id: project_id)
+    pinboard_sequences = Sequence.pinned_by(user_id).where(project_id: project_id).pinboard_ordered
 
     h = {
       quick: [],

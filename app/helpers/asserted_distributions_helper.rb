@@ -12,6 +12,10 @@ module AssertedDistributionsHelper
     ].join('&nbsp;').html_safe
   end
 
+  def asserted_distribution_autocomplete_tag(asserted_distribution, term = nil)
+    mark_tag(asserted_distribution_tag(asserted_distribution), term)
+  end
+
   def label_for_asserted_distribution(asserted_distribution)
     return nil if asserted_distribution.nil?
     [

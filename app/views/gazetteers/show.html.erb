@@ -1,3 +1,7 @@
+<%= content_for :icon_navigation do -%>
+  <%= content_tag(:li, otus_radial(@gazetteer) )   %>
+<% end %>
+
 <%= content_for :associated do -%>
   <p> <strong>Shape:</strong></p>
   <%= simple_map([@gazetteer]) -%>

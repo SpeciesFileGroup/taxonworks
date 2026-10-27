@@ -153,6 +153,7 @@ const {
   maxSortKeys
 } = useFilter(Source, {
   initParameters: { extend },
+  defaultParameters: { in_project: true },
   sortableColumnsResource: 'sources',
   objectType: SOURCE
 })

@@ -38,6 +38,7 @@
           :attributes="ATTRIBUTES"
           :list="list"
           :preference-key="`tasks::filters::${TAXON_NAME_RELATIONSHIP}`"
+          @remove="({ index }) => list.splice(index, 1)"
         />
       </template>
       <template #nav-settings-start>

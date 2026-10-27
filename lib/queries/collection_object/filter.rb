@@ -13,6 +13,7 @@ module Queries
       include Queries::Concerns::Notes
       include Queries::Concerns::Protocols
       include Queries::Concerns::Tags
+      include Queries::Concerns::TaxonDetermination
 
       PARAMS = [
         *::Queries::CollectingEvent::Filter::BASE_PARAMS,
@@ -28,13 +29,12 @@ module Queries
         :collection_object_id,
         :collection_object_type,
         :collectors,
+        :container_id,
         :containerized,
-        :current_determinations,
         :current_repository,
         :current_repository_id,
         :dates,
         :deaccessioned,
-        :descendants,
         :determiner_id_all,
         :determiner_id,
         :determiner_name_regex,
@@ -57,11 +57,8 @@ module Queries
         :spatial_geographic_areas,
         :taxon_determination_id, # not used?!
         :taxon_determinations,
-        :taxon_name_id,
-        :taxon_name_current_determination,
         :type_material,
         :type_specimen_taxon_name_id,
-        :validity,
         :with_buffered_collecting_event,
         :with_buffered_determinations,
         :with_buffered_other_labels,
@@ -70,15 +67,14 @@ module Queries
         biological_relationship_id: [],
         collecting_event_id: [],
         collection_object_id: [],
+        container_id: [],
         determiner_id: [],
         extract_id: [],
         geographic_area_id: [],
         import_dataset_id: [],
         is_type: [],
         loan_id: [],
-        otu_id: [],
         preparation_type_id: [],
-        taxon_name_id: [],
       ].inject([{}]) { |ary, k| k.is_a?(Hash) ? ary.last.merge!(k) : ary.unshift(k); ary }.freeze
 
 
@@ -108,6 +104,11 @@ module Queries
       #   only return objects with these collecting event ID
       attr_accessor :collecting_event_id
 
+      # @return [Array]
+      #   match collection objects localized to these Containers, or to any
+      #   Container nested within them
+      attr_accessor :container_id
+
       # @param [True, False, nil]
       #   true - the collection object is in a container
       #   false - the collection object is not in a container
@@ -118,42 +119,11 @@ module Queries
       # All params managed by CollectingEvent filter are available here as well
       attr_accessor :base_collecting_event_query
 
-      # @param [Array]
-      # @return [Array, nil]
-      #  Otu ids, matches on the TaxonDetermination, see also current_determinations
-      attr_accessor :otu_id
-
-      # @return [Array of Protonym.id, nil]
-      #   return all collection objects determined as an Otu that is self or descendant linked
-      #   to this TaxonName
-      attr_accessor :taxon_name_id
-
-      attr_accessor :descendants
-
       # @return [Boolean, nil]
       #  nil = Ignored
       #  true = CollectionObject with deaccessioned_at OR deaccessioned_reason populated or deaccession_recipient.present?
       #  false = without true
       attr_accessor :deaccessioned
-
-      # @return [Boolean, nil]
-      #   nil = Match against only valid ancestors (default)
-      #   true = Match against all ancestors, valid or invalid
-      #   false = Match against only invalid ancestors
-      attr_accessor :validity
-
-      # @return [Boolean, nil]
-      #   nil = TaxonDetermination must be .current (default)
-      #   true = TaxonDeterminations match regardless of current or historical
-      #   false = TaxonDetermination must be .historical
-      attr_accessor :current_determinations
-
-      # @return [Boolean, nil]
-      #   nil = TaxonDetermination must be .current (default)
-      #   true = TaxonDeterminations match regardless of current or historical
-      #   false = TaxonDetermination must be .historical
-      #   Used for taxon_name_id facets
-      attr_accessor :taxon_name_current_determination
 
       # @return [Boolean, nil]
       #  true - A determiner role exists
@@ -355,13 +325,11 @@ module Queries
         @collecting_event_id = params[:collecting_event_id]
         @collection_object_id = params[:collection_object_id]
         @collection_object_type = params[:collection_object_type].presence
+        @container_id = params[:container_id]
         @containerized = boolean_param(params, :containerized)
-        @current_determinations = boolean_param(params, :current_determinations)
-        @taxon_name_current_determination = boolean_param(params, :taxon_name_current_determination)
         @current_repository = boolean_param(params, :current_repository)
         @current_repository_id = params[:current_repository_id].presence
         @dates = boolean_param(params, :dates)
-        @descendants = boolean_param(params, :descendants)
         @deaccessioned = boolean_param(params, :deaccessioned)
         @determiners = boolean_param(params, :determiners)
         @determiner_id = params[:determiner_id]
@@ -381,17 +349,14 @@ module Queries
         @never_loaned = boolean_param(params, :never_loaned)
         @on_loan = boolean_param(params, :on_loan)
         @otu_descendants = boolean_param(params, :otu_descendants)
-        @otu_id = params[:otu_id]
         @preparation_type = boolean_param(params, :preparation_type)
         @preparation_type_id = params[:preparation_type_id]
         @repository = boolean_param(params, :repository)
         @repository_id = params[:repository_id]
         @sled_image_id = (params[:sled_image_id].presence)
         @taxon_determinations = boolean_param(params, :taxon_determinations)
-        @taxon_name_id = params[:taxon_name_id]
         @type_material = boolean_param(params, :type_material)
         @type_specimen_taxon_name_id = (params[:type_specimen_taxon_name_id].presence)
-        @validity = boolean_param(params, :validity)
         @with_buffered_collecting_event = boolean_param(params, :with_buffered_collecting_event)
         @with_buffered_determinations = boolean_param(params, :with_buffered_determinations)
         @with_buffered_other_labels = boolean_param(params, :with_buffered_other_labels)
@@ -405,6 +370,7 @@ module Queries
         set_notes_params(params)
         set_protocols_params(params)
         set_tags_params(params)
+        set_taxon_determination_params(params)
       end
 
       # @return [Arel::Table]
@@ -413,18 +379,8 @@ module Queries
       end
 
       # @return [Arel::Table]
-      def otu_table
-        ::Otu.arel_table
-      end
-
-      # @return [Arel::Table]
       def type_materials_table
         ::TypeMaterial.arel_table
-      end
-
-      # @return [Arel::Table]
-      def taxon_determination_table
-        ::TaxonDetermination.arel_table
       end
 
       def biological_association_id
@@ -447,6 +403,10 @@ module Queries
         [@collection_object_id].flatten.compact.uniq
       end
 
+      def container_id
+        [@container_id].flatten.compact.uniq
+      end
+
       def determiner_id
         [@determiner_id].flatten.compact.uniq
       end
@@ -463,16 +423,8 @@ module Queries
         [@loan_id].flatten.compact
       end
 
-      def otu_id
-        [@otu_id].flatten.compact.uniq
-      end
-
       def preparation_type_id
         [@preparation_type_id].flatten.compact.uniq
-      end
-
-      def taxon_name_id
-        [@taxon_name_id].flatten.compact.uniq
       end
 
       def repository_id
@@ -696,6 +648,11 @@ module Queries
         ::CollectionObject.on_loan
       end
 
+      def container_id_facet
+        return nil if container_id.empty?
+        referenced_klass_containers.where(containers: {id: container_id}).distinct
+      end
+
       def containerized_facet
         return nil if containerized.nil?
 
@@ -764,89 +721,6 @@ module Queries
             .where(type_materials: { id: nil })
             .distinct
         end
-      end
-
-      def otu_id_facet
-        return nil if otu_id.empty?
-
-        w = taxon_determination_table[:taxon_determination_object_id].eq(table[:id])
-          .and(taxon_determination_table[:otu_id].in(otu_id))
-          .and(taxon_determination_table[:taxon_determination_object_type].eq('CollectionObject'))
-
-        if current_determinations == true
-          # current and historical - no position filter
-        elsif current_determinations == false
-          w = w.and(taxon_determination_table[:position].gt(1))
-        else # nil = current only (default)
-          w = w.and(taxon_determination_table[:position].eq(1))
-        end
-
-        ::CollectionObject.where(
-          ::TaxonDetermination.where(w).arel.exists
-        )
-      end
-
-      def taxon_name_id_facet
-        return nil if taxon_name_id.empty?
-
-        q = nil
-        z = nil
-
-        if descendants
-          h = Arel::Table.new(:taxon_name_hierarchies)
-          t = ::TaxonName.arel_table
-
-          q = table.join(taxon_determination_table, Arel::Nodes::InnerJoin).on(
-            table[:id].eq(taxon_determination_table[:taxon_determination_object_id])
-            .and(taxon_determination_table[:taxon_determination_object_type]).eq('CollectionObject')
-          ).join(otu_table, Arel::Nodes::InnerJoin).on(
-            taxon_determination_table[:otu_id].eq(otu_table[:id])
-          ).join(t, Arel::Nodes::InnerJoin).on(
-            otu_table[:taxon_name_id].eq(t[:id])
-          ).join(h, Arel::Nodes::InnerJoin).on(
-            t[:id].eq(h[:descendant_id])
-          )
-          z = h[:ancestor_id].in(taxon_name_id)
-
-          if validity == true
-            # both valid and invalid - no filter
-          elsif validity == false
-            z = z.and(t[:cached_valid_taxon_name_id].not_eq(t[:id]))
-          else # nil = valid only (default)
-            z = z.and(t[:cached_valid_taxon_name_id].eq(t[:id]))
-          end
-
-          if taxon_name_current_determination == true
-            # current and historical - no position filter
-          elsif taxon_name_current_determination == false
-            z = z.and(taxon_determination_table[:position].gt(1))
-          else # nil = current only (default)
-            z = z.and(taxon_determination_table[:position].eq(1))
-          end
-        else # exact
-          q = ::CollectionObject.joins(taxon_determinations: { otu: :taxon_name })
-            .where(otus: { taxon_name_id: })
-
-          if validity == true
-            # both valid and invalid - no filter
-          elsif validity == false
-            q = q.where('taxon_names.cached_valid_taxon_name_id != taxon_names.id')
-          else # nil = valid only (default)
-            q = q.where('taxon_names.cached_valid_taxon_name_id = taxon_names.id')
-          end
-
-          if taxon_name_current_determination == true
-            # current and historical - no position filter
-          elsif taxon_name_current_determination == false
-            q = q.where.not(taxon_determinations: {position: 1})
-          else # nil = current only (default)
-            q = q.where(taxon_determinations: { position: 1 })
-          end
-
-          return q
-        end
-
-        ::CollectionObject.joins(q.join_sources).where(z).distinct
       end
 
       def dates_facet
@@ -953,7 +827,9 @@ module Queries
 
         ::CollectionObject
           .joins(:origin_relationships)
+          .where(origin_relationships: { new_object_type: 'AnatomicalPart' })
           .where("origin_relationships.new_object_id IN (#{ anatomical_part_query.all.select(:id).to_sql })")
+          .distinct
       end
 
       def dwc_occurrence_query_facet
@@ -1081,6 +957,7 @@ module Queries
           biological_relationship_id_facet,
           collecting_event_facet,
           collectors_facet,
+          container_id_facet,
           containerized_facet,
           current_repository_facet,
           dates_facet,
@@ -1096,12 +973,10 @@ module Queries
           loaned_facet,
           never_loaned_facet,
           on_loan_facet,
-          otu_id_facet,
           preparation_type_facet,
           repository_facet,
           sled_image_facet,
           taxon_determinations_facet,
-          taxon_name_id_facet,
           type_by_taxon_name_facet,
           type_material_facet,
           type_material_type_facet,

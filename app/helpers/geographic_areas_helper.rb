@@ -12,11 +12,7 @@ module GeographicAreasHelper
 
   def geographic_area_autocomplete_tag(geographic_area, term, mark = true)
     return nil if geographic_area.nil?
-    if term && mark
-      s = geographic_area.name.gsub(/#{Regexp.escape(term)}/i, "<mark>#{term}</mark>") + ' '
-    else
-      s = geographic_area.name + ' '
-    end
+    s = (mark ? mark_tag(geographic_area.name, term, html_safe: false) : geographic_area.name) + ' '
 
     s = [geographic_area&.parent&.parent&.name, geographic_area&.parent&.name, s].compact.join(': ').gsub('Earth: ', '')
 

@@ -30,6 +30,11 @@
           :disabled="!list.length"
           :object-type="FIELD_OCCURRENCE"
         />
+        <DeleteFieldOccurrences
+          :ids="selectedIds"
+          :disabled="!selectedIds.length"
+          @delete="removeFromList"
+        />
         <span class="separate-left separate-right">|</span>
         <TableLayoutSelector
           v-model="currentLayout"
@@ -93,6 +98,7 @@
 <script setup>
 import FilterLayout from '@/components/layout/Filter/FilterLayout.vue'
 import FilterView from './components/FilterView.vue'
+import DeleteFieldOccurrences from './components/DeleteFieldOccurrences.vue'
 import FilterList from '@/components/Filter/Table/TableResults.vue'
 import SortPanel from '@/components/Filter/Table/SortPanel.vue'
 import SaveViewButton from '@/components/Filter/Table/SaveViewButton.vue'
@@ -166,4 +172,9 @@ const sortLabels = computed(() =>
 )
 
 const csvOptions = useCSVOptions({ layout: currentLayout, list })
+
+function removeFromList(ids) {
+  list.value = list.value.filter((item) => !ids.includes(item.id))
+  selectedIds.value = selectedIds.value.filter((id) => !ids.includes(id))
+}
 </script>

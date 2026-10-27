@@ -7,7 +7,7 @@ module Shared::IsData::Scopes
     # a where clause that excludes the present object from being selected
     def not_self(object)
       if object.nil? || object.id.blank?
-        where(object.class.table_name => {id: '<> 0'})
+        all
       else
         where(object.class.arel_table[:id].not_eq(object.to_param))
       end

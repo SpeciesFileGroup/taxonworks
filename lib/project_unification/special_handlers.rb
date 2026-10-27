@@ -148,6 +148,53 @@ module ProjectUnification
       end
     end
 
+    # Handler for ProjectOrganization with duplicate detection.
+    #
+    # ProjectOrganization is an index of "organizations associated with this
+    # project".  When an organization_id already exists in the target project's
+    # project_organizations the source record is redundant, delete it and bulk
+    # update the rest.
+    class ProjectOrganizationHandler
+      attr_reader :source_project_id, :target_project_id
+
+      def initialize(source_project_id:, target_project_id:, options: {})
+        @source_project_id = source_project_id
+        @target_project_id = target_project_id
+      end
+
+      def migrate
+        conflict_ids = find_conflict_ids
+
+        ProjectOrganization.where(id: conflict_ids).delete_all if conflict_ids.any?
+
+        migrated = ProjectOrganization.where(project_id: source_project_id)
+                                      .update_all(project_id: target_project_id)
+
+        {
+          track: :special,
+          model: 'ProjectOrganization',
+          migrated: migrated,
+          duplicates_deleted: conflict_ids.size,
+          errors: []
+        }
+      rescue => e
+        {
+          track: :special,
+          model: 'ProjectOrganization',
+          migrated: 0,
+          errors: [{ error: e.message, backtrace: e.backtrace.first(3) }]
+        }
+      end
+
+      private
+
+      def find_conflict_ids
+        ProjectOrganization.where(project_id: source_project_id)
+                           .where(organization_id: ProjectOrganization.where(project_id: target_project_id).select(:organization_id))
+                           .pluck(:id)
+      end
+    end
+
     # Handler for RangedLotCategory with name-based duplicate detection.
     #
     # Phase 1 (migrate): source categories whose name collides with a target
@@ -207,71 +254,6 @@ module ProjectUnification
         RangedLotCategory.where(project_id: source_project_id).filter_map do |rlc|
           target_id = target_names[rlc.name]
           [rlc, target_id] if target_id
-        end
-      end
-    end
-
-    # Handler for OtuPageLayout with name-based duplicate detection.
-    #
-    # Phase 1 (migrate): source layouts whose name collides with a target layout
-    # have their name replaced with a per-record sentinel string so the bulk SQL
-    # update can move them without a uniqueness conflict. They are registered in
-    # merge_registry for Phase 2.
-    #
-    # Phase 2 (run_cleanup): target.unify(sentinel) reroutes OtuPageLayoutSections
-    # from the sentinel to the surviving target layout, then destroys the sentinel.
-    # Sections that would create a topic_id conflict on the target layout are
-    # dropped (cascade-destroyed with the sentinel) — target's sections take
-    # precedence.
-    class OtuPageLayoutHandler
-      SENTINEL_PREFIX = 'UNIFICATION TO PROJECT'
-      attr_reader :source_project_id, :target_project_id
-
-      def initialize(source_project_id:, target_project_id:, options: {})
-        @source_project_id = source_project_id
-        @target_project_id = target_project_id
-      end
-
-      def migrate
-        result = {
-          track: :special,
-          model: 'OtuPageLayout',
-          migrated: 0,
-          duplicates_found: [],
-          errors: [],
-          merge_registry: []
-        }
-
-        find_conflicts.each do |source_layout, target_id|
-          source_layout.update_columns(
-            name: "#{SENTINEL_PREFIX} #{target_project_id} #{source_layout.id}"
-          )
-          result[:duplicates_found] << { source_id: source_layout.id, target_id: target_id }
-          result[:merge_registry] << {
-            model: 'OtuPageLayout', renamed_id: source_layout.id, target_id: target_id
-          }
-        end
-
-        result[:migrated] = OtuPageLayout.where(project_id: source_project_id)
-                                         .update_all(project_id: target_project_id)
-        result
-      rescue => e
-        {
-          track: :special,
-          model: 'OtuPageLayout',
-          migrated: 0,
-          errors: [{ error: e.message, backtrace: e.backtrace.first(3) }]
-        }
-      end
-
-      private
-
-      def find_conflicts
-        target_names = OtuPageLayout.where(project_id: target_project_id).pluck(:name, :id).to_h
-
-        OtuPageLayout.where(project_id: source_project_id).filter_map do |layout|
-          target_id = target_names[layout.name]
-          [layout, target_id] if target_id
         end
       end
     end

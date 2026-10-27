@@ -1,6 +1,7 @@
 import { Image } from '@/routes/endpoints'
+import { MutationNames } from '../mutations/mutations'
 
-export default ({ state }) => {
+export default ({ state, commit }) => {
   const promises = []
 
   state.imagesCreated.forEach((image) => {
@@ -10,12 +11,16 @@ export default ({ state }) => {
           id: image.id,
           pixels_to_centimeter: state.pixelsToCentimeter
         }
+      }).then(() => {
+        commit(MutationNames.MarkApplied, {
+          imageIds: [image.id],
+          key: 'pixel'
+        })
       })
     )
   })
 
-  Promise.all(promises).then(() => {
-    state.settings.applied.pixel = true
+  return Promise.all(promises).then(() => {
     TW.workbench.alert.create('Image(s) was successfully updated.', 'notice')
   })
 }

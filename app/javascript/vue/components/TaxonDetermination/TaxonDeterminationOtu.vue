@@ -1,18 +1,10 @@
 <template>
   <fieldset class="separate-bottom">
     <legend>OTU</legend>
-    <div class="horizontal-left-content separate-bottom align-start">
-      <smart-selector
-        class="margin-medium-bottom full_width"
-        model="otus"
-        ref="smartSelector"
-        pin-section="Otus"
-        pin-type="Otu"
-        :autocomplete="false"
-        :otu-picker="true"
-        target="TaxonDetermination"
-        v-model="selectedOtu"
-        @selected="setOtu"
+    <div class="horizontal-left-content separate-bottom align-end">
+      <OtuAutoselectPicker
+        preferences-key="otu_for_taxon_determination"
+        @get-item="setOtu"
       />
       <lock-component
         v-if="lock !== undefined"
@@ -30,7 +22,7 @@
 <script setup>
 import { computed, ref, watch } from 'vue'
 import { Otu } from '@/routes/endpoints'
-import SmartSelector from '@/components/ui/SmartSelector.vue'
+import OtuAutoselectPicker from '@/components/otu/otu_picker/otu_autoselect_picker.vue'
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 import LockComponent from '@/components/ui/VLock/index.vue'
 

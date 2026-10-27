@@ -74,7 +74,7 @@
 import RadialAnnotator from '@/components/radials/annotator/annotator'
 import RadialNavigation from '@/components/radials/navigation/radial'
 import RadialObject from '@/components/radials/object/radial'
-import { Report } from '../request/resource'
+import { CollectionObject } from '@/routes/endpoints'
 import { GetterNames } from '../store/getters/getters'
 import SpinnerComponent from '@/components/ui/VSpinner'
 
@@ -102,7 +102,7 @@ export default {
   mounted() {
     if (this.sledImage.id) {
       this.isLoading = true
-      Report(this.sledImage.id)
+      CollectionObject.report({ sled_image_id: this.sledImage.id })
         .then((response) => {
           this.list = response.body
         })

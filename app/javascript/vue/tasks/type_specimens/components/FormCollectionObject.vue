@@ -27,33 +27,23 @@
         @change="() => (store.typeMaterial.isUnsaved = true)"
       />
     </div>
-    <div class="horizontal-left-content">
-      <div class="field label-above">
-        <label>Total</label>
-        <input
-          class="input-xsmall-width"
-          type="number"
-          v-model="store.typeMaterial.collectionObject.total"
-          @change="() => (store.typeMaterial.isUnsaved = true)"
+    <div class="field label-above">
+      <label>Total</label>
+      <input
+        class="input-xsmall-width"
+        type="number"
+        v-model="store.typeMaterial.collectionObject.total"
+        @change="() => (store.typeMaterial.isUnsaved = true)"
+      />
+    </div>
+    <div class="field">
+      <fieldset>
+        <legend>Preparation type</legend>
+        <PreparationTypeSelector
+          v-model="preparationTypeId"
+          target="CollectionObject"
         />
-      </div>
-      <div class="field label-above margin-small-left full_width">
-        <label>Preparation type</label>
-        <select
-          v-model="store.typeMaterial.collectionObject.preparationTypeId"
-          class="normal-input full_width"
-          @change="() => (store.typeMaterial.isUnsaved = true)"
-        >
-          <option
-            v-for="item in preparationTypes"
-            :key="item.id"
-            class="full_width"
-            :value="item.id"
-          >
-            {{ item.name }}
-          </option>
-        </select>
-      </div>
+      </fieldset>
     </div>
     <div class="field">
       <fieldset>
@@ -132,21 +122,21 @@
 import { computed, ref, watch } from 'vue'
 import SmartSelector from '@/components/ui/SmartSelector'
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
+import PreparationTypeSelector from '@/components/ui/SmartSelector/PreparationTypeSelector.vue'
 import FormBiocurations from './Biocurations.vue'
 import useStore from '../store/store.js'
-import {
-  CollectingEvent,
-  Repository,
-  PreparationType
-} from '@/routes/endpoints'
+import { CollectingEvent, Repository } from '@/routes/endpoints'
 
 const store = useStore()
-const preparationTypes = ref([])
 const labelRepository = ref('')
 const labelCE = ref('')
 
-PreparationType.all().then(({ body }) => {
-  preparationTypes.value = body
+const preparationTypeId = computed({
+  get: () => store.typeMaterial.collectionObject.preparationTypeId,
+  set: (value) => {
+    store.typeMaterial.collectionObject.preparationTypeId = value || null
+    store.typeMaterial.isUnsaved = true
+  }
 })
 
 const collectingEventId = computed(

@@ -135,6 +135,11 @@ class ControlledVocabularyTermsController < ApplicationController
       .where(project_id: sessions_current_project_id)
       .page(params[:page])
       .per(params[:per])
+
+    if helpers.extend_response_with('alternate_values')
+      @controlled_vocabulary_terms = @controlled_vocabulary_terms.includes(alternate_values: [:alternate_value_object])
+    end
+
     render '/controlled_vocabulary_terms/api/v1/index'
   end
 

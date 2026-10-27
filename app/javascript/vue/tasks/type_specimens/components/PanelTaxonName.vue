@@ -16,7 +16,7 @@
           min="2"
           :add-params="{
             'type[]': 'Protonym',
-            'nomenclature_group[]': 'SpeciesGroup'
+            nomenclature_group: ['SpeciesGroup', 'SpeciesAndInfraspeciesGroup']
           }"
           @select="({ id }) => loadTypeMaterials(id)"
         />

@@ -27,7 +27,7 @@ module Autoselect
           record.name.to_s
         end
 
-        def record_label_html(record)
+        def record_label_html(record, term = nil)
           record.name.to_s
         end
 

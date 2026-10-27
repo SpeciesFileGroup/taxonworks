@@ -33,7 +33,6 @@ module ProjectUnification
       InternalAttribute
       News
       Observation
-      TaggedSectionKeyword
       Role
       Label
       Protocol
@@ -41,6 +40,7 @@ module ProjectUnification
       CollectionObjectObservation
       AnatomicalPart
       AssertedDistribution
+      AssertedEnvironment
       BiologicalRelationshipType
       BiologicalAssociation
       BiologicalRelationship
@@ -70,7 +70,6 @@ module ProjectUnification
       Download
       DatasetRecordField
       DatasetRecord
-      OtuPageLayoutSection
       TaxonDetermination
       BiocurationClassification
       CharacterState
@@ -84,6 +83,7 @@ module ProjectUnification
       SledImage
       CitationTopic
       BiologicalAssociationsBiologicalAssociationsGraph
+      CompositionItem
     ].freeze
 
     # Per-record validation required to detect uniqueness conflicts against
@@ -99,15 +99,16 @@ module ProjectUnification
     SLOW_TRACK = %w[
       ObservationMatrix
       ImportDataset
+      Composition
     ].freeze
 
     # Special handling required - custom migration logic.
     SPECIAL_HANDLING = %w[
       TaxonName
       CollectingEvent
+      ProjectOrganization
       ProjectSource
       RangedLotCategory
-      OtuPageLayout
       Image
       Document
       ControlledVocabularyTerm

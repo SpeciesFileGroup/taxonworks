@@ -18,6 +18,7 @@ class Export::Graph
     'Source' => '#2196F3',
     'AssertedDistribution' => '#FF9800',
     'Image' => '#CDDC39',
+    'AssertedEnvironment' => '#795548',
   }.freeze
 
   NODE_SHAPES = {
@@ -37,6 +38,7 @@ class Export::Graph
     'Source' => 'pentagon',
     'Citation' => 'octagon',
     'AssertedDistribution' => 'pentagon',
+    'AssertedEnvironment' => 'pentagon',
     'Image' => 'square',
     'GeographicArea' => 'square'
   }.freeze

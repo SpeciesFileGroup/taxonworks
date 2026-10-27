@@ -40,6 +40,12 @@ class Citation < ApplicationRecord
 
   attr_accessor :no_cached
 
+  # unify's dedup logic resets is_original to false on a would-be duplicate
+  # before comparing it to the surviving Citation via #identical; if
+  # is_original weren't ignored here that reset would make the two look
+  # different and the duplicate would never be matched.
+  IGNORE_IDENTICAL = [:is_original].freeze
+
   polymorphic_annotates('citation_object')
 
   # belongs_to :source, inverse_of: :origin_citations
@@ -108,6 +114,23 @@ class Citation < ApplicationRecord
     is_original ? true : false
   end
 
+  # @return [Set<Integer>]
+  #   the subset of `citation_object_ids` that already have a citation
+  #   identical to the one described by `source_id`, `pages`, and
+  #   `is_original` (nil and false are treated as equivalent).
+  def self.duplicate_citation_object_ids(
+    citation_object_type:, citation_object_ids:, source_id:, pages:, is_original:
+  )
+    return Set.new if citation_object_ids.empty?
+
+    # Stored pages are never blank (nilify_blanks), so match '' as nil.
+    where(citation_object_type:, citation_object_id: citation_object_ids, source_id:, pages: pages.presence)
+      .where(is_original: is_original ? true : [false, nil])
+      .distinct
+      .pluck(:citation_object_id)
+      .to_set
+  end
+
   # @return [String, nil]
   #    the first integer in the string, as a string
   def first_page
@@ -164,6 +187,14 @@ class Citation < ApplicationRecord
     # the parent instead, where everything 'just works'.
     return if marked_for_destruction?
     return if citation_object && citation_object.respond_to?(:ignore_citation_restriction) && citation_object.ignore_citation_restriction
+
+    # Allow the destroy if citation_object itself is already committed to
+    # being destroyed by an enclosing Shared::Unify#unify call - it's not
+    # losing its last citation, it's going away entirely, so the "must have
+    # at least one citation" guard below is moot.
+    return if citation_object && UnifyDestroyContext.objects_in_destroy&.include?(
+      { id: citation_object.id, type: citation_object.class.base_class.name }
+    )
 
     if citation_object.requires_citation? && citation_object.citations.count == 1
       errors.add(:base, 'at least one citation is required')

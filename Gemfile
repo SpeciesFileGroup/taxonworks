@@ -92,7 +92,11 @@ gem 'rails-jquery-autocomplete', '~> 1.0.3'
 
 gem 'turbolinks', '~> 5.2.0'
 gem 'jquery-turbolinks', '~> 2.1'
-gem 'shakapacker', '10.1.0'
+gem 'shakapacker', '10.3.2'
+# rack-proxy >= 1.0 added an SSRF guard requiring allow_dynamic_backend: true,
+# which shakapacker 10.3.0's DevServerProxy doesn't pass, so every /packs/*
+# request 502s in development. Pin until shakapacker opts in upstream.
+gem 'rack-proxy', '< 1.0'
 
 # BibTeX handling
 gem 'csl', '~> 2.0'
@@ -128,7 +132,7 @@ gem 'taxonifi', '~> 0.6.1'
 gem 'sqed', '~> 0.8.3'
 gem 'dwc_agent', '~> 3.0'
 gem 'dwc-archive', github: 'LocoDelAssembly/dwc-archive', branch: 'overhaul', require: 'dwc_archive' # '~> 1.1', '>= 1.1.2'
-gem 'biodiversity', '~> 6.0'
+gem 'biodiversity', '~> 6.1.0'
 gem 'ruby-units', '~> 4.1.0', require: 'ruby_units/namespaced'
 
 gem 'colrapi', '~> 0.1.1'

@@ -1,51 +1,81 @@
 module Queries
   module Organization
     class Autocomplete < Query::Autocomplete
-      # @return [Array]
-      # @param limit_to_role [String, Array]
-      #    any Role class, like `TaxonNameAuthor`, `SourceAuthor`, `SourceEditor`, `Collector`, etc.
-      attr_accessor :role_type
 
-
-      # @params string [String]
-      # @params [Hash] args
-      def initialize(string, **params)
-        @role_type = params[:role_type]
-
-        super
-      end
-
-      def role_type
-        [@role_type].flatten.compact.uniq
-      end
-
-      # @return [Arel::Nodes::Equatity]
-      def role_match
-        roles_table[:type].in(role_type)
-      end
-
+      # @return [ActiveRecord::Relation, nil]
+      #   name starts with the query string
       def autocomplete_name_wildcard_end
         return nil if query_string.length < 2
-        base_query.where( table[:name].matches(query_string + '%').to_sql).limit(20)
+        base_query.where(table[:name].matches(end_wildcard).to_sql).limit(20)
+      end
+
+      # @return [ActiveRecord::Relation, nil]
+      #   legal_name starts with the query string
+      def autocomplete_legal_name_wildcard_end
+        return nil if query_string.length < 2
+        base_query.where(table[:legal_name].matches(end_wildcard).to_sql).limit(20)
+      end
+
+      # @return [ActiveRecord::Relation, nil]
+      #   alternate_name starts with the query string
+      def autocomplete_alternate_name_wildcard_end
+        return nil if query_string.length < 2
+        base_query.where(table[:alternate_name].matches(end_wildcard).to_sql).limit(20)
+      end
+
+      # @return [ActiveRecord::Relation]
+      #   name, legal_name or alternate_name matches all query pieces in order,
+      #   e.g. "nat hist" matches "Natural History Museum"
+      def autocomplete_ordered_wildcard_pieces_in_name
+        base_query.where(
+          table[:name].matches(wildcard_pieces)
+            .or(table[:legal_name].matches(wildcard_pieces))
+            .or(table[:alternate_name].matches(wildcard_pieces))
+            .to_sql
+        ).limit(20)
+      end
+
+      # @return [ActiveRecord::Relation, nil]
+      #   name matches all query fragments, unordered, e.g. "hist nat" matches
+      #   "Natural History Museum"
+      def autocomplete_wildcard_in_name
+        b = fragments
+        return nil if b.empty?
+        base_query.where(table[:name].matches_all(b).to_sql).limit(20)
+      end
+
+      # @return [ActiveRecord::Relation, nil]
+      #   the Organization is in a geographic area whose name matches all query
+      #   pieces in order, e.g. an Organization in "Illinois" matched by "illin"
+      def autocomplete_geographic_area_name
+        return nil if query_string.length < 3
+        base_query.joins(:geographic_area).where(
+          ::GeographicArea.arel_table[:name].matches(wildcard_pieces).to_sql
+        ).limit(20)
       end
 
       # @return [Array]
-      #   TODO: optimize limits
       def autocomplete
+        return [] if query_string.blank?
+
         queries = [
-          autocomplete_identifier_cached_like,
-          autocomplete_name_wildcard_end
+          autocomplete_exact_id,
+          autocomplete_exactly_named,
+          autocomplete_identifier_identifier_exact,
+          autocomplete_identifier_cached_exact,
+          autocomplete_name_wildcard_end,
+          autocomplete_legal_name_wildcard_end,
+          autocomplete_alternate_name_wildcard_end,
+          autocomplete_ordered_wildcard_pieces_in_name,
+          autocomplete_wildcard_in_name,
+          autocomplete_geographic_area_name,
+          autocomplete_identifier_cached_like.limit(20)
         ]
 
         queries.compact!
 
-        return [] if queries.nil?
-
         result = []
         queries.each do |q|
-          if role_type.present?
-            q = q.joins(:roles).where(role_match.to_sql)
-          end
           result += q.to_a
           result.uniq!
           break if result.count > 39

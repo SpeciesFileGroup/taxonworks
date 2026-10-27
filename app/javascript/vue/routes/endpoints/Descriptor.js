@@ -41,5 +41,7 @@ export const Descriptor = {
 
   units: () => AjaxCall('get', `/${controller}/units`),
 
+  sort: (ids) => AjaxCall('patch', `/${controller}/sort`, { ids }),
+
   filter: (params) => AjaxCall('post', `/${controller}/filter.json`, params)
 }

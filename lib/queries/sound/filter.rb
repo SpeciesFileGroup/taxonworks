@@ -146,6 +146,11 @@ module Queries
         end
       end
 
+      def sound_id_facet
+        return nil if sound_id.empty?
+        table[:id].in(sound_id)
+      end
+
       def conveyance_object_type_facet
         return nil if conveyance_object_type.empty?
         ::Sound.joins(:conveyances).where(conveyances: {conveyance_object_type:}).distinct
@@ -249,7 +254,9 @@ module Queries
 
         ::Sound
           .joins(:related_origin_relationships)
+          .where(origin_relationships: { old_object_type: 'AnatomicalPart' })
           .where("origin_relationships.old_object_id IN (#{ anatomical_part_query.all.select(:id).to_sql })")
+          .distinct
       end
 
       def otu_query_facet
@@ -284,12 +291,15 @@ module Queries
 
       def and_clauses
         [
-          name_facet
+          name_facet,
+          sound_id_facet
         ]
       end
 
       def merge_clauses
-        s = ::Queries::Query::Filter::SUBQUERIES.select{|k,v| v.include?(:sound)}.keys.map(&:to_s) - ['source', 'observation', 'otu', 'taxon_name']
+        # anatomical_part, observation, otu, taxon_name each have a dedicated
+        # facet below; the rest are resolved through conveyances.
+        s = ::Queries::Query::Filter::SUBQUERIES.select{|k,v| v.include?(:sound)}.keys.map(&:to_s) - ['source', 'anatomical_part', 'observation', 'otu', 'taxon_name']
         [
           *s.collect{|m| query_facets_facet(m)}, # Reference all the Sound referencing SUBQUERIES
           anatomical_part_query_facet,

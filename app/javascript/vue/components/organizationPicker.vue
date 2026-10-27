@@ -114,6 +114,17 @@
           </div>
           <div>
             <div class="field">
+              <label>Geographic area</label>
+              <VAutocomplete
+                url="/geographic_areas/autocomplete"
+                placeholder="Search a geographic area"
+                param="term"
+                label="label_html"
+                display="label"
+                @get-item="organization.geographic_area_id = $event.id"
+              />
+            </div>
+            <div class="field">
               <label>Area served</label>
               <VAutocomplete
                 url="/geographic_areas/autocomplete"
@@ -214,6 +225,7 @@ function makeOrganization() {
     global_location_number: undefined,
     legal_name: undefined,
     area_served_id: undefined,
+    geographic_area_id: undefined,
     department_id: undefined,
     parent_organization_id: undefined
   }

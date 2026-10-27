@@ -50,7 +50,7 @@ class Keyword < ControlledVocabularyTerm
     r = used_recently(user_id, project_id, klass, target)
     h = {
         quick: [],
-        pinboard: Keyword.pinned_by(user_id).where(project_id: project_id).to_a,
+        pinboard: Keyword.pinned_by(user_id).where(project_id: project_id).pinboard_ordered.to_a,
         recent: []
     }
 

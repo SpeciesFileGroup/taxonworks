@@ -7,7 +7,7 @@
       display="label"
       min="3"
       placeholder="Search taxon name for the new relationship..."
-      :add-params="{ type: 'Protonym', 'nomenclature_group[]': group }"
+      :add-params="{ 'type[]': 'Protonym', 'nomenclature_group[]': group }"
       param="term"
       @get-item="selectTaxon"
       @get-input="name = $event"

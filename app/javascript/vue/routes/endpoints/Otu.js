@@ -21,17 +21,31 @@ export const Otu = {
   distribution: (id) =>
     AjaxCall('get', `/otus/${id}/inventory/distribution.json`),
 
+  // POST, not GET: a page of curator-refined match strings overruns the request URI.
+  assignTaxonNameData: (params) =>
+    AjaxCall('post', `/tasks/otus/assign_taxon_name/data.json`, params),
+
   duplicates: (params) =>
     AjaxCall('get', `/tasks/otus/duplicates/data`, { params }),
 
   geoJsonDistribution: (id) =>
     AjaxCall('get', `/otus/${id}/inventory/distribution.geojson`),
 
+  geoJsonDistributionAbsent: (id) =>
+    AjaxCall('get', `/otus/${id}/inventory/distribution_is_absent.geojson`),
+
+  geoJsonDistributionByOtus: (params) =>
+    AjaxCall('post', `/otus/distribution.geojson`, params),
+
+  geoJsonDistributionIsAbsentByOtus: (params) =>
+    AjaxCall('post', `/otus/distribution_is_absent.geojson`, params),
+
   navigation: (id) => AjaxCall('get', `/${controller}/${id}/navigation`),
 
   timeline: (id) => AjaxCall('get', `/${controller}/${id}/timeline.json`),
 
-  citations: (id) => AjaxCall('get', `/${controller}/${id}/inventory/citations.json`),
+  citations: (id) =>
+    AjaxCall('get', `/${controller}/${id}/inventory/citations.json`),
 
   filter: (params) => AjaxCall('post', `/${controller}/filter.json`, params),
 
@@ -41,5 +55,8 @@ export const Otu = {
   taxonomy: (otuId, params) =>
     AjaxCall('get', `/${controller}/${otuId}/inventory/taxonomy.json`, {
       params
-    })
+    }),
+
+  createMorphospeciesOtu: (params) =>
+    AjaxCall('post', `/${controller}/create_morphospecies_otu.json`, params)
 }

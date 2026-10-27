@@ -203,9 +203,9 @@ module ProjectUnification
       handler_class = case klass.name
       when 'TaxonName' then ProjectUnification::TaxonNameHandler
       when 'CollectingEvent' then ProjectUnification::SpecialHandlers::CollectingEventHandler
+      when 'ProjectOrganization' then ProjectUnification::SpecialHandlers::ProjectOrganizationHandler
       when 'ProjectSource' then ProjectUnification::SpecialHandlers::ProjectSourceHandler
       when 'RangedLotCategory' then ProjectUnification::SpecialHandlers::RangedLotCategoryHandler
-      when 'OtuPageLayout' then ProjectUnification::SpecialHandlers::OtuPageLayoutHandler
       when 'Image' then ProjectUnification::SpecialHandlers::ImageHandler
       when 'Document' then ProjectUnification::SpecialHandlers::DocumentHandler
       when 'ControlledVocabularyTerm' then ProjectUnification::SpecialHandlers::ControlledVocabularyTermHandler

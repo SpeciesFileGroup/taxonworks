@@ -4,6 +4,8 @@ module Queries
 
       include Queries::Concerns::AlternateValues
 
+      DEFAULT_LIMIT = 20
+
       def initialize(string, **params)
         set_alternate_value(params)
         super
@@ -35,7 +37,7 @@ module Queries
 
         queries.each do |q|
           a = q.where(project_id:) if project_id.present?
-          updated_queries << a
+          updated_queries << apply_restriction(a) if a
         end
 
         updated_queries
@@ -50,10 +52,10 @@ module Queries
         queries.each do |q|
           result += q.to_a
           result.uniq!
-          break if result.count > 19
+          break if result.count >= limit
         end
 
-        result[0..19]
+        result.first(limit)
       end
 
     end

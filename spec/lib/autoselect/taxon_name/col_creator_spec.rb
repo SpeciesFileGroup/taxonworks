@@ -7,7 +7,7 @@ RSpec.describe Autoselect::TaxonName::ColCreator, type: :model do
   before(:each) { find_or_create_root_taxon_name }
 
   # Minimal row helper — creates a row hash as the modal would send it.
-  def row(col_name:, col_rank:, col_id: nil, dataset_id: nil, taxonworks_id: nil, col_authorship: nil, col_year: nil)
+  def row(col_name:, col_rank:, col_id: nil, dataset_id: nil, taxonworks_id: nil, col_authorship: nil, col_year: nil, col_status: nil)
     {
       col_name:,
       col_rank:,
@@ -15,7 +15,8 @@ RSpec.describe Autoselect::TaxonName::ColCreator, type: :model do
       dataset_id:,
       taxonworks_id:,
       col_authorship:,
-      col_year:
+      col_year:,
+      col_status:
     }
   end
 
@@ -184,6 +185,107 @@ RSpec.describe Autoselect::TaxonName::ColCreator, type: :model do
 
       it 'skips the domain row and creates only known ranks' do
         expect { result }.to change(::TaxonName, :count).by(2)
+      end
+    end
+  end
+
+  describe 'synonym (non-accepted) status classification' do
+    context 'ICZN target reported as a synonym' do
+      let(:rows) do
+        [
+          row(col_name: 'Animalia', col_rank: 'kingdom'),
+          row(col_name: 'Homo',     col_rank: 'genus'),
+          row(col_name: 'erectus',  col_rank: 'species', col_authorship: 'Dubois, 1893', col_year: '1893',
+              col_status: 'synonym')
+        ]
+      end
+
+      subject(:result) {
+        described_class.new(rows:, project_id:, user_id:, col_code: 'zoological').call
+      }
+
+      it 'assigns Iczn::Available::Invalid to the target name' do
+        result
+        species = ::TaxonName.find_by(name: 'erectus', project_id:)
+        expect(species.taxon_name_classifications.map(&:type))
+          .to include('TaxonNameClassification::Iczn::Available::Invalid')
+      end
+
+      it 'does not classify the accepted ancestor rows' do
+        result
+        genus = ::TaxonName.find_by(name: 'Homo', project_id:)
+        expect(genus.taxon_name_classifications).to be_empty
+      end
+    end
+
+    context 'ICN target reported as a synonym' do
+      let(:rows) do
+        [
+          row(col_name: 'Plantae',  col_rank: 'kingdom'),
+          row(col_name: 'Quercus',  col_rank: 'genus', col_authorship: 'L.'),
+          row(col_name: 'pedunculata', col_rank: 'species', col_authorship: 'Ehrh., 1789', col_year: '1789',
+              col_status: 'synonym')
+        ]
+      end
+
+      subject(:result) {
+        described_class.new(rows:, project_id:, user_id:, col_code: 'botanical').call
+      }
+
+      it 'assigns the nearest ICN synonym classification to the target name' do
+        result
+        species = ::TaxonName.find_by(name: 'pedunculata', project_id:)
+        expect(species.taxon_name_classifications.map(&:type))
+          .to include('TaxonNameClassification::Icn::EffectivelyPublished::InvalidlyPublished::AsSynonym')
+      end
+    end
+
+    context 'target reported as accepted' do
+      let(:rows) do
+        [
+          row(col_name: 'Animalia', col_rank: 'kingdom'),
+          row(col_name: 'Homo',     col_rank: 'genus'),
+          row(col_name: 'sapiens',  col_rank: 'species', col_authorship: 'Linnaeus, 1758', col_year: '1758',
+              col_status: 'accepted')
+        ]
+      end
+
+      subject(:result) {
+        described_class.new(rows:, project_id:, user_id:, col_code: 'zoological').call
+      }
+
+      it 'creates no status classification' do
+        expect { result }.not_to change(::TaxonNameClassification, :count)
+      end
+    end
+
+    context "'Accepted' is matched case-insensitively" do
+      let(:rows) do
+        [
+          row(col_name: 'Animalia', col_rank: 'kingdom'),
+          row(col_name: 'Homo',     col_rank: 'genus', col_status: 'Accepted')
+        ]
+      end
+
+      subject(:result) {
+        described_class.new(rows:, project_id:, user_id:, col_code: 'zoological').call
+      }
+
+      it 'creates no status classification' do
+        expect { result }.not_to change(::TaxonNameClassification, :count)
+      end
+    end
+  end
+
+  # Guards the per-code mapping used to tag non-accepted names: each entry must be a real
+  # classification class whose own nomenclatural code matches the map key.
+  describe 'NOMENCLATURE_CODE_TO_SYNONYM_CLASSIFICATION' do
+    it 'maps all four codes to code-consistent, known classification classes' do
+      expect(NOMENCLATURE_CODE_TO_SYNONYM_CLASSIFICATION.keys).to contain_exactly(:iczn, :icn, :icnp, :icvcn)
+
+      NOMENCLATURE_CODE_TO_SYNONYM_CLASSIFICATION.each do |code, type|
+        expect(TAXON_NAME_CLASSIFICATION_NAMES).to include(type), "#{type} is not a known classification"
+        expect(type.constantize.new.nomenclature_code).to eq(code)
       end
     end
   end

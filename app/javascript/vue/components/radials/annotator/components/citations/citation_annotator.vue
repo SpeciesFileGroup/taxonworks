@@ -41,6 +41,11 @@
       </template>
     </FormCitation>
     <div v-if="!citation.id">
+      <VPagination
+        class="margin-medium-top margin-medium-bottom"
+        :pagination="pagination"
+        @next-page="({ page }) => loadPage(page)"
+      />
       <TableList
         :list="list"
         @move="removeFromList"
@@ -55,6 +60,7 @@
         :citation="citation"
         @create="saveCitation"
       />
+
       <table class="full_width">
         <thead>
           <tr>
@@ -113,12 +119,15 @@ import HandleCitations from './handleOriginalModal'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import makeCitation from '@/factory/Citation'
+import VPagination from '@/components/pagination.vue'
 import { useSlice } from '@/components/radials/composables'
 import { Citation } from '@/routes/endpoints'
-import { computed, ref } from 'vue'
+import { getPagination } from '@/helpers'
+import { computed, ref, onBeforeMount } from 'vue'
 
 const EXTEND_PARAMS = ['source', 'citation_topics']
 const DISABLED_FOR = ['Content']
+const PER = 50
 
 const props = defineProps({
   objectId: {
@@ -142,6 +151,7 @@ const { list, addToList, removeFromList } = useSlice({
 })
 const citation = ref(newCitation())
 const isModalVisible = ref(false)
+const pagination = ref({})
 
 const originalCitation = computed(() => list.value.find((c) => c.is_original))
 
@@ -224,12 +234,21 @@ function removeItem(item) {
     .catch(() => {})
 }
 
-Citation.all({
-  citation_object_id: props.objectId,
-  citation_object_type: props.objectType,
-  extend: EXTEND_PARAMS
-}).then(({ body }) => {
-  list.value = body
+function loadPage(page = 1) {
+  Citation.where({
+    citation_object_id: props.objectId,
+    citation_object_type: props.objectType,
+    extend: EXTEND_PARAMS,
+    page: page,
+    per: PER
+  }).then((response) => {
+    pagination.value = getPagination(response)
+    list.value = response.body
+  })
+}
+
+onBeforeMount(() => {
+  loadPage()
 })
 </script>
 <style lang="scss">

@@ -344,9 +344,17 @@ describe CollectionObject::DwcExtensions, type: :model, group: [:collection_obje
       expect(s.dwc_verbatim_event_date).to eq('some date')
     end
 
-    specify '#dwc_verbatim_habitat' do
+    specify '#dwc_habitat falls back to verbatim_habitat when no AssertedEnvironments exist' do
       ce.update!(verbatim_habitat: 'some habitat')
-      expect(s.dwc_verbatim_habitat).to eq('some habitat')
+      expect(s.dwc_habitat).to eq('some habitat')
+    end
+
+    specify '#dwc_habitat prioritizes AssertedEnvironments, ordered by position, over verbatim_habitat' do
+      ce.update!(verbatim_habitat: 'some habitat')
+      FactoryBot.create(:asserted_environment, asserted_environment_object: ce, uri_label: 'caldera')
+      FactoryBot.create(:asserted_environment, asserted_environment_object: ce, uri_label: 'temperate forest biome')
+
+      expect(s.dwc_habitat).to eq("caldera#{Export::Dwca::DELIMITER}temperate forest biome")
     end
 
     specify '#dwc_sampling_protocol' do

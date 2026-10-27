@@ -8,5 +8,6 @@ export const ATTRIBUTES = {
   description_name: 'Description name',
   key_name: 'Key name',
   weight: 'Weight',
-  character_states: 'Character states'
+  character_states: 'Character states',
+  position: 'Position'
 }

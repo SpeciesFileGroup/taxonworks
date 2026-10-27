@@ -17,5 +17,11 @@ export const Metadata = {
     AjaxCall('get', `/${controller}/attributes`, { params }),
 
   classNavigation: (params) =>
-    AjaxCall('get', `/${controller}/class_navigation`, { params })
+    AjaxCall('get', `/${controller}/class_navigation`, { params }),
+
+  objectNavigation: (globalId) =>
+    AjaxCall(
+      'get',
+      `/${controller}/object_navigation/${encodeURIComponent(globalId)}`
+    )
 }

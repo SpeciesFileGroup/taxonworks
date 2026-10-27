@@ -1,5 +1,5 @@
 <template>
-  <FacetContainer>
+  <FacetContainer data-help="All objects having ALL of the 'With' confidences and NONE of the 'without confidences'; take the complement of that result if 'Exclude' is checked.">
     <h3>Confidences</h3>
 
     <SmartSelector
@@ -68,6 +68,13 @@
         </template>
       </transition-group>
     </table>
+    <label v-if="confidences.length">
+      <input
+        type="checkbox"
+        v-model="params.exclude_confidences"
+      />
+      Exclude
+    </label>
   </FacetContainer>
 </template>
 
@@ -116,6 +123,7 @@ watch(
       confidences.value.length
     ) {
       confidences.value = []
+      params.value.exclude_confidences = undefined
     }
   }
 )

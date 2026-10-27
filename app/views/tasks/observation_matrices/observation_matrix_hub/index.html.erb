@@ -21,6 +21,7 @@
             <th class="full_width"> Name </th>
             <th> Rows </th>
             <th> Columns </th>
+            <th> Public </th>
             <th> </th>
             <th> </th>
             <th> </th>
@@ -33,6 +34,7 @@
               <td> <%= om.name -%> </td>
               <td> <%= om.observation_matrix_rows.count -%> </td>
               <td> <%= om.observation_matrix_columns.count -%> </td>
+              <td> <%= '&#10003;'.html_safe if om.is_public -%> </td>
               <td> <%= radial_navigation_tag(om, true) -%>
               <td> <%= radial_annotator(om) -%>
               <td>

@@ -1,4 +1,4 @@
-import makeTypeMaterial from '@/factory/TypeMaterial.js'
+import makeTypeMaterial from '../../helpers/makeTypeMaterial.js'
 import { MutationNames } from '../mutations/mutations'
 
 export default ({ commit }) => {

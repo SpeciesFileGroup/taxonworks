@@ -3,7 +3,7 @@
     <a
       class="button-default circle-button btn-citation"
       :href="nomenclatureRoute()"
-      target="blank"
+      target="_blank"
       @mouseover="showSource = true"
       @mouseout="showSource = false"
     />

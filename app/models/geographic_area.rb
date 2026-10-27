@@ -87,6 +87,7 @@ class GeographicArea < ApplicationRecord
   has_many :asserted_distributions, as: :asserted_distribution_shape, inverse_of: :asserted_distribution_shape
   has_many :collecting_events, inverse_of: :geographic_area
   has_many :common_names, inverse_of: :geographic_area
+  has_many :organizations, inverse_of: :geographic_area
   has_many :geographic_areas_geographic_items, -> { ordered_by_data_origin }, dependent: :destroy, inverse_of: :geographic_area
   has_many :default_geographic_areas_geographic_items,
     -> { default_geographic_item_data }, class_name: 'GeographicAreasGeographicItem'
@@ -626,7 +627,7 @@ class GeographicArea < ApplicationRecord
     r = used_recently(user_id, project_id, target)
     h = {
       quick: [],
-      pinboard: GeographicArea.pinned_by(user_id).where(pinboard_items: {project_id:}).to_a,
+      pinboard: GeographicArea.pinned_by(user_id).where(pinboard_items: {project_id:}).pinboard_ordered.to_a,
       recent: []
     }
 
@@ -637,7 +638,7 @@ class GeographicArea < ApplicationRecord
       when 'CollectingEvent'
         h[:recent] = GeographicArea.where('"geographic_areas"."id" IN (?)', r.first(10) ).order(:name).to_a
       when 'AssertedDistribution'
-        h[:recent] = GeographicArea.where('"geographic_areas"."id" IN (?)', r.first(15) ).order(:name).to_a
+        h[:recent] = GeographicArea.where('"geographic_areas"."id" IN (?)', r.first(20) ).order(:name).to_a
       end
       h[:quick] = (GeographicArea.pinned_by(user_id).pinboard_inserted.where(pinboard_items: {project_id:}).to_a +
                    GeographicArea.where('"geographic_areas"."id" IN (?)', r.first(5) ).order(:name).to_a).uniq

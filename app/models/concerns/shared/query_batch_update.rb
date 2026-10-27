@@ -22,10 +22,7 @@ module Shared::QueryBatchUpdate
     rescue ActiveRecord::RecordInvalid => e
       return if response.nil?
       response.not_updated.push e.record.id
-
-      response.errors[e.message] = 0 unless response.errors[e.message]
-
-      response.errors[e.message] += 1
+      response.validation_errors[e.message] += 1
     end
   end
 
@@ -71,7 +68,7 @@ module Shared::QueryBatchUpdate
         response.updated.push object.id
       rescue ActiveRecord::RecordInvalid => e
         response.not_updated.push e.record.id
-        response.errors[e.message] += 1
+        response.validation_errors[e.message] += 1
       end
     end
 

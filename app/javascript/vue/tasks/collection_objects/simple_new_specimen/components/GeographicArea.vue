@@ -10,7 +10,6 @@
     url="/geographic_areas/autocomplete"
     param="term"
     label="label_html"
-    autofocus
     placeholder="Search a geographic area"
     clear-after
     :input-attributes="{

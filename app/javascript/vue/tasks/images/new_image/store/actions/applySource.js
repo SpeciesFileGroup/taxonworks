@@ -15,6 +15,10 @@ export default ({ state, commit }) => {
 
     return Citation.create({ citation }).then((response) => {
       commit(MutationNames.AddCitation, response.body)
+      commit(MutationNames.MarkApplied, {
+        imageIds: [image.id],
+        key: 'source'
+      })
     })
   }
 
@@ -29,14 +33,20 @@ export default ({ state, commit }) => {
   state.imagesCreated.forEach((item) => {
     state.settings.saving = true
 
-    if (state.source && !citationAlreadyExistFor(item)) {
-      promises.push(createCitation(item))
+    if (state.source) {
+      if (citationAlreadyExistFor(item)) {
+        commit(MutationNames.MarkApplied, {
+          imageIds: [item.id],
+          key: 'source'
+        })
+      } else {
+        promises.push(createCitation(item))
+      }
     }
   })
 
-  Promise.all(promises)
+  return Promise.all(promises)
     .then(() => {
-      state.settings.applied.source = true
       TW.workbench.alert.create(
         `Citation(s) were successfully saved.`,
         'notice'

@@ -181,8 +181,26 @@ describe TypeMaterial, type: :model, group: :nomenclature do
     end
   end
 
+  context 'data attributes' do
+    let(:predicate) { FactoryBot.create(:valid_predicate) }
+
+    specify 'are created through nested attributes' do
+      type_material.update!(
+        collection_object: Specimen.create!,
+        type_type: 'holotype',
+        protonym: species,
+        data_attributes_attributes: [
+          { type: 'InternalAttribute', controlled_vocabulary_term_id: predicate.id, value: 'Nice' }
+        ]
+      )
+
+      expect(type_material.internal_attributes.reload.map(&:value)).to contain_exactly('Nice')
+    end
+  end
+
   context 'concerns' do
     it_behaves_like 'citations'
+    it_behaves_like 'data_attributes'
     it_behaves_like 'is_data'
   end
 

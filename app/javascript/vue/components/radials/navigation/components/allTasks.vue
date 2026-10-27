@@ -1,5 +1,5 @@
 <template>
-  <VModal>
+  <VModal @close="emit('close')">
     <template #header>
       <h3>All tasks</h3>
     </template>
@@ -26,4 +26,6 @@ defineProps({
     required: true
   }
 })
+
+const emit = defineEmits(['close'])
 </script>

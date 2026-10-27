@@ -4,9 +4,9 @@ import applyDepictions from './applyDepictions'
 import applyPixelToCentimeter from './applyPixelToCentimeter'
 import applySource from './applySource'
 import applyTags from './applyTags'
+import clearImages from './clearImages'
 import removeImage from './removeImage'
 import resetStore from './resetStore'
-import setAllApplied from './setAllApplied'
 
 const ActionFunctions = {
   [ActionNames.ApplyAttributions]: applyAttibutions,
@@ -14,9 +14,9 @@ const ActionFunctions = {
   [ActionNames.ApplyPixelToCentimeter]: applyPixelToCentimeter,
   [ActionNames.ApplySource]: applySource,
   [ActionNames.ApplyTags]: applyTags,
+  [ActionNames.ClearImages]: clearImages,
   [ActionNames.RemoveImage]: removeImage,
-  [ActionNames.ResetStore]: resetStore,
-  [ActionNames.SetAllApplied]: setAllApplied
+  [ActionNames.ResetStore]: resetStore
 }
 
 export { ActionNames, ActionFunctions }

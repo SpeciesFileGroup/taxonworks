@@ -1,10 +1,9 @@
 import { createApp } from 'vue'
-import { newStore } from './store/store'
-import App from './app.vue'
+import App from './App.vue'
 
-function init () {
+function init() {
   const app = createApp(App)
-  app.use(newStore())
+
   app.mount('#vue-task-nomenclature-stats')
 }
 

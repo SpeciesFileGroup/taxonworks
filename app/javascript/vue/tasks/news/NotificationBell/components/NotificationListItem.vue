@@ -143,5 +143,8 @@ function makeBrowseLink({ id }) {
 .notification-bell-list-item-body * {
   display: inline;
   white-space: nowrap !important;
+  font-size: inherit;
+  line-height: inherit;
+  font-weight: inherit;
 }
 </style>

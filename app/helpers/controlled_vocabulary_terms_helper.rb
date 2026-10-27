@@ -16,11 +16,12 @@ module ControlledVocabularyTermsHelper
     controlled_vocabulary_term.name
   end
 
-  def controlled_vocabulary_term_autocomplete_tag(controlled_vocabulary_term)
-    [ controlled_vocabulary_term_tag(controlled_vocabulary_term),
+  def controlled_vocabulary_term_autocomplete_tag(controlled_vocabulary_term, term = nil)
+    s = [ controlled_vocabulary_term_tag(controlled_vocabulary_term),
       content_tag(:span, controlled_vocabulary_term.type, class: [:feedback, 'feedback-secondary', 'feedback-thin']),
       content_tag(:span, pluralize( controlled_vocabulary_term_use(controlled_vocabulary_term), 'use'), class: [:feedback, 'feedback-info', 'feedback-thin'])
     ].compact.join(' ')
+    mark_tag(s, term)
   end
 
   def controlled_vocabulary_term_use(controlled_vocabulary_term)
@@ -34,7 +35,7 @@ module ControlledVocabularyTermsHelper
     when 'Tag'
       Tag.where(keyword: controlled_vocabulary_term).where(a).count
     when 'BiologicalProperty'
-      BiocurationClassification.where(biocuration_class: controlled_vocabulary_term).where(a).count
+      controlled_vocabulary_term.biological_associations.where(a).count
     when 'Predicate'
       InternalAttribute.where(predicate: controlled_vocabulary_term).where(a).count
     when 'ConfidenceLevel'

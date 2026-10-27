@@ -301,7 +301,7 @@ class FieldOccurrence < ApplicationRecord
   def self.select_optimized(user_id, project_id, target = nil, ba_target = 'object')
     h = {
       quick: [],
-      pinboard: FieldOccurrence.pinned_by(user_id).where(project_id:).to_a,
+      pinboard: FieldOccurrence.pinned_by(user_id).where(project_id:).pinboard_ordered.to_a,
       recent: []
     }
 

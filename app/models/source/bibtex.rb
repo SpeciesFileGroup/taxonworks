@@ -979,11 +979,7 @@ class Source::Bibtex < Source
   def validate_year_suffix
     a = get_author
     unless year_suffix.blank? || year.blank? || a.blank?
-      if new_record?
-        s = Source.where(author: a, year:, year_suffix:).first
-      else
-        s = Source.where(author: a, year:, year_suffix:).not_self(self).first
-      end
+      s = Source.where(author: a, year:, year_suffix:).not_self(self).first
       errors.add(:year_suffix, " '#{year_suffix}' is already used for #{a} #{year}") unless s.nil?
     end
   end

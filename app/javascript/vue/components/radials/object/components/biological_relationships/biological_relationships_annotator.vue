@@ -13,7 +13,7 @@
       </label>
     </Teleport>
 
-    <template v-if="createdBiologicalAssociation">
+    <template v-if="activeBiologicalAssociation">
       <div class="flex-separate">
         <h3>Edit mode</h3>
         <button
@@ -36,11 +36,11 @@
     />
 
     <DisplayList
-      v-if="createdBiologicalAssociation"
+      v-if="activeBiologicalAssociation"
       edit
       class="margin-medium-top"
       label="citation_source_body"
-      :list="createdBiologicalAssociation.citations"
+      :list="activeBiologicalAssociation.citations"
       @edit="setCitation"
       @delete="removeCitation"
     />
@@ -183,9 +183,16 @@
         @click="saveAssociation()"
         class="normal-input button button-submit"
       >
-        {{ createdBiologicalAssociation ? 'Update' : 'Create' }}
+        {{ activeBiologicalAssociation ? 'Update' : 'Create' }}
       </button>
     </div>
+
+    <VSwitch
+      class="separate-top list-mode-switch"
+      v-model="listMode"
+      name="ba-list-mode"
+      :options="LIST_MODES"
+    />
 
     <VPagination
       v-if="pagination.totalPages > 1"
@@ -233,6 +240,7 @@ import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import FormCitation from '@/components/Form/FormCitation.vue'
 import VPagination from '@/components/pagination.vue'
+import VSwitch from '@/components/ui/VSwitch.vue'
 import makeEmptyCitation from '../../helpers/makeEmptyCitation.js'
 import DisplayList from '@/components/displayList.vue'
 import { convertType } from '@/helpers/types'
@@ -264,8 +272,11 @@ const EXTEND_PARAMS = [
 
 const STORAGE_KEYS = {
   lockRelationship: 'radialObject::biologicalRelationship::lock',
-  relationshipId: 'radialObject::biologicalRelationship::id'
+  relationshipId: 'radialObject::biologicalRelationship::id',
+  listMode: 'radialObject::biologicalRelationship::listMode'
 }
+
+const LIST_MODES = ['Subject', 'Object', 'Both']
 
 const props = defineProps({
   objectId: {
@@ -302,9 +313,11 @@ const relatedRef = useTemplateRef('related')
 
 const relatedObject = ref()
 const biologicalRelationship = ref()
+const editingBiologicalAssociation = ref()
 const citation = ref(makeEmptyCitation())
 const flip = ref(false)
 const pagination = ref({})
+const listMode = ref(storedListMode())
 
 const PER_PAGE = 50
 
@@ -383,6 +396,10 @@ const {
   extendParams: EXTEND_PARAMS
 })
 
+const activeBiologicalAssociation = computed(
+  () => editingBiologicalAssociation.value || createdBiologicalAssociation.value
+)
+
 watch(
   () => lock.relationship,
   (newVal) => {
@@ -394,6 +411,11 @@ watch(relatedObject, () => {
   if (canAutoSaveOnRelatedSelection.value) {
     saveAssociation()
   }
+})
+
+watch(listMode, (newVal) => {
+  sessionStorage.setItem(STORAGE_KEYS.listMode, newVal)
+  loadList()
 })
 
 onBeforeMount(() => {
@@ -428,10 +450,32 @@ onBeforeMount(() => {
   }
 })
 
+function storedListMode() {
+  const value = sessionStorage.getItem(STORAGE_KEYS.listMode)
+
+  return LIST_MODES.includes(value) ? value : LIST_MODES[0]
+}
+
+function listModeParams() {
+  switch (listMode.value) {
+    case 'Object':
+      return {
+        biological_association_object_id: props.objectId,
+        biological_association_object_type: props.objectType
+      }
+    case 'Both':
+      return { any_global_id: [props.metadata.annotation_target] }
+    default:
+      return {
+        biological_association_subject_id: props.objectId,
+        biological_association_subject_type: props.objectType
+      }
+  }
+}
+
 function loadList(page = 1) {
   BiologicalAssociation.where({
-    biological_association_subject_id: props.objectId,
-    biological_association_subject_type: props.objectType,
+    ...listModeParams(),
     extend: EXTEND_PARAMS,
     recent: true,
     per: PER_PAGE,
@@ -447,6 +491,7 @@ function reset() {
     biologicalRelationship.value = undefined
   }
   relatedObject.value = undefined
+  editingBiologicalAssociation.value = undefined
   flip.value = false
 
   resetAnatomicalPartState()
@@ -466,7 +511,12 @@ async function saveAssociation() {
   // When deduplicating to an existing BA, omit subject/object id/type: those are
   // already set correctly on the matched record (possibly as AnatomicalPart) and
   // re-sending the form values (OTU/CO) would overwrite them incorrectly.
-  const subjectObjectIds = createdBiologicalAssociation.value
+  const matchedBiologicalAssociation = createdBiologicalAssociation.value
+  const preserveMatchedAssociationSides =
+    matchedBiologicalAssociation &&
+    (!editingBiologicalAssociation.value ||
+      matchedBiologicalAssociation.id === editingBiologicalAssociation.value.id)
+  const subjectObjectIds = preserveMatchedAssociationSides
     ? {}
     : flip.value
       ? {
@@ -492,7 +542,9 @@ async function saveAssociation() {
     extend: EXTEND_PARAMS
   }
 
-  let targetId = createdBiologicalAssociation.value?.id
+  let targetId =
+    editingBiologicalAssociation.value?.id ||
+    createdBiologicalAssociation.value?.id
 
   if (!targetId && !withAnatomicalPartCreation.value) {
     const { body } = await BiologicalAssociation.where({
@@ -562,7 +614,7 @@ function removeCitation(item) {
   }
 
   BiologicalAssociation.update(
-    createdBiologicalAssociation.value.id,
+    activeBiologicalAssociation.value.id,
     payload
   ).then(({ body }) => {
     removeFromList(body)
@@ -570,16 +622,26 @@ function removeCitation(item) {
 }
 
 function editBiologicalRelationship(bioRelation) {
+  editingBiologicalAssociation.value = bioRelation
+
   biologicalRelationship.value = {
     id: bioRelation.biological_relationship_id,
     ...bioRelation.biological_relationship
   }
 
+  const isRadialObject = (side) =>
+    bioRelation[`biological_association_${side}_id`] ===
+      props.metadata.object_id &&
+    bioRelation[`biological_association_${side}_type`] ===
+      props.metadata.object_type
+  const isFlipped = isRadialObject('object') && !isRadialObject('subject')
+  const relatedSide = isFlipped ? 'subject' : 'object'
+
   relatedObject.value = {
-    id: bioRelation.biological_association_object_id,
-    ...bioRelation.object
+    id: bioRelation[`biological_association_${relatedSide}_id`],
+    ...bioRelation[relatedSide]
   }
-  flip.value = bioRelation.object.id === props.objectId
+  flip.value = isFlipped
 }
 
 function setBiologicalRelationship(item) {
@@ -595,6 +657,10 @@ function unsetBiologicalRelationship() {
 <style lang="scss">
 .radial-annotator {
   .biological_relationships_annotator {
+    .list-mode-switch {
+      flex-shrink: 0;
+    }
+
     .support-ap-toggle {
       display: inline-flex;
       align-items: center;

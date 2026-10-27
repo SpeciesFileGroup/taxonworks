@@ -223,6 +223,19 @@ should pass a stable base `id` and let the component append a UUID suffix.
 A linting rake task (`rails autoselect:lint_ids`) checks uniqueness of static ids
 across `app/views`, `app/helpers`, and `app/javascript/vue`.
 
+### `preferencesKey` prop
+
+By default the preferences storage key is the effective `id`, so instances that
+share preferences must also share a DOM `id`. When several instances of the same
+logical field appear on one page — and so need distinct `id`s — pass a shared
+`preferencesKey` instead. The DOM `id` stays unique (or auto-generated) while all
+instances read and write one preferences entry.
+
+Example: `TaxonDeterminationOtu` sets `preferences-key="otu_for_taxon_determination"`
+so every determination OTU picker in the app shares `!p` settings, even when two
+are mounted at once (e.g. subject and related in the biological relationships
+radial annotator).
+
 ### `!p` operator
 
 `!p` (client_only) opens the **PreferencesModal**, which is shared across all

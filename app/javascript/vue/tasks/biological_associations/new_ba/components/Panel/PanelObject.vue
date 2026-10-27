@@ -18,6 +18,8 @@
           :target="BIOLOGICAL_ASSOCIATION"
           :pin-section="currentTab"
           :otu-picker="currentTab === OTU"
+          otu-autoselect
+          :otu-autoselect-id="otuAutoselectId"
           :pin-type="currentTab"
           :params="smartSelectorParams"
           @selected="broadcastObject"
@@ -41,7 +43,7 @@
 </template>
 
 <script setup>
-import { onBeforeMount, ref, watch } from 'vue'
+import { computed, onBeforeMount, ref, watch } from 'vue'
 import { BIOLOGICAL_ASSOCIATION, OTU } from '@/constants'
 import { useBroadcastChannel } from '@/composables'
 import { BiologicalAssociation } from '@/routes/endpoints'
@@ -52,7 +54,7 @@ import VSwitch from '@/components/ui/VSwitch.vue'
 import VLock from '@/components/ui/VLock/index.vue'
 import VBroadcast from '@/components/ui/VBroadcast/VBroadcast.vue'
 
-defineProps({
+const props = defineProps({
   title: {
     type: String,
     required: true
@@ -63,6 +65,10 @@ defineProps({
     default: undefined
   }
 })
+
+const otuAutoselectId = computed(
+  () => `biological-associations-2-otu-${props.smartSelectorParams?.ba_target}`
+)
 
 const { post } = useBroadcastChannel({
   name: 'otuObject',

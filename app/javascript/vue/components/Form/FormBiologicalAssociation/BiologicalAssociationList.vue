@@ -21,7 +21,16 @@
         :key="item.uuid"
       >
         <tr class="list-complete-item">
-          <td v-html="item.relationship" />
+          <td>
+            <div v-html="item.relationship" />
+            <div
+              v-if="item.anatomicalPart"
+              class="subtle"
+              :title="item.anatomicalPartTitle"
+            >
+              {{ item.anatomicalPart }}
+            </div>
+          </td>
           <td v-html="item.related" />
           <td v-html="item.citation" />
           <td>
@@ -76,7 +85,9 @@ const renderList = computed(() =>
     globalId: item.globalId,
     relationship: getRelationshipString(item),
     related: item.related.object_tag,
-    citation: item.citation.label
+    citation: item.citation.label,
+    anatomicalPart: getAnatomicalPartString(item),
+    anatomicalPartTitle: getAnatomicalPartTitle(item)
   }))
 )
 
@@ -96,6 +107,20 @@ function deleteItem(item) {
 
 function getRelationshipString(item) {
   return item.relationship.name || item.relationship.object_label
+}
+
+function getAnatomicalPartString(item) {
+  const part = item.anatomicalPart
+
+  return part ? part.name || part.uri_label : undefined
+}
+
+function getAnatomicalPartTitle(item) {
+  const part = item.anatomicalPart
+
+  return part
+    ? [part.uri_label, part.uri].filter(Boolean).join('\n')
+    : undefined
 }
 </script>
 <style lang="scss" scoped>

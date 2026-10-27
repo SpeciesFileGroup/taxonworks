@@ -3,6 +3,8 @@ module Queries
   module TaxonName
     class Autocomplete < Query::Autocomplete
 
+      DEFAULT_LIMIT = 20
+
       # @return [Array]
       #   &nomenclature_group[]=<<Iczn|Icnp|Icn>::<Higher|Family|Genus|Species>>
       attr_accessor :nomenclature_group
@@ -113,6 +115,37 @@ module Queries
       def autocomplete_exact_cached
         a = table[:cached].eq(query_string)
         base_query.where(a.to_sql).order('taxon_names.cached_author_year ASC').limit(20)
+      end
+
+      # @return [Hash, nil]
+      #   {name:, author_year:} split from the query string via the GlobalNames
+      #   parser, reformatted to match how `cached` and `cached_author_year` are
+      #   stored (comma before the year, authors joined with '&'). nil when the
+      #   string doesn't parse with an authorship component.
+      def parsed_name_and_author_year
+        return @parsed_name_and_author_year if defined?(@parsed_name_and_author_year)
+
+        a = parsed_query_string
+        name = a.dig(:canonical, :simple)
+        author_year = a.dig(:authorship, :normalized) # e.g. '(Needham & Claassen 1925)', 'and' already normalized to '&'
+
+        @parsed_name_and_author_year = if a.dig(:parsed) && name.present? && author_year.present?
+          # GN doesn't put a comma before year, TW does
+          { name:, author_year: author_year.sub(/ (\d{4})/, ', \1') }
+        end
+      end
+
+      # Matches the full displayed label, e.g.
+      # "Isocapnia crinita (Needham & Claassen, 1925)",
+      # i.e. `cached` and `cached_author_year` (see
+      # `TaxonName#cached_name_and_author_year`).
+      # @return [Scope, nil]
+      def autocomplete_exact_cached_name_and_author_year
+        p = parsed_name_and_author_year
+        return nil if p.nil?
+
+        a = table[:cached].eq(p[:name]).and(table[:cached_author_year].eq(p[:author_year]))
+        base_query.where(a.to_sql).order('taxon_names.id ASC').limit(5)
       end
 
       # @return [Scope]
@@ -297,6 +330,7 @@ module Queries
         [
           autocomplete_exact_id,
           autocomplete_exact_cached,
+          autocomplete_exact_cached_name_and_author_year,
           autocomplete_exact_cached_original_combination,
           autocomplete_identifier_cached_exact,
           autocomplete_identifier_identifier_exact,
@@ -321,6 +355,7 @@ module Queries
         z = genus_species
         queries = [
           autocomplete_exact_cached,
+          autocomplete_exact_cached_name_and_author_year,
           autocomplete_exact_cached_original_combination,
           autocomplete_exact_name_and_year,
           autocomplete_exact_name,
@@ -363,16 +398,15 @@ module Queries
         ]
       end
 
-      # @return [Array]
-      def autocomplete
+      # @return [Array<ActiveRecord::Relation>]
+      #   the queries #autocomplete runs, in priority order
+      def strategy_queries
         # exact, unified, comprehensive
 
         queries = (exact ? exact_autocomplete : comprehensive_autocomplete )
         queries.compact!
 
-        result = []
-
-        queries.each_with_index do |q,i|
+        queries.map do |q|
           a = q
           a = q.where(project_id:) if project_id.present? # strange here, concept is global autocomplete, doesn't exist in API
           a = a.where(and_clauses.to_sql) if and_clauses
@@ -382,14 +416,21 @@ module Queries
           end
 
           a = a.not_leaves if no_leaves
+          apply_restriction(a)
+        end
+      end
 
-          result += a.limit(20).to_a
-          break if result.count > 19
+      # @return [Array]
+      def autocomplete
+        result = []
+
+        strategy_queries.each do |a|
+          result += a.limit(limit).to_a
+          result.uniq!
+          break if result.count >= limit
         end
 
-        result.uniq!
-        # result[0..19]
-        result
+        result.first(limit)
       end
 
       # @return [String, nil]
@@ -428,10 +469,17 @@ module Queries
         table[:cached_author_year].matches_any(terms)
       end
 
+      # @return [Hash]
+      #   the memoized GlobalNames parser result for query_string.
+      def parsed_query_string
+        return @parsed_query_string if defined?(@parsed_query_string)
+        @parsed_query_string = ::Biodiversity::Parser.parse(query_string)
+      end
+
       # @return [String] (including empty)
       def authorship
         return @authorship if @authorship
-        a = ::Biodiversity::Parser.parse(query_string)
+        a = parsed_query_string
 
         if a.dig(:parsed)
           @authorship = a.dig(:authorship, :normalized)

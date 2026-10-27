@@ -15,6 +15,42 @@
       </li>
     </ul>
     <div
+      class="horizontal-left-content align-start gap-medium margin-small-top"
+    >
+      <div>
+        <label class="display-block">Start horizontally at</label>
+        <ul class="no_bullets">
+          <li v-for="item in horizontalDirections">
+            <label>
+              <input
+                type="radio"
+                name="horizontal-step"
+                v-model="sledImage.horizontal_step_direction"
+                :value="item.value"
+              />
+              {{ item.label }}
+            </label>
+          </li>
+        </ul>
+      </div>
+      <div>
+        <label class="display-block">Start vertically at</label>
+        <ul class="no_bullets">
+          <li v-for="item in verticalDirections">
+            <label>
+              <input
+                type="radio"
+                name="vertical-step"
+                v-model="sledImage.vertical_step_direction"
+                :value="item.value"
+              />
+              {{ item.label }}
+            </label>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div
       class="horizontal-left-content align-start margin-medium-top gap-small"
     >
       <SmartSelector
@@ -93,6 +129,27 @@ export default {
         this.$store.commit(MutationNames.SetSledImage, value)
       }
     },
+    steps() {
+      const vertical =
+        this.sledImage.vertical_step_direction === 'bottom_to_top'
+          ? 'up'
+          : 'down'
+
+      return [
+        {
+          label: 'none',
+          value: undefined
+        },
+        {
+          label: `${vertical} -> across`,
+          value: 'column'
+        },
+        {
+          label: `across -> ${vertical}`,
+          value: 'row'
+        }
+      ]
+    },
     incremented() {
       if (!this.identifier.identifier) return undefined
 
@@ -114,18 +171,24 @@ export default {
       tabs: [],
       lists: undefined,
       view: undefined,
-      steps: [
+      horizontalDirections: [
         {
-          label: 'none',
-          value: undefined
+          label: 'left',
+          value: 'left_to_right'
         },
         {
-          label: 'down -> across',
-          value: 'column'
+          label: 'right',
+          value: 'right_to_left'
+        }
+      ],
+      verticalDirections: [
+        {
+          label: 'top',
+          value: 'top_to_bottom'
         },
         {
-          label: 'across -> down',
-          value: 'row'
+          label: 'bottom',
+          value: 'bottom_to_top'
         }
       ]
     }

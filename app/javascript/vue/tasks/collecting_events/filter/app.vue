@@ -79,7 +79,7 @@
           @reorder:layout="reorderLayoutColumns"
           :list="list"
           :preference-key="`tasks::filters::${COLLECTING_EVENT}`"
-          :radial-object="false"
+          :radial-object="true"
           @mouseover:row="setRowHover"
           @mouseout:body="() => (rowHover = null)"
           @remove="({ index }) => list.splice(index, 1)"

@@ -567,7 +567,8 @@ class Protonym < TaxonName
 
   # @return Boolean
   def is_original_name?
-    cached_author_year =~ /\(/ ? false : true
+    cached_author_year[0] == '(' ? false : true
+    # cached_author_year =~ /\(/ ? false : true
   end
 
   # @return Boolean
@@ -830,7 +831,7 @@ class Protonym < TaxonName
 
   # @return [boolean]
   def nominotypical_sub_of?(protonym)
-    is_genus_or_species_rank? && parent == protonym && parent.name == protonym.name
+    is_genus_or_species_rank? && parent == protonym && name == protonym.name
   end
 
   # @return [Hash]

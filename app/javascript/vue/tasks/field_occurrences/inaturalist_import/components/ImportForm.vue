@@ -8,7 +8,7 @@
           name="inat-mode"
           :options="['Import', 'Find']"
         />
-        <em>Maximum {{ mode === 'Import' ? IMPORT_LIMIT : FIND_LIMIT }} per submission.</em>
+        <em>Maximum {{ limit }} per submission.</em>
       </div>
       <textarea
         id="observation_ids"
@@ -23,9 +23,69 @@
       >
         {{ parsedIds.length }} observation{{ parsedIds.length === 1 ? '' : 's' }}
       </span>
+      <div
+        v-if="parsedIds.length > limit"
+        class="feedback feedback-warning margin-small-top"
+      >
+        {{ mode }} takes at most {{ limit }} observations per submission;
+        remove {{ parsedIds.length - limit }} to continue.
+      </div>
     </div>
 
     <template v-if="mode === 'Import'">
+      <div class="separate-bottom">
+        <div class="horizontal-left-content middle gap-small">
+          <VBtn
+            color="primary"
+            @click="isDeterminationModalVisible = true"
+          >
+            Set determination for all
+          </VBtn>
+          <SmartSelectorItem
+            v-if="determination"
+            :item="determination"
+            label="object_tag"
+            @unset="determination = null"
+          />
+          <span
+            v-else
+            class="subtle"
+          >
+            Optional; otherwise each observation is determined from its
+            iNaturalist taxon, using the options below.
+          </span>
+        </div>
+        <span
+          v-if="determination"
+          class="subtle"
+        >
+          Every imported observation gets this determination instead of
+          iNaturalist's taxon.
+        </span>
+      </div>
+
+      <div class="separate-bottom">
+        <label :class="{ subtle: !!determination }">
+          <input
+            type="checkbox"
+            v-model="options.use_community_taxon"
+            :disabled="!!determination"
+          />
+          Use iNat community taxon determination (uncheck to use observer's own identification instead)
+        </label>
+      </div>
+
+      <div class="separate-bottom">
+        <label :class="{ subtle: !!determination }">
+          <input
+            type="checkbox"
+            v-model="options.match_otu_by_name"
+            :disabled="!!determination"
+          />
+          Match OTU by taxon name (tries an existing taxon name or OTU in the project first, ignoring subgenus; creates a name-only OTU if none found)
+        </label>
+      </div>
+
       <div class="separate-bottom">
         <label>
           <input
@@ -46,25 +106,22 @@
         </label>
       </div>
 
-      <div class="separate-bottom">
-        <label>
-          <input
-            type="checkbox"
-            v-model="options.use_community_taxon"
+      <VModal
+        v-if="isDeterminationModalVisible"
+        :container-style="{ width: '700px' }"
+        @close="isDeterminationModalVisible = false"
+      >
+        <template #header>
+          <h3>Set determination for all imported observations</h3>
+        </template>
+        <template #body>
+          <TaxonDeterminationForm
+            create-form
+            button-label="Set"
+            @on-add="setDetermination"
           />
-          Use iNat community taxon determination (uncheck to use observer's own identification instead)
-        </label>
-      </div>
-
-      <div class="separate-bottom">
-        <label>
-          <input
-            type="checkbox"
-            v-model="options.match_otu_by_name"
-          />
-          Match OTU by taxon name (tries existing OTU in project first; creates name-only OTU if none found)
-        </label>
-      </div>
+        </template>
+      </VModal>
     </template>
 
     <VBtn
@@ -82,6 +139,9 @@
 import { ref, computed, reactive } from 'vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VSwitch from '@/components/ui/VSwitch.vue'
+import VModal from '@/components/ui/Modal.vue'
+import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
+import TaxonDeterminationForm from '@/components/TaxonDetermination/TaxonDeterminationForm.vue'
 import { FieldOccurrence } from '@/routes/endpoints'
 import {
   FIND_STATUS_LABELS,
@@ -99,6 +159,8 @@ defineOptions({ name: 'ImportForm' })
 const rawInput = ref('')
 const isSubmitting = ref(false)
 const mode = ref('Import')
+const determination = ref(null)
+const isDeterminationModalVisible = ref(false)
 
 const options = reactive({
   use_community_taxon: true,
@@ -118,9 +180,18 @@ const parsedIds = computed(() =>
     })
 )
 
+function setDetermination(taxonDetermination) {
+  determination.value = taxonDetermination
+  isDeterminationModalVisible.value = false
+}
+
+const limit = computed(() =>
+  mode.value === 'Import' ? IMPORT_LIMIT : FIND_LIMIT
+)
+
 const canSubmit = computed(() =>
   parsedIds.value.length > 0 &&
-  parsedIds.value.length <= (mode.value === 'Import' ? IMPORT_LIMIT : FIND_LIMIT) &&
+  parsedIds.value.length <= limit.value &&
   !isSubmitting.value
 )
 
@@ -133,7 +204,13 @@ async function submit() {
     const call = findOnly ? FieldOccurrence.iNatFind : FieldOccurrence.iNatImport
     const params = findOnly
       ? { observation_ids: parsedIds.value }
-      : { observation_ids: parsedIds.value, ...options }
+      : {
+          observation_ids: parsedIds.value,
+          ...options,
+          ...(determination.value && {
+            taxon_determination: determination.value
+          })
+        }
     const { body } = await call(params)
 
     const labelMap = findOnly ? FIND_STATUS_LABELS : IMPORT_STATUS_LABELS
@@ -141,7 +218,11 @@ async function submit() {
 
     TW.workbench.alert.create(summary, 'notice')
     emit('submitted', { rows: body.summary, findMode: findOnly })
-    rawInput.value = ''
+    // A Find keeps its list so it can be switched to Import.
+    if (!findOnly) {
+      rawInput.value = ''
+      determination.value = null
+    }
   } catch {
   } finally {
     isSubmitting.value = false

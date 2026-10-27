@@ -62,6 +62,40 @@ describe Queries::TaxonName::Autocomplete, type: :model do
     expect(query.autocomplete_exact_cached_original_combination.all).to include(species)
   end
 
+  specify '#autocomplete_exact_cached_name_and_author_year matches the full displayed label' do
+    query.terms = species.cached_name_and_author_year
+    expect(query.autocomplete_exact_cached_name_and_author_year.all).to include(species)
+  end
+
+  specify '#autocomplete_exact_cached_name_and_author_year is nil without a parsed authorship' do
+    query.terms = name # no author/year present
+    expect(query.autocomplete_exact_cached_name_and_author_year).to be_nil
+  end
+
+  specify '#autocomplete_exact_cached_name_and_author_year is nil without a parsed name' do
+    query.terms = 'Needham & Claassen, 1925' # author/year alone, no taxon name
+    expect(query.autocomplete_exact_cached_name_and_author_year).to be_nil
+  end
+
+  specify '#autocomplete_exact_cached_name_and_author_year normalizes " and " to " & "' do
+    expect(species.cached_author_year).to include(' & ') # guard: this spec needs a multi-author name
+
+    query.terms = species.cached_name_and_author_year.sub(' & ', ' and ')
+    expect(query.autocomplete_exact_cached_name_and_author_year.all).to include(species)
+  end
+
+  specify '#autocomplete finds the full name and author year label with exact: true' do
+    query.exact = true
+    query.terms = species.cached_name_and_author_year
+    expect(query.autocomplete.map(&:id)).to include(species.id)
+  end
+
+  specify '#autocomplete finds the full name and author year label with exact: false' do
+    query.exact = false
+    query.terms = species.cached_name_and_author_year
+    expect(query.autocomplete.map(&:id)).to include(species.id)
+  end
+
   specify '#autocomplete_cached_wildcard_whitespace open paren' do
     query.terms = 'Scaphoideus ('
     expect(query.autocomplete_cached_wildcard_whitespace.all).to be_truthy
@@ -82,8 +116,8 @@ describe Queries::TaxonName::Autocomplete, type: :model do
     expect(query.autocomplete).to be_truthy
   end
 
-  # These specs were not top, they are exact 
-  
+  # These specs were not top, they are exact
+
   # specify '#autocomplete_top_name 1' do
   #   query.terms = 'vulnerata'
   #   expect(query.autocomplete_top_name.first).to eq(species)
@@ -189,6 +223,50 @@ describe Queries::TaxonName::Autocomplete, type: :model do
     specify '#authorship 3' do
       query.query_string = 'Semiotellus species 1'
       expect(query.authorship).to eq(nil)
+    end
+  end
+
+  context 'limit' do
+    specify 'defaults to 20' do
+      expect(Queries::TaxonName::Autocomplete.new('Erasmoneura').limit).to eq(20)
+    end
+
+    specify 'caps results' do
+      q = Queries::TaxonName::Autocomplete.new('Erasmoneura', limit: 1)
+      expect(q.autocomplete.size).to eq(1)
+    end
+
+    specify 'caps results when a later query overshoots the limit' do
+      q = Queries::TaxonName::Autocomplete.new('Erasmoneura', limit: 2)
+      allow(q).to receive(:strategy_queries) {
+        [TaxonName.where(id: root.id), TaxonName.where(id: [genus.id, species.id]).order(:id)]
+      }
+      expect(q.autocomplete).to eq([root, genus])
+    end
+
+    specify 'does not count duplicates towards the limit' do
+      q = Queries::TaxonName::Autocomplete.new('Erasmoneura', limit: 2)
+      allow(q).to receive(:strategy_queries) {
+        [TaxonName.where(id: genus.id), TaxonName.where(id: genus.id), TaxonName.where(id: species.id)]
+      }
+      expect(q.autocomplete).to eq([genus, species])
+    end
+  end
+
+  context 'restrict_to' do
+    specify 'restricts results to the given TaxonNames' do
+      q = Queries::TaxonName::Autocomplete.new('Erasmoneura', restrict_to: TaxonName.where(id: species.id))
+      expect(q.autocomplete.map(&:id)).to contain_exactly(species.id)
+    end
+
+    specify 'raises when the relation is of another model' do
+      q = Queries::TaxonName::Autocomplete.new('Erasmoneura', restrict_to: Otu.all)
+      expect { q.autocomplete }.to raise_error(ArgumentError, /Otu/)
+    end
+
+    specify 'is not applied when nil' do
+      q = Queries::TaxonName::Autocomplete.new('Erasmoneura', restrict_to: nil)
+      expect(q.autocomplete.map(&:id)).to include(genus.id, species.id)
     end
   end
 end

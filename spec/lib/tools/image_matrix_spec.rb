@@ -82,5 +82,32 @@ describe Tools::ImageMatrix, type: :model, group: :observation_matrix do
       expect(im.depiction_matrix.count).to eq(2)
     end
 
+    context 'descriptor order' do
+      let(:other_matrix) { ObservationMatrix.create!(name: 'Other matrix') }
+
+      before do
+        ObservationMatrixColumnItem::Single::Descriptor.create!(descriptor: descriptor2, observation_matrix: other_matrix)
+        ObservationMatrixColumnItem::Single::Descriptor.create!(descriptor: descriptor1, observation_matrix: other_matrix)
+      end
+
+      specify 'with a matrix, follows the column order of that matrix' do
+        im = Tools::ImageMatrix.new(
+          observation_matrix_id: other_matrix.id,
+          project_id: other_matrix.project_id)
+
+        expect(im.list_of_descriptors.keys).to eq([descriptor2.id, descriptor1.id])
+      end
+
+      specify 'otu_filter, no matrix, follows the global descriptor position' do
+        Descriptor.sort([descriptor2.id, descriptor1.id], observation_matrix.project_id)
+
+        im = Tools::ImageMatrix.new(
+          project_id: observation_matrix.project_id,
+          otu_filter: otu1.id.to_s + '|' + otu2.id.to_s)
+
+        expect(im.list_of_descriptors.keys).to eq([descriptor2.id, descriptor1.id])
+      end
+    end
+
   end
 end

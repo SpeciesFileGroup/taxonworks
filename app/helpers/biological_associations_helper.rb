@@ -20,10 +20,10 @@ module BiologicalAssociationsHelper
     label_for(biological_association.biological_association_object)
   end
 
-  def biological_association_autocomplete_tag(biological_association)
+  def biological_association_autocomplete_tag(biological_association, term = nil)
     return nil if biological_association.nil?
 
-    biological_association_tag(biological_association)
+    mark_tag(biological_association_tag(biological_association), term)
   end
 
   def biological_associations_search_form

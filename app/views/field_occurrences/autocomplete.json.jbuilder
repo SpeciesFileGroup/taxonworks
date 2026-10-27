@@ -1,7 +1,7 @@
 json.array! @field_occurrences do |p|
   json.id p.id
   json.label label_for_field_occurrence(p)
-  json.label_html field_occurrence_autocomplete_tag(p)
+  json.label_html field_occurrence_autocomplete_tag(p, params[:term])
 
   json.object_id p.id
 

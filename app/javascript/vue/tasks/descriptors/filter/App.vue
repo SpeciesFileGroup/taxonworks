@@ -24,6 +24,10 @@
         />
       </template>
       <template #nav-right>
+        <SortDescriptors
+          :ids="sortedSelectedIds"
+          @update="() => makeFilterRequest({ ...parameters })"
+        />
         <RadialMatrix
           :ids="sortedSelectedIds"
           :disabled="!list.length"
@@ -83,6 +87,7 @@
 <script setup>
 import FilterLayout from '@/components/layout/Filter/FilterLayout.vue'
 import FilterView from './components/FilterView.vue'
+import SortDescriptors from './components/SortDescriptors.vue'
 import FilterList from '@/components/Filter/Table/TableResults.vue'
 import SortPanel from '@/components/Filter/Table/SortPanel.vue'
 import SaveViewButton from '@/components/Filter/Table/SaveViewButton.vue'

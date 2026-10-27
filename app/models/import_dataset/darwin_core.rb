@@ -53,7 +53,7 @@ class ImportDataset::DarwinCore < ImportDataset
           headers = CSV.parse(Roo::Spreadsheet.open(path).to_csv, headers: true, header_converters: lambda {|f| f.strip}).headers
         else
           col_sep = default_if_absent(params.dig(:import_settings, :col_sep), "\t")
-          quote_char = default_if_absent(params.dig(:import_settings, :qoute_char), '"')
+          quote_char = resolve_quote_char(params.dig(:import_settings, :quote_char))
           headers = CSV.read(path, headers: true, col_sep: col_sep, quote_char: quote_char, encoding: 'bom|utf-8', header_converters: lambda {|f| f.strip}).headers
         end
 
@@ -140,7 +140,7 @@ class ImportDataset::DarwinCore < ImportDataset
       lock_time = Time.now - lock_time
       filters = self.metadata['import_filters'] if filters.nil?
       retry_errored = self.metadata['import_retry_errored'] if retry_errored.nil?
-      start_id = self.metadata['import_start_id'] if retry_errored
+      start_id = self.metadata['import_start_id'] if retry_errored # TODO: Checklist importer might skip records for dataset not "topologically" sorted by parent-child relationships.
 
       status = ['Ready']
       status << 'Errored' if retry_errored
@@ -162,7 +162,7 @@ class ImportDataset::DarwinCore < ImportDataset
       if imported.any? && record_id.nil?
         reload
         self.metadata.merge!({
-          'import_start_id' => imported.last&.id + 1,
+          **(record_id.nil? ? { 'import_start_id' => imported.last&.id + 1 } : {}),
           'import_filters' => filters,
           'import_retry_errored' => retry_errored
         })
@@ -238,6 +238,18 @@ class ImportDataset::DarwinCore < ImportDataset
 
   def default_nomenclatural_code
     self.metadata.dig('import_settings', 'nomenclatural_code')&.downcase&.to_sym || :iczn
+  end
+
+  def dwc_data_attributes
+    project.preferences['model_predicate_sets'].map do |model, predicate_ids|
+      [model, Hash[
+        *Predicate.where(id: predicate_ids)
+          .select { |p| /^http:\/\/rs\.tdwg\.org\/dwc\/terms\/.*/ =~ p.uri }
+          .map {|p| [p.uri.split('/').last, p]}
+          .flatten
+        ]
+      ]
+    end.to_h
   end
 
   protected
@@ -317,7 +329,14 @@ class ImportDataset::DarwinCore < ImportDataset
   end
 
   def get_quote_char
-    DarwinCore.default_if_absent(metadata.dig('import_settings', 'quote_char'), '"')
+    DarwinCore.resolve_quote_char(metadata.dig('import_settings', 'quote_char'))
+  end
+
+  # Keep an explicit no-quotes setting distinct from an omitted setting.
+  def self.resolve_quote_char(value)
+    return nil if value == 'none'
+
+    default_if_absent(value, '"')
   end
 
   def get_fields_mapping
@@ -378,21 +397,9 @@ class ImportDataset::DarwinCore < ImportDataset
 
       unless minimum_sets.any? { |s| (s - headers).empty? }
         puts minimum_sets
-        allowed_sets = minimum_sets.map { |a| "{#{a.join(", ")}}" }.join("; ")
+        allowed_sets = minimum_sets.map { |a| "{#{a.join(", ")}}" }.join('; ')
         errors.add(:source, "dataset does not have any of the minimum field sets required: #{allowed_sets}")
       end
     end
-  end
-
-  def dwc_data_attributes
-    project.preferences['model_predicate_sets'].map do |model, predicate_ids|
-      [model, Hash[
-        *Predicate.where(id: predicate_ids)
-          .select { |p| /^http:\/\/rs\.tdwg\.org\/dwc\/terms\/.*/ =~ p.uri }
-          .map {|p| [p.uri.split('/').last, p]}
-          .flatten
-        ]
-      ]
-    end.to_h
   end
 end

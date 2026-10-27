@@ -57,6 +57,16 @@ class ControlledVocabularyTerm < ApplicationRecord
 
   scope :of_type, -> (type) { where(type: type.to_s.capitalize) } # TODO, capitalize is not the right method for things like `:foo_bar`
 
+  # Both observation_matrix_row_items and observation_matrix_column_items carry
+  # class_name: so inferred_relations drops them.  Force them back so matrix
+  # items are moved to the surviving term during unify rather than being
+  # destroyed with the removed one.
+  def unify_relations
+    ApplicationEnumeration.klass_reflections(self.class, :has_many).select { |r|
+      [:observation_matrix_row_items, :observation_matrix_column_items].include?(r.name)
+    }
+  end
+
   protected
 
   def self.clone_from_project(from_id: nil, to_id: nil, klass: nil)

@@ -101,7 +101,8 @@ const CSRF_TOKEN = document
   .getAttribute('content')
 
 const dropzoneObservation = {
-  paramName: 'observation[images_attributes][][image_file]',
+  paramName:
+    'observation[depictions_attributes][][image_attributes][image_file]',
   url: '/observations',
   autoProcessQueue: true,
   parallelUploads: 1,
@@ -282,7 +283,9 @@ function success(file, response) {
 
 function sending(file, xhr, formData) {
   if (existObservations.value) {
-    formData.append('depiction[depiction_object_id]', observationId.value)
+    if (observationId.value) {
+      formData.append('depiction[depiction_object_id]', observationId.value)
+    }
     formData.append('depiction[depiction_object_type]', 'Observation')
   } else {
     formData.append('observation[descriptor_id]', props.descriptorId)

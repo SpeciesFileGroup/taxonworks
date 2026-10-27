@@ -13,12 +13,12 @@
 
         <div class="navigation-controls border-bottom">
           <div class="content w-full">
-            <%= search_form_for_model(@data_model) %>
+            <%= search_form_for_model(@hub_model) %>
           </div>
         </div>
 
         <div class="navigation-controls">
-          <%= new_for_model_link(@data_model)  -%>
+          <%= new_for_model_link(@hub_model)  -%>
         </div>
 
         <%= yield :additional_navigation -%>
@@ -39,9 +39,15 @@
             </ul>
             <ul class="context-menu">
               <%= yield :icon_navigation -%> 
-              <li><%= radial_annotator(object, annotations_exist(object)) %></li>
-              <li><%= tag_default_icon(object) %></li>
-              <li><%= pin_item_to_pinboard_link(object, sessions_current_user) %></li>
+              <% if annotatable?(object) %>
+                <li><%= radial_annotator(object, annotations_exist(object)) %></li>
+                <% if object.has_tags? %>
+                  <li><%= tag_default_icon(object) %></li>
+                <% end %>
+              <% end %>
+              <% if pinnable?(object) %>
+                <li><%= pin_item_to_pinboard_link(object, sessions_current_user) %></li>
+              <% end %>
               <li><%= radial_navigation_tag(object) %></li>
             </ul>
           </div>
@@ -105,7 +111,7 @@
             <% end %>
 
             <%= render(partial: '/shared/data/all/show/soft_validation', locals: {object: object}) if object.class.respond_to?(:soft_validates?) -%>
-            <%= annotations_summary_tag(object) -%>
+            <%= annotations_summary_tag(object) if annotatable?(object) -%>
 
           </div>
         </div>

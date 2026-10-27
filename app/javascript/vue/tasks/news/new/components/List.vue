@@ -13,7 +13,7 @@
     </thead>
     <tbody>
       <tr
-        v-for="(item, index) in list"
+        v-for="item in list"
         :key="item.id"
       >
         <td v-html="item.title" />
@@ -35,9 +35,12 @@
           <input
             type="checkbox"
             :checked="item.isPublic"
+            :disabled="!isPublishable(item)"
+            :title="
+              isPublishable(item) ? undefined : 'Only blog posts can be public'
+            "
             @change="
-              (e) =>
-                emit('update:public', { isPublic: e.target.checked, index })
+              (e) => emit('update:public', { item, isPublic: e.target.checked })
             "
           />
         </td>
@@ -81,6 +84,7 @@ import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import VBadge from '@/components/ui/VBadge/VBadge.vue'
 import newsColors from '@/tasks/news/browse/constants/newsColors.js'
+import { NEWS_PROJECT_BLOGPOST } from '@/constants/news'
 
 defineProps({
   list: {
@@ -106,6 +110,10 @@ function selectItem(item) {
   }
 }
 
+function isPublishable(item) {
+  return item.type === NEWS_PROJECT_BLOGPOST
+}
+
 function getTypeLabel(item) {
   return item.type.split('::').pop()
 }
@@ -127,5 +135,8 @@ function formatDate(date) {
 .news-body * {
   display: inline;
   white-space: nowrap !important;
+  font-size: inherit;
+  line-height: inherit;
+  font-weight: inherit;
 }
 </style>

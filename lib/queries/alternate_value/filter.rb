@@ -72,6 +72,7 @@ module Queries
       def community_project_id_facet
         return nil if project_id.nil?
         if !ignores_project?
+          return table[:project_id].in(project_id).or(table[:project_id].eq(nil)) if api
           return table[:project_id].in(project_id)
         end
         nil

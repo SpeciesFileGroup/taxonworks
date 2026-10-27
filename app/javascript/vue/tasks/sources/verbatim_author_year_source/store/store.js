@@ -53,7 +53,9 @@ export default defineStore('verbatimAuthorYearSource', {
           isPending: false,
           pendingStage: null,
           progressCurrent: 0,
-          progressTotal: 0
+          progressTotal: 0,
+          citedTaxonNameIds: [],
+          citedSourceId: null
         }))
 
         this.maxCount = response.body.max_count
@@ -77,8 +79,7 @@ export default defineStore('verbatimAuthorYearSource', {
     async loadPreviewTaxonNames(author, year) {
       try {
         const response = await TaxonName.where({
-          author: author,
-          author_exact: true,
+          verbatim_author: author,
           year: year,
           citations: false
         })
@@ -106,8 +107,7 @@ export default defineStore('verbatimAuthorYearSource', {
       try {
         // Get TaxonName IDs
         const taxonNamesResponse = await TaxonName.where({
-          author: author,
-          author_exact: true,
+          verbatim_author: author,
           year: year,
           citations: false
         })
@@ -154,6 +154,8 @@ export default defineStore('verbatimAuthorYearSource', {
 
         // Mark as complete
         row.isCited = true
+        row.citedTaxonNameIds = ids
+        row.citedSourceId = sourceId
 
         TW.workbench.alert.create(
           'Citations created and taxon names updated',

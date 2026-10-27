@@ -10,18 +10,20 @@
       </textarea>
       <lock-component v-model="lock.notes_attributes" />
     </div>
-    <button
-      @click="addNote"
+    <VBtn
+      color="primary"
+      medium
       :disabled="!text"
-      class="button normal-input button-submit"
+      @click="addNote"
     >
       Add
-    </button>
+    </VBtn>
     <list-component
       v-if="collectionObject.notes_attributes.length"
       :list="collectionObject.notes_attributes"
+      label="text"
+      soft-delete
       @delete="removeNote"
-      :label="[]"
     />
   </fieldset>
 </template>
@@ -29,13 +31,17 @@
 <script>
 import { GetterNames } from '../../store/getters/getters'
 import { MutationNames } from '../../store/mutations/mutations'
-import ListComponent from '@/components/displayList'
+import ListComponent from '@/components/displayList.vue'
 import SharedComponent from '../shared/lock.js'
+import VBtn from '@/components/ui/VBtn/index.vue'
 
 export default {
   mixins: [SharedComponent],
 
-  components: { ListComponent },
+  components: {
+    ListComponent,
+    VBtn
+  },
 
   computed: {
     collectionObject: {
@@ -56,7 +62,7 @@ export default {
 
   methods: {
     addNote() {
-      this.collectionObject.notes_attributes.push(this.text)
+      this.collectionObject.notes_attributes.push({ text: this.text })
       this.text = undefined
     },
 

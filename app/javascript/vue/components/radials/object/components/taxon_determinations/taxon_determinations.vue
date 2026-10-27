@@ -10,6 +10,7 @@
       :radial-object="true"
       set-key="otu_id"
       label="object_tag"
+      annotator
       @delete="removeItem"
     />
   </div>

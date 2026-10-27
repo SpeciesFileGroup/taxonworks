@@ -89,6 +89,16 @@ export const TASK_INTERACTIVE_KEY = {
   }),
 };
 
+export const TASK_CITE_KEY = {
+  label: "Cite a key",
+  link: "/tasks/leads/cite_key",
+  saveQuery: true,
+  parseParams: ({ params }) => {
+    if (params.otu_id) return { otu_ids: params.otu_id };
+    return { otu_query: params };
+  },
+};
+
 export const TASK_BIOLOGICAL_ASSOCIATION_EXTENSION = {
   label: "DwC Extension Preview",
   link: "/tasks/biological_associations/dwc_extension_preview",

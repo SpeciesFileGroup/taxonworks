@@ -21,9 +21,16 @@ module Housekeeping::Projects
     #  before_destroy :prevent_alteration_in_other_projects
 
     # extend Project
+    # Projects that declare the association themselves (e.g. to add a
+    # has_many :through) are left alone.  Re-declaring the association here
+    # would move it to the end of Project's reflections, and any :through
+    # association that references it would then raise
+    # ActiveRecord::HasManyThroughOrderError.
     Project.class_eval do
       raise 'Class name collision for Project#has_many' if self.methods and self.methods.include?(:related_instances)
-      has_many related_instances, class_name: related_class, dependent: :restrict_with_error, inverse_of: :project
+      unless reflect_on_association(related_instances)
+        has_many related_instances, class_name: related_class, dependent: :restrict_with_error, inverse_of: :project
+      end
     end
   end
 

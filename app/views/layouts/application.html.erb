@@ -37,6 +37,10 @@
       </div>
     </header>
 
+    <% if sessions_project_selected? %>
+      <div id="vue-session-expired-modal"></div>
+    <% end %>
+
     <nav>
       <%= quick_bar -%> 
       <%= task_bar -%>

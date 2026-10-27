@@ -27,6 +27,8 @@ export default {
       urlTask: {
         collection_object: (id) =>
           `${RouteNames.BrowseCollectionObject}?collection_object_id=${id}`,
+        field_occurrence: (id) =>
+          `${RouteNames.BrowseFieldOccurrence}?field_occurrence_id=${id}`,
         taxon_name: (id) =>
           `${RouteNames.BrowseNomenclature}?taxon_name_id=${id}`
       },

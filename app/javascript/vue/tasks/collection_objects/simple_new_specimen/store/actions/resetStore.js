@@ -1,7 +1,7 @@
 import incrementIdentifier from '@/tasks/digitize/helpers/incrementIdentifier'
 
 export default function () {
-  const { collectingEvent, ...rest } = this.settings.lock
+  const { collectingEvent, total, ...rest } = this.settings.lock
 
   for (const key in rest) {
     const isLocked = this.settings.lock[key]
@@ -22,7 +22,11 @@ export default function () {
     })
   }
 
+  if (!total) {
+    this.total = 1
+  }
+
   this.identifier = this.settings.increment
-    ? incrementIdentifier(this.identifier)
+    ? incrementIdentifier(this.identifier, this.createTotal)
     : undefined
 }

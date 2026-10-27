@@ -34,12 +34,16 @@ module Queries::Concerns::DateRanges
     def start_date=(value)
       @start_date = value
       @start_year, @start_month, @start_day = start_date.split('-').map(&:to_i)
+      @start_month ||= 1
+      @start_day ||= 1
       @start_date
     end
 
     def end_date=(value)
       @end_date = value
       @end_year, @end_month, @end_day = end_date.split('-').map(&:to_i)
+      @end_month ||= 12
+      @end_day ||= Date.new(@end_year, @end_month, -1).day
       @end_date
     end
 
