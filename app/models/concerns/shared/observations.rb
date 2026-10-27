@@ -23,6 +23,11 @@ module Shared::Observations
     # ObservationMatrixRows are derived from ObservationMatrixRowItems,
     # which maintain them, never move them directly. Defined here rather than
     # as a module method so it isn't shadowed by Shared::Unify's default.
+    # TODO: fragile - an except_relations defined later in the including class
+    # (or in another concern's included block) silently replaces this, and one
+    # defined earlier is silently overwritten. Move :observation_matrix_rows
+    # (and Descriptor's :observation_matrix_columns) to
+    # Shared::Unify::EXCLUDE_RELATIONS instead.
     def except_relations
       [:observation_matrix_rows]
     end

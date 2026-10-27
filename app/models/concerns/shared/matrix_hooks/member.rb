@@ -43,7 +43,7 @@ module  Shared
       # Row items this (destroyed) instance is currently a member of through
       # its own attributes (e.g. Otu#taxon_name_id).
       # !! Membership through tags is released by Tag's own matrix hooks, don't
-      # include it here. TODO: behavior should be uniform.
+      # include it here. TODO: not good, behavior should (likely) be uniform.
       def member_of_current_matrix_row_items
         []
       end
