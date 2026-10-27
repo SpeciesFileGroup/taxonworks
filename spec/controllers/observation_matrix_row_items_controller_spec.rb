@@ -88,14 +88,14 @@ RSpec.describe ObservationMatrixRowItemsController, type: :controller do
   describe 'PUT #update' do
     context 'with valid params' do
       let!(:new_attributes) {
-        { observation_matrix_id: FactoryBot.create(:valid_observation_matrix).id }
+        { position: 5 }
       }
 
       it 'updates the requested matrix_row_item' do
         observation_matrix_row_item = ObservationMatrixRowItem.create! valid_attributes
         put :update, params: {id: observation_matrix_row_item.to_param, observation_matrix_row_item: new_attributes}, format: :json, session: valid_session
         observation_matrix_row_item.reload
-        expect(observation_matrix_row_item.observation_matrix_id).to eq(new_attributes[:observation_matrix_id])
+        expect(observation_matrix_row_item.position).to eq(new_attributes[:position])
       end
 
       it 'assigns the requested matrix_row_item as @observation_matrix_row_item' do
