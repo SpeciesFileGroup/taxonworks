@@ -22,6 +22,34 @@ describe Queries::DataAttribute::Filter, type: :model do
     expect(a.from_filter_facet(q)).to contain_exactly(i1)
   end
 
+  # Any filter whose referenced model has data attributes can be the scope for a
+  # data attribute batch update; an unregistered *_query is silently ignored,
+  # which leaves the update scoped to every record in the project.
+  specify 'every subqueryable model with data attributes is a DataAttribute subquery' do
+    a = ::Queries::Query::Filter::FILTER_QUERIES.select { |k, v|
+      v.constantize.referenced_klass.included_modules.include?(::Shared::DataAttributes)
+    }.keys.map { |k| k.to_s.sub(/_query\z/, '').to_sym }
+
+    expect(::Queries::Query::Filter::SUBQUERIES[:data_attribute]).to contain_exactly(*a)
+  end
+
+  context 'each DataAttribute subquery scopes to its records' do
+    factories = { source: :valid_source_bibtex }
+
+    ::Queries::Query::Filter::SUBQUERIES[:data_attribute].each do |m|
+      specify m.to_s do
+        f = factories[m] || "valid_#{m}".to_sym
+        in_scope, out_of_scope = FactoryBot.create(f), FactoryBot.create(f)
+
+        da1 = ::InternalAttribute.create!(attribute_subject: in_scope, value: 'a', predicate: p1)
+        ::InternalAttribute.create!(attribute_subject: out_of_scope, value: 'a', predicate: p1)
+
+        q = Queries::DataAttribute::Filter.new("#{m}_query".to_sym => { "#{m}_id".to_sym => [in_scope.id] })
+        expect(q.all).to contain_exactly(da1)
+      end
+    end
+  end
+
   specify '#polymorphic_id_facet' do
     h = {collection_object_id: o2.id} 
     q = Queries::DataAttribute::Filter.new(h)

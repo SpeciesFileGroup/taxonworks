@@ -55,6 +55,54 @@ describe InternalAttribute, type: :model do
     expect([a.value, b.value]).to eq(['22', b.value])
   end
 
+  context '.batch_update_or_create on a filter not supported as a DataAttribute subquery' do
+    let(:source_in_scope) { FactoryBot.create(:valid_source_bibtex) }
+    let(:source_out_of_scope) { FactoryBot.create(:valid_source_bibtex) }
+    let(:otu_out_of_scope) { FactoryBot.create(:valid_otu) }
+
+    let!(:in_scope) { InternalAttribute.create!(predicate:, value: 'A', attribute_subject: source_in_scope) }
+    let!(:out_of_scope_source) { InternalAttribute.create!(predicate:, value: 'A', attribute_subject: source_out_of_scope) }
+    let!(:out_of_scope_otu) { InternalAttribute.create!(predicate:, value: 'A', attribute_subject: otu_out_of_scope) }
+
+    def batch_update(value_from)
+      InternalAttribute.batch_update_or_create(
+        ActionController::Parameters.new(
+          source_query: { source_id: [source_in_scope.id] },
+          predicate_id: predicate.id,
+          value_from:,
+          value_to: 'B'
+        )
+      )
+    end
+
+    specify 'with value_from updates only attributes on filtered records' do
+      batch_update('A')
+      expect([in_scope, out_of_scope_source, out_of_scope_otu].map { |a| a.reload.value }).to eq(%w{B A A})
+    end
+
+    specify 'with blank value_from updates only attributes on filtered records' do
+      batch_update('')
+      expect([in_scope, out_of_scope_source, out_of_scope_otu].map { |a| a.reload.value }).to eq(%w{B A A})
+    end
+  end
+
+  specify '.batch_update_or_create on an Otu filter does not update other subject types' do
+    o = FactoryBot.create(:valid_otu)
+    a = InternalAttribute.create!(predicate:, value: 'A', attribute_subject: o)
+    b = InternalAttribute.create!(predicate:, value: 'A', attribute_subject: FactoryBot.create(:valid_collection_object))
+
+    InternalAttribute.batch_update_or_create(
+      ActionController::Parameters.new(
+        otu_query: { otu_id: [o.id] },
+        predicate_id: predicate.id,
+        value_from: '',
+        value_to: 'B'
+      )
+    )
+
+    expect([a.reload.value, b.reload.value]).to eq(%w{B A})
+  end
+
   specify '.batch_create 1' do
     o1 = FactoryBot.create(:valid_otu)
     o2 = FactoryBot.create(:valid_otu)

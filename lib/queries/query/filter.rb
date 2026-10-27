@@ -49,7 +49,7 @@ module Queries
       content: [:source, :otu, :taxon_name, :image],
       conveyance: [:sound],
       controlled_vocabulary_term: [:data_attribute],
-      data_attribute: [:collection_object, :collecting_event, :field_occurrence, :taxon_name, :otu],
+      data_attribute: [:anatomical_part, :asserted_distribution, :asserted_environment, :biological_association, :collection_object, :collecting_event, :content, :depiction, :descriptor, :extract, :field_occurrence, :loan, :observation, :otu, :person, :sound, :source, :taxon_name],
       dwc_occurrence: [:asserted_distribution, :collection_object, :collecting_event, :field_occurrence, :otu],
       depiction: [:image],
       descriptor: [:source, :observation, :otu],
