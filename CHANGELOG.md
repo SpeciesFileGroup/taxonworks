@@ -35,11 +35,13 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Browse OTU: OTU distribution map does not load for Combinations [#5152]
 - Field Occurrences don't fill in taxonomy columns (family, genus, etc.) when included in Darwin Core exports
 - CSD: Saving a CO with a CE that has multiple uses displays a confirmation modal even if it has not been modified [#5146]
+- Unify issues related to matrices [#5129]
 
 [#200]: https://github.com/SpeciesFileGroup/taxonpages/issues/200
 [#5116]: https://github.com/SpeciesFileGroup/taxonworks/issues/5116
 [#5117]: https://github.com/SpeciesFileGroup/taxonworks/issues/5117
 [#5128]: https://github.com/SpeciesFileGroup/taxonworks/issues/5128
+[#5129]: https://github.com/SpeciesFileGroup/taxonworks/issues/5129
 [#5133]: https://github.com/SpeciesFileGroup/taxonworks/issues/5133
 [#5136]: https://github.com/SpeciesFileGroup/taxonworks/issues/5136
 [#5137]: https://github.com/SpeciesFileGroup/taxonworks/issues/5137
