@@ -20,6 +20,18 @@ module Shared::Observations
     has_many :observation_matrices, through: :observation_matrix_rows, inverse_of: class_name.pluralize.to_sym
     has_many :descriptors, through: :observations
 
+    # ObservationMatrixRows are derived from ObservationMatrixRowItems,
+    # which maintain them, never move them directly. Defined here rather than
+    # as a module method so it isn't shadowed by Shared::Unify's default.
+    # TODO: fragile - an except_relations defined later in the including class
+    # (or in another concern's included block) silently replaces this, and one
+    # defined earlier is silently overwritten. Move :observation_matrix_rows
+    # (and Descriptor's :observation_matrix_columns) to
+    # Shared::Unify::EXCLUDE_RELATIONS instead.
+    def except_relations
+      [:observation_matrix_rows]
+    end
+
     #  has_many :observation_matrix_rows, inverse_of: :observation_object, dependent: :delete_all
     #  has_many :observation_matrices, through: :observation_matrix_rows
     #  has_many :observation_matrix_row_items, inverse_of: class_name, dependent: :delete_all, class_name: 'ObservationMatrixRowItem::Single::Otu'

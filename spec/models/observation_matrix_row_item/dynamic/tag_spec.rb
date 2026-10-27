@@ -122,6 +122,59 @@ RSpec.describe ObservationMatrixRowItem::Dynamic::Tag, type: :model, group: :obs
         end
       end
 
+      context 'moving a tag to another object' do
+        let(:otu3) { FactoryBot.create(:valid_otu) }
+
+        before { tag1.update!(tag_object: otu3) }
+
+        specify 'the row moves to the new object' do
+          expect(ObservationMatrixRow.all.map(&:observation_object)).to contain_exactly(otu2, co1, otu3)
+        end
+
+        specify 'reference_counts are unchanged' do
+          expect(ObservationMatrixRow.all.pluck(:reference_count)).to contain_exactly(1, 1, 1)
+        end
+      end
+
+      context 'moving a tag to another object and keyword at once' do
+        let(:otu3) { FactoryBot.create(:valid_otu) }
+        let(:other_keyword) { FactoryBot.create(:valid_keyword) }
+        let!(:single_item) {
+          ObservationMatrixRowItem::Single.create!(
+            observation_matrix:, observation_object: otu1)
+        }
+
+        before { tag1.update!(keyword: other_keyword, tag_object: otu3) }
+
+        specify 'the previous object row is decremented once' do
+          expect(ObservationMatrixRow.where(observation_object: otu1)
+            .pluck(:reference_count)).to eq([1])
+        end
+
+        specify 'the new object gets no row (its keyword is not in the matrix)' do
+          expect(ObservationMatrixRow.where(observation_object: otu3).count).to eq 0
+        end
+      end
+
+      # Tag create/destroy matrix hooks only count Otu, CollectionObject and
+      # Extract, so moves must not decrement for other observable types.
+      context 'moving a tag on an observable type not counted by tag hooks' do
+        let(:field_occurrence1) { FactoryBot.create(:valid_field_occurrence) }
+        let(:field_occurrence2) { FactoryBot.create(:valid_field_occurrence) }
+        let!(:single_item) {
+          ObservationMatrixRowItem::Single.create!(
+            observation_matrix:, observation_object: field_occurrence1)
+        }
+        let!(:tag4) { Tag.create!(keyword:, tag_object: field_occurrence1) }
+
+        before { tag4.update!(tag_object: field_occurrence2) }
+
+        specify 'the single item row is kept' do
+          expect(ObservationMatrixRow.where(observation_object: field_occurrence1)
+            .pluck(:reference_count)).to eq([1])
+        end
+      end
+
       specify 'keyword/controlled_vocabulary_term can only be added once to an observation_matrix_row_item' do
         expect(ObservationMatrixRowItem::Dynamic::Tag.new(observation_matrix: observation_matrix, observation_object: keyword).valid?).to be_falsey
       end

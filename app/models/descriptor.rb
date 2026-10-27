@@ -43,6 +43,12 @@ class Descriptor < ApplicationRecord
 
   scope :not_weight_zero, -> {where('NOT "descriptors"."weight" = 0 OR "descriptors"."weight" IS NULL') }
 
+  # ObservationMatrixColumns are derived from ObservationMatrixColumnItems,
+  # which maintain them, never move them directly.
+  def except_relations
+    [:observation_matrix_columns]
+  end
+
   # observation_matrix_column_items carries class_name: so inferred_relations drops it.
   # Force it back so column items are moved to the surviving descriptor during unify
   # rather than being destroyed with the removed one.
