@@ -114,7 +114,6 @@ class Extract < ApplicationRecord
     ObservationMatrixRow.where(observation_object: self).delete_all
   end
 
-
   def set_made
     write_attribute(:year_made, Time.now.year)
     write_attribute(:month_made, Time.now.month)

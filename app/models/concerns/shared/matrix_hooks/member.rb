@@ -104,6 +104,7 @@ module  Shared
 
       # The row items this instance was a member of release its rows
       def member_remove_from_matrices
+        return if !ObservationMatrix.where(project_id:).any?
         member_remove_matrix_rows(member_of_current_matrix_row_items)
       end
 

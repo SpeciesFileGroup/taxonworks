@@ -113,8 +113,7 @@ class ObservationMatrixRowItem < ApplicationRecord
 
   # Not named "destroy_" because it doesn't always delete row
   def cleanup_single_matrix_row(object)
-    mr = ObservationMatrixRow.where(observation_matrix:, observation_object: object).first
-    decrement_matrix_row_reference_count(mr) if !mr.nil?
+    cleanup_single_matrix_row_for(object.class.base_class.name, object.id)
   end
 
   # As cleanup_single_matrix_row, for an object that needn't be loaded

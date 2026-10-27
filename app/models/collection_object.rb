@@ -785,7 +785,6 @@ class CollectionObject < ApplicationRecord
     ObservationMatrixRow.where(observation_object: self).delete_all
   end
 
-
   def collecting_event_belongs_to_project
     if collecting_event&.persisted? && (Current.project_id || project_id)
       errors.add(:base, 'collecting event is not from this project') if collecting_event.project_id != (Current.project_id || project_id)
