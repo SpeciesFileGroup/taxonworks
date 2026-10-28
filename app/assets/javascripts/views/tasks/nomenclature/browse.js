@@ -128,6 +128,16 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
       ...filterDropdown.querySelectorAll('[data-filter], [data-filter-row]')
     ]
     const resetButton = filterDropdown.querySelector('[data-filter-reset]')
+    const filterCountElement = filterDropdown.querySelector('[data-filter-count]')
+
+    function updateFilterCount() {
+      const activeCount = filterItems.filter(
+        (item) => item.querySelector('.columns-checkbox').checked
+      ).length
+
+      filterCountElement.textContent = `(${activeCount})`
+      filterCountElement.classList.toggle('d-none', !activeCount)
+    }
 
     function applyFilterItem(item) {
       const checkbox = item.querySelector('.columns-checkbox')
@@ -137,7 +147,11 @@ Object.assign(TW.views.tasks.nomenclature.browse, {
       document.querySelectorAll(filterSelector).forEach((node) => {
         setElementVisible(node, checkbox.checked)
       })
+
+      updateFilterCount()
     }
+
+    updateFilterCount()
 
     filterDropdown
       .querySelector('.columns-toggle')
