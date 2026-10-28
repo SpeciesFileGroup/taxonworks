@@ -37,6 +37,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Field Occurrences don't fill in taxonomy columns (family, genus, etc.) when included in Darwin Core exports
 - CSD: Saving a CO with a CE that has multiple uses displays a confirmation modal even if it has not been modified [#5146]
 - Unify issues related to matrices [#5129]
+- The PDF toolbar overlaps the scroll button
 
 [#200]: https://github.com/SpeciesFileGroup/taxonpages/issues/200
 [#5116]: https://github.com/SpeciesFileGroup/taxonworks/issues/5116
