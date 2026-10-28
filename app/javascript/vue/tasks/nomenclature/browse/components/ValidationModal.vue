@@ -3,7 +3,9 @@
     v-if="isModalVisible"
     @close="() => (isModalVisible = false)"
   >
-    <template #header>Validations</template>
+    <template #header>
+      <h3>Validations</h3>
+    </template>
     <template #body>
       <SoftValidations
         :global-id="globalId"
