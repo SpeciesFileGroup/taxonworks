@@ -39,9 +39,11 @@ class ProjectSource < ApplicationRecord
         rescue ActiveRecord::RecordInvalid
         end
       when :remove
+        # destroy, not delete_all, check_for_use keeps sources cited in the project
         sources.all.find_each do |s|
-          ProjectSource.where(project_id: , source_id: s.id).delete_all
-          i += 1
+          ProjectSource.where(project_id: , source_id: s.id).each do |ps|
+            i += 1 if ps.destroy
+          end
         end
       else
         return false

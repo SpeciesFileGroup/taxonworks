@@ -18,6 +18,14 @@ describe ProjectSource do
     expect( Project.find(project_id).project_sources.map(&:source_id).include?(a.id) ).to be_falsey
   end
 
+  specify '#batch_sync_to_project :remove does not remove a source cited in the project' do
+    a = FactoryBot.create(:valid_source_bibtex)
+    FactoryBot.create(:valid_citation, source: a) # adds a to the project
+
+    expect(ProjectSource.batch_sync_to_project( {source_query:  {source_id: a.id}}, :remove, project_id )).to eq(0)
+    expect( Project.find(project_id).project_sources.map(&:source_id).include?(a.id) ).to be_truthy
+  end
+
   context 'validation' do
     before(:each) { project_source.valid? }
 
