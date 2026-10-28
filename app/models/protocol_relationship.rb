@@ -62,7 +62,8 @@ class ProtocolRelationship < ApplicationRecord
       ProtocolRelationship
         .where(
           protocol_relationship_object_id: query.pluck(:id),
-          protocol_relationship_object_type: query.klass.name
+          protocol_relationship_object_type: query.klass.name,
+          protocol_id: params[:protocol_id]
         ).delete_all
 
     when :add

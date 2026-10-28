@@ -8,8 +8,8 @@ RSpec.describe ProtocolRelationship, type: :model, group: :protocol do
   let(:specimen) { Specimen.create! }
 
   specify '#batch_by_filter_scope :replace, async, ' do
-    c1 = FactoryBot.create(:valid_protocol_relationship)
-    ProtocolRelationship.create!(protocol_relationship_object: specimen, protocol:)
+    new_protocol = FactoryBot.create(:valid_protocol)
+    pr = ProtocolRelationship.create!(protocol_relationship_object: specimen, protocol:)
 
     q = ::Queries::CollectionObject::Filter.new(collection_object_id: specimen.id)
     p = ActionController::Parameters.new( { 'collection_object_query' => q.params })
@@ -19,8 +19,8 @@ RSpec.describe ProtocolRelationship, type: :model, group: :protocol do
       mode: :replace,
       async_cutoff: 0,
       params: {
-        protocol_id: c1.id,
-        replace_protocol_id: protocol_relationship.id
+        protocol_id: new_protocol.id,
+        replace_protocol_id: protocol.id
       },
       user_id: User.first.id,
       project_id: Project.first.id
@@ -28,13 +28,12 @@ RSpec.describe ProtocolRelationship, type: :model, group: :protocol do
 
     perform_enqueued_jobs
 
-    expect(ProtocolRelationship.all.first.protocol_id).to eq(c1.id)
+    expect(pr.reload.protocol_id).to eq(new_protocol.id)
   end
 
   specify '#batch_by_filter_scope :replace, async' do
-    c1 = FactoryBot.create(:valid_protocol_relationship)
-
-    ProtocolRelationship.create!(protocol_relationship_object: specimen, protocol:)
+    new_protocol = FactoryBot.create(:valid_protocol)
+    pr = ProtocolRelationship.create!(protocol_relationship_object: specimen, protocol:)
 
     q = ::Queries::CollectionObject::Filter.new(collection_object_id: specimen.id)
     ProtocolRelationship.batch_by_filter_scope(
@@ -42,8 +41,8 @@ RSpec.describe ProtocolRelationship, type: :model, group: :protocol do
       mode: :replace,
       async_cutoff: 0,
       params: {
-        protocol_id: c1.id,
-        replace_protocol_id: protocol_relationship.id
+        protocol_id: new_protocol.id,
+        replace_protocol_id: protocol.id
       },
       user_id: Current.user_id,
       project_id: Current.project_id
@@ -51,22 +50,25 @@ RSpec.describe ProtocolRelationship, type: :model, group: :protocol do
 
     perform_enqueued_jobs
 
-    expect(ProtocolRelationship.all.first.protocol_id).to eq(c1.id)
+    expect(pr.reload.protocol_id).to eq(new_protocol.id)
   end
 
   specify '#batch_by_filter_scope :replace' do
-    c1 = FactoryBot.create(:valid_protocol_relationship)
-    ProtocolRelationship.create!(protocol_relationship_object: specimen, protocol:)
+    new_protocol = FactoryBot.create(:valid_protocol)
+    pr = ProtocolRelationship.create!(protocol_relationship_object: specimen, protocol:)
+    out_of_scope = ProtocolRelationship.create!(protocol_relationship_object: Specimen.create!, protocol:)
+
     q = ::Queries::CollectionObject::Filter.new(collection_object_id: specimen.id)
     ProtocolRelationship.batch_by_filter_scope(
       filter_query: { 'collection_object_query' => q.params },
       mode: :replace,
       params: {
-        protocol_id: c1.id,
-        replace_protocol_id: protocol_relationship.id
+        protocol_id: new_protocol.id,
+        replace_protocol_id: protocol.id
       }
     )
-    expect(ProtocolRelationship.all.first.protocol_id).to eq(c1.id)
+    expect(pr.reload.protocol_id).to eq(new_protocol.id)
+    expect(out_of_scope.reload.protocol_id).to eq(protocol.id)
   end
 
   # No async test, we don't use
@@ -77,10 +79,37 @@ RSpec.describe ProtocolRelationship, type: :model, group: :protocol do
       filter_query: { 'collection_object_query' => q.params },
       mode: :remove,
       params: {
-        protocol_id: protocol_relationship.id
+        protocol_id: protocol.id
       }
     )
     expect(ProtocolRelationship.all.count).to eq(0)
+  end
+
+  specify '#batch_by_filter_scope :remove only removes the given protocol' do
+    other_protocol = FactoryBot.create(:valid_protocol)
+    ProtocolRelationship.create!(protocol_relationship_object: specimen, protocol:)
+    kept = ProtocolRelationship.create!(protocol_relationship_object: specimen, protocol: other_protocol)
+
+    q = ::Queries::CollectionObject::Filter.new(collection_object_id: specimen.id)
+    ProtocolRelationship.batch_by_filter_scope(
+      filter_query: { 'collection_object_query' => q.params },
+      mode: :remove,
+      params: {
+        protocol_id: protocol.id
+      }
+    )
+    expect(ProtocolRelationship.all).to contain_exactly(kept)
+  end
+
+  specify '#batch_by_filter_scope :remove without a protocol removes nothing' do
+    ProtocolRelationship.create!(protocol_relationship_object: specimen, protocol:)
+    q = ::Queries::CollectionObject::Filter.new(collection_object_id: specimen.id)
+    ProtocolRelationship.batch_by_filter_scope(
+      filter_query: { 'collection_object_query' => q.params },
+      mode: :remove,
+      params: {}
+    )
+    expect(ProtocolRelationship.all.count).to eq(1)
   end
 
   specify '#batch_by_filter_scope :add' do
