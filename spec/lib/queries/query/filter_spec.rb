@@ -401,6 +401,28 @@ describe Queries::Query::Filter, type: [:model] do
     end
   end
 
+  context 'api excluded params' do
+    specify 'are not permitted at the top level' do
+      a = ::Queries::Person::Filter.new(ActionController::Parameters.new(api: true, regex: '^A'))
+      expect(a.regex).to eq(nil)
+    end
+
+    specify 'are not permitted in a nested query' do
+      a = ::Queries::DataAttribute::Filter.new(
+        ActionController::Parameters.new(api: true, person_query: { regex: '^A', person_id: [1] })
+      )
+      expect(a.person_query.regex).to eq(nil)
+      expect(a.person_query.person_id).to eq([1])
+    end
+
+    specify 'are permitted in a nested query when not api' do
+      a = ::Queries::DataAttribute::Filter.new(
+        ActionController::Parameters.new(person_query: { regex: '^A' })
+      )
+      expect(a.person_query.regex).to eq('^A')
+    end
+  end
+
   context 'PARAMS defined' do
     filters.each do |f|
       specify "#{f.name}" do

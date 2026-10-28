@@ -590,6 +590,14 @@ module Queries
           p = n + p
         end
 
+        # Exclusions apply at every nesting level, not just the top
+        if api
+          q.api_excluded_params.each do |e|
+            p.delete_if{|k,v| e == k}
+            p.last.delete_if{|k,v| e == k }
+          end
+        end
+
         c[a] = p
 
         c = p.last
