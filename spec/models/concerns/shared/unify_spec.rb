@@ -869,16 +869,491 @@ describe 'Shared::Unify', type: :model do
     expect( b[:details]['Asserted distributions'].dig(:deduplicated)).to eq(1)
   end
 
+  # Moving the last Depiction off an Observation::Media normally destroys that
+  # observation via a Depiction callback; within unify the callback must defer
+  # to unify, which moves the remaining relations first.
+  context 'when a nested dedup unify moves the last depiction off an Observation::Media' do
+    let(:d1) { Descriptor::Media.create!(name: 'keep') }
+    let(:d2) { Descriptor::Media.create!(name: 'remove') }
+    let!(:observation1) {
+      FactoryBot.create(:valid_observation, type: 'Observation::Media',
+        descriptor: d1, observation_object: o1)
+    }
+    let!(:observation2) {
+      FactoryBot.create(:valid_observation, type: 'Observation::Media',
+        descriptor: d2, observation_object: o1)
+    }
+    let!(:depiction1) {
+      FactoryBot.create(:valid_depiction, depiction_object: observation1)
+    }
+    let!(:depiction2) {
+      FactoryBot.create(:valid_depiction, depiction_object: observation2)
+    }
+
+    specify 'unify succeeds' do
+      result = d1.unify(d2)
+      expect(result[:result][:unified]).to be(true)
+      expect(result[:details]['Observations'][:deduplicated]).to eq(1)
+    end
+
+    specify 'remove_object and its duplicate observation are destroyed' do
+      d1.unify(d2)
+      expect(Descriptor.where(id: d2.id).exists?).to be(false)
+      expect(Observation.where(id: observation2.id).exists?).to be(false)
+    end
+
+    specify 'depictions end up on the kept observation' do
+      d1.unify(d2)
+      expect(observation1.depictions.reload.map(&:id))
+        .to contain_exactly(depiction1.id, depiction2.id)
+    end
+
+    specify 'annotations after depictions end up on the kept observation' do
+      note = FactoryBot.create(:valid_note, note_object: observation2)
+      tag = FactoryBot.create(:valid_tag, tag_object: observation2)
+      d1.unify(d2)
+      expect(observation1.notes.reload.map(&:id)).to contain_exactly(note.id)
+      expect(observation1.tags.reload.map(&:id)).to contain_exactly(tag.id)
+    end
+
+    specify 'preview does not raise' do
+      result = d1.unify(d2, preview: true)
+      expect(result[:result][:unified]).to be(true)
+      expect(Descriptor.where(id: d2.id).exists?).to be(true)
+    end
+  end
+
+  # Destroying the last Depiction of an Observation::Media normally destroys
+  # that observation via a Depiction callback; within unify the callback must
+  # defer to unify.
+  context 'when a dedup destroys the last depiction of an Observation::Media' do
+    let(:descriptor) { Descriptor::Media.create!(name: 'media') }
+    let!(:observation1) {
+      FactoryBot.create(:valid_observation, type: 'Observation::Media',
+        descriptor:, observation_object: o1)
+    }
+    let!(:observation2) {
+      FactoryBot.create(:valid_observation, type: 'Observation::Media',
+        descriptor:, observation_object: o2)
+    }
+    let!(:depiction1) {
+      FactoryBot.create(:valid_depiction, depiction_object: observation1)
+    }
+    let!(:depiction2) {
+      Depiction.create!(depiction_object: observation2, image: depiction1.image)
+    }
+
+    specify 'unify succeeds' do
+      result = observation1.unify(observation2)
+      expect(result[:result][:unified]).to be(true)
+      expect(result[:details]['Depictions'][:deduplicated]).to eq(1)
+    end
+
+    specify 'annotations after depictions end up on the kept observation' do
+      note = FactoryBot.create(:valid_note, note_object: observation2)
+      observation1.unify(observation2)
+      expect(Observation.where(id: observation2.id).exists?).to be(false)
+      expect(observation1.depictions.reload.map(&:id))
+        .to contain_exactly(depiction1.id)
+      expect(observation1.notes.reload.map(&:id)).to contain_exactly(note.id)
+    end
+  end
+
+  # ObservationMatrixColumns are derived from ObservationMatrixColumnItems,
+  # unify moves the items and lets them maintain the columns.
+  context 'Descriptors in observation matrices' do
+    let(:om) { FactoryBot.create(:valid_observation_matrix) }
+    let(:d1) { FactoryBot.create(:valid_descriptor) }
+    let(:d2) { FactoryBot.create(:valid_descriptor) }
+    let!(:item2) {
+      ObservationMatrixColumnItem::Single::Descriptor.create!(
+        observation_matrix: om, descriptor: d2)
+    }
+
+    context 'when unifying only the column items' do
+      specify 'unify succeeds' do
+        expect(d1.unify(d2, only: [:observation_matrix_column_items])[:result][:unified])
+          .to be(true)
+      end
+
+      specify 'the column moves to the kept descriptor' do
+        d1.unify(d2, only: [:observation_matrix_column_items])
+        expect(ObservationMatrixColumn.where(observation_matrix: om)
+          .pluck(:descriptor_id, :reference_count))
+          .to contain_exactly([d1.id, 1])
+        expect(Descriptor.where(id: d2.id).exists?).to be(true)
+      end
+    end
+
+    context 'when only the removed descriptor is in the matrix' do
+      specify 'unify succeeds' do
+        expect(d1.unify(d2)[:result][:unified]).to be(true)
+      end
+
+      specify 'the column moves to the kept descriptor' do
+        d1.unify(d2)
+        expect(ObservationMatrixColumn.where(observation_matrix: om)
+          .pluck(:descriptor_id, :reference_count,
+            :cached_observation_matrix_column_item_id))
+          .to contain_exactly([d1.id, 1, item2.id])
+      end
+
+      specify 'the column keeps its position' do
+        da = FactoryBot.create(:valid_descriptor)
+        db = FactoryBot.create(:valid_descriptor)
+        ObservationMatrixColumnItem::Single::Descriptor.create!(
+          observation_matrix: om, descriptor: da)
+        ObservationMatrixColumnItem::Single::Descriptor.create!(
+          observation_matrix: om, descriptor: db)
+        ObservationMatrixColumn.sort(
+          ObservationMatrixColumn.where(descriptor: [da, d2, db])
+            .sort_by { |c| [da, d2, db].map(&:id).index(c.descriptor_id) }
+            .map(&:id)
+        )
+
+        d1.unify(d2)
+        expect(ObservationMatrixColumn.where(observation_matrix: om)
+          .order(:position).pluck(:descriptor_id))
+          .to eq([da.id, d1.id, db.id])
+      end
+    end
+
+    context 'when both descriptors are in the matrix' do
+      let!(:item1) {
+        ObservationMatrixColumnItem::Single::Descriptor.create!(
+          observation_matrix: om, descriptor: d1)
+      }
+
+      specify 'unify succeeds' do
+        expect(d1.unify(d2)[:result][:unified]).to be(true)
+      end
+
+      specify 'only the kept descriptor column remains' do
+        d1.unify(d2)
+        expect(ObservationMatrixColumn.where(observation_matrix: om)
+          .pluck(:descriptor_id, :reference_count,
+            :cached_observation_matrix_column_item_id))
+          .to contain_exactly([d1.id, 1, item1.id])
+      end
+    end
+  end
+
+  # Unify moves tags, which maintain the rows/columns of dynamic (keyword)
+  # matrix items.
+  context 'Descriptors in observation matrices via a dynamic keyword' do
+    let(:om) { FactoryBot.create(:valid_observation_matrix) }
+    let(:keyword) { FactoryBot.create(:valid_keyword) }
+    let(:d1) { FactoryBot.create(:valid_descriptor) }
+    let(:d2) { FactoryBot.create(:valid_descriptor) }
+    let!(:tag2) { FactoryBot.create(:valid_tag, keyword:, tag_object: d2) }
+    let!(:item) {
+      ObservationMatrixColumnItem::Dynamic::Tag.create!(
+        observation_matrix: om, controlled_vocabulary_term: keyword)
+    }
+
+    context 'when only the removed descriptor is tagged' do
+      specify 'unify succeeds' do
+        expect(d1.unify(d2)[:result][:unified]).to be(true)
+      end
+
+      specify 'the column moves to the kept descriptor' do
+        d1.unify(d2)
+        expect(ObservationMatrixColumn.where(observation_matrix: om)
+          .pluck(:descriptor_id, :reference_count))
+          .to contain_exactly([d1.id, 1])
+      end
+    end
+
+    context 'when the removed descriptor is also a single item' do
+      let!(:single_item) {
+        ObservationMatrixColumnItem::Single::Descriptor.create!(
+          observation_matrix: om, descriptor: d2)
+      }
+
+      specify 'unify succeeds' do
+        expect(d1.unify(d2)[:result][:unified]).to be(true)
+      end
+
+      specify 'the column moves to the kept descriptor' do
+        d1.unify(d2)
+        expect(ObservationMatrixColumn.where(observation_matrix: om)
+          .pluck(:descriptor_id, :reference_count,
+            :cached_observation_matrix_column_item_id))
+          .to contain_exactly([d1.id, 2, single_item.id])
+      end
+
+      context 'when unifying only the column items' do
+        specify 'the removed descriptor keeps its column for the keyword' do
+          column2 = ObservationMatrixColumn.find_by(
+            observation_matrix: om, descriptor: d2)
+
+          d1.unify(d2, only: [:observation_matrix_column_items])
+          expect(ObservationMatrixColumn.where(observation_matrix: om)
+            .pluck(:id, :descriptor_id, :reference_count,
+              :cached_observation_matrix_column_item_id))
+            .to contain_exactly(
+              [column2.id, d2.id, 1, nil],
+              [anything, d1.id, 1, single_item.id]
+            )
+        end
+      end
+    end
+  end
+
+  context 'Otus in observation matrices via a dynamic taxon name' do
+    let(:om) { FactoryBot.create(:valid_observation_matrix) }
+    let(:root) { FactoryBot.create(:root_taxon_name) }
+    let(:genus) {
+      Protonym.create!(name: 'Aus', parent: root,
+        rank_class: Ranks.lookup(:iczn, :genus))
+    }
+    let(:in_scope) { Otu.create!(taxon_name: genus) }
+    let!(:item) {
+      ObservationMatrixRowItem::Dynamic::TaxonName.create!(
+        observation_matrix: om, observation_object: genus)
+    }
+
+    specify 'the removed otu row is removed when the kept otu is out of scope' do
+      in_scope.reload
+      expect(o1.unify(in_scope)[:result][:unified]).to be(true)
+      expect(ObservationMatrixRow.where(observation_matrix: om).count).to eq(0)
+    end
+  end
+
+  context 'CollectionObjects in observation matrices via a dynamic taxon name' do
+    let(:om) { FactoryBot.create(:valid_observation_matrix) }
+    let(:root) { FactoryBot.create(:root_taxon_name) }
+    let(:genus) {
+      Protonym.create!(name: 'Aus', parent: root,
+        rank_class: Ranks.lookup(:iczn, :genus))
+    }
+    let(:co1) { FactoryBot.create(:valid_specimen) }
+    let!(:co2) {
+      s = FactoryBot.create(:valid_specimen)
+      FactoryBot.create(:valid_taxon_determination,
+        otu: Otu.create!(taxon_name: genus), taxon_determination_object: s)
+      s
+    }
+    let!(:item) {
+      ObservationMatrixRowItem::Dynamic::TaxonName.create!(
+        observation_matrix: om, observation_object: genus)
+    }
+
+    specify 'unify leaves no row pointing at the removed collection object' do
+      expect(ObservationMatrixRow.where(observation_object: co2).count).to eq(1)
+      expect(co1.unify(co2)[:result][:unified]).to be(true)
+      expect(ObservationMatrixRow.where(
+        observation_object_type: 'CollectionObject', observation_object_id: co2.id
+      ).count).to eq(0)
+    end
+  end
+
+  context 'Otus in observation matrices via a dynamic keyword' do
+    let(:om) { FactoryBot.create(:valid_observation_matrix) }
+    let(:keyword) { FactoryBot.create(:valid_keyword) }
+    let!(:tag2) { FactoryBot.create(:valid_tag, keyword:, tag_object: o2) }
+    let!(:item) {
+      ObservationMatrixRowItem::Dynamic::Tag.create!(
+        observation_matrix: om, observation_object: keyword)
+    }
+
+    specify 'unify succeeds' do
+      expect(o1.unify(o2)[:result][:unified]).to be(true)
+    end
+
+    specify 'the row moves to the kept otu' do
+      o1.unify(o2)
+      expect(ObservationMatrixRow.where(observation_matrix: om)
+        .pluck(:observation_object_type, :observation_object_id,
+          :reference_count))
+        .to contain_exactly(['Otu', o1.id, 1])
+    end
+
+    context 'when the removed otu is also a single item' do
+      let!(:single_item) {
+        ObservationMatrixRowItem::Single.create!(
+          observation_matrix: om, observation_object: o2)
+      }
+
+      specify 'the row moves to the kept otu' do
+        o1.unify(o2)
+        expect(ObservationMatrixRow.where(observation_matrix: om)
+          .pluck(:observation_object_id, :reference_count,
+            :cached_observation_matrix_row_item_id))
+          .to contain_exactly([o1.id, 2, single_item.id])
+      end
+
+      context 'when unifying only the row items' do
+        specify 'the removed otu keeps its row for the keyword' do
+          row2 = ObservationMatrixRow.find_by(
+            observation_matrix: om, observation_object: o2)
+
+          o1.unify(o2, only: [:observation_matrix_row_items])
+          expect(ObservationMatrixRow.where(observation_matrix: om)
+            .pluck(:id, :observation_object_id, :reference_count,
+              :cached_observation_matrix_row_item_id))
+            .to contain_exactly(
+              [row2.id, o2.id, 1, nil],
+              [anything, o1.id, 1, single_item.id]
+            )
+        end
+      end
+    end
+
+    context 'when only the kept otu is tagged and the removed otu is a single item' do
+      let!(:tag2) { FactoryBot.create(:valid_tag, keyword:, tag_object: o1) }
+      let!(:single_item) {
+        ObservationMatrixRowItem::Single.create!(
+          observation_matrix: om, observation_object: o2)
+      }
+
+      specify 'the kept otu row counts both' do
+        o1.unify(o2)
+        expect(ObservationMatrixRow.where(observation_matrix: om)
+          .pluck(:observation_object_id, :reference_count,
+            :cached_observation_matrix_row_item_id))
+          .to contain_exactly([o1.id, 2, single_item.id])
+      end
+    end
+  end
+
+  context 'Keywords with dynamic observation matrix column items' do
+    let(:om) { FactoryBot.create(:valid_observation_matrix) }
+    let(:k1) { FactoryBot.create(:valid_keyword) }
+    let(:k2) { FactoryBot.create(:valid_keyword) }
+    let(:d1) { FactoryBot.create(:valid_descriptor) }
+    let(:d2) { FactoryBot.create(:valid_descriptor) }
+    let!(:tag1) { FactoryBot.create(:valid_tag, keyword: k1, tag_object: d1) }
+    let!(:tag2) { FactoryBot.create(:valid_tag, keyword: k2, tag_object: d2) }
+    let!(:item2) {
+      ObservationMatrixColumnItem::Dynamic::Tag.create!(
+        observation_matrix: om, controlled_vocabulary_term: k2)
+    }
+
+    context 'when only the removed keyword is in the matrix' do
+      specify 'unify succeeds' do
+        expect(k1.unify(k2)[:result][:unified]).to be(true)
+      end
+
+      specify 'columns cover all descriptors tagged with the kept keyword' do
+        k1.unify(k2)
+        expect(ObservationMatrixColumn.where(observation_matrix: om)
+          .pluck(:descriptor_id, :reference_count))
+          .to contain_exactly([d1.id, 1], [d2.id, 1])
+      end
+    end
+
+    context 'when both keywords are in the matrix' do
+      let!(:item1) {
+        ObservationMatrixColumnItem::Dynamic::Tag.create!(
+          observation_matrix: om, controlled_vocabulary_term: k1)
+      }
+
+      specify 'unify succeeds' do
+        expect(k1.unify(k2)[:result][:unified]).to be(true)
+      end
+
+      specify 'columns cover all descriptors tagged with the kept keyword' do
+        k1.unify(k2)
+        expect(ObservationMatrixColumn.where(observation_matrix: om)
+          .pluck(:descriptor_id, :reference_count))
+          .to contain_exactly([d1.id, 1], [d2.id, 1])
+      end
+    end
+  end
+
+  # ObservationMatrixRows are derived from ObservationMatrixRowItems,
+  # unify moves the items and lets them maintain the rows.
+  context 'Otus in observation matrices' do
+    let(:om) { FactoryBot.create(:valid_observation_matrix) }
+    let!(:item2) {
+      ObservationMatrixRowItem::Single.create!(
+        observation_matrix: om, observation_object: o2)
+    }
+
+    context 'when unifying only the row items' do
+      specify 'unify succeeds' do
+        expect(o1.unify(o2, only: [:observation_matrix_row_items])[:result][:unified])
+          .to be(true)
+      end
+
+      specify 'the row moves to the kept otu' do
+        o1.unify(o2, only: [:observation_matrix_row_items])
+        expect(ObservationMatrixRow.where(observation_matrix: om)
+          .pluck(:observation_object_id, :reference_count))
+          .to contain_exactly([o1.id, 1])
+        expect(Otu.where(id: o2.id).exists?).to be(true)
+      end
+    end
+
+    specify 'observation_matrix_rows are not unified directly' do
+      expect(o1.merge_relations.map(&:name))
+        .not_to include(:observation_matrix_rows)
+    end
+
+    context 'when only the removed otu is in the matrix' do
+      specify 'unify succeeds' do
+        expect(o1.unify(o2)[:result][:unified]).to be(true)
+      end
+
+      specify 'the row moves to the kept otu' do
+        o1.unify(o2)
+        expect(ObservationMatrixRow.where(observation_matrix: om)
+          .pluck(:observation_object_id, :reference_count,
+            :cached_observation_matrix_row_item_id))
+          .to contain_exactly([o1.id, 1, item2.id])
+      end
+
+      specify 'the row keeps its position' do
+        oa = FactoryBot.create(:valid_otu)
+        ob = FactoryBot.create(:valid_otu)
+        ObservationMatrixRowItem::Single.create!(
+          observation_matrix: om, observation_object: oa)
+        ObservationMatrixRowItem::Single.create!(
+          observation_matrix: om, observation_object: ob)
+        ObservationMatrixRow.sort(
+          ObservationMatrixRow.where(observation_object: [oa, o2, ob])
+            .sort_by { |r| [oa, o2, ob].map(&:id).index(r.observation_object_id) }
+            .map(&:id)
+        )
+
+        o1.unify(o2)
+        expect(ObservationMatrixRow.where(observation_matrix: om)
+          .order(:position).pluck(:observation_object_id))
+          .to eq([oa.id, o1.id, ob.id])
+      end
+    end
+
+    context 'when both otus are in the matrix' do
+      let!(:item1) {
+        ObservationMatrixRowItem::Single.create!(
+          observation_matrix: om, observation_object: o1)
+      }
+
+      specify 'unify succeeds' do
+        expect(o1.unify(o2)[:result][:unified]).to be(true)
+      end
+
+      specify 'only the kept otu row remains' do
+        o1.unify(o2)
+        expect(ObservationMatrixRow.where(observation_matrix: om)
+          .pluck(:observation_object_id, :reference_count,
+            :cached_observation_matrix_row_item_id))
+          .to contain_exactly([o1.id, 1, item1.id])
+      end
+    end
+  end
+
   context 'when the nested unify inside deduplicate_update_target fails' do
     let(:om) { ObservationMatrix.create!(name: 'BugTest') }
-    let!(:row1) { FactoryBot.create(:valid_observation_matrix_row, observation_object: o1, observation_matrix: om) }
-    let!(:row2) { FactoryBot.create(:valid_observation_matrix_row, observation_object: o2, observation_matrix: om) }
+    let!(:item1) { ObservationMatrixRowItem::Single.create!(observation_object: o1, observation_matrix: om) }
+    let!(:item2) { ObservationMatrixRowItem::Single.create!(observation_object: o2, observation_matrix: om) }
 
     before do
       # At time of writing there are no second-level model associations that
       # could return {unified: false} from the secondary unify call, but there's
       # no reason that might not happen in the future.
-      allow_any_instance_of(ObservationMatrixRow).to receive(:unify)
+      allow_any_instance_of(ObservationMatrixRowItem).to receive(:unify)
         .and_return({result: {unified: false, message: 'nested failure'}, details: {}})
     end
 
@@ -894,7 +1369,7 @@ describe 'Shared::Unify', type: :model do
 
     specify 'details report unmerged count of 1 (not deduplicated)' do
       result = o1.unify(o2)
-      expect(result[:details]['Observation matrix rows'][:unmerged]).to eq(1)
+      expect(result[:details]['Observation matrix row items'][:unmerged]).to eq(1)
     end
   end
 

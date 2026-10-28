@@ -4,7 +4,7 @@
     @close="() => (isModalVisible = false)"
   >
     <template #header>
-      <h3 class="margin-remove-bottom">Validations</h3>
+      <h3>Validations</h3>
     </template>
     <template #body>
       <SoftValidations

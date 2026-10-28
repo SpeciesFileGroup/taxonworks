@@ -1,17 +1,31 @@
 <template>
-  <ul
+  <div
     v-if="inPlace"
-    class="no_bullets"
+    class="position-relative flex-col soft-validation-in-place"
   >
-    <li
-      v-for="(validation, index) in validations"
-      :key="index"
-      class="flex-row gap-small middle padding-small-top padding-small-bottom"
+    <VSpinner
+      v-if="isLoading"
+      legend="Loading validations..."
+    />
+    <ul
+      v-else-if="validations.length"
+      class="no_bullets"
     >
-      <IconWarning class="btn-attention w-4 h-4" />
-      <span v-html="validation" />
-    </li>
-  </ul>
+      <li
+        v-for="(validation, index) in validations"
+        :key="index"
+      >
+        <IconWarning class="text-attention-color w-4 h-4" />
+        <span v-html="validation" />
+      </li>
+    </ul>
+    <div
+      v-else
+      class="horizontal-center-content flex-auto text-lg text-muted-color"
+    >
+      No validations found
+    </div>
+  </div>
 
   <template v-else>
     <IconCircleQuestionMark
@@ -75,6 +89,7 @@ import ModalComponent from '@/components/ui/Modal.vue'
 import IconWarning from '@/components/Icon/IconWarning.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import IconCircleQuestionMark from '../Icon/IconCircleQuestionMark.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
 
 const props = defineProps({
   globalId: {
