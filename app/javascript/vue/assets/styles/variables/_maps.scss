@@ -77,7 +77,7 @@ $tw-map-colors: (
 
 $tw-foreground-colors:
   'primary', 'create', 'update', 'data', 'destroy', 'error', 'warning',
-  'secondary', 'black';
+  'attention', 'secondary', 'black';
 
 $tw-foreground-mix-light: 75%;
 $tw-foreground-mix-dark: 60%;
@@ -85,6 +85,10 @@ $tw-foreground-mix-dark: 60%;
 $tw-foreground-light-overrides: (
   'warning': (
     'source': var(--orange-700),
+    'mix': 92%
+  ),
+  'attention': (
+    'source': var(--amber-700),
     'mix': 92%
   )
 );

@@ -61,6 +61,10 @@
   .soft_validation_anchor {
     cursor: pointer;
     margin-left: 5px;
+
+    svg {
+      vertical-align: -0.125em;
+    }
   }
 
   .taxonomic_history,

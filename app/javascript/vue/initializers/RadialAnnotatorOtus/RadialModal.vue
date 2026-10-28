@@ -33,9 +33,8 @@
       :disabled="otus.length === 0"
       @click="() => (isModalVisible = true)"
     >
-      <VIcon
-        name="radialAnnotator"
-        x-small
+      <IconLayers
+        class="w-4 h-4"
       />
     </VBtn>
   </div>
@@ -46,8 +45,8 @@ import { Otu } from '@/routes/endpoints'
 import { computed, ref } from 'vue'
 import VModal from '@/components/ui/Modal.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import VIcon from '@/components/ui/VIcon/index.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
+import IconLayers from '@/components/Icon/IconLayers.vue'
 
 const props = defineProps({
   taxonNameId: {

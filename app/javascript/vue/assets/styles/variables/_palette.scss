@@ -395,7 +395,9 @@
 // locked to its light value even under .dark. --text-muted-color already
 // carries a correct value in both themes, so .text-muted-color reads from
 // that directly below instead of from the (light-only) literal in $tw-colors.
-@each $key, $value in map.remove($tw-colors, 'muted') {
+// 'attention' is excluded too: its raw yellow is unreadable on light surfaces,
+// so .text-attention-color reads the themed --color-attention-on-surface.
+@each $key, $value in map.remove($tw-colors, 'muted', 'attention') {
   .text-#{$key}-color {
     color: #{$value};
   }
@@ -403,6 +405,10 @@
 
 .text-muted-color {
   color: var(--text-muted-color);
+}
+
+.text-attention-color {
+  color: var(--color-attention-on-surface);
 }
 
 @each $key, $value in $tw-map-colors {
