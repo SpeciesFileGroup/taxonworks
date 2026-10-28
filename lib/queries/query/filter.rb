@@ -35,6 +35,12 @@ module Queries
     #
     # This is read as  :to <- [:from1, from2...] ].
     #
+    # !! A nested `<model>_query` that is not registered for that filter, or
+    # !! more than one nested query at the same level, raises
+    # !! TaxonWorks::Error::NestedQuery (a 400 for JSON requests). Ignoring
+    # !! it would run the filter WITHOUT that scope, e.g. a batch update
+    # !! touching records outside the intended set.
+    #
     # !! If you add a `def <model>_query_facet`` to a filter you will get warnings if that
     # !! model is not referencened in this constant.
     #
@@ -550,7 +556,7 @@ module Queries
       while !b.empty?
         a = b.shift
 
-        next unless SUBQUERIES[parent.base_name.to_sym].include?( a.to_s.gsub('_query', '').to_sym )
+        raise_unregistered_nested_query(parent, a) unless SUBQUERIES[parent.base_name.to_sym].include?( a.to_s.gsub('_query', '').to_sym )
 
         q = FILTER_QUERIES[a].safe_constantize
         p = q::PARAMS.deep_dup
@@ -596,6 +602,7 @@ module Queries
       result = []
       while !hsh.keys.select{|k| k =~ /_query/}.empty?
         a = hsh.keys.select{|k| k =~ /_query/}
+        raise_multiple_nested_queries(a) if a.count > 1
         result += a
         hsh = hsh[a.first]
       end
@@ -608,18 +615,30 @@ module Queries
       params.permit( permitted_params(params.to_unsafe_hash))
     end
 
+    # Ignoring a nested query would leave the filter without that scope
+    # (e.g. a batch update touching every record in the project), so raise.
+    def raise_unregistered_nested_query(parent, query_name)
+      raise TaxonWorks::Error::NestedQuery, "#{query_name} is not a permitted nested query for #{parent.base_name}"
+    end
+
+    def raise_multiple_nested_queries(query_names)
+      raise TaxonWorks::Error::NestedQuery, "only one nested query is permitted per level, got #{query_names.join(', ')}"
+    end
+
     # @param params [Hash]
     #   set all nested queries variables, e.g. @otu_filter_query
     # @return [True]
-    # TODO: when a nesting problem is found we need to flag the query as invalid
+    #   raises TaxonWorks::Error::NestedQuery on unregistered or multiple nested queries
     def set_nested_queries(params)
 
       if n = params.select{|k, p| k.to_s =~ /_query/ }
-        return nil if n.keys.count != 1 # !!! can't have multiple nested queries inside one level !!! This lets us eliminate infinite loops at the cost of expressiveness?!
+        # !!! can't have multiple nested queries inside one level !!! This lets us eliminate infinite loops at the cost of expressiveness?!
+        raise_multiple_nested_queries(n.keys) if n.keys.count > 1
+        return nil if n.keys.count == 0
 
         query_name = n.first.first
 
-        return nil unless SUBQUERIES[base_name.to_sym].include?( query_name.to_s.gsub('_query', '').to_sym ) # must be registered
+        raise_unregistered_nested_query(self.class, query_name) unless SUBQUERIES[base_name.to_sym].include?( query_name.to_s.gsub('_query', '').to_sym ) # must be registered
 
         query_params = n.first.last
 

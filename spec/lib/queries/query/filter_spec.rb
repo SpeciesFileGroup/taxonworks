@@ -352,6 +352,55 @@ describe Queries::Query::Filter, type: [:model] do
     expect(q.count).to eq(1)
   end
 
+  # An ignored nested query would leave the filter unscoped (e.g. a batch
+  # update touching every record in the project), so nesting problems raise.
+  context 'nested query problems' do
+    specify 'unregistered nested query raises (ActionController::Parameters)' do
+      expect {
+        ::Queries::DataAttribute::Filter.new(ActionController::Parameters.new(image_query: { image_id: [1] }))
+      }.to raise_error(TaxonWorks::Error::NestedQuery)
+    end
+
+    specify 'unregistered nested query raises (Hash)' do
+      expect {
+        ::Queries::DataAttribute::Filter.new(image_query: { image_id: [1] })
+      }.to raise_error(TaxonWorks::Error::NestedQuery)
+    end
+
+    specify 'unregistered deeper nested query raises' do
+      expect {
+        ::Queries::DataAttribute::Filter.new(
+          ActionController::Parameters.new(otu_query: { image_query: { image_id: [1] }, otu_id: [1] })
+        )
+      }.not_to raise_error # otu <- image is registered
+
+      expect {
+        ::Queries::DataAttribute::Filter.new(
+          ActionController::Parameters.new(source_query: { loan_query: { loan_id: [1] } })
+        )
+      }.to raise_error(TaxonWorks::Error::NestedQuery)
+    end
+
+    specify 'multiple nested queries at one level raise (ActionController::Parameters)' do
+      expect {
+        ::Queries::DataAttribute::Filter.new(
+          ActionController::Parameters.new(otu_query: { otu_id: [1] }, source_query: { source_id: [1] })
+        )
+      }.to raise_error(TaxonWorks::Error::NestedQuery)
+    end
+
+    specify 'multiple nested queries at one level raise (Hash)' do
+      expect {
+        ::Queries::DataAttribute::Filter.new(otu_query: { otu_id: [1] }, source_query: { source_id: [1] })
+      }.to raise_error(TaxonWorks::Error::NestedQuery)
+    end
+
+    specify 'registered nested query is applied' do
+      a = ::Queries::DataAttribute::Filter.new(ActionController::Parameters.new(otu_query: { otu_id: [1] }))
+      expect(a.otu_query.otu_id).to eq([1])
+    end
+  end
+
   context 'PARAMS defined' do
     filters.each do |f|
       specify "#{f.name}" do
