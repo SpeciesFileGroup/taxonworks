@@ -25,6 +25,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Browse OTUs: Contents are now grouped by OTU when there is more than one. [#5136]
 - `/taxon_names/<id>/inventory/catalog` sends sources in chronological order [#200]
 - Autocompletes: Removed bold and softened the yellow highlight for matching text [#5151]
+- New observation matrix: replaced OTU autocompletes by autoselects
 
 ### Fixed
 

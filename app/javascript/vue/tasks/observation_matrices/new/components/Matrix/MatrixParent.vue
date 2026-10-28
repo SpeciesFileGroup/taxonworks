@@ -6,16 +6,10 @@
       :item="otu"
       @unset="matrix.otu_id = null"
     />
-    <VAutocomplete
+    <OtuAutoselectPicker
       v-else
-      class="full_width"
-      url="/otus/autocomplete"
-      placeholder="Search an OTU..."
-      label="label_html"
-      :input-style="{ width: '100%' }"
-      clear-after
-      param="term"
-      @select="setOtu"
+      preferences-key="otu_for_observation_matrix_parent"
+      @get-item="setOtu"
     />
   </div>
 </template>
@@ -27,7 +21,7 @@ import { Otu } from '@/routes/endpoints'
 import { MutationNames } from '../../store/mutations/mutations'
 import { GetterNames } from '../../store/getters/getters'
 import { ref, watch } from 'vue'
-import VAutocomplete from '@/components/ui/Autocomplete.vue'
+import OtuAutoselectPicker from '@/components/otu/otu_picker/otu_autoselect_picker.vue'
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 
 const store = useStore()
@@ -54,7 +48,7 @@ watch(
 )
 
 function setOtu(item) {
-  otu.value = { id: item.id, object_tag: item.label_html }
+  otu.value = item
   matrix.value.otu_id = item.id
 }
 </script>
