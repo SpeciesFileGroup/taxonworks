@@ -1,66 +1,54 @@
 <template>
   <nav class="pagination">
     <span
-      v-if="showFirst"
-      v-tooltip="'First page'"
-      class="first cursor-pointer"
-      @click="sendPage(1)"
-    >
-      <a>«</a>
-    </span>
-    <span
-      v-if="showPrevious"
       v-tooltip="'Previous page'"
-      class="prev cursor-pointer"
-      @click="sendPage(pagination.previousPage)"
-    >
-      <a>‹</a>
-    </span>
-
-    <span
-      v-if="pagination.paginationPage > rangePages"
-      class="page gap"
-    >
-      ...
-    </span>
-
-    <span
-      v-for="n in visiblePages"
-      :key="n"
-      :class="['page', { current: n == pagination.paginationPage }]"
+      class="prev"
     >
       <a
-        v-if="n != pagination.paginationPage"
-        class="cursor-pointer"
-        @click="sendPage(n)"
+        :class="isFirstPage ? 'disabled' : 'cursor-pointer'"
+        :aria-disabled="isFirstPage"
+        @click="!isFirstPage && sendPage(currentPage - 1)"
       >
-        {{ n }}
+        ‹
       </a>
-      <template v-else>{{ n }}</template>
     </span>
 
-    <span
-      v-if="pagination.totalPages - pagination.paginationPage >= rangePages"
-      class="page gap"
+    <template
+      v-for="(item, index) in pageItems"
+      :key="index"
     >
-      ...
-    </span>
+      <span
+        v-if="item === GAP"
+        class="page gap"
+      >
+        …
+      </span>
+      <span
+        v-else
+        :class="['page', { current: item === currentPage }]"
+      >
+        <a
+          v-if="item !== currentPage"
+          class="cursor-pointer"
+          @click="sendPage(item)"
+        >
+          {{ item }}
+        </a>
+        <template v-else>{{ item }}</template>
+      </span>
+    </template>
 
     <span
-      v-if="showNext"
       v-tooltip="'Next page'"
-      class="next cursor-pointer"
-      @click="sendPage(pagination.nextPage)"
+      class="next"
     >
-      <a>›</a>
-    </span>
-    <span
-      v-if="showLast"
-      v-tooltip="'Last page'"
-      class="last cursor-pointer"
-      @click="sendPage(pagination.totalPages)"
-    >
-      <a>»</a>
+      <a
+        :class="isLastPage ? 'disabled' : 'cursor-pointer'"
+        :aria-disabled="isLastPage"
+        @click="!isLastPage && sendPage(currentPage + 1)"
+      >
+        ›
+      </a>
     </span>
   </nav>
 </template>
@@ -78,45 +66,47 @@ const props = defineProps({
 
 const emit = defineEmits(['nextPage'])
 
-const rangePages = 5
+const GAP = 'gap'
+const RANGE_PAGES = 2
+const MAX_ITEMS = 2 * RANGE_PAGES + 5
 
-const pagesCount = computed(() =>
-  Object.keys(props.pagination).length ? props.pagination.totalPages : 1
-)
+const currentPage = computed(() => props.pagination.paginationPage || 1)
 
-const rangeMax = computed(() => props.pagination.paginationPage + rangePages)
+const totalPages = computed(() => props.pagination.totalPages || 1)
 
-const rangeMin = computed(() => props.pagination.paginationPage - rangePages)
+const isFirstPage = computed(() => currentPage.value <= 1)
 
-const visiblePages = computed(() => {
-  const pages = []
+const isLastPage = computed(() => currentPage.value >= totalPages.value)
 
-  for (let n = 1; n <= pagesCount.value; n++) {
-    if (n < rangeMax.value && rangeMin.value < n) pages.push(n)
+const pageItems = computed(() => {
+  const current = currentPage.value
+  const total = totalPages.value
+  const edgeLength = MAX_ITEMS - 2
+
+  if (total <= MAX_ITEMS) {
+    return range(1, total)
   }
 
-  return pages
+  if (current <= edgeLength - RANGE_PAGES) {
+    return [...range(1, edgeLength), GAP, total]
+  }
+
+  if (current > total - edgeLength + RANGE_PAGES) {
+    return [1, GAP, ...range(total - edgeLength + 1, total)]
+  }
+
+  return [
+    1,
+    GAP,
+    ...range(current - RANGE_PAGES, current + RANGE_PAGES),
+    GAP,
+    total
+  ]
 })
 
-const showFirst = computed(
-  () => props.pagination.paginationPage != 1 && props.pagination.paginationPage
-)
-
-const showPrevious = computed(
-  () =>
-    props.pagination?.previousPage &&
-    props.pagination.paginationPage !== props.pagination.previousPage
-)
-
-const showNext = computed(
-  () => props.pagination?.nextPage !== props.pagination.totalPages
-)
-
-const showLast = computed(
-  () =>
-    props.pagination.paginationPage != props.pagination.totalPages &&
-    props.pagination.totalPages > 1
-)
+function range(start, end) {
+  return Array.from({ length: end - start + 1 }, (_, i) => start + i)
+}
 
 function sendPage(page) {
   emit('nextPage', { page })

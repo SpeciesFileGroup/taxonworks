@@ -1,32 +1,28 @@
 <template>
-  <div class="horizontal-left-content gap-small">
-    <span
-      v-if="haveRecords"
-      class="horizontal-left-content"
-    >
-      {{ recordsAtCurrentPage }} - {{ recordsAtNextPage }} of
-      {{ pagination.total }} records.
+  <div class="horizontal-left-content middle gap-small text-xs">
+    <span v-if="haveRecords">
+      {{ formatNumber(recordsAtCurrentPage) }}–{{
+        formatNumber(recordsAtNextPage)
+      }}
+      of {{ formatNumber(pagination.total) }}
     </span>
-    <span v-else>0 records.</span>
-    <div class="horizontal-left-content middle">
+    <span v-else>0 records</span>
+    <div class="horizontal-left-content middle gap-xsmall">
       <input
         v-if="inputMode"
         ref="customRef"
-        class="w-16 rounded-tr-none rounded-br-none"
+        class="w-16"
         type="number"
+        min="1"
         v-model="customValue"
-        @change="
-          (e) => {
-            per = e.target.value
-            inputMode = false
-          }
-        "
+        @change="setCustomValue"
+        @keydown.escape="inputMode = false"
+        @blur="inputMode = false"
       />
       <select
         v-else
-        v-model="per"
-        class="rounded-tr-none rounded-br-none"
-        @change="(e) => emit('change', per)"
+        :value="per"
+        @change="handleSelectChange"
       >
         <option
           v-for="records in perList"
@@ -35,29 +31,20 @@
         >
           {{ records }}
         </option>
+        <option
+          v-if="custom"
+          :value="CUSTOM_OPTION"
+        >
+          Custom…
+        </option>
       </select>
-
-      <VBtn
-        v-if="custom"
-        class="rounded-tl-none rounded-bl-none"
-        color="primary"
-        variant="tonal"
-        icon
-        medium
-        bordered
-        @click="toggleMode"
-      >
-        <IconPencil class="w-4 h-4" />
-      </VBtn>
+      per page
     </div>
-    records per page.
   </div>
 </template>
 
 <script setup>
 import { computed, onBeforeMount, ref, useTemplateRef, nextTick } from 'vue'
-import VBtn from '@/components/ui/VBtn/index.vue'
-import IconPencil from '@/components/Icon/IconPencil.vue'
 
 const props = defineProps({
   pagination: {
@@ -78,6 +65,8 @@ const props = defineProps({
 
 const emit = defineEmits(['change'])
 
+const CUSTOM_OPTION = 'custom'
+
 const per = defineModel({
   type: [String, Number],
   required: true
@@ -96,7 +85,7 @@ const perList = computed(() => {
 })
 
 const recordsAtCurrentPage = computed(
-  () => (props.pagination.paginationPage - 1) * props.pagination.perPage || 1
+  () => (props.pagination.paginationPage - 1) * props.pagination.perPage + 1
 )
 
 const recordsAtNextPage = computed(() => {
@@ -109,12 +98,30 @@ const recordsAtNextPage = computed(() => {
 
 const haveRecords = computed(() => Number(props.pagination.total))
 
-function toggleMode() {
-  inputMode.value = !inputMode.value
+function formatNumber(value) {
+  return Number(value).toLocaleString()
+}
 
-  if (inputMode.value) {
+function handleSelectChange(e) {
+  if (e.target.value === CUSTOM_OPTION) {
+    e.target.value = per.value
+    inputMode.value = true
     nextTick(() => inputCustom.value.focus())
+    return
   }
+
+  per.value = Number(e.target.value)
+  emit('change', per.value)
+}
+
+function setCustomValue() {
+  const value = Number(customValue.value)
+
+  if (value > 0) {
+    per.value = value
+  }
+
+  inputMode.value = false
 }
 
 onBeforeMount(() => {

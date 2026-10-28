@@ -122,9 +122,8 @@ input[type='submit'][disabled] {
 }
 
 select {
-  padding: $standard_padding * 0.5;
-  padding-left: $standard_padding;
-  padding-right: $standard_padding;
+  padding-left: var(--spacing-xs);
+  padding-right: var(--spacing-xs);
   border-radius: var(--border-radius-small);
   border: 1px solid var(--border-color);
   font-size: var(--font-size-xs);
