@@ -552,6 +552,397 @@ describe Queries::BiologicalAssociation::Filter, type: :model, group: [:filter] 
     expect(query.new(biological_associations_graph_id: [g.id]).all.map(&:id)).to contain_exactly(ba1.id)
   end
 
+  context 'sort param' do
+    specify 'sort=id orders ascending by id' do
+      q = Queries::Pager.new(query.new(sort: 'id').all, sort: 'id')
+      expect(q.ordered.map(&:id)).to eq([ba1.id, ba2.id, ba3.id])
+    end
+
+    specify 'sort=-id orders descending by id' do
+      q = Queries::Pager.new(query.new(sort: '-id').all, sort: '-id')
+      expect(q.ordered.map(&:id)).to eq([ba3.id, ba2.id, ba1.id])
+    end
+
+    specify 'sort=-updated_at orders by updated_at desc' do
+      # touch ba1 last so it becomes the most recently updated
+      ba3.touch
+      ba2.touch
+      ba1.touch
+      q = Queries::Pager.new(query.new(sort: '-updated_at').all, sort: '-updated_at')
+      expect(q.ordered.map(&:id)).to eq([ba1.id, ba2.id, ba3.id])
+    end
+
+    specify 'unknown sort keys are ignored' do
+      q = Queries::Pager.new(query.new(sort: 'no_such_column,-id').all, sort: 'no_such_column,-id')
+      expect(q.ordered.map(&:id)).to eq([ba3.id, ba2.id, ba1.id])
+    end
+
+    specify 'sort works alongside filter facets' do
+      q = Queries::Pager.new(query.new(biological_relationship_id: [r1.id], sort: '-id').all, biological_relationship_id: [r1.id], sort: '-id')
+      expect(q.ordered.map(&:id)).to eq([ba2.id, ba1.id])
+    end
+
+    specify 'sort param survives via ActionController::Parameters' do
+      p = ActionController::Parameters.new(sort: '-id')
+      q = Queries::Pager.new(query.new(p).all, p)
+      expect(q.ordered.map(&:id)).to eq([ba3.id, ba2.id, ba1.id])
+    end
+
+    context 'derived columns' do
+      let(:r_alpha) { FactoryBot.create(:valid_biological_relationship, name: 'alpha rel') }
+      let(:r_zeta)  { FactoryBot.create(:valid_biological_relationship, name: 'zeta rel') }
+
+      specify 'sort=biological_relationship orders by relationship name' do
+        ba_z = BiologicalAssociation.create!(
+          biological_association_subject: o1,
+          biological_association_object: o2,
+          biological_relationship: r_zeta
+        )
+        ba_a = BiologicalAssociation.create!(
+          biological_association_subject: o1,
+          biological_association_object: o2,
+          biological_relationship: r_alpha
+        )
+
+        q = Queries::Pager.new(query.new(
+          biological_association_id: [ba_a.id, ba_z.id],
+          sort: 'biological_relationship'
+        ).all, biological_association_id: [ba_a.id, ba_z.id],
+          sort: 'biological_relationship')
+        expect(q.ordered.map(&:id)).to eq([ba_a.id, ba_z.id])
+
+        q = Queries::Pager.new(query.new(
+          biological_association_id: [ba_a.id, ba_z.id],
+          sort: '-biological_relationship'
+        ).all, biological_association_id: [ba_a.id, ba_z.id],
+          sort: '-biological_relationship')
+        expect(q.ordered.map(&:id)).to eq([ba_z.id, ba_a.id])
+      end
+
+      context 'taxonomy sorts' do
+        let!(:fam_xulidae) {
+          Protonym.create!(name: 'Xulidae', rank_class: Ranks.lookup(:iczn, :family), parent: root)
+        }
+        let!(:fam_aulidae) {
+          Protonym.create!(name: 'Aulidae', rank_class: Ranks.lookup(:iczn, :family), parent: root)
+        }
+        let!(:gen_zus) {
+          Protonym.create!(name: 'Zus', rank_class: Ranks.lookup(:iczn, :genus), parent: fam_xulidae)
+        }
+        let!(:gen_aus) {
+          Protonym.create!(name: 'Aus', rank_class: Ranks.lookup(:iczn, :genus), parent: fam_aulidae)
+        }
+
+        let!(:otu_zus) { Otu.create!(name: 'zus_otu', taxon_name: gen_zus) }
+        let!(:otu_aus) { Otu.create!(name: 'aus_otu', taxon_name: gen_aus) }
+
+        let!(:ba_zus_obj) {
+          BiologicalAssociation.create!(
+            biological_association_subject: o1,
+            biological_association_object: otu_zus,
+            biological_relationship: r1
+          )
+        }
+        let!(:ba_aus_obj) {
+          BiologicalAssociation.create!(
+            biological_association_subject: o1,
+            biological_association_object: otu_aus,
+            biological_relationship: r1
+          )
+        }
+
+        specify 'sort=object_taxonomy_genus orders BAs by object OTU genus name' do
+          q = Queries::Pager.new(query.new(
+            biological_association_id: [ba_zus_obj.id, ba_aus_obj.id],
+            sort: 'object_taxonomy_genus'
+          ).all, biological_association_id: [ba_zus_obj.id, ba_aus_obj.id],
+            sort: 'object_taxonomy_genus')
+          expect(q.ordered.map(&:id)).to eq([ba_aus_obj.id, ba_zus_obj.id])
+        end
+
+        specify 'sort=-object_taxonomy_family orders BAs by object family desc' do
+          q = Queries::Pager.new(query.new(
+            biological_association_id: [ba_zus_obj.id, ba_aus_obj.id],
+            sort: '-object_taxonomy_family'
+          ).all, biological_association_id: [ba_zus_obj.id, ba_aus_obj.id],
+            sort: '-object_taxonomy_family')
+          expect(q.ordered.map(&:id)).to eq([ba_zus_obj.id, ba_aus_obj.id])
+        end
+
+        specify 'multi-key sort: family asc, then genus desc' do
+          # same family for both, differentiate via genus
+          gen_bus = Protonym.create!(name: 'Bus', rank_class: Ranks.lookup(:iczn, :genus), parent: fam_aulidae)
+          otu_bus = Otu.create!(name: 'bus_otu', taxon_name: gen_bus)
+          ba_bus = BiologicalAssociation.create!(
+            biological_association_subject: o1,
+            biological_association_object: otu_bus,
+            biological_relationship: r1
+          )
+
+          q = Queries::Pager.new(query.new(
+            biological_association_id: [ba_zus_obj.id, ba_aus_obj.id, ba_bus.id],
+            sort: 'object_taxonomy_family,-object_taxonomy_genus'
+          ).all, biological_association_id: [ba_zus_obj.id, ba_aus_obj.id, ba_bus.id],
+            sort: 'object_taxonomy_family,-object_taxonomy_genus')
+          # Aulidae before Xulidae; within Aulidae: Bus desc-before-Aus
+          expect(q.ordered.map(&:id)).to eq([ba_bus.id, ba_aus_obj.id, ba_zus_obj.id])
+        end
+
+        specify 'BAs whose object has no taxonomy sort to the end' do
+          # ba3 has an undetermined Specimen (o3) as object
+          q = Queries::Pager.new(query.new(
+            biological_association_id: [ba3.id, ba_aus_obj.id],
+            sort: 'object_taxonomy_genus'
+          ).all, biological_association_id: [ba3.id, ba_aus_obj.id],
+            sort: 'object_taxonomy_genus')
+          expect(q.ordered.map(&:id)).to eq([ba_aus_obj.id, ba3.id])
+        end
+
+        # Sorted on the valid name of the object's OTU (a CollectionObject's
+        # is that of its first determination), which is what the table's
+        # `taxonomy` shows for these objects.
+        context 'sorted on the taxonomy of the object\'s OTU' do
+          let(:species_aus) {
+            Protonym.create!(name: 'aus', rank_class: Ranks.lookup(:iczn, :species), parent: gen_aus)
+          }
+          let(:species_zus) {
+            Protonym.create!(name: 'zus', rank_class: Ranks.lookup(:iczn, :species), parent: gen_zus)
+          }
+
+          def ba_with_object(object)
+            BiologicalAssociation.create!(
+              biological_association_subject: o1,
+              biological_association_object: object,
+              biological_relationship: r1
+            )
+          end
+
+          # Reloaded, as the table loads it: creating a CO memoizes its
+          # (then empty) taxonomy target while building its DwC record.
+          def family_shown(ba)
+            BiologicalAssociation.find(ba.id).biological_association_object.taxonomy['family']
+          end
+
+          specify 'an OTU on a synonym uses the valid name' do
+            TaxonNameRelationship::Iczn::Invalidating::Synonym.create!(
+              subject_taxon_name: species_zus, object_taxon_name: species_aus
+            )
+            ba_synonym = ba_with_object(Otu.create!(taxon_name: species_zus))
+
+            expect(family_shown(ba_synonym)).to eq('Aulidae')
+            q = Queries::Pager.new(query.new(
+              biological_association_id: [ba_zus_obj.id, ba_synonym.id],
+              sort: 'object_taxonomy_family'
+            ).all, biological_association_id: [ba_zus_obj.id, ba_synonym.id],
+              sort: 'object_taxonomy_family')
+            expect(q.ordered.map(&:id)).to eq([ba_synonym.id, ba_zus_obj.id])
+          end
+
+          specify 'a CollectionObject uses its current determination' do
+            co = Specimen.create!
+            TaxonDetermination.create!(taxon_determination_object: co, otu: otu_aus)
+            ba_co = ba_with_object(co)
+
+            expect(family_shown(ba_co)).to eq('Aulidae')
+            q = Queries::Pager.new(query.new(
+              biological_association_id: [ba_zus_obj.id, ba_co.id],
+              sort: 'object_taxonomy_family'
+            ).all, biological_association_id: [ba_zus_obj.id, ba_co.id],
+              sort: 'object_taxonomy_family')
+            expect(q.ordered.map(&:id)).to eq([ba_co.id, ba_zus_obj.id])
+          end
+
+          specify 'an undetermined CollectionObject sorts last' do
+            ba_co = ba_with_object(Specimen.create!)
+            q = Queries::Pager.new(query.new(
+              biological_association_id: [ba_co.id, ba_zus_obj.id],
+              sort: 'object_taxonomy_family'
+            ).all, biological_association_id: [ba_co.id, ba_zus_obj.id],
+              sort: 'object_taxonomy_family')
+            expect(q.ordered.map(&:id)).to eq([ba_zus_obj.id, ba_co.id])
+          end
+        end
+      end
+
+      context 'object_tag sorts (polymorphic)' do
+        let!(:gen_zus) {
+          Protonym.create!(name: 'Zus', rank_class: Ranks.lookup(:iczn, :genus), parent: root)
+        }
+        let!(:gen_aus) {
+          Protonym.create!(name: 'Aus', rank_class: Ranks.lookup(:iczn, :genus), parent: root)
+        }
+        let!(:otu_zus) { Otu.create!(name: nil, taxon_name: gen_zus) }
+        let!(:otu_aus) { Otu.create!(name: nil, taxon_name: gen_aus) }
+
+        let!(:ba_obj_zus) {
+          BiologicalAssociation.create!(
+            biological_association_subject: o1,
+            biological_association_object: otu_zus,
+            biological_relationship: r1
+          )
+        }
+        let!(:ba_obj_aus) {
+          BiologicalAssociation.create!(
+            biological_association_subject: o1,
+            biological_association_object: otu_aus,
+            biological_relationship: r1
+          )
+        }
+
+        specify 'sort=object_object_tag orders OTU objects by taxon_name.cached' do
+          q = Queries::Pager.new(query.new(
+            biological_association_id: [ba_obj_zus.id, ba_obj_aus.id],
+            sort: 'object_object_tag'
+          ).all, biological_association_id: [ba_obj_zus.id, ba_obj_aus.id],
+            sort: 'object_object_tag')
+          expect(q.ordered.map(&:id)).to eq([ba_obj_aus.id, ba_obj_zus.id])
+        end
+
+        specify 'sort=-object_object_tag desc' do
+          q = Queries::Pager.new(query.new(
+            biological_association_id: [ba_obj_zus.id, ba_obj_aus.id],
+            sort: '-object_object_tag'
+          ).all, biological_association_id: [ba_obj_zus.id, ba_obj_aus.id],
+            sort: '-object_object_tag')
+          expect(q.ordered.map(&:id)).to eq([ba_obj_zus.id, ba_obj_aus.id])
+        end
+
+        specify 'falls back to otus.name when taxon_name is absent' do
+          otu_no_tn = Otu.create!(name: 'Mus', taxon_name: nil)
+          ba_no_tn = BiologicalAssociation.create!(
+            biological_association_subject: o1,
+            biological_association_object: otu_no_tn,
+            biological_relationship: r1
+          )
+          # 'Aus' (cached) < 'Mus' (name) < 'Zus' (cached)
+          q = Queries::Pager.new(query.new(
+            biological_association_id: [ba_obj_zus.id, ba_obj_aus.id, ba_no_tn.id],
+            sort: 'object_object_tag'
+          ).all, biological_association_id: [ba_obj_zus.id, ba_obj_aus.id, ba_no_tn.id],
+            sort: 'object_object_tag')
+          expect(q.ordered.map(&:id)).to eq([ba_obj_aus.id, ba_no_tn.id, ba_obj_zus.id])
+        end
+
+        specify 'sort=subject_object_tag works symmetrically' do
+          ba_subj_zus = BiologicalAssociation.create!(
+            biological_association_subject: otu_zus,
+            biological_association_object: o1,
+            biological_relationship: r1
+          )
+          ba_subj_aus = BiologicalAssociation.create!(
+            biological_association_subject: otu_aus,
+            biological_association_object: o1,
+            biological_relationship: r1
+          )
+          q = Queries::Pager.new(query.new(
+            biological_association_id: [ba_subj_zus.id, ba_subj_aus.id],
+            sort: 'subject_object_tag'
+          ).all, biological_association_id: [ba_subj_zus.id, ba_subj_aus.id],
+            sort: 'subject_object_tag')
+          expect(q.ordered.map(&:id)).to eq([ba_subj_aus.id, ba_subj_zus.id])
+        end
+
+        # The tag shows the CollectionObject's identifier, then its
+        # determination; the sort uses only the determination's OTU.
+        specify 'CollectionObject objects sort by their determination\'s OTU' do
+          ns = FactoryBot.create(:valid_namespace)
+          co_z = Specimen.create!
+          co_a = Specimen.create!
+          Identifier::Local::CatalogNumber.create!(identifier_object: co_z, namespace: ns, identifier: '001')
+          Identifier::Local::CatalogNumber.create!(identifier_object: co_a, namespace: ns, identifier: '002')
+          TaxonDetermination.create!(taxon_determination_object: co_z, otu: otu_zus)
+          TaxonDetermination.create!(taxon_determination_object: co_a, otu: otu_aus)
+          ba_co_z = BiologicalAssociation.create!(
+            biological_association_subject: o1,
+            biological_association_object: co_z,
+            biological_relationship: r1
+          )
+          ba_co_a = BiologicalAssociation.create!(
+            biological_association_subject: o1,
+            biological_association_object: co_a,
+            biological_relationship: r1
+          )
+          q = Queries::Pager.new(query.new(
+            biological_association_id: [ba_co_z.id, ba_co_a.id],
+            sort: 'object_object_tag'
+          ).all, biological_association_id: [ba_co_z.id, ba_co_a.id],
+            sort: 'object_object_tag')
+          expect(q.ordered.map(&:id)).to eq([ba_co_a.id, ba_co_z.id])
+        end
+
+        specify 'undetermined CollectionObject objects sort last' do
+          co = Specimen.create!(buffered_collecting_event: 'Aaa')
+          ba_co = BiologicalAssociation.create!(
+            biological_association_subject: o1,
+            biological_association_object: co,
+            biological_relationship: r1
+          )
+          q = Queries::Pager.new(query.new(
+            biological_association_id: [ba_co.id, ba_obj_zus.id],
+            sort: 'object_object_tag'
+          ).all, biological_association_id: [ba_co.id, ba_obj_zus.id],
+            sort: 'object_object_tag')
+          expect(q.ordered.map(&:id)).to eq([ba_obj_zus.id, ba_co.id])
+        end
+      end
+
+      context 'biological_property sorts' do
+        let(:prop_alpha) { FactoryBot.create(:valid_biological_property, name: 'Alpha property') }
+        let(:prop_zeta)  { FactoryBot.create(:valid_biological_property, name: 'Zeta property') }
+        let(:br_a) { FactoryBot.create(:valid_biological_relationship, name: 'br_a') }
+        let(:br_z) { FactoryBot.create(:valid_biological_relationship, name: 'br_z') }
+
+        before do
+          # br_a -> subject:Alpha, object:Zeta
+          # br_z -> subject:Zeta, object:Alpha
+          FactoryBot.create(:valid_biological_relationship_subject_type,
+            biological_relationship: br_a, biological_property: prop_alpha)
+          FactoryBot.create(:valid_biological_relationship_object_type,
+            biological_relationship: br_a, biological_property: prop_zeta)
+          FactoryBot.create(:valid_biological_relationship_subject_type,
+            biological_relationship: br_z, biological_property: prop_zeta)
+          FactoryBot.create(:valid_biological_relationship_object_type,
+            biological_relationship: br_z, biological_property: prop_alpha)
+        end
+
+        let!(:ba_a_subj) {
+          BiologicalAssociation.create!(
+            biological_association_subject: o1,
+            biological_association_object: o2,
+            biological_relationship: br_a
+          )
+        }
+        let!(:ba_z_subj) {
+          BiologicalAssociation.create!(
+            biological_association_subject: o1,
+            biological_association_object: o2,
+            biological_relationship: br_z
+          )
+        }
+
+        specify 'sort=biological_property_subject orders by the SubjectType property' do
+          q = Queries::Pager.new(query.new(
+            biological_association_id: [ba_z_subj.id, ba_a_subj.id],
+            sort: 'biological_property_subject'
+          ).all, biological_association_id: [ba_z_subj.id, ba_a_subj.id],
+            sort: 'biological_property_subject')
+          # ba_a_subj has Alpha, ba_z_subj has Zeta
+          expect(q.ordered.map(&:id)).to eq([ba_a_subj.id, ba_z_subj.id])
+        end
+
+        specify 'sort=biological_property_object uses the ObjectType property' do
+          q = Queries::Pager.new(query.new(
+            biological_association_id: [ba_z_subj.id, ba_a_subj.id],
+            sort: 'biological_property_object'
+          ).all, biological_association_id: [ba_z_subj.id, ba_a_subj.id],
+            sort: 'biological_property_object')
+          # ba_z_subj has Alpha as object, ba_a_subj has Zeta as object — reversed
+          expect(q.ordered.map(&:id)).to eq([ba_z_subj.id, ba_a_subj.id])
+        end
+      end
+    end
+  end
+
   specify 'biological_association_subject_type is applied' do
     q = query.new({ biological_association_subject_type: ['Otu'] })
 

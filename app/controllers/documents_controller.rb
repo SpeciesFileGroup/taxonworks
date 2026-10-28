@@ -15,10 +15,7 @@ class DocumentsController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @documents = ::Queries::Document::Filter.new(params).all
-          .order(updated_at: :desc)
-          .page(params[:page])
-          .per(params[:per])
+        @documents = ordered_page(::Queries::Document::Filter.new(params).all, default_order: [updated_at: :desc])
       }
     end
   end

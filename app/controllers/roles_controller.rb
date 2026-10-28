@@ -7,10 +7,8 @@ class RolesController < ApplicationController
 
   # GET /roles.json
   def index
-    @roles = Queries::Role::Filter.new(params)
-      .all
-      .page(params[:page])
-      .per(params[:per])
+    @roles = ordered_page(Queries::Role::Filter.new(params)
+      .all)
   end
 
   def new

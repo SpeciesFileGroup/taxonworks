@@ -72,7 +72,7 @@
             />
           </th>
           <th
-            v-for="(_, attr) in attributes"
+            v-for="attr in orderedAttributeKeys"
             :key="attr"
             v-show="isColumnVisible(attr)"
             v-bind="freezeBindings(attr)"
@@ -81,6 +81,10 @@
               :column-key="attr"
               :filtered="!!filterValues[attr]"
               v-model:freeze="freezeColumn"
+              :sort-index="sortIndexFor(attr)"
+              :sort-dir="sortDirFor(attr)"
+              :show-sort-index="sortKeys.length > 1"
+              :sortable="isSortable(attr)"
               @copy="
                 () =>
                   copyColumnToClipboard(
@@ -92,7 +96,7 @@
                     )
                   )
               "
-              @sort="() => sortTable(attr)"
+              @sort="(opts) => sortTable(attr, opts)"
               @clear="() => delete filterValues[attr]"
             />
           </th>
@@ -102,7 +106,7 @@
             :key="key"
           >
             <th
-              v-for="(property, pIndex) in getColumns(key, properties)"
+              v-for="(property, pIndex) in orderedLayoutColumns(key, properties)"
               :key="property"
               v-show="isColumnVisible(`${key}.${property}`)"
               :class="{ 'cell-left-border': pIndex === 0 }"
@@ -112,6 +116,10 @@
                 :column-key="`${key}.${property}`"
                 :filtered="!!filterValues[`${key}.${property}`]"
                 v-model:freeze="freezeColumn"
+                :sort-index="sortIndexFor(`${key}.${property}`)"
+                :sort-dir="sortDirFor(`${key}.${property}`)"
+                :show-sort-index="sortKeys.length > 1"
+                :sortable="isSortable(`${key}.${property}`)"
                 @copy="
                   () =>
                     copyColumnToClipboard(
@@ -121,7 +129,7 @@
                         .join('\n')
                     )
                 "
-                @sort="() => sortTable(`${key}.${property}`)"
+                @sort="(opts) => sortTable(`${key}.${property}`, opts)"
                 @clear="() => delete filterValues[`${key}.${property}`]"
               />
             </th>
@@ -149,14 +157,24 @@
             v-bind="freezeBindings(FIXED_COLUMNS.Radial)"
           />
           <th
-            v-for="(title, attr) in attributes"
+            v-for="attr in orderedAttributeKeys"
             :key="attr"
             v-show="isColumnVisible(attr)"
             :data-th-column="attr"
+            :class="[
+              'draggable-column-header',
+              { 'draggable-column-header-dragging': draggedColumnKey === attr }
+            ]"
             v-bind="freezeBindings(attr)"
+            draggable="true"
+            @mousedown.capture="armColumnDrag"
+            @dragstart="(e) => onColumnDragStart(e, attr)"
+            @dragover="(e) => onColumnDragOver(e, attr)"
+            @drop="(e) => onColumnDrop(e, attr)"
+            @dragend="onColumnDragEnd"
           >
             <div class="horizontal-left-content gap-small">
-              <span>{{ title }}</span>
+              <span>{{ attributes[attr] }}</span>
             </div>
           </th>
 
@@ -165,12 +183,22 @@
             :key="key"
           >
             <th
-              v-for="(property, pIndex) in getColumns(key, properties)"
+              v-for="(property, pIndex) in orderedLayoutColumns(key, properties)"
               :key="property"
               v-show="isColumnVisible(`${key}.${property}`)"
-              :class="{ 'cell-left-border': pIndex === 0 }"
+              :class="[
+                'draggable-column-header',
+                { 'cell-left-border': pIndex === 0 },
+                { 'draggable-column-header-dragging': draggedColumnKey === `${key}.${property}` }
+              ]"
               :data-th-column="`${key}.${property}`"
               v-bind="freezeBindings(`${key}.${property}`)"
+              :draggable="Array.isArray(properties)"
+              @mousedown.capture="armColumnDrag"
+              @dragstart="(e) => onColumnDragStart(e, `${key}.${property}`)"
+              @dragover="(e) => onColumnDragOver(e, `${key}.${property}`)"
+              @drop="(e) => onColumnDrop(e, `${key}.${property}`)"
+              @dragend="onColumnDragEnd"
             >
               <div class="horizontal-left-content gap-small">
                 <span>{{ property }}</span>
@@ -235,7 +263,7 @@
           </td>
           <template v-if="attributes">
             <td
-              v-for="(_, attr) in attributes"
+              v-for="attr in orderedAttributeKeys"
               :key="attr"
               v-show="isColumnVisible(attr)"
               :name="attr"
@@ -264,7 +292,7 @@
             :key="key"
           >
             <td
-              v-for="(property, pIndex) in getColumns(key, properties)"
+              v-for="(property, pIndex) in orderedLayoutColumns(key, properties)"
               :key="property"
               v-show="isColumnVisible(`${key}.${property}`)"
               v-html="renderItem(item, key, property)"
@@ -289,11 +317,10 @@ import {
   useTemplateRef,
   watch
 } from 'vue'
-import { sortArray } from '@/helpers/arrays.js'
 import { vResizeColumn } from '@/directives/resizeColumn.js'
 import { humanize } from '@/helpers/strings'
 import { sanitizeHtml } from '@/helpers'
-import { useUserPreference } from '@/composables'
+import { useUserPreference, useUserPreferences } from '@/composables'
 import ColumnHeaderActions from './ColumnHeaderActions.vue'
 import VLock from '@/components/ui/VLock/index.vue'
 import RadialNavigation from '@/components/radials/navigation/radial.vue'
@@ -345,13 +372,28 @@ const props = defineProps({
   preferenceKey: {
     type: String,
     default: null
+  },
+
+  // When non-null, only columns whose key appears in this array show a
+  // sort button. Frontend gating that mirrors the backend whitelist.
+  // Null means "gating disabled" -- all sort buttons show (legacy behavior).
+  sortableKeys: {
+    type: Array,
+    default: null
+  },
+
+  // The most sort keys the backend applies; null when not known.
+  maxSortKeys: {
+    type: Number,
+    default: null
   }
 })
 
 const emit = defineEmits([
   'remove',
-  'onSort',
+  'reorder:layout',
   'update:modelValue',
+  'update:sortKeys',
   'mouseover:row',
   'mouseout:body'
 ])
@@ -366,10 +408,211 @@ const hideUnfrozen = defineModel('hideUnfrozen', {
   default: false
 })
 
-const freezeColumn = props.preferenceKey
+// Session state for freeze / hide. Distinct from pref-backed refs below --
+// URL fragment + user changes flow into these without touching the user's
+// saved default. `saveViewAsDefault()` copies the current session state to
+// the pref refs, which persists to the server.
+const freezeColumn = ref([])
+const freezeColumnPref = props.preferenceKey
   ? useUserPreference(`${props.preferenceKey}::freezeColumn`, [])
   : ref([])
+const hideUnfrozenPref = props.preferenceKey
+  ? useUserPreference(`${props.preferenceKey}::hideUnfrozen`, false)
+  : ref(false)
 const freezeColumnLeftPosition = ref({})
+
+// Column order of an attributes table (attribute keys, e.g. 'name'), empty
+// for their natural order. A layout's column order is the layout's own: a
+// drag there emits `reorder:layout` for the layout to apply and save, so
+// the layout selector shows it and its Reset clears it. Reordering across
+// layout sections is not supported -- see drag handlers.
+const columnOrder = ref([])
+const columnOrderPref = props.preferenceKey
+  ? useUserPreference(`${props.preferenceKey}::columnOrder`, [])
+  : ref([])
+const draggedColumnKey = ref(null)
+let draggedColumnSection = null
+// Whether the current mousedown can start a column drag: not when it's on a
+// column's resize bar (which stops the event before it reaches the th).
+let columnDragArmed = false
+
+const { loaded: preferencesLoaded } = useUserPreferences()
+
+// URL fragment sync for view state: `#freeze=key1,key2&hide=true&order=...`.
+// Fragment stays out of the query string so it doesn't hit the server or
+// consume the (already tight) GET budget. The fragment holds only what
+// differs from the user's saved default (pref), including "off" values
+// (`freeze=`, `hide=false`, `order=`), so a reload or shared link shows the
+// same view. On mount, the fragment overrides the pref.
+const VIEW_STATE_PARAMS = ['freeze', 'hide', 'order']
+
+// @return [Object] the fragment's view state params, and its other parts
+//   (e.g. an anchor, `#top`) as written
+function splitFragment() {
+  const parts = window.location.hash.slice(1).split('&').filter(Boolean)
+  const isViewState = (part) => VIEW_STATE_PARAMS.includes(part.split('=')[0])
+  return {
+    params: new URLSearchParams(parts.filter(isViewState).join('&')),
+    other: parts.filter((part) => !isViewState(part))
+  }
+}
+
+function setFragment(params, other) {
+  const next = [...other, params.toString()].filter(Boolean).join('&')
+  const nextHash = next ? `#${next}` : ''
+  if (window.location.hash === nextHash) return
+  history.replaceState(
+    null,
+    '',
+    `${window.location.pathname}${window.location.search}${nextHash}`
+  )
+}
+
+function readViewStateFromFragment() {
+  const { params } = splitFragment()
+  const rawFreeze = params.get('freeze')
+  const rawHide = params.get('hide')
+  const rawOrder = params.get('order')
+  return {
+    freeze:
+      rawFreeze == null
+        ? null
+        : rawFreeze.split(',').map((s) => s.trim()).filter(Boolean),
+    hide: rawHide == null ? null : rawHide === 'true',
+    order:
+      rawOrder == null
+        ? null
+        : rawOrder.split(',').map((s) => s.trim()).filter(Boolean)
+  }
+}
+
+function writeViewStateToFragment({ freeze, hide, order }) {
+  // The fragment holds differences from the saved default: until that's
+  // loaded, there's nothing to compare against (an "off" value would look
+  // like the default and be dropped).
+  if (props.preferenceKey && !preferencesLoaded.value) return
+  const { params, other } = splitFragment()
+  if (freeze !== undefined) {
+    if (arraysEqual(freeze ?? [], freezeColumnPref.value ?? [])) params.delete('freeze')
+    else params.set('freeze', (freeze ?? []).join(','))
+  }
+  if (hide !== undefined) {
+    if (!!hide === !!hideUnfrozenPref.value) params.delete('hide')
+    else params.set('hide', hide ? 'true' : 'false')
+  }
+  if (order !== undefined) {
+    if (arraysEqual(order ?? [], columnOrderPref.value ?? [])) params.delete('order')
+    else params.set('order', (order ?? []).join(','))
+  }
+  setFragment(params, other)
+}
+
+function clearViewStateFragment() {
+  setFragment(new URLSearchParams(), splitFragment().other)
+}
+
+const orderedAttributeKeys = computed(() => {
+  const known = Object.keys(props.attributes || {})
+  if (!columnOrder.value.length) return known
+  const inOrder = columnOrder.value.filter((k) => known.includes(k))
+  const missing = known.filter((k) => !inOrder.includes(k))
+  return [...inOrder, ...missing]
+})
+
+// Computed once per change, not per row: the body template calls
+// orderedLayoutColumns for every row.
+const orderedLayoutColumnsBySection = computed(() =>
+  Object.fromEntries(
+    Object.entries(props.layout?.properties || {}).map(([k, ps]) => [
+      k,
+      getColumns(k, ps)
+    ])
+  )
+)
+
+function orderedLayoutColumns(sectionKey, properties) {
+  return (
+    orderedLayoutColumnsBySection.value[sectionKey] ??
+    getColumns(sectionKey, properties)
+  )
+}
+
+// In layout mode keys are '<section>.<column>' and reordering stays within a
+// section. Attribute keys can contain dots too (e.g. 'keyword.object_tag'),
+// but attribute tables have no sections.
+function columnSection(key) {
+  return props.layout?.properties ? key.split('.')[0] : null
+}
+
+function armColumnDrag(e) {
+  columnDragArmed = !e.target.closest('.vue-column-resize-bar')
+}
+
+function onColumnDragStart(e, key) {
+  if (!columnDragArmed) {
+    e.preventDefault()
+    return
+  }
+  columnDragArmed = false
+  draggedColumnKey.value = key
+  draggedColumnSection = columnSection(key)
+  e.dataTransfer.effectAllowed = 'move'
+  // Firefox requires data to be set to initiate a drag.
+  try { e.dataTransfer.setData('text/plain', key) } catch (_) {}
+}
+
+function onColumnDragOver(e, key) {
+  if (!draggedColumnKey.value) return
+  const targetSection = columnSection(key)
+  if (targetSection !== draggedColumnSection) return
+  e.preventDefault()
+  e.dataTransfer.dropEffect = 'move'
+}
+
+function onColumnDrop(e, key) {
+  const dragged = draggedColumnKey.value
+  draggedColumnKey.value = null
+  if (!dragged || dragged === key) return
+  const targetSection = columnSection(key)
+  if (targetSection !== draggedColumnSection) return
+  e.preventDefault()
+
+  if (targetSection) {
+    const section = targetSection
+    const prefix = `${section}.`
+    const columns = moveItem(
+      orderedLayoutColumns(section, props.layout.properties[section]),
+      dragged.slice(prefix.length),
+      key.slice(prefix.length)
+    )
+    if (columns) emit('reorder:layout', { section, columns })
+    return
+  }
+
+  const next = moveItem(orderedAttributeKeys.value, dragged, key)
+  if (!next) return
+  // Back in the natural order is no order.
+  columnOrder.value = arraysEqual(next, Object.keys(props.attributes || {}))
+    ? []
+    : next
+}
+
+// @return [Array|null] list with item moved to where target is
+function moveItem(list, item, target) {
+  const next = [...list]
+  const fromIdx = next.indexOf(item)
+  const toIdx = next.indexOf(target)
+  if (fromIdx === -1 || toIdx === -1) return null
+  next.splice(fromIdx, 1)
+  next.splice(toIdx, 0, item)
+  return next
+}
+
+function onColumnDragEnd() {
+  columnDragArmed = false
+  draggedColumnKey.value = null
+  draggedColumnSection = null
+}
 
 function isColumnVisible(key) {
   return !hideUnfrozen.value || freezeColumn.value.includes(key)
@@ -420,8 +663,10 @@ const headerEmptyColspan = computed(() => {
   return n
 })
 
-const ascending = ref(true)
-const sortedColumn = ref(null)
+const sortKeys = defineModel('sortKeys', {
+  type: Array,
+  default: () => []
+})
 const lastRadialOpenedRow = ref(null)
 const handyScrollRef = useTemplateRef('handyScrollRef')
 const theadRef = useTemplateRef('theadRef')
@@ -455,11 +700,6 @@ const filteredIds = computed(() =>
 
 function clearFilterValues() {
   filterValues.value = {}
-}
-
-function resetSort() {
-  sortedColumn.value = null
-  ascending.value = true
 }
 
 const selectIds = computed({
@@ -528,18 +768,60 @@ function setColumnFilter(item, key, property) {
   updateSelectedIdsByFilter()
 }
 
-function sortTable(sortProperty) {
-  if (sortedColumn.value === sortProperty) {
-    ascending.value = !ascending.value
+function sortIndexFor(key) {
+  const i = sortKeys.value.findIndex((s) => s.key === key)
+  return i === -1 ? null : i
+}
+
+function sortDirFor(key) {
+  return sortKeys.value.find((s) => s.key === key)?.dir ?? null
+}
+
+// null = gating disabled, everything sortable. Otherwise, only keys in the
+// list are sortable (matches the backend's sortable_columns whitelist).
+function isSortable(key) {
+  if (props.sortableKeys == null) return true
+  return props.sortableKeys.includes(key)
+}
+
+// Cycle: empty -> asc -> desc -> removed.
+// Shift-click appends to the current sort list and cycles within it, up to
+// the backend's limit.
+// Plain click replaces the list with the clicked column.
+function sortTable(sortProperty, { shiftKey } = {}) {
+  let next
+  if (shiftKey) {
+    next = [...sortKeys.value]
+    const idx = next.findIndex((s) => s.key === sortProperty)
+    if (idx === -1) {
+      if (props.maxSortKeys != null && next.length >= props.maxSortKeys) {
+        TW.workbench.alert.create(
+          `At most ${props.maxSortKeys} columns can be sorted at once.`,
+          'notice'
+        )
+        return
+      }
+      next.push({ key: sortProperty, dir: 'asc' })
+    } else if (next[idx].dir === 'asc') {
+      next[idx] = { key: sortProperty, dir: 'desc' }
+    } else {
+      next.splice(idx, 1)
+    }
   } else {
-    sortedColumn.value = sortProperty
-    ascending.value = true
+    const current = sortKeys.value
+    if (current.length === 1 && current[0].key === sortProperty) {
+      if (current[0].dir === 'asc') {
+        next = [{ key: sortProperty, dir: 'desc' }]
+      } else {
+        next = []
+      }
+    } else {
+      next = [{ key: sortProperty, dir: 'asc' }]
+    }
   }
 
-  emit(
-    'onSort',
-    sortArray(props.list, sortProperty, ascending.value, { stripHtml: true })
-  )
+  // Parent watches sortKeys (v-model) and re-fetches.
+  sortKeys.value = next
 }
 
 function scrollToTop() {
@@ -555,7 +837,63 @@ onMounted(() => {
     })
     tableResizeObserver.observe(tableRef.value)
   }
+
+  // Initial view state: URL fragment > user pref > default.
+  const fromFragment = readViewStateFromFragment()
+  freezeColumn.value =
+    fromFragment.freeze ?? freezeColumnPref.value ?? []
+  hideUnfrozen.value =
+    fromFragment.hide ?? hideUnfrozenPref.value ?? false
+  columnOrder.value = isLayoutConfig.value
+    ? []
+    : (fromFragment.order ?? columnOrderPref.value ?? [])
 })
+
+// Cold start (no sessionStorage cache): preferences arrive after mount.
+// Apply them once, when they finish loading -- not on later changes, e.g. a
+// preference saved in another tab -- and only where the fragment and the
+// user haven't already set the state. Then bring the fragment up to date,
+// as its writes waited for the preferences.
+watch(preferencesLoaded, (loaded) => {
+  if (!loaded || !props.preferenceKey) return
+  const fromFragment = readViewStateFromFragment()
+  if (fromFragment.freeze == null && !freezeColumn.value.length) {
+    freezeColumn.value = [...(freezeColumnPref.value ?? [])]
+  }
+  if (fromFragment.hide == null && !hideUnfrozen.value) {
+    hideUnfrozen.value = !!hideUnfrozenPref.value
+  }
+  if (
+    !isLayoutConfig.value &&
+    fromFragment.order == null &&
+    !columnOrder.value.length
+  ) {
+    columnOrder.value = [...(columnOrderPref.value ?? [])]
+  }
+  writeViewStateToFragment({
+    freeze: freezeColumn.value,
+    hide: hideUnfrozen.value,
+    order: isLayoutConfig.value ? undefined : columnOrder.value
+  })
+})
+
+watch(
+  freezeColumn,
+  (next) => writeViewStateToFragment({ freeze: next }),
+  { deep: true }
+)
+
+watch(hideUnfrozen, (next) =>
+  writeViewStateToFragment({ hide: next })
+)
+
+watch(
+  columnOrder,
+  (next) => {
+    if (!isLayoutConfig.value) writeViewStateToFragment({ order: next })
+  },
+  { deep: true }
+)
 
 onBeforeUnmount(() => {
   tableResizeObserver?.disconnect()
@@ -574,19 +912,17 @@ watch(
 
       if (!hasSameIds) {
         clearFilterValues()
-        resetSort()
         scrollToTop()
       }
     } else {
       clearFilterValues()
-      resetSort()
     }
   },
   { immediate: true }
 )
 
 watch(
-  [() => props.layout, () => props.attributes, freezeColumn, hideUnfrozen],
+  [() => props.layout, () => props.attributes, freezeColumn, hideUnfrozen, columnOrder],
   () =>
     nextTick(() => {
       generateFreezeColumnLeftPosition()
@@ -607,8 +943,57 @@ watch(
   { deep: true }
 )
 
+// Copies current session view state (freeze + hide + order) into the user's
+// saved preferences. Called by the SaveViewButton at the filter task level,
+// which also saves sort separately since that state lives in the parent.
+function saveViewAsDefault() {
+  // Deep-clone to strip Vue reactive proxies before persisting.
+  freezeColumnPref.value = JSON.parse(JSON.stringify(freezeColumn.value))
+  hideUnfrozenPref.value = hideUnfrozen.value
+  // A layout's column order is saved with the layout.
+  if (!isLayoutConfig.value) {
+    columnOrderPref.value = JSON.parse(JSON.stringify(columnOrder.value))
+  }
+  // The view is now the default, so the fragment has nothing to override.
+  // Cleared directly: the prefs set above are saved asynchronously, so
+  // comparing against them here would still see the old values.
+  clearViewStateFragment()
+}
+
+// Compare current freeze/hide session state against pref; drives the
+// "unsaved changes" model that the parent uses to show/hide the Save button.
+const unsavedViewChanges = defineModel('unsavedViewChanges', {
+  type: Boolean,
+  default: false
+})
+
+function arraysEqual(a, b) {
+  if (a === b) return true
+  if (!Array.isArray(a) || !Array.isArray(b)) return false
+  if (a.length !== b.length) return false
+  for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return false
+  return true
+}
+
+watch(
+  [freezeColumn, hideUnfrozen, columnOrder, freezeColumnPref, hideUnfrozenPref, columnOrderPref],
+  ([fz, hd, ord, fzPref, hdPref, ordPref]) => {
+    if (!props.preferenceKey) {
+      unsavedViewChanges.value = false
+      return
+    }
+    const freezeDirty = !arraysEqual(fz, fzPref ?? [])
+    const hideDirty = hd !== (hdPref ?? false)
+    const orderDirty =
+      !isLayoutConfig.value && !arraysEqual(ord, ordPref ?? [])
+    unsavedViewChanges.value = freezeDirty || hideDirty || orderDirty
+  },
+  { deep: true, immediate: true }
+)
+
 defineExpose({
-  clearFilterValues
+  clearFilterValues,
+  saveViewAsDefault
 })
 </script>
 
@@ -713,6 +1098,18 @@ thead .freeze {
   th {
     font-weight: 700;
   }
+}
+
+.draggable-column-header {
+  cursor: grab;
+}
+
+.draggable-column-header:active {
+  cursor: grabbing;
+}
+
+.draggable-column-header-dragging {
+  opacity: 0.4;
 }
 
 :deep(.handy-scroll) {

@@ -13,9 +13,7 @@ class TaxonDeterminationsController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @taxon_determinations = Queries::TaxonDetermination::Filter.new(params).all
-        .page(params[:page])
-        .per(params[:per])
+        @taxon_determinations = ordered_page(Queries::TaxonDetermination::Filter.new(params).all)
       }
     end
   end

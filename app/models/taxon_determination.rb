@@ -59,7 +59,7 @@ class TaxonDetermination < ApplicationRecord
   belongs_to :otu, inverse_of: :taxon_determinations
   belongs_to :taxon_determination_object, polymorphic: true, inverse_of: :taxon_determinations
 
-  has_many :determiner_roles, class_name: 'Determiner', as: :role_object, inverse_of: :role_object
+  has_many :determiner_roles, -> { order(:position) }, class_name: 'Determiner', as: :role_object, inverse_of: :role_object
   has_many :determiners, through: :determiner_roles, source: :person, inverse_of: :taxon_determinations
 
   has_many :determiners_organization, through: :determiner_roles, source: :organization, inverse_of: :taxon_determinations

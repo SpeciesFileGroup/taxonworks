@@ -1,5 +1,6 @@
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import useFilter from '@/shared/Filter/composition/useFilter.js'
+import { fetchSortableColumns } from '@/shared/Filter/utils'
 import qs from 'qs'
 import {
   Tag,
@@ -110,6 +111,29 @@ export default function useAnnotationFilter() {
     annotationType.value ? ATTRIBUTES_BY_TYPE[annotationType.value] || {} : {}
   )
 
+  const sortableKeys = ref(null)
+  const maxSortKeys = ref(null)
+
+  // Refetch the backend sortable-columns whitelist whenever the user picks a
+  // different annotation type. Each backend filter class has its own list,
+  // so the previous type's is dropped until the new one arrives.
+  watch(
+    annotationType,
+    (nextType) => {
+      sortableKeys.value = null
+      if (!nextType) return
+      // Each annotation type key is its backend resource name. Ignore a
+      // response that arrives after the user switched to another type.
+      fetchSortableColumns(nextType).then((result) => {
+        if (result && annotationType.value === nextType) {
+          sortableKeys.value = result.columns
+          maxSortKeys.value = result.maxSortKeys
+        }
+      })
+    },
+    { immediate: true }
+  )
+
   function translateParameters(params) {
     const translated = { ...params }
 
@@ -129,6 +153,8 @@ export default function useAnnotationFilter() {
     annotationType,
     annotationTypes,
     currentAttributes,
-    setAnnotationType
+    setAnnotationType,
+    sortableKeys,
+    maxSortKeys
   }
 }

@@ -14,12 +14,11 @@ class DepictionsController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @depictions = Queries::Depiction::Filter.new(params)
+        # Position order: an annotator lists one object's depictions.
+        @depictions = ordered_page(Queries::Depiction::Filter.new(params)
         .all
         .where(project_id: sessions_current_project_id)
-        .where(Queries::Annotator::polymorphic_params(params, Depiction))
-        .page(params[:page])
-        .per(params[:per])
+        .where(Queries::Annotator::polymorphic_params(params, Depiction)), default_order: ['depictions.position'])
       }
     end
   end

@@ -1,5 +1,6 @@
 class CollectionObjectsController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
+  include OccurrenceFilterIncludes
 
   before_action :set_collection_object, only: [
     :show, :edit, :update, :destroy, :navigation, :containerize,
@@ -24,11 +25,8 @@ class CollectionObjectsController < ApplicationController
       format.json do
         collection_objects = ::Queries::CollectionObject::Filter.new(params).all
 
-        @collection_objects = add_includes_to_filter_result(collection_objects)
-
-        @collection_objects = @collection_objects
-          .page(params[:page])
-          .per(params[:per])
+        @collection_objects = ordered_page(add_includes_to_filter_result(collection_objects))
+        preload_sized_container_items(@collection_objects)
       end
     end
   end
@@ -88,7 +86,7 @@ class CollectionObjectsController < ApplicationController
 
   # Render DWC fields *only*
   def dwc_index
-    objects = ::Queries::CollectionObject::Filter.new(params).all.order('collection_objects.id').includes(:dwc_occurrence).page(params[:page]).per(params[:per]).all
+    objects = ordered_page(::Queries::CollectionObject::Filter.new(params).all.includes(:dwc_occurrence))
     assign_pagination(objects)
 
     # Default to *exclude* some big fields, like geo-spatial wkt
@@ -146,12 +144,12 @@ class CollectionObjectsController < ApplicationController
   # Intent is DWC fields + quick summary fields for reports
   # !! As currently implemented rebuilds DWC all
   def report
-    @collection_objects = ::Queries::CollectionObject::Filter.new(params).all.order('collection_objects.id').includes(:dwc_occurrence).page(params[:page]).per(params[:per] || 500)
+    @collection_objects = ordered_page(::Queries::CollectionObject::Filter.new(params).all.includes(:dwc_occurrence), default_per: 500)
   end
 
   # /collection_objects/preview?<filter params>
   def preview
-    @collection_objects = ::Queries::CollectionObject::Filter.new(params).all.order('collection_objects.id').includes(:dwc_occurrence).page(params[:page]).per(params[:per] || 500)
+    @collection_objects = ordered_page(::Queries::CollectionObject::Filter.new(params).all.includes(:dwc_occurrence), default_per: 500)
   end
 
   # GET /collection_objects/depictions/1
@@ -504,32 +502,31 @@ class CollectionObjectsController < ApplicationController
     }
   end
 
-  # An experiment to balance query/rendering times vs. extend[] requests
-  # Likely suggests we need some fundamental changes.
-  # @param CollectionObject::Filter.new() instance
   def add_includes_to_filter_result(collection_objects)
-    a = %i(identifiers dwc_occurrence repository current_repository)
+    collection_objects = add_occurrence_includes(collection_objects, %i(identifiers dwc_occurrence repository current_repository))
 
-    x = []
-    a.each do |e|
-      if helpers.extend_response_with(e.to_s)
-        x.push e
-      end
-    end
-
-    if x.any?
-      collection_objects = collection_objects.includes(*x)
-    end
-
-    if helpers.extend_response_with('collecting_event')
-      collection_objects = collection_objects.includes(collecting_event: [:identifiers])
-    end
-
-    if helpers.extend_response_with('taxon_determinations')
-      collection_objects = collection_objects.includes(taxon_determinations: [:otu, roles: [:person]])
+    if helpers.extend_response_with('container_item') || helpers.extend_response_with('container')
+      # A parent's contained_object is always a Container.
+      collection_objects = collection_objects.includes(container_item: { parent: { contained_object: [:identifiers, :container_item] } })
     end
 
     collection_objects
+  end
+
+  # A container's available_space counts its items, but only when it has a
+  # size, which also bounds how many there are. Preload those items for sized
+  # containers only: an unsized one (e.g. a drawer) can hold thousands.
+  def preload_sized_container_items(collection_objects)
+    return if !(helpers.extend_response_with('container_item') || helpers.extend_response_with('container'))
+
+    container_items = collection_objects
+      .filter_map { |co| co.container_item&.parent&.contained_object }
+      .uniq
+      .select(&:size)
+      .filter_map(&:container_item)
+    return if container_items.empty?
+
+    ActiveRecord::Associations::Preloader.new(records: container_items, associations: :children).call
   end
 
 end

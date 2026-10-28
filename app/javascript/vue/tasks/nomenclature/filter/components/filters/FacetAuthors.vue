@@ -55,7 +55,8 @@ import SmartSelector from '@/components/ui/SmartSelector'
 import DisplayList from '@/components/displayList'
 import { URLParamsToJSON } from '@/helpers/url/parse.js'
 import { People } from '@/routes/endpoints'
-import { computed, ref, watch, onBeforeMount } from 'vue'
+import { computed, onBeforeMount } from 'vue'
+import { useHydratedFacetList, missingRecord } from '@/components/Filter/composables/useHydratedFacetList.js'
 import { TAXON_NAME_AUTHOR_SELECTOR } from '@/constants/index.js'
 
 const props = defineProps({
@@ -72,48 +73,27 @@ const params = computed({
   set: (value) => emit('update:modelValue', value)
 })
 
-const authors = ref([])
-
-watch(
-  () => props.modelValue?.taxon_name_author_id,
-  (newVal, oldVal) => {
-    if (!newVal?.length && oldVal?.length) {
-      authors.value = []
-    }
+const {
+  list: authors,
+  hydrate,
+  add: addAuthor,
+  remove: removeAuthor
+} = useHydratedFacetList({
+  ids: () => params.value?.taxon_name_author_id,
+  write: (items) => {
+    params.value.taxon_name_author_id = items.map((item) => item.id)
   },
-  { deep: true }
-)
-
-watch(
-  authors,
-  () => {
-    params.value.taxon_name_author_id = authors.value.map((author) => author.id)
-  },
-  { deep: true }
-)
+  load: (id) => People.find(id).then(({ body }) => body),
+  missing: missingRecord
+})
 
 onBeforeMount(() => {
   const urlParams = URLParamsToJSON(location.href)
-  const authorIds = urlParams.taxon_name_author_id || []
 
   params.value.taxon_name_author_id_or = urlParams.taxon_name_author_id_or
   params.value.author = urlParams.author
   params.value.author_exact = urlParams.author_exact
 
-  authorIds.forEach((id) => {
-    People.find(id).then((response) => {
-      addAuthor(response.body)
-    })
-  })
+  hydrate(urlParams.taxon_name_author_id)
 })
-
-const addAuthor = (author) => {
-  if (!params.value.taxon_name_author_id?.includes(author.id)) {
-    authors.value.push(author)
-  }
-}
-
-const removeAuthor = (index) => {
-  authors.value.splice(index, 1)
-}
 </script>

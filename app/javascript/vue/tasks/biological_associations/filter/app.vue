@@ -9,8 +9,8 @@
       :extend-download="extendDownload"
       :url-request="urlRequest"
       v-model:append="append"
-      @filter="makeFilterRequest({ ...parameters, extend, page: 1 })"
-      @per="makeFilterRequest({ ...parameters, extend, page: 1 })"
+      @filter="makeFilterRequest({ ...parameters, page: 1 })"
+      @per="makeFilterRequest({ ...parameters, page: 1 })"
       @nextpage="loadPage"
       @reset="resetFilter"
     >
@@ -19,7 +19,7 @@
           :disabled="!list.length"
           :parameters="parameters"
           :count="pagination?.total || 0"
-          @update="() => makeFilterRequest({ ...parameters, extend })"
+          @update="() => makeFilterRequest({ ...parameters })"
         />
       </template>
       <template #nav-right>
@@ -28,7 +28,7 @@
             :disabled="!list.length"
             :ids="sortedSelectedIds"
             :count="sortedSelectedIds.length"
-            @update="() => makeFilterRequest({ ...parameters, extend })"
+            @update="() => makeFilterRequest({ ...parameters })"
           />
         </div>
       </template>
@@ -37,21 +37,35 @@
       </template>
       <template #table>
         <FilterList
+          ref="filterListRef"
           v-model="selectedIds"
+          v-model:sort-keys="sortKeys"
+          v-model:unsaved-view-changes="unsavedViewChanges"
+          :sortable-keys="sortableKeys"
+          :max-sort-keys="maxSortKeys"
           :attributes="ATTRIBUTES"
           :header-groups="HEADERS"
           :list="list"
-          :hide-unfrozen="hideFrozen"
+          v-model:hide-unfrozen="hideFrozen"
           :preference-key="`tasks::filters::${BIOLOGICAL_ASSOCIATION}`"
           radial-object
-          @on-sort="list = $event"
           @remove="({ index }) => list.splice(index, 1)"
         />
       </template>
       <template #nav-settings-start>
+        <SortPanel
+          v-model:sort-keys="sortKeys"
+          :labels="SORT_LABELS"
+          :sortable-keys="sortableKeys"
+          :max-sort-keys="maxSortKeys"
+        />
+        <SaveViewButton
+          v-if="hasUnsavedChanges"
+          @save="saveViewAsDefault"
+        />
         <VToggle
-          title="Hide/show non-frozen columns"
-          @click="() => (hideFrozen = !hideFrozen)"
+          v-model="hideFrozen"
+          title="Hide non-frozen columns"
         >
           <VIcon
             :name="hideFrozen ? 'contract' : 'expand'"
@@ -77,6 +91,8 @@ import VSpinner from '@/components/ui/VSpinner.vue'
 import VToggle from '@/components/ui/VToggle.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import FilterList from '@/components/Filter/Table/TableResults.vue'
+import SortPanel from '@/components/Filter/Table/SortPanel.vue'
+import SaveViewButton from '@/components/Filter/Table/SaveViewButton.vue'
 import RadialBiologicalAssociation from '@/components/radials/BiologicalAssociation/radial.vue'
 import IndexDownload from './components/indexDownload.vue'
 import { listParser } from './utils/listParser'
@@ -122,8 +138,29 @@ const {
   resetFilter,
   selectedIds,
   sortedSelectedIds,
-  urlRequest
-} = useFilter(BiologicalAssociation, { listParser, initParameters: { extend } })
+  urlRequest,
+  sortableKeys,
+  sortKeys,
+  unsavedViewChanges,
+  hasUnsavedChanges,
+  filterListRef,
+  saveViewAsDefault,
+  maxSortKeys
+} = useFilter(BiologicalAssociation, {
+  listParser,
+  initParameters: { extend },
+  sortableColumnsResource: 'biological_associations',
+  objectType: BIOLOGICAL_ASSOCIATION
+})
+
+const SORT_LABELS = Object.fromEntries(
+  Object.entries(ATTRIBUTES).map(([key, label]) => {
+    let side = null
+    if (key.startsWith('subject_') || key.endsWith('_subject')) side = 'Subject'
+    else if (key.startsWith('object_') || key.endsWith('_object')) side = 'Object'
+    return [key, side ? `${side} · ${label}` : label]
+  })
+)
 
 const extendDownload = computed(() => [
   {

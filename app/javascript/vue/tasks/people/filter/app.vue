@@ -10,6 +10,7 @@
       v-model:append="append"
       v-model="parameters"
       @filter="makeFilterRequest({ ...parameters, page: 1 })"
+      @per="makeFilterRequest({ ...parameters, page: 1 })"
       @nextpage="loadPage"
       @reset="resetFilter"
     >
@@ -18,19 +19,33 @@
       </template>
       <template #table>
         <FilterList
+          ref="filterListRef"
           v-model="selectedIds"
+          v-model:sort-keys="sortKeys"
+          v-model:hide-unfrozen="hideFrozen"
+          v-model:unsaved-view-changes="unsavedViewChanges"
+          :sortable-keys="sortableKeys"
+          :max-sort-keys="maxSortKeys"
           :list="list"
           :attributes="ATTRIBUTES"
-          :hide-unfrozen="hideFrozen"
           :preference-key="`tasks::filters::${PERSON}`"
-          @on-sort="list = $event"
           @remove="({ index }) => list.splice(index, 1)"
         />
       </template>
       <template #nav-settings-start>
+        <SortPanel
+          v-model:sort-keys="sortKeys"
+          :labels="ATTRIBUTES"
+          :sortable-keys="sortableKeys"
+          :max-sort-keys="maxSortKeys"
+        />
+        <SaveViewButton
+          v-if="hasUnsavedChanges"
+          @save="saveViewAsDefault"
+        />
         <VToggle
-          title="Hide/show non-frozen columns"
-          @click="() => (hideFrozen = !hideFrozen)"
+          v-model="hideFrozen"
+          title="Hide non-frozen columns"
         >
           <VIcon
             :name="hideFrozen ? 'contract' : 'expand'"
@@ -52,6 +67,8 @@
 import FilterLayout from '@/components/layout/Filter/FilterLayout.vue'
 import FilterComponent from './components/FilterView.vue'
 import FilterList from '@/components/Filter/Table/TableResults.vue'
+import SortPanel from '@/components/Filter/Table/SortPanel.vue'
+import SaveViewButton from '@/components/Filter/Table/SaveViewButton.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import VToggle from '@/components/ui/VToggle.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
@@ -74,8 +91,18 @@ const {
   resetFilter,
   selectedIds,
   sortedSelectedIds,
-  urlRequest
-} = useFilter(People)
+  urlRequest,
+  sortableKeys,
+  sortKeys,
+  unsavedViewChanges,
+  hasUnsavedChanges,
+  filterListRef,
+  saveViewAsDefault,
+  maxSortKeys
+} = useFilter(People, {
+  sortableColumnsResource: 'people',
+  objectType: PERSON
+})
 </script>
 
 <script>

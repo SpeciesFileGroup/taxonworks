@@ -1,4 +1,7 @@
-import { COLLECTION_OBJECT_PROPERTIES } from '@/shared/Filter/constants'
+import {
+  COLLECTION_OBJECT_PROPERTIES,
+  IDENTIFIER_SEPARATOR
+} from '@/shared/Filter/constants'
 import { getDataAttributesFor } from '@/shared/Filter/utils'
 import { DataAttribute } from '@/routes/endpoints'
 
@@ -72,7 +75,7 @@ export async function listParser(list, { parameters }) {
       repository,
       taxon_determinations: getTaxonDetermination(taxon_determinations),
       identifiers: {
-        cached: identifiers?.map((item) => item.cached).join(' | ')
+        cached: identifiers?.map((item) => item.cached).join(IDENTIFIER_SEPARATOR)
       },
       data_attributes: getDataAttributesFor(body, item.id),
       ...makeRowBind(dwc_occurrence)

@@ -14,8 +14,7 @@ class AttributionsController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @attributions = ::Queries::Attribution::Filter.new(params).all.where(project_id: sessions_current_project_id).
-        page(params[:page]).per(params[:per] || 500)
+        @attributions = ordered_page(::Queries::Attribution::Filter.new(params).all.where(project_id: sessions_current_project_id), default_per: 500)
       }
     end
   end

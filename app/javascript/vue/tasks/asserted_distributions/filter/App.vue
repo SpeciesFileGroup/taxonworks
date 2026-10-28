@@ -10,13 +10,13 @@
       v-model:append="append"
       @filter="
         () => {
-          makeFilterRequest({ ...parameters, extend, page: 1 })
+          makeFilterRequest({ ...parameters, page: 1 })
           resetMap()
         }
       "
       @per="
         () => {
-          makeFilterRequest({ ...parameters, extend, page: 1 })
+          makeFilterRequest({ ...parameters, page: 1 })
           resetMap()
         }
       "
@@ -37,14 +37,14 @@
         <RadialAssertedDistribution
           :disabled="!list.length"
           :parameters="parameters"
-          @update="() => makeFilterRequest({ ...parameters, extend })"
+          @update="() => makeFilterRequest({ ...parameters })"
         />
       </template>
       <template #nav-right>
         <RadialAssertedDistribution
           :disabled="!list.length"
           :ids="sortedSelectedIds"
-          @update="() => makeFilterRequest({ ...parameters, extend })"
+          @update="() => makeFilterRequest({ ...parameters })"
         />
       </template>
       <template #facets>
@@ -60,12 +60,16 @@
       </template>
       <template #table>
         <FilterList
+          ref="filterListRef"
           v-model="selectedIds"
+          v-model:sort-keys="sortKeys"
+          v-model:hide-unfrozen="hideFrozen"
+          v-model:unsaved-view-changes="unsavedViewChanges"
+          :sortable-keys="sortableKeys"
+          :max-sort-keys="maxSortKeys"
           :attributes="ATTRIBUTES"
           :list="list"
-          :hide-unfrozen="hideFrozen"
           :preference-key="`tasks::filters::${ASSERTED_DISTRIBUTION}`"
-          @on-sort="list = $event"
           @remove="({ index }) => list.splice(index, 1)"
         >
           <template #objectGlobalId="{ value, setHighlight }">
@@ -87,9 +91,19 @@
         </FilterList>
       </template>
       <template #nav-settings-start>
+        <SortPanel
+          v-model:sort-keys="sortKeys"
+          :labels="ATTRIBUTES"
+          :sortable-keys="sortableKeys"
+          :max-sort-keys="maxSortKeys"
+        />
+        <SaveViewButton
+          v-if="hasUnsavedChanges"
+          @save="saveViewAsDefault"
+        />
         <VToggle
-          title="Hide/show non-frozen columns"
-          @click="() => (hideFrozen = !hideFrozen)"
+          v-model="hideFrozen"
+          title="Hide non-frozen columns"
         >
           <VIcon
             :name="hideFrozen ? 'contract' : 'expand'"
@@ -117,6 +131,8 @@ import VToggle from '@/components/ui/VToggle.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import useFilter from '@/shared/Filter/composition/useFilter.js'
 import FilterList from '@/components/Filter/Table/TableResults.vue'
+import SortPanel from '@/components/Filter/Table/SortPanel.vue'
+import SaveViewButton from '@/components/Filter/Table/SaveViewButton.vue'
 import RadialAssertedDistribution from '@/components/radials/asserted_distribution/radial.vue'
 import RadialObject from '@/components/radials/object/radial.vue'
 import { ATTRIBUTES } from './constants/attributes'
@@ -150,8 +166,20 @@ const {
   resetFilter,
   selectedIds,
   sortedSelectedIds,
-  urlRequest
-} = useFilter(AssertedDistribution, { listParser, initParameters: { extend } })
+  urlRequest,
+  sortableKeys,
+  sortKeys,
+  unsavedViewChanges,
+  hasUnsavedChanges,
+  filterListRef,
+  saveViewAsDefault,
+  maxSortKeys
+} = useFilter(AssertedDistribution, {
+  listParser,
+  initParameters: { extend },
+  sortableColumnsResource: 'asserted_distributions',
+  objectType: ASSERTED_DISTRIBUTION
+})
 
 function loadMap(id) {
   idForMap.value = idForMap.value == id ? null : id

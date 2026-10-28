@@ -10,8 +10,8 @@
       :csv-options="csvOptions"
       v-model="parameters"
       v-model:append="append"
-      @filter="makeFilterRequest({ ...parameters, extend, exclude, page: 1 })"
-      @per="makeFilterRequest({ ...parameters, extend, exclude, page: 1 })"
+      @filter="makeFilterRequest({ ...parameters, page: 1 })"
+      @per="makeFilterRequest({ ...parameters, page: 1 })"
       @nextpage="loadPage"
       @reset="resetFilter"
     >
@@ -20,7 +20,7 @@
           :disabled="!list.length"
           :parameters="parameters"
           :count="pagination?.total || 0"
-          @update="() => makeFilterRequest({ ...parameters, extend, exclude })"
+          @update="() => makeFilterRequest({ ...parameters })"
         />
         <RadialLoan
           :disabled="!list.length"
@@ -39,7 +39,7 @@
             :ids="sortedSelectedIds"
             :count="sortedSelectedIds.length"
             @update="
-              () => makeFilterRequest({ ...parameters, extend, exclude })
+              () => makeFilterRequest({ ...parameters })
             "
           />
           <RadialLoan
@@ -74,20 +74,35 @@
       </template>
       <template #table>
         <TableResults
+          ref="filterListRef"
           v-model="selectedIds"
+          v-model:sort-keys="sortKeys"
+          v-model:unsaved-view-changes="unsavedViewChanges"
+          :sortable-keys="sortableKeys"
+          :max-sort-keys="maxSortKeys"
           :list="list"
           :layout="currentLayout"
-          :hide-unfrozen="hideFrozen"
+          @reorder:layout="reorderLayoutColumns"
+          v-model:hide-unfrozen="hideFrozen"
           :preference-key="`tasks::filters::${COLLECTION_OBJECT}`"
           radial-object
-          @on-sort="list = $event"
           @remove="({ index }) => list.splice(index, 1)"
         />
       </template>
       <template #nav-settings-start>
+        <SortPanel
+          v-model:sort-keys="sortKeys"
+          :labels="sortLabels"
+          :sortable-keys="sortableKeys"
+          :max-sort-keys="maxSortKeys"
+        />
+        <SaveViewButton
+          v-if="hasUnsavedChanges"
+          @save="saveViewAsDefault"
+        />
         <VToggle
-          title="Hide/show non-frozen columns"
-          @click="() => (hideFrozen = !hideFrozen)"
+          v-model="hideFrozen"
+          title="Hide non-frozen columns"
         >
           <VIcon
             :name="hideFrozen ? 'contract' : 'expand'"
@@ -109,6 +124,8 @@
 import FilterLayout from '@/components/layout/Filter/FilterLayout.vue'
 import FilterComponent from './components/filter.vue'
 import TableResults from '@/components/Filter/Table/TableResults.vue'
+import SortPanel from '@/components/Filter/Table/SortPanel.vue'
+import SaveViewButton from '@/components/Filter/Table/SaveViewButton.vue'
 import DwcDownload from './components/dwcDownload.vue'
 import DeleteCollectionObjects from './components/DeleteCollectionObjects.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
@@ -125,12 +142,14 @@ import { useTableLayoutConfiguration } from '@/components/Filter/composables/use
 import { LAYOUTS } from './constants/layouts.js'
 import { listParser } from './utils/listParser.js'
 import { useCSVOptions, useFilter } from '@/shared/Filter/composition'
+import { layoutSortLabels } from '@/shared/Filter/utils'
 
 const extend = [
   'dwc_occurrence',
   'repository',
   'current_repository',
   'collecting_event',
+  'geographic_area_name',
   'taxon_determinations',
   'identifiers',
   'container_item',
@@ -146,6 +165,7 @@ const {
   layouts,
   properties,
   updatePropertiesPositions,
+  reorderLayoutColumns,
   saveLayoutPreferences,
   resetPreferences,
   forceUpdatePreference
@@ -162,10 +182,19 @@ const {
   resetFilter,
   selectedIds,
   sortedSelectedIds,
-  urlRequest
+  urlRequest,
+  sortableKeys,
+  sortKeys,
+  unsavedViewChanges,
+  hasUnsavedChanges,
+  filterListRef,
+  saveViewAsDefault,
+  maxSortKeys
 } = useFilter(CollectionObject, {
   initParameters: { extend, exclude },
-  listParser
+  listParser,
+  sortableColumnsResource: 'collection_objects',
+  objectType: COLLECTION_OBJECT
 })
 
 const csvOptions = useCSVOptions({ layout: currentLayout, list })
@@ -187,6 +216,11 @@ function removeCOFromList(ids) {
   list.value = list.value.filter((item) => !ids.includes(item.id))
   selectedIds.value = selectedIds.value.filter((id) => !ids.includes(id))
 }
+
+const sortLabels = computed(() =>
+  layoutSortLabels(currentLayout.value?.properties)
+)
+
 </script>
 
 <script>

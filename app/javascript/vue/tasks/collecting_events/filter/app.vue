@@ -9,8 +9,8 @@
       :list="list"
       :csv-options="csvOptions"
       v-model:append="append"
-      @filter="makeFilterRequest({ ...parameters, extend, page: 1 })"
-      @per="makeFilterRequest({ ...parameters, extend, page: 1 })"
+      @filter="makeFilterRequest({ ...parameters, page: 1 })"
+      @per="makeFilterRequest({ ...parameters, page: 1 })"
       @nextpage="loadPage"
       @reset="resetFilter"
     >
@@ -31,7 +31,7 @@
           :disabled="!list.length"
           :parameters="parameters"
           :count="pagination?.total || 0"
-          @update="() => makeFilterRequest({ ...parameters, extend })"
+          @update="() => makeFilterRequest({ ...parameters })"
         />
       </template>
 
@@ -41,7 +41,7 @@
             :disabled="!list.length"
             :ids="sortedSelectedIds"
             :count="sortedSelectedIds.length"
-            @update="() => makeFilterRequest({ ...parameters, extend })"
+            @update="() => makeFilterRequest({ ...parameters })"
           />
           <TableLayoutSelector
             v-model="currentLayout"
@@ -68,22 +68,37 @@
       </template>
       <template #table>
         <FilterList
+          ref="filterListRef"
           v-model="selectedIds"
+          v-model:sort-keys="sortKeys"
+          v-model:hide-unfrozen="hideFrozen"
+          v-model:unsaved-view-changes="unsavedViewChanges"
+          :sortable-keys="sortableKeys"
+          :max-sort-keys="maxSortKeys"
           :layout="currentLayout"
+          @reorder:layout="reorderLayoutColumns"
           :list="list"
-          :hide-unfrozen="hideFrozen"
           :preference-key="`tasks::filters::${COLLECTING_EVENT}`"
           :radial-object="true"
           @mouseover:row="setRowHover"
           @mouseout:body="() => (rowHover = null)"
-          @on-sort="($event) => (list = $event)"
           @remove="({ index }) => list.splice(index, 1)"
         />
       </template>
       <template #nav-settings-start>
+        <SortPanel
+          v-model:sort-keys="sortKeys"
+          :labels="sortLabels"
+          :sortable-keys="sortableKeys"
+          :max-sort-keys="maxSortKeys"
+        />
+        <SaveViewButton
+          v-if="hasUnsavedChanges"
+          @save="saveViewAsDefault"
+        />
         <VToggle
-          title="Hide/show non-frozen columns"
-          @click="() => (hideFrozen = !hideFrozen)"
+          v-model="hideFrozen"
+          title="Hide non-frozen columns"
         >
           <VIcon
             :name="hideFrozen ? 'contract' : 'expand'"
@@ -107,22 +122,27 @@ import VSpinner from '@/components/ui/VSpinner.vue'
 import { useFilter, useCSVOptions } from '@/shared/Filter/composition'
 import RadialCollectingEvent from '@/components/radials/ce/radial.vue'
 import FilterList from '@/components/Filter/Table/TableResults.vue'
+import SortPanel from '@/components/Filter/Table/SortPanel.vue'
+import SaveViewButton from '@/components/Filter/Table/SaveViewButton.vue'
 import TableLayoutSelector from '@/components/Filter/Table/TableLayoutSelector.vue'
 import VToggle from '@/components/ui/VToggle.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import { listParser } from './utils/listParser.js'
 import { COLLECTING_EVENT } from '@/constants/index.js'
-import { computed, ref, reactive, onMounted, onBeforeMount } from 'vue'
+import { computed, ref, reactive, onMounted, onBeforeUnmount } from 'vue'
 import { sortArray } from '@/helpers/arrays'
 import { CollectingEvent } from '@/routes/endpoints'
 import { LAYOUTS } from './constants/layouts.js'
 import { useTableLayoutConfiguration } from '@/components/Filter/composables/useTableLayoutConfiguration.js'
+import { layoutSortLabels } from '@/shared/Filter/utils'
 
 defineOptions({
   name: 'FilterCollectingEvent'
 })
 
-const extend = ['roles']
+const extend = ['roles', 'geographic_area_name']
+// The table doesn't show object tags, and building them costs queries per row.
+const exclude = ['object_labels']
 const hideFrozen = ref(false)
 
 const {
@@ -131,6 +151,7 @@ const {
   layouts,
   properties,
   updatePropertiesPositions,
+  reorderLayoutColumns,
   saveLayoutPreferences,
   resetPreferences,
   forceUpdatePreference
@@ -177,11 +198,24 @@ const {
   resetFilter,
   selectedIds,
   sortedSelectedIds,
-  urlRequest
+  urlRequest,
+  sortableKeys,
+  sortKeys,
+  unsavedViewChanges,
+  hasUnsavedChanges,
+  filterListRef,
+  saveViewAsDefault,
+  maxSortKeys
 } = useFilter(CollectingEvent, {
   listParser,
-  initParameters: { extend }
+  initParameters: { extend, exclude },
+  sortableColumnsResource: 'collecting_events',
+  objectType: COLLECTING_EVENT
 })
+
+const sortLabels = computed(() =>
+  layoutSortLabels(currentLayout.value?.properties)
+)
 
 const csvOptions = useCSVOptions({ layout: currentLayout, list })
 const isMouseDown = ref(false)
@@ -209,7 +243,7 @@ onMounted(() => {
   document.addEventListener('mouseup', onMouseUp)
 })
 
-onBeforeMount(() => {
+onBeforeUnmount(() => {
   document.removeEventListener('mousedown', onMouseDown)
   document.removeEventListener('mouseup', onMouseUp)
 })

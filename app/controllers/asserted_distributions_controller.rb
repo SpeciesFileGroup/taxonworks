@@ -15,11 +15,9 @@ class AssertedDistributionsController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @asserted_distributions = ::Queries::AssertedDistribution::Filter.new(params)
+        @asserted_distributions = ordered_page(::Queries::AssertedDistribution::Filter.new(params)
           .all
-          .where(project_id: sessions_current_project_id)
-          .page(params[:page])
-          .per(params[:per])
+          .where(project_id: sessions_current_project_id))
       }
     end
   end

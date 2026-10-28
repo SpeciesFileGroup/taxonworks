@@ -14,10 +14,7 @@ class DescriptorsController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @descriptors = ::Queries::Descriptor::Filter.new(params).all
-          .page(params[:page])
-          .per(params[:per])
-          .order('descriptors.name')
+        @descriptors = ordered_page(::Queries::Descriptor::Filter.new(params).all, default_order: ['descriptors.name'])
 
         if helpers.extend_response_with('observation_matrices')
           @descriptors = @descriptors.includes(:observation_matrices)

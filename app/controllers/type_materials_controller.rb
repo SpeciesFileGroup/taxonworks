@@ -12,10 +12,8 @@ class TypeMaterialsController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @type_materials = TypeMaterial.where(filter_params)
-        .with_project_id(sessions_current_project_id)
-        .page(params[:page])
-        .per(params[:per])
+        @type_materials = ordered_page(TypeMaterial.where(filter_params)
+        .with_project_id(sessions_current_project_id))
       }
     end
   end

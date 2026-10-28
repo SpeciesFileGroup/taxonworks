@@ -51,7 +51,8 @@ import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
 import SmartSelector from '@/components/ui/SmartSelector'
 import DisplayList from '@/components/displayList'
 import { People } from '@/routes/endpoints'
-import { computed, ref, watch, onBeforeMount } from 'vue'
+import { computed, onBeforeMount } from 'vue'
+import { useHydratedFacetList, missingRecord } from '@/components/Filter/composables/useHydratedFacetList.js'
 
 const props = defineProps({
   modelValue: {
@@ -67,44 +68,23 @@ const params = computed({
   set: (value) => emit('update:modelValue', value)
 })
 
-const editors = ref([])
-
-watch(
-  () => props.modelValue.editor_id,
-  (newVal, oldVal) => {
-    if (!newVal?.length && oldVal?.length) {
-      editors.value = []
-    }
+const {
+  list: editors,
+  hydrate,
+  add: addEditor,
+  remove: removeEditor
+} = useHydratedFacetList({
+  ids: () => params.value.editor_id,
+  write: (items) => {
+    params.value.editor_id = items.map((item) => item.id)
   },
-  { deep: true }
-)
-watch(
-  editors,
-  (newVal) => {
-    params.value.editor_id = newVal.map((editor) => editor.id)
-  },
-  { deep: true }
-)
-
-onBeforeMount(() => {
-  if (params.value.editor_id) {
-    params.value.editor_id.forEach((id) => {
-      People.find(id).then((response) => {
-        addEditor(response.body)
-      })
-    })
-  }
+  load: (id) => People.find(id).then(({ body }) => body),
+  missing: missingRecord
 })
 
-function addEditor(editor) {
-  if (!params.value.editor_id?.includes(editor.id)) {
-    editors.value.push(editor)
-  }
-}
-
-function removeEditor(index) {
-  editors.value.splice(index, 1)
-}
+onBeforeMount(() => {
+  hydrate(params.value.editor_id)
+})
 </script>
 <style scoped>
 :deep(.vue-autocomplete-input) {

@@ -104,30 +104,16 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
     end
 
    specify 'page 1' do
-      h = { paginate: true, per: 1, page: 3}
+      h = { per: 1, page: 3 }
       q = Queries::CollectionObject::Filter.new(h)
-      expect(q.all.order(:id).all.last).to eq(Specimen.last)
+      expect(Queries::Pager.new(q.all, h).all.to_a).to eq([Specimen.order(:id).third])
     end
 
     specify 'per' do
-      h = { paginate: true, per: 1 }
+      h = { per: 1 }
       q = Queries::CollectionObject::Filter.new(h)
-      expect(q.all.size).to eq(1)
+      expect(Queries::Pager.new(q.all, h).all.size).to eq(1)
     end
-  end
-
-  specify 'nested pagination' do
-    s1 = FactoryBot.create(:valid_specimen, collecting_event: FactoryBot.create(:valid_collecting_event) )
-    s2 = FactoryBot.create(:valid_specimen, collecting_event: FactoryBot.create(:valid_collecting_event) )
-    s3 = FactoryBot.create(:valid_specimen, collecting_event: FactoryBot.create(:valid_collecting_event) )
-
-    # Get the second CE
-    h = { collecting_event_query: {paginate: true, per: 1, page: 2 } }
-
-    p = ActionController::Parameters.new(h)
-    q = Queries::CollectionObject::Filter.new(p)
-
-    expect(q.all.unscope(:order).order(:id).first).to eq( s2 )
   end
 
   specify 'CollectingEvent params are permitted' do
@@ -446,9 +432,9 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
       expect(query.base_collecting_event_query.class.name).to eq('Queries::CollectingEvent::Filter')
     end
 
-    specify '#recent' do
-      query.recent = true
-      expect(query.all.pluck(:id)).to contain_exactly(co1.id, co2.id)
+    specify 'recent (via Queries::Pager)' do
+      co1.touch
+      expect(Queries::Pager.new(query.all, recent: true).ordered.pluck(:id)).to eq([co1.id, co2.id])
     end
 
     specify '#collecting_event_id' do
@@ -769,6 +755,177 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
       expect(query.all.pluck(:id)).to contain_exactly(co1.id, co2.id)
     end
 
+  end
+
+  context 'sort param' do
+    let!(:s_a) {
+      s = FactoryBot.create(:valid_specimen)
+      s.update_columns(total: 1, buffered_collecting_event: 'A_label')
+      s
+    }
+    let!(:s_z) {
+      s = FactoryBot.create(:valid_specimen)
+      s.update_columns(total: 9, buffered_collecting_event: 'Z_label')
+      s
+    }
+
+    specify 'sort=collection_object.total orders by direct column ascending' do
+      q = Queries::Pager.new(Queries::CollectionObject::Filter.new(
+        collection_object_id: [s_z.id, s_a.id], sort: 'collection_object.total'
+      ).all, collection_object_id: [s_z.id, s_a.id], sort: 'collection_object.total')
+      expect(q.ordered.map(&:id)).to eq([s_a.id, s_z.id])
+    end
+
+    specify 'sort=-collection_object.buffered_collecting_event desc' do
+      q = Queries::Pager.new(Queries::CollectionObject::Filter.new(
+        collection_object_id: [s_a.id, s_z.id],
+        sort: '-collection_object.buffered_collecting_event'
+      ).all, collection_object_id: [s_a.id, s_z.id],
+        sort: '-collection_object.buffered_collecting_event')
+      expect(q.ordered.map(&:id)).to eq([s_z.id, s_a.id])
+    end
+
+    context 'collecting_event.geographic_area_name' do
+      let(:ga_zulu) { FactoryBot.create(:valid_geographic_area, name: 'Zulu') }
+      let(:ga_alpha) { FactoryBot.create(:valid_geographic_area, name: 'Alpha') }
+
+      # Zulu's specimen is created first so id order and name order disagree.
+      specify 'orders by the geographic area name, not its id' do
+        [[s_a, ga_zulu], [s_z, ga_alpha]].each do |specimen, area|
+          ce = FactoryBot.create(:valid_collecting_event)
+          ce.update_columns(geographic_area_id: area.id)
+          specimen.update_columns(collecting_event_id: ce.id)
+        end
+        q = Queries::Pager.new(Queries::CollectionObject::Filter.new(
+          collection_object_id: [s_a.id, s_z.id], sort: 'collecting_event.geographic_area_name'
+        ).all, collection_object_id: [s_a.id, s_z.id], sort: 'collecting_event.geographic_area_name')
+        expect(q.ordered.map(&:id)).to eq([s_z.id, s_a.id])
+      end
+
+      specify 'the raw geographic_area_id key is no longer sortable' do
+        expect(Queries::CollectionObject::Sort.keys)
+          .not_to include('collecting_event.geographic_area_id')
+      end
+    end
+
+    context 'belongs_to: repository.name' do
+      let!(:repo_alpha) { FactoryBot.create(:valid_repository, name: 'Alpha museum') }
+      let!(:repo_zeta)  { FactoryBot.create(:valid_repository, name: 'Zeta museum') }
+
+      specify do
+        s_a.update!(repository: repo_zeta)
+        s_z.update!(repository: repo_alpha)
+        q = Queries::Pager.new(Queries::CollectionObject::Filter.new(
+          collection_object_id: [s_a.id, s_z.id], sort: 'repository.name'
+        ).all, collection_object_id: [s_a.id, s_z.id], sort: 'repository.name')
+        expect(q.ordered.map(&:id)).to eq([s_z.id, s_a.id])
+      end
+    end
+
+    context 'belongs_to: collecting_event.verbatim_locality' do
+      let!(:ce_a) { FactoryBot.create(:valid_collecting_event, verbatim_locality: 'Adirondacks') }
+      let!(:ce_z) { FactoryBot.create(:valid_collecting_event, verbatim_locality: 'Zion') }
+
+      specify do
+        s_a.update!(collecting_event: ce_z)
+        s_z.update!(collecting_event: ce_a)
+        q = Queries::Pager.new(Queries::CollectionObject::Filter.new(
+          collection_object_id: [s_a.id, s_z.id], sort: 'collecting_event.verbatim_locality'
+        ).all, collection_object_id: [s_a.id, s_z.id], sort: 'collecting_event.verbatim_locality')
+        expect(q.ordered.map(&:id)).to eq([s_z.id, s_a.id])
+      end
+    end
+
+    context 'polymorphic has_one: dwc_occurrence.scientificName' do
+      specify do
+        DwcOccurrence.create!(
+          dwc_occurrence_object: s_a, scientificName: 'Zus eus', basisOfRecord: 'PreservedSpecimen'
+        )
+        DwcOccurrence.create!(
+          dwc_occurrence_object: s_z, scientificName: 'Aus dus', basisOfRecord: 'PreservedSpecimen'
+        )
+        q = Queries::Pager.new(Queries::CollectionObject::Filter.new(
+          collection_object_id: [s_a.id, s_z.id], sort: 'dwc_occurrence.scientificName'
+        ).all, collection_object_id: [s_a.id, s_z.id], sort: 'dwc_occurrence.scientificName')
+        expect(q.ordered.map(&:id)).to eq([s_z.id, s_a.id])
+      end
+    end
+
+    context 'taxon_determinations.otu_name (primary determination)' do
+      let(:root) { FactoryBot.create(:root_taxon_name) }
+      let(:tn_a) { Protonym.create!(name: 'Aus', rank_class: Ranks.lookup(:iczn, :genus), parent: root) }
+      let(:tn_z) { Protonym.create!(name: 'Zus', rank_class: Ranks.lookup(:iczn, :genus), parent: root) }
+      let!(:otu_a) { Otu.create!(name: 'aus_otu', taxon_name: tn_a) }
+      let!(:otu_z) { Otu.create!(name: 'zus_otu', taxon_name: tn_z) }
+
+      specify 'picks the lowest-position determination as primary' do
+        TaxonDetermination.create!(taxon_determination_object: s_a, otu: otu_z, position: 1)
+        TaxonDetermination.create!(taxon_determination_object: s_a, otu: otu_a, position: 2)
+        TaxonDetermination.create!(taxon_determination_object: s_z, otu: otu_a, position: 1)
+        q = Queries::Pager.new(Queries::CollectionObject::Filter.new(
+          collection_object_id: [s_a.id, s_z.id], sort: 'taxon_determinations.otu_name'
+        ).all, collection_object_id: [s_a.id, s_z.id], sort: 'taxon_determinations.otu_name')
+        # s_z's primary is aus_otu < s_a's primary is zus_otu
+        expect(q.ordered.map(&:id)).to eq([s_z.id, s_a.id])
+      end
+
+      specify 'a direct column uses the primary determination, not the lowest value' do
+        TaxonDetermination.create!(taxon_determination_object: s_a, otu: otu_a, position: 1, year_made: 2000)
+        TaxonDetermination.create!(taxon_determination_object: s_a, otu: otu_a, position: 2, year_made: 1900)
+        TaxonDetermination.create!(taxon_determination_object: s_z, otu: otu_a, position: 1, year_made: 1950)
+        q = Queries::Pager.new(Queries::CollectionObject::Filter.new(
+          collection_object_id: [s_a.id, s_z.id], sort: 'taxon_determinations.year_made'
+        ).all, collection_object_id: [s_a.id, s_z.id], sort: 'taxon_determinations.year_made')
+        expect(q.ordered.map(&:id)).to eq([s_z.id, s_a.id])
+      end
+
+      specify 'two determination keys in one sort' do
+        TaxonDetermination.create!(taxon_determination_object: s_a, otu: otu_a, position: 1, year_made: 2000)
+        TaxonDetermination.create!(taxon_determination_object: s_z, otu: otu_z, position: 1, year_made: 2000)
+        q = Queries::Pager.new(Queries::CollectionObject::Filter.new(
+          collection_object_id: [s_a.id, s_z.id],
+          sort: 'taxon_determinations.year_made,-taxon_determinations.otu_name'
+        ).all, collection_object_id: [s_a.id, s_z.id],
+          sort: 'taxon_determinations.year_made,-taxon_determinations.otu_name')
+        expect(q.ordered.map(&:id)).to eq([s_z.id, s_a.id])
+      end
+    end
+
+    context 'identifiers.cached (joined, as displayed)' do
+      let!(:ns) { FactoryBot.create(:valid_namespace) }
+      let!(:s_m) { FactoryBot.create(:valid_specimen) }
+
+      def add_identifier(object, identifier, position)
+        i = Identifier::Local::CatalogNumber.create!(
+          identifier_object: object, namespace: ns, identifier:
+        )
+        i.update_column(:position, position)
+      end
+
+      # The table shows each CO's identifiers in position order, joined with
+      # ' | ', and the sort uses that same string. Sorting by the smallest
+      # identifier instead would put s_a ('aa') first.
+      specify 'sorts by the identifiers joined in position order, NULL positions last' do
+        add_identifier(s_a, 'zz', 1)
+        add_identifier(s_a, 'aa', 2)
+        add_identifier(s_z, 'mm', 1)
+        add_identifier(s_m, 'ab', nil)
+        add_identifier(s_m, 'pp', 1)
+
+        q = Queries::Pager.new(Queries::CollectionObject::Filter.new(
+          collection_object_id: [s_a.id, s_z.id, s_m.id], sort: 'identifiers.cached'
+        ).all, collection_object_id: [s_a.id, s_z.id, s_m.id], sort: 'identifiers.cached')
+        # 'mm' < 'pp | ab' < 'zz | aa'; NULL first would put 'ab | pp' first.
+        expect(q.ordered.map(&:id)).to eq([s_z.id, s_m.id, s_a.id])
+      end
+    end
+
+    specify 'unknown sort key ignored' do
+      q = Queries::Pager.new(Queries::CollectionObject::Filter.new(
+        collection_object_id: [s_a.id, s_z.id], sort: 'no_such_column'
+      ).all, collection_object_id: [s_a.id, s_z.id], sort: 'no_such_column')
+      expect(q.ordered.map(&:id)).to contain_exactly(s_a.id, s_z.id)
+    end
   end
 
   context '#container_id' do

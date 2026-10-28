@@ -16,10 +16,7 @@ class IdentifiersController < ApplicationController
       }
       format.json {
         # project_id handling logic is in filter, it must be handled there. This contrasts pattern used elsewhere, but see alternate_values_controller.rb
-        @identifiers = Queries::Identifier::Filter.new(params.merge(project_id: sessions_current_project_id)).all
-         .order(:identifier_object_type, :identifier_object_id, :position)
-         .page(params[:page])
-         .per(params[:per])
+        @identifiers = ordered_page(Queries::Identifier::Filter.new(params.merge(project_id: sessions_current_project_id)).all, default_order: [:identifier_object_type, :identifier_object_id, :position])
       }
     end
   end

@@ -29,16 +29,25 @@
           v-if="annotationType"
           :list="list"
           :attributes="currentAttributes"
-          :hide-unfrozen="hideFrozen"
+          :sortable-keys="sortableKeys"
+          :max-sort-keys="maxSortKeys"
           v-model="selectedIds"
-          @on-sort="list = $event"
+          v-model:sort-keys="sortKeys"
+          v-model:hide-unfrozen="hideFrozen"
           @remove="({ index }) => list.splice(index, 1)"
         />
       </template>
       <template #nav-settings-start>
+        <SortPanel
+          v-if="annotationType"
+          v-model:sort-keys="sortKeys"
+          :labels="currentAttributes"
+          :sortable-keys="sortableKeys"
+          :max-sort-keys="maxSortKeys"
+        />
         <VToggle
-          title="Hide/show non-frozen columns"
-          @click="() => (hideFrozen = !hideFrozen)"
+          v-model="hideFrozen"
+          title="Hide non-frozen columns"
         >
           <VIcon
             :name="hideFrozen ? 'contract' : 'expand'"
@@ -60,10 +69,12 @@
 import FilterLayout from '@/components/layout/Filter/FilterLayout.vue'
 import FilterView from './components/FilterView.vue'
 import FilterList from '@/components/Filter/Table/TableResults.vue'
+import SortPanel from '@/components/Filter/Table/SortPanel.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import VToggle from '@/components/ui/VToggle.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import useAnnotationFilter from './composables/useAnnotationFilter.js'
+import useSortKeys from '@/shared/Filter/composition/useSortKeys.js'
 import { ref } from 'vue'
 
 defineOptions({
@@ -86,8 +97,20 @@ const {
   urlRequest,
   annotationType,
   currentAttributes,
-  setAnnotationType
+  setAnnotationType,
+  sortableKeys,
+  maxSortKeys
 } = useAnnotationFilter()
+
+const { sortKeys } = useSortKeys({
+  parameters,
+  makeFilterRequest,
+  sortableKeys,
+  maxSortKeys,
+  // No type picked or no search yet: the sort applies to the next search.
+  canFetch: () => !!annotationType.value && !!window.location.search,
+  requestParameters: () => ({ annotation_type: annotationType.value })
+})
 
 function handleFilter() {
   if (!annotationType.value) return
@@ -95,18 +118,21 @@ function handleFilter() {
   makeFilterRequest({
     ...parameters.value,
     annotation_type: annotationType.value,
-    extend: ['annotated_object'],
     page: 1
   })
 }
 
 function handleReset() {
   setAnnotationType(null)
+  sortKeys.value = []
   resetFilter()
 }
 
 function onAnnotationTypeChange(typeKey) {
   setAnnotationType(typeKey)
+  // Sort keys are per-type -- clear when switching to avoid sending a key
+  // the new backend doesn't recognize.
+  sortKeys.value = []
   parameters.value = { per: parameters.value.per }
 }
 </script>

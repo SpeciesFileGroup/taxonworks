@@ -3,7 +3,7 @@
     <h3>Person (Recipient/Supervisor)</h3>
     <SmartSelector
       model="people"
-      @selected="addToArray(people, $event)"
+      @selected="add"
     />
     <DisplayList
       v-if="people.length"
@@ -11,7 +11,7 @@
       soft-delete
       :warning="false"
       :list="people"
-      @delete="removeFromArray(people, $event)"
+      @delete-index="remove"
     />
 
     <p>
@@ -35,10 +35,10 @@
   </FacetContainer>
 </template>
 <script setup>
-import { ref, computed, watch, onBeforeMount } from 'vue'
+import { computed, onBeforeMount } from 'vue'
 import { People } from '@/routes/endpoints'
 import { ROLE_LOAN_RECIPIENT, ROLE_LOAN_SUPERVISOR } from '@/constants/index.js'
-import { addToArray, removeFromArray } from '@/helpers/arrays'
+import { useHydratedFacetList, missingRecord } from '@/components/Filter/composables/useHydratedFacetList.js'
 import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
 import DisplayList from '@/components/displayList.vue'
@@ -69,32 +69,21 @@ const selectedRoles = computed({
   }
 })
 
-const people = ref([])
-
-watch(
-  people,
-  (newVal) => {
-    params.value.person_id = newVal.map((p) => p.id)
+const {
+  list: people,
+  hydrate,
+  add,
+  remove
+} = useHydratedFacetList({
+  ids: () => params.value.person_id,
+  write: (items) => {
+    params.value.person_id = items.map((item) => item.id)
   },
-  { deep: true }
-)
-
-watch(
-  () => params.value.person_id,
-  (newVal, oldVal) => {
-    if (!newVal?.length && oldVal?.length) {
-      people.value = []
-    }
-  }
-)
+  load: (id) => People.find(id).then(({ body }) => body),
+  missing: missingRecord
+})
 
 onBeforeMount(() => {
-  const ids = params.value?.person_id?.map((p) => p.id) || []
-
-  ids.forEach((id) => {
-    People.find(id).then(({ body }) => {
-      addToArray(people, body)
-    })
-  })
+  hydrate(params.value?.person_id)
 })
 </script>

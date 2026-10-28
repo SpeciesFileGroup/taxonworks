@@ -17,10 +17,8 @@ class DownloadsController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @downloads = Queries::Download::Filter.new(params)
-          .all
-          .page(params[:page])
-          .per(params[:per])
+        @downloads = ordered_page(Queries::Download::Filter.new(params)
+          .all)
       }
     end
   end

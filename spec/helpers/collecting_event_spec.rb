@@ -31,4 +31,34 @@ describe CollectingEventsHelper, type: :helper do
       expect(helper.collecting_events_search_form).to have_field('collecting_event_id_for_quick_search_form')
     end
   end
+
+  context '#collecting_event_collectors_tag' do
+    let(:collecting_event) { FactoryBot.create(:valid_collecting_event) }
+    let!(:first) { FactoryBot.create(:valid_person, last_name: 'Aaa') }
+    let!(:second) { FactoryBot.create(:valid_person, last_name: 'Bbb') }
+
+    before do
+      Collector.create!(role_object: collecting_event, person: first)
+      Collector.create!(role_object: collecting_event, person: second)
+    end
+
+    def query_count(&block)
+      n = 0
+      count = ->(*, payload) { n += 1 unless payload[:name] == 'SCHEMA' || payload[:cached] }
+      ActiveSupport::Notifications.subscribed(count, 'sql.active_record', &block)
+      n
+    end
+
+    specify 'loads the collectors in one query when roles are not preloaded' do
+      ce = CollectingEvent.find(collecting_event.id)
+      expect(query_count { helper.collecting_event_collectors_tag(ce) }).to eq(1)
+    end
+
+    specify 'uses preloaded roles without querying' do
+      ce = CollectingEvent.includes(collector_roles: :person).find(collecting_event.id)
+      tag = nil
+      expect(query_count { tag = helper.collecting_event_collectors_tag(ce) }).to eq(0)
+      expect(tag).to match(/Aaa.*Bbb/)
+    end
+  end
 end

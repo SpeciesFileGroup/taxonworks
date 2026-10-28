@@ -10,8 +10,8 @@
       only-extend-download
       v-model="parameters"
       v-model:append="append"
-      @filter="makeFilterRequest({ ...parameters, extend, page: 1 })"
-      @per="makeFilterRequest({ ...parameters, extend, page: 1 })"
+      @filter="makeFilterRequest({ ...parameters, page: 1 })"
+      @per="makeFilterRequest({ ...parameters, page: 1 })"
       @nextpage="loadPage"
       @reset="resetFilter"
     >
@@ -21,7 +21,7 @@
           :disabled="!list.length"
           :object-type="OTU"
           use-new-key-slice
-          @update="() => makeFilterRequest({ ...parameters, extend })"
+          @update="() => makeFilterRequest({ ...parameters })"
         />
       </template>
       <template #nav-right>
@@ -29,14 +29,14 @@
           :disabled="!list.length"
           :ids="sortedSelectedIds"
           :count="sortedSelectedIds.length"
-          @update="() => makeFilterRequest({ ...parameters, extend })"
+          @update="() => makeFilterRequest({ ...parameters })"
         />
         <RadialMatrix
           :object-type="OTU"
           :disabled="!list.length"
           :ids="sortedSelectedIds"
           use-new-key-slice
-          @update="() => makeFilterRequest({ ...parameters, extend })"
+          @update="() => makeFilterRequest({ ...parameters })"
         />
       </template>
       <template #facets>
@@ -44,20 +44,34 @@
       </template>
       <template #table>
         <FilterList
+          ref="filterListRef"
           :list="list"
           :attributes="ATTRIBUTES"
-          :hide-unfrozen="hideFrozen"
+          :sortable-keys="sortableKeys"
+          :max-sort-keys="maxSortKeys"
           :preference-key="`tasks::filters::${OTU}`"
           v-model="selectedIds"
+          v-model:sort-keys="sortKeys"
+          v-model:hide-unfrozen="hideFrozen"
+          v-model:unsaved-view-changes="unsavedViewChanges"
           radial-object
-          @on-sort="list = $event"
           @remove="({ index }) => list.splice(index, 1)"
         />
       </template>
       <template #nav-settings-start>
+        <SortPanel
+          v-model:sort-keys="sortKeys"
+          :labels="ATTRIBUTES"
+          :sortable-keys="sortableKeys"
+          :max-sort-keys="maxSortKeys"
+        />
+        <SaveViewButton
+          v-if="hasUnsavedChanges"
+          @save="saveViewAsDefault"
+        />
         <VToggle
-          title="Hide/show non-frozen columns"
-          @click="() => (hideFrozen = !hideFrozen)"
+          v-model="hideFrozen"
+          title="Hide non-frozen columns"
         >
           <VIcon
             :name="hideFrozen ? 'contract' : 'expand'"
@@ -79,6 +93,8 @@
 import FilterLayout from '@/components/layout/Filter/FilterLayout.vue'
 import FilterView from './components/FilterView.vue'
 import FilterList from '@/components/Filter/Table/TableResults.vue'
+import SortPanel from '@/components/Filter/Table/SortPanel.vue'
+import SaveViewButton from '@/components/Filter/Table/SaveViewButton.vue'
 import useFilter from '@/shared/Filter/composition/useFilter.js'
 import RadialMatrix from '@/components/radials/matrix/radial.vue'
 import RadialOtu from '@/components/radials/otu/radial.vue'
@@ -107,8 +123,20 @@ const {
   resetFilter,
   selectedIds,
   sortedSelectedIds,
-  urlRequest
-} = useFilter(Otu, { listParser, initParameters: { extend } })
+  urlRequest,
+  sortableKeys,
+  sortKeys,
+  unsavedViewChanges,
+  hasUnsavedChanges,
+  filterListRef,
+  saveViewAsDefault,
+  maxSortKeys
+} = useFilter(Otu, {
+  listParser,
+  initParameters: { extend },
+  sortableColumnsResource: 'otus',
+  objectType: OTU
+})
 
 const extendDownload = computed(() => [
   {

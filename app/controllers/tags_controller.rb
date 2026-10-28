@@ -15,9 +15,7 @@ class TagsController < ApplicationController
       }
       format.json {
         # Possibly broken polymorphics?
-        @tags = ::Queries::Tag::Filter.new(params).all
-          .page(params[:page])
-          .per(params[:per])
+        @tags = ordered_page(::Queries::Tag::Filter.new(params).all)
       }
     end
   end

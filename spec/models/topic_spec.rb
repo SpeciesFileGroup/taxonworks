@@ -20,5 +20,17 @@ describe Topic, type: :model do
 
     end
   end
-end
 
+  context '.used_recently' do
+    # select_optimized takes the first 10 (recent) and 5 (quick) of these.
+    specify 'with no used_on, most recently updated first' do
+      older = FactoryBot.create(:valid_topic)
+      newer = FactoryBot.create(:valid_topic)
+      middle = FactoryBot.create(:valid_topic)
+      older.update_column(:updated_at, 3.days.ago)
+      middle.update_column(:updated_at, 2.days.ago)
+      newer.update_column(:updated_at, 1.day.ago)
+      expect(Topic.used_recently(nil, older.project_id, nil, nil)).to eq([newer.id, middle.id, older.id])
+    end
+  end
+end

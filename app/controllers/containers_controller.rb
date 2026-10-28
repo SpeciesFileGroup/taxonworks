@@ -13,10 +13,8 @@ class ContainersController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @containers = ::Queries::Container::Filter.new(params)
-          .all
-          .page(params[:page])
-          .per(params[:per])
+        @containers = ordered_page(::Queries::Container::Filter.new(params)
+          .all)
       }
     end
   end

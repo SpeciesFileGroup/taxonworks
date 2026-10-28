@@ -30,7 +30,9 @@ class Topic < ControlledVocabularyTerm
   #    the max 10 most recently used topics, as used on Content or Citation
   def self.used_recently(user_id, project_id, klass, used_on = 'Citation')
 
-    return ::Queries::ControlledVocabularyTerm::Filter.new(recent: true, project_id: project_id).all.pluck(:id) if used_on.nil?
+    if used_on.nil?
+      return ::Queries::Pager.new(::Queries::ControlledVocabularyTerm::Filter.new(project_id:).all, recent: true).ordered.pluck(:id)
+    end
 
     t = case used_on
         when 'Citation'

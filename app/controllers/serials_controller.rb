@@ -13,9 +13,7 @@ class SerialsController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @serials = Queries::Serial::Filter.new(params).all
-        .page(params[:page])
-        .per(params[:per])
+        @serials = ordered_page(Queries::Serial::Filter.new(params).all)
       }
     end
   end

@@ -10,7 +10,7 @@ end
 if extend_response_with('container') && collection_object.container_item&.container.present?
   json.container do
     json.partial! '/containers/attributes', container: collection_object.container_item.container, extensions: false
-    json.identifier label_for_identifier(collection_object.container_item.container.identifiers.first)
+    json.identifier label_for_identifier(first_container_identifier(collection_object.container_item.container))
   end
 end
 
@@ -48,7 +48,7 @@ end
 
 if extend_response_with('identifiers')
   json.identifiers do
-    json.array! collection_object.identifiers.each do |i|
+    json.array! identifiers_in_position_order(collection_object.identifiers) do |i|
       json.cached i.cached
     end
   end
@@ -56,7 +56,8 @@ end
 
 if extend_response_with('taxon_determinations')
   json.taxon_determinations do |ct|
-    json.array! collection_object.taxon_determinations.order(:position), partial: '/taxon_determinations/attributes', as: :taxon_determination, extensions: false
+    # sort_by, not order: order would re-query and skip the controller's preload
+    json.array! collection_object.taxon_determinations.sort_by(&:position), partial: '/taxon_determinations/attributes', as: :taxon_determination, extensions: false
   end
 end
 

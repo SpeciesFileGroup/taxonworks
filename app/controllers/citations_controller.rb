@@ -15,11 +15,9 @@ class CitationsController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @citations = ::Queries::Citation::Filter.new(params).all
+        @citations = ordered_page(::Queries::Citation::Filter.new(params).all
           .where(project_id: sessions_current_project_id)
-          .eager_load(:source)
-          .order(:cached_nomenclature_date, :cached, :source_id, :pages)
-          .page(params[:page]).per(params[:per])
+          .eager_load(:source), default_order: [:cached_nomenclature_date, :cached, :source_id, :pages])
       }
     end
   end

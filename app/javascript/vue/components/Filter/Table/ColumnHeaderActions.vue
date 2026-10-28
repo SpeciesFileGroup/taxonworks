@@ -16,15 +16,20 @@
       />
     </VBtn>
     <VBtn
-      title="Sort alphabetically"
-      color="primary"
+      v-if="sortable"
+      :color="sortDir ? 'toggle-active' : 'primary'"
+      :title="sortTitle"
       circle
-      @click.stop="emit('sort')"
+      @click.stop="(e) => emit('sort', { shiftKey: e.shiftKey })"
     >
       <VIcon
-        name="alphabeticalSort"
+        :name="sortIconName"
         x-small
       />
+      <sup
+        v-if="sortIndex != null && showSortIndex"
+        class="margin-xsmall-left"
+      >{{ sortIndex + 1 }}</sup>
     </VBtn>
     <VBtn
       v-if="filtered"
@@ -41,8 +46,9 @@
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import VLock from '@/components/ui/VLock/index.vue'
+import { computed } from 'vue'
 
-defineProps({
+const props = defineProps({
   columnKey: {
     type: String,
     required: true
@@ -51,6 +57,26 @@ defineProps({
   filtered: {
     type: Boolean,
     default: false
+  },
+
+  sortIndex: {
+    type: Number,
+    default: null
+  },
+
+  sortDir: {
+    type: String,
+    default: null
+  },
+
+  showSortIndex: {
+    type: Boolean,
+    default: false
+  },
+
+  sortable: {
+    type: Boolean,
+    default: true
   }
 })
 
@@ -60,4 +86,16 @@ const freeze = defineModel('freeze', {
 })
 
 const emit = defineEmits(['copy', 'sort', 'clear'])
+
+const sortIconName = computed(() => {
+  if (props.sortDir === 'asc') return 'arrowUp'
+  if (props.sortDir === 'desc') return 'arrowDown'
+  return 'alphabeticalSort'
+})
+
+const sortTitle = computed(() => {
+  const base = 'Sort by this column. Shift-click to add as additional sort key.'
+  if (!props.sortDir) return base
+  return `Current: ${props.sortDir === 'asc' ? 'ascending' : 'descending'}. ${base}`
+})
 </script>

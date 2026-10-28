@@ -34,8 +34,19 @@
         <ListResults
           v-model="selectedIds"
           :list="list"
-          @on-sort="list = $event"
           @remove="({ index }) => list.splice(index, 1)"
+        />
+      </template>
+      <template #nav-settings-start>
+        <SortPanel
+          v-model:sort-keys="sortKeys"
+          :labels="sortLabels"
+          :sortable-keys="sortableKeys"
+          :max-sort-keys="maxSortKeys"
+        />
+        <SaveViewButton
+          v-if="hasUnsavedChanges"
+          @save="saveViewAsDefault"
         />
       </template>
     </FilterLayout>
@@ -52,11 +63,19 @@
 import FilterLayout from '@/components/layout/Filter/FilterLayout.vue'
 import FilterComponent from './components/filter.vue'
 import ListResults from './components/ListResults.vue'
+import SortPanel from '@/components/Filter/Table/SortPanel.vue'
+import SaveViewButton from '@/components/Filter/Table/SaveViewButton.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import useFilter from '@/shared/Filter/composition/useFilter.js'
 import RadialMatrix from '@/components/radials/matrix/radial.vue'
 import { SOUND } from '@/constants/index.js'
 import { Sound } from '@/routes/endpoints'
+import { sortKeyLabels } from '@/shared/Filter/utils'
+import { computed } from 'vue'
+
+// Sounds uses a custom audio-player list, not TableResults, so sort options
+// are only reachable through the SortPanel picker.
+const SORT_LABEL_OVERRIDES = { id: 'ID' }
 
 const {
   append,
@@ -69,8 +88,20 @@ const {
   resetFilter,
   selectedIds,
   sortedSelectedIds,
-  urlRequest
-} = useFilter(Sound)
+  urlRequest,
+  sortableKeys,
+  sortKeys,
+  hasUnsavedChanges,
+  saveViewAsDefault,
+  maxSortKeys
+} = useFilter(Sound, {
+  sortableColumnsResource: 'sounds',
+  objectType: SOUND
+})
+
+const sortLabels = computed(() =>
+  sortKeyLabels(sortableKeys.value || [], SORT_LABEL_OVERRIDES)
+)
 </script>
 
 <script>

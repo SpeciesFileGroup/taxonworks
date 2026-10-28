@@ -17,9 +17,9 @@ json.otu do
   json.taxon_name_id taxon_determination.otu.taxon_name_id
 end
 
-if taxon_determination.roles.any?
+if taxon_determination.determiner_roles.any?
   json.determiner_roles do
-    json.array! taxon_determination.determiner_roles.order(:position).each do |role|
+    json.array! taxon_determination.determiner_roles.each do |role|
       json.extract! role, :id, :position, :type
       case role.agent_type
       when :person

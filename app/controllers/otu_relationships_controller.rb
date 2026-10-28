@@ -15,9 +15,7 @@ class OtuRelationshipsController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @otu_relationships = OtuRelationship.where(project_id: sessions_current_project_id)
-          .page(params[:page])
-          .per(params[:per])
+        @otu_relationships = ordered_page(OtuRelationship.where(project_id: sessions_current_project_id))
       }
     end
   end

@@ -6,9 +6,9 @@ module ContainersHelper
 
     a.push container.name if container.name
 
-    a.push identifier_short_tag(container.identifiers.first)
+    a.push identifier_short_tag(first_container_identifier(container))
     a.push tag.i(container.type, class: [:feedback, 'feedback-thin', 'feedback-secondary'])
-    a.push tag.span container.container_items.count.to_s + ' inside', class: [:feedback, 'feedback-thin', 'feedback-info']
+    a.push tag.span container.container_items.size.to_s + ' inside', class: [:feedback, 'feedback-thin', 'feedback-info']
 
     if container.print_label
       a.push tag.span container.print_label, class: [:feedback, 'feedback-thin', 'feedback-light']
@@ -26,7 +26,7 @@ module ContainersHelper
 
   def label_for_container(container)
     return nil if container.nil?
-    [ label_for_identifier(container.identifiers.first),
+    [ label_for_identifier(first_container_identifier(container)),
       container.name,
       container.print_label,
     ].compact.join(': ').html_safe
@@ -35,7 +35,7 @@ module ContainersHelper
   # TODO: Clean, refactor
   def label_for_container_container(container)
     return nil if container.nil?
-    container.name || container.print_label || label_for_identifier(container.identifiers.first) || container.id.to_s
+    container.name || container.print_label || label_for_identifier(first_container_identifier(container)) || container.id.to_s
   end
 
   def container_autocomplete_tag(container, term = nil)
@@ -116,4 +116,12 @@ module ContainersHelper
     r.sort!{|a,b| a[:type] <=> b[:type]}
     r
   end
+
+  # @return [Identifier, nil]
+  #   the first identifier by position; preloaded identifiers come back in
+  #   no particular order
+  def first_container_identifier(container)
+    identifiers_in_position_order(container.identifiers).first
+  end
+
 end

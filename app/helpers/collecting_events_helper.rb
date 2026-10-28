@@ -54,7 +54,7 @@ module CollectingEventsHelper
   def collecting_event_identifiers_tag(collecting_event)
     return nil if collecting_event.nil?
     if i = collecting_event.identifiers.load.first
-      collecting_event.identifiers.limit(10).collect{|j|
+      identifiers_in_position_order(collecting_event.identifiers).first(10).collect{|j|
         content_tag(:span, j.cached, class: [ :feedback, 'feedback-thin', 'feedback-secondary' ])
       }.join + ( collecting_event.identifiers.size > 10 ? ' ... and more!' : '')
     else
@@ -80,12 +80,20 @@ module CollectingEventsHelper
   end
 
   def collecting_event_collectors_tag(collecting_event)
-    return nil if collecting_event.nil? || (collecting_event.verbatim_collectors.blank? && !collecting_event.collectors.load.any?)
+    return nil if collecting_event.nil?
+    # Preloaded roles when there are any (as by filter tables), else one query.
+    collectors =
+      if collecting_event.collector_roles.loaded?
+        collecting_event.collector_roles.sort_by { |r| [r.position, r.id] }.map(&:person)
+      else
+        collecting_event.collectors.to_a
+      end
+    return nil if collecting_event.verbatim_collectors.blank? && collectors.empty?
     a = ''
 
     a << content_tag(
-      :span, Utilities::Strings.authorship_sentence(collecting_event.collectors.collect{|a| a.cached})
-    ) if collecting_event.collectors.any?
+      :span, Utilities::Strings.authorship_sentence(collectors.collect{|a| a.cached})
+    ) if collectors.any?
 
     a << '&nbsp;'.html_safe + content_tag(:span,  collecting_event.verbatim_collectors, class: [:feedback, 'feedback-thin','feedback-secondary']) if collecting_event.verbatim_collectors
     a.html_safe

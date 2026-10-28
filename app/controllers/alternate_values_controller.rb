@@ -20,11 +20,9 @@ class AlternateValuesController < ApplicationController
       format.json {
         # !! You must merge project_id to handle community data exceptions.  This is a contrast to other filter patterns
         # where the project_id is scoped here.
-        @alternate_values = ::Queries::AlternateValue::Filter.new(
-          params.merge(project_id: sessions_current_project_id)
+        @alternate_values = ordered_page(
+          ::Queries::AlternateValue::Filter.new(params.merge(project_id: sessions_current_project_id)).all
         )
-        .all.page(params[:page])
-        .per(params[:per])
       }
     end
   end

@@ -1,5 +1,6 @@
 class FieldOccurrencesController < ApplicationController
   include DataControllerConfiguration::ProjectDataControllerConfiguration
+  include OccurrenceFilterIncludes
 
   before_action :set_field_occurrence, only: %i[ show edit update destroy api_dwc]
 
@@ -13,9 +14,7 @@ class FieldOccurrencesController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @field_occurrences = ::Queries::FieldOccurrence::Filter.new(params).all
-          .page(params[:page])
-          .per(params[:per])
+        @field_occurrences = ordered_page(add_includes_to_filter_result(::Queries::FieldOccurrence::Filter.new(params).all))
       }
     end
   end
@@ -124,6 +123,10 @@ class FieldOccurrencesController < ApplicationController
   end
 
   private
+
+  def add_includes_to_filter_result(field_occurrences)
+    add_occurrence_includes(field_occurrences, %i[identifiers dwc_occurrence])
+  end
 
   def set_field_occurrence
     @field_occurrence = FieldOccurrence.where(project_id: sessions_current_project_id).find(params[:id])

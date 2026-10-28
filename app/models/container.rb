@@ -133,12 +133,10 @@ class Container < ApplicationRecord
   # @return [Integer]
   #   the free space in this container (non-recursive)
   def available_space
-    in_container = container_items.count
-    if size
-      size - in_container
-    else
-      nil
-    end
+    # Check size first: counting is a query, and most containers have no size.
+    return nil if size.nil?
+    # size, not count: uses preloaded children when there are any.
+    size - container_items.size
   end
 
   # @return [Integer, nil]

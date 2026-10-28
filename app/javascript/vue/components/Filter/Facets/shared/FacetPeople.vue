@@ -55,6 +55,7 @@ import FacetContainer from '@/components/Filter/Facets/FacetContainer.vue'
 import { People } from '@/routes/endpoints'
 import { URLParamsToJSON } from '@/helpers/url/parse.js'
 import { onMounted, ref, watch } from 'vue'
+import { useHydratedFacetList, missingRecord } from '@/components/Filter/composables/useHydratedFacetList.js'
 
 const props = defineProps({
   paramAll: {
@@ -95,26 +96,22 @@ const params = defineModel({
 
 const emit = defineEmits(['toggle'])
 
-const list = ref([])
+const {
+  list,
+  hydrate,
+  add: addPerson,
+  remove: removePerson
+} = useHydratedFacetList({
+  ids: () => params.value[props.paramPeople],
+  write: (items) => {
+    params.value[props.paramPeople] = items.map((item) => item.id)
+  },
+  load: (id) => People.find(id).then(({ body }) => body),
+  missing: missingRecord
+})
+
 const switchOptions = ref(['People', 'Name'])
 const isPeopleView = ref(true)
-
-watch(
-  params,
-  (newVal) => {
-    if (!newVal[props.paramPeople]?.length && list.value.length) {
-      list.value = []
-    }
-  }
-)
-
-watch(
-  list,
-  () => {
-    params.value[props.paramPeople] = list.value.map((item) => item.id)
-  },
-  { deep: true }
-)
 
 watch(
   isPeopleView, (newVal) => {
@@ -126,25 +123,10 @@ watch(
 
 onMounted(() => {
   const urlParams = URLParamsToJSON(location.href)
-  const peopleIds = urlParams[props.paramPeople] || []
 
   params.value[props.paramAll] = urlParams[props.paramAll]
-  peopleIds.forEach((id) => {
-    People.find(id).then(({ body }) => {
-      addPerson(body)
-    })
-  })
+  hydrate(urlParams[props.paramPeople])
 })
-
-function addPerson(person) {
-  if (!list.value.find((item) => item.id === person.id)) {
-    list.value.push(person)
-  }
-}
-
-function removePerson(index) {
-  list.value.splice(index, 1)
-}
 </script>
 <style scoped>
 :deep(.vue-autocomplete-input) {

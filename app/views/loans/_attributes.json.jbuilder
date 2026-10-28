@@ -32,7 +32,7 @@ end
 
 if extend_response_with('identifiers')
   json.identifiers do
-    json.array! loan.identifiers.each do |i|
+    json.array! identifiers_in_position_order(loan.identifiers) do |i|
       json.cached i.cached
     end
   end

@@ -66,9 +66,9 @@ describe Queries::CollectingEvent::Filter, type: :model, group: [:collecting_eve
     expect(query.all).to contain_exactly(ce1)
   end
 
-  specify '#recent' do
-    query.recent = true
-    expect(query.all.map(&:id)).to contain_exactly(ce2.id, ce1.id)
+  specify 'recent (via Queries::Pager)' do
+    ce1.touch
+    expect(Queries::Pager.new(query.all, recent: true).ordered.map(&:id)).to eq([ce1.id, ce2.id])
   end
 
   context 'otus' do
@@ -281,6 +281,31 @@ describe Queries::CollectingEvent::Filter, type: :model, group: [:collecting_eve
       query.geo_json = geo_json_polygon
       query.geo_collecting_event_geographic_area = true
       expect(query.all.map(&:id)).to contain_exactly(ce1.id, ce2.id)
+    end
+  end
+
+  context 'sort param' do
+    def sorted_ids(sort_key)
+      Queries::Pager.new(Queries::CollectingEvent::Filter.new(sort: sort_key).all, sort: sort_key).ordered.where(id: [ce1.id, ce2.id]).pluck(:id)
+    end
+
+    specify 'sort=verbatim_locality orders alphabetically' do
+      expect(sorted_ids('verbatim_locality')).to eq([ce1.id, ce2.id])
+    end
+
+    specify 'sort=start_date_year descending puts newer first' do
+      expect(sorted_ids('-start_date_year')).to eq([ce1.id, ce2.id])
+    end
+
+    specify 'unknown sort key ignored' do
+      expect(sorted_ids('no_such_column')).to contain_exactly(ce1.id, ce2.id)
+    end
+
+    specify 'sort=geographic_area_name orders by area name, bare and section-prefixed' do
+      ce1.update_columns(geographic_area_id: FactoryBot.create(:valid_geographic_area, name: 'Zulu').id)
+      ce2.update_columns(geographic_area_id: FactoryBot.create(:valid_geographic_area, name: 'Alpha').id)
+      expect(sorted_ids('geographic_area_name')).to eq([ce2.id, ce1.id])
+      expect(sorted_ids('collecting_event.geographic_area_name')).to eq([ce2.id, ce1.id])
     end
   end
 end

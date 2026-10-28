@@ -12,10 +12,8 @@ class GeoreferencesController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @georeferences = Queries::Georeference::Filter.new(params).all
-        .where(project_id: sessions_current_project_id)
-        .page(params[:page])
-        .per(params[:per])
+        @georeferences = ordered_page(Queries::Georeference::Filter.new(params).all
+        .where(project_id: sessions_current_project_id))
       }
     end
   end

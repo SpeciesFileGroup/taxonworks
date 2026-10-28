@@ -21,11 +21,8 @@ class OtusController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @otus = ::Queries::Otu::Filter.new(params).all
-          .page(params[:page])
-          .per(params[:per])
-          .eager_load(:taxon_name)
-          .order(:cached, 'otus.name')
+        @otus = ordered_page(::Queries::Otu::Filter.new(params).all
+          .eager_load(:taxon_name), default_order: ['taxon_names.cached', 'otus.name'])
       }
     end
   end
@@ -295,7 +292,7 @@ class OtusController < ApplicationController
       .page(params[:page])
       .per(params[:per])
       .eager_load(:taxon_name)
-      .order(:cached, 'otus.name')
+      .order('taxon_names.cached', 'otus.name')
 
     render '/otus/api/v1/index'
   end

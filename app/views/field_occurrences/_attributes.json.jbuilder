@@ -13,7 +13,7 @@ end
 
 if extend_response_with('identifiers')
   json.identifiers do
-    json.array! field_occurrence.identifiers.each do |i|
+    json.array! identifiers_in_position_order(field_occurrence.identifiers) do |i|
       json.cached i.cached
     end
   end
@@ -21,7 +21,8 @@ end
 
 if extend_response_with('taxon_determinations')
   json.taxon_determinations do |ct|
-    json.array! field_occurrence.taxon_determinations.order(:position), partial: '/taxon_determinations/attributes', as: :taxon_determination, extensions: false
+    # sort_by, not order: order would re-query and skip a preload
+    json.array! field_occurrence.taxon_determinations.sort_by(&:position), partial: '/taxon_determinations/attributes', as: :taxon_determination, extensions: false
   end
 end
 

@@ -519,7 +519,7 @@ describe Queries::TaxonName::Filter, type: :model, group: [:nomenclature] do
     expect(query.all.map(&:id)).to contain_exactly(genus.id, species.id)
   end
 
-  specify '#validify and #paginate returns full result set' do
+  specify '#validify, then paged (via Queries::Pager), counts the full result set' do
     TaxonNameRelationship::Iczn::Invalidating::Usage::Misspelling.create!(
       subject_taxon_name_id: original_genus.id, object_taxon_name_id: genus.id
     )
@@ -536,12 +536,10 @@ describe Queries::TaxonName::Filter, type: :model, group: [:nomenclature] do
 
     query.taxon_name_id = [original_genus.id, species1.id]
     query.validify = true
-    query.paginate = true
-    query.per = 1
-    query.page = 2
 
-    expect(query.all.count).to eq(1)
-    expect(query.all.except(:limit, :offset).count).to eq(2)
+    page = Queries::Pager.new(query.all, per: 1, page: 2).all
+    expect(page.to_a.size).to eq(1)
+    expect(page.total_count).to eq(2)
   end
 
   specify '#taxon_name_id[] 2.2' do
@@ -791,5 +789,58 @@ describe Queries::TaxonName::Filter, type: :model, group: [:nomenclature] do
     )
 
     expect(q.all.map(&:id)).to contain_exactly(genus.id)
+  end
+
+  context 'sort param' do
+    let(:root) { FactoryBot.create(:root_taxon_name) }
+
+    let!(:tn_z) {
+      Protonym.create!(name: 'Zulidae', rank_class: Ranks.lookup(:iczn, :family),
+                       parent: root)
+    }
+    let!(:tn_a) {
+      Protonym.create!(name: 'Aulidae', rank_class: Ranks.lookup(:iczn, :family),
+                       parent: root)
+    }
+
+    specify 'sort=cached_html orders by cached' do
+      q = Queries::Pager.new(Queries::TaxonName::Filter.new(
+        taxon_name_id: [tn_z.id, tn_a.id], sort: 'cached_html'
+      ).all, taxon_name_id: [tn_z.id, tn_a.id], sort: 'cached_html')
+      expect(q.ordered.map(&:id)).to eq([tn_a.id, tn_z.id])
+    end
+
+    specify 'sort=-cached_html desc' do
+      q = Queries::Pager.new(Queries::TaxonName::Filter.new(
+        taxon_name_id: [tn_a.id, tn_z.id], sort: '-cached_html'
+      ).all, taxon_name_id: [tn_a.id, tn_z.id], sort: '-cached_html')
+      expect(q.ordered.map(&:id)).to eq([tn_z.id, tn_a.id])
+    end
+
+    context 'self-belongs_to: parent' do
+      let!(:child_of_a) {
+        Protonym.create!(name: 'Bus', rank_class: Ranks.lookup(:iczn, :genus),
+                         parent: tn_a)
+      }
+      let!(:child_of_z) {
+        Protonym.create!(name: 'Cus', rank_class: Ranks.lookup(:iczn, :genus),
+                         parent: tn_z)
+      }
+
+      specify 'sort=parent orders by parent.cached' do
+        q = Queries::Pager.new(Queries::TaxonName::Filter.new(
+          taxon_name_id: [child_of_z.id, child_of_a.id], sort: 'parent'
+        ).all, taxon_name_id: [child_of_z.id, child_of_a.id], sort: 'parent')
+        # child_of_a's parent (Aulidae) < child_of_z's parent (Zulidae)
+        expect(q.ordered.map(&:id)).to eq([child_of_a.id, child_of_z.id])
+      end
+    end
+
+    specify 'unknown sort key ignored' do
+      q = Queries::Pager.new(Queries::TaxonName::Filter.new(
+        taxon_name_id: [tn_a.id, tn_z.id], sort: 'no_such_column'
+      ).all, taxon_name_id: [tn_a.id, tn_z.id], sort: 'no_such_column')
+      expect(q.ordered.map(&:id)).to contain_exactly(tn_a.id, tn_z.id)
+    end
   end
 end

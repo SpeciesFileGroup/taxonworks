@@ -9,8 +9,8 @@
       :csv-options="csvOptions"
       v-model="parameters"
       v-model:append="append"
-      @filter="makeFilterRequest({ ...parameters, extend, page: 1 })"
-      @per="makeFilterRequest({ ...parameters, extend, page: 1 })"
+      @filter="makeFilterRequest({ ...parameters, page: 1 })"
+      @per="makeFilterRequest({ ...parameters, page: 1 })"
       @nextpage="loadPage"
       @reset="resetFilter"
     >
@@ -49,20 +49,35 @@
       </template>
       <template #table>
         <FilterList
+          ref="filterListRef"
           :list="list"
           :layout="currentLayout"
-          :hide-unfrozen="hideFrozen"
+          @reorder:layout="reorderLayoutColumns"
+          :sortable-keys="sortableKeys"
+          :max-sort-keys="maxSortKeys"
           :preference-key="`tasks::filters::${FIELD_OCCURRENCE}`"
           v-model="selectedIds"
+          v-model:sort-keys="sortKeys"
+          v-model:hide-unfrozen="hideFrozen"
+          v-model:unsaved-view-changes="unsavedViewChanges"
           radial-object
-          @on-sort="list = $event"
           @remove="({ index }) => list.splice(index, 1)"
         />
       </template>
       <template #nav-settings-start>
+        <SortPanel
+          v-model:sort-keys="sortKeys"
+          :labels="sortLabels"
+          :sortable-keys="sortableKeys"
+          :max-sort-keys="maxSortKeys"
+        />
+        <SaveViewButton
+          v-if="hasUnsavedChanges"
+          @save="saveViewAsDefault"
+        />
         <VToggle
-          title="Hide/show non-frozen columns"
-          @click="() => (hideFrozen = !hideFrozen)"
+          v-model="hideFrozen"
+          title="Hide non-frozen columns"
         >
           <VIcon
             :name="hideFrozen ? 'contract' : 'expand'"
@@ -85,6 +100,8 @@ import FilterLayout from '@/components/layout/Filter/FilterLayout.vue'
 import FilterView from './components/FilterView.vue'
 import DeleteFieldOccurrences from './components/DeleteFieldOccurrences.vue'
 import FilterList from '@/components/Filter/Table/TableResults.vue'
+import SortPanel from '@/components/Filter/Table/SortPanel.vue'
+import SaveViewButton from '@/components/Filter/Table/SaveViewButton.vue'
 import RadialMatrix from '@/components/radials/matrix/radial.vue'
 import { useFilter, useCSVOptions } from '@/shared/Filter/composition'
 import VSpinner from '@/components/ui/VSpinner.vue'
@@ -96,7 +113,8 @@ import { listParser } from './utils/listParser'
 import { FIELD_OCCURRENCE } from '@/constants/index.js'
 import { FieldOccurrence } from '@/routes/endpoints'
 import { useTableLayoutConfiguration } from '@/components/Filter/composables/useTableLayoutConfiguration.js'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
+import { layoutSortLabels } from '@/shared/Filter/utils'
 
 defineOptions({
   name: 'FilterFieldOccurrences'
@@ -104,10 +122,12 @@ defineOptions({
 
 const extend = [
   'collecting_event',
+  'geographic_area_name',
   'taxon_determinations',
   'identifiers',
   'dwc_occurrence'
 ]
+const exclude = ['object_labels']
 const hideFrozen = ref(false)
 
 const {
@@ -116,6 +136,7 @@ const {
   layouts,
   properties,
   updatePropertiesPositions,
+  reorderLayoutColumns,
   saveLayoutPreferences,
   resetPreferences,
   forceUpdatePreference
@@ -131,8 +152,24 @@ const {
   parameters,
   selectedIds,
   makeFilterRequest,
-  resetFilter
-} = useFilter(FieldOccurrence, { listParser, initParameters: { extend } })
+  resetFilter,
+  sortableKeys,
+  sortKeys,
+  unsavedViewChanges,
+  hasUnsavedChanges,
+  filterListRef,
+  saveViewAsDefault,
+  maxSortKeys
+} = useFilter(FieldOccurrence, {
+  listParser,
+  initParameters: { extend, exclude },
+  sortableColumnsResource: 'field_occurrences',
+  objectType: FIELD_OCCURRENCE
+})
+
+const sortLabels = computed(() =>
+  layoutSortLabels(currentLayout.value?.properties)
+)
 
 const csvOptions = useCSVOptions({ layout: currentLayout, list })
 

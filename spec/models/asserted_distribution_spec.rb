@@ -760,6 +760,16 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
       expect(ad2.reload.asserted_distribution_shape_id).to eq(ga2.id)
     end
 
+    # The radial passes the filter's `sort` along; batch code uses the set
+    # with `.distinct`, which an ORDER BY would break.
+    specify 'moves, with a sort param' do
+      p = params.deep_dup
+      p[:asserted_distribution_query][:sort] = 'asserted_distribution_shape'
+      AssertedDistribution.batch_update(p)
+      expect(ad1.reload.asserted_distribution_shape_id).to eq(ga2.id)
+      expect(ad2.reload.asserted_distribution_shape_id).to eq(ga2.id)
+    end
+
     specify 'async moves' do
       # Cause the async delayed job to run immediately here.
       allow_any_instance_of(ActiveSupport::Duration).to receive(:from_now).and_return(Time.now)

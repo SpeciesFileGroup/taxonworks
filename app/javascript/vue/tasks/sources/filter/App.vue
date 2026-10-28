@@ -10,8 +10,8 @@
       :extend-download="extendDownload"
       :csv-options="csvOptions"
       v-model:append="append"
-      @filter="makeFilterRequest({ ...parameters, extend, page: 1 })"
-      @per="makeFilterRequest({ ...parameters, extend, page: 1 })"
+      @filter="makeFilterRequest({ ...parameters, page: 1 })"
+      @per="makeFilterRequest({ ...parameters, page: 1 })"
       @nextpage="loadPage"
       @reset="resetFilter"
     >
@@ -20,7 +20,7 @@
           :disabled="!list.length"
           :parameters="parameters"
           :count="pagination?.total || 0"
-          @update="() => makeFilterRequest({ ...parameters, extend })"
+          @update="() => makeFilterRequest({ ...parameters })"
         />
       </template>
       <template #nav-right>
@@ -28,7 +28,7 @@
           :disabled="!list.length"
           :ids="sortedSelectedIds"
           :count="sortedSelectedIds.length"
-          @update="() => makeFilterRequest({ ...parameters, extend })"
+          @update="() => makeFilterRequest({ ...parameters })"
         />
       </template>
       <template #facets>
@@ -36,13 +36,17 @@
       </template>
       <template #table>
         <FilterList
+          ref="filterListRef"
           :list="list"
           :attributes="ATTRIBUTES"
-          :hide-unfrozen="hideFrozen"
+          :sortable-keys="sortableKeys"
+          :max-sort-keys="maxSortKeys"
           :preference-key="`tasks::filters::${SOURCE}`"
           v-model="selectedIds"
+          v-model:sort-keys="sortKeys"
+          v-model:hide-unfrozen="hideFrozen"
+          v-model:unsaved-view-changes="unsavedViewChanges"
           radial-object
-          @on-sort="list = $event"
           @remove="({ index }) => list.splice(index, 1)"
         >
           <template #buttons-left="{ item }">
@@ -68,9 +72,19 @@
         </FilterList>
       </template>
       <template #nav-settings-start>
+        <SortPanel
+          v-model:sort-keys="sortKeys"
+          :labels="ATTRIBUTES"
+          :sortable-keys="sortableKeys"
+          :max-sort-keys="maxSortKeys"
+        />
+        <SaveViewButton
+          v-if="hasUnsavedChanges"
+          @save="saveViewAsDefault"
+        />
         <VToggle
-          title="Hide/show non-frozen columns"
-          @click="() => (hideFrozen = !hideFrozen)"
+          v-model="hideFrozen"
+          title="Hide non-frozen columns"
         >
           <VIcon
             :name="hideFrozen ? 'contract' : 'expand'"
@@ -99,6 +113,8 @@ import VToggle from '@/components/ui/VToggle.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import useFilter from '@/shared/Filter/composition/useFilter.js'
 import FilterList from '@/components/Filter/Table/TableResults.vue'
+import SortPanel from '@/components/Filter/Table/SortPanel.vue'
+import SaveViewButton from '@/components/Filter/Table/SaveViewButton.vue'
 
 import PdfButton from '@/components/ui/Button/ButtonPdf'
 import AddToProject from '@/components/ui/Button/ButtonAddToProjectSource'
@@ -127,10 +143,19 @@ const {
   resetFilter,
   selectedIds,
   sortedSelectedIds,
-  urlRequest
+  urlRequest,
+  sortableKeys,
+  sortKeys,
+  unsavedViewChanges,
+  hasUnsavedChanges,
+  filterListRef,
+  saveViewAsDefault,
+  maxSortKeys
 } = useFilter(Source, {
   initParameters: { extend },
-  defaultParameters: { in_project: true }
+  defaultParameters: { in_project: true },
+  sortableColumnsResource: 'sources',
+  objectType: SOURCE
 })
 
 const csvOptions = {

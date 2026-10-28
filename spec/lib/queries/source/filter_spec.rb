@@ -344,4 +344,44 @@ describe Queries::Source::Filter, type: :model, group: [:sources, :filter] do
 
   # Tags query concern specs have moved to spec/lib/queries/concerns/tags_spec.rb
 
+  context 'sort param' do
+    let!(:s_a) { FactoryBot.create(:valid_source_bibtex, title: 'Aardvark study', year: 2001) }
+    let!(:s_z) { FactoryBot.create(:valid_source_bibtex, title: 'Zebra study', year: 1999) }
+
+    specify 'sort=year orders ascending by direct column' do
+      q = Queries::Pager.new(Queries::Source::Filter.new(
+        source_id: [s_a.id, s_z.id], sort: 'year'
+      ).all, source_id: [s_a.id, s_z.id], sort: 'year')
+      expect(q.ordered.map(&:id)).to eq([s_z.id, s_a.id])
+    end
+
+    specify 'sort=-year desc' do
+      q = Queries::Pager.new(Queries::Source::Filter.new(
+        source_id: [s_z.id, s_a.id], sort: '-year'
+      ).all, source_id: [s_z.id, s_a.id], sort: '-year')
+      expect(q.ordered.map(&:id)).to eq([s_a.id, s_z.id])
+    end
+
+    context 'belongs_to: serial.name' do
+      let!(:serial_alpha) { FactoryBot.create(:valid_serial, name: 'Alpha journal') }
+      let!(:serial_zeta)  { FactoryBot.create(:valid_serial, name: 'Zeta journal') }
+
+      specify do
+        s_a.update!(serial: serial_zeta)
+        s_z.update!(serial: serial_alpha)
+        q = Queries::Pager.new(Queries::Source::Filter.new(
+          source_id: [s_a.id, s_z.id], sort: 'serial'
+        ).all, source_id: [s_a.id, s_z.id], sort: 'serial')
+        expect(q.ordered.map(&:id)).to eq([s_z.id, s_a.id])
+      end
+    end
+
+    specify 'unknown sort key ignored' do
+      q = Queries::Pager.new(Queries::Source::Filter.new(
+        source_id: [s_a.id, s_z.id], sort: 'no_such_column'
+      ).all, source_id: [s_a.id, s_z.id], sort: 'no_such_column')
+      expect(q.ordered.map(&:id)).to contain_exactly(s_a.id, s_z.id)
+    end
+  end
+
 end

@@ -75,21 +75,37 @@ const PERSIST_DEBOUNCE_MS = 300
 let pendingLayoutUpdates = {}
 let persistTimer = null
 
+// @return [Promise<Boolean>] whether pending changes (if any) were saved
 async function flushPersist() {
   persistTimer = null
 
   const userId = preferences.value?.id
   const batch = pendingLayoutUpdates
 
-  if (!userId || !Object.keys(batch).length) return
+  if (!Object.keys(batch).length) return true
+  if (!userId) return false
 
   pendingLayoutUpdates = {}
 
   try {
     await User.update(userId, { user: { layout: batch } })
+    return true
   } catch (err) {
     console.error('Failed to persist user preferences:', err)
+    return false
   }
+}
+
+// Saves pending changes now rather than after the debounce, e.g. to tell
+// the user whether an explicit save worked.
+// @return [Promise<Boolean>] see flushPersist
+const persistPreferences = async () => {
+  // Let setPreference calls made just before this one queue their changes.
+  await loadPreferences()
+
+  if (persistTimer) clearTimeout(persistTimer)
+
+  return flushPersist()
 }
 
 function schedulePersist(key, value) {
@@ -155,6 +171,7 @@ export function useUserPreferences() {
     loaded: computed(() => loaded.value),
     loadPreferences,
     setPreference,
+    persistPreferences,
     clearPreferences
   }
 }

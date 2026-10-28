@@ -55,6 +55,23 @@ export function useTableLayoutConfiguration({ model, layouts } = {}) {
     )
   }
 
+  // A column dragged in the table: the current layout takes the new order
+  // (also shown in the layout selector) and is saved, as when ordered there.
+  // @param section [String] e.g. 'collecting_event'
+  // @param columns [Array<String>] the section's columns, in the new order
+  const reorderLayoutColumns = ({ section, columns }) => {
+    state.currentLayout.properties[section] = columns
+
+    if (Array.isArray(state.properties[section])) {
+      state.properties[section] = sortArrayByArray(
+        state.properties[section],
+        columns
+      )
+    }
+
+    saveLayoutPreferences()
+  }
+
   const saveLayoutPreferences = () => {
     const userId = getCurrentUserId()
 
@@ -129,6 +146,7 @@ export function useTableLayoutConfiguration({ model, layouts } = {}) {
   return {
     ...toRefs(state),
     updatePropertiesPositions,
+    reorderLayoutColumns,
     saveLayoutPreferences,
     resetPreferences,
     clearPreferences,

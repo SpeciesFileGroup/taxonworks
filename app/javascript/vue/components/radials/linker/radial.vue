@@ -51,9 +51,9 @@ import Modal from '@/components/ui/Modal.vue'
 import getFilterAttributes from './composition/getFilterAttributes'
 import qs from 'qs'
 import * as LINKER_LIST from './links/index.js'
+import { RESULT_PARAMETERS } from '@/shared/Filter/constants'
 
 const MAX_LINK_SIZE = 2000
-const EXCLUDE_PARAMETERS = ['page', 'per', 'extend']
 
 defineOptions({
   name: 'RadialLinker'
@@ -85,21 +85,19 @@ const emit = defineEmits(['close'])
 const objParameters = ref(getFilterAttributes())
 const isOnlyIds = computed(() => Array.isArray(props.ids))
 
-const params = computed(() =>
-  filterEmptyParams(
+const params = computed(() => {
+  const parameters = filterEmptyParams(
     isOnlyIds.value ? getParametersForId() : getParametersForAll()
   )
-)
 
-const hasParameters = computed(() => {
-  const parameters = { ...params.value }
-
-  EXCLUDE_PARAMETERS.forEach((param) => {
+  RESULT_PARAMETERS.forEach((param) => {
     delete parameters[param]
   })
 
-  return Object.keys(parameters).length
+  return parameters
 })
+
+const hasParameters = computed(() => Object.keys(params.value).length)
 
 const filterLinks = computed(() => {
   const objLinks = LINKER_LIST[props.objectType]

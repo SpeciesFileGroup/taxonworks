@@ -117,6 +117,19 @@ describe TaxonDetermination, type: :model, group: [:collection_objects] do
       specify 'determiners_organization' do
         expect(taxon_determination).to respond_to(:determiners_organization)
       end
+
+      # Also when preloaded, so views needn't re-sort or re-query.
+      specify 'determiner_roles are in position order' do
+        td = FactoryBot.create(:valid_taxon_determination)
+        first = Determiner.create!(role_object: td, person: FactoryBot.create(:valid_person))
+        second = Determiner.create!(role_object: td, person: FactoryBot.create(:valid_person))
+        # Move `second` first by position, and last in the table (an update
+        # writes a new row version), so position order differs from table order.
+        second.update_column(:position, 0)
+
+        expect(TaxonDetermination.find(td.id).determiner_roles.to_a).to eq([second, first])
+        expect(TaxonDetermination.includes(:determiner_roles).find(td.id).determiner_roles.to_a).to eq([second, first])
+      end
     end
   end
 

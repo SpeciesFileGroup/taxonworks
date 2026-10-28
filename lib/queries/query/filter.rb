@@ -126,20 +126,6 @@ module Queries
     #  !! use the false pattern only for internal calls (e.g. rewriting
     attr_accessor :project_id
 
-    # Apply pagination within Filter scope
-    #   true - apply per and page
-    #   false, nil - ignored
-    attr_accessor :paginate
-
-    # @return Integer, nil
-    #   required if paginate == true
-    attr_accessor :page
-
-    # @return Integer, nil
-    #   paginate must equal true
-    #   page must be !nil?
-    attr_accessor :per
-
     # @return [Array]
     # @params object_global_id
     #   Rails global ids.
@@ -231,14 +217,6 @@ module Queries
     attr_accessor :sound_query
 
     # @return Boolean
-    #   Applies an order on updated.
-    attr_accessor :recent
-
-    # @return symbol :created_at, :updated_at
-    #   defaults to :updated_at if blank
-    attr_accessor :recent_target
-
-    # @return Boolean
     #   When true api_except_params is applied and
     #   other restrictions are placed:
     #     - :venn param is ignored
@@ -260,19 +238,6 @@ module Queries
     # When false, the B venn query will use only the single page indicated by
     # whatever paging parameters are set on the query.
     attr_accessor :venn_ignore_pagination
-
-    # @return symbol
-    #   must match a existing parameter name (used to check if values provided)
-    #
-    # @param order_by [String, Symbol]
-    #   the kind of sort to apply.
-    #
-    # Supported values:
-    #   * `match_identifiers` - sort by the order of the identifiers in provided
-    #
-    # !! Does not sub-sort
-    #
-    attr_accessor :order_by
 
     # @return Hash
     #  the parsed/permitted params
@@ -298,9 +263,6 @@ module Queries
       # Reference to query_params, i.e. always permitted
       @api = boolean_param(query_params, :api)
 
-      @recent = boolean_param(query_params, :recent)
-      @recent_target = query_params[:recent_target]
-
       @object_global_id = query_params[:object_global_id]
 
       @venn = query_params[:venn]
@@ -320,12 +282,6 @@ module Queries
                       query_params[:project_id]
                     end
 
-      @paginate = boolean_param(query_params, :paginate)
-      @per = query_params[:per]
-      @page = query_params[:page]
-
-      @order_by = query_params[:order_by]
-
       @roll_call = false
 
       # After this point, if you started with ActionController::Parameters,
@@ -344,24 +300,12 @@ module Queries
       set_user_dates(params)
     end
 
-    def order_by
-      return nil if @order_by.blank?
-      @order_by.to_sym
-    end
-
     def object_global_id
       [@object_global_id].flatten.compact
     end
 
     def project_id
       [@project_id].flatten.compact
-    end
-
-    def recent_target
-      return :updated_at if @recent_target.blank?
-      r = @recent_target.to_s.downcase.to_sym
-      return :updated_at unless [:updated_at, :created_at].include?(r)
-      r
     end
 
     def venn_mode
@@ -520,9 +464,6 @@ module Queries
       h.unshift(:venn_ignore_pagination)
       h.unshift(:venn_mode)
       h.unshift(:venn)
-      h.unshift(:per)
-      h.unshift(:page)
-      h.unshift(:paginate)
 
       # Rails' permit() format requires a specific structure:
       #   [:scalar_param1, :scalar_param2, {array_or_nested: [...]}]
@@ -558,9 +499,6 @@ module Queries
         p.unshift(:venn_ignore_pagination)
         p.unshift(:venn_mode)
         p.unshift(:venn)
-        p.unshift(:per)
-        p.unshift(:page)
-        p.unshift(:paginate)
 
         if !p.last.kind_of?(Hash)
           p << {}
@@ -630,53 +568,6 @@ module Queries
       end
 
       true
-    end
-
-    def paging_state
-      if paginate
-        {
-          paginate: true,
-          per:,
-          page:,
-          # This shouldn't be here, but see order_by processing for identifiers
-          # in #all.
-          ordered: order_by.present?
-        }
-      else
-        { paginate: false }
-      end
-    end
-
-    def disable_paging
-      r = paging_state
-
-      self.paginate = false
-
-      r
-    end
-
-    # @param query [ActiveQuery]
-    def set_paging(query)
-      self.class.set_paging(query, paging_state)
-    end
-
-    # @param query [ActiveQuery]
-    # @param state [Hash] see #paging_state
-    # @return [ActiveQuery] query with paging set to state
-    def self.set_paging(query, state)
-      return query if !state
-      state = state.symbolize_keys
-
-      if state[:paginate]
-        if state[:ordered]
-          # Order has already been set.
-          query = query.page(state[:page]).per(state[:per])
-        else
-          query = query.order(:id).page(state[:page]).per(state[:per])
-        end
-      end
-
-      query
     end
 
     # Returns id= facet, automatically
@@ -824,10 +715,25 @@ module Queries
     end
 
     def apply_venn(query)
-      Queries.venn(query, venn_query.all, venn_mode)
+      Queries.venn(query, venn_set, venn_mode)
     end
 
-    def venn_query
+    # The B query of a venn. Unless venn_ignore_pagination, a B with paging
+    # params contributes only that page (in its order, see Queries::Pager).
+    def venn_set
+      p = venn_params
+      b = venn_query(p)
+      return b.all if venn_ignore_pagination || (p.keys & %w[page per]).empty?
+
+      ::Queries::Pager.new(b.all, p).all
+    end
+
+    def venn_query(params = venn_params)
+      self.class.new(ActionController::Parameters.new(params))
+    end
+
+    # @return [Hash] the params of the `venn` URL
+    def venn_params
       u = ::Addressable::URI.parse(venn).query
       # Brackets may be multi-encoded
       t = nil
@@ -839,12 +745,7 @@ module Queries
         i += 1
       end
 
-      p = ::Rack::Utils.parse_nested_query(u) # nested supports brackets
-      p = p.except('per', 'page', 'paginate') if venn_ignore_pagination
-
-      a = ActionController::Parameters.new(p)
-
-      self.class.new(a)
+      ::Rack::Utils.parse_nested_query(u) # nested supports brackets
     end
 
     # @return Boolean
@@ -906,29 +807,11 @@ module Queries
         q = apply_venn(q)
       end
 
-      # TODO: collides with recent, and needs isolation/generic application
-      # probably through native .order() use.
-      # Order in general likely belongs outside the scope of filters, but
-      # see this param use, where we depend on the incoming values
-      #
-      # See spec/lib/queries/otu/filter_spec.rb for tests
-
-      # See lib/queries/concerns/identifiers.rb
-      if order_by
-        q = match_identifier_order_by(q)
-      end
-
-      if recent
-        q = referenced_klass.from(q.all, table.name).order(recent_target => :desc)
-      end
-
       if api
         if referenced_klass.column_names.include?('is_public')
           q = q.where(is_public: [nil, true])
         end
       end
-
-      q = set_paging(q)
 
       # TODO: canonically address whether or not to use `.distinct` at this point, we should be able to, however
       # some incoming queries may have joins/group/etc. alone?! I.e. why can't we?

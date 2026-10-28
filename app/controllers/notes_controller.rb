@@ -16,10 +16,8 @@ class NotesController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @notes = Queries::Note::Filter.new(params)
-          .all
-          .page(params[:page])
-          .per(params[:per])
+        @notes = ordered_page(Queries::Note::Filter.new(params)
+          .all)
       }
     end
   end

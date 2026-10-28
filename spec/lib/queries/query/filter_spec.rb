@@ -81,62 +81,6 @@ describe Queries::Query::Filter, type: [:model] do
     end
   end
 
-  context 'order_by' do
-    context 'order_by: :match_identifiers' do
-      let(:query) { Queries::CollectionObject::Filter.new({}) }
-
-      let!(:namespace) { FactoryBot.create(:valid_namespace) }
-
-      let!(:co1) { Specimen.create! }
-      let!(:co2) { Specimen.create! }
-      let!(:co3) { Specimen.create! }
-
-      let!(:id1) do
-        Identifier::Local::CatalogNumber.create!(
-          namespace: namespace,
-          identifier: '111',
-          identifier_object: co1
-        )
-      end
-
-      let!(:id2) do
-        Identifier::Local::CatalogNumber.create!(
-          namespace: namespace,
-          identifier: '222',
-          identifier_object: co2
-        )
-      end
-
-      let!(:id3) do
-        Identifier::Local::CatalogNumber.create!(
-          namespace: namespace,
-          identifier: '333',
-          identifier_object: co3
-        )
-      end
-
-      before do
-        query.match_identifiers_type = 'identifier'
-        query.match_identifiers = [
-          "#{namespace.short_name} 222",
-          'not this one',
-          "#{namespace.short_name} 111",
-          "#{namespace.short_name} 333"
-        ].join(',')
-
-        query.order_by = :match_identifiers
-      end
-
-      specify 'orders results to match the order of match_identifiers' do
-        expect(query.all.to_a).to eq [co2, co1, co3] # ordered
-      end
-
-      specify 'can be counted without raising (regression check)' do
-        expect(query.all.count).to eq 3
-      end
-    end
-  end
-
   context 'venn param preservation' do
     specify 'venn params are preserved in filter params hash' do
       v = 'http://127.0.0.1:3000/otus/filter.json?name=Ant'
@@ -259,24 +203,21 @@ describe Queries::Query::Filter, type: [:model] do
     expect(q.venn_query.class).to eq(::Queries::Otu::Filter)
   end
 
-  specify '#venn_query params includes pagination params by default' do
-    v = 'http://127.0.0.1:3000/otus/filter.json?per=50&name=Ant&extend%5B%5D=taxonomy&page=1&paginate=true'
+  context '#venn_set' do
+    let!(:o1) { FactoryBot.create(:valid_otu) }
+    let!(:o2) { FactoryBot.create(:valid_otu) }
+    let(:v) { "http://127.0.0.1:3000/otus/filter.json?otu_id%5B%5D=#{o1.id}&otu_id%5B%5D=#{o2.id}&per=1&page=2" }
 
-    q = ::Queries::Otu::Filter.new({})
-    q.venn = v
-    b = q.venn_query
-    expect(b.params).to eq({name: 'Ant', paginate: 'true', page: '1', per: '50'})
-  end
+    specify 'a B with paging params contributes only that page' do
+      q = ::Queries::Otu::Filter.new(venn: v, venn_mode: 'ab')
+      expect(q.venn_set.map(&:id)).to eq([o2.id])
+      expect(q.all.map(&:id)).to eq([o2.id])
+    end
 
-  specify '#venn_query #venn_ignore_pagination=true' do
-    v = 'http://127.0.0.1:3000/otus/filter.json?per=50&name=Ant&extend%5B%5D=taxonomy&page=1&paginate=true'
-
-    q = ::Queries::Otu::Filter.new({
-      venn: v,
-      venn_ignore_pagination: 'true'
-    })
-    b = q.venn_query
-    expect(b.params).to eq({name: 'Ant'})
+    specify 'venn_ignore_pagination uses all of B' do
+      q = ::Queries::Otu::Filter.new(venn: v, venn_mode: 'ab', venn_ignore_pagination: 'true')
+      expect(q.venn_set.map(&:id)).to contain_exactly(o1.id, o2.id)
+    end
   end
 
   specify '#venn_mode 0' do
@@ -322,34 +263,6 @@ describe Queries::Query::Filter, type: [:model] do
   specify '.base_filter 1' do
     p = ActionController::Parameters.new(collection_object_query: { otu_query: {}}, foo: :bar)
     expect(Queries::Query::Filter.base_filter(p)).to eq(::Queries::CollectionObject::Filter)
-  end
-
-  specify '#disable_paging' do
-    o1 = FactoryBot.create(:valid_otu)
-    o2 = FactoryBot.create(:valid_otu)
-
-    a = ::Queries::Otu::Filter.new(
-      otu_id: [o1.id, o2.id], paginate: true, per: 1, page: 1
-    )
-    a.disable_paging
-    expect(a.paginate).to be_falsey
-    expect(a.all.count).to eq(2)
-  end
-
-  specify '#disable_paging .set_paging' do
-    o1 = FactoryBot.create(:valid_otu)
-    o2 = FactoryBot.create(:valid_otu)
-
-    a = ::Queries::Otu::Filter.new(
-      otu_id: [o1.id, o2.id], paginate: true, per: 1, page: 2
-    )
-    state = a.disable_paging
-    q = a.all
-    q = a.class.set_paging(q, state)
-
-    expect(q.current_page).to be(2)
-    expect(q.limit_value).to be(1) # per
-    expect(q.count).to eq(1)
   end
 
   context 'PARAMS defined' do
@@ -427,6 +340,44 @@ describe Queries::Query::Filter, type: [:model] do
       specify "#{f.name}" do
         m = (f.base_name + '_id').to_sym
         expect(f.new({}).send(m)).to eq([])
+      end
+    end
+  end
+
+  # The facet also matches container identifiers, but only for containable
+  # models whose filter can build that match. (SQL errors from other parts of
+  # a filter, e.g. Download's default scope in a union, are not checked here.)
+  context 'match_identifiers facet' do
+    filters.select { |f| f.method_defined?(:match_identifiers_facet) }.each do |f|
+      specify "#{f.name} calls only methods it has" do
+        q = f.new(match_identifiers: '1,2', match_identifiers_type: 'internal')
+        error = begin
+          q.all.to_a
+          nil
+        rescue NameError => e
+          e
+        rescue ActiveRecord::StatementInvalid
+          nil
+        end
+        expect(error).to be_nil
+      end
+    end
+  end
+
+  # See "Sorting and paging" in lib/queries/ARCHITECTURE.md: ordering and
+  # paging are applied by Queries::Pager, never by the filter.
+  context '#all returns a set, never ordered or paged' do
+    ordering_and_paging_params = {
+      sort: '-updated_at', recent: true, recent_target: 'created_at',
+      order_by: 'match_identifiers', paginate: true, page: 2, per: 1
+    }
+
+    filters.each do |f|
+      specify "#{f.name}" do
+        rel = f.new(ordering_and_paging_params).all
+        expect(rel.order_values).to be_empty
+        expect(rel.limit_value).to be_nil
+        expect(rel.offset_value).to be_nil
       end
     end
   end

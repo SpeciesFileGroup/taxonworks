@@ -12,10 +12,8 @@ class LabelsController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @labels = Label.where(filter_params)
-        .with_project_id(sessions_current_project_id)
-        .page(params[:page])
-        .per(params[:per])
+        @labels = ordered_page(Label.where(filter_params)
+        .with_project_id(sessions_current_project_id))
       }
     end
   end

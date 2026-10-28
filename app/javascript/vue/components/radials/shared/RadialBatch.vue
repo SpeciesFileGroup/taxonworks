@@ -80,8 +80,8 @@ import VIcon from '@/components/ui/VIcon/index.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import { useRadialBatch } from '@/components/radials/shared/useRadialBatch'
 import { useUserPreference } from '@/composables'
+import { RESULT_PARAMETERS } from '@/shared/Filter/constants'
 
-const EXCLUDE_PARAMETERS = ['per', 'page', 'extend']
 
 defineOptions({
   name: 'RadialBatch'
@@ -158,7 +158,7 @@ const {
   params,
   selectSlice
 } = useRadialBatch({
-  excludeParameters: EXCLUDE_PARAMETERS,
+  excludeParameters: RESULT_PARAMETERS,
   props,
   slices: props.slices
 })

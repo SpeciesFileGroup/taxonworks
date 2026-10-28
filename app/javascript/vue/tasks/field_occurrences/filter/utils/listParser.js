@@ -1,4 +1,5 @@
 import { getDataAttributesFor } from '@/shared/Filter/utils'
+import { IDENTIFIER_SEPARATOR } from '@/shared/Filter/constants'
 import { DataAttribute } from '@/routes/endpoints'
 
 function getTaxonDetermination(determinations) {
@@ -30,14 +31,15 @@ export async function listParser(list, { parameters }) {
   return list.map((item) => ({
     id: item.id,
     global_id: item.global_id,
-    label: item.object_tag,
     field_occurrence: {
       id: item.id,
       is_absent: item.is_absent ? 'Yes' : 'No',
       total: item.total
     },
     collecting_event: item.collecting_event,
-    identifiers: item.identifiers,
+    identifiers: {
+      cached: item.identifiers?.map((i) => i.cached).join(IDENTIFIER_SEPARATOR)
+    },
     taxon_determinations: getTaxonDetermination(item.taxon_determinations),
     dwc_occurrence: item.dwc_occurrence,
     data_attributes: getDataAttributesFor(body, item.id),

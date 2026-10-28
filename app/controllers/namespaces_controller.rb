@@ -14,9 +14,7 @@ class NamespacesController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @namespaces = Queries::Namespace::Filter.new(params).all
-          .page(params[:page])
-          .per(params[:per])
+        @namespaces = ordered_page(Queries::Namespace::Filter.new(params).all)
       }
     end
   end

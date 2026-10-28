@@ -13,9 +13,7 @@ class CommonNamesController < ApplicationController
         render '/shared/data/all/index'
       end
       format.json {
-        @common_names = Queries::CommonName::Filter.new(params).all
-          .page(params[:page])
-          .per(params[:per])
+        @common_names = ordered_page(Queries::CommonName::Filter.new(params).all)
       }
     end
   end

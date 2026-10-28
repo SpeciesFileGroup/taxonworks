@@ -197,5 +197,55 @@ describe Queries::Loan::Filter, type: :model, group: [:geo, :collection_objects,
     expect(q.all).to contain_exactly(l2)
   end
 
+  context 'sort param' do
+    let!(:l_a) { FactoryBot.create(:valid_loan, recipient_email: 'aaa@x') }
+    let!(:l_z) { FactoryBot.create(:valid_loan, recipient_email: 'zzz@x') }
 
+    def sorted_ids(sort_key)
+      Queries::Pager.new(Queries::Loan::Filter.new(sort: sort_key).all, sort: sort_key).ordered.where(id: [l_a.id, l_z.id]).pluck(:id)
+    end
+
+    specify 'sort=recipient_email direct column' do
+      expect(sorted_ids('recipient_email')).to eq([l_a.id, l_z.id])
+    end
+
+    specify 'sort=-recipient_email desc' do
+      expect(sorted_ids('-recipient_email')).to eq([l_z.id, l_a.id])
+    end
+
+    specify 'sort=recipient_name aggregates through recipient roles' do
+      p_alpha = Person.create!(last_name: 'Alpha')
+      p_zeta  = Person.create!(last_name: 'Zeta')
+      LoanRecipient.create!(role_object: l_a, person: p_zeta)
+      LoanRecipient.create!(role_object: l_z, person: p_alpha)
+
+      expect(sorted_ids('recipient_name')).to eq([l_z.id, l_a.id])
+    end
+
+    specify 'unknown sort key ignored' do
+      expect(sorted_ids('no_such_column')).to contain_exactly(l_a.id, l_z.id)
+    end
+  end
+
+
+  context 'sort by housekeeping user name' do
+    let(:zed) { FactoryBot.create(:valid_user, name: 'Zed Zulu') }
+    let(:amy) { FactoryBot.create(:valid_user, name: 'Amy Alpha') }
+
+    # Create Zed's loan first so id order and name order disagree.
+    let!(:loan_zed) {
+      FactoryBot.create(:valid_loan).tap { |l| l.update_columns(created_by_id: zed.id, updated_by_id: zed.id) }
+    }
+    let!(:loan_amy) {
+      FactoryBot.create(:valid_loan).tap { |l| l.update_columns(created_by_id: amy.id, updated_by_id: amy.id) }
+    }
+
+    specify 'sort=created_by orders by creator name' do
+      expect(Queries::Pager.new(Queries::Loan::Filter.new(sort: 'created_by').all, sort: 'created_by').ordered.to_a).to eq([loan_amy, loan_zed])
+    end
+
+    specify 'sort=-updated_by orders by updater name descending' do
+      expect(Queries::Pager.new(Queries::Loan::Filter.new(sort: '-updated_by').all, sort: '-updated_by').ordered.to_a).to eq([loan_zed, loan_amy])
+    end
+  end
 end

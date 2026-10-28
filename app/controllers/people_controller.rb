@@ -14,10 +14,7 @@ class PeopleController < ApplicationController
         render '/shared/data/all/index'
       }
       format.json {
-        @people = Queries::Person::Filter.new(params).all
-        .order(:cached)
-        .page(params[:page])
-        .per(params[:per])
+        @people = ordered_page(Queries::Person::Filter.new(params).all, default_order: [:cached])
       }
     end
   end
