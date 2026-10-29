@@ -32,12 +32,34 @@ RSpec.describe 'Organization collector entry', type: :feature, js: true do
       expect(page).to have_css('li.list-complete-item', text: 'Museum expedition')
       expect(page).to have_css('li.list-complete-item', text: 'Browserperson')
       source = find('li.list-complete-item', text: 'Browserperson')
-      # Send the sortable widget's events; native HTML drag is unreliable in headless Chrome.
-      page.evaluate_async_script(<<~JS, source)
-        const done = arguments[arguments.length - 1]
-        const sortable = arguments[0].parentElement.__vueParentComponent
-        sortable.emit('update:modelValue', [...sortable.props.modelValue].reverse())
-        queueMicrotask(() => { sortable.emit('end'); done() })
+      target = find('li.list-complete-item', text: 'Museum expedition')
+      source.scroll_to(:center)
+      # Exercise Sortable's DOM listeners without depending on Vue's development-only internals.
+      page.evaluate_async_script(<<~JS, source, target)
+        const [source, target, done] = arguments
+        const sourceRect = source.getBoundingClientRect()
+        const targetRect = target.getBoundingClientRect()
+        const dataTransfer = new DataTransfer()
+        const start = {
+          bubbles: true, cancelable: true, button: 0,
+          clientX: sourceRect.x + sourceRect.width / 2,
+          clientY: sourceRect.y + sourceRect.height / 2
+        }
+        const destination = {
+          ...start, dataTransfer,
+          clientX: targetRect.x + targetRect.width / 2,
+          clientY: targetRect.y + 1
+        }
+        source.dispatchEvent(new PointerEvent('pointerdown', { ...start, pointerType: 'mouse' }))
+        source.dispatchEvent(new MouseEvent('mousedown', start))
+        source.dispatchEvent(new DragEvent('dragstart', { ...start, dataTransfer }))
+        // Sortable schedules its drag-start setup for the next event-loop turn.
+        setTimeout(() => {
+          target.dispatchEvent(new DragEvent('dragover', destination))
+          target.dispatchEvent(new DragEvent('drop', destination))
+          source.dispatchEvent(new DragEvent('dragend', { ...start, dataTransfer }))
+          done()
+        }, 0)
       JS
       expect(page).to have_css('li.list-complete-item:first-child', text: 'Browserperson')
     end
