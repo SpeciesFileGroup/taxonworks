@@ -77,11 +77,18 @@ module Otus::CatalogHelper
       synonyms = ::TaxonName.none
     end
 
+    a = full_taxon_name_tag(otu.taxon_name)
+
+    synonym_pairs = synonyms.collect { |l| [full_original_taxon_name_tag(l) || full_taxon_name_tag(l), l.otus.order(name: 'DESC', id: 'ASC').first&.id] }
+      .reject { |label, _| label == a }
+      .uniq { |label, _| label }
+
     data = { otu_id: otu.id,
-             name: a = full_taxon_name_tag(otu.taxon_name),
+             name: a,
              otu_clones: Otu.where(name: otu.name, taxon_name_id: otu.taxon_name_id).where.not(id: otu.id).pluck(:id),
              similar_otus: s.inject({}){|hsh, n| hsh[n.id] = label_for_otu(n) ; hsh },
-             nomenclatural_synonyms: ( (synonyms&.collect{|l| full_original_taxon_name_tag(l) || full_taxon_name_tag(l) } || []) - [a]).uniq, # This is labels, combinations can duplicate
+             nomenclatural_synonyms: synonym_pairs.collect(&:first),
+             nomenclatural_synonyms_otu_id: synonym_pairs.collect(&:last),
              common_names: (common_names ? otu_inventory_common_names(otu, language_alpha2) : []),
              descendants: []}
 

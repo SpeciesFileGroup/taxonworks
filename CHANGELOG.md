@@ -19,6 +19,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Radial mass navigator: Edit slice
 - New source: Italic button to Abstract field
 - Taxon name pills to OTU tags
+- `/taxon_names/<id>/inventory/catalog` includes `nomenclatural_synonyms_otu_id`
 
 ### Changed
 
