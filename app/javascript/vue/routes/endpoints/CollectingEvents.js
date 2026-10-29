@@ -49,6 +49,7 @@ const permitParams = {
       _destroy: Boolean,
       type: String,
       person_id: Number,
+      organization_id: Number,
       position: Number,
       person_attributes: {
         last_name: String,

@@ -188,14 +188,9 @@ module Shared::Dwc::CollectingEventExtensions
   # TODO: Expand to any GlobalIdentifier
   def dwc_recorded_by_id
     if collecting_event
-      collecting_event.collectors
-        .joins(:identifiers)
-        .where(identifiers: {type: ['Identifier::Global::Orcid', 'Identifier::Global::Wikidata']})
-        .select('identifiers.identifier_object_id, identifiers.cached')
-        .unscope(:order)
-        .distinct
-        .pluck('identifiers.cached')
-        .join(Export::Dwca::DELIMITER)&.presence
+      collecting_event.collector_roles.sort_by { |role| role.position || Float::INFINITY }.flat_map do |role|
+        role.agent.identifiers.where(type: ['Identifier::Global::Orcid', 'Identifier::Global::Wikidata']).pluck(:cached)
+      end.uniq.join(Export::Dwca::DELIMITER).presence
     end
   end
 
@@ -205,9 +200,9 @@ module Shared::Dwc::CollectingEventExtensions
   def dwc_recorded_by
     v = nil
     if collecting_event
-      v = collecting_event.collectors
-        .order('roles.position')
-        .map(&:name)
+      v = collecting_event.collector_roles
+        .sort_by { |role| role.position || Float::INFINITY }
+        .map { |role| role.agent.name }
         .join(Export::Dwca::DELIMITER)
         .presence
       v = collecting_event.verbatim_collectors.presence if v.blank?

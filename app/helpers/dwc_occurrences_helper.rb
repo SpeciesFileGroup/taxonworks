@@ -111,20 +111,19 @@ module DwcOccurrencesHelper
     # Anticipate multiple sources of records in future (e.g. AssertedDistribution)
     records ||= ::DwcOccurrence.where(project_id: project_id)
 
-    a = ::Person
-      .left_joins(:identifiers)
-      .joins(collecting_events: [:collection_objects])
-      .joins("JOIN dwc_occurrences dwo on dwo.dwc_occurrence_object_id = collection_objects.id AND dwo.dwc_occurrence_object_type = 'CollectionObject'")
-      .where(dwo: {project_id: project_id})
-      .order(:cached)
+    event_ids = CollectionObject.where(id: records.where(dwc_occurrence_object_type: 'CollectionObject').select(:dwc_occurrence_object_id)).select(:collecting_event_id)
+    field_event_ids = FieldOccurrence.where(id: records.where(dwc_occurrence_object_type: 'FieldOccurrence').select(:dwc_occurrence_object_id)).select(:collecting_event_id)
+    roles = Collector.where(role_object_type: 'CollectingEvent', role_object_id: event_ids)
+      .or(Collector.where(role_object_type: 'CollectingEvent', role_object_id: field_event_ids))
+      .includes(:person, :organization)
 
-    with_global_id = a.where("identifiers.type ILIKE 'Identifier::Global%'").distinct.pluck(:id, :cached)
-    without_global_id =  a.where("(identifiers.id is null) OR identifiers.type not ILIKE 'Identifier::Global%'").distinct.pluck(:id, :cached)
-
-    return {
-      without_global_id: without_global_id,
-      with_global_id: with_global_id
-    }
+    result = { without_global_id: [], with_global_id: [] }
+    roles.map(&:agent).uniq.sort_by { |agent| agent.is_a?(Person) ? agent.cached : agent.name }.each do |agent|
+      bucket = agent.identifiers.where("type LIKE 'Identifier::Global%'").exists? ? :with_global_id : :without_global_id
+      key = "#{agent.class.base_class.name.underscore}_#{agent.id}"
+      result[bucket] << [key, agent.is_a?(Person) ? agent.cached : agent.name]
+    end
+    result
   end
 
   # @return [String] html table or empty

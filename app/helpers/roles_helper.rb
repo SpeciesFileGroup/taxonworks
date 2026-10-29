@@ -2,11 +2,12 @@ module RolesHelper
 
   def role_tag(role)
     return nil if role.nil?
-    [role.person.cached, "[#{role.class.human_name}]"].join(' ').html_safe
+
+    [(role.person ? role.person.cached : role.organization.name), "[#{role.class.human_name}]"].join(' ').html_safe
   end
 
   def roles_names(roles)
-    people_names(roles.collect{|p| p.person})
+    Utilities::Strings.authorship_sentence(roles.collect{|role| role.person ? role.person.full_last_name : role.organization.name})
   end
 
   def role_link(role)
