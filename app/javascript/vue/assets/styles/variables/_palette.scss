@@ -52,6 +52,7 @@
   --text-color: var(--slate-900);
   --text-muted-color: var(--slate-500);
   --muted-foreground: var(--slate-500);
+  --select-chevron-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
 
   --focus-ring: var(--slate-500);
 
@@ -233,6 +234,7 @@
   --text-color: #e6edf3;
   --text-muted-color: #8b949e;
   --muted-foreground: #8b949e;
+  --select-chevron-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238b949e' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
 
   --focus-ring: #94a3b8;
 

@@ -130,6 +130,15 @@ select {
   min-height: $normal-input-size;
 }
 
+select:not([multiple]):not([size]) {
+  appearance: none;
+  padding-right: calc(var(--spacing-xs) + 16px);
+  background-image: var(--select-chevron-image);
+  background-repeat: no-repeat;
+  background-position: right var(--spacing-xxs) center;
+  background-size: 14px;
+}
+
 .ui-autocomplete {
   text-align: left;
 }
