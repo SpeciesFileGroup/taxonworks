@@ -19,14 +19,14 @@
         />
         <smart-selector
           ref="smartSelector"
-          model="people"
+          :model="isOrganization ? 'organizations' : 'people'"
           :target="ROLE_COLLECTOR"
           :klass="COLLECTING_EVENT"
           :params="{ role_type: ROLE_COLLECTOR }"
           :autocomplete-params="{
             roles: [ROLE_COLLECTOR]
           }"
-          label="cached"
+          :label="isOrganization ? 'name' : 'cached'"
           :autocomplete="false"
           @selected="addRole"
         >
@@ -35,7 +35,7 @@
               v-model="collectingEvent.roles_attributes"
               ref="rolepicker"
               hidden-list
-              :organization="roleView === 'Organization'"
+              :organization="isOrganization"
               :autofocus="false"
               :role-type="ROLE_COLLECTOR"
             />
@@ -86,6 +86,7 @@ import RolePicker from '@/components/role_picker.vue'
 import VSwitch from '@/components/ui/VSwitch.vue'
 
 const roleView = ref('People')
+const isOrganization = computed(() => roleView.value === 'Organization')
 import SmartSelector from '@/components/ui/SmartSelector.vue'
 import { getCurrentUserId } from '@/helpers'
 import updateMessage from '../utils/updateMessage.js'
@@ -123,7 +124,11 @@ const payload = computed(() => ({
 }))
 
 function addRole(role) {
-  rolepicker.value.addPerson(role)
+  if (isOrganization.value) {
+    rolepicker.value.addOrganization(role)
+  } else {
+    rolepicker.value.addPerson(role)
+  }
 }
 </script>
 
