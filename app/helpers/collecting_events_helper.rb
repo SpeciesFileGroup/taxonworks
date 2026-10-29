@@ -80,12 +80,17 @@ module CollectingEventsHelper
   end
 
   def collecting_event_collectors_tag(collecting_event)
-    return nil if collecting_event.nil? || (collecting_event.verbatim_collectors.blank? && !collecting_event.collectors.load.any?)
+    return nil if collecting_event.nil? || (collecting_event.verbatim_collectors.blank? && !collecting_event.collector_roles.any?)
+    roles = collecting_event.collector_roles.sort_by { |role| role.position || Float::INFINITY }
+    names = roles.map do |role|
+      collector = role.agent
+      collector.is_a?(Person) ? collector.cached : collector.name
+    end
     a = ''
 
     a << content_tag(
-      :span, Utilities::Strings.authorship_sentence(collecting_event.collectors.collect{|a| a.cached})
-    ) if collecting_event.collectors.any?
+      :span, Utilities::Strings.authorship_sentence(names)
+    ) if roles.any?
 
     a << '&nbsp;'.html_safe + content_tag(:span,  collecting_event.verbatim_collectors, class: [:feedback, 'feedback-thin','feedback-secondary']) if collecting_event.verbatim_collectors
     a.html_safe

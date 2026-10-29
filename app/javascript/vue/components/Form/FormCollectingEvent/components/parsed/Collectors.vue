@@ -1,6 +1,10 @@
 <template>
   <fieldset>
     <legend>Collectors</legend>
+    <VSwitch
+      v-model="roleView"
+      :options="['People', 'Organization']"
+    />
     <SmartSelector
       ref="smartSelector"
       model="people"
@@ -17,6 +21,7 @@
       <template #header>
         <RolePicker
           hidden-list
+          :organization="roleView === 'Organization'"
           v-model="collectingEvent.roles_attributes"
           ref="rolepickerRef"
           :autofocus="false"
@@ -39,6 +44,9 @@
 import { ref } from 'vue'
 import SmartSelector from '@/components/ui/SmartSelector.vue'
 import RolePicker from '@/components/role_picker.vue'
+import VSwitch from '@/components/ui/VSwitch.vue'
+
+const roleView = ref('People')
 
 const collectingEvent = defineModel()
 const rolepickerRef = ref(null)

@@ -13,6 +13,10 @@
 
       <fieldset>
         <legend>Collector</legend>
+        <VSwitch
+          v-model="roleView"
+          :options="['People', 'Organization']"
+        />
         <smart-selector
           ref="smartSelector"
           model="people"
@@ -31,6 +35,7 @@
               v-model="collectingEvent.roles_attributes"
               ref="rolepicker"
               hidden-list
+              :organization="roleView === 'Organization'"
               :autofocus="false"
               :role-type="ROLE_COLLECTOR"
             />
@@ -78,6 +83,9 @@ import { COLLECTING_EVENT, ROLE_COLLECTOR } from '@/constants'
 import PreviewBatch from '@/components/radials/shared/PreviewBatch.vue'
 import UpdateBatch from '@/components/radials/shared/UpdateBatch.vue'
 import RolePicker from '@/components/role_picker.vue'
+import VSwitch from '@/components/ui/VSwitch.vue'
+
+const roleView = ref('People')
 import SmartSelector from '@/components/ui/SmartSelector.vue'
 import { getCurrentUserId } from '@/helpers'
 import updateMessage from '../utils/updateMessage.js'
