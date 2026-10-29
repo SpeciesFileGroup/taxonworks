@@ -107,6 +107,8 @@ module Shared::Taxonomy
       if o.class.base_class.name == 'CollectionObject'
         a ||= o.type_materials.primary.first&.protonym
       end
+
+      a
     when 'Otu'
       if o.taxon_name
         if o.taxon_name.cached_is_valid

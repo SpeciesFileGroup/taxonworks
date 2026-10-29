@@ -16,12 +16,17 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Batch add/remove AssertedEnvironments from Filter OTU and Collecting Event [#5128]
 - Citations by source: Add depictions to summarize OTUs list [#5141]
 - "Is data depiction" checkbox to Image viewer [#5144]
+- Radial mass navigator: Edit slice
 - New source: Italic button to Abstract field
+- Taxon name pills to OTU tags
 
 ### Changed
 
 - Browse OTUs: Contents are now grouped by OTU when there is more than one. [#5136]
 - `/taxon_names/<id>/inventory/catalog` sends sources in chronological order [#200]
+- Autocompletes: Removed bold and softened the yellow highlight for matching text [#5151]
+- New observation matrix: replaced OTU autocompletes by autoselects
+- New image: Replaced OTU autocomplete by autoselect in "Depict some" panel [#5143]
 
 ### Fixed
 
@@ -29,16 +34,26 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Browse OTUs: Timeline shows citations for all taxon names when it should only show the current one
 - Biological Properties usage count now returns the number of Biological Associations using a Biological Relationship that has that property on its subject, object, or both sides
 - Filter TNR: After destroying a record in filter taxon name relationships the record still displays [#5137]
+- Browse OTU: OTU distribution map does not load for Combinations [#5152]
+- Field Occurrences don't fill in taxonomy columns (family, genus, etc.) when included in Darwin Core exports
+- CSD: Saving a CO with a CE that has multiple uses displays a confirmation modal even if it has not been modified [#5146]
+- Unify issues related to matrices [#5129]
+- The PDF toolbar overlaps the scroll button
 
 [#200]: https://github.com/SpeciesFileGroup/taxonpages/issues/200
 [#5116]: https://github.com/SpeciesFileGroup/taxonworks/issues/5116
 [#5117]: https://github.com/SpeciesFileGroup/taxonworks/issues/5117
 [#5128]: https://github.com/SpeciesFileGroup/taxonworks/issues/5128
+[#5129]: https://github.com/SpeciesFileGroup/taxonworks/issues/5129
 [#5133]: https://github.com/SpeciesFileGroup/taxonworks/issues/5133
 [#5136]: https://github.com/SpeciesFileGroup/taxonworks/issues/5136
 [#5137]: https://github.com/SpeciesFileGroup/taxonworks/issues/5137
 [#5141]: https://github.com/SpeciesFileGroup/taxonworks/issues/5141
+[#5143]: https://github.com/SpeciesFileGroup/taxonworks/issues/5143
 [#5144]: https://github.com/SpeciesFileGroup/taxonworks/issues/5144
+[#5146]: https://github.com/SpeciesFileGroup/taxonworks/issues/5146
+[#5151]: https://github.com/SpeciesFileGroup/taxonworks/issues/5151
+[#5152]: https://github.com/SpeciesFileGroup/taxonworks/issues/5152
 
 ## [0.66.1] - 2026-10-09
 

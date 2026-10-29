@@ -1,15 +1,30 @@
 <template>
-  <ul
+  <div
     v-if="inPlace"
-    class="no_bullets soft_validation list"
+    class="position-relative flex-col soft-validation-in-place"
   >
-    <li
-      v-for="(validation, index) in validations"
-      :key="index"
+    <VSpinner
+      v-if="isLoading"
+      legend="Loading validations..."
+    />
+    <ul
+      v-else-if="validations.length"
+      class="no_bullets soft_validation list"
     >
-      <span v-html="validation" />
-    </li>
-  </ul>
+      <li
+        v-for="(validation, index) in validations"
+        :key="index"
+      >
+        <span v-html="validation" />
+      </li>
+    </ul>
+    <div
+      v-else
+      class="horizontal-center-content flex-auto text-lg text-muted-color"
+    >
+      No validations found
+    </div>
+  </div>
 
   <template v-else>
     <v-icon
@@ -71,11 +86,13 @@
 import ModalComponent from '@/components/ui/Modal.vue'
 import { SoftValidation } from '@/routes/endpoints'
 import VIcon from '@/components/ui/VIcon/index.vue'
+import VSpinner from '@/components/ui/VSpinner.vue'
 
 export default {
   components: {
     ModalComponent,
-    VIcon
+    VIcon,
+    VSpinner
   },
 
   props: {

@@ -65,6 +65,14 @@ class Extract < ApplicationRecord
 
   before_validation :set_made, if: -> {is_made_now}
 
+  # TODO: we shouldn't be touching rows directly. It's here because
+  # Dynamic::TaxonName row items are never told when an Extract's
+  # membership changes (its origins) or when one is destroyed or
+  # unified, so they can't release their rows and destroying this object
+  # would leave rows pointing at nothing. Remove this once those items track
+  # membership.
+  after_destroy :delete_observation_matrix_rows_stopgap
+
   validates :year_made, date_year: { min_year: 1757, max_year: -> {Time.now.year} }
   validates :month_made, date_month: true
   validates :day_made, date_day: {year_sym: :year_made, month_sym: :month_made}, unless: -> {year_made.nil? || month_made.nil?}
@@ -100,6 +108,11 @@ class Extract < ApplicationRecord
   end
 
   protected
+
+  def delete_observation_matrix_rows_stopgap
+    # TODO: bad, see the comment on the callback assignment.
+    ObservationMatrixRow.where(observation_object: self).delete_all
+  end
 
   def set_made
     write_attribute(:year_made, Time.now.year)
