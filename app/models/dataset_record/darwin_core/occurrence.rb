@@ -78,6 +78,8 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     typeStatus: 'requires a physical CollectionObject'
   }.freeze
 
+  COLLECTOR_IDS_FIELD = 'TW:CollectingEvent:collector_ids'.freeze
+
   ACCEPTED_ATTRIBUTES = {
     CollectionObject: %I(
       buffered_collecting_event buffered_determinations buffered_other_labels
@@ -90,6 +92,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     ).to_set.freeze,
 
     CollectingEvent: %I(
+      collector_ids
       document_label print_label verbatim_label
       field_notes formation
       group
@@ -461,6 +464,13 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
         # TODO: If all attributes are equal assume it is the same event and share it with other specimens? (eventID is an alternate method to detect duplicates)
         if collecting_event
+          if get_field_value(COLLECTOR_IDS_FIELD).present? &&
+              collecting_event.collectors.pluck(:id) != attributes[:collecting_event][:collectors].map(&:id)
+            raise DarwinCore::InvalidData.new({
+              COLLECTOR_IDS_FIELD => ['Collectors do not match the existing collecting event in the supplied order']
+            })
+          end
+
           if field_number_identifier && event_id_identifier &&
             field_number_identifier.identifier_object != event_id_identifier.identifier_object
             raise DarwinCore::InvalidData.new({ 'eventID/fieldNumber' => ['eventId and fieldNumber refer to different collecting events'] })
@@ -947,7 +957,9 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     # recordNumber: [Mapped in import method]
 
     # recordedBy: [collecting_event.collectors and collecting_event.verbatim_collectors]
-    Utilities::Hashes::set_unless_nil(res[:collecting_event], :collectors, (parse_people(:recordedBy) rescue nil))
+    unless get_field_value(COLLECTOR_IDS_FIELD).present?
+      Utilities::Hashes::set_unless_nil(res[:collecting_event], :collectors, (parse_people(:recordedBy) rescue nil))
+    end
     Utilities::Hashes::set_unless_nil(res[:collecting_event], :verbatim_collectors, get_field_value(:recordedBy))
 
     # individualCount: [specimen.total]
@@ -1877,6 +1889,30 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     }
   end
 
+  # Resolve shared Person records without creating people or restricting them to this dataset.
+  def parse_collector_ids(value)
+    ids = value.split('|', -1).map do |reference|
+      reference = reference.strip
+      match = /\Aperson\/([0-9]+)\z/i.match(reference)
+      unless match && match[1].to_i.positive?
+        raise DarwinCore::InvalidData.new({
+          COLLECTOR_IDS_FIELD => ["'#{reference}' is not a valid Person reference; expected person/[positive integer]"]
+        })
+      end
+      match[1].to_i
+    end.uniq
+
+    people = Person.where(id: ids).index_by(&:id)
+    missing_ids = ids - people.keys
+    if missing_ids.any?
+      raise DarwinCore::InvalidData.new({
+        COLLECTOR_IDS_FIELD => ["People not found: #{missing_ids.map { |id| "person/#{id}" }.join(', ')}"]
+      })
+    end
+
+    ids.map { |id| people.fetch(id) }
+  end
+
   def parse_tw_collecting_event_attributes
 
     attributes = {}
@@ -1887,7 +1923,11 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         if !ACCEPTED_ATTRIBUTES[:CollectingEvent].include?(attribute[:name])
           raise DarwinCore::InvalidData.new({ attribute[:field] => ["#{attribute[:name]} is not a valid CollectingEvent attribute"] })
         end
-        attributes[attribute[:name]] = value
+        if attribute[:name] == :collector_ids
+          attributes[:collectors] = parse_collector_ids(value)
+        else
+          attributes[attribute[:name]] = value
+        end
       end
     end
 

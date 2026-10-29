@@ -11,6 +11,122 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
 
   after(:all) { DatabaseCleaner.clean }
 
+  context 'when importing existing collector IDs' do
+    before :all do
+      DatabaseCleaner.start
+      init_housekeeping
+      @collector_a = FactoryBot.create(:valid_person, type: 'Person::Vetted')
+      @collector_b = FactoryBot.create(:valid_person)
+      otu = Otu.create!(name: 'Collector import OTU')
+      FactoryBot.create(:valid_namespace, short_name: 'COLLECTOR-FIELD')
+      a = "person/#{@collector_a.id}"
+      b = "person/#{@collector_b.id}"
+      missing = "person/#{Person.maximum(:id) + 1000}"
+      headers = %w[occurrenceID basisOfRecord TW:TaxonDetermination:otu_id TW:CollectingEvent:collector_ids recordedBy eventID fieldNumber TW:Namespace:fieldNumber TW:CollectingEvent:verbatim_collectors]
+      rows = [
+        ['single', 'PreservedSpecimen', a],
+        ['mixed-case', 'PreservedSpecimen', " PERSON/#{@collector_b.id} | PeRsOn/#{@collector_a.id} | #{b} "],
+        ['ordered', 'PreservedSpecimen', " #{b} | #{a} | #{b} ", 'Unrelated Collector'],
+        ['observation', 'HumanObservation', "#{a}|#{b}"],
+        ['blank', 'PreservedSpecimen', ' ', 'Jane Observer'],
+        ['verbatim', 'PreservedSpecimen', a, 'Label Name', nil, nil, nil, 'Explicit label'],
+        ['event-seed', 'PreservedSpecimen', "#{a}|#{b}", nil, 'shared-event'],
+        ['event-match', 'PreservedSpecimen', "#{a}|#{b}", nil, 'shared-event'],
+        ['event-reordered', 'PreservedSpecimen', "#{b}|#{a}", nil, 'shared-event'],
+        ['event-missing', 'PreservedSpecimen', a, nil, 'shared-event'],
+        ['event-additional', 'PreservedSpecimen', "#{a}|#{b}", nil, 'single-event'],
+        ['field-seed', 'PreservedSpecimen', a, nil, nil, 'shared-field', 'COLLECTOR-FIELD'],
+        ['field-match', 'PreservedSpecimen', a, nil, nil, 'shared-field', 'COLLECTOR-FIELD'],
+        ['field-mismatch', 'PreservedSpecimen', b, nil, nil, 'shared-field', 'COLLECTOR-FIELD']
+      ]
+      # Define this event separately so an extra supplied collector is a mismatch.
+      rows.insert(9, ['single-event-seed', 'PreservedSpecimen', a, nil, 'single-event'])
+      invalid = [missing, "#{a}|#{missing}", '123', 'organization/1', 'person/abc', 'person/0', 'person/-1', "#{a}|", "|#{a}", "#{a}||#{b}"]
+      invalid.each_with_index { |value, i| rows << ["invalid-#{i}", 'PreservedSpecimen', value, 'Do Not Create'] }
+      @collector_rows = {}
+      Tempfile.create(['collector_ids', '.tsv']) do |file|
+        file.write(CSV.generate(col_sep: "\t") do |csv|
+          csv << headers
+          rows.each do |row|
+            row = row.dup
+            row.insert(2, otu.id)
+            csv << row
+          end
+        end)
+        file.flush
+        @collector_dataset = ImportDataset::DarwinCore::Occurrences.create!(
+          source: fixture_file_upload(file.path, 'text/plain'), description: 'Existing collectors'
+        ).tap(&:stage)
+        @collector_dataset.core_records.order(:id).each do |record|
+          record.import
+          @collector_rows[record.get_field_value(:occurrenceID)] = record
+        end
+      end
+    end
+
+    after(:all) { DatabaseCleaner.clean }
+
+    def collector_event(row_name)
+      record = @collector_rows.fetch(row_name)
+      type, data = record.metadata.fetch('imported_objects').first
+      type.classify.constantize.find(data.fetch('id')).collecting_event
+    end
+
+    it 'recognizes the new column as mapped' do
+      index = @collector_rows['single'].send(:get_field_mapping, 'TW:CollectingEvent:collector_ids')
+      expect(@collector_dataset.core_records_mapped_fields).to include(index)
+    end
+
+    it 'uses existing vetted and unvetted people in input order, trimming and deduplicating references' do
+      expect(collector_event('single').collectors.pluck(:id)).to eq([@collector_a.id])
+      expect(collector_event('ordered').collectors.pluck(:id)).to eq([@collector_b.id, @collector_a.id])
+      expect(collector_event('ordered').verbatim_collectors).to eq('Unrelated Collector')
+      expect(Person.count).to eq(3) # The two existing people and the blank-cell name fallback.
+    end
+
+    it 'accepts uppercase and mixed-case prefixes while preserving order and deduplicating IDs' do
+      expect(@collector_rows['mixed-case'].status).to eq('Imported')
+      expect(collector_event('mixed-case').collectors.pluck(:id)).to eq([@collector_b.id, @collector_a.id])
+    end
+
+    it 'supports HumanObservation collectors' do
+      expect(@collector_rows['observation'].status).to eq('Imported')
+      expect(collector_event('observation').collectors.pluck(:id)).to eq([@collector_a.id, @collector_b.id])
+    end
+
+    it 'falls back to name parsing for blank IDs and preserves explicit verbatim overrides' do
+      expect(collector_event('blank').collectors.first.last_name).to eq('Observer')
+      expect(collector_event('verbatim').verbatim_collectors).to eq('Explicit label')
+    end
+
+    it 'reuses matching collecting events through either identifier' do
+      expect(collector_event('event-match')).to eq(collector_event('event-seed'))
+      expect(collector_event('field-match')).to eq(collector_event('field-seed'))
+    end
+
+    it 'rejects different collector lists without changing shared events' do
+      %w[event-reordered event-missing event-additional field-mismatch].each do |name|
+        record = @collector_rows.fetch(name)
+        expect(record.status).to eq('Errored')
+        expect(record.metadata.dig('error_data', 'messages')).to have_key('TW:CollectingEvent:collector_ids')
+        expect(record.metadata['imported_objects']).to be_nil
+      end
+      expect(collector_event('event-seed').collectors.pluck(:id)).to eq([@collector_a.id, @collector_b.id])
+      expect(collector_event('field-seed').collectors.pluck(:id)).to eq([@collector_a.id])
+    end
+
+    it 'rejects malformed and missing references without partial imports or new people' do
+      invalid = @collector_rows.select { |name, _| name.start_with?('invalid-') }.values
+      expect(invalid.size).to eq(10)
+      invalid.each do |record|
+        expect(record.status).to eq('Errored')
+        expect(record.metadata.dig('error_data', 'messages')).to have_key('TW:CollectingEvent:collector_ids')
+        expect(record.metadata['imported_objects']).to be_nil
+      end
+      expect(CollectionObject.count + FieldOccurrence.count).to eq(@collector_rows.values.count { |r| r.status == 'Imported' })
+    end
+  end
+
   context 'when importing project-configured Darwin Core attributes' do
     before :all do
       DatabaseCleaner.start
