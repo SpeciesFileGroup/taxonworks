@@ -26,6 +26,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - `/taxon_names/<id>/inventory/catalog` sends sources in chronological order [#200]
 - Autocompletes: Removed bold and softened the yellow highlight for matching text [#5151]
 - New observation matrix: replaced OTU autocompletes by autoselects
+- New image: Replaced OTU autocomplete by autoselect in "Depict some" panel [#5143]
 
 ### Fixed
 
@@ -48,6 +49,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 [#5136]: https://github.com/SpeciesFileGroup/taxonworks/issues/5136
 [#5137]: https://github.com/SpeciesFileGroup/taxonworks/issues/5137
 [#5141]: https://github.com/SpeciesFileGroup/taxonworks/issues/5141
+[#5143]: https://github.com/SpeciesFileGroup/taxonworks/issues/5143
 [#5144]: https://github.com/SpeciesFileGroup/taxonworks/issues/5144
 [#5146]: https://github.com/SpeciesFileGroup/taxonworks/issues/5146
 [#5151]: https://github.com/SpeciesFileGroup/taxonworks/issues/5151
