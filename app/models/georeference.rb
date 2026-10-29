@@ -190,7 +190,7 @@ class Georeference < ApplicationRecord
   end
 
   # TODO: remove, used in match georeferences
-  # @param [Array] of parameters in the style of 'params'
+  # @param params [Hash] in the style of 'params'
   # @return [Scope] of selected georeferences
   def self.filter_by(params)
     collecting_events = CollectingEvent.filter_by(params)
@@ -211,7 +211,7 @@ class Georeference < ApplicationRecord
     )
   end
 
-  # @param [String] locality string
+  # @param string [String] locality string
   # @return [Scope] Georeferences
   #   all Georeferences which are attached to a CollectingEvent which has a verbatim_locality which
   # includes String somewhere
@@ -221,7 +221,7 @@ class Georeference < ApplicationRecord
     with_locality_as(string, true)
   end
 
-  # @param [String] locality string
+  # @param string [String] locality string
   # @return [Scope] Georeferences
   # return all Georeferences which are attached to a CollectingEvent which has a verbatim_locality which
   # equals String somewhere
@@ -231,7 +231,7 @@ class Georeference < ApplicationRecord
     with_locality_as(string, false)
   end
 
-  # @param [GeographicArea]
+  # @param geographic_area [GeographicArea]
   # @return [Scope] Georeferences
   # returns all georeferences which have collecting_events which have geographic_areas which match
   # geographic_areas as a GeographicArea
@@ -272,8 +272,8 @@ class Georeference < ApplicationRecord
     result
   end
 
-  # @param [String, Boolean] String to find in collecting_event.verbatim_locality, Bool = false for 'Starts with',
-  # Bool = true if 'contains'
+  # @param string [String] to find in collecting_event.verbatim_locality
+  # @param like [Boolean] true if 'contains', false for an exact match
   # @return [Scope] Georeferences which are attached to a CollectingEvent which has a verbatim_locality which
   #   includes, or is equal to 'string' somewhere
   # Joins collecting_event.rb and matches %String% against verbatim_locality

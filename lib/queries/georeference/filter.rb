@@ -7,13 +7,13 @@ module Queries
         collecting_event_id: [],
       ].freeze
 
-      # @return Array
+      # @return [Array]
       attr_accessor :georeference_id
 
-      # @return Array
+      # @return [Array]
       attr_accessor :collecting_event_id
 
-      # @param [Hash] params
+      # @param query_params [Hash]
       def initialize(query_params)
         super
 

@@ -121,12 +121,12 @@ module Queries
       #   legal values are 'true', 'false'
       #   `true` - match only CollectingEvents with associated CollectionObjects
       #   `false` - match only CollectingEvents without associated CollectionObjects
-      # @return collection_objects [Boolean, nil]
+      # @return [Boolean, nil]
       #
       #  whether the CollectingEvent has associated CollectionObjects
       attr_accessor :collection_objects
 
-      # @return Array
+      # @return [Array]
       # @param collection_object_id [Array, Integer, String]
       #    all collecting events matching collection objects
       attr_accessor :collection_object_id
@@ -296,7 +296,7 @@ module Queries
         end
       end
 
-      # @return Scope
+      # @return [Scope]
       def collection_objects_facet
         return nil if collection_objects.nil?
         subquery = ::CollectionObject.where(::CollectionObject.arel_table[:collecting_event_id].eq(::CollectingEvent.arel_table[:id])).arel.exists

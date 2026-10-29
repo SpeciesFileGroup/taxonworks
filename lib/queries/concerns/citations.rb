@@ -13,14 +13,14 @@ module Queries::Concerns::Citations
   end
 
   included do
-    # @params citations [String]
+    # @param citations [String]
     # @return [Boolean]
     #  nil - with/out Citations
     #  true - with Citations
     #  false - without Citations
     attr_accessor :citations
 
-    # @params citations [String]
+    # @param citations [String]
     # @return [Boolean]
     #  nil - with/out Origin Citation
     #  true - with Origin Citation
@@ -30,7 +30,7 @@ module Queries::Concerns::Citations
     # @return [::Query::Source::Filter, nil]
     attr_accessor :source_query
 
-    # @params citation_documents [ture, false]
+    # @param citation_documents [ture, false]
     # @return [Boolean, nil]
     #   true - has citations, sources have documents
     #   false - has citations, sources do not have documents

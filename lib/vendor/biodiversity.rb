@@ -55,7 +55,7 @@ module Vendor
       #   a memoized combiantion with only unambiguous elements 
       attr_reader :combination
 
-      # @return Boolean
+      # @return [Boolean]
       #   - true, we match on words from verbatim:
       #   - false, we match on words from normalized:
       attr_reader :normalized

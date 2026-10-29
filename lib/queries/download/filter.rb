@@ -17,7 +17,7 @@ module Queries
       #   like 'Download::DwcArchive', one of the models in app/models/download
       attr_accessor :download_type
 
-      # @params params [ActionController::Parameters]
+      # @param query_params [ActionController::Parameters]
       def initialize(query_params)
         super
         @download_type = params[:download_type]

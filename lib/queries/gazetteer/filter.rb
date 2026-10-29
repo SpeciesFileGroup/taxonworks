@@ -11,12 +11,12 @@ module Queries
         name: []
       ].freeze
 
-      # @return Array
+      # @return [Array]
       # @param name [String, Array]
       #   matches one or more named entities
       attr_accessor :name
 
-      # @return Array
+      # @return [Array]
       # @param gazetteer_id [Integer, Array]
       attr_accessor :gazetteer_id
 

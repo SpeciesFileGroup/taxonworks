@@ -36,7 +36,7 @@ module Queries
 
       attr_accessor :data_attribute_id
 
-      # @params params [ActionController::Parameters]
+      # @param query_params [ActionController::Parameters]
       def initialize(query_params)
         super
 

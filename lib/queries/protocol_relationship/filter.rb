@@ -18,22 +18,22 @@ module Queries
       ].freeze
 
       # @param [Array, Integer]
-      # @return Array
+      # @return [Array]
       attr_accessor :protocol_relationship_id
 
       # @param [Array, Integer]
-      # @return Array
+      # @return [Array]
       attr_accessor :protocol_id
 
       # @param [Array, integer]
-      # @return Array
+      # @return [Array]
       attr_accessor :protocol_relationship_object_id
 
-      # @return String, nil
+      # @return [String, nil]
       attr_accessor :protocol_relationship_object_type
 
       # TODO: See ::Queries::Annotator params - move to permitted section in controller likely.
-      # @params params [ActionController::Parameters]
+      # @param query_params [ActionController::Parameters]
       def initialize(query_params)
         super
         @protocol_relationship_object_id = params[:protocol_relationship_object_id]

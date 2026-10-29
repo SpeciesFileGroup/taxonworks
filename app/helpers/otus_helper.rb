@@ -331,7 +331,7 @@ module OtusHelper
     output.string
   end
 
-  # @return Hash
+  # @return [Hash]
   #   { dwc_occurrence_id: [ image1, image2 ... ], ... }
   def dwc_gallery_data(otu, dwc_occurrence_id: [], pagination_headers: true)
     a = DwcOccurrence.scoped_by_otu(otu)

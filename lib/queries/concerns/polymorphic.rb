@@ -22,7 +22,7 @@ module Queries::Concerns::Polymorphic
       define_singleton_method(:annotating_class){klass}
     end
 
-    # @params Hash, already permitted
+    # @param Hash, already permitted
     #   this handles *only* parameters like `geographic_area_id`, not `alternate_value_object_type: 'GeographicArea'`
     def set_polymorphic_params(params)
       h  = params.select{|k,v| self.class.annotating_class.related_foreign_keys.include?(k.to_s)} 

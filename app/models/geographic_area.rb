@@ -137,7 +137,7 @@ class GeographicArea < ApplicationRecord
     where(['name like ?', "#{string}%"])
   }
 
-  # @param  [Array] of names of self and parent
+  # @param names [Array] of self and parent
   # @return [Scope]
   #  Matches GeographicAreas that have name and parent name.
   #  Call via find_by_self_and_parents(%w{Champaign Illinois}).
@@ -150,7 +150,7 @@ class GeographicArea < ApplicationRecord
     end
   }
 
-  # @param  [Array] names of self and parents
+  # @param names [Array] of self and parents
   # @return [Scope] GeographicAreas which have the names of self and parents
   # TODO: Test, or extend a general method
   # Matches GeographicAreas that match name, parent name, parent.parent name.
@@ -246,7 +246,7 @@ class GeographicArea < ApplicationRecord
     includes(:geographic_area_type).where(geographic_area_types: {name: 'Country'})
   end
 
-  # @param [GeographicArea]
+  # @param geographic_area [GeographicArea]
   # @return [Scope, nil] of geographic_areas
   def self.is_contained_by(geographic_area)
     pieces = nil
@@ -262,7 +262,7 @@ class GeographicArea < ApplicationRecord
     pieces
   end
 
-  # @param [GeographicArea]
+  # @param geographic_area [GeographicArea]
   # @return [Scope] geographic_areas which are 'children' of the supplied geographic_area.
   def self.are_contained_in(geographic_area)
     pieces = nil
@@ -539,7 +539,7 @@ class GeographicArea < ApplicationRecord
 
   # @return [Hash]
   #   query_line => [Array of GeographicArea]
-  # @params [text]
+  # @param text [String]
   #   one result set per line (\r\n)
   #   lines can have child:parent:parent name patterns
   def self.matching(text, has_shape = false, invert = false)
@@ -621,7 +621,7 @@ class GeographicArea < ApplicationRecord
     end
   end
 
-  # @params target [String] one of `CollectingEvent` or `AssertedDistribution`
+  # @param target [String] one of `CollectingEvent` or `AssertedDistribution`
   # @return [Hash] geographic_areas optimized for user selection
   def self.select_optimized(user_id, project_id, target = 'CollectingEvent')
     r = used_recently(user_id, project_id, target)

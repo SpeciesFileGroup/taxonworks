@@ -50,19 +50,19 @@ module Queries
         taxon_name_id: [],
       ].freeze
 
-      # @return Array
+      # @return [Array]
       attr_accessor :observation_id
 
-      # @return Array
+      # @return [Array]
       attr_accessor :character_state_id
 
-      # @return Array
+      # @return [Array]
       attr_accessor :collection_object_id
 
-      # @return Boolean
+      # @return [Boolean]
       attr_accessor :descendants
 
-      # @return Array
+      # @return [Array]
       attr_accessor :descriptor_id
 
       attr_accessor :geo_json
@@ -70,32 +70,32 @@ module Queries
       # @return [Array]
       attr_accessor :observation_matrix_id
 
-      # @return String, nil
+      # @return [String, nil]
       attr_accessor :observation_object_global_id
 
-      # @return Array
+      # @return [Array]
       attr_accessor :observation_type
 
-      # @return Array
+      # @return [Array]
       attr_accessor :observation_object_id
 
-      # @return Array
+      # @return [Array]
       attr_accessor :observation_object_type
 
-      # @return Array
+      # @return [Array]
       attr_accessor :otu_id
 
       # Integer in Meters
       #   !! defaults to 100m
       attr_accessor :radius
 
-      # @return Array
+      # @return [Array]
       attr_accessor :sound_id
 
-      # @return Array
+      # @return [Array]
       attr_accessor :taxon_name_id
 
-      # @return String
+      # @return [String]
       attr_accessor :wkt
 
       # Integer in Meters

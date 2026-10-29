@@ -22,8 +22,8 @@ class ObservationMatrixRowItem::Dynamic::TaxonName < ObservationMatrixRowItem::D
     a.to_a + b.to_a + c.to_a
   end
 
-  # @params taxon_name_id required
-  # @params otu_id required
+  # @param taxon_name_id required
+  # @param otu_id required
   #   Remove all OTU rows for row items attached to this ID or others
   def self.cleanup(taxon_name_id, otu_id)
     to_check = ::TaxonName.find(observation_object_id).self_and_ancestors.pluck(:id)

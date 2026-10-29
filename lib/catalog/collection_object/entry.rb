@@ -9,7 +9,7 @@ class Catalog::CollectionObject::Entry
   # The collection object referenced in this entry
   attr_accessor :reference_collection_object
 
-  # @param [Hash] args
+  # @param collection_object [CollectionObject]
   def initialize(collection_object = nil)
     @items = []
     @reference_collection_object = collection_object

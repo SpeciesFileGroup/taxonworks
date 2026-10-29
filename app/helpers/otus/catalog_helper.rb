@@ -41,7 +41,7 @@ module Otus::CatalogHelper
     content_tag(:span, body + soft_validation.to_s, class: [css, original_citation_css(otu, c), :history__otu ])
   end
 
-  # @return Hash
+  # @return [Hash]
   #  { otu_id: 123,
   #    label: label_for_otu(),
   #    otu_clones: [otu1.id, otu2.id],                   # OTUs with the same taxon name AND `name`

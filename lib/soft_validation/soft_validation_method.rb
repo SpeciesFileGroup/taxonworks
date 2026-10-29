@@ -35,7 +35,7 @@ module SoftValidation
     #   flagged methods are not executed by default
     attr_accessor :flagged
 
-    # @param [Hash] args
+    # @param options [Hash]
     def initialize(options)
       raise(SoftValidationError, 'missing method and klass') if options[:method].nil? || options[:klass].nil?
       options.each do |k,v|
@@ -87,13 +87,13 @@ module SoftValidation
 
     private
 
-    # @return Boolean
+    # @return [Boolean]
     #   true - the soft validation method should be retained
     #   false - the soft validation method does not match, it will be excluded from soft_validate()
     # @param is_fixable [Boolean, nil] 
     #   nil, false - don't require method be fixable to pass
     #   true - require method to be fixable to pass
-    # @param is_flagged [Boolean] 
+    # @param include_flagged [Boolean] 
     #    true - allow all
     #    false - allow only if not flagged 
     def matches?(is_fixable, include_flagged = false)

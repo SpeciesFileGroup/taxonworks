@@ -409,7 +409,7 @@ class Image < ApplicationRecord
     joins(k).distinct.pluck(:id)
   end
 
-  # @params target [String] required, one of nil, `AssertedDistribution`, `Content`, `BiologicalAssociation`, 'TaxonDetermination'
+  # @param target [String] required, one of nil, `AssertedDistribution`, `Content`, `BiologicalAssociation`, 'TaxonDetermination'
   # @return [Hash] images optimized for user selection
   def self.select_optimized(user_id, project_id, target = nil)
     r = used_recently(user_id, project_id, target)

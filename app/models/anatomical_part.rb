@@ -33,7 +33,7 @@
 #   @return [Integer]
 #   Preparation type of this part.
 #
-# @!cached_otu_id
+# @!attribute cached_otu_id
 #   @return [Integer]
 #   Each anatomical part is required to have an originRelationship-ancestor that
 #   is either an Otu or has a determination with an Otu. This is that Otu.

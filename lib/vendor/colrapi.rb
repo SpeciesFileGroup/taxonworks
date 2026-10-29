@@ -8,10 +8,10 @@ module Vendor
       col_extended: '3LXR'  # Human plus algorithmic extensions
     }.freeze
 
-    # @params taxonworks_object
+    # @param taxonworks_object
     #   any object that responds_to `.taxonomy`
     #
-    # @params colrapi_result
+    # @param colrapi_result
     #    a nameusage result
     #
     # @return [Array]
@@ -28,7 +28,7 @@ module Vendor
       r = []
     end
 
-    # @params taxonworks_object
+    # @param taxonworks_object
     #   currently only an CollectionObject
     #
     # @return hash

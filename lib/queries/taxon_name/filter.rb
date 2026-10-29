@@ -78,7 +78,7 @@ module Queries
       ].freeze
 
       # @param ancestors [Boolean, 'true', 'false', nil]
-      # @return Boolean
+      # @return [Boolean]
       #   Ignored when taxon_name_id[].empty?  Works as AND clause with descendants :(
       attr_accessor :ancestors
 
@@ -93,8 +93,8 @@ module Queries
       #   false/nil - ignore
       attr_accessor :epithet_only
 
-      # @param collection_object_id[String, Array]
-      # @return Array
+      # @param collection_object_id [String, Array]
+      # @return [Array]
       attr_accessor :collection_object_id
 
       # @param combinations [Boolean]
@@ -110,12 +110,12 @@ module Queries
       # !! This parameter is not like the others, it is applied POST result, see also synonymify and validify
       attr_accessor :combinationify
 
-      # @param collection_object_id[String, Array]
-      # @return Array
+      # @param collection_object_id [String, Array]
+      # @return [Array]
       attr_accessor :collection_object_id
 
       # @param collecting_event_id [String, Array]
-      # @return Array
+      # @return [Array]
       attr_accessor :collecting_event_id
 
       # @param name [String, Array]
@@ -123,7 +123,7 @@ module Queries
       #  Matches against cached.  See also name_exact.
       attr_accessor :name
 
-      # @return Boolean
+      # @return [Boolean]
       attr_accessor :name_exact
 
       # @param cached [String, Array]
@@ -134,7 +134,7 @@ module Queries
       #   Use "&" for "and". Matches against cached_author_year. See also author_exact.
       attr_accessor :author
 
-      # @return Boolean
+      # @return [Boolean]
       attr_accessor :author_exact
 
       # @param year [String]
@@ -143,7 +143,7 @@ module Queries
       attr_accessor :year
 
       # @param ancestors [Boolean, 'true', 'false', nil]
-      # @return Boolean
+      # @return [Boolean]
       #   with/out cached nomenclature date set
       attr_accessor :nomenclature_date
 
@@ -157,18 +157,18 @@ module Queries
       # Matches against cached_nomenclature_date
       attr_accessor :year_end
 
-      # @params validity [ Boolean]
+      # @param validity [ Boolean]
       # ['true' or 'false'] on initialize
       #   true if only valid, false if only invalid, nil if both
       attr_accessor :validity
 
-      # @params availability [ Boolean]
+      # @param availability [ Boolean]
       # ['true' or 'false'] on initialize
       #   true if only available, false if only unavailable, nil if both
       attr_accessor :availability
 
-      # @params validify ['true', True, nil]
-      # @return Boolean
+      # @param validify ['true', True, nil]
+      # @return [Boolean]
       #    if true then for each name in the result its valid
       # name is returned
       # !! This param is not like the others. !!
@@ -178,18 +178,18 @@ module Queries
       #   Exact match against verbatim_author.
       attr_accessor :verbatim_author
 
-      # @oparams verbatim_name  ['true', True, nil]
-      # @return Boolean
+      # @param verbatim_name ['true', True, nil]
+      # @return [Boolean]
       #    if true then `verbatim_name` is populated
       attr_accessor :verbatim_name
 
-      # @params taxon_name_id [Array]
+      # @param taxon_name_id [Array]
       #   An array of taxon_name_id.
       # @return
       #   Return the taxon name(s) with this/these ids
       attr_accessor :taxon_name_id
 
-      # @params parent_id[] [Array]
+      # @param parent_id [Array]
       #   An array of taxon_name_id.
       # @return
       #   Return the taxon names with this/these parent_ids
@@ -274,12 +274,12 @@ module Queries
       #   whether the name has an author string, from any source, provided
       attr_accessor :authors
 
-      # @params type_material [Boolean, nil]
+      # @param type_material [Boolean, nil]
       # ['true' or 'false'] on initialize
       #   whether the name has TypeMaterial
       attr_accessor :type_metadata
 
-      # @params not_specified [Boolean, nil]
+      # @param not_specified [Boolean, nil]
       #   whether the name has 'NOT SPECIFIED' in one of the cache values
       #   `true` - text is present
       #   `false` - text is absent
@@ -334,7 +334,7 @@ module Queries
       attr_accessor :combination_taxon_name_id
 
       # @return [Array]
-      # @params rank [String, Array]
+      # @param rank [String, Array]
       #   The full rank class, or any base, like
       #      NomenclaturalRank::Iczn::SpeciesGroup::Species
       #      Iczn::SpeciesGroup::Species
@@ -353,7 +353,7 @@ module Queries
       #   * nil: return both subjects and objects
       attr_accessor :taxon_name_relationship_target
 
-      # @param params [Params]
+      # @param query_params [Params]
       #   as permitted via controller
       def initialize(query_params)
         super
@@ -533,7 +533,7 @@ module Queries
         end
       end
 
-      # @return Scope
+      # @return [Scope]
       #   match only names that are a descendant of some taxon_name_id
       def descendant_facet
         return nil if taxon_name_id.empty? || descendants.nil?
@@ -562,7 +562,7 @@ module Queries
         end
       end
 
-      # @return Scope
+      # @return [Scope]
       #   match only names that are a ancestor of some taxon_name_id
       # A merge facet.
       def ancestor_facet
@@ -588,7 +588,7 @@ module Queries
       end
 
       # This is not true! It includes records that are year only.
-      # @return Scope
+      # @return [Scope]
       def authors_facet
         return nil if authors.nil?
         authors ?
@@ -596,7 +596,7 @@ module Queries
           ::TaxonName.where(cached_author_year: nil)
       end
 
-      # @return Scope
+      # @return [Scope]
       def with_etymology_facet
         return nil if etymology.nil?
         etymology ?
@@ -604,7 +604,7 @@ module Queries
           ::TaxonName.where(etymology: nil)
       end
 
-      # @return Scope
+      # @return [Scope]
       def taxon_name_relationship_type_facet
         if taxon_name_relationship_type_subject.empty? &&
            taxon_name_relationship_type_object.empty? &&
@@ -637,13 +637,13 @@ module Queries
         referenced_klass_union([s, o, e])
       end
 
-      # @return Scope
+      # @return [Scope]
       def leaves_facet
         return nil if leaves.nil?
         leaves ? ::TaxonName.leaves : ::TaxonName.not_leaves
       end
 
-      # @return Scope
+      # @return [Scope]
       def latinized_facet
         return nil if latinized.nil?
 
@@ -674,7 +674,7 @@ module Queries
         end
       end
 
-      # @return Scope
+      # @return [Scope]
       #   wrapped in descendant_facet!
       def taxon_name_relationship_facet(hsh)
         hsh = hsh.symbolize_keys
@@ -692,7 +692,7 @@ module Queries
         )
       end
 
-      # @return Scope
+      # @return [Scope]
       def relation_to_relationship_facet
         return nil if relation_to_relationship.nil?
 
@@ -710,7 +710,7 @@ module Queries
         end
       end
 
-      # @return Scope
+      # @return [Scope]
       def taxon_name_classification_facet
         return nil if taxon_name_classification.empty?
 
@@ -751,7 +751,7 @@ module Queries
         ::TaxonName.joins(Arel::Nodes::InnerJoin.new(b, Arel::Nodes::On.new(b['id'].eq(o['id']))))
       end
 
-      # @return Scope
+      # @return [Scope]
       def type_metadata_facet
         return nil if type_metadata.nil?
 
@@ -774,7 +774,7 @@ module Queries
         end
       end
 
-      # @return Scope
+      # @return [Scope]
       def otus_facet
         return nil if otus.nil?
         subquery = ::Otu.where(::Otu.arel_table[:taxon_name_id].eq(::TaxonName.arel_table[:id])).arel.exists

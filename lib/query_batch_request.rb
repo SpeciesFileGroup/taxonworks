@@ -15,26 +15,26 @@ class QueryBatchRequest
   #   Defines the objects to be updated
   attr_accessor :object_filter_params
 
-  # @return Boolean
+  # @return [Boolean]
   #   true - rollback changes, can not be used with async
   attr_accessor :preview
 
-  # @return Boolean
+  # @return [Boolean]
   #   processing is handled fully asyn if true, can not be used with preview = true
   attr_accessor :async
 
   # Number of records at which process is automatically made  async
   attr_accessor :async_cutoff
 
-  # @return nil, Integer
+  # @return [nil, Integer]
   #   the max allowed records
   attr_accessor :cap
 
-  # @return String, nil
+  # @return [String, nil]
   #   the reason the cap is why it is (not required)
   attr_accessor :cap_reason
 
-  # @return String
+  # @return [String]
   #   defines the Filter/Model to act on
   attr_accessor :klass
 
@@ -127,7 +127,7 @@ class QueryBatchRequest
     end
   end
 
-  # @return Boolean
+  # @return [Boolean]
   #   whether to run the job asyncronously
   def async
     if @async.nil? # force all not specified

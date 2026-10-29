@@ -14,8 +14,7 @@ module Queries
       #   nil - no restriction
       attr_accessor :georeferences
 
-      # @params string [String]
-      # @params [Hash] args
+      # @param string [String]
       def initialize(string, project_id: nil, georeferences: nil, restrict_to: nil, limit: nil)
         @georeferences = boolean_param({georeferences:}, :georeferences)
         super(string, project_id:, restrict_to:, limit:)

@@ -32,10 +32,10 @@ module Queries
         :geographic_item_id
       ].freeze
 
-      # @return Array
+      # @return [Array]
       attr_accessor :geographic_item_id
 
-      # @param [Hash] params
+      # @param query_params [Hash]
       def initialize(query_params)
         super
 

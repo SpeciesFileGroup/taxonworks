@@ -3,8 +3,8 @@ module Utilities::Nomenclature
 
   # expands year into author if parens
   # @param name - the name
-  # @param author, with our without parens
-  # @param year, 4 digit year
+  # @param author with our without parens
+  # @param year 4 digit year
   def self.preview_name(name, author, year)
     a = if author =~ /\(/ && year
       author.split(')').first.strip + ", #{year})"
@@ -60,7 +60,7 @@ module Utilities::Nomenclature
   end
 
 
-  # @return Array [name, rank]
+  # @return [Array] [name, rank]
   #   summarizes multinomials into a single
   #   target infraspecies monomial, and its rank
   # name_hash returs rank: [qualifier,name], we are ignoring qualifier here on purpose

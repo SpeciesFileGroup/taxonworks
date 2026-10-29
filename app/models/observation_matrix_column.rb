@@ -40,14 +40,14 @@ class ObservationMatrixColumn < ApplicationRecord
   validates_presence_of :observation_matrix, :descriptor
   validates_uniqueness_of :descriptor_id, scope: [:observation_matrix_id, :project_id]
 
-  # @return Scope
+  # @return [Scope]
   #  There is no order to these Observations!  They do not follow the row order.
   def observations
     Observation.in_observation_matrix(observation_matrix_id).where(descriptor_id: descriptor_id)
   end
 
   # @param array [Array]
-  # @return true
+  # @return [true]
   #   incrementally sort the supplied ids
   def self.sort(array)
     array.each_with_index do |id, index|

@@ -45,7 +45,7 @@ module ::Export::ProjectData::Tsv
   end
 
   # TODO - DRY with generic params passing
-  # @return Download
+  # @return [Download]
   #   a completely built Download, but unsaved
   def self.download(target_project)
     file_path = export(target_project)
@@ -55,14 +55,14 @@ module ::Export::ProjectData::Tsv
     d
   end
 
-  # @return Download
+  # @return [Download]
   def self.download_async(target_project)
     d = stub_download(target_project)
     DownloadProjectTsvJob.perform_later(target_project, d)
     d
   end
 
-  # @return Download
+  # @return [Download]
   #   everything except source_file_path
   def self.stub_download(target_project)
     Download::ProjectDump::Tsv.create!(

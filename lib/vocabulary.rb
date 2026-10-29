@@ -1,7 +1,7 @@
 module Vocabulary
 
   # TODO: differentiate between no data and bad request
-  # @return nil (bad request), {} (good request)
+  # @return [Hash, nil] nil (bad request), {} (good request)
   def self.words(model: nil, attribute: nil, min: 0, max: nil, limit: nil, begins_with: nil, contains: nil, project_id: [], **query)
 
     klass = get_model(model)

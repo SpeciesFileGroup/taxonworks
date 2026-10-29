@@ -41,24 +41,24 @@ class TaxonNameRelationship::Combination < TaxonNameRelationship
     type_name.demodulize.humanize.downcase
   end
 
-  # @return String
+  # @return [String]
   #    the status inferred by the relationship to the object name
   def object_status
     rank_name + ' in combination'
   end
 
-  # @return String
+  # @return [String]
   #    the status inferred by the relationship to the subject name
   def subject_status
     ' as ' +  rank_name + ' in combination'
   end
 
-  # @return String
+  # @return [String]
   def subject_status_connector_to_object
     ''
   end
 
-  # @return String
+  # @return [String]
   def object_status_connector_to_subject
     ' with'
   end

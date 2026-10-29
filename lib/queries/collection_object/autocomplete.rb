@@ -4,8 +4,7 @@ module Queries
 
       DEFAULT_LIMIT = 40
 
-      # @params string [String]
-      # @params [Hash] args
+      # @param string [String]
       def initialize(string, project_id: nil, restrict_to: nil, limit: nil)
         super(string, project_id:, restrict_to:, limit:)
       end

@@ -4,7 +4,6 @@ module Queries
 
       attr_accessor :identifier_object_types
 
-      # @param [Hash] args
       def initialize(string, project_id: nil, identifier_object_types: [])
         @identifier_object_types = identifier_object_types || []
         # @exact = exact == 'true' ? true : (exact == 'false' ? false : nil)

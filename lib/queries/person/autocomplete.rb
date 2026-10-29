@@ -16,7 +16,7 @@ module Queries
       #   nil, false - ignored
       attr_accessor :in_project
 
-      # @param [Hash] args
+      # @param params [Hash]
       #   !! project_id is required!!
       def initialize(string, **params)
         @role_type = params[:role_type]

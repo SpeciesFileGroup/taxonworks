@@ -182,30 +182,30 @@ namespace :tw do
       a.collect{|b| b.path.spec.to_s}.select{|c| c =~ /api/}.collect{|d| d.split('/').fourth&.split('(')&.first}.compact.uniq
     end
 
-    # @return String
+    # @return [String]
     def node_pos(coords, scale = Matrix.scalar(2, 1) )
       (Matrix[coords] * scale).row(0).to_a.join(',') + '!'
     end
 
-    # @return String
+    # @return [String]
     def model_label(table_name)
       table_name.singularize.humanize
     end
 
-    # @return String
+    # @return [String]
     #   a URL out to https://rdoc.taxonworks.org
     def docs_url(table_name)
       RDOC + table_name.to_s.singularize.classify.to_s + '.html'
     end
 
-    # @return String
+    # @return [String]
     #   a URL out to https://api.taxonworks.org/
     #   format is `/#/taxon_names`
     def api_url(table_name)
       API + table_name
     end
 
-    # @return String, nil
+    # @return [String, nil]
     #   a markdown link to the model at https://api.taxonworks.org
     #   only returned if there is a base link
     def api_link(table_name)
@@ -216,31 +216,31 @@ namespace :tw do
       end
     end
 
-    # @return String
+    # @return [String]
     #   a relative path to the er diagram for the model in https://docs.taxonworks.org
     def er_url(target)
       "/develop/Data/models.html##{target.to_s.tableize.singularize.gsub('_', '-')}"
     end
 
-    # @return String
+    # @return [String]
     #   a relative path to the table definition in https://docs.taxonworks.org
     def table_url(table_name)
       '/develop/Data/tables.html#' + table_name
     end
 
-    # @return String
+    # @return [String]
     #   a markdown link to the model at https://rdoc.taxonworks.org
     def rdoc_link(table_name)
       "[rdoc](#{docs_url(table_name)})"
     end
 
-    # @return String
+    # @return [String]
     #   a markdown link to the table at https://docs.taxonworks.org
     def table_link(table_name)
       "[table](#{table_url(table_name.gsub('_', '-'))})"
     end
 
-    # @return String
+    # @return [String]
     #   a markdown link to the model er at https://docs.taxonworks.org
     def er_link(table_name)
       "[er](#{er_url(table_name)})"
@@ -312,9 +312,9 @@ namespace :tw do
       end
     end
 
-    # @attr name [String]
-    # @attr graph [Grapviz.new]
-    # @attr nodes
+    # @param name [String]
+    # @param graph [Grapviz.new]
+    # @param nodes
     def add_node(name, graph, nodes, style = {}) # TODO: maybe target node here
       return nodes[name] if nodes[name]
       s = style

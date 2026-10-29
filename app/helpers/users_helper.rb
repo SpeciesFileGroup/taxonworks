@@ -60,7 +60,7 @@ module UsersHelper
 
   # @param [Symbol, String] user_element
   # @param [Array] user_id_list
-  # @param [String] default_name, if supplied, must be a user.name, user.email, or user.if
+  # @param [String] default_name if supplied, must be a user.name, user.email, or user.if
   # @return [HTML]
   def user_select_tag(user_element, user_id_list, default_name = nil)
     select_tag(user_element,
