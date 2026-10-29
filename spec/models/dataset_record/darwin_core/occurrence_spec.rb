@@ -127,6 +127,148 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
     end
   end
 
+  context 'when importing existing determiner IDs' do
+    before :all do
+      DatabaseCleaner.start
+      init_housekeeping
+      @determiner_a = FactoryBot.create(:valid_person, id: 812301, type: 'Person::Vetted')
+      @determiner_b = FactoryBot.create(:valid_person, id: 812302)
+      @determiner_org_a = FactoryBot.create(:valid_organization, id: 812301, name: 'Determiner Institute', alternate_name: 'Alternate Institute')
+      @determiner_org_b = FactoryBot.create(:valid_organization, id: 812302)
+      Otu.create!(id: 812300, name: 'Determiner import OTU')
+      @determiner_dataset = ImportDataset::DarwinCore::Occurrences.create!(
+        source: fixture_file_upload(Rails.root + 'spec/files/import_datasets/occurrences/determiner_ids.tsv', 'text/plain'),
+        description: 'Existing determiners'
+      ).tap(&:stage)
+      @determiner_rows = @determiner_dataset.core_records.order(:id).to_h do |record|
+        record.import
+        [record.get_field_value(:occurrenceID), record]
+      end
+
+      @organization_name_dataset = ImportDataset::DarwinCore::Occurrences.create!(
+        source: fixture_file_upload(Rails.root + 'spec/files/import_datasets/occurrences/determiner_ids.tsv', 'text/plain'),
+        description: 'Organization name lookup',
+        import_settings: { enable_organization_determiners: true, enable_organization_determiners_alt_name: true }
+      ).tap(&:stage)
+      @organization_name_rows = @organization_name_dataset.core_records.order(:id).filter_map do |record|
+        name = record.get_field_value(:occurrenceID)
+        if %w[organization fallback-organization fallback-alternate].include?(name)
+          record.import
+          [name, record]
+        end
+      end.to_h
+      @determiner_a = Person.find(@determiner_a.id)
+      @determiner_b = Person.find(@determiner_b.id)
+      @determiner_occurrence_count = CollectionObject.count + FieldOccurrence.count
+    end
+
+    after(:all) { DatabaseCleaner.clean }
+
+    def imported_determination(record)
+      type, data = record.metadata.fetch('imported_objects').first
+      type.classify.constantize.find(data.fetch('id')).taxon_determinations.first
+    end
+
+    def determiner_agents(name)
+      imported_determination(@determiner_rows.fetch(name)).determiner_roles.order(:position).map(&:agent)
+    end
+
+    it 'recognizes the column and imports existing people and organizations without creating agents from names' do
+      index = @determiner_rows['person'].send(:get_field_mapping, 'TW:TaxonDetermination:determiner_ids')
+      expect(@determiner_dataset.core_records_mapped_fields).to include(index)
+      expect(determiner_agents('person')).to eq([@determiner_a])
+      expect(determiner_agents('organization')).to eq([@determiner_org_a])
+      expect(Person.count).to eq(3) # Two existing people and the blank-ID person name fallback.
+      expect(Organization.count).to eq(2)
+    end
+
+    it 'preserves mixed agent order and deduplicates by type and ID across case variants' do
+      expect(determiner_agents('mixed')).to eq([@determiner_org_a, @determiner_b, @determiner_a])
+      roles = imported_determination(@determiner_rows['mixed']).determiner_roles.order(:position)
+      expect(roles.pluck(:position)).to eq([1, 2, 3])
+    end
+
+    it 'supports HumanObservation and retains identification dates and notes' do
+      record = @determiner_rows['observation']
+      expect(record.status).to eq('Imported')
+      expect(determiner_agents('observation')).to eq([@determiner_a, @determiner_org_b])
+      determination = imported_determination(record)
+      expect([determination.year_made, determination.month_made, determination.day_made]).to eq([2024, 4, 3])
+      expect(determination.notes.pluck(:text)).to eq(['Identification note'])
+    end
+
+    it 'uses explicit organization references regardless of name-lookup settings' do
+      expect(@determiner_dataset.enable_organization_determiners?).to be_falsey
+      expect(determiner_agents('organization')).to eq([@determiner_org_a])
+      record = @organization_name_rows.fetch('organization')
+      expect(record.status).to eq('Imported')
+      expect(imported_determination(record).determiners_organization).to eq([@determiner_org_a])
+    end
+
+    it 'keeps name and organization lookup for blank references' do
+      record = @determiner_rows['blank']
+      expect(record.status).to eq('Imported'), record.metadata.inspect
+      expect(determiner_agents('blank').first.last_name).to eq('Observer')
+      %w[fallback-organization fallback-alternate].each do |name|
+        record = @organization_name_rows.fetch(name)
+        expect(record.status).to eq('Imported')
+        expect(imported_determination(record).determiners_organization).to eq([@determiner_org_a])
+      end
+    end
+
+    it 'keeps name parsing when the ID column is absent' do
+      dataset = ImportDataset::DarwinCore::Occurrences.find(@determiner_dataset.id)
+      dataset.metadata['core_headers'] = ['identifiedBy']
+      record = DatasetRecord::DarwinCore::Occurrence.new(import_dataset: dataset)
+      record.initialize_data_fields(['Jane Observer'])
+      determiners = record.send(:parse_identification_class, nil).dig(:taxon_determination, :determiners)
+      expect(determiners).to eq(determiner_agents('blank'))
+    end
+
+    it 'marks overridden identifiedBy cells ignored but keeps blank-ID name cells active' do
+      %w[person organization mixed observation].each do |name|
+        record = @determiner_rows.fetch(name)
+        expect(record.ignored_fields).to include(record.send(:get_field_mapping, 'identifiedBy'))
+      end
+      record = @determiner_rows['blank']
+      expect(record.ignored_fields).not_to include(record.send(:get_field_mapping, 'identifiedBy'))
+    end
+
+    it 'keeps identifiedBy active when a project attribute consumes it' do
+      project = Project.find(Current.project_id)
+      original_mapping = project.preferences['model_predicate_sets'].deep_dup
+      predicate = FactoryBot.create(:valid_predicate, name: 'Verbatim identifier', uri: 'http://rs.tdwg.org/dwc/terms/identifiedBy')
+      begin
+        project.update!(model_predicate_sets: { 'CollectionObject' => [predicate.id] })
+        dataset = ImportDataset::DarwinCore::Occurrences.create!(
+          source: fixture_file_upload(Rails.root + 'spec/files/import_datasets/occurrences/determiner_ids.tsv', 'text/plain'),
+          description: 'Determiner attribute mapping'
+        ).tap(&:stage)
+        record = dataset.core_records.detect { |r| r.get_field_value(:occurrenceID) == 'mapped' }
+        record.import(dataset.dwc_data_attributes)
+        expect(record.status).to eq('Imported')
+        expect(record.ignored_fields).not_to include(record.send(:get_field_mapping, 'identifiedBy'))
+        determination = imported_determination(record)
+        expect(determination.determiners).to eq([@determiner_a])
+        expect(determination.taxon_determination_object.internal_attributes.pluck(:value)).to eq(['Original identifier text'])
+      ensure
+        project.update!(model_predicate_sets: original_mapping)
+      end
+    end
+
+    it 'reports invalid references on the ID column and rolls back partial imports' do
+      invalid = @determiner_rows.select { |name, _| name.start_with?('invalid-') }.values
+      expect(invalid.size).to eq(11)
+      invalid.each do |record|
+        expect(record.status).to eq('Errored')
+        expect(record.metadata.dig('error_data', 'messages')).to have_key('TW:TaxonDetermination:determiner_ids')
+        expect(record.metadata['imported_objects']).to be_nil
+      end
+      imported = @determiner_rows.values.count { |r| r.status == 'Imported' } + @organization_name_rows.size
+      expect(@determiner_occurrence_count).to eq(imported)
+    end
+  end
+
   context 'when importing project-configured Darwin Core attributes' do
     before :all do
       DatabaseCleaner.start

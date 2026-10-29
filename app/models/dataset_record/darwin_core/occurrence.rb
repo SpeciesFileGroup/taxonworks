@@ -79,6 +79,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
   }.freeze
 
   COLLECTOR_IDS_FIELD = 'TW:CollectingEvent:collector_ids'.freeze
+  DETERMINER_IDS_FIELD = 'TW:TaxonDetermination:determiner_ids'.freeze
 
   ACCEPTED_ATTRIBUTES = {
     CollectionObject: %I(
@@ -105,7 +106,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     ).to_set.freeze,
 
     TaxonDetermination: %I(
-      otu_id
+      otu_id determiner_ids
     ).to_set.freeze
   }.freeze
 
@@ -269,6 +270,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     fields = []
     fields += OTU_ID_INCOMPATIBLE_FIELDS if get_otu_id
     fields << 'institutionCode' if human_observation?
+    fields << 'identifiedBy' if get_field_value(DETERMINER_IDS_FIELD).present?
 
     ignored_model = human_observation? ? 'CollectionObject' : 'FieldOccurrence'
     model_fields = (
@@ -1464,19 +1466,26 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
       end
     end
 
-    # identifiedBy: determiners of taxon determination
-    determiners = nil
-    if self.import_dataset.enable_organization_determiners?
-      determiners = parse_organizations_and_people(:identifiedBy,
-                                                   self.import_dataset.enable_organization_determiners_alt_name?)
+    # Explicit references take precedence over name parsing and name-lookup settings.
+    if value = get_field_value(DETERMINER_IDS_FIELD)
+      agents = parse_agent_references(value, DETERMINER_IDS_FIELD, { 'person' => Person, 'organization' => Organization })
+      taxon_determination[:determiner_roles_attributes] = agents.each_with_index.map do |agent, index|
+        agent_key = agent.is_a?(Person) ? :person : :organization
+        { agent_key => agent, position: index + 1 }
+      end
     else
-      determiners = parse_people(:identifiedBy)
-    end
-    unless determiners.nil?
-      if determiners.first.is_a?(Person)
-        taxon_determination[:determiners] = determiners
-      elsif determiners.first.is_a?(Organization)
-        taxon_determination[:determiners_organization] = determiners
+      # identifiedBy: determiners of taxon determination
+      determiners = if self.import_dataset.enable_organization_determiners?
+        parse_organizations_and_people(:identifiedBy, self.import_dataset.enable_organization_determiners_alt_name?)
+      else
+        parse_people(:identifiedBy)
+      end
+      unless determiners.nil?
+        if determiners.first.is_a?(Person)
+          taxon_determination[:determiners] = determiners
+        elsif determiners.first.is_a?(Organization)
+          taxon_determination[:determiners_organization] = determiners
+        end
       end
     end
 
@@ -1889,28 +1898,36 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     }
   end
 
-  # Resolve shared Person records without creating people or restricting them to this dataset.
   def parse_collector_ids(value)
-    ids = value.split('|', -1).map do |reference|
+    parse_agent_references(value, COLLECTOR_IDS_FIELD, { 'person' => Person })
+  end
+
+  # Resolve only the explicitly allowed shared agent types, preserving mixed-list order.
+  def parse_agent_references(value, field, agent_types)
+    references = value.split('|', -1).map do |reference|
       reference = reference.strip
-      match = /\Aperson\/([0-9]+)\z/i.match(reference)
-      unless match && match[1].to_i.positive?
-        raise DarwinCore::InvalidData.new({
-          COLLECTOR_IDS_FIELD => ["'#{reference}' is not a valid Person reference; expected person/[positive integer]"]
-        })
+      match = /\A(person|organization)\/([0-9]+)\z/i.match(reference)
+      unless match && agent_types.key?(match[1].downcase) && match[2].to_i.positive?
+        expected = agent_types.keys.map { |type| "#{type}/[positive integer]" }.join(' or ')
+        raise DarwinCore::InvalidData.new({ field => ["'#{reference}' is not a valid agent reference; expected #{expected}"] })
       end
-      match[1].to_i
+      [match[1].downcase, match[2].to_i]
     end.uniq
 
-    people = Person.where(id: ids).index_by(&:id)
-    missing_ids = ids - people.keys
-    if missing_ids.any?
+    agents = {}
+    references.group_by(&:first).each do |type, typed_references|
+      agent_types.fetch(type).where(id: typed_references.map(&:last)).each do |agent|
+        agents[[type, agent.id]] = agent
+      end
+    end
+    missing = references - agents.keys
+    if missing.any?
       raise DarwinCore::InvalidData.new({
-        COLLECTOR_IDS_FIELD => ["People not found: #{missing_ids.map { |id| "person/#{id}" }.join(', ')}"]
+        field => ["Agents not found: #{missing.map { |type, id| "#{type}/#{id}" }.join(', ')}"]
       })
     end
 
-    ids.map { |id| people.fetch(id) }
+    references.map { |reference| agents.fetch(reference) }
   end
 
   def parse_tw_collecting_event_attributes

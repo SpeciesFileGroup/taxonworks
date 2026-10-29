@@ -9,6 +9,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 ### Added
 
+- Occurrences importer: Import people and organizations via `TW:TaxonDetermination:determiner_ids` (e.g. `Person/123 | Organization/456`).
 - Occurrences importer: Import collectors by existing Person IDs via `TW:CollectingEvent:collector_ids` (e.g. `Person/123 | Person/456`).
 - Composition and CompositionItem models, the first Render models for tracking display of Data items in the UI [#5116] [#5117]
 - `coordinate_otus` parameter to `/otus/<id>/inventory/content`
