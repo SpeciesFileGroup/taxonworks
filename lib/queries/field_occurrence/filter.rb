@@ -415,6 +415,7 @@ module Queries
         ::FieldOccurrence.from('(' + s + ') as field_occurrences').distinct
       end
 
+      # Overrides Queries::Concerns::Depictions#image_query_facet (applied via its merge_clauses)
       def image_query_facet
         return nil if image_query.nil?
 
@@ -465,7 +466,6 @@ module Queries
           biological_association_query_facet,
           collecting_event_query_facet,
           dwc_occurrence_query_facet,
-          image_query_facet,
           observation_query_facet,
           otu_query_facet,
           taxon_name_query_facet,

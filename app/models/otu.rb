@@ -287,7 +287,6 @@ class Otu < ApplicationRecord
 
   # @param params [Hash]
   #   { otu_query: {},
-  #     otu_filter_query: {},
   #     async_cutoff: 1
   #   }
   def self.batch_update(params)

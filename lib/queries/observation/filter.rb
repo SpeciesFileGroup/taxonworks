@@ -35,7 +35,7 @@ module Queries
         :taxon_name_id,
         :wkt,
 
-        charater_state_id: [],
+        character_state_id: [],
         collection_object_id: [],
         descriptor_id: [],
         geo_shape_id: [],
@@ -352,7 +352,7 @@ module Queries
 
         a = ::Observation
           .joins("JOIN collection_objects on observations.observation_object_id = collection_objects.id and observations.observation_object_type = 'CollectionObject'")
-          .joins("JOIN taxon_determinations on collection_objects.id = taxon_determinations.taxon_determination_object_id AND taxon_determinations.taxon_determination_objec_type = 'CollectionObject'")
+          .joins("JOIN taxon_determinations on collection_objects.id = taxon_determinations.taxon_determination_object_id AND taxon_determinations.taxon_determination_object_type = 'CollectionObject'")
           .joins('JOIN otus on taxon_determinations.otu_id = otus.id')
           .joins('JOIN query_tn_obs as query_tn_obs1 on otus.taxon_name_id = query_tn_obs1.id')
           .to_sql

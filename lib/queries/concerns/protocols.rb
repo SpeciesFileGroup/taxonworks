@@ -9,8 +9,6 @@ module Queries::Concerns::Protocols
       :protocols,
       :protocol_id_or,
       :protocol_id_and,
-      :protocol_id,        # TODO: unused? or maybe in polymorphics setters!!
-      protocol_id: [],     # TODO: unused? or maybe in polymorphics setters!!
       protocol_id_or: [],
       protocol_id_and: [],
     ]
@@ -40,11 +38,6 @@ module Queries::Concerns::Protocols
 
     def protocol_id_or
       [@protocol_id_or].flatten.compact.uniq
-    end
-
-    # TODO: why here?
-    def protocol_id=(value = [])
-      @protocol_id = value
     end
 
     def set_protocols_params(params)

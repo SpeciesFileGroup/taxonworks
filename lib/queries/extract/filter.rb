@@ -20,7 +20,6 @@ module Queries
         :extract_origin,
         :extract_start_date_range,
         :otu_id,
-        :protocol_id,
         :repository_id,
         :sequences,
         :taxon_name_id,

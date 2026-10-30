@@ -14,7 +14,7 @@ module Queries
         :name,
         :otu_id,
         :otu_scope,
-        :field_occurrence,
+        :field_occurrence_id,
         :with_name,
 
         field_occurrence_id: [],

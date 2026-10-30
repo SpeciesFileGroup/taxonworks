@@ -30,7 +30,7 @@ module Queries::Concerns::Citations
     # @return [::Query::Source::Filter, nil]
     attr_accessor :source_query
 
-    # @param citation_documents [ture, false]
+    # @param citation_documents [true, false]
     # @return [Boolean, nil]
     #   true - has citations, sources have documents
     #   false - has citations, sources do not have documents
