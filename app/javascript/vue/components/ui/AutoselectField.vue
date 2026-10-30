@@ -79,7 +79,7 @@
     <!-- Dropdown — visible only after a search completes -->
     <teleport to="body">
       <ul
-        v-if="showList && searchEnd"
+        v-if="showList && searchEnd && !modalOpen"
         v-show="showList"
         class="autoselect__dropdown"
         ref="dropdownEl"
@@ -354,6 +354,13 @@ const showPreferences = ref(false)
 const helpItemEls = ref([])
 const pendingExtensionItem = ref(null)
 const newRecordName = ref(null)
+// The dropdown sits above modals (so a field inside a modal works), so it
+// has to be hidden while one of this field's own modals is open.
+const modalOpen = computed(() =>
+  !!pendingExtensionItem.value?.extension?.col_key ||
+  (newRecordName.value !== null && props.newRecordComponent !== null) ||
+  showPreferences.value
+)
 let preventBlur = false
 let preInputText = '' // text in field before !p was typed
 
