@@ -1,6 +1,6 @@
 # A view to a set of Observations.
 #
-# @params otu_id
+# @param otu_id
 #   .the "parent" concept that this key applies to, for example
 #   if this is species concepts it might be a species group, or genus.
 #   Used primarly to index keys.
@@ -246,7 +246,7 @@ class ObservationMatrix < ApplicationRecord
 
   # @param descriptor_id [Descriptor]
   # @param symbol_start [Integer]  #  takes :chr => Chr, :symbol_start => Int
-  # @return Hash
+  # @return [Hash]
   #     1 => [character_state.id, charater_state.id]
   #   Used soley as a indexing method for nexml output
   # Original code in mx

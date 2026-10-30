@@ -21,7 +21,7 @@ class Protonym < TaxonName
   # TODO: CACHED NOW
   # attr_reader :is_available
 
-  # @return Hash
+  # @return [Hash]
   #   !! Use only during building cached values. Idea
   #   !! is to store values used downstream in setting cached values.
   attr_reader :_cached_build_state
@@ -202,7 +202,7 @@ class Protonym < TaxonName
     ::Protonym.from('(' + s + ') as taxon_names').distinct
   end
 
-  # @return Scope
+  # @return [Scope]
   #   unavailable Protonyms as inferred from the data
   # Note that Combinations are considered innaplicable, and are treated as unavailable for data-persistence purposes.
   def self.calculated_unavailable
@@ -248,7 +248,7 @@ class Protonym < TaxonName
     (relationships.collect { |r| r.subject_taxon_name.name } + [self.ancestor_at_rank('genus').try(:name)]).uniq
   end
 
-  # @return Array
+  # @return [Array]
   #     Protonyms
   # TODO: @proceps - define/describe this
   def list_of_coordinated_names
@@ -305,7 +305,7 @@ class Protonym < TaxonName
     taxon_name_relationships.where(type: TAXON_NAME_RELATIONSHIP_UNAVAILABLE).any?
   end
 
-  # @return Boolean
+  # @return [Boolean]
   #   See cached_is_available attribute in TaxonName
   def get_is_available
     !has_unavailable_relationship? && !classification_unavailable?
@@ -359,7 +359,7 @@ class Protonym < TaxonName
     [genus, name1].compact.join(' ')
   end
 
-  # @return Protonym
+  # @return [Protonym]
   def lowest_rank_coordinated_taxon
     list = [self] + list_of_coordinated_names
     if list.count == 1
@@ -565,13 +565,13 @@ class Protonym < TaxonName
     HIGHER_RANK_NAMES.include?(rank_string)
   end
 
-  # @return Boolean
+  # @return [Boolean]
   def is_original_name?
     cached_author_year[0] == '(' ? false : true
     # cached_author_year =~ /\(/ ? false : true
   end
 
-  # @return Boolean
+  # @return [Boolean]
   def has_latinized_classification?
     TaxonNameClassification.where_taxon_name(self).where(type: LATINIZED_TAXON_NAME_CLASSIFICATION_NAMES).any?
   end
@@ -858,9 +858,8 @@ class Protonym < TaxonName
     return { moved:, unmoved:}
   end
 
-  # @params params [Hash]
+  # @param params [Hash]
   #   { taxon_name_query: {},
-  #     taxon_name_filter_query: {},
   #     async_cutoff: 1
   #   }
   def self.batch_update(params)

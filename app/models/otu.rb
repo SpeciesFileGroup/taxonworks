@@ -130,7 +130,7 @@ class Otu < ApplicationRecord
 
   accepts_nested_attributes_for :common_names, allow_destroy: true
 
-  # @return Scope
+  # @return [Scope]
   def self.alphabetically
     includes(:taxon_name).select('otus.*, taxon_names.cached').references(:taxon_names).order('taxon_names.cached ASC')
   end
@@ -285,9 +285,8 @@ class Otu < ApplicationRecord
 
   # Batch update
 
-  # @params params [Hash]
+  # @param params [Hash]
   #   { otu_query: {},
-  #     otu_filter_query: {},
   #     async_cutoff: 1
   #   }
   def self.batch_update(params)
@@ -401,7 +400,7 @@ class Otu < ApplicationRecord
     end
   end
 
-  # @params target [String] required, one of nil, `AssertedDistribution`, `Content`, `BiologicalAssociation`, 'TaxonDetermination'
+  # @param target [String] required, one of nil, `AssertedDistribution`, `Content`, `BiologicalAssociation`, 'TaxonDetermination'
   # @return [Hash] otus optimized for user selection
   def self.select_optimized(user_id, project_id, target = nil, ba_target = 'object')
     r = used_recently(user_id, project_id, target, ba_target)
@@ -496,7 +495,7 @@ class Otu < ApplicationRecord
 
   # TODO: needs spec
   # A convenience method to wrap coordinate_otus and descendant_of_taxon_name
-  # @return Scope
+  # @return [Scope]
   def coordinate_otus_with_children
     if taxon_name_id.nil?
       Otu.coordinate_otus(id)

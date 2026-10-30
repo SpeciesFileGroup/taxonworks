@@ -6,7 +6,7 @@ module Shared::IsIndexedBiologicalAssociation
   included do
     delegate :persisted?, to: :biological_association_index, prefix: :biological_association_index, allow_nil: true
 
-    # @return Boolean, nil
+    # @return [Boolean, nil]
     #   when true prevents automatic index from being created
     attr_accessor :no_biological_association_index
 
@@ -44,7 +44,7 @@ module Shared::IsIndexedBiologicalAssociation
     biological_association_index
   end
 
-  # @return Hash
+  # @return [Hash]
   #   of field: value
   #
   # !! This is expensive, it recomputes values for every field.

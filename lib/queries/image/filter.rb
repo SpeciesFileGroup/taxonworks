@@ -102,7 +102,7 @@ module Queries
       attr_accessor :freeform_svg
 
       # @return [Array]
-      # @param depiction_object_type
+      # @param depiction_object_type [String, Array]
       #   one or more names of classes.
       # Restricts Images to those that depict these classes
       attr_accessor :depiction_object_type
@@ -269,7 +269,7 @@ module Queries
       #   depiction_caption must match exactly if true.
       attr_accessor :depiction_caption_exact
 
-      # @param params [Hash]
+      # @param query_params [Hash]
       def initialize(query_params)
         super
 

@@ -43,6 +43,12 @@ class Descriptor < ApplicationRecord
 
   scope :not_weight_zero, -> {where('NOT "descriptors"."weight" = 0 OR "descriptors"."weight" IS NULL') }
 
+  # ObservationMatrixColumns are derived from ObservationMatrixColumnItems,
+  # which maintain them, never move them directly.
+  def except_relations
+    [:observation_matrix_columns]
+  end
+
   # observation_matrix_column_items carries class_name: so inferred_relations drops it.
   # Force it back so column items are moved to the surviving descriptor during unify
   # rather than being destroyed with the removed one.
@@ -58,7 +64,7 @@ class Descriptor < ApplicationRecord
 
   # @param descriptor_ids [Array]
   # @param project_id [Integer]
-  # @return true
+  # @return [true]
   #   sort descriptors (global order) by re-using the positions they
   #   already occupy, descriptors not in descriptor_ids keep their position
   def self.sort(descriptor_ids, project_id)
@@ -79,7 +85,7 @@ class Descriptor < ApplicationRecord
     true
   end
 
-  # @return String, nil
+  # @return [String, nil]
   #   the corresponding Observation STI class name
   def observation_type
     return nil if type.blank?
@@ -87,7 +93,7 @@ class Descriptor < ApplicationRecord
   end
 
   # @return [String] name of the descriptor in a particular language
-  # @params target [Symbol] one of :key, :description, nil
+  # @param target [Symbol] one of :key, :description, nil
   def target_name(target, language_id)
     n = self.name
     a = nil

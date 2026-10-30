@@ -11,7 +11,7 @@ module TaxonName::Hierarchy
   module ClassMethods
 
     # Return summaries of TaxonName with their requested ranks/names
-    # @return Array of TaxonName (not a relation!)
+    # @return [Array] of TaxonName (not a relation!)
     # @param taxon_name_scope TaxonName::ActiveRecordRelation
     def ranked_taxon_names(taxon_name_scope: TaxonName.none, ranks: ['order', 'family', 'genus', 'species'])
       TaxonName.find_by_sql(
@@ -24,7 +24,7 @@ module TaxonName::Hierarchy
     #
     # The `unnest` was critical in getting this correct, as was distinct, and ordering.
     #
-    # @return String
+    # @return [String]
     # @param taxon_name_scope TaxonName::ActiveRecordRelation
     #   required
     #
@@ -70,7 +70,7 @@ module TaxonName::Hierarchy
 
     # @param otu_scope Otu::ActiveRecordRelation
     #    distinct, no order, no select
-    # @return Array of Objects
+    # @return [Array] of Objects
     #     [ { "id" => 926908,
     #        "name" => "Diestrammena (Atachycines) horazumi",
     #        "taxon_name_id" => 946156,

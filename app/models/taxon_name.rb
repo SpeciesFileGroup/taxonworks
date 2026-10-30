@@ -25,7 +25,6 @@
 #   the verbatim author string as provided ? is not post-filled in when Source is referenced !?
 #
 # @!attribute rank_class
-#   @param rank_class [String]
 #   @return [Class]
 #     The NOMEN based rank as a class.  Reflects the current relationship between a name and its synonymy.
 #     !! Combinations are "rankless".
@@ -82,11 +81,11 @@
 #   @return [String]
 #   As in `cached` but with <i></i> tags.
 #
-# @attribute cached_author
+# @!attribute cached_author
 #   @return [String, nil]
 #      author string *without* parentheses
 #
-# @attribute cached_author_year
+# @!attribute cached_author_year
 #   @return [String, nil]
 #      author and year string with parentheses where necessary, i.e. with context of present placement for ICZN
 #
@@ -102,12 +101,12 @@
 #   @return [String]
 #   current genus and species name. Used to find and validate secondary homonyms.
 #
-# @attribute cached_primary_homonym
+# @!attribute cached_primary_homonym
 #   @return [String]
 #     The original genus and original species alone. Used to detect and validate data with respect
 # to primary homonyms and to facilitate search.
 #
-# @attribute cached_secondary_homonym_alternative_spelling
+# @!attribute cached_secondary_homonym_alternative_spelling
 #   @return [String]
 #   Current genus and species name, with species spelling aligned in gender.  Used to find and validate secondary homonyms,
 # and to facilitate search.
@@ -124,20 +123,20 @@
 #   @return [String]
 #   If the name was classified in different group (e.g. a genus placed in wrong family).
 #
-# @!cached_valid_taxon_name_id
+# @!attribute cached_valid_taxon_name_id
 #   @return [Integer]
 #   Stores a taxon_name_id of a 'valid' taxon_name based on taxon_name_relationships. Identifies a claster of taxon_names which should be shown on the same Browse Nomenclature page.
 #
-# @!cached_is_valid
+# @!attribute cached_is_valid
 #   @return [Boolean]
 #   Stores if the status of the name is valid based on both taxon_name_relationships and taxon_name_classifications.
 #
-# @!cached_gender
+# @!attribute cached_gender
 #   @return [String, nil]
 #     Applicable to genus group names only!!!
 #     one of 'masculine', 'feminine', neuter'
 #
-# @!cached_is_available
+# @!attribute cached_is_available
 #   @return [Boolean]
 #     true - by default
 #     false - calculated from TaxonNameRelationships and TaxonNameClassifications
@@ -232,7 +231,7 @@ class TaxonName < ApplicationRecord
     end
   end
 
-  # @return Array
+  # @return [Array]
   #    all taxon_name_relationships (name is object), memoized
   # !! Memoized attributes are not reset when related objects reload them.
   # !! For example if species = subject_taxon_name. of a = TaxonNameRelationship
@@ -343,7 +342,7 @@ class TaxonName < ApplicationRecord
   scope :that_is_valid, -> {where(cached_is_valid: true) }
   scope :that_is_invalid, -> {where(cached_is_valid: false) }
 
-  # @params names Array of Protonym, Hybrid
+  # @param names Array of Protonym, Hybrid
   #   orders them from Root to tip.
   def self.rank_order(names)
     # There is an edge-case where Combination is converting to Protonym in which there is no rank_class.
@@ -486,7 +485,7 @@ class TaxonName < ApplicationRecord
       .distinct
   end
 
-  # @return Scope
+  # @return [Scope]
   #   names that are not leaves
   # TODO: belongs in lib/queries/filter.rb likely
   def self.not_leaves
@@ -710,7 +709,7 @@ class TaxonName < ApplicationRecord
 
   # Unused
   # @return scope [TaxonName, nil] an ancestor at the specified rank
-  # @params rank [symbol|string|
+  # @param rank [symbol|string|
   #   like :species or 'genus'
   # def descendants_at_rank(rank)
   #   return TaxonName.none if nomenclatural_code.blank? # Root names
@@ -812,7 +811,7 @@ class TaxonName < ApplicationRecord
   # TODO: cleanly isolate getters, setters, and cached builders
   # TODO: remove, this is only used for a strange call in sv_checked cached.
   #
-  # @return String, nil
+  # @return [String, nil]
   #   virtual attribute, to ultimately be fixed in db
   def get_author
     a = cached_author_year.to_s.gsub(/,\s\(?\d+\)?\s\[\d+\]|,\s\(?\d+\)?/, '').gsub(') ', ', ').gsub('(', '').gsub(')', '')
@@ -1361,8 +1360,9 @@ class TaxonName < ApplicationRecord
     end
   end
 
-  # @return [ rank, prefix, name], ...] for genus and below
-  # @taxon_name.full_name_array # =>
+  # @return [Array] [[rank, [prefix, name]], ...] for genus and below
+  # @example
+  #   @taxon_name.full_name_array # =>
   #   [ ["genus", [nil, "Aus"]],
   #     ["subgenus", [nil, "Aus"]],
   #  "section"=>["sect.", "Aus"], "series"=>["ser.", "Aus"], "species"=>[nil, "aaa"], "subspecies"=>[nil, "bbb"], "variety"=>["var.", "ccc"]\}
@@ -1379,7 +1379,7 @@ class TaxonName < ApplicationRecord
     data
   end
 
-  # @return Hash
+  # @return [Hash]
   #  { 'family' => 'Aidae', ...}
   def ancestor_hash
     h = {}
@@ -1520,7 +1520,7 @@ class TaxonName < ApplicationRecord
     (ay.presence)
   end
 
-  # @return Protonym
+  # @return [Protonym]
   def normalized_genus
     misspelling = TaxonNameRelationship.where_subject_is_taxon_name(self).with_type_array(TAXON_NAME_RELATIONSHIP_NAMES_MISSPELLING)
     tn = misspelling.empty? ? self : misspelling.first.object_taxon_name
@@ -1686,7 +1686,7 @@ class TaxonName < ApplicationRecord
   # @param undecorated_name String
   #   required
   #
-  # @return String
+  # @return [String]
   #   name is `full_name` in TaxonWorks, a string
   #
   # A slim wrapper around the decorator.

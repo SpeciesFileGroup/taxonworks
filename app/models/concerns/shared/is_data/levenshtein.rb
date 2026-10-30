@@ -5,7 +5,9 @@ module Shared::IsData::Levenshtein
 
   # TODO: make this a proper instance method, remove limit from scope
 
-  # @param [String, String, Integer]
+  # @param compared_string [String]
+  # @param column [String]
+  # @param limit [Integer]
   # @return [Scope]
   def nearest_by_levenshtein(compared_string = nil, column = nil, limit = 10)
     return self.class.none if compared_string.nil? || column.nil?

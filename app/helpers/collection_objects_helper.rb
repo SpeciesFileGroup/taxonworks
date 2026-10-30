@@ -260,7 +260,7 @@ module CollectionObjectsHelper
   end
 
   # Perhaps a /lib/catalog method
-  # @return Hash
+  # @return [Hash]
   def collection_object_count_by_classification(scope = nil)
 
     return [] if scope.nil?
@@ -297,7 +297,7 @@ module CollectionObjectsHelper
   end
 
   # Perhaps a /lib/catalog method
-  # @return Hash
+  # @return [Hash]
   def collection_object_preparation_by_classification(scope = nil)
     return [] if scope.nil?
     data = {}

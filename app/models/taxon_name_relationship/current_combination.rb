@@ -15,24 +15,24 @@ class TaxonNameRelationship::CurrentCombination < TaxonNameRelationship
            foreign_key: :object_taxon_name_id,
            inverse_of: :object_taxon_name
 
-  # @return String
+  # @return [String]
   #    the status inferred by the relationship to the object name
   def object_status
     'has current combination '
   end
 
-  # @return String
+  # @return [String]
   #    the status inferred by the relationship to the subject name
   def subject_status
     'current combination '
   end
 
-  # @return String
+  # @return [String]
   def subject_status_connector_to_object
     ''
   end
 
-  # @return String
+  # @return [String]
   def object_status_connector_to_subject
     ' of'
   end

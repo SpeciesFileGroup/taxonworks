@@ -27,7 +27,7 @@ module Queries::Concerns::Confidences
     attr_accessor :confidence_level_id
 
     # @param confidences_without_confidence_level_id [Integer, String, Array] of ConfidenceLevel (CVT) ids
-    # @return Array
+    # @return [Array]
     #  match any record that does not have a data attribute with this predicate_id
     attr_accessor :without_confidence_level_id
 
@@ -38,7 +38,7 @@ module Queries::Concerns::Confidences
     attr_accessor :confidences
 
     # @return [Boolean, nil]
-    # @params exclude_confidences ['true', 'false', nil]
+    # @param exclude_confidences ['true', 'false', nil]
     #   when true, invert the combined
     #   confidence_level_id/without_confidence_level_id result - i.e. match
     #   objects that do NOT satisfy that With/Without selection

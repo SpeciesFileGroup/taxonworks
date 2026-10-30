@@ -66,14 +66,14 @@ module Shared::Citations
       order_by_oldest_source_first.to_a.first
     end
 
-    # @return Object
+    # @return [Object]
     #   Assuming the scope returns something an object
     #   returns regardless if it has citations or not.
     def youngest_by_citation
       order_by_youngest_source_first.to_a.first
     end
 
-    # @return Object, nil
+    # @return [Object, nil]
     # !! Only returns an object if citations exist on objects in scope!
     # Far more performant than youngest_by_citation
     def youngest(scope)

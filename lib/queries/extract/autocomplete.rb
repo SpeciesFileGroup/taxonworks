@@ -2,13 +2,12 @@ module Queries
   module Extract
     class Autocomplete < Query::Autocomplete
 
-      # @return Array
+      # @return [Array]
       #   !! Not an external param
       # TaxonName ids that match the query term
       attr_accessor :taxon_name_ids
 
-      # @params string [String]
-      # @params [Hash] args
+      # @param string [String]
       def initialize(string, project_id: nil)
         super
       end

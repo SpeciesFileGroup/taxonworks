@@ -70,22 +70,22 @@ module Queries::Concerns::DataAttributes
     attr_accessor :data_attribute_import_wildcard_pair
 
     # @param data_attribute_predicate_id [Integer, String, Array] of Predicate (CVT) ids
-    # @return Array
+    # @return [Array]
     #  API only: match any record that has a data attribute with these predicate_ids
     attr_accessor :data_attribute_predicate_id
 
     # @param data_attribute_without_predicate_id [Integer, String, Array] of Predicate (CVT) ids
-    # @return Array
+    # @return [Array]
     #  API only: match any record that does not have a data attribute with this predicate_id
     attr_accessor :data_attribute_without_predicate_id
 
     # @param data_attribute_exact_value [String, Array] of values
-    # @return Array
+    # @return [Array]
     #  API only: match any record that matches a data_attribute with any of these exact values
     attr_accessor :data_attribute_exact_value
 
     # @param data_attribute_wildcard_value [String, Array] of values
-    # @return Array
+    # @return [Array]
     #  API only: match any record that matches a data_attribute with any of these values, wildcarded
     attr_accessor :data_attribute_wildcard_value
 
@@ -105,28 +105,28 @@ module Queries::Concerns::DataAttributes
     #   API only: nil - not applied
     attr_accessor :data_attributes
 
-    # @param data_attribute_predicate_row_id
-    # @return Array[0 or positive integers]
+    # @param data_attribute_predicate_row_id [Array]
+    # @return [Array<Integer>] 0 or positive integers
     #   Row-based predicate id or 0 to mean 'any predicate'
     attr_accessor :data_attribute_predicate_row_id
 
-    # @param data_attribute_value
-    # @return Array[String]
+    # @param data_attribute_value [Array]
+    # @return [Array<String>]
     #   Row-based values of data attributes.
     attr_accessor :data_attribute_value
 
-    # @param data_attribute_value_negator
-    # @return Array[Boolean]
+    # @param data_attribute_value_negator [Array]
+    # @return [Array<Boolean>]
     #   Row-based value negator.
     attr_accessor :data_attribute_value_negator
 
-    # @param data_attribute_value_type
-    # @return Array[String]
+    # @param data_attribute_value_type [Array]
+    # @return [Array<String>]
     #   Row-based value types: exact, wildcard, any, no.
     attr_accessor :data_attribute_value_type
 
-    # @param data_attribute_combine_logic
-    # @return Array[Boolean]
+    # @param data_attribute_combine_logic [Array]
+    # @return [Array<Boolean>]
     #   Row-based combine logic.
     attr_accessor :data_attribute_combine_logic
 

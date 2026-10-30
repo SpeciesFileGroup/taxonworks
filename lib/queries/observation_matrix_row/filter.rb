@@ -14,7 +14,7 @@ module Queries
       attr_accessor :observation_object_id
       attr_accessor :observation_matrix_id
 
-      # @params observation_object_id_vector [String, nil]
+      # @param observation_object_id_vector [String, nil]
       #   a vector of ids in the format `123|456|790|`
       attr :observation_object_id_vector
 

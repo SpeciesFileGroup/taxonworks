@@ -42,7 +42,7 @@ module Queries
       # @return [Boolean, nil]
       attr_accessor :uri_label_exact
 
-      # @param params [Hash]
+      # @param query_params [Hash]
       def initialize(query_params)
         super
 

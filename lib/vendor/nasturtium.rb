@@ -494,7 +494,7 @@ module Vendor
     # Build and save an Image (with Attribution, copyright holder Person, and iNat identifier)
     # from an iNat photo hash.  Raises on failure so the caller's savepoint can roll back.
     #
-    # @param photo [Hash] the 'photo' object from an iNat observation_photo
+    # @param obs_photo [Hash] an iNat observation_photo (holding the 'photo' object)
     # @param result [Hash] the full Nasturtium observation result (for ORCID matching)
     # @param observed_year [Integer, nil] year of observation, used as copyright year
     # @param person_cache [Hash, nil] per-import-run cache (see .dedupe_person)

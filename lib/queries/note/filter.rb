@@ -16,7 +16,7 @@ module Queries
         note_object_type: [],
       ].freeze
 
-      # @return Array
+      # @return [Array]
       attr_accessor :note_id
 
       # @param text [String, nil]
@@ -24,11 +24,11 @@ module Queries
       attr_accessor :text
 
       # @return [Array]
-      # @params note_object_type array or string
+      # @param note_object_type [String, Array]
       attr_accessor :note_object_type
 
       # @return [Array]
-      # @params note_object_id array or string (integer)
+      # @param note_object_id [Integer, Array]
       attr_accessor :note_object_id
 
       def initialize(query_params)

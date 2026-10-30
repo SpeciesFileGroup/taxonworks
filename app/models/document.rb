@@ -175,7 +175,7 @@ class Document < ApplicationRecord
     joins(k).distinct.limit(10).pluck(:id)
   end
 
-  # @params target [String], nil or the base class name of an object that
+  # @param target [String], nil or the base class name of an object that
   # can be documented.
   # @return [Hash] documents optimized for user selection
   def self.select_optimized(user_id, project_id, target = nil)

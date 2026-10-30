@@ -15,7 +15,6 @@ class Catalog::CollectionObject::EntryItem
   # The latest point at which the event could have happened.
   attr_accessor :end_date
 
-  # @param [Hash] args
   def initialize(object: nil, type: nil, start_date: nil, end_date: nil)
     raise TaxonWorks::Error, ':object is nil' if object.nil?
     raise TaxonWorks::Error, ':type is nil' if type.nil?

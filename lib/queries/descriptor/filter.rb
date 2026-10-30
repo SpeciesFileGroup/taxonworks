@@ -35,7 +35,7 @@ module Queries
       attr_accessor :term_exact
 
       # @return [String, Symbol ni]
-      # @return Symbol, nil
+      # @return [Symbol, nil]
       attr_accessor :term_target
 
       # @param observation_matrix_id [Array, String, Numeric]
@@ -55,7 +55,7 @@ module Queries
       # @return [Boolean]
       attr_accessor :observations
 
-      # @param [Hash] params
+      # @param query_params [Hash]
       def initialize(query_params)
         super
 

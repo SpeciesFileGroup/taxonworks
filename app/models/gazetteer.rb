@@ -114,7 +114,7 @@ class Gazetteer < ApplicationRecord
     )
   end
 
-  # @param [Hash] hash as in build_gi_from_shapes
+  # @param shapes [Hash] as in build_gi_from_shapes
   # @param operation_is_union [Boolean] Union if true, intersection if false
   # @return A single rgeo shape that is the combination of all of the input shapes
   # Raises TaxonWorks::Error on error
@@ -407,7 +407,7 @@ class Gazetteer < ApplicationRecord
       .pluck(:asserted_environment_object_id, :updated_at)
   end
 
-  # @params target [String] see .used_recently; blank is treated as
+  # @param target [String] see .used_recently; blank is treated as
   #   `AssertedDistribution`
   # @return [Hash] gazetteers optimized for user selection
   def self.select_optimized(user_id, project_id, target = 'AssertedDistribution')

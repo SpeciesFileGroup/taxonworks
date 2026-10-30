@@ -294,7 +294,7 @@
               Create Morphospecies OTU
             </VBtn>
             <VBtn
-              v-if="row.fixedOtuId != null"
+              v-if="isActionable(row) && row.fixedOtuId != null"
               circle
               color="primary"
               title="Clear fixed OTU selection"

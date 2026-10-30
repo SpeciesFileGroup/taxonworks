@@ -37,7 +37,8 @@ class Identifier::Local < Identifier
   end
 
   # Exact match on identifier + namespace
-  # @param [String, String]
+  # @param namespace_name [String]
+  # @param identifier [String]
   # @return [Scope]
   def with_namespaced_identifier(namespace_name, identifier)
     ret_val = includes(:identifiers).where(identifiers: {namespace: {name: namespace_name}}, identifier: identifier).references(:identifiers)
@@ -48,7 +49,7 @@ class Identifier::Local < Identifier
   end
 
   # Update cached values for all local identifiers within namespace (if needed)
-  # @param [Namespace]
+  # @param namespace [Namespace]
   def self.update_cached(namespace)
     where(namespace: namespace).update_all(
       cached: Arel::Nodes::NamedFunction.new('concat',

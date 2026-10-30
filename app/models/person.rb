@@ -145,7 +145,7 @@ class Person < ApplicationRecord
     roles.reload.any?
   end
 
-  # @return Boolean
+  # @return [Boolean]
   #   whether or not this Person is linked to any data in the project
   def used_in_project?(project_id)
     Role.where(person_id: id, project_id:).any? ||
@@ -527,7 +527,7 @@ class Person < ApplicationRecord
     ).pluck(:person_id).uniq
   end
 
-  # @params Role [String] one the available roles
+  # @param role_type [String] one the available roles
   # @return [Hash] people optimized for user selection
   def self.select_optimized(user_id, project_id, role_type = 'SourceAuthor')
     r = used_recently(user_id, role_type)
@@ -609,7 +609,7 @@ class Person < ApplicationRecord
     end
   end
 
-  # @return Integer
+  # @return [Integer]
   #   the total objects updated
   def update_role_cached
     # don't update the same object many times (e.g. CE of many COs?)

@@ -37,7 +37,7 @@ class InternalAttribute < DataAttribute
     end
   end
 
-  # @params attribute_scope a Query::X::Filter instance
+  # @param attribute_scope a Query::X::Filter instance
   #   that is NOT Query::DataAttribute::Filter
   def self.update_value(attribute_scope, controlled_vocabulary_term_id, value_from, value_to)
     return false if controlled_vocabulary_term_id.nil? || value_from.nil? || value_to.nil?

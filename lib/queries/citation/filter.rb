@@ -29,7 +29,7 @@ module Queries
       # Boolean
       attr_accessor :is_original
 
-      # @params params [Hash]
+      # @param query_params [Hash]
       #   already Permitted params, or new Hash
       def initialize(query_params)
         super

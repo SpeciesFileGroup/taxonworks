@@ -14,6 +14,36 @@ describe TaxonName, typein_scope_observation_matrix_row_items: :model, group: [:
 
   let!(:otu) { Otu.create!(taxon_name: species) }
 
+  context 'collection object member' do
+    let!(:collection_object) {
+      s = FactoryBot.create(:valid_specimen)
+      FactoryBot.create(:valid_taxon_determination, otu:, taxon_determination_object: s)
+      s
+    }
+    let!(:d) { ::ObservationMatrixRowItem::Dynamic::TaxonName.create!( observation_matrix:, observation_object: genus1 )}
+
+    specify 'destroying the member removes its row' do
+      expect(observation_matrix.observation_matrix_rows.where(observation_object: collection_object).count).to eq(1)
+      collection_object.destroy!
+      expect(observation_matrix.observation_matrix_rows.where(observation_object_type: 'CollectionObject').count).to eq(0)
+    end
+  end
+
+  context 'extract member' do
+    let!(:extract) {
+      e = FactoryBot.create(:valid_extract)
+      FactoryBot.create(:valid_origin_relationship, old_object: otu, new_object: e)
+      e
+    }
+    let!(:d) { ::ObservationMatrixRowItem::Dynamic::TaxonName.create!( observation_matrix:, observation_object: genus1 )}
+
+    specify 'destroying the member removes its row' do
+      expect(observation_matrix.observation_matrix_rows.where(observation_object: extract).count).to eq(1)
+      extract.destroy!
+      expect(observation_matrix.observation_matrix_rows.where(observation_object_type: 'Extract').count).to eq(0)
+    end
+  end
+
   context 'setup' do
     let!(:d) { ::ObservationMatrixRowItem::Dynamic::TaxonName.create!( observation_matrix:, observation_object: genus1 )}
 
@@ -59,6 +89,11 @@ describe TaxonName, typein_scope_observation_matrix_row_items: :model, group: [:
 
       specify 'move out of scope 2' do
         otu.update!(taxon_name: genus2)
+        expect(observation_matrix.observation_matrix_rows.count).to eq(0)
+      end
+
+      specify 'destroying the member removes its row' do
+        otu.destroy!
         expect(observation_matrix.observation_matrix_rows.count).to eq(0)
       end
     end

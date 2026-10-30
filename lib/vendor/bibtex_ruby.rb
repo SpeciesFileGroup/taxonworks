@@ -54,7 +54,7 @@ module Vendor
       b
     end
 
-    # @return Array
+    # @return [Array]
     #   of styled sources. Allows and annotates non-BibTeX sources to be passed. 
     def self.styled(sources = [], style_id = 'http://www.zotero.org/styles/vancouver')
       return [] if get_style(style_id).nil?

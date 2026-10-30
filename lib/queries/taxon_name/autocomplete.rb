@@ -40,7 +40,7 @@ module Queries
       # As determined by GlobalNames parser
       attr_accessor :authorship
 
-      # @param [Hash] args
+      # @param params [Hash]
       def initialize(string, **params)
         @nomenclature_group = params[:nomenclature_group]
         @valid = boolean_param(params, :valid)

@@ -45,6 +45,15 @@
                 placeholder="Caption"
               />
             </div>
+            <div class="separate-bottom">
+              <label>
+                <input
+                  type="checkbox"
+                  v-model="depiction.is_metadata_depiction"
+                />
+                Is data depiction
+              </label>
+            </div>
           </div>
           <div class="flex-separate">
             <div>
@@ -301,7 +310,8 @@ const loadAttributions = async () => {
 const updateDepiction = () => {
   const depiction = {
     caption: props.depiction.caption,
-    figure_label: props.depiction.figure_label
+    figure_label: props.depiction.figure_label,
+    is_metadata_depiction: props.depiction.is_metadata_depiction
   }
 
   Depiction.update(props.depiction.id, { depiction }).then(() => {

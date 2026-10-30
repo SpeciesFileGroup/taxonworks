@@ -57,7 +57,7 @@ class Catalog::Entry
     true
   end
 
-  # @return Boolean
+  # @return [Boolean]
   # Named "first` to avoid conflice with `citation#is_original`
   # Returns true if
   #   * it's the only item with this object
@@ -76,7 +76,7 @@ class Catalog::Entry
     false
   end
 
-  # @return Boolean
+  # @return [Boolean]
   # Returns true if
   #   * it's the only item with this object
   #   * it's the last citation chronologically

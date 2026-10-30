@@ -1,6 +1,6 @@
 module Otus::GisHelper
 
-  # @return Hash
+  # @return [Hash]
   #   A GeoJSON collection of distribution data in x parts
   #     need a `to_geo_json` for each object
   #
