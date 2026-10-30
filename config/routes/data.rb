@@ -268,6 +268,7 @@ match 'containers/for', to: 'containers#for', via: :get, defaults: {format: :jso
 resources :containers do # , only: [:create, :update, :destroy] do
   concerns [:data_routes]
   collection do
+    match :filter, to: 'containers#index', via: [:get, :post]
     get :container_types, defaults: {format: :json}
   end
 end

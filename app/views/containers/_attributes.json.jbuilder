@@ -14,6 +14,12 @@ json.partial! '/shared/data/all/metadata', object: container
 
 json.container_label label_for_container_container(container)
 
+if extend_response_with('identifiers')
+  json.identifiers do
+    json.array! container.identifiers.pluck(:cached)
+  end
+end
+
 if extend_response_with('container_items') && container.container_items.any?
   json.container_items do
     json.array! container.container_items do |ci|

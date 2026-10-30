@@ -19,6 +19,8 @@ const permitParams = {
 export const Container = {
   ...baseCRUD('containers', permitParams),
 
+  filter: (params) => AjaxCall('post', '/containers/filter.json', params),
+
   for: (params) => AjaxCall('get', '/containers/for', { params }),
 
   types: () => AjaxCall('get', '/containers/container_types')

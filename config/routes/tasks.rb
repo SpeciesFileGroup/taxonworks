@@ -77,6 +77,9 @@ scope :tasks do
   end
 
   scope :containers do
+    scope :filter, controller: 'tasks/containers/filter' do
+      get '/', action: :index, as: 'filter_containers_task'
+    end
     scope :new_container, controller: 'tasks/containers/new_container' do
       get '/', action: :index, as: 'new_container_task'
     end

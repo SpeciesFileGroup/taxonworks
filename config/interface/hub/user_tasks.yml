@@ -1318,3 +1318,12 @@ new_asserted_environment_task:
     - biology
   status: prototype
   description: 'Create new asserted environments (ENVO terms characterizing OTUs, collecting events, and gazetteers), optionally cited.'
+filter_containers_task:
+  hub: true
+  name: 'Filter containers'
+  related:
+  categories:
+    - filters
+    - collection_object
+  status: prototype
+  description: 'Search and list containers by type, name, size, fill state (empty, full, populated) and contents.'
