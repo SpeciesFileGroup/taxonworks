@@ -18,6 +18,11 @@ describe Autoselect::Level, type: :model do
     expect(m.keys).to include(:key, :label, :description, :external, :fuse_ms)
   end
 
+  specify '#options_level is nil by default' do
+    expect(instance.options_level).to be_nil
+    expect(instance.metadata[:options_level]).to be_nil
+  end
+
   specify '#metadata key is a string' do
     expect(instance.metadata[:key]).to eq('test')
   end

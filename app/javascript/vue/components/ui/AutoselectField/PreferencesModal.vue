@@ -34,7 +34,7 @@
               <label class="prefs-modal__level-label">
                 <input
                   type="checkbox"
-                  :checked="!draft.levels[level.key]?.hide"
+                  :checked="isLevelChecked(level)"
                   @change="toggleLevel(level.key, $event.target.checked)"
                 />
                 <span>{{ level.label }}</span>
@@ -104,7 +104,8 @@ import Modal from '@/components/ui/Modal.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 
 const props = defineProps({
-  // Array of level metadata objects from the autoselect config
+  // Array of level metadata objects from the autoselect config, each including
+  // is_default (see Autoselect::Level#is_default)
   levels: { type: Array, required: true },
 
   // Current saved preferences { levels: { key: { hide, options } }, show_info: Boolean }
@@ -130,6 +131,13 @@ const draft = reactive({
   show_info: props.currentPrefs.show_info !== false,
   auto_jump: props.currentPrefs.auto_jump !== false
 })
+
+// Checked when the user explicitly hasn't hidden it, falling back to the
+// level's own is_default when the user has never touched this checkbox.
+function isLevelChecked(level) {
+  const hide = draft.levels[level.key]?.hide
+  return hide === undefined ? (level.is_default ?? true) : !hide
+}
 
 function toggleLevel(key, checked) {
   draft.levels[key] ??= {}
@@ -158,7 +166,7 @@ function doSave() {
 .prefs-modal__section-title {
   font-size: 11px;
   font-weight: 600;
-  color: var(--text-color-muted, #666);
+  color: var(--text-muted-color);
   margin: 0 0 6px;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -188,8 +196,8 @@ function doSave() {
 
 .prefs-modal__level-badge {
   font-size: 10px;
-  color: var(--text-color-muted, #888);
-  background: var(--border-color, #e0e0e0);
+  color: var(--text-muted-color);
+  background: var(--border-color);
   border-radius: 3px;
   padding: 1px 5px;
 }

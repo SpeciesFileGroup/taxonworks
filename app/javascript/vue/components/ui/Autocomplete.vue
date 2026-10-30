@@ -608,7 +608,6 @@ export default {
 
   li {
     cursor: pointer;
-    padding: calc(var(--standard-padding, 8px) * 0.5);
     border-top: 1px solid var(--border-color);
     padding: 6px 12px;
   }

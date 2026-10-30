@@ -6,10 +6,13 @@
       :item="otu"
       @unset="matrix.otu_id = null"
     />
-    <OtuAutoselectPicker
+    <AutoselectPicker
       v-else
+      model="otus"
+      param="otu_id"
+      get-object
       preferences-key="otu_for_observation_matrix_parent"
-      @get-item="setOtu"
+      @select="setOtu"
     />
   </div>
 </template>
@@ -21,7 +24,7 @@ import { Otu } from '@/routes/endpoints'
 import { MutationNames } from '../../store/mutations/mutations'
 import { GetterNames } from '../../store/getters/getters'
 import { ref, watch } from 'vue'
-import OtuAutoselectPicker from '@/components/otu/otu_picker/otu_autoselect_picker.vue'
+import AutoselectPicker from '@/components/ui/AutoselectPicker.vue'
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 
 const store = useStore()

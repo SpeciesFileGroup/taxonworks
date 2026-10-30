@@ -184,13 +184,11 @@
                   name="zoomIn"
                 />
               </VBtn>
-              <AutoselectField
+              <AutoselectPicker
                 :ref="(el) => setRefineRef(row.index, el)"
-                url="/taxon_names/autoselect"
+                model="taxon_names"
                 param="taxon_name_id"
                 :id="`match-taxon-name-refine-${row.index}`"
-                :new-record-component="TaxonNameNewModal"
-                :preferences-options-component="ColDatasetPicker"
                 reset-on-select
                 :disabled="row.fixedOtuId != null"
                 placeholder="Search taxon name..."
@@ -220,13 +218,11 @@
                   name="zoomIn"
                 />
               </VBtn>
-              <AutoselectField
+              <AutoselectPicker
                 :ref="(el) => setOtuRefineRef(row.index, el)"
-                url="/otus/autoselect"
+                model="otus"
                 param="otu_id"
                 :id="`match-otu-refine-${row.index}`"
-                :new-record-component="OtuNewModal"
-                :preferences-options-component="ColDatasetPicker"
                 reset-on-select
                 :disabled="row.fixedOtuId != null"
                 placeholder="Search OTU..."
@@ -375,10 +371,7 @@ import { OTU, TAXON_NAME } from '@/constants'
 import { makeBrowseUrl } from '@/helpers'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
-import AutoselectField from '@/components/ui/AutoselectField.vue'
-import TaxonNameNewModal from '@/components/ui/AutoselectField/TaxonNameNewModal.vue'
-import OtuNewModal from '@/components/ui/AutoselectField/OtuNewModal.vue'
-import ColDatasetPicker from '@/components/ui/AutoselectField/ColDatasetPicker.vue'
+import AutoselectPicker from '@/components/ui/AutoselectPicker.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import ButtonClipboard from '@/components/ui/Button/ButtonClipboard.vue'
@@ -443,7 +436,7 @@ function isTwoWordName(row) {
 
 const contextRow = ref(null)
 
-// AutoselectField instances, keyed by row index, so a row's Refine search can be driven from its
+// AutoselectPicker instances, keyed by row index, so a row's Refine search can be driven from its
 // button.
 const refineRefs = ref({})
 const otuRefineRefs = ref({})
