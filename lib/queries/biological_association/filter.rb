@@ -866,7 +866,7 @@ module Queries
 
         ::BiologicalAssociation
           .with(ad: asserted_distribution_query.all)
-          .joins("JOIN asserted_distributions ON asserted_distributions.asserted_distribution_object_id = biological_associations.id AND asserted_distributions.asserted_distribution_object_type = 'BiologicalAssociation'").distinct
+          .joins("JOIN ad ON ad.asserted_distribution_object_id = biological_associations.id AND ad.asserted_distribution_object_type = 'BiologicalAssociation'").distinct
       end
 
       def collection_object_query_facet

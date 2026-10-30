@@ -51,7 +51,7 @@ module Queries::Concerns::DateRanges
       self.send('start_date='.to_sym, params[:start_date]) if params[:start_date].present?
       self.send('end_date=', params[:end_date]) if params[:end_date].present?
 
-      @partial_overlap_dates = params[:partial_overlap_dates]
+      @partial_overlap_dates = boolean_param(params, :partial_overlap_dates)
       @partial_overlap_dates = true if @partial_overlap_dates.nil?
     end
   end

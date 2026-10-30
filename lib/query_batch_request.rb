@@ -60,7 +60,7 @@ class QueryBatchRequest
     @async_cutoff = params[:async_cutoff]
     @cap = params[:cap]
     @cap_reason = params[:cap_reason]
-    @klass = params[:klass] # || infer_class(params)
+    @klass = params[:klass]
     @pre_update_filter = params[:pre_update_filter]
     @object_filter_params = params[:object_filter_params]
     @object_params = params[:object_params]
@@ -69,11 +69,6 @@ class QueryBatchRequest
     @user_id = params[:user_id]
 
     @mode = params[:mode]
-  end
-
-  def infer_class(params)
-    f = Queries::Query::Filter.base_filter(params)
-    @klass = f.referenced_class.name.to_s
   end
 
   def object_filter_params

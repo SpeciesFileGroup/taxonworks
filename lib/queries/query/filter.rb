@@ -605,7 +605,7 @@ module Queries
     # @param params ActionController::Parameters
     # @return ActionController::Parameters
     def deep_permit(params)
-      p = params.permit( permitted_params(params.to_unsafe_hash))
+      params.permit( permitted_params(params.to_unsafe_hash))
     end
 
     # @param params [Hash]

@@ -860,7 +860,6 @@ class Protonym < TaxonName
 
   # @param params [Hash]
   #   { taxon_name_query: {},
-  #     taxon_name_filter_query: {},
   #     async_cutoff: 1
   #   }
   def self.batch_update(params)
