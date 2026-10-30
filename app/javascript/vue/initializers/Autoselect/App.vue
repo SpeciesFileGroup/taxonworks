@@ -1,14 +1,14 @@
 <template>
   <div class="autoselect-mount">
-    <AutoselectField
+    <AutoselectPicker
       v-if="!selectedItem"
       :id="id"
-      :url="url"
+      :model="model"
       :param="param"
       :placeholder="placeholder"
       :disabled="disabled"
       :level-delay="levelDelay"
-      :new-record-component="newRecordComponent"
+      :create-component="newRecordComponent"
       :preferences-options-component="preferencesOptionsComponent"
       @select="selectedItem = $event"
     />
@@ -28,11 +28,12 @@
 
 <script setup>
 import { ref, computed, onBeforeMount } from 'vue'
-import AutoselectField from '@/components/ui/AutoselectField.vue'
+import AutoselectPicker from '@/components/ui/AutoselectPicker.vue'
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 
 const props = defineProps({
-  url: {
+  // Drives AutoselectPicker's url and create-component lookup, e.g. 'otus', 'taxon_names'.
+  model: {
     type: String,
     required: true
   },
@@ -77,14 +78,19 @@ const props = defineProps({
     default: 500
   },
 
+  // Forwarded to AutoselectPicker's createComponent (overrides its model-based
+  // lookup); leave unset to get that model-appropriate !n modal automatically.
   newRecordComponent: {
     type: Object,
     default: null
   },
 
+  // Left undefined (not null) when unset, so main.js's removeEmptyProps stripping
+  // this key results in AutoselectPicker's own ColDatasetPicker default applying —
+  // an explicit null here would instead force the Options section off.
   preferencesOptionsComponent: {
     type: Object,
-    default: null
+    default: undefined
   }
 })
 

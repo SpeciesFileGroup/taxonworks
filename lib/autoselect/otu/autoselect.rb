@@ -14,6 +14,11 @@ module Autoselect
           ::Autoselect::Otu::Levels::Fast.new,
           ::Autoselect::Otu::Levels::Smart.new,
           ::Autoselect::Otu::Levels::CatalogueOfLife.new,
+          # Unchecked by default - the "plain" CoL level will always return
+          # something if this level would - users need to either ! select it or
+          # deselect the CoL level in specific contexts where they know they
+          # always want a valid name result.
+          ::Autoselect::Otu::Levels::ColValidName.new,
         ]
       end
 

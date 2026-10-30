@@ -18,10 +18,13 @@
       </li>
     </ul>
     <div class="field margin-medium-top">
-      <otu-autoselect-picker
+      <autoselect-picker
         v-if="isOtuType"
+        model="otus"
+        param="otu_id"
+        get-object
         preferences-key="otu_for_observation_matrix_row"
-        @get-item="createRowItem"
+        @select="createRowItem"
       />
       <autocomplete
         v-else
@@ -42,13 +45,13 @@ import { toSnakeCase } from '@/helpers'
 import { GetterNames } from '../../store/getters/getters'
 import { ActionNames } from '../../store/actions/actions'
 import ObservationTypes from '../../const/types.js'
-import OtuAutoselectPicker from '@/components/otu/otu_picker/otu_autoselect_picker.vue'
+import AutoselectPicker from '@/components/ui/AutoselectPicker.vue'
 import { OBSERVATION_MATRIX_ROW_SINGLE, OTU } from '@/constants/index.js'
 
 export default {
   components: {
     Autocomplete,
-    OtuAutoselectPicker
+    AutoselectPicker
   },
 
   computed: {

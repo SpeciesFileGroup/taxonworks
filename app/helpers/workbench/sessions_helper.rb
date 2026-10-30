@@ -218,7 +218,8 @@ module Workbench::SessionsHelper
   end
 
   def has_hub_favorites?
-    sessions_current_user.hub_favorites[sessions_current_project_id.to_s] ? true : false
+    favorites = sessions_current_user.hub_favorites[sessions_current_project_id.to_s]
+    favorites.present? && (favorites['data'].present? || favorites['tasks'].present?)
   end
 
   # @param kind [String]

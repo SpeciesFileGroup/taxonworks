@@ -41,12 +41,18 @@
           <template v-if="selectedParent">
             <span class="tn-new-modal__selected">
               <span v-html="selectedParent.label_html || selectedParent.label" />
-              <button
-                class="tn-new-modal__clear"
+              <VBtn
+                circle
+                variant="ghost"
                 title="Clear parent"
                 tabindex="3"
                 @click="clearParent"
-              >&#x2715;</button>
+              >
+                <VIcon
+                  name="close"
+                  xx-small
+                />
+              </VBtn>
             </span>
           </template>
           <template v-else>
@@ -129,6 +135,7 @@
 import { ref, computed, onMounted, nextTick } from 'vue'
 import Modal from '@/components/ui/Modal.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 import Autocomplete from '@/components/ui/Autocomplete.vue'
 import { TaxonName } from '@/routes/endpoints'
 
@@ -273,7 +280,7 @@ async function doCreate() {
 .tn-new-modal__label {
   font-weight: 600;
   font-size: 11px;
-  color: var(--text-color-muted, #666);
+  color: var(--text-muted-color);
   margin-bottom: 1px;
 }
 
@@ -300,36 +307,22 @@ async function doCreate() {
   align-items: center;
   gap: 6px;
   padding: 3px 8px;
-  background: var(--input-bg-color, #f9f9f9);
-  border: 1px solid var(--border-color, #ccc);
+  background: var(--input-bg-color);
+  border: 1px solid var(--border-color);
   border-radius: 3px;
   font-size: 12px;
   flex: 1;
   min-width: 0;
 }
 
-.tn-new-modal__clear {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 11px;
-  color: var(--text-color-muted, #888);
-  padding: 0 2px;
-  line-height: 1;
-}
-
-.tn-new-modal__clear:hover {
-  color: var(--color-destroy, #c00);
-}
-
 .tn-new-modal__searching {
   font-size: 11px;
-  color: var(--text-color-muted, #888);
+  color: var(--text-muted-color);
   white-space: nowrap;
 }
 
 .tn-new-modal__error {
-  color: var(--color-destroy, #c00);
+  color: var(--color-destroy);
   font-size: 12px;
   margin: 4px 0 0;
 }

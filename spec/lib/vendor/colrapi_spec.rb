@@ -98,12 +98,14 @@ describe Vendor::Colrapi, type: :model do
   # ── ancestors ─────────────────────────────────────────────────────────────────
 
   describe '.ancestors' do
+    # The real classification subresource returns kingdom-first (distal-to-proximal) —
+    # confirmed directly against the live ChecklistBank API.
     let(:classification) {
       [
-        col_classification_entry(id: '636X2', name: 'Homo',     rank: 'genus'),
-        col_classification_entry(id: '6256T', name: 'Hominidae', rank: 'family'),
-        col_classification_entry(id: 'CH2',   name: 'Chordata', rank: 'phylum'),
         col_classification_entry(id: 'N',     name: 'Animalia', rank: 'kingdom'),
+        col_classification_entry(id: 'CH2',   name: 'Chordata', rank: 'phylum'),
+        col_classification_entry(id: '6256T', name: 'Hominidae', rank: 'family'),
+        col_classification_entry(id: '636X2', name: 'Homo',     rank: 'genus'),
       ]
     }
 
@@ -114,30 +116,30 @@ describe Vendor::Colrapi, type: :model do
     end
 
     it 'calls Colrapi.taxon with subresource: classification' do
-      described_class.ancestors('6MB3T')
+      described_class.ancestors('3LR', '6MB3T')
       expect(::Colrapi).to have_received(:taxon)
         .with('3LR', taxon_id: '6MB3T', subresource: 'classification')
     end
 
     it 'returns an array of classification entries' do
-      result = described_class.ancestors('6MB3T')
+      result = described_class.ancestors('3LR', '6MB3T')
       expect(result).to be_an(Array)
       expect(result.length).to eq(4)
     end
 
     it 'each entry has id, name (String), and rank' do
-      result = described_class.ancestors('6MB3T')
+      result = described_class.ancestors('3LR', '6MB3T')
       entry = result.first
       expect(entry['name']).to be_a(String)
       expect(entry['rank']).to be_a(String)
       expect(entry['id']).to be_a(String)
     end
 
-    it 'returns entries in proximal-to-distal order (genus before kingdom)' do
-      result = described_class.ancestors('6MB3T')
+    it 'returns entries in distal-to-proximal order (kingdom before genus)' do
+      result = described_class.ancestors('3LR', '6MB3T')
       ranks = result.map { |e| e['rank'] }
-      expect(ranks.first).to eq('genus')
-      expect(ranks.last).to eq('kingdom')
+      expect(ranks.first).to eq('kingdom')
+      expect(ranks.last).to eq('genus')
     end
 
     context 'when Colrapi raises an error' do
@@ -146,30 +148,107 @@ describe Vendor::Colrapi, type: :model do
       end
 
       it 'returns an empty array' do
-        expect(described_class.ancestors('6MB3T')).to eq([])
+        expect(described_class.ancestors('3LR', '6MB3T')).to eq([])
       end
     end
   end
 
-  # ── build_extension ───────────────────────────────────────────────────────────
+  # ── rank_class_for ────────────────────────────────────────────────────────────
 
-  describe '.build_extension' do
+  describe '.rank_class_for' do
+    # When col_code is recognized only that code's lookup is used; otherwise
+    # falls back through all four codes in order.
+    it 'resolves species as ICN for botanical code' do
+      result = described_class.rank_class_for('species', col_code: 'botanical')
+      expect(result).to include('Icn')
+      expect(result).not_to include('Iczn')
+    end
+
+    it 'resolves species as ICZN for zoological code' do
+      result = described_class.rank_class_for('species', col_code: 'zoological')
+      expect(result).to include('Iczn')
+      expect(result).not_to include('::Icn::')
+    end
+
+    it 'resolves genus as ICNP for bacterial code' do
+      result = described_class.rank_class_for('genus', col_code: 'bacterial')
+      expect(result).to include('Icnp')
+    end
+
+    it 'resolves genus as ICVCN for virus code (CoL\'s name for it)' do
+      result = described_class.rank_class_for('genus', col_code: 'virus')
+      expect(result).to include('Icvcn')
+    end
+
+    it 'doesn\'t fall back to another code when col_code is recognized' do
+      expect(described_class.rank_class_for('variety', col_code: 'zoological'))
+        .to be_nil
+    end
+
+    it 'falls back through all codes when col_code is nil' do
+      expect(described_class.rank_class_for('species')).to include('Iczn')
+    end
+
+    it 'returns nil for unknown rank' do
+      expect(described_class.rank_class_for('domain')).to be_nil
+    end
+
+    it 'returns nil for blank rank' do
+      expect(described_class.rank_class_for('')).to be_nil
+      expect(described_class.rank_class_for(nil)).to be_nil
+    end
+
+    it 'is case-insensitive' do
+      expect(described_class.rank_class_for('SPECIES', col_code: 'zoological'))
+        .to eq(described_class.rank_class_for('species', col_code: 'zoological'))
+    end
+  end
+
+  # ── classified_usage ─────────────────────────────────────────────────────────
+
+  describe '.protonym_name_from' do
+    specify 'a subgenus is its infragenericEpithet' do
+      name = {
+        'scientificName' => 'Aedes (Stegomyia)', 'genus' => 'Aedes',
+        'infragenericEpithet' => 'Stegomyia', 'rank' => 'subgenus'
+      }
+      expect(described_class.protonym_name_from(name)).to eq('Stegomyia')
+    end
+
+    specify 'a species in a subgenus is its specificEpithet' do
+      name = {
+        'scientificName' => 'Aedes (Stegomyia) aegypti', 'genus' => 'Aedes',
+        'infragenericEpithet' => 'Stegomyia', 'specificEpithet' => 'aegypti',
+        'rank' => 'species'
+      }
+      expect(described_class.protonym_name_from(name)).to eq('aegypti')
+    end
+
+    specify 'a genus is its uninomial' do
+      name = { 'scientificName' => 'Aedes', 'uninomial' => 'Aedes' }
+      expect(described_class.protonym_name_from(name)).to eq('Aedes')
+    end
+  end
+
+  describe '.classified_usage' do
     let(:col_result) { col_nameusage_result }
 
+    # ancestors() (the real classification subresource) returns kingdom-first
+    # (distal before proximal) — family before genus here.
     let(:classification) {
       [
-        col_classification_entry(id: '636X2', name: 'Homo', rank: 'genus'),
         col_classification_entry(id: '6256T', name: 'Hominidae', rank: 'family'),
+        col_classification_entry(id: '636X2', name: 'Homo', rank: 'genus'),
       ]
     }
 
     before do
       allow(described_class).to receive(:ancestors)
-      .with('6MB3T')
+      .with(described_class::DATASETS[:col], '6MB3T')
       .and_return(classification)
     end
 
-    subject(:extension) { described_class.build_extension(col_result, nil) }
+    subject(:extension) { described_class.classified_usage(col_result) }
 
     it 'extracts col_key from top-level id' do
       expect(extension[:col_key]).to eq('6MB3T')
@@ -188,9 +267,9 @@ describe Vendor::Colrapi, type: :model do
       expect(extension[:alignment].length).to eq(2)
     end
 
-    it 'alignment entries have rank, col_name, col_id, dataset_id, taxonworks_id, taxonworks_name, match' do
+    it 'alignment entries have rank, col_name, col_id, dataset_id, col_authorship' do
       entry = extension[:alignment].first
-      expect(entry).to include(:rank, :col_name, :col_id, :dataset_id, :taxonworks_id, :taxonworks_name, :match)
+      expect(entry).to include(:rank, :col_name, :col_id, :dataset_id, :col_authorship)
     end
 
     it 'alignment entry dataset_id is the main CoL dataset' do
@@ -202,9 +281,25 @@ describe Vendor::Colrapi, type: :model do
       expect(extension[:col_dataset_id]).to eq(described_class::DATASETS[:col])
     end
 
-    it 'extension col_dataset_id reflects the searched dataset when provided' do
-      ext = described_class.build_extension(col_result, nil, dataset_id: '3LXR')
-      expect(ext[:col_dataset_id]).to eq('3LXR')
+    context 'when the extended dataset was searched' do
+      before do
+        allow(described_class).to receive(:ancestors)
+          .with('3LXR', '6MB3T')
+          .and_return(classification)
+      end
+
+      let(:ext) {
+        described_class.classified_usage(col_result, dataset_id: '3LXR')
+      }
+
+      it 'extension col_dataset_id reflects the searched dataset' do
+        expect(ext[:col_dataset_id]).to eq('3LXR')
+      end
+
+      it 'takes the alignment from that dataset' do
+        expect(ext[:alignment].map { |a| a[:dataset_id] }.uniq)
+          .to eq(['3LXR'])
+      end
     end
 
     # Also - the alignment starts at the top
@@ -218,42 +313,30 @@ describe Vendor::Colrapi, type: :model do
       expect(entry[:rank]).to eq('family')
     end
 
-    it 'alignment entry match is none when TaxonName not in project' do
-      entry = extension[:alignment].first
-      expect(entry[:match]).to eq('none')
-      expect(entry[:taxonworks_id]).to be_nil
-    end
-
-    context 'when a TaxonName matches an ancestor name' do
-      let!(:taxon_name) { FactoryBot.create(:valid_taxon_name) }
-
-      let(:classification_with_match) {
-        [col_classification_entry(id: 'XXX', name: taxon_name.cached, rank: 'family')]
+    context 'when an ancestor rank has no TaxonWorks equivalent' do
+      let(:classification) {
+        [
+          col_classification_entry(id: '8VVWB', name: 'Osteichthyes', rank: 'parvphylum'),
+          col_classification_entry(id: '6256T', name: 'Hominidae', rank: 'family')
+        ]
       }
 
-      before do
-        allow(described_class).to receive(:ancestors)
-          .with('6MB3T')
-          .and_return(classification_with_match)
-      end
-
-      it 'sets match to exact and populates taxonworks_id' do
-        ext = described_class.build_extension(col_result, taxon_name.project_id)
-        entry = ext[:alignment].first
-        expect(entry[:match]).to eq('exact')
-        expect(entry[:taxonworks_id]).to eq(taxon_name.id)
-        expect(entry[:taxonworks_name]).to eq(taxon_name.cached)
+      it 'flags that row rank_unknown' do
+        expect(extension[:alignment].map { |r| [r[:rank], r[:rank_unknown]] })
+          .to eq([['parvphylum', true], ['family', false]])
       end
     end
 
-    context 'when result is subgenus rank with paren-wrapped combination' do
+    context 'when result is subgenus rank' do
+      # As CoL parses it: genus + infragenericEpithet, no uninomial
       let(:subgenus_result) {
         {
           'id'     => 'SG1',
           'status' => 'accepted',
           'name'   => {
             'scientificName' => 'Cicadula (Cyperana)',
-            'uninomial'      => 'Cicadula (Cyperana)',
+            'genus' => 'Cicadula',
+            'infragenericEpithet' => 'Cyperana',
             'rank'           => 'subgenus',
             'authorship'     => 'Ribaut, 1946'
           },
@@ -263,12 +346,13 @@ describe Vendor::Colrapi, type: :model do
       }
 
       before do
-        allow(described_class).to receive(:ancestors).with('SG1').and_return([])
+        allow(described_class).to receive(:ancestors)
+          .with(described_class::DATASETS[:col], 'SG1').and_return([])
       end
 
-      subject(:ext) { described_class.build_extension(subgenus_result, nil) }
+      subject(:ext) { described_class.classified_usage(subgenus_result) }
 
-      it 'col_name extracts the epithet from inside the parentheses' do
+      it 'col_name is the subgenus epithet' do
         expect(ext[:col_name]).to eq('Cyperana')
       end
 
@@ -281,11 +365,87 @@ describe Vendor::Colrapi, type: :model do
       end
     end
 
+    context 'when the result is not accepted' do
+      # CoL hangs a synonym off its accepted taxon, so the only classification
+      # it has is the accepted name's - nothing about the synonym's own genus
+      # or family (e.g. "Cercopis aptera", a cercopid genus, -> Falcidius
+      # aptera in Issidae).
+      let(:col_result) {
+        col_nameusage_result(
+          id: '9XJPQ', scientific_name: 'Cercopis aptera', status: 'synonym'
+        ).merge(
+          'accepted' => {
+            'id' => '3DT8H',
+            'name' => {
+              'scientificName' => 'Falcidius aptera',
+              'authorship' => '(Fabricius, 1794)', 'rank' => 'species'
+            }
+          }
+        )
+      }
+
+      it 'has no alignment, and fetches none' do
+        expect(extension[:alignment]).to eq([])
+        expect(described_class).not_to have_received(:ancestors)
+      end
+
+      it 'is flagged non_accepted' do
+        expect(extension[:non_accepted]).to be true
+      end
+
+      it 'carries the accepted name' do
+        expect(extension[:accepted]).to eq(
+          col_name: 'Falcidius aptera', col_authorship: '(Fabricius, 1794)'
+        )
+      end
+
+      context 'as an ambiguous synonym' do
+        let(:col_result) {
+          col_nameusage_result(
+            id: 'AMB1', scientific_name: 'Crayracion',
+            status: 'ambiguous synonym'
+          )
+        }
+
+        it 'is flagged non_accepted, with no accepted name' do
+          expect(extension[:non_accepted]).to be true
+          expect(extension[:accepted]).to be_nil
+        end
+      end
+
+      context 'as provisionally accepted' do
+        let(:col_result) {
+          col_nameusage_result(status: 'provisionally accepted')
+        }
+
+        it 'is treated as accepted' do
+          expect(extension[:non_accepted]).to be false
+          expect(extension[:alignment]).not_to be_empty
+        end
+      end
+    end
+
+    context 'with a subgenus ancestor' do
+      let(:classification) {
+        [
+          col_classification_entry(id: 'G1', name: 'Aedes', rank: 'genus'),
+          col_classification_entry(
+            id: 'SG1', name: 'Aedes (Stegomyia)', rank: 'subgenus'
+          )
+        ]
+      }
+
+      it 'keeps its name as CoL gives it (keys and creation reduce it)' do
+        expect(extension[:alignment].map { |a| a[:col_name] })
+          .to eq(['Aedes', 'Aedes (Stegomyia)'])
+      end
+    end
+
     context 'when col_key is blank' do
       let(:col_result_no_id) { col_nameusage_result(id: nil) }
 
       it 'skips the ancestors call and returns empty alignment' do
-        ext = described_class.build_extension(col_result_no_id, nil)
+        ext = described_class.classified_usage(col_result_no_id)
         expect(described_class).not_to have_received(:ancestors)
         expect(ext[:alignment]).to eq([])
       end
@@ -306,7 +466,7 @@ describe Vendor::Colrapi, type: :model do
           ])
       end
 
-      subject(:ext) { described_class.build_extension(denormed_result, nil, dataset_id: '9802') }
+      subject(:ext) { described_class.classified_usage(denormed_result, dataset_id: '9802') }
 
       it 'calls ancestors_via_parent_id rather than ancestors' do
         ext
@@ -350,6 +510,260 @@ describe Vendor::Colrapi, type: :model do
     end
   end
 
+  # ── col_rank_sort ────────────────────────────────────────────────────────────
+
+  describe '.col_rank_sort' do
+    it 'uses the lookup for the given code' do
+      expect(described_class.col_rank_sort('genus', 'botanical'))
+        .to eq(::RANK_SORT[::ICN_LOOKUP['genus']])
+    end
+
+    it 'treats an unrecognized code as zoological' do
+      expect(described_class.col_rank_sort('genus', nil))
+        .to eq(::RANK_SORT[::ICZN_LOOKUP['genus']])
+    end
+
+    it 'does not fall back to another code' do
+      expect(::ICZN_LOOKUP['variety']).to be_nil
+      expect(::ICN_LOOKUP['variety']).to be_present
+      expect(described_class.col_rank_sort('variety', 'zoological')).to be_nil
+    end
+
+    it 'orders a more specific rank higher' do
+      expect(described_class.col_rank_sort('species', 'zoological'))
+        .to be > described_class.col_rank_sort('genus', 'zoological')
+    end
+  end
+
+  # ── resolve_accepted_names ───────────────────────────────────────────────────
+
+  describe '.resolve_accepted_names' do
+    def stub_hits(*hits)
+      allow(::Colrapi).to receive(:nameusage)
+        .and_return({ 'total' => hits.size, 'result' => hits })
+    end
+
+    def synonym_of(hit, id:, name:, authorship: 'Linnaeus, 1758')
+      hit.merge(
+        'accepted' => {
+          'id' => id,
+          'status' => 'accepted',
+          'name' => { 'scientificName' => name, 'authorship' => authorship }
+        }
+      )
+    end
+
+    context 'when CoL has no results' do
+      before { stub_hits }
+
+      it 'returns nothing' do
+        expect(described_class.resolve_accepted_names('Nonexistens')).to eq([])
+      end
+    end
+
+    context 'when the hit is accepted' do
+      before do
+        stub_hits(col_nameusage_result(
+          id: '6MB3T', scientific_name: 'Homo sapiens', status: 'accepted'
+        ))
+      end
+
+      it 'resolves to the matched name itself' do
+        result = described_class.resolve_accepted_names('Homo sapiens').first
+        expect(result[:matched_name]).to eq('Homo sapiens')
+        expect(result[:matched_status]).to eq('accepted')
+        expect(result[:valid_name]).to eq('Homo sapiens')
+        expect(result[:valid_col_key]).to eq('6MB3T')
+        expect(result[:valid_status]).to eq('accepted')
+        expect(result[:dataset_id]).to eq('3LR')
+      end
+
+      it 'returns the hit itself as valid_col_result' do
+        result = described_class.resolve_accepted_names('Homo sapiens').first
+        expect(result[:valid_col_result]).to include('id' => '6MB3T')
+      end
+    end
+
+    context 'when the hit is a synonym with a single accepted target' do
+      let(:synonym_result) do
+        synonym_of(
+          col_nameusage_result(
+            id: 'SYN1', scientific_name: 'Bison bison', status: 'synonym'
+          ),
+          id: 'ACC1', name: 'Bos bison'
+        )
+      end
+
+      before { stub_hits(synonym_result) }
+
+      it 'resolves to the accepted target, not the matched synonym' do
+        result = described_class.resolve_accepted_names('Bison bison').first
+        expect(result[:matched_name]).to eq('Bison bison')
+        expect(result[:matched_authorship]).to eq('Linnaeus, 1758')
+        expect(result[:matched_status]).to eq('synonym')
+        expect(result[:matched_col_key]).to eq('SYN1')
+        expect(result[:valid_name]).to eq('Bos bison')
+        expect(result[:valid_col_key]).to eq('ACC1')
+        expect(result[:valid_authorship]).to eq('Linnaeus, 1758')
+        expect(result[:valid_status]).to eq('accepted')
+      end
+
+      it 'returns the nested accepted usage as valid_col_result' do
+        result = described_class.resolve_accepted_names('Bison bison').first
+        expect(result[:valid_col_result]).to eq(synonym_result['accepted'])
+      end
+    end
+
+    # CoL attaches an `accepted` usage to these too, but it isn't what the
+    # name means.
+    specify 'misapplied names are skipped' do
+      stub_hits(
+        synonym_of(
+          col_nameusage_result(
+            id: 'MIS1', scientific_name: 'Crayracion', status: 'misapplied'
+          ),
+          id: 'ACC3', name: 'Lagocephalus'
+        )
+      )
+      expect(described_class.resolve_accepted_names('Crayracion')).to eq([])
+    end
+
+    # A pro parte synonym: one hit per accepted name.
+    specify 'an ambiguous synonym resolves to each of its targets' do
+      stub_hits(
+        synonym_of(
+          col_nameusage_result(
+            id: 'AB1', scientific_name: 'Abax brunnipes',
+            status: 'ambiguous synonym'
+          ),
+          id: 'AP1', name: 'Abax parallelepipedus parallelepipedus'
+        ),
+        synonym_of(
+          col_nameusage_result(
+            id: 'AB2', scientific_name: 'Abax brunnipes',
+            status: 'ambiguous synonym'
+          ),
+          id: 'AC1', name: 'Abax carinatus carinatus'
+        )
+      )
+      results = described_class.resolve_accepted_names('Abax brunnipes')
+      expect(results.map { |r| [r[:valid_col_key], r[:matched_status]] })
+        .to eq([%w{AP1 ambiguous\ synonym}, %w{AC1 ambiguous\ synonym}])
+    end
+
+    specify 'an accepted name reached by an ambiguous and a plain synonym ' \
+      'comes from the plain one' do
+      stub_hits(
+        synonym_of(
+          col_nameusage_result(
+            id: 'AMB1', scientific_name: 'Aus bus',
+            status: 'ambiguous synonym'
+          ),
+          id: 'ACC1', name: 'Cus dus'
+        ),
+        synonym_of(
+          col_nameusage_result(
+            id: 'SYN1', scientific_name: 'Aus bus', status: 'synonym'
+          ),
+          id: 'ACC1', name: 'Cus dus'
+        )
+      )
+      results = described_class.resolve_accepted_names('Aus bus')
+      expect(results.map { |r| r[:matched_col_key] }).to eq(%w{SYN1})
+    end
+
+    specify 'a provisionally accepted hit resolves to itself' do
+      stub_hits(col_nameusage_result(
+        id: 'PRO1', scientific_name: 'Aus bus',
+        status: 'provisionally accepted'
+      ))
+      result = described_class.resolve_accepted_names('Aus bus').first
+      expect(result[:valid_col_key]).to eq('PRO1')
+      expect(result[:valid_status]).to eq('provisionally accepted')
+    end
+
+    # Abies alba Mill. (accepted) and its later homonym Abies alba (Aiton)
+    # Michx., a synonym of Picea glauca; a misapplied use is skipped.
+    specify 'homonyms each resolve, in CoL order' do
+      stub_hits(
+        col_nameusage_result(
+          id: 'AA1', scientific_name: 'Abies alba', status: 'accepted'
+        ),
+        synonym_of(
+          col_nameusage_result(
+            id: 'AA2', scientific_name: 'Abies alba', status: 'synonym'
+          ),
+          id: 'PG1', name: 'Picea glauca', authorship: '(Moench) Voss'
+        ),
+        synonym_of(
+          col_nameusage_result(
+            id: 'AA3', scientific_name: 'Abies alba', status: 'misapplied'
+          ),
+          id: 'PO1', name: 'Picea omorika'
+        )
+      )
+      results = described_class.resolve_accepted_names('Abies alba')
+      expect(results.map { |r| r[:valid_col_key] }).to eq(%w{AA1 PG1})
+    end
+
+    specify 'an accepted name reached twice is given once, as itself' do
+      stub_hits(
+        synonym_of(
+          col_nameusage_result(
+            id: 'SYN1', scientific_name: 'Aus bus', status: 'synonym'
+          ),
+          id: 'ACC1', name: 'Aus bus'
+        ),
+        col_nameusage_result(
+          id: 'ACC1', scientific_name: 'Aus bus', status: 'accepted'
+        ),
+        synonym_of(
+          col_nameusage_result(
+            id: 'SYN2', scientific_name: 'Aus bus', status: 'synonym'
+          ),
+          id: 'ACC1', name: 'Aus bus'
+        )
+      )
+      results = described_class.resolve_accepted_names('Aus bus')
+      expect(results.map { |r| r[:matched_col_key] }).to eq(%w{ACC1})
+    end
+
+    specify 'two synonyms of one accepted name give it once' do
+      stub_hits(
+        synonym_of(
+          col_nameusage_result(
+            id: 'SYN1', scientific_name: 'Aus bus', status: 'synonym'
+          ),
+          id: 'ACC1', name: 'Cus dus'
+        ),
+        synonym_of(
+          col_nameusage_result(
+            id: 'SYN2', scientific_name: 'Aus bus', status: 'synonym'
+          ),
+          id: 'ACC1', name: 'Cus dus'
+        )
+      )
+      results = described_class.resolve_accepted_names('Aus bus')
+      expect(results.map { |r| r[:matched_col_key] }).to eq(%w{SYN1})
+    end
+
+    context 'with an explicit dataset_id' do
+      before do
+        allow(::Colrapi).to receive(:nameusage)
+          .with('9802', hash_including(q: 'Mus musculus'))
+          .and_return({ 'total' => 1, 'result' => [
+            col_nameusage_result(scientific_name: 'Mus musculus')
+          ] })
+      end
+
+      it 'passes the dataset through to the search and the result' do
+        result = described_class
+          .resolve_accepted_names('Mus musculus', dataset_id: '9802').first
+        expect(result[:dataset_id]).to eq('9802')
+      end
+    end
+  end
+
   # ── ancestors_via_parent_id ──────────────────────────────────────────────────
 
   describe '.ancestors_via_parent_id' do
@@ -389,6 +803,45 @@ describe Vendor::Colrapi, type: :model do
 
     it 'stops when parentId is blank' do
       expect(chain.length).to eq(2)
+    end
+
+    context 'with species-group and subgenus ancestors' do
+      # As CoL parses them: genus/infragenericEpithet/specificEpithet
+      def record(id, parent_id, rank, name_fields)
+        {
+          'id' => id, 'parentId' => parent_id, 'status' => 'accepted',
+          'name' => name_fields.merge('rank' => rank)
+        }
+      end
+
+      before do
+        {
+          'SSP1' => record('SSP1', 'SP1', 'subspecies',
+            'scientificName' => 'Aedes (Stegomyia) aegypti formosus',
+            'genus' => 'Aedes', 'infragenericEpithet' => 'Stegomyia',
+            'specificEpithet' => 'aegypti',
+            'infraspecificEpithet' => 'formosus'),
+          'SP1' => record('SP1', 'SG1', 'species',
+            'scientificName' => 'Aedes (Stegomyia) aegypti',
+            'genus' => 'Aedes', 'infragenericEpithet' => 'Stegomyia',
+            'specificEpithet' => 'aegypti'),
+          'SG1' => record('SG1', 'G1', 'subgenus',
+            'scientificName' => 'Aedes (Stegomyia)', 'genus' => 'Aedes',
+            'infragenericEpithet' => 'Stegomyia'),
+          'G1' => record('G1', nil, 'genus',
+            'scientificName' => 'Aedes', 'uninomial' => 'Aedes')
+        }.each do |id, r|
+          allow(::Colrapi).to receive(:taxon)
+            .with('9802', taxon_id: id).and_return(r)
+        end
+      end
+
+      it 'names them as CoL gives them, like the classification subresource' do
+        names = described_class.ancestors_via_parent_id('9802', 'SSP1')
+          .map { |e| e['name'] }
+        expect(names)
+          .to eq(['Aedes', 'Aedes (Stegomyia)', 'Aedes (Stegomyia) aegypti'])
+      end
     end
 
     context 'when the initial taxon has no parentId' do
@@ -448,7 +901,7 @@ describe Vendor::Colrapi, type: :model do
         }
         skip 'No accepted result for Lepisma found in CoL 3LR' if lepisma_result.nil?
 
-        ext = described_class.build_extension(lepisma_result, nil)
+        ext = described_class.classified_usage(lepisma_result)
 
         expect(ext[:col_authorship]).to be_nil
         expect(ext[:col_name]).to eq('Lepisma')
@@ -464,7 +917,7 @@ describe Vendor::Colrapi, type: :model do
         }
         skip 'No synonym result for Lepisma found in CoL 3LR' if botanical_result.nil?
 
-        ext = described_class.build_extension(botanical_result, nil)
+        ext = described_class.classified_usage(botanical_result)
 
         expect(ext[:col_authorship]).to eq('E.Mey.')
       end
@@ -480,7 +933,7 @@ describe Vendor::Colrapi, type: :model do
         }
         skip 'No subgenus result for Cicadula (Cyperana) found in CoL 3LR' if subgenus_result.nil?
 
-        ext = described_class.build_extension(subgenus_result, nil)
+        ext = described_class.classified_usage(subgenus_result)
 
         expect(ext[:col_rank]).to eq('subgenus')
         expect(ext[:col_name]).to eq('Cyperana'),
@@ -490,7 +943,7 @@ describe Vendor::Colrapi, type: :model do
   end
 
   context 'VCR integration — Crayracion ambiguous synonym against default CoL dataset (3LR)' do
-    it 'alignment does not contain a genus-rank ancestor for the ambiguous synonym Crayracion' do
+    it 'has no alignment and no accepted name' do
       VCR.use_cassette('colrapi_build_extension_crayracion_ambiguous_synonym') do
         search_result = ::Vendor::Colrapi.search('Crayracion')
         crayracion_result = search_result['result'].find { |r|
@@ -498,25 +951,18 @@ describe Vendor::Colrapi, type: :model do
         }
         skip 'No ambiguous synonym result for Crayracion found in CoL 3LR' if crayracion_result.nil?
 
-        ext = described_class.build_extension(crayracion_result, nil)
+        ext = described_class.classified_usage(crayracion_result)
 
         expect(ext[:col_status]).to eq('ambiguous synonym')
-        expect(ext[:col_rank]).to eq('genus')
-
-        alignment_ranks = ext[:alignment].map { |r| r[:rank] }
-        alignment_col_names = ext[:alignment].map { |r| r[:col_name] }
-
-        expect(alignment_ranks).not_to include('genus'),
-          "genus-rank ancestor must not appear in alignment for genus-rank ambiguous synonym; got: #{ext[:alignment].map { |r| [r[:rank], r[:col_name]] }.inspect}"
-
-        expect(alignment_col_names).to include('Tetraodontidae'),
-          "Tetraodontidae (family) should appear as the proximal ancestor; got: #{alignment_col_names.inspect}"
+        expect(ext[:non_accepted]).to be true
+        expect(ext[:alignment]).to eq([])
+        expect(ext[:accepted]).to be_nil
       end
     end
   end
 
   context 'VCR integration — Campa synonym against default CoL dataset (3LR)' do
-    it 'alignment does not contain the accepted genus as an ancestor of the synonym' do
+    it 'has no alignment, and carries its accepted name' do
       VCR.use_cassette('colrapi_build_extension_campa_synonym') do
         search_result = ::Vendor::Colrapi.search('Campa')
         campa_result  = search_result['result'].find { |r|
@@ -524,26 +970,223 @@ describe Vendor::Colrapi, type: :model do
         }
         skip 'No synonym result for Campa found in CoL 3LR' if campa_result.nil?
 
-        accepted_name = campa_result.dig('accepted', 'name', 'scientificName')
-        accepted_id   = campa_result.dig('accepted', 'id')
-
-        ext = described_class.build_extension(campa_result, nil)
+        ext = described_class.classified_usage(campa_result)
 
         expect(ext[:col_status]).to eq('synonym')
-
-        alignment_col_names = ext[:alignment].map { |r| r[:col_name] }
-        alignment_col_ids   = ext[:alignment].map { |r| r[:col_id] }
-        alignment_ranks     = ext[:alignment].map { |r| r[:rank] }
-
-        expect(alignment_col_names).not_to include(accepted_name),
-          "Accepted name '#{accepted_name}' must not appear in alignment for synonym 'Campa'"
-        expect(alignment_col_ids).not_to include(accepted_id),
-          "Accepted name ID '#{accepted_id}' must not appear in alignment for synonym 'Campa'"
-
-        # No ancestor may be at the same rank as the synonym itself (genus cannot parent genus).
-        expect(alignment_ranks).not_to include(ext[:col_rank]),
-          "Ancestor at same rank '#{ext[:col_rank]}' must not appear for synonym 'Campa'; got ranks: #{alignment_ranks.inspect}"
+        expect(ext[:non_accepted]).to be true
+        expect(ext[:alignment]).to eq([])
+        expect(ext[:accepted][:col_name])
+          .to eq(campa_result.dig('accepted', 'name', 'scientificName'))
       end
+    end
+  end
+
+  # ── Outdated Names (name_status) ─────────────────────────────────────────────
+
+  # nameusage_search result entries wrap the usage: { 'usage' => { ... } }
+  def col_search_usage(name:, status:, accepted: nil, rank: 'species')
+    usage = {
+      'name' => { 'scientificName' => name, 'rank' => rank },
+      'status' => status
+    }
+    if accepted
+      usage['accepted'] = {
+        'name' => { 'scientificName' => accepted, 'rank' => rank },
+        'status' => 'accepted'
+      }
+    end
+    { 'usage' => usage }
+  end
+
+  def col_search_result(*usages)
+    { 'total' => usages.size, 'result' => usages }
+  end
+
+  # Erythroneura > Erythroneura (Erythroneura) > vitis > vitata
+  let(:subspecies) { FactoryBot.create(:iczn_subspecies) }
+  let(:species) { subspecies.parent }
+
+  describe '.name_status' do
+    def status_for(*usages, target: species)
+      allow(::Colrapi).to receive(:nameusage_search)
+        .and_return(col_search_result(*usages))
+      described_class.name_status(target)
+    end
+
+    specify 'queries CoL without the subgenus' do
+      expect(::Colrapi).to receive(:nameusage_search)
+        .with(q: 'Erythroneura vitis', dataset_id: '3LR', rank: 'species')
+        .and_return(col_search_result)
+      described_class.name_status(species)
+    end
+
+    specify 'queries CoL for a subgenus by its whole name' do
+      expect(::Colrapi).to receive(:nameusage_search)
+        .with(q: 'Erythroneura (Erythroneura)', dataset_id: '3LR',
+          rank: 'subgenus')
+        .and_return(col_search_result)
+      described_class.name_status(species.parent)
+    end
+
+    specify 'an invalid Protonym is looked up by its original combination' do
+      species.update_columns(
+        cached_is_valid: false,
+        cached_original_combination: 'Typhlocyba vitis'
+      )
+      expect(::Colrapi).to receive(:nameusage_search)
+        .with(q: 'Typhlocyba vitis', dataset_id: '3LR', rank: 'species')
+        .and_return(col_search_result(
+          col_search_usage(
+            name: 'Typhlocyba vitis', status: 'synonym',
+            accepted: 'Erythroneura (Erythroneura) ontari'
+          )
+        ))
+      r = described_class.name_status(species)
+      expect(r[:taxonworks_name]).to eq('Typhlocyba vitis')
+      expect(r[:provisional_status]).to eq(:synonym)
+    end
+
+    specify 'an invalid Protonym is looked up at the rank it was ' \
+      'published at' do
+      # The subspecies vitata, published as the species "Erythroneura vitata"
+      genus = species.parent.parent
+      subspecies.update!(original_genus: genus, original_species: subspecies)
+      subspecies.update_column(:cached_is_valid, false)
+      expect(::Colrapi).to receive(:nameusage_search)
+        .with(q: 'Erythroneura vitata', dataset_id: '3LR', rank: 'species')
+        .and_return(col_search_result)
+      described_class.name_status(subspecies.reload)
+    end
+
+    specify 'an invalid Protonym without original combination ' \
+      'relationships is looked up at its own rank' do
+      subspecies.update_columns(
+        cached_is_valid: false,
+        cached_original_combination: 'Typhlocyba vitata'
+      )
+      expect(::Colrapi).to receive(:nameusage_search)
+        .with(q: 'Typhlocyba vitata', dataset_id: '3LR', rank: 'subspecies')
+        .and_return(col_search_result)
+      described_class.name_status(subspecies)
+    end
+
+    specify 'a valid Protonym is looked up by its current form' do
+      species.update_column(:cached_original_combination, 'Typhlocyba vitis')
+      expect(::Colrapi).to receive(:nameusage_search)
+        .with(q: 'Erythroneura vitis', dataset_id: '3LR', rank: 'species')
+        .and_return(col_search_result)
+      described_class.name_status(species)
+    end
+
+    specify 'a Combination is looked up at its own rank, not its ' \
+      'protonym\'s' do
+      # "Erythroneura vitata": the subspecies vitata, published as a species
+      combination = Combination.create!(
+        genus: species.parent.parent, species: subspecies
+      )
+      expect(::Colrapi).to receive(:nameusage_search)
+        .with(q: 'Erythroneura vitata', dataset_id: '3LR', rank: 'species')
+        .and_return(col_search_result)
+      described_class.name_status(combination.reload)
+    end
+
+    specify 'takes a name string when there\'s no TaxonName' do
+      r = status_for(
+        col_search_usage(
+          name: 'Aus bus', status: 'synonym', accepted: 'Aus (Aus) cus'
+        ),
+        target: 'Aus (Aus) bus'
+      )
+      expect(r[:taxonworks_name]).to eq('Aus (Aus) bus')
+      expect(r[:provisional_status]).to eq(:synonym)
+    end
+
+    specify 'a subgenus TaxonName is matched by its epithet' do
+      subgenus = species.parent
+      r = status_for(
+        col_search_usage(
+          name: 'Erythroneura (Erythroneura)', status: 'accepted',
+          rank: 'subgenus'
+        ),
+        target: subgenus
+      )
+      expect(r[:provisional_status]).to eq(:accepted)
+    end
+
+    specify 'no name is undeterminable, without a query' do
+      expect(::Colrapi).not_to receive(:nameusage_search)
+      expect(described_class.name_status(nil)[:provisional_status])
+        .to eq(:undeterminable)
+    end
+
+    specify 'a synonym without the subgenus is outdated' do
+      r = status_for(
+        col_search_usage(
+          name: 'Erythroneura vitis', status: 'synonym',
+          accepted: 'Erythroneura (Erythroneura) ontari'
+        )
+      )
+      expect(r[:provisional_status]).to eq(:synonym)
+    end
+
+    specify 'a synonym of the same name (e.g. its original combination) ' \
+      'is accepted' do
+      r = status_for(
+        col_search_usage(
+          name: 'Erythroneura vitis', status: 'synonym',
+          accepted: 'Erythroneura (Erythroneura) vitis'
+        )
+      )
+      expect(r[:provisional_status]).to eq(:accepted)
+    end
+
+    specify 'an accepted usage wins over ambiguous synonyms of the name' do
+      r = status_for(
+        col_search_usage(
+          name: 'Erythroneura vitis', status: 'ambiguous synonym',
+          accepted: 'Aus bus'
+        ),
+        col_search_usage(
+          name: 'Erythroneura (Erythroneura) vitis', status: 'accepted'
+        )
+      )
+      expect(r[:provisional_status]).to eq(:accepted)
+    end
+
+    specify 'only ambiguous synonyms is ambiguous' do
+      r = status_for(
+        col_search_usage(
+          name: 'Erythroneura vitis', status: 'ambiguous synonym',
+          accepted: 'Aus bus'
+        )
+      )
+      expect(r[:provisional_status]).to eq(:ambiguous_synonym)
+    end
+
+    specify 'results that never match the name are undeterminable' do
+      r = status_for(
+        col_search_usage(name: 'Erythroneura vitisii', status: 'accepted')
+      )
+      expect(r[:provisional_status]).to eq(:undeterminable)
+    end
+
+    specify 'no results are undeterminable' do
+      expect(status_for[:provisional_status]).to eq(:undeterminable)
+    end
+
+    specify 'reports the TaxonWorks name and every usage CoL returned' do
+      r = status_for(
+        col_search_usage(name: 'Erythroneura vitisii', status: 'accepted'),
+        col_search_usage(
+          name: 'Erythroneura vitis', status: 'synonym',
+          accepted: 'Erythroneura (Erythroneura) ontari'
+        )
+      )
+      expect(r[:taxonworks_name]).to eq('Erythroneura (Erythroneura) vitis')
+      expect(r[:col_usages].map { |u| u.dig(:usage, :name) })
+        .to eq(['Erythroneura vitisii', 'Erythroneura vitis'])
+      expect(r[:col_usages].last[:accepted])
+        .to eq(name: 'Erythroneura (Erythroneura) ontari', status: 'accepted')
     end
   end
 
