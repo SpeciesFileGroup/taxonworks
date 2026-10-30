@@ -6,9 +6,9 @@
         <div id="data_cards" class="no-shadow">
           <div data-section="Favorites-Data" class="data_section">
             <div class="hub_section_label">
-              <h2>
+              <h3>
                 Data
-              </h2>
+              </h3>
             </div>
             <div class="cards-section">
               <% sessions_current_user.hub_favorites[sessions_current_project_id.to_s]['data'].each do |d| -%>
@@ -30,9 +30,9 @@
 
       <div data-section="Favorites-Task" class="data_section">
         <div class="hub_section_label">
-          <h2>
+          <h3>
             Tasks
-          </h2>
+          </h3>
         </div>
         <div class="cards-section">
           <div id="task_carrousel">
@@ -56,10 +56,10 @@
       <div class="restart-background"></div>
       <h1>Reset</h1>
     </div>
-    </div>
   <% else %>
     <p>
       Welcome, <%= sessions_current_user.name -%>! Spend a little time navigating through the workbench. As you become
       familiar with tasks or pages you find most useful, favorite them, they'll appear here.
     </p>
   <% end %>
+</div>
