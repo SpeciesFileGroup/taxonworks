@@ -248,10 +248,10 @@ class Observation < ApplicationRecord
   end
 
   # @return [Boolean]
-  # @params old_global_id [String]
+  # @param old_global_id [String]
   #    global_id of collection object or Otu
   #
-  # @params new_global_id [String]
+  # @param new_global_id [String]
   #    global_id of collection object or Otu
   #
   def self.copy(old_global_id, new_global_id)

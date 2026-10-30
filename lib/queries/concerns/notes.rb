@@ -23,7 +23,7 @@ module Queries::Concerns::Notes
     attr_accessor :note_exact
 
     # @return [Boolean, nil]
-    # @params notes ['true', 'false', Boolean]
+    # @param notes ['true', 'false', Boolean]
     #   Only return objects with notes
     attr_accessor :notes
   end

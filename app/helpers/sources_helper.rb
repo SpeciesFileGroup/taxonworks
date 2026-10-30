@@ -185,7 +185,7 @@ module SourcesHelper
   # end
   #
 
-  # @return Hash
+  # @return [Hash]
   #   a vectorized count of totals per source
   def source_citation_totals(sources)
     data = {}

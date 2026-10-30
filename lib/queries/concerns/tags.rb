@@ -20,21 +20,21 @@ module Queries::Concerns::Tags
 
   included do
     # @return [Array]
-    # @params keyword_id_and
+    # @param keyword_id_and [Integer, Array]
     #   match all objects tagged with all of the keywords referenced in this array
     attr_accessor :keyword_id_and
 
     # @return [Array]
-    # @params keyword_id_or
+    # @param keyword_id_or [Integer, Array]
     #   match all objects tagged with any of the keywords referenced in this array
     attr_accessor :keyword_id_or
 
     # @return [Boolean, nil]
-    # @params tags ['true', 'false', nil]
+    # @param tags ['true', 'false', nil]
     attr_accessor :tags
 
     # @return [Boolean, nil]
-    # @params exclude_tags ['true', 'false', nil]
+    # @param exclude_tags ['true', 'false', nil]
     #   when true, invert keyword_id_facet - i.e. match objects that do NOT
     #   satisfy the keyword_id_and/keyword_id_or criteria.
     attr_accessor :exclude_tags

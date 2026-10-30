@@ -14,7 +14,7 @@ module Shared::IsData::Scopes
     end
 
     # @return [Scope]
-    # @params [List of ids or list of AR instances]
+    # @param ids [Array] list of ids or list of AR instances
     #   a where clause that excludes the records with id = ids 
     # ! Not built for collisions
     def not_ids(*ids)

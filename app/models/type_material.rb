@@ -14,7 +14,7 @@
 #     the type of Type relationship (e.g. holotype)
 #
 # @!attribute project_id
-#   @return [Integer
+#   @return [Integer]
 #   the project ID
 #
 # @!attribute position

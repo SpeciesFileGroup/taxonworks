@@ -206,6 +206,9 @@ module Workbench::SessionsHelper
     icon('favorite-star', fill: filled ? 'currentColor' : 'none')
   end
 
+  # TODO: NOT here
+  # @param kind [String]
+  # @param name [String]
   def favorite_page_link(kind, name)
     if favorites?(kind, name)
       link_to(favorite_star_icon(filled: true), unfavorite_page_path(kind:, name:), method: :post, remote: true, id: "unfavorite_link_#{kind}-#{name}", class: :unfavorite_link, 'aria-label': 'Remove from favorites', 'data-tooltip-content': 'Remove from favorites')
@@ -218,8 +221,8 @@ module Workbench::SessionsHelper
     sessions_current_user.hub_favorites[sessions_current_project_id.to_s] ? true : false
   end
 
-  # @param [String]
-  # @param [String]
+  # @param kind [String]
+  # @param name [String]
   def favorites?(kind, name)
     has_hub_favorites? && sessions_current_user.hub_favorites[sessions_current_project_id.to_s][kind].include?(name)
   end

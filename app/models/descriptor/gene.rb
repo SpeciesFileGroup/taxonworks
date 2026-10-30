@@ -44,7 +44,7 @@ class Descriptor::Gene < Descriptor
   # @return [Scope]
   #   Sequences using AND for the supplied target attributes
   #
-  # @param :target_attributes
+  # @param target_attributes [Array]
   #    [[], [] ...] an array as generated from #sequence_query_set
   def self.sequences_for_gene_attributes(object_sequence_id = nil, target_attributes = [], table_alias = nil)
     return Sequence.none if target_attributes.empty?

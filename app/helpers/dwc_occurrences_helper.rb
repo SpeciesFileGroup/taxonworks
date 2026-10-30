@@ -127,7 +127,7 @@ module DwcOccurrencesHelper
     }
   end
 
-  # @return String html table or empty
+  # @return [String] html table or empty
   def is_stale_metadata_tag(dwc_occurrence)
     d = dwc_occurrence.is_stale_metadata
     u = dwc_occurrence.updated_at
@@ -142,7 +142,7 @@ module DwcOccurrencesHelper
     )
   end
 
-  # @return Hash
+  # @return [Hash]
   #   a rank -> number of determinations to that rank (and not finer) result
   # !! Rescopes to valid TaxonName
   def dwc_determined_to_rank(otu, project_id)

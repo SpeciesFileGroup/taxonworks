@@ -131,17 +131,17 @@ module Queries
     #   false, nil - ignored
     attr_accessor :paginate
 
-    # @return Integer, nil
+    # @return [Integer, nil]
     #   required if paginate == true
     attr_accessor :page
 
-    # @return Integer, nil
+    # @return [Integer, nil]
     #   paginate must equal true
     #   page must be !nil?
     attr_accessor :per
 
     # @return [Array]
-    # @params object_global_id
+    # @param object_global_id
     #   Rails global ids.
     #  Locally these look like gid://taxon-works/Otu/1
     # Using a global id is equivalent to
@@ -230,7 +230,7 @@ module Queries
     # @return [Query::Sound::Filter, nil]
     attr_accessor :sound_query
 
-    # @return Boolean
+    # @return [Boolean]
     #   Applies an order on updated.
     attr_accessor :recent
 
@@ -238,23 +238,23 @@ module Queries
     #   defaults to :updated_at if blank
     attr_accessor :recent_target
 
-    # @return Boolean
+    # @return [Boolean]
     #   When true api_except_params is applied and
     #   other restrictions are placed:
     #     - :venn param is ignored
     #     - is_public=true is applied
     attr_accessor :api
 
-    # @return String
+    # @return [String]
     #   A JSON full URL containing the base string for a query
     attr_accessor :venn
 
-    # @return Symbol one of :a, :ab, :b
+    # @return [Symbol] one of :a, :ab, :b
     #    :a :ab  :b
     #  ( A ( B ) C )
     attr_accessor :venn_mode
 
-    # @return Boolean
+    # @return [Boolean]
     # When true, all paging parameters will be removed from the B query and it
     # will return its full result set for venn processing.
     # When false, the B venn query will use only the single page indicated by
@@ -274,14 +274,14 @@ module Queries
     #
     attr_accessor :order_by
 
-    # @return Hash
+    # @return [Hash]
     #  the parsed/permitted params
     #   that were used to on initialize() only!!
     # !! Using setters directly on query parameters will not alter this variable !!
     # !! This is used strictly during the permission process of ActionController::Parameters !!
     attr_reader :params
 
-    # @return Boolean
+    # @return [Boolean]
     # If true then *_facet methods need only return
     # scope.none to indicate that the facet is active
     # given the current parameters. Facet return scopes
@@ -292,7 +292,7 @@ module Queries
     # ignore this.
     attr_accessor :roll_call
 
-    # @params query_params [ActionController::Parameters]
+    # @param query_params [ActionController::Parameters]
     def initialize(query_params)
 
       # Reference to query_params, i.e. always permitted
@@ -377,7 +377,7 @@ module Queries
       Rack::Utils.parse_nested_query(url)
     end
 
-    # @params [Parameters]
+    # @param params [ActionController::Parameters]
     # @return [Filter, nil]
     #    the class of filter that is referenced at the base of this parameter set
     def self.base_filter(params)
@@ -444,7 +444,7 @@ module Queries
       f
     end
 
-    # @return Array
+    # @return [Array]
     #  merges `[:a, {a: []}]` into [:a]
     def self.params
       a = self::PARAMS.dup
@@ -458,7 +458,7 @@ module Queries
       [:venn, :venn_mode]
     end
 
-    # @return Array, nil
+    # @return [Array, nil]
     #   a [:a, :b, {c: []}] formatted Array
     # to be merged into included params
     def self.annotator_params
@@ -511,8 +511,8 @@ module Queries
     # something like params.permitted_params => Array after multiple calls like params.permit(:a),
     # params.permit(:b).
     #
-    # @return Array like [:a,:b, :c, {d: []}]
-    # @params hsh Hash
+    # @return [Array] like [:a,:b, :c, {d: []}]
+    # @param hsh Hash
     #    Uses an *unsafe* hash from an instance of ActionController::Parameters or
     # any parameter set for the query.
     def permitted_params(hsh)
@@ -588,7 +588,7 @@ module Queries
       h
     end
 
-    # @params hsh Hash
+    # @param hsh Hash
     # @return [Array of Symbol]
     #   all queries, in nested order
     # Since queries nest linearly we don't need to recursion.
@@ -602,15 +602,15 @@ module Queries
       result.map(&:to_sym)
     end
 
-    # @params params ActionController::Parameters
+    # @param params ActionController::Parameters
     # @return ActionController::Parameters
     def deep_permit(params)
       p = params.permit( permitted_params(params.to_unsafe_hash))
     end
 
-    # @params params [Hash]
+    # @param params [Hash]
     #   set all nested queries variables, e.g. @otu_filter_query
-    # @return True
+    # @return [True]
     # TODO: when a nesting problem is found we need to flag the query as invalid
     def set_nested_queries(params)
 
@@ -847,7 +847,7 @@ module Queries
       self.class.new(a)
     end
 
-    # @return Boolean
+    # @return [Boolean]
     #   true - the only param pasted is `project_id` !! Note that this is the default for all queries, it is set on initialize
     #   false - there are no params at ALL or at least one that is not `project_id`, and project_id != false
     # !! WARNING: this will "fail" (i.e. return false) in background jobs where

@@ -63,7 +63,7 @@ module Queries
     #   the DELEGATED_DEPTH fetch runs once. nil (default) is no sharing.
     attr_accessor :delegated_results
 
-    # @param [Hash] args
+    # @param keyword_args [Hash]
     def initialize(string, project_id: nil, restrict_to: nil, limit: nil, **keyword_args)
       @query_string = ::ApplicationRecord.sanitize_sql(string)&.delete("\u0000") # remove null bytes
 

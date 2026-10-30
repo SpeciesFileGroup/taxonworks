@@ -184,7 +184,7 @@ module SqedDepictionsHelper
     end
   end
 
-  # @return Array
+  # @return [Array]
   def sqed_waxy_metadata(sqed_depiction)
     o = sqed_depiction.depiction_object
     [

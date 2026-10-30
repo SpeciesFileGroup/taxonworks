@@ -1,0 +1,20 @@
+occurrenceID	basisOfRecord	TW:TaxonDetermination:otu_id	TW:TaxonDetermination:determiner_ids	identifiedBy	dateIdentified	identificationRemarks
+person	PreservedSpecimen	812300	person/812301	Do Not Create	2024-04-03	Identification note
+organization	PreservedSpecimen	812300	organization/812301	Do Not Create	2024-04-03	Identification note
+mixed	PreservedSpecimen	812300	 Organization/812301 | PeRsOn/812302 | PERSON/812301 | organization/812301 	Do Not Create	2024-04-03	Identification note
+observation	HumanObservation	812300	Person/812301|Organization/812302	Do Not Create	2024-04-03	Identification note
+blank	PreservedSpecimen	812300	 	Jane Observer	2024-04-03	Identification note
+fallback-organization	PreservedSpecimen	812300		Determiner Institute	2024-04-03	Identification note
+fallback-alternate	PreservedSpecimen	812300		Alternate Institute	2024-04-03	Identification note
+mapped	PreservedSpecimen	812300	person/812301	Original identifier text	2024-04-03	Identification note
+invalid-0	PreservedSpecimen	812300	person/899999	Do Not Create	2024-04-03	Identification note
+invalid-1	PreservedSpecimen	812300	organization/899999	Do Not Create	2024-04-03	Identification note
+invalid-2	PreservedSpecimen	812300	person/812301|organization/899999	Do Not Create	2024-04-03	Identification note
+invalid-3	PreservedSpecimen	812300	812301	Do Not Create	2024-04-03	Identification note
+invalid-4	PreservedSpecimen	812300	user/812301	Do Not Create	2024-04-03	Identification note
+invalid-5	PreservedSpecimen	812300	organization/abc	Do Not Create	2024-04-03	Identification note
+invalid-6	PreservedSpecimen	812300	person/0	Do Not Create	2024-04-03	Identification note
+invalid-7	PreservedSpecimen	812300	organization/-1	Do Not Create	2024-04-03	Identification note
+invalid-8	PreservedSpecimen	812300	person/812301|	Do Not Create	2024-04-03	Identification note
+invalid-9	PreservedSpecimen	812300	|organization/812301	Do Not Create	2024-04-03	Identification note
+invalid-10	PreservedSpecimen	812300	person/812301||organization/812301	Do Not Create	2024-04-03	Identification note

@@ -10,7 +10,7 @@ module BatchLoad
     # The code (Rank Class) that new names will use. Required.
     attr_accessor :nomenclature_code
 
-    # @return Boolean
+    # @return [Boolean]
     # Whether to create an OTU as well
     attr_accessor :also_create_otu
 

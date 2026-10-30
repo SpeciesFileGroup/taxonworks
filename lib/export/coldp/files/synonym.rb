@@ -18,7 +18,7 @@
 #
 module Export::Coldp::Files::Synonym
 
-  # @return String
+  # @return [String]
   # Last 3 of https://api.checklistbank.org/vocab/taxonomicstatus
   def self.status(o, t)
     #'accepted'
@@ -29,7 +29,7 @@ module Export::Coldp::Files::Synonym
     'synonym'
   end
 
-  # @params otu [Otu]
+  # @param otu [Otu]
   #   the top level OTU
   def self.generate(otu, otus, project_members, reference_csv = nil)
 

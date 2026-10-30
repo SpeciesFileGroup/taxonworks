@@ -15,7 +15,7 @@ module Queries
         biocuration_classification_object_type: []
       ].freeze
 
-      # @return Array, Integer
+      # @return [Array, Integer]
       attr_accessor :biocuration_classification_id
 
       # Array, Integer
@@ -27,7 +27,7 @@ module Queries
       # Array, Integer
       attr_accessor :biocuration_classification_object_type
 
-      # @params params [ActionController::Parameters]
+      # @param query_params [ActionController::Parameters]
       def initialize(query_params)
         super
 

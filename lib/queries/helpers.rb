@@ -1,7 +1,7 @@
 module Queries::Helpers
 
-  # @params params
-  # @params attribute [Symbol]
+  # @param params
+  # @param attribute [Symbol]
   # @return [Boolean, nil]
   def boolean_param(params, attribute)
     return nil if attribute.nil? || params[attribute].nil?
@@ -18,8 +18,8 @@ module Queries::Helpers
     end
   end
 
-  # @params params
-  # @params attribute [Symbol]
+  # @param params
+  # @param attribute [Symbol]
   # @return params
   def integer_param(params, attribute)
     return nil if attribute.nil? || params[attribute].nil?

@@ -18,17 +18,17 @@ module Queries::Concerns::Protocols
 
   included do
     # @return [Array]
-    # @params protocol_id_and
+    # @param protocol_id_and [Integer, Array]
     #   match any objects linked to all Protocols referenced here
     attr_accessor :protocol_id_and
 
     # @return [Array]
-    # @params keyword_id_or
+    # @param protocol_id_or [Integer, Array]
     #   match any objects linked to any Protocol referenced here
     attr_accessor :protocol_id_or
 
     # @return [Boolean, nil]
-    # @params protocols ['true', 'false', nil]
+    # @param protocols ['true', 'false', nil]
     #   true - return objects that reference any Protocol
     #   false - return objects that reference no Protocol
     #   nil - ignored

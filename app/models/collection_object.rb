@@ -366,7 +366,7 @@ class CollectionObject < ApplicationRecord
   #
   # Find all collection objects which have collecting events which have georeferences which have geographic_items which
   # are located within the geographic item supplied
-  # @param [GeographicItem] geographic_item_id
+  # @param [GeographicItem] geographic_item
   # @return [Scope] of CollectionObject
   def self.in_geographic_item(geographic_item, limit, steps = false)
     geographic_item_id = geographic_item.id
@@ -648,7 +648,7 @@ class CollectionObject < ApplicationRecord
     CollectionObject.joins(j).pluck(:id).uniq
   end
 
-  # @params target [String] one of `TaxonDetermination`, `BiologicalAssociation` , nil
+  # @param target [String] one of `TaxonDetermination`, `BiologicalAssociation` , nil
   # @return [Hash] otus optimized for user selection
   def self.select_optimized(user_id, project_id, target = nil, ba_target = 'object')
     r = used_recently(user_id, project_id, target, ba_target)

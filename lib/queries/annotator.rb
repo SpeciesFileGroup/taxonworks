@@ -5,7 +5,7 @@ module Queries
   module Annotator
     include Arel::Nodes
 
-    # @params hash [Hash]
+    # @param hash [Hash]
     #   derived from permitted parameters
     # @return [Array of Arel::Nodes::And]
     def self.polymorphic_nodes(hash, klass)
@@ -21,9 +21,9 @@ module Queries
       nodes
     end
 
-    # @params params [ActionController::Parameters]
+    # @param params [ActionController::Parameters]
     #    from controller, MUST BE the full, pre-permitted set
-    # @params klass [ ApplicationRecord subclass]
+    # @param klass [ ApplicationRecord subclass]
     # @return [Arel::Nodes::And]
     #   translates params from requests like `otus/123/data_attributes` to a
     #   Arel::Nodes::And clause equvialent to `DataAttribute.where(attribute_subject_type: 'Otu', attribute_subject_id: 123)`
@@ -42,7 +42,7 @@ module Queries
       n
     end
 
-    # @return String
+    # @return [String]
     #   name of the class being Annotated
     def self.annotated_class(params, klass)
       h = shallow_id(params, klass)
@@ -50,15 +50,15 @@ module Queries
       h.keys.first.to_s.gsub(/_id$/, '').camelize
     end
 
-    # @return Hash
+    # @return [Hash]
     def self.shallow_id(params, klass)
       return {} unless params.class.name == 'ActionController::Parameters'
       params.permit(klass.related_foreign_keys).to_h # could be added into permit framework
     end
 
-    # @params params [ActionController::Parameters]
+    # @param params [ActionController::Parameters]
     #    from controller
-    # @params klass [ ApplicationRecord subclass]
+    # @param klass [ ApplicationRecord subclass]
     # @return [ Arel::Nodes::And ]
     #   for use in SomeAnnotator.where()
     def self.annotator_params(params, klass)

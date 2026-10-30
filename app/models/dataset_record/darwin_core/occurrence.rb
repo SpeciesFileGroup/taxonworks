@@ -78,6 +78,9 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     typeStatus: 'requires a physical CollectionObject'
   }.freeze
 
+  COLLECTOR_IDS_FIELD = 'TW:CollectingEvent:collector_ids'.freeze
+  DETERMINER_IDS_FIELD = 'TW:TaxonDetermination:determiner_ids'.freeze
+
   ACCEPTED_ATTRIBUTES = {
     CollectionObject: %I(
       buffered_collecting_event buffered_determinations buffered_other_labels
@@ -90,6 +93,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     ).to_set.freeze,
 
     CollectingEvent: %I(
+      collector_ids
       document_label print_label verbatim_label
       field_notes formation
       group
@@ -102,7 +106,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     ).to_set.freeze,
 
     TaxonDetermination: %I(
-      otu_id
+      otu_id determiner_ids
     ).to_set.freeze
   }.freeze
 
@@ -266,6 +270,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     fields = []
     fields += OTU_ID_INCOMPATIBLE_FIELDS if get_otu_id
     fields << 'institutionCode' if human_observation?
+    fields << 'identifiedBy' if get_field_value(DETERMINER_IDS_FIELD).present?
 
     ignored_model = human_observation? ? 'CollectionObject' : 'FieldOccurrence'
     model_fields = (
@@ -461,6 +466,13 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
 
         # TODO: If all attributes are equal assume it is the same event and share it with other specimens? (eventID is an alternate method to detect duplicates)
         if collecting_event
+          if get_field_value(COLLECTOR_IDS_FIELD).present? &&
+              collecting_event.collectors.pluck(:id) != attributes[:collecting_event][:collectors].map(&:id)
+            raise DarwinCore::InvalidData.new({
+              COLLECTOR_IDS_FIELD => ['Collectors do not match the existing collecting event in the supplied order']
+            })
+          end
+
           if field_number_identifier && event_id_identifier &&
             field_number_identifier.identifier_object != event_id_identifier.identifier_object
             raise DarwinCore::InvalidData.new({ 'eventID/fieldNumber' => ['eventId and fieldNumber refer to different collecting events'] })
@@ -947,7 +959,9 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     # recordNumber: [Mapped in import method]
 
     # recordedBy: [collecting_event.collectors and collecting_event.verbatim_collectors]
-    Utilities::Hashes::set_unless_nil(res[:collecting_event], :collectors, (parse_people(:recordedBy) rescue nil))
+    unless get_field_value(COLLECTOR_IDS_FIELD).present?
+      Utilities::Hashes::set_unless_nil(res[:collecting_event], :collectors, (parse_people(:recordedBy) rescue nil))
+    end
     Utilities::Hashes::set_unless_nil(res[:collecting_event], :verbatim_collectors, get_field_value(:recordedBy))
 
     # individualCount: [specimen.total]
@@ -1452,19 +1466,26 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
       end
     end
 
-    # identifiedBy: determiners of taxon determination
-    determiners = nil
-    if self.import_dataset.enable_organization_determiners?
-      determiners = parse_organizations_and_people(:identifiedBy,
-                                                   self.import_dataset.enable_organization_determiners_alt_name?)
+    # Explicit references take precedence over name parsing and name-lookup settings.
+    if value = get_field_value(DETERMINER_IDS_FIELD)
+      agents = parse_agent_references(value, DETERMINER_IDS_FIELD, { 'person' => Person, 'organization' => Organization })
+      taxon_determination[:determiner_roles_attributes] = agents.each_with_index.map do |agent, index|
+        agent_key = agent.is_a?(Person) ? :person : :organization
+        { agent_key => agent, position: index + 1 }
+      end
     else
-      determiners = parse_people(:identifiedBy)
-    end
-    unless determiners.nil?
-      if determiners.first.is_a?(Person)
-        taxon_determination[:determiners] = determiners
-      elsif determiners.first.is_a?(Organization)
-        taxon_determination[:determiners_organization] = determiners
+      # identifiedBy: determiners of taxon determination
+      determiners = if self.import_dataset.enable_organization_determiners?
+        parse_organizations_and_people(:identifiedBy, self.import_dataset.enable_organization_determiners_alt_name?)
+      else
+        parse_people(:identifiedBy)
+      end
+      unless determiners.nil?
+        if determiners.first.is_a?(Person)
+          taxon_determination[:determiners] = determiners
+        elsif determiners.first.is_a?(Organization)
+          taxon_determination[:determiners_organization] = determiners
+        end
       end
     end
 
@@ -1877,6 +1898,38 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     }
   end
 
+  def parse_collector_ids(value)
+    parse_agent_references(value, COLLECTOR_IDS_FIELD, { 'person' => Person })
+  end
+
+  # Resolve only the explicitly allowed shared agent types, preserving mixed-list order.
+  def parse_agent_references(value, field, agent_types)
+    references = value.split('|', -1).map do |reference|
+      reference = reference.strip
+      match = /\A(person|organization)\/([0-9]+)\z/i.match(reference)
+      unless match && agent_types.key?(match[1].downcase) && match[2].to_i.positive?
+        expected = agent_types.keys.map { |type| "#{type}/[positive integer]" }.join(' or ')
+        raise DarwinCore::InvalidData.new({ field => ["'#{reference}' is not a valid agent reference; expected #{expected}"] })
+      end
+      [match[1].downcase, match[2].to_i]
+    end.uniq
+
+    agents = {}
+    references.group_by(&:first).each do |type, typed_references|
+      agent_types.fetch(type).where(id: typed_references.map(&:last)).each do |agent|
+        agents[[type, agent.id]] = agent
+      end
+    end
+    missing = references - agents.keys
+    if missing.any?
+      raise DarwinCore::InvalidData.new({
+        field => ["Agents not found: #{missing.map { |type, id| "#{type}/#{id}" }.join(', ')}"]
+      })
+    end
+
+    references.map { |reference| agents.fetch(reference) }
+  end
+
   def parse_tw_collecting_event_attributes
 
     attributes = {}
@@ -1887,7 +1940,11 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         if !ACCEPTED_ATTRIBUTES[:CollectingEvent].include?(attribute[:name])
           raise DarwinCore::InvalidData.new({ attribute[:field] => ["#{attribute[:name]} is not a valid CollectingEvent attribute"] })
         end
-        attributes[attribute[:name]] = value
+        if attribute[:name] == :collector_ids
+          attributes[:collectors] = parse_collector_ids(value)
+        else
+          attributes[attribute[:name]] = value
+        end
       end
     end
 

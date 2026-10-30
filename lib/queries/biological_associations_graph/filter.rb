@@ -28,7 +28,7 @@ module Queries
 
       API_PARAM_EXCLUSIONS = [ ]
 
-      # @param biological_associations_graph_id
+      # @param biological_associations_graph_id [Integer, Array]
       #   These biological association graphs
       attr_accessor :biological_associations_graph_id
 

@@ -29,7 +29,7 @@ module ::Export::ProjectData::Sql
     file.puts schema_tail
   end
 
-  # @return String
+  # @return [String]
   #   path to zipfile
   def self.export(project, custom_password: nil)
     zip_file_path = "/tmp/_#{SecureRandom.hex(8)}_dump.sql"
@@ -51,7 +51,7 @@ module ::Export::ProjectData::Sql
   end
 
   # TODO - DRY with generic params passing
-  # @return Download
+  # @return [Download]
   #   a completely built Download, but unsaved
   def self.download(target_project)
     file_path = export(target_project)
@@ -61,7 +61,7 @@ module ::Export::ProjectData::Sql
     d
   end
 
-  # @return Download
+  # @return [Download]
   #   everything except source_file_path
   def self.stub_download(target_project)
     Download::ProjectDump::Sql.create!(
@@ -73,7 +73,7 @@ module ::Export::ProjectData::Sql
     )
   end
 
-  # @return Download
+  # @return [Download]
   def self.download_async(target_project, custom_password: nil)
     d = stub_download(target_project)
     DownloadProjectSqlJob.perform_later(target_project, d, custom_password: custom_password)

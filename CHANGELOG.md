@@ -9,6 +9,8 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 ### Added
 
+- Occurrences importer: Import people and organizations via `TW:TaxonDetermination:determiner_ids` (e.g. `Person/123 | Organization/456`).
+- Occurrences importer: Import collectors by existing Person IDs via `TW:CollectingEvent:collector_ids` (e.g. `Person/123 | Person/456`).
 - Composition and CompositionItem models, the first Render models for tracking display of Data items in the UI [#5116] [#5117]
 - `coordinate_otus` parameter to `/otus/<id>/inventory/content`
 - Browse OTUs: `All` tab in Timeline panel
@@ -19,6 +21,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Radial mass navigator: Edit slice
 - New source: Italic button to Abstract field
 - Taxon name pills to OTU tags
+- `/taxon_names/<id>/inventory/catalog` includes `nomenclatural_synonyms_otu_id`
 
 ### Changed
 
@@ -26,6 +29,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - `/taxon_names/<id>/inventory/catalog` sends sources in chronological order [#200]
 - Autocompletes: Removed bold and softened the yellow highlight for matching text [#5151]
 - New observation matrix: replaced OTU autocompletes by autoselects
+- New image: Replaced OTU autocomplete by autoselect in "Depict some" panel [#5143]
 
 ### Fixed
 
@@ -38,6 +42,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - CSD: Saving a CO with a CE that has multiple uses displays a confirmation modal even if it has not been modified [#5146]
 - Unify issues related to matrices [#5129]
 - The PDF toolbar overlaps the scroll button
+- Improved coverage at https://rdoc.taxonworks.org/
 
 [#200]: https://github.com/SpeciesFileGroup/taxonpages/issues/200
 [#5116]: https://github.com/SpeciesFileGroup/taxonworks/issues/5116
@@ -48,6 +53,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 [#5136]: https://github.com/SpeciesFileGroup/taxonworks/issues/5136
 [#5137]: https://github.com/SpeciesFileGroup/taxonworks/issues/5137
 [#5141]: https://github.com/SpeciesFileGroup/taxonworks/issues/5141
+[#5143]: https://github.com/SpeciesFileGroup/taxonworks/issues/5143
 [#5144]: https://github.com/SpeciesFileGroup/taxonworks/issues/5144
 [#5146]: https://github.com/SpeciesFileGroup/taxonworks/issues/5146
 [#5151]: https://github.com/SpeciesFileGroup/taxonworks/issues/5151

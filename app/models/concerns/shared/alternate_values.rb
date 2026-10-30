@@ -35,8 +35,8 @@ module Shared::AlternateValues
   module ClassMethods
 
     # @return [Scope]
-    # @param [:symbol] the column name/attribute
-    # @param [String, Integer, etc] the value to look for
+    # @param a [Symbol] the column name/attribute
+    # @param b [String, Integer, etc] the value to look for
     # Use
     #   Source.with_alternate_value_on(:title, 'foo')
     def with_alternate_value_on(a, b)
@@ -44,8 +44,8 @@ module Shared::AlternateValues
     end
 
     # @return [Scope]
-    # @param [:symbol] the column name/attribute
-    # @param [String, Integer, etc] the value to look for
+    # @param attribute [Symbol] the column name/attribute
+    # @param value [String, Integer, etc] the value to look for
     # Use
     #   Source.with_any_value_for(:title, 'foo')
     def with_any_value_for(attribute, value)

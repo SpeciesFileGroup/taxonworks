@@ -121,7 +121,7 @@ class Sequence < ApplicationRecord
     end
   end
 
-  # @params target [String] one of nil, 'SequenceRelationship', 'GeneAttribute'
+  # @param target [String] one of nil, 'SequenceRelationship', 'GeneAttribute'
   # @return [Hash] otus optimized for user selection
   def self.select_optimized(user_id, project_id, target = nil)
     r = used_recently(user_id, project_id, target)
