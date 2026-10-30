@@ -233,7 +233,9 @@
             of <em>{{ ext.accepted.col_name }}</em>
             {{ ext.accepted.col_authorship }}</template
           >. Catalogue of Life gives the name no classification of its own, so
-          it can't be created from here. Search with a different level instead.
+          it can't be created from here. Try the
+          <strong>CoL Valid Name</strong> level (enable it in preferences with
+          <code>!p</code>), or search with a different level.
         </template>
         <template v-else-if="chainConflict">
           TaxonWorks and Catalogue of Life disagree at
