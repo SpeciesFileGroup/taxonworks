@@ -20,11 +20,14 @@
           </label>
         </li>
       </ul>
-      <OtuAutoselectPicker
+      <AutoselectPicker
         v-if="isOtuType"
         class="margin-medium-top"
+        model="otus"
+        param="otu_id"
+        get-object
         preferences-key="otu_for_new_image_depic_some"
-        @get-item="addToList"
+        @select="addToList"
       />
       <SmartSelector
         v-else-if="selectedType"
@@ -57,7 +60,7 @@
 <script setup>
 import BlockLayout from '@/components/layout/BlockLayout.vue'
 import SmartSelector from '@/components/ui/SmartSelector'
-import OtuAutoselectPicker from '@/components/otu/otu_picker/otu_autoselect_picker.vue'
+import AutoselectPicker from '@/components/ui/AutoselectPicker.vue'
 import TableList from '@/components/table_list'
 
 import { GetterNames } from '../../store/getters/getters.js'
