@@ -105,7 +105,7 @@ module Queries
         controlled_vocabulary_term_id.empty? ? nil : table[:controlled_vocabulary_term_id].in(controlled_vocabulary_term_id)
       end
 
-      # Replaces things like `otu_query_facet)
+      # Replaces things like `otu_query_facet`
       def from_filter_facet(query, project_ids = [])
         return nil if query.nil?
         t = "query_#{query.table.name}_da"
@@ -131,7 +131,9 @@ module Queries
       end
 
       def merge_clauses
-        ::Queries::Query::Filter::SUBQUERIES[:data_attribute].collect{|m| from_filter_facet(send("#{m}_query"), project_id)}
+        ::Queries::Query::Filter::SUBQUERIES[:data_attribute].collect { |m|
+          from_filter_facet(send("#{m}_query"), project_id)
+        }
       end
 
       def and_clauses

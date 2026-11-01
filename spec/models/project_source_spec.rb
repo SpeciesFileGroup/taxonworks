@@ -22,19 +22,34 @@ describe ProjectSource do
     a = FactoryBot.create(:valid_source_bibtex)
     FactoryBot.create(:valid_citation, source: a) # adds a to the project
 
-    expect(ProjectSource.batch_sync_to_project( {source_query:  {source_id: a.id}}, :remove, project_id )).to eq(0)
-    expect( Project.find(project_id).project_sources.map(&:source_id).include?(a.id) ).to be_truthy
+    expect(
+      ProjectSource.batch_sync_to_project(
+        {source_query:  {source_id: a.id}}, :remove, project_id
+      )
+    ).to eq(0)
+    expect(
+      Project.find(project_id).project_sources.map(&:source_id).include?(a.id)
+    ).to be_truthy
   end
 
   specify '#batch_sync_to_project :remove removes a source cited only in another project' do
     other_project = FactoryBot.create(:valid_project)
     a = FactoryBot.create(:valid_source_bibtex)
     FactoryBot.create(:valid_project_source, source: a, project_id:)
-    FactoryBot.create(:valid_citation, source: a, project: other_project) # adds a to other_project
+    # Adds `a` to other_project
+    FactoryBot.create(:valid_citation, source: a, project: other_project)
 
-    expect(ProjectSource.batch_sync_to_project( {source_query:  {source_id: a.id}}, :remove, project_id )).to eq(1)
-    expect( Project.find(project_id).project_sources.map(&:source_id).include?(a.id) ).to be_falsey
-    expect( other_project.project_sources.map(&:source_id).include?(a.id) ).to be_truthy
+    expect(
+      ProjectSource.batch_sync_to_project(
+        {source_query:  {source_id: a.id}}, :remove, project_id
+      )
+    ).to eq(1)
+    expect(
+      Project.find(project_id).project_sources.map(&:source_id).include?(a.id)
+    ).to be_falsey
+    expect(
+      other_project.project_sources.map(&:source_id).include?(a.id)
+    ).to be_truthy
   end
 
   context 'validation' do

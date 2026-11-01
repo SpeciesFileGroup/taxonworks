@@ -8,11 +8,17 @@ describe 'Queries::Query::Filter <model>_id', type: :model do
 
   filters = ::Queries::Query::Filter.descendants
     .select { |k| k.name && k.const_defined?(:PARAMS, false) }
-    .select { |k| k::PARAMS.flat_map { |p| p.is_a?(Hash) ? p.keys : [p] }.include?(:"#{k.base_name}_id") }
+    .select { |k|
+      k::PARAMS.flat_map { |p| p.is_a?(Hash) ? p.keys : [p] }
+        .include?(:"#{k.base_name}_id")
+    }
     .sort_by(&:name)
 
   before do
-    # referenced_klass_intersection aliases with a random suffix
+    # These examples compare SQL strings. referenced_klass_intersection adds a
+    # random_string suffix to a table alias, so two builds of the same filter
+    # would never compare equal and `not_to eq(base)` would always pass. Make
+    # the suffix fixed ('rrrrr') so the SQL differs only when the param matters.
     allow(Utilities::Strings).to receive(:random_string) { |n| 'r' * n }
   end
 
