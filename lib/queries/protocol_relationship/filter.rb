@@ -39,7 +39,7 @@ module Queries
         @protocol_relationship_object_id = params[:protocol_relationship_object_id]
         @protocol_relationship_object_type = params[:protocol_relationship_object_type]
         @protocol_id = params[:protocol_id]
-        @protocol_relationhip_id = params[:protocol_relationship_id]
+        @protocol_relationship_id = params[:protocol_relationship_id]
         set_polymorphic_params(params)
       end
 
