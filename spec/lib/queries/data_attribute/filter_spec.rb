@@ -23,8 +23,8 @@ describe Queries::DataAttribute::Filter, type: :model do
   end
 
   # Any filter whose referenced model has data attributes can be the scope for a
-  # data attribute batch update; an unregistered *_query is silently ignored,
-  # which leaves the update scoped to every record in the project.
+  # data attribute batch update; an unregistered *_query raises, so the batch
+  # annotator would fail for that model.
   specify 'every subqueryable model with data attributes is a DataAttribute subquery' do
     a = ::Queries::Query::Filter::FILTER_QUERIES.select { |k, v|
       v.constantize.referenced_klass.included_modules.include?(::Shared::DataAttributes)

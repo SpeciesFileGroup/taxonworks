@@ -395,6 +395,19 @@ describe Queries::Query::Filter, type: [:model] do
       }.to raise_error(TaxonWorks::Error::NestedQuery)
     end
 
+    # Tag has no SUBQUERIES entry, i.e. accepts no nested query.
+    specify 'nested query to a filter with no SUBQUERIES entry raises (ActionController::Parameters)' do
+      expect {
+        ::Queries::Tag::Filter.new(ActionController::Parameters.new(otu_query: { otu_id: [1] }))
+      }.to raise_error(TaxonWorks::Error::NestedQuery)
+    end
+
+    specify 'nested query to a filter with no SUBQUERIES entry raises (Hash)' do
+      expect {
+        ::Queries::Tag::Filter.new(otu_query: { otu_id: [1] })
+      }.to raise_error(TaxonWorks::Error::NestedQuery)
+    end
+
     specify 'registered nested query is applied' do
       a = ::Queries::DataAttribute::Filter.new(ActionController::Parameters.new(otu_query: { otu_id: [1] }))
       expect(a.otu_query.otu_id).to eq([1])

@@ -569,7 +569,7 @@ module Queries
       while !b.empty?
         a = b.shift
 
-        raise_unregistered_nested_query(parent, a) unless SUBQUERIES[parent.base_name.to_sym].include?( a.to_s.gsub('_query', '').to_sym )
+        raise_unregistered_nested_query(parent, a) unless SUBQUERIES.fetch(parent.base_name.to_sym, []).include?( a.to_s.gsub('_query', '').to_sym )
 
         q = FILTER_QUERIES[a].safe_constantize
         p = q::PARAMS.deep_dup
@@ -659,7 +659,7 @@ module Queries
 
         query_name = n.first.first
 
-        raise_unregistered_nested_query(self.class, query_name) unless SUBQUERIES[base_name.to_sym].include?( query_name.to_s.gsub('_query', '').to_sym ) # must be registered
+        raise_unregistered_nested_query(self.class, query_name) unless SUBQUERIES.fetch(base_name.to_sym, []).include?( query_name.to_s.gsub('_query', '').to_sym ) # must be registered
 
         query_params = n.first.last
 
