@@ -98,7 +98,7 @@ class InternalAttribute < DataAttribute
   def self.batch_update_or_create(params)
     a = Queries::Query::Filter.base_filter(params)
 
-    q = params.keys.select{|z| z =~ /_query/}.first
+    q = Queries::Query::Filter.base_query_name(params)
 
     return false if q.nil?
 

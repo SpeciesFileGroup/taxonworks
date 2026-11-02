@@ -111,6 +111,20 @@ describe InternalAttribute, type: :model do
     expect([a.reload.value, b.reload.value]).to eq(%w{B A})
   end
 
+  specify '.batch_update_or_create raises on more than one top-level query' do
+    expect {
+      InternalAttribute.batch_update_or_create(
+        ActionController::Parameters.new(
+          otu_query: { otu_id: [otu.id] },
+          collection_object_query: { collection_object_id: [1] },
+          predicate_id: predicate.id,
+          value_from: '',
+          value_to: 'B'
+        )
+      )
+    }.to raise_error(TaxonWorks::Error::NestedQuery)
+  end
+
   specify '.batch_create 1' do
     o1 = FactoryBot.create(:valid_otu)
     o2 = FactoryBot.create(:valid_otu)

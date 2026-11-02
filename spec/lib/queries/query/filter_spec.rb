@@ -408,6 +408,18 @@ describe Queries::Query::Filter, type: [:model] do
       }.to raise_error(TaxonWorks::Error::NestedQuery)
     end
 
+    # Batch entry points pick their scope with base_query_name; ignoring a
+    # second top-level query would run the batch without that scope.
+    specify '.base_query_name raises on more than one top-level query' do
+      expect {
+        ::Queries::Query::Filter.base_query_name(otu_query: { otu_id: [1] }, collection_object_query: { collection_object_id: [1] })
+      }.to raise_error(TaxonWorks::Error::NestedQuery)
+    end
+
+    specify '.base_query_name returns the single top-level query' do
+      expect(::Queries::Query::Filter.base_query_name(otu_query: { otu_id: [1] }, mode: 'add')).to eq(:otu_query)
+    end
+
     specify 'registered nested query is applied' do
       a = ::Queries::DataAttribute::Filter.new(ActionController::Parameters.new(otu_query: { otu_id: [1] }))
       expect(a.otu_query.otu_id).to eq([1])

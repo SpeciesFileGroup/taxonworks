@@ -423,8 +423,15 @@ module Queries
       end
     end
 
+    # @return the single top-level `<model>_query` key, or nil
+    #   raises TaxonWorks::Error::NestedQuery when there is more than one:
+    #   using just the first would run e.g. a batch without the others' scope
     def self.base_query_name(params)
-      params.keys.select{|s| s =~ /\A.+_query\z/}.first
+      a = params.keys.select { |s| s =~ /\A.+_query\z/ }
+      if a.count > 1
+        raise TaxonWorks::Error::NestedQuery, "only one top-level query is permitted, got #{a.join(', ')}"
+      end
+      a.first
     end
 
     # @return the params use to instantiate the full
