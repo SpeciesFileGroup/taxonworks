@@ -33,6 +33,10 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 ### Fixed
 
+- Batch update of Data Attributes - from filters *other than* Collection Objects, Collecting Events, Field Occurrences, OTUs, or Taxon Names - updated Data Attributes on every record in the project, not just the filtered ones [#5163]
+- Batch remove protocol in filters removed all protocols from the selected records instead of just the selected protocol[#5163]
+- Batch remove source from project removed sources from a project even when they were cited in that project [#5163]
+- Batch add sources to a project used to stop at the first source already in the project [#5163]
 - Contents are not republished after saving content that was already published [#5133]
 - Browse OTUs: Timeline shows citations for all taxon names when it should only show the current one
 - Biological Properties usage count now returns the number of Biological Associations using a Biological Relationship that has that property on its subject, object, or both sides
@@ -58,6 +62,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 [#5146]: https://github.com/SpeciesFileGroup/taxonworks/issues/5146
 [#5151]: https://github.com/SpeciesFileGroup/taxonworks/issues/5151
 [#5152]: https://github.com/SpeciesFileGroup/taxonworks/issues/5152
+[#5163]: https://github.com/SpeciesFileGroup/taxonworks/issues/5163
 
 ## [0.66.1] - 2026-10-09
 
