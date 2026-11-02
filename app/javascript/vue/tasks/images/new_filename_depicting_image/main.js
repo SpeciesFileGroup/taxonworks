@@ -1,8 +1,11 @@
 import { createApp } from 'vue'
+import { createPinia } from 'pinia'
 import App from './app.vue'
 
-function initApp (element) {
+function initApp(element) {
   const app = createApp(App)
+
+  app.use(createPinia())
 
   app.mount(element)
 }
@@ -10,5 +13,7 @@ function initApp (element) {
 document.addEventListener('turbolinks:load', () => {
   const el = document.querySelector('#new_filename_depicting_image_task')
 
-  if (el) { initApp(el) }
+  if (el) {
+    initApp(el)
+  }
 })

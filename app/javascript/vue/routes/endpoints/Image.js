@@ -29,5 +29,12 @@ export const Image = {
   ...baseCRUD(controller, permitParams),
   ...annotations(controller),
 
-  filter: (params) => AjaxCall('post', `/${controller}/filter.json`, params)
+  filter: (params) => AjaxCall('post', `/${controller}/filter.json`, params),
+
+  filenameDepictionMatch: (params) =>
+    AjaxCall(
+      'post',
+      '/tasks/images/new_filename_depicting_image/match.json',
+      params
+    )
 }
