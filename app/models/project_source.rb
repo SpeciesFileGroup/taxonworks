@@ -31,12 +31,9 @@ class ProjectSource < ApplicationRecord
     if sources.all.any? && !sources.params.empty?
       case operation.to_sym
       when :add
-        begin
-          sources.all.find_each do |s|
-            ProjectSource.create!(source_id: s.id, project_id:)
-            i += 1
-          end
-        rescue ActiveRecord::RecordInvalid
+        sources.all.find_each do |s|
+          # e.g. already in the project; skip it, keep adding the rest
+          i += 1 if ProjectSource.create(source_id: s.id, project_id:).persisted?
         end
       when :remove
         ProjectSource
