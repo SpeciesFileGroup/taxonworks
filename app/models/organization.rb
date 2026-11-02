@@ -112,7 +112,7 @@ class Organization < ApplicationRecord
     ).pluck(:organization_id).uniq
   end
 
-  # @params Role [String] one the available roles
+  # @param role_type [String] one the available roles
   # @return [Hash] Organizations optimized for user selection
   def self.select_optimized(user_id, project_id, role_type = 'AttributionOwner')
     r = used_recently(user_id, role_type)

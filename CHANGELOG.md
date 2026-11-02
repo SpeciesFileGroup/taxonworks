@@ -9,6 +9,8 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 ### Added
 
+- Occurrences importer: Import people and organizations via `TW:TaxonDetermination:determiner_ids` (e.g. `Person/123 | Organization/456`).
+- Occurrences importer: Import collectors by existing Person IDs via `TW:CollectingEvent:collector_ids` (e.g. `Person/123 | Person/456`).
 - Composition and CompositionItem models, the first Render models for tracking display of Data items in the UI [#5116] [#5117]
 - `coordinate_otus` parameter to `/otus/<id>/inventory/content`
 - Browse OTUs: `All` tab in Timeline panel
@@ -19,6 +21,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Radial mass navigator: Edit slice
 - New source: Italic button to Abstract field
 - Taxon name pills to OTU tags
+- `/taxon_names/<id>/inventory/catalog` includes `nomenclatural_synonyms_otu_id`
 
 ### Changed
 
@@ -26,28 +29,42 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - `/taxon_names/<id>/inventory/catalog` sends sources in chronological order [#200]
 - Autocompletes: Removed bold and softened the yellow highlight for matching text [#5151]
 - Filter Biological Associations: change default taxon name search to `or` mode [#5153]
+- New observation matrix: replaced OTU autocompletes by autoselects
+- New image: Replaced OTU autocomplete by autoselect in "Depict some" panel [#5143]
 
 ### Fixed
 
+- Batch update of Data Attributes - from filters *other than* Collection Objects, Collecting Events, Field Occurrences, OTUs, or Taxon Names - updated Data Attributes on every record in the project, not just the filtered ones [#5163]
+- Batch remove protocol in filters removed all protocols from the selected records instead of just the selected protocol[#5163]
+- Batch remove source from project removed sources from a project even when they were cited in that project [#5163]
+- Batch add sources to a project used to stop at the first source already in the project [#5163]
 - Contents are not republished after saving content that was already published [#5133]
 - Browse OTUs: Timeline shows citations for all taxon names when it should only show the current one
 - Biological Properties usage count now returns the number of Biological Associations using a Biological Relationship that has that property on its subject, object, or both sides
 - Filter TNR: After destroying a record in filter taxon name relationships the record still displays [#5137]
 - Browse OTU: OTU distribution map does not load for Combinations [#5152]
 - Field Occurrences don't fill in taxonomy columns (family, genus, etc.) when included in Darwin Core exports
+- CSD: Saving a CO with a CE that has multiple uses displays a confirmation modal even if it has not been modified [#5146]
+- Unify issues related to matrices [#5129]
+- The PDF toolbar overlaps the scroll button
+- Improved coverage at https://rdoc.taxonworks.org/
 
 [#200]: https://github.com/SpeciesFileGroup/taxonpages/issues/200
 [#5116]: https://github.com/SpeciesFileGroup/taxonworks/issues/5116
 [#5117]: https://github.com/SpeciesFileGroup/taxonworks/issues/5117
 [#5128]: https://github.com/SpeciesFileGroup/taxonworks/issues/5128
+[#5129]: https://github.com/SpeciesFileGroup/taxonworks/issues/5129
 [#5133]: https://github.com/SpeciesFileGroup/taxonworks/issues/5133
 [#5136]: https://github.com/SpeciesFileGroup/taxonworks/issues/5136
 [#5137]: https://github.com/SpeciesFileGroup/taxonworks/issues/5137
 [#5141]: https://github.com/SpeciesFileGroup/taxonworks/issues/5141
+[#5143]: https://github.com/SpeciesFileGroup/taxonworks/issues/5143
 [#5144]: https://github.com/SpeciesFileGroup/taxonworks/issues/5144
+[#5146]: https://github.com/SpeciesFileGroup/taxonworks/issues/5146
 [#5151]: https://github.com/SpeciesFileGroup/taxonworks/issues/5151
 [#5152]: https://github.com/SpeciesFileGroup/taxonworks/issues/5152
 [#5153]: https://github.com/SpeciesFileGroup/taxonworks/issues/5153
+[#5163]: https://github.com/SpeciesFileGroup/taxonworks/issues/5163
 
 ## [0.66.1] - 2026-10-09
 

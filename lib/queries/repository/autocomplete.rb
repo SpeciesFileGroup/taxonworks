@@ -5,7 +5,7 @@ module Queries
     include Queries::Concerns::AlternateValues
     include Queries::Concerns::Identifiers
 
-    # @param [Hash] args
+    # @param params [Hash]
     def initialize(string, **params)
       set_identifier_params(params)
       set_alternate_value(params)

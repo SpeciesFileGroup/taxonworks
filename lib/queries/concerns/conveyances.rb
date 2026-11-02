@@ -14,7 +14,7 @@ module Queries::Concerns::Conveyances
 
   included do
     # @return [Array]
-    # @params sound_id
+    # @param sound_id [Integer, Array]
     attr_accessor :sound_id
 
     # @return [Boolean, nil]

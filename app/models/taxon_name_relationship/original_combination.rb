@@ -27,7 +27,7 @@ class TaxonNameRelationship::OriginalCombination < TaxonNameRelationship
     ' with'
   end
 
-  # @return String
+  # @return [String]
   #    the status inferred by the relationship to the subject name
   def subject_status
     'as ' +  self.type_name.demodulize.underscore.humanize.downcase
@@ -37,7 +37,7 @@ class TaxonNameRelationship::OriginalCombination < TaxonNameRelationship
     ' of'
   end
 
-  # @return String
+  # @return [String]
   #    the status inferred by the relationship to the object name
   def object_status
     'in original combination with ' +  self.type_name.demodulize.underscore.humanize.downcase

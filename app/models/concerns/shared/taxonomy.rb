@@ -36,7 +36,7 @@ module Shared::Taxonomy
     #
     attr_accessor :taxonomy
 
-    # @params reset [Boolean]
+    # @param reset [Boolean]
     # @return [Hash]
     #
     # Using `.reload` will not reset taxonomy!

@@ -6,99 +6,99 @@ class Tools::Description::FromObservationMatrix
 
   ##### FILTER PARAMETERS #####
 
-  # @!observation_matrix_id
+  # @!attribute observation_matrix_id
   #   @return [String]
   # Optional attribude to build the description
   attr_accessor :observation_matrix_id
 
-  # @!include_descendants
+  # @!attribute include_descendants
   #   @return [Boolean]
   # Optional attribude to include descentant otus and collection_objects
   attr_accessor :include_descendants
 
-  # @!project_id
+  # @!attribute project_id
   #   @return [String]
   # Required attribute to build the key
   attr_accessor :project_id
 
-  # @!language_id
+  # @!attribute language_id
   #   @return [String or null]
   # Optional attribute to display the descriptors and character_states in a particular language (when translations are available)
   attr_accessor :language_id
 
-  # @!observation_matrix_row_id
+  # @!attribute observation_matrix_row_id
   #   @return [String or null]
   # Optional attribute to provide a rowID
   attr_accessor :observation_matrix_row_id
 
-  # @!otu_id
+  # @!attribute otu_id
   #   @return [String or null]
   # Optional attribute to provide a otuID
   attr_accessor :otu_id
 
   ##### RETURNED DATA ######
 
-  # @!observation_matrix
+  # @!attribute observation_matrix
   #   @return [Object]
   # Returns observation_matrix as an object
   attr_accessor :observation_matrix
 
-  # @!descriptor_available_languages
+  # @!attribute descriptor_available_languages
   #   @return [Array of Objects or null]
   # Returns the list of available Languages used as translations for descriptors and character_states (in translations are available)
   attr_accessor :descriptor_available_languages
 
-  # @!descriptors
+  # @!attribute descriptors
   #   @return [null]
   # Temporary attribute. Used for validation.
   attr_accessor :descriptors
 
-  # @!descriptor_available_keywords
+  # @!attribute descriptor_available_keywords
   #   @return [Array of Objects or null]
   # Returns the list of all Tags used with the descriptors. Descriptors could be filtered by tag_id
   attr_accessor :descriptor_available_keywords
 
-  # @!language_to_use
+  # @!attribute language_to_use
   #   @return [Object or null]
   # Returns Language as an object if the language_id was provided (used to display descriptors in a particular language)
   attr_accessor :language_to_use
 
-  # @!descriptors_with_filter
+  # @!attribute descriptors_with_filter
   #   @return [null]
   # Temporary attribute. Used for validation. List of descriptors reduced by keyword_ids
   attr_accessor :descriptors_with_filter
 
-  # @!otu_id_filter_array
+  # @!attribute otu_id_filter_array
   #   @return [array]
   # Array of otu_ids in the @otu_filter
   attr_accessor :otu_id_filter_array
 
-  # @!collection_object_id_filter_array
+  # @!attribute collection_object_id_filter_array
   #   @return [array]
   # Array of collection_object_ids
   attr_accessor :collection_object_id_filter_array
 
-  # @!similar_objects
+  # @!attribute similar_objects
   #   @return [hash]
   # Hash of similar otus_ids and collection_objects_ids
   attr_accessor :similar_objects
 
-  # @!collection_object_ids_count_hash
+  # @!attribute collection_object_ids_count_hash
   #   @return [hash]
   # Hash of similar collection_objects
   attr_accessor :collection_object_ids_count_hash
 
-  # @!descriptor_hash
+  # @!attribute descriptor_hash
   #   @return [hash]
   # Temporary attribute. Used to generated description and diagnosis
   attr_accessor :descriptor_hash
 
-  # @!generated_description
+  # @!attribute generated_description
   #   @return [string]
   # Returns generated description for OTU
   attr_accessor :generated_description
 
-  # @!generated_diagnosis
+  # @!attribute generated_diagnosis
   #   @return [string]
   # Returns generated diagnosis for OTU
   attr_accessor :generated_diagnosis

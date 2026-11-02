@@ -93,7 +93,7 @@ class Sound < ApplicationRecord
     joins(k).distinct.pluck(:id)
   end
 
-  # @params target [String] required, one of nil, `CollectionObject`, FieldOccurrence`, `Otu'
+  # @param target [String] required, one of nil, `CollectionObject`, FieldOccurrence`, `Otu'
   # @return [Hash] sounds optimized for user selection
   def self.select_optimized(user_id, project_id, target = nil)
     r = used_recently(user_id, project_id, target)

@@ -12,12 +12,12 @@ module Queries
 
       DEFAULT_LIMIT = 40
 
-      # @return Boolean, nil
+      # @return [Boolean, nil]
       #   true - only return Otus with `name` = nil
       #   false,nil - no effect
       attr_accessor :having_taxon_name_only
 
-      # @return Boolean, nil
+      # @return [Boolean, nil]
       #   true - OTU must have taxon name
       #   false - OTU must not have taxon name
       #   nil - ignored
@@ -28,12 +28,12 @@ module Queries
       #   if 'true' then only #name = query_string results are returned (no fuzzy matching)
       attr_accessor :exact
 
-      # @return Boolean, nil
+      # @return [Boolean, nil]
       #  true - 'pre-load' common names with otus
       #  false/nil - ignored
       attr_accessor :include_common_names
 
-      # @return Boolean, nil
+      # @return [Boolean, nil]
       #  true - 'pre-load' taxon name with otus
       #  false/nil - ignored
       #

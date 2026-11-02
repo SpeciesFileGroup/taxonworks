@@ -2,7 +2,6 @@ module Queries
   module Sound
     class Autocomplete < Query::Autocomplete
 
-      # @param [Hash] args
       def initialize(string, project_id: nil)
         super
       end

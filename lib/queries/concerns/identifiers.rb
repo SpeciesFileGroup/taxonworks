@@ -37,14 +37,14 @@ module Queries::Concerns::Identifiers
 
     # @return param, nil (must be Integer or it silently fails)
     #  matches .identifier
-    # @param Integer, nil
+    # @param identifier_end [Integer, nil]
     attr_accessor :identifier_end
 
     # Match like or exact on cached
     attr_accessor :identifier_exact
 
     # @return param, nil (must be Integer or it silently fails)
-    # @param Integer, nil
+    # @param identifier_start [Integer, nil]
     #   matches .identifier
     attr_accessor :identifier_start
 
@@ -184,7 +184,7 @@ module Queries::Concerns::Identifiers
     )
   end
 
-  # @return Array
+  # @return [Array]
   def identifiers_to_match
     ids = match_identifiers.strip.split(match_identifiers_delimiter).flatten.map(&:strip).uniq
     if match_identifiers_type == 'internal'

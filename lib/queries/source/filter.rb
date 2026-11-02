@@ -55,94 +55,94 @@ module Queries
       #   must also include `in_project=true|false`
 
       # @return [Boolean, nil]
-      # @params in_project ['true', 'false', nil]
+      # @param in_project ['true', 'false', nil]
       # ! requires `project_id`
       attr_accessor :in_project
 
-      # @return author [String, nil]
+      # @return [String, nil]
       attr_accessor :author
 
-      # @return editor [String, nil]
+      # @return [String, nil]
       attr_accessor :editor
 
       # TODO: Change to source_id
-      # @return ids [Array of Integer, nil]
+      # @return [Array<Integer>, nil]
       attr_accessor :source_id
 
       # @return [Boolean, nil]
-      # @params exact_author ['true', 'false', nil]
+      # @param exact_author ['true', 'false', nil]
       attr_accessor :exact_author
 
       # @return [Boolean, nil]
-      # @params exact_editor ['true', 'false', nil]
+      # @param exact_editor ['true', 'false', nil]
       attr_accessor :exact_editor
 
-      # @params author [Array of Integer, Person#id]
+      # @param author [Array of Integer, Person#id]
       attr_accessor :author_id
 
-      # @params editor_id [Array of Integer, Person#id]
+      # @param editor_id [Array of Integer, Person#id]
       attr_accessor :editor_id
 
-      # @params author [Boolean, nil]
+      # @param author [Boolean, nil]
       #   `false`, nil - treat the ids in author_id as "or"
       #   'true' - treat the ids in author_id as "and" (only Sources with all and only all will match)
       attr_accessor :author_id_or
 
-      # @params editor_id [Boolean, nil]
+      # @param editor_id [Boolean, nil]
       #   `false`, nil - treat the ids in editor_id as "or"
       #   'true' - treat the ids in editor_id as "and" (only Sources with all and only all will match)
       attr_accessor :editor_id_or
 
-      # @params author [Array of Integer, Topic#id]
+      # @param author [Array of Integer, Topic#id]
       attr_accessor :topic_id
 
-      # @params year_start [Integer, nil]
+      # @param year_start [Integer, nil]
       attr_accessor :year_start
 
-      # @params year_end [Integer, nil]
+      # @param year_end [Integer, nil]
       attr_accessor :year_end
 
-      # @params title [String, nil]
+      # @param title [String, nil]
       attr_accessor :title
 
       # @return [Boolean, nil]
-      # @params exact_title ['true', 'false', nil]
+      # @param exact_title ['true', 'false', nil]
       attr_accessor :exact_title
 
       # !! TODO - conflicts with citations?  !! - yes, this is *used in citations*
       # @return [Boolean, nil]
-      # @params citations ['true', 'false', nil]
+      # @param citations ['true', 'false', nil]
       attr_accessor :citations
 
       # @return [Boolean, nil]
-      # @params roles ['true', 'false', nil]
+      # @param roles ['true', 'false', nil]
       attr_accessor :roles
 
       # @return [Boolean, nil]
-      # @params documentation ['true', 'false', nil]
+      # @param documentation ['true', 'false', nil]
       attr_accessor :documents
 
       # @return [Boolean, nil]
-      # @params nomenclature ['true', 'false', nil]
+      # @param nomenclature ['true', 'false', nil]
       attr_accessor :nomenclature
 
       # @return [Boolean, nil]
-      # @params with_doi ['true', 'false', nil]
+      # @param with_doi ['true', 'false', nil]
       attr_accessor :with_doi
 
       # TODO: move tc citations concern
       # @return [Array, nil]
-      # @params citation_object_type  [Array of ObjectType]
+      # @param citation_object_type [Array<String>]
       attr_accessor :citation_object_type
 
       # From lib/queries/concerns/tags.rb
       # attr_accessor :tags
 
       # @return [String, nil]
-      # @params source_type ['Source::Bibtex', 'Source::Human', 'Source::Verbatim']
+      # @param source_type ['Source::Bibtex', 'Source::Human', 'Source::Verbatim']
       attr_accessor :source_type
 
-      # @params author [Array of Integer, Serial#id]
+      # @param author [Array of Integer, Serial#id]
       attr_accessor :serial_id
 
       # @return [Protonym.id, nil]
@@ -152,7 +152,7 @@ module Queries
       attr_accessor :descendants
 
       # @return [Boolean]
-      # @params citations_on_otus ['false', 'true']
+      # @param citations_on_otus ['false', 'true']
       #   ignored if taxon_name_id is not provided; if true then also include sources linked to OTUs that are in the scope of taxon_name_id
       attr_accessor :citations_on_otus
 
@@ -178,7 +178,7 @@ module Queries
       # one of the allowed BibTeX types
       attr_accessor :bibtex_type
 
-      # @param [Hash] params
+      # @param query_params [Hash]
       def initialize(query_params)
         super
 

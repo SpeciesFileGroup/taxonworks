@@ -33,7 +33,7 @@ module Queries
       # @return [Array]
       attr_accessor :verbatim_short_name
 
-      # @return Boolean
+      # @return [Boolean]
       attr_accessor :is_virtual
 
       def initialize(query_params)

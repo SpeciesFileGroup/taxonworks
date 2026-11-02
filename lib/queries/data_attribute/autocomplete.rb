@@ -4,7 +4,6 @@ module Queries
 
       attr_accessor :term_key, :term_value
 
-      # @param [Hash] args
       def initialize(string, project_id: nil)
         super
         set_key_value

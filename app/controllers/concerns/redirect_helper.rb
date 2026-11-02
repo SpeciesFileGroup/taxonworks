@@ -2,7 +2,7 @@ module RedirectHelper
   extend ActiveSupport::Concern
 
   # @param object [Object] an ActiveRecord model instance
-  # @params args keyword arguments for redirect_to
+  # @param args keyword arguments for redirect_to
   def destroy_redirect(object, **args)
     back_location = (request.referer || root_path)
 

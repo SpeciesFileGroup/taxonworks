@@ -19,13 +19,13 @@ module TaxonName::TextTree
 
   module ClassMethods
 
-    # @return String
+    # @return [String]
     def text_tree(names)
       objects = names.collect{|n| n.send(:text_tree_nodes)}.flatten.uniq
       render_text_tree(objects:)
     end
 
-    # @return String
+    # @return [String]
     def render_text_tree(objects: [])
       a = ::Utilities::Hierarchy.new(objects: )
       a.to_s

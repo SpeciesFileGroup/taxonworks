@@ -25,7 +25,7 @@ module Export::Coldp::Files::Name
     :invalid_original_combination_names,
   ]
 
-  # @params otu [Otu]
+  # @param otu [Otu]
   #   the top level OTU
   def self.generate(otu, project_members, reference_csv = nil)
     name_total = 0

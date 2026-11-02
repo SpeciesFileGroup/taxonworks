@@ -122,6 +122,45 @@ describe Autoselect::Base, type: :model do
     end
   end
 
+  describe 'a term that is only an operator' do
+    let(:searched_level) do
+      Class.new(Autoselect::Level) do
+        def key = :smart
+        def label = 'Smart'
+        def description = 'stub'
+        def call(term:, operator: nil, **)
+          raise 'searched with no term' if term.blank? && operator.nil?
+          []
+        end
+      end
+    end
+
+    let(:two_level_class) do
+      s = searched_level
+      Class.new(Autoselect::Base) do
+        define_method(:levels) { [s.new, s.new] }
+        def resource_path = '/test/autoselect'
+        def response_values(record) = {}
+      end
+    end
+
+    ['!2', '!n ', '!?'].each do |term|
+      specify "#{term.inspect} searches nothing and doesn't escalate" do
+        json = two_level_class.new(term:, level: 'smart', project_id: 1)
+          .response
+        expect(json[:response]).to eq([])
+        expect(json).not_to have_key(:next_level)
+      end
+    end
+
+    specify 'a record-list operator still reaches the level' do
+      instance = two_level_class.new(term: '!r', level: 'smart', project_id: 1)
+      expect_any_instance_of(searched_level).to receive(:call)
+        .with(hash_including(term: '', operator: :recent)).and_return([])
+      instance.response
+    end
+  end
+
   describe 'abstract methods' do
     let(:bare_instance) { Autoselect::Base.new(term: 'Homo', level: 'smart', project_id: 1) }
 

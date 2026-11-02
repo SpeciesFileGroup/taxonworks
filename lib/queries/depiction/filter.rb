@@ -36,7 +36,7 @@ module Queries
         ::Depiction.select(DISTINCT_ATTRIBUTES)
       end
 
-      # @param params [Hash]
+      # @param query_params [Hash]
       def initialize(query_params)
         super
 

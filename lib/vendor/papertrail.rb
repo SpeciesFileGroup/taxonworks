@@ -3,10 +3,11 @@ module Vendor
   # Functions for Papertrail
   module Papertrail 
 
-    # @Return [Hash, false] a summary of the differences in two versions of the object
+    # @return [Hash, false] a summary of the differences in two versions of the object
     # @param object [Obect] any instance of an IsData class
-    # @param verstion_a [String|Integer] papertrail index of a version to compare
-    # @param verstion_b [String|Integer] papertrail index of a version to compare
+    # @param opts [Hash]
+    # @option opts [String, Integer] :version_a papertrail index of a version to compare
+    # @option opts [String, Integer] :version_b papertrail index of a version to compare
     def self.compare(object, opts = {} )
       r = {
         object: object,

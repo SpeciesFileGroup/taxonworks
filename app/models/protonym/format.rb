@@ -198,10 +198,11 @@ module Protonym::Format
   # elements, including '[sic]' and pointing to them
   # by rank.
   #
-  # @!return [ { rank => [prefix, name] } ]
+  # @return [Hash] { rank => [prefix, name] }
   #    for ALL names
   #
-  # @taxon_name.full_name_hash # =>
+  # @example
+  #   @taxon_name.full_name_hash # =>
   #      { "family' => 'Gidae',
   #        "genus" => [nil, "Aus"],  # Note Array!
   #        "subgenus" => [nil, "Aus"],
@@ -356,8 +357,8 @@ module Protonym::Format
     end
   end
 
-  # @param gender, String
-  # @return String
+  # @param gender [String]
+  # @return [String]
   #   then name according to the gender requested, if none, then `name`
   def name_in_gender(gender = nil)
     case gender
