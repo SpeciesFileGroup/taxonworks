@@ -71,6 +71,22 @@ RSpec.describe ProtocolRelationship, type: :model, group: :protocol do
     expect(out_of_scope.reload.protocol_id).to eq(protocol.id)
   end
 
+  specify '#batch_by_filter_scope :replace leaves other protocols on filtered records alone' do
+    new_protocol = FactoryBot.create(:valid_protocol)
+    other = ProtocolRelationship.create!(protocol_relationship_object: specimen, protocol: FactoryBot.create(:valid_protocol))
+
+    q = ::Queries::CollectionObject::Filter.new(collection_object_id: specimen.id)
+    ProtocolRelationship.batch_by_filter_scope(
+      filter_query: { 'collection_object_query' => q.params },
+      mode: :replace,
+      params: {
+        protocol_id: new_protocol.id,
+        replace_protocol_id: protocol.id
+      }
+    )
+    expect(other.reload.protocol_id).not_to eq(new_protocol.id)
+  end
+
   # No async test, we don't use
   specify '#batch_by_filter_scope :remove' do
     ProtocolRelationship.create!(protocol_relationship_object: specimen, protocol:)
@@ -99,6 +115,21 @@ RSpec.describe ProtocolRelationship, type: :model, group: :protocol do
       }
     )
     expect(ProtocolRelationship.all).to contain_exactly(kept)
+  end
+
+  specify '#batch_by_filter_scope :remove only removes from filtered records' do
+    ProtocolRelationship.create!(protocol_relationship_object: specimen, protocol:)
+    out_of_scope = ProtocolRelationship.create!(protocol_relationship_object: Specimen.create!, protocol:)
+
+    q = ::Queries::CollectionObject::Filter.new(collection_object_id: specimen.id)
+    ProtocolRelationship.batch_by_filter_scope(
+      filter_query: { 'collection_object_query' => q.params },
+      mode: :remove,
+      params: {
+        protocol_id: protocol.id
+      }
+    )
+    expect(ProtocolRelationship.all).to contain_exactly(out_of_scope)
   end
 
   specify '#batch_by_filter_scope :remove without a protocol removes nothing' do

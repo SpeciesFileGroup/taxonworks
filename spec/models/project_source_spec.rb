@@ -52,6 +52,16 @@ describe ProjectSource do
     ).to be_truthy
   end
 
+  specify '#batch_sync_to_project :remove only removes from the given project' do
+    other_project = FactoryBot.create(:valid_project)
+    a = FactoryBot.create(:valid_source_bibtex)
+    FactoryBot.create(:valid_project_source, source: a, project_id:)
+    FactoryBot.create(:valid_project_source, source: a, project: other_project)
+
+    ProjectSource.batch_sync_to_project( {source_query:  {source_id: a.id}}, :remove, project_id )
+    expect( other_project.project_sources.map(&:source_id).include?(a.id) ).to be_truthy
+  end
+
   context 'validation' do
     before(:each) { project_source.valid? }
 

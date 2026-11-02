@@ -84,12 +84,20 @@ describe InternalAttribute, type: :model do
       batch_update('')
       expect([in_scope, out_of_scope_source, out_of_scope_otu].map { |a| a.reload.value }).to eq(%w{B A A})
     end
+
+    specify 'with value_from leaves other values on filtered records alone' do
+      other_value = InternalAttribute.create!(predicate:, value: 'C', attribute_subject: source_in_scope)
+      batch_update('A')
+      expect([in_scope, other_value].map { |a| a.reload.value }).to eq(%w{B C})
+    end
   end
 
   specify '.batch_update_or_create on an Otu filter does not update other subject types' do
-    o = FactoryBot.create(:valid_otu)
+    # Same id on both subjects, so only attribute_subject_type tells them apart.
+    shared_id = 987654321
+    o = FactoryBot.create(:valid_otu, id: shared_id)
     a = InternalAttribute.create!(predicate:, value: 'A', attribute_subject: o)
-    b = InternalAttribute.create!(predicate:, value: 'A', attribute_subject: FactoryBot.create(:valid_collection_object))
+    b = InternalAttribute.create!(predicate:, value: 'A', attribute_subject: FactoryBot.create(:valid_collection_object, id: shared_id))
 
     InternalAttribute.batch_update_or_create(
       ActionController::Parameters.new(
