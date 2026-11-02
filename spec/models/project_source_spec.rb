@@ -10,6 +10,17 @@ describe ProjectSource do
     expect( Project.find(project_id).project_sources.map(&:source_id).include?(a.id) ).to be_truthy
   end
 
+  specify '#batch_sync_to_project :add continues past sources already in the project' do
+    a = FactoryBot.create(:valid_source_bibtex)
+    b = FactoryBot.create(:valid_source_bibtex)
+    FactoryBot.create(:valid_project_source, source: a, project_id:)
+
+    expect(
+      ProjectSource.batch_sync_to_project( {source_query: {source_id: [a.id, b.id]}}, :add, project_id )
+    ).to eq(1)
+    expect( Project.find(project_id).project_sources.map(&:source_id) ).to include(a.id, b.id)
+  end
+
   specify '#batch_sync_to_project :remove' do
     a = FactoryBot.create(:valid_source_bibtex)
     FactoryBot.create(:valid_project_source, source: a)
