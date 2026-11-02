@@ -36,10 +36,11 @@ class ProjectSource < ApplicationRecord
           i += 1 if ProjectSource.create(source_id: s.id, project_id:).persisted?
         end
       when :remove
-        sources.all.find_each do |s|
-          ProjectSource.where(project_id: , source_id: s.id).delete_all
-          i += 1
-        end
+        ProjectSource
+          .where(project_id:, source_id: sources.all.unscope(:select, :order).select(:id))
+          .find_each do |ps|
+            i += 1 if ps.destroy # we want callbacks here
+          end
       else
         return false
       end

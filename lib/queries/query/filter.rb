@@ -21,22 +21,42 @@ module Queries
     # include Queries::Concerns::Identifiers # Presently in Queries for other use in autocompletes
 
     #
-    # !! SUBQUERIES is cross-referenced in app/javascript/vue/components/radials/filter/links/*.js models.
-    # !! When you add a reference here, ensure corresponding js model is aligned. There are tests that will catch if they are not.
+    # Registry of nested filters. Each key is a filter, each value lists the
+    # filters whose results it accepts as a scope. For example
     #
-    # For example:
-    # https://github.com/SpeciesFileGroup/taxonworks/app/javascript/vue/components/radials/filter/constants/queryParam.js
-    # https://github.com/SpeciesFileGroup/taxonworks/app/javascript/vue/components/radials/filter/constants/filterLinks.js
-    # https://github.com/SpeciesFileGroup/taxonworks/app/javascript/vue/components/radials/filter/links/CollectionObject.js
+    #   loan: [:collection_object, :otu]
     #
-    # You may also need a reference in
-    # app/javascript/vue/routes/routes.js
-    # app/javascript/vue/components/radials/linker/links
+    # lets the Loan filter take `collection_object_query: {...}` or
+    # `otu_query: {...}` and return the loans of the matching collection
+    # objects / OTUs. Registering an entry:
+    #   - permits the nested params (see #permitted_params)
+    #   - builds the nested filter (see #set_nested_queries)
     #
-    # This is read as  :to <- [:from1, from2...] ].
+    # !! A nested `<model>_query` that is not registered for that filter, or
+    # !! more than one nested query at the same level, raises
+    # !! TaxonWorks::Error::NestedQuery (a 400 for JSON requests). Ignoring
+    # !! it would run the filter WITHOUT that scope, e.g. a batch update
+    # !! touching records outside the intended set.
     #
-    # !! If you add a `def <model>_query_facet`` to a filter you will get warnings if that
-    # !! model is not referencened in this constant.
+    # Two kinds of entries:
+    #
+    # 1) Filters with a Filter task (UI). These drive the radial filter
+    #    "funnel" and must be mirrored in
+    #      app/javascript/vue/components/radials/filter/links/*.js
+    #    (spec/lib/queries/query/filter_spec.rb checks this). See also
+    #      app/javascript/vue/components/radials/filter/constants/queryParam.js
+    #      app/javascript/vue/components/radials/filter/constants/filterLinks.js
+    #    and possibly
+    #      app/javascript/vue/routes/routes.js
+    #      app/javascript/vue/components/radials/linker/links
+    #
+    # 2) Internal-only filters with no Filter task (:biological_associations_graph,
+    #    :controlled_vocabulary_term, :conveyance, :data_attribute,
+    #    :depiction). Used by other code, not the funnel, and skipped by the
+    #    JS links spec.
+    #
+    # !! If you add a `def <model>_query_facet` to a filter you will get
+    # !! spec failures if that model is not referenced here.
     #
     SUBQUERIES = {
       anatomical_part: [:collection_object, :field_occurrence, :otu, :observation, :extract, :sound, :biological_association],
@@ -49,7 +69,7 @@ module Queries
       content: [:source, :otu, :taxon_name, :image],
       conveyance: [:sound],
       controlled_vocabulary_term: [:data_attribute],
-      data_attribute: [:collection_object, :collecting_event, :field_occurrence, :taxon_name, :otu],
+      data_attribute: [:anatomical_part, :asserted_distribution, :asserted_environment, :biological_association, :collection_object, :collecting_event, :content, :depiction, :descriptor, :extract, :field_occurrence, :loan, :observation, :otu, :person, :sound, :source, :taxon_name],
       dwc_occurrence: [:asserted_distribution, :collection_object, :collecting_event, :field_occurrence, :otu],
       depiction: [:image],
       descriptor: [:source, :observation, :otu],
@@ -404,8 +424,16 @@ module Queries
       end
     end
 
+    # @return the single top-level `<model>_query` key, or nil
+    #   raises TaxonWorks::Error::NestedQuery when there is more than one:
+    #   using just the first would run e.g. a batch without the others' scope
     def self.base_query_name(params)
-      params.keys.select{|s| s =~ /\A.+_query\z/}.first
+      a = params.keys.select { |s| s =~ /\A.+_query\z/ }
+      if a.count > 1
+        raise TaxonWorks::Error::NestedQuery,
+          "only one top-level query is permitted, got #{a.join(', ')}"
+      end
+      a.first
     end
 
     # @return the params use to instantiate the full
@@ -550,7 +578,9 @@ module Queries
       while !b.empty?
         a = b.shift
 
-        next unless SUBQUERIES[parent.base_name.to_sym].include?( a.to_s.gsub('_query', '').to_sym )
+        if !SUBQUERIES.fetch(parent.base_name.to_sym, []).include?( a.to_s.gsub('_query', '').to_sym )
+          raise_unregistered_nested_query(parent, a)
+        end
 
         q = FILTER_QUERIES[a].safe_constantize
         p = q::PARAMS.deep_dup
@@ -569,6 +599,14 @@ module Queries
         if n = q.annotator_params
           p.last.merge!(n.pop)
           p = n + p
+        end
+
+        # Exclusions apply at every nesting level, not just the top.
+        if api
+          q.api_excluded_params.each do |e|
+            p.delete_if { |k,v| e == k }
+            p.last.delete_if { |k,v| e == k }
+          end
         end
 
         c[a] = p
@@ -591,11 +629,12 @@ module Queries
     # @param hsh Hash
     # @return [Array of Symbol]
     #   all queries, in nested order
-    # Since queries nest linearly we don't need to recursion.
+    # Since queries nest linearly we don't need recursion.
     def subquery_vector(hsh)
       result = []
       while !hsh.keys.select{|k| k =~ /_query/}.empty?
         a = hsh.keys.select{|k| k =~ /_query/}
+        raise_multiple_nested_queries(a) if a.count > 1
         result += a
         hsh = hsh[a.first]
       end
@@ -608,18 +647,33 @@ module Queries
       params.permit( permitted_params(params.to_unsafe_hash))
     end
 
+    def raise_unregistered_nested_query(parent, query_name)
+      raise TaxonWorks::Error::NestedQuery,
+        "#{query_name} is not a permitted nested query for #{parent.base_name}"
+    end
+
+    def raise_multiple_nested_queries(query_names)
+      raise TaxonWorks::Error::NestedQuery,
+        "only one nested query is permitted per level, got #{query_names.join(', ')}"
+    end
+
     # @param params [Hash]
     #   set all nested queries variables, e.g. @otu_filter_query
     # @return [True]
-    # TODO: when a nesting problem is found we need to flag the query as invalid
+    #   raises TaxonWorks::Error::NestedQuery on unregistered or multiple nested queries
     def set_nested_queries(params)
 
       if n = params.select{|k, p| k.to_s =~ /_query/ }
-        return nil if n.keys.count != 1 # !!! can't have multiple nested queries inside one level !!! This lets us eliminate infinite loops at the cost of expressiveness?!
+        # !!! can't have multiple nested queries inside one level !!! This lets us
+        # eliminate infinite loops at the cost of expressiveness?!
+        raise_multiple_nested_queries(n.keys) if n.keys.count > 1
+        return nil if n.keys.count == 0
 
         query_name = n.first.first
 
-        return nil unless SUBQUERIES[base_name.to_sym].include?( query_name.to_s.gsub('_query', '').to_sym ) # must be registered
+        if !SUBQUERIES.fetch(base_name.to_sym, []).include?( query_name.to_s.gsub('_query', '').to_sym )
+          raise_unregistered_nested_query(self.class, query_name)
+        end
 
         query_params = n.first.last
 
