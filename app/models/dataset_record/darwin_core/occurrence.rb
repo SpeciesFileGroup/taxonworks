@@ -467,7 +467,8 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         # TODO: If all attributes are equal assume it is the same event and share it with other specimens? (eventID is an alternate method to detect duplicates)
         if collecting_event
           if get_field_value(COLLECTOR_IDS_FIELD).present? &&
-              collecting_event.collectors.pluck(:id) != attributes[:collecting_event][:collectors].map(&:id)
+              collecting_event.collector_roles.order(:position).pluck(:person_id, :organization_id) !=
+                attributes[:collecting_event][:collector_roles_attributes].map { |role| role.values_at(:person_id, :organization_id) }
             raise DarwinCore::InvalidData.new({
               COLLECTOR_IDS_FIELD => ['Collectors do not match the existing collecting event in the supplied order']
             })
@@ -1899,7 +1900,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
   end
 
   def parse_collector_ids(value)
-    parse_agent_references(value, COLLECTOR_IDS_FIELD, { 'person' => Person })
+    parse_agent_references(value, COLLECTOR_IDS_FIELD, { 'person' => Person, 'organization' => Organization })
   end
 
   # Resolve only the explicitly allowed shared agent types, preserving mixed-list order.
@@ -1941,7 +1942,10 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
           raise DarwinCore::InvalidData.new({ attribute[:field] => ["#{attribute[:name]} is not a valid CollectingEvent attribute"] })
         end
         if attribute[:name] == :collector_ids
-          attributes[:collectors] = parse_collector_ids(value)
+          attributes[:collector_roles_attributes] = parse_collector_ids(value).each_with_index.map do |agent, index|
+            agent_key = agent.is_a?(Person) ? :person_id : :organization_id
+            { agent_key => agent.id, position: index + 1 }
+          end
         else
           attributes[attribute[:name]] = value
         end

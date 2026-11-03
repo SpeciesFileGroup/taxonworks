@@ -48,9 +48,9 @@ class ImportDataset::DarwinCore::Occurrences < ImportDataset::DarwinCore
 
     update!(metadata:
       metadata.merge({
-        core_headers: headers[:core],
-        extensions_headers: headers[:extensions],
-        catalog_numbers_namespaces: []
+        'core_headers' => headers[:core],
+        'extensions_headers' => headers[:extensions],
+        'catalog_numbers_namespaces' => []
       })
     )
 
@@ -102,10 +102,10 @@ class ImportDataset::DarwinCore::Occurrences < ImportDataset::DarwinCore
     end
 
     self.metadata.merge!(
-      catalog_numbers_namespaces: catalog_numbers_namespaces.sort { |a, b| a[0].map(&:to_s) <=> b[0].map(&:to_s) }
+      'catalog_numbers_namespaces' => catalog_numbers_namespaces.sort { |a, b| a[0].map(&:to_s) <=> b[0].map(&:to_s) }
     )
     self.metadata.merge!(
-      catalog_numbers_collection_code_namespaces: catalog_numbers_collection_code_namespaces.sort { |a, b| a[0].to_s <=> b[0].to_s }
+      'catalog_numbers_collection_code_namespaces' => catalog_numbers_collection_code_namespaces.sort { |a, b| a[0].to_s <=> b[0].to_s }
     )
 
     save!

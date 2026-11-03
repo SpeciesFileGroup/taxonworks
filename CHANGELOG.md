@@ -10,7 +10,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 ### Added
 
 - Occurrences importer: Import people and organizations via `TW:TaxonDetermination:determiner_ids` (e.g. `Person/123 | Organization/456`).
-- Occurrences importer: Import collectors by existing Person IDs via `TW:CollectingEvent:collector_ids` (e.g. `Person/123 | Person/456`).
+- Occurrences importer: Import people and organizations as collectors via `TW:CollectingEvent:collector_ids` (e.g. `Person/123 | Organization/456`).
 - Composition and CompositionItem models, the first Render models for tracking display of Data items in the UI [#5116] [#5117]
 - `coordinate_otus` parameter to `/api/v1/otus/<id>/inventory/content`
 - `coordinate_otus` parameter to `/api/v1/otus/<id>/inventory/distribution.geojson`
@@ -37,6 +37,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 ### Fixed
 
+- Occurrences importer: Fix staging with JSON 3.
 - Batch update of Data Attributes - from filters *other than* Collection Objects, Collecting Events, Field Occurrences, OTUs, or Taxon Names - updated Data Attributes on every record in the project, not just the filtered ones [#5163]
 - Batch remove protocol in filters removed all protocols from the selected records instead of just the selected protocol[#5163]
 - Batch remove source from project removed sources from a project even when they were cited in that project [#5163]

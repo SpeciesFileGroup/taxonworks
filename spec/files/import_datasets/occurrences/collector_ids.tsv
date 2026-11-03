@@ -1,0 +1,46 @@
+occurrenceID	basisOfRecord	TW:TaxonDetermination:otu_id	TW:CollectingEvent:collector_ids	recordedBy	eventID	fieldNumber	TW:Namespace:fieldNumber	TW:CollectingEvent:verbatim_collectors
+single	PreservedSpecimen	813300	person/813301
+mixed-case	PreservedSpecimen	813300	 PERSON/813302 | PeRsOn/813301 | person/813302 
+ordered	PreservedSpecimen	813300	 person/813302 | person/813301 | person/813302 	Unrelated Collector
+organization	PreservedSpecimen	813300	 ORGANIZATION/813301 	Organization label
+mixed-agents	PreservedSpecimen	813300	 Organization/813301 | PERSON/813301 | organization/813302 | person/813302 | organization/813301 	Mixed label
+observation	HumanObservation	813300	person/813301|person/813302
+organization-observation	HumanObservation	813300	organization/813301
+mixed-observation	HumanObservation	813300	organization/813301|person/813301|organization/813302|person/813302
+blank	PreservedSpecimen	813300	 	Jane Observer
+verbatim	PreservedSpecimen	813300	person/813301	Label Name				Explicit label
+event-seed	PreservedSpecimen	813300	person/813301|person/813302		shared-event
+event-match	PreservedSpecimen	813300	person/813301|person/813302		shared-event
+event-reordered	PreservedSpecimen	813300	person/813302|person/813301		shared-event
+event-missing	PreservedSpecimen	813300	person/813301		shared-event
+single-event-seed	PreservedSpecimen	813300	person/813301		single-event
+event-additional	PreservedSpecimen	813300	person/813301|person/813302		single-event
+field-seed	PreservedSpecimen	813300	person/813301			shared-field	COLLECTOR-FIELD
+field-match	PreservedSpecimen	813300	person/813301			shared-field	COLLECTOR-FIELD
+field-mismatch	PreservedSpecimen	813300	person/813302			shared-field	COLLECTOR-FIELD
+mixed-event-seed	PreservedSpecimen	813300	organization/813301|person/813301|organization/813302|person/813302		mixed-event
+mixed-event-match	PreservedSpecimen	813300	organization/813301|person/813301|organization/813302|person/813302		mixed-event
+mixed-event-reordered	PreservedSpecimen	813300	person/813301|organization/813301|organization/813302|person/813302		mixed-event
+mixed-event-people-only	PreservedSpecimen	813300	person/813301|person/813302		mixed-event
+event-extra-organization	PreservedSpecimen	813300	person/813301|person/813302|organization/813301		shared-event
+event-wrong-agent-type	PreservedSpecimen	813300	organization/813301		single-event
+mixed-field-seed	PreservedSpecimen	813300	organization/813301|person/813301|organization/813302|person/813302			mixed-field	COLLECTOR-FIELD
+mixed-field-match	PreservedSpecimen	813300	organization/813301|person/813301|organization/813302|person/813302			mixed-field	COLLECTOR-FIELD
+mixed-field-reordered	PreservedSpecimen	813300	person/813301|organization/813301|organization/813302|person/813302			mixed-field	COLLECTOR-FIELD
+mixed-field-people-only	PreservedSpecimen	813300	person/813301|person/813302			mixed-field	COLLECTOR-FIELD
+invalid-0	PreservedSpecimen	813300	person/899999	Do Not Create
+invalid-1	PreservedSpecimen	813300	person/813301|person/899999	Do Not Create
+invalid-2	PreservedSpecimen	813300	123	Do Not Create
+invalid-3	PreservedSpecimen	813300	user/813301	Do Not Create
+invalid-4	PreservedSpecimen	813300	person/abc	Do Not Create
+invalid-5	PreservedSpecimen	813300	person/0	Do Not Create
+invalid-6	PreservedSpecimen	813300	person/-1	Do Not Create
+invalid-7	PreservedSpecimen	813300	person/813301|	Do Not Create
+invalid-8	PreservedSpecimen	813300	|person/813301	Do Not Create
+invalid-9	PreservedSpecimen	813300	person/813301||person/813302	Do Not Create
+invalid-10	PreservedSpecimen	813300	organization/899999	Do Not Create
+invalid-11	PreservedSpecimen	813300	person/813301|organization/899999	Do Not Create
+invalid-12	PreservedSpecimen	813300	organization/0	Do Not Create
+invalid-13	PreservedSpecimen	813300	organization/-1	Do Not Create
+invalid-14	PreservedSpecimen	813300	organization/abc	Do Not Create
+invalid-15	PreservedSpecimen	813300	organization/813301|	Do Not Create
