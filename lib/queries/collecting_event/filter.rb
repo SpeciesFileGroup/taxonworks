@@ -434,9 +434,9 @@ module Queries
       def collectors_facet
         return nil if collectors.nil?
         if collectors
-          ::CollectingEvent.joins(:collectors).distinct
+          ::CollectingEvent.joins(:collector_roles).distinct
         else
-          ::CollectingEvent.where.missing(:collectors)
+          ::CollectingEvent.where.missing(:collector_roles)
         end
       end
 

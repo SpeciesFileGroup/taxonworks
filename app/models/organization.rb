@@ -39,6 +39,7 @@
 #      or any level below one.
 #
 class Organization < ApplicationRecord
+  include Shared::DwcRoleAgent
   include Housekeeping::Users
   include Housekeeping::Timestamps
   include Shared::Depictions
@@ -72,7 +73,7 @@ class Organization < ApplicationRecord
   has_many :edited_sources, class_name: 'Source::Bibtex', through: :editor_roles, source: :role_object, source_type: 'Source', inverse_of: :editors
   has_many :human_sources, class_name: 'Source::Bibtex', through: :source_roles, source: :role_object, source_type: 'Source', inverse_of: :people
   has_many :authored_taxon_names, through: :taxon_name_author_roles, source: :role_object, source_type: 'TaxonName', class_name: 'Protonym', inverse_of: :taxon_name_authors
-  has_many :collecting_events, through: :collector_roles, source: :role_object, source_type: 'CollectingEvent', inverse_of: :collectors
+  has_many :collecting_events, through: :collector_roles, source: :role_object, source_type: 'CollectingEvent', inverse_of: :collectors_organization
   has_many :georeferences, through: :georeferencer_roles, source: :role_object, source_type: 'Georeference', inverse_of: :georeference_authors
   has_many :taxon_determinations, through: :determiner_roles, source: :role_object, source_type: 'TaxonDetermination', inverse_of: :determiners
 

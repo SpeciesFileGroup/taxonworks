@@ -251,8 +251,8 @@ module GraphHelper
       end
     end
 
-    c.collectors.each do |p|
-      g.add(p,c)
+    c.collector_roles.sort_by { |role| role.position || Float::INFINITY }.each do |role|
+      g.add(role.agent,c)
     end
 
     c.georeferences.each do |r|
