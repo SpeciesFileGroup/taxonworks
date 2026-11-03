@@ -250,6 +250,18 @@ RSpec.describe FieldOccurrence, type: :model do
     end
   end
 
+  specify '#taxonomy comes from the current determination\'s name' do
+    root = FactoryBot.create(:root_taxon_name)
+    family = Protonym.create!(name: 'Aidae', rank_class: Ranks.lookup(:iczn, :family), parent: root)
+    genus = Protonym.create!(name: 'Aus', rank_class: Ranks.lookup(:iczn, :genus), parent: family)
+
+    fo = FieldOccurrence.create!(
+      total: 1, collecting_event: ce, otu: Otu.create!(taxon_name: genus)
+    )
+
+    expect(FieldOccurrence.find(fo.id).taxonomy).to include('family' => 'Aidae', 'genus' => [nil, 'Aus'])
+  end
+
   describe '.transmute_collection_object' do
     let(:collecting_event) { FactoryBot.create(:valid_collecting_event) }
     let(:otu) { FactoryBot.create(:valid_otu) }

@@ -27,7 +27,7 @@
 #   some additional modifier arbitrarily defining the position of this item, aka disposition, always relative to enclosing container
 #
 # @!attribute project_id
-#   @return [Integers
+#   @return [Integer]
 #   the project ID
 #
 ## @!attribute disposition_x
@@ -78,7 +78,7 @@ class ContainerItem < ApplicationRecord
   scope :not_containers, -> { where.not(contained_object_type: 'Container') }
   scope :containing_collection_objects, -> {where(contained_object_type: 'CollectionObject')}
 
-  # @params object [Container]
+  # @param object [Container]
   def container=(object)
     if object.metamorphosize.kind_of?(Container)
       if self.parent
@@ -99,7 +99,7 @@ class ContainerItem < ApplicationRecord
     set_container
   end
 
-  # @params
+  # @param params [Hash]
   def self.batch_add(params)
     c = Container.find(params[:container_id])
     q = Queries::Query::Filter.instantiated_base_filter(params)
@@ -135,7 +135,7 @@ class ContainerItem < ApplicationRecord
     contained_object.to_global_id if contained_object.present?
   end
 
-  # @params entity [String, a global id]
+  # @param entity [String, a global id]
   def global_entity=(entity)
     self.contained_object = GlobalID::Locator.locate(entity)
   end

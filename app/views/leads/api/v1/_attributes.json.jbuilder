@@ -23,4 +23,10 @@ else
     json.has_descendant_lead_items has_descendant_lead_items
   end
 
+  if extend_response_with('citations')
+    json.citations do
+      json.array! lead.citations, partial: '/citations/api/v1/attributes', as: :citation
+    end
+  end
+
 end

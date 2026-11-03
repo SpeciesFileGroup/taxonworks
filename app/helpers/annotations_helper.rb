@@ -9,7 +9,7 @@ module AnnotationsHelper
     object.class < Shared::IsData::Annotation ? true : false
   end
 
-  # @return Hash
+  # @return [Hash]
   # Models name as key, annotator names as Array of values
   #   see /metadata/annotators.json
   def klass_annotations

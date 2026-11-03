@@ -82,7 +82,7 @@ module Queries
       attr_accessor :overdue
 
       # @return [Array]
-      # @param Role [String, nil]
+      # @param role [String, nil]
       #   LoanRecipient, LoanSupervisor
       # If none provided both returned.
       # Only applied when person_id is present
@@ -118,7 +118,7 @@ module Queries
       attr_accessor :taxon_name_id
       attr_accessor :descendants
 
-      # @param [Hash] params
+      # @param query_params [Hash]
       def initialize(query_params)
         super
 

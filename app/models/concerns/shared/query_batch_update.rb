@@ -7,9 +7,9 @@ module Shared::QueryBatchUpdate
   included do
   end
 
-  # @params params [Hash]
+  # @param params [Hash]
   #   the attributes to update
-  # @params result [BatchResponse]
+  # @param response [BatchResponse]
   def query_update(
     params, response = nil, async_project_id = nil, async_user_id = nil
   )

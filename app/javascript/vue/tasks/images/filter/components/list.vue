@@ -1,11 +1,12 @@
 <template>
   <div class="panel flex-wrap-row padding-small">
     <image-component
-      v-for="image in list"
+      v-for="(image, index) in list"
       v-model="imageIds"
       class="margin-small"
       :key="image.id"
-      :image="image"/>
+      :image="image"
+      @remove="$emit('remove', { item: image, index })"/>
   </div>
 </template>
 
@@ -28,7 +29,7 @@ export default {
     }
   },
 
-  emits: ['update:modelValue'],
+  emits: ['update:modelValue', 'remove'],
 
   computed: {
     imageIds: {

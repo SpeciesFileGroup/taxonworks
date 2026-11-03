@@ -49,6 +49,7 @@
                 :ids="ids"
                 :parameters="params"
                 :count="count"
+                :object-type="objectType"
                 @close="handleClose"
               />
             </div>

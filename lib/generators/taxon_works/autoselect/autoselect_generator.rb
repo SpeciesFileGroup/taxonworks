@@ -118,7 +118,7 @@ class TaxonWorks::AutoselectGenerator < Rails::Generators::Base
 
     inject_into_file app_vue,
       "\n#{comment_line}",
-      after: 'const registeredModels = ref(['
+      after: 'const registeredModels = shallowRef(['
   end
 
   private

@@ -3,58 +3,58 @@ class Tools::InteractiveKey
 
   ##### FILTER PARAMETERS #####
 
-  # @!observation_matrix_id
+  # @!attribute observation_matrix_id
   #   @return [String]
   # Required attribude to build the key
   attr_accessor :observation_matrix_id
 
-  # @!project_id
+  # @!attribute project_id
   #   @return [String]
   # Required attribute to build the key
   attr_accessor :project_id
 
-  # @!language_id
+  # @!attribute language_id
   #   @return [String or null]
   # Optional attribute to display the descriptors and character_states in a particular language (when translations are available)
   attr_accessor :language_id
 
-  # @!keyword_ids
+  # @!attribute keyword_ids
   #   @return [String or null]
   # Optional attribute to provide a list of tagIDs to limit the set of descriptors to those taged: "keyword_ids=1|5|15"
   attr_accessor :keyword_ids
 
-  # @!row_filter
+  # @!attribute row_filter
   #   @return [String or null]
   # Optional attribute to provide a list of rowIDs to limit the set "row_filter=1|5|10"
   attr_accessor :row_filter
 
-  # @!otu_filter
+  # @!attribute otu_filter
   #   @return [String or null]
   # Optional attribute to provide a list of otuIDs to limit the set "otu_filter=1|5|10"
   attr_accessor :otu_filter
 
-  # @!sorting
+  # @!attribute sorting
   #   @return [String or null]
   # Optional attribute to sort the list of descriptors. Options: 'ordered', 'weighted', 'optimized'. Optimized is a default if nothing is provided
   attr_accessor :sorting
 
-  # @!eliminate_unknown
+  # @!attribute eliminate_unknown
   #   @return [Boolean or null]
   # Optional attribute to eliminate taxa with no scores on a used descriptor: 'false' - default or 'true'
   # If true, the rows without scores will be eliminated
   attr_accessor :eliminate_unknown
 
-  # @!error_tolerance
+  # @!attribute error_tolerance
   #   @return [Integer or null]
   # Optional attribute. Number of allowed errors during identification
   attr_accessor :error_tolerance
 
-  # @!identified_to_rank
+  # @!attribute identified_to_rank
   #   @return [String or null]
   # Optional attribute to limit identification to OTU or a particular nomenclatural rank. Valid values are 'otu', 'species', 'genus', etc.
   attr_accessor :identified_to_rank
 
-  # @!selected_descriptors
+  # @!attribute selected_descriptors
   #   @return [String or null]
   # Optional attribute: descriptors and states selected during identification "123:1|3||125:3|5||135:2||140:3-5"
   # Each used descriptor is separated by '||'.
@@ -65,92 +65,92 @@ class Tools::InteractiveKey
 
   ##### RETURNED DATA ######
 
-  # @!observation_matrix
+  # @!attribute observation_matrix
   #   @return [Object]
   # Returns observation_matrix as an object
   attr_accessor :observation_matrix
 
-  # @!observation_matrix_citation
+  # @!attribute observation_matrix_citation
   #   @return [Object]
   # Returns observation_matrix_citation as an object
   attr_accessor :observation_matrix_citation
 
-  # @!descriptor_available_languages
+  # @!attribute descriptor_available_languages
   #   @return [Array of Objects or null]
   # Returns the list of available Languages used as translations for descriptors and character_states (in translations are available)
   attr_accessor :descriptor_available_languages
 
-  # @!descriptors
+  # @!attribute descriptors
   #   @return [null]
   # Temporary attribute. Used for validation.
   attr_accessor :descriptors
 
-  # @!descriptor_available_keywords
+  # @!attribute descriptor_available_keywords
   #   @return [Array of Objects or null]
   # Returns the list of all Tags used with the descriptors. Descriptors could be filtered by tag_id
   attr_accessor :descriptor_available_keywords
 
-  # @!language_to_use
+  # @!attribute language_to_use
   #   @return [Object or null]
   # Returns Language as an object if the language_id was provided (used to display descriptors in a particular language)
   attr_accessor :language_to_use
 
-  # @!descriptors_with_filter
+  # @!attribute descriptors_with_filter
   #   @return [null]
   # Temporary attribute. Used for validation. List of descriptors reduced by keyword_ids
   attr_accessor :descriptors_with_filter
 
-  # @!rows_with_filter
+  # @!attribute rows_with_filter
   #   @return [null]
   # Temporary attribute. Used for validation. list of rows to be included into the matrix
   attr_accessor :rows_with_filter
 
-  # @!row_id_filter_array
+  # @!attribute row_id_filter_array
   #   @return [array]
   # Array of row_ids in the @row_filter
   attr_accessor :row_id_filter_array
 
-  # @!otu_id_filter_array
+  # @!attribute otu_id_filter_array
   #   @return [array]
   # Array of otu_ids in the @otu_filter
   attr_accessor :otu_id_filter_array
 
-  # @!list_of_descriptors
+  # @!attribute list_of_descriptors
   #   @return [Array]
   # Return the list of descriptors and their states. Translated (if needed) and Sorted
   # Each descriptor has an attribute :status, which could be 'used', 'useful', 'useless' for further identification
   attr_accessor :list_of_descriptors
 
-  # @!remaining
+  # @!attribute remaining
   #   @return [Array]
   # Returns the list of objects not eliminated by previously used descriptors.
   # The list may include collection_objects OR otus OR valid taxon_names
   attr_accessor :remaining
 
-  # @!eliminated
+  # @!attribute eliminated
   #   @return [Array]
   # Returns the list of objects eliminated by previously used descriptors.
   # The list may include collection_objects OR otus OR valid taxon_names
   attr_accessor :eliminated
 
-  # @!eliminated_for_key
+  # @!attribute eliminated_for_key
   #   @return [Array]
   # Returns the list of objects eliminated by previously used descriptors in the
   # context of use for a dichotomous key - replaces eliminated in that context.
   # The list should only ever contain OTUs when used for dichotomous keys.
   attr_accessor :eliminated_for_key
 
-  # @!selected_descriptors_hash
+  # @!attribute selected_descriptors_hash
   #   @return [Hash]
   # selected_descriptors String is converted into Hash
   attr_accessor :selected_descriptors_hash
 
-  # @!row_hash
+  # @!attribute row_hash
   #   @return [null]
   # Temporary hash of rows; used for calculation of remaining and eliminated rows
   attr_accessor :row_hash
 
-  # @!descriptors_hash
+  # @!attribute descriptors_hash
   #   @return [null]
   #temporary hash of descriptors; used for calculation of useful and not useful descriptors and their states
   attr_accessor :descriptors_hash

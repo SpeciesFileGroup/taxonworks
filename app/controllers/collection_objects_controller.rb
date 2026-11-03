@@ -506,7 +506,7 @@ class CollectionObjectsController < ApplicationController
 
   # An experiment to balance query/rendering times vs. extend[] requests
   # Likely suggests we need some fundamental changes.
-  # @param CollectionObject::Filter.new() instance
+  # @param collection_objects [Scope] a CollectionObject::Filter.new() result
   def add_includes_to_filter_result(collection_objects)
     a = %i(identifiers dwc_occurrence repository current_repository)
 

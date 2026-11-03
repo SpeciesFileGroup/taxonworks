@@ -31,7 +31,7 @@ module Queries
         sqed_depiction_id: [],
       ].freeze
 
-      # @return Hash
+      # @return [Hash]
       attr_accessor :base_collection_object_filter_params
 
       attr_accessor :sqed_depiction_id

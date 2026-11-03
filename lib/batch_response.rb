@@ -6,27 +6,27 @@ class BatchResponse
   # Name of the method called
   attr_accessor :method
 
-  # @return Boolean 
+  # @return [Boolean]
   #   no writes were made
   attr_accessor :preview
 
-  # @return Boolean 
+  # @return [Boolean]
   #   processing is handled asyn
   attr_accessor :async
 
-  # @return Array
+  # @return [Array]
   #   ids of the objects updated
   attr_accessor :updated
 
-  # @return Array
+  # @return [Array]
   #   ids of the objects not update
   attr_accessor :not_updated
 
-  # @return Hash
+  # @return [Hash]
   #   operational error messages (e.g., missing required params) - triggers 422 when non-empty
   attr_accessor :errors
 
-  # @return Hash
+  # @return [Hash]
   #   per-item validation error messages summarized by times encountered - does not trigger 422
   attr_accessor :validation_errors
 
@@ -35,7 +35,7 @@ class BatchResponse
   # #return nil, integer
   attr_accessor :cap
 
-  # @return String
+  # @return [String]
   attr_accessor :cap_reason
 
   def initialize(params = {})

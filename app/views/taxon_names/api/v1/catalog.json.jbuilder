@@ -18,7 +18,8 @@ json.timeline do
 end
 
 json.sources do
-  json.array! @data[:sources].each do |s|
+  json.array! @data[:sources].sort_by{|s| [s.cached_nomenclature_date ? 0 : 1, s.cached_nomenclature_date, s.cached.downcase] }.each do |s|
+    json.id s.id
     json.cached s.cached
     json.url s.url
   end

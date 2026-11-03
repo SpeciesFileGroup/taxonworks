@@ -16,7 +16,7 @@ module Queries
         tag_object_id: [],
       ].freeze
 
-      # @return Array
+      # @return [Array]
       attr_accessor :tag_id
 
       # Array, Integer
@@ -28,7 +28,7 @@ module Queries
       # Array, Integer
       attr_accessor :tag_object_id
 
-      # @params params [ActionController::Parameters]
+      # @param query_params [ActionController::Parameters]
       def initialize(query_params)
         super
 

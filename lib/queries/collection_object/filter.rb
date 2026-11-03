@@ -88,7 +88,7 @@ module Queries
       #   nil - not applied
       attr_accessor :biological_associations
 
-      # @return Array
+      # @return [Array]
       #   Matching records in this BiologicalAssociation
       attr_accessor :biological_association_id
 
@@ -273,7 +273,7 @@ module Queries
       #   nil - not applied
       attr_accessor :type_material
 
-      # @return [Boolean, nil
+      # @return [Boolean, nil]
       # @param with_buffered_determinations [String, nil]
       #   `false`, nil - without buffered determination field value
       #   'true' - with buffered_determinations field value
@@ -285,17 +285,17 @@ module Queries
       # See with_buffered_determinations
       attr_accessor :with_buffered_other_labels
 
-      # @return String
+      # @return [String]
       # A PostgreSQL valid regular expression. Note that
       # simple strings evaluate as wildcard matches.
       # !! Probably shouldn't expose to external API.
       attr_accessor :determiner_name_regex
 
-      # @return Array
+      # @return [Array]
       #  match all CollectionObjects that are the origin of these Extracts
       attr_accessor :extract_id
 
-      # @return Boolean
+      # @return [Boolean]
       #    true - any of start/end date or verbatim date are populated
       #    false - none of start/end date or verbatim date are populated
       #    nil - ignored

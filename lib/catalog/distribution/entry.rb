@@ -1,8 +1,8 @@
 # A Catalog::Entry has many entry items.  Together CatalogEntrys form a Catalog
 class Catalog::Distribution::Entry< ::Catalog::Entry
 
-  # @param object
-  # @return Array
+  # @param otus [Array<Otu>]
+  # @return [Array]
   #    of OTUs
 
   def initialize(otus = [])
@@ -58,7 +58,7 @@ class Catalog::Distribution::Entry< ::Catalog::Entry
     item_object.id == reference_object.id
   end
 
-  # @return Array
+  # @return [Array]
   #   may contain nil
   def countries
     c = items.map(&:country).uniq.sort
@@ -94,7 +94,7 @@ class Catalog::Distribution::Entry< ::Catalog::Entry
     d
   end
 
-  # @return String
+  # @return [String]
   # Includes County records
   def to_s_verbose
     d = data
@@ -134,7 +134,7 @@ class Catalog::Distribution::Entry< ::Catalog::Entry
     str
   end
 
-  # @return String
+  # @return [String]
   def to_s
     d = data
     str = ''

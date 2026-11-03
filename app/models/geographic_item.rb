@@ -25,7 +25,7 @@ class GeographicItem < ApplicationRecord
   include Shared::SharedAcrossProjects
 
   # @return [Boolean, RGeo object]
-  # @params value [Hash in GeoJSON format] ?!
+  # @param value [Hash in GeoJSON format] ?!
   # TODO: WHY! boolean not nil, or object
   # Used to build geographic items from a shape [ of what class ] !?
   attr_accessor :shape
@@ -454,7 +454,7 @@ class GeographicItem < ApplicationRecord
     end
 
     # @param [String] wkt
-    # @param [Integer] buffer distance
+    # @param [Integer] distance buffer distance
     # @return [Boolean]
     #   whether or not the radius-buffer of wkt-point intersects the
     #   anti-meridian
@@ -490,7 +490,7 @@ class GeographicItem < ApplicationRecord
     # SQL fragments
     #
 
-    # @param [Integer, String]
+    # @param geographic_item_id [Integer, String]
     # @return [SelectManager]
     #   a SQL select statement that returns the *geometry* for the
     #   geographic_item with the specified id
@@ -500,7 +500,7 @@ class GeographicItem < ApplicationRecord
         .where(arel_table[:id].eq(geographic_item_id))
     end
 
-    # @param [Integer, String]
+    # @param geographic_item_id [Integer, String]
     # @return [SelectManager]
     #   a SQL select statement that returns the geography for the
     #   geographic_item with the specified id
@@ -510,7 +510,7 @@ class GeographicItem < ApplicationRecord
         .where(arel_table[:id].eq(geographic_item_id))
     end
 
-    # @param [Symbol] choice, either :latitude or :longitude
+    # @param [Symbol] choice either :latitude or :longitude
     # @return [Arel::Nodes::NamedFunction]
     #   a fragment returning either latitude or longitude columns
     def lat_long_sql(choice)
@@ -546,7 +546,7 @@ class GeographicItem < ApplicationRecord
 
     # @param [Integer] geographic_item_id
     # @param [Number] distance (in meters) (positive only?!)
-    # @param [Number] buffer: distance in meters to grow/shrink the shapes
+    # @param [Number] buffer distance in meters to grow/shrink the shapes
     #   checked against (negative allowed)
     # @return [NamedFunction] Shapes whose `buffer` is within `distance` of
     #   geographic_item
@@ -625,8 +625,8 @@ class GeographicItem < ApplicationRecord
     end
 
     # @param [Integer, Array of Integer] geographic_item_ids
-    # @return [SelectManager for one id, Arel::Nodes::SqlLiteral for more than
-    #   one]
+    # @return [Arel::SelectManager, Arel::Nodes::SqlLiteral]
+    #   SelectManager for one id, SqlLiteral for more than one
     def items_as_one_geometry_sql(*geographic_item_ids)
       geographic_item_ids.flatten! # *ALWAYS* reduce the pile to a single level of ids
       if geographic_item_ids.count == 1
@@ -636,7 +636,7 @@ class GeographicItem < ApplicationRecord
       end
     end
 
-    # @params [String] wkt
+    # @param [String] wkt
     # @return [NamedFunction] SQL fragment limiting geographic items to those
     # covered by this WKT
     def covered_by_wkt_sql(wkt)
@@ -724,7 +724,7 @@ class GeographicItem < ApplicationRecord
           )
         }
 
-        # @TODO change 'id in (?)' to some other sql construct
+        # @todo change 'id in (?)' to some other sql construct
         GeographicItem.where(id: pieces.flatten.map(&:id))
       else
         a = geographic_item_ids.flatten.collect { |geographic_item_id|
@@ -828,7 +828,7 @@ class GeographicItem < ApplicationRecord
         SHAPE_TYPES.each { |s|
           part.push(GeographicItem.st_covered_by(s, geographic_items).to_a)
         }
-        # @TODO change 'id in (?)' to some other sql construct
+        # @todo change 'id in (?)' to some other sql construct
         GeographicItem.where(id: part.flatten.map(&:id))
 
       when 'any_poly', 'any_line'
@@ -839,7 +839,7 @@ class GeographicItem < ApplicationRecord
             part.push(GeographicItem.st_covered_by(s, geographic_items).to_a)
           end
         }
-        # @TODO change 'id in (?)' to some other sql construct
+        # @todo change 'id in (?)' to some other sql construct
         GeographicItem.where(id: part.flatten.map(&:id))
 
       else
@@ -865,7 +865,7 @@ class GeographicItem < ApplicationRecord
 
     # @param [RGeo::Point] center in lon/lat
     # @param [Integer] radius of the circle, in meters
-    # @param [Integer] buffer_resolution: the number of sides of the polygon
+    # @param [Integer] buffer_resolution the number of sides of the polygon
     #                  approximation per quarter circle
     # @return [RGeo::Polygon] A polygon approximation of the desired circle, in
     #                         geographic coordinates
@@ -902,7 +902,7 @@ class GeographicItem < ApplicationRecord
       Arel.sql('geography::geometry')
     end
 
-    # @param [GeographicItem]
+    # @param geographic_items [GeographicItem, Array<GeographicItem>]
     # @return [Scope]
     def not_including(geographic_items)
       where.not(id: geographic_items)
@@ -1016,20 +1016,20 @@ class GeographicItem < ApplicationRecord
 
   # !!TODO: migrate these to use native column calls
 
-  # @param [geo_object]
+  # @param target_geo_object [RGeo::Feature::Geometry]
   # @return [Boolean]
   def contains?(target_geo_object)
     return nil if target_geo_object.nil?
     self.geo_object.contains?(target_geo_object)
   end
 
-  # @param [geo_object]
+  # @param target_geo_object [RGeo::Feature::Geometry]
   # @return [Boolean]
   def within?(target_geo_object)
     self.geo_object.within?(target_geo_object)
   end
 
-  # @param [geo_object]
+  # @param target_geo_object [RGeo::Feature::Geometry]
   # @return [Boolean]
   def intersects?(target_geo_object)
     self.geo_object.intersects?(target_geo_object)
@@ -1117,7 +1117,7 @@ class GeographicItem < ApplicationRecord
   end
 
   # Convention is to store in PostGIS in CCW
-  # @return Array [Boolean]
+  # @return [Array<Boolean>]
   #   false - cw
   #   true - ccw (preferred), except see donuts
   def orientations
@@ -1137,7 +1137,7 @@ class GeographicItem < ApplicationRecord
     end
   end
 
-  # @return Boolean
+  # @return [Boolean]
   #   looks at all orientations
   #   if they follow the pattern [true, false, ... <all false>] then `true`, else `false`
   # !! Does not confirm that shapes are nested !!
@@ -1181,7 +1181,7 @@ class GeographicItem < ApplicationRecord
 
   private
 
-  # @param [String or Symbol] shape, the kind of shape you want, e.g. :polygon
+  # @param [String, Symbol] shape the kind of shape you want, e.g. :polygon
   # @return [Arel::Nodes::Case]
   #   A Case statement that selects the geography column if that column is of
   #   type `shape`, otherwise NULL

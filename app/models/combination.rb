@@ -240,7 +240,7 @@ class Combination < TaxonName
     description: 'Verbatim author and year are not required. The Fix will delete both' )
 
   # @return [Protonym Scope]
-  # @params protonym_ids [Hash] like `{genus: 4, species: 5}`
+  # @param protonym_ids [Hash] like `{genus: 4, species: 5}`
   #   the absence of _id in the keys in part reflects integration with Biodiversity gem
   #   AHA from http://stackoverflow.com/questions/28568205/rails-4-arel-join-on-subquery
   #   See also Descriptor::Gene
@@ -275,7 +275,7 @@ class Combination < TaxonName
 
   # @return [Protonym Scope] hmmm- a Protonym class method?!
   #    Protonyms matching original relations, if name provided then name added as an additional check on verbatim match
-  # @params name [String, nil] the non-htmlized version of the name, without author year
+  # @param name [String, nil] the non-htmlized version of the name, without author year
   def self.matching_protonyms(name = nil, **protonym_ids)
     q = nil
     if name.blank?
@@ -287,7 +287,7 @@ class Combination < TaxonName
   end
 
   # @return [Scope]
-  # @params keyword_args [Hash] like `{genus: 123, :species: 456}` (note no `_id` suffix)
+  # @param keyword_args [Hash] like `{genus: 123, :species: 456}` (note no `_id` suffix)
   def self.find_by_protonym_ids(**keyword_args)
     keyword_args.compact!
     return Combination.none if keyword_args.empty?
@@ -321,7 +321,7 @@ class Combination < TaxonName
   end
 
   # @return [Combination, false]
-  # @params keyword_args [Hash] like `{genus: 123, :species: 456}` (note no `_id` suffix)
+  # @param keyword_args [Hash] like `{genus: 123, :species: 456}` (note no `_id` suffix)
   #    the matching Combination if it exists, otherwise false
   #    if name is provided then cached must match (i.e. verbatim_name if provided must also match)
   def self.match_exists?(name = nil, **keyword_args)
@@ -566,7 +566,7 @@ class Combination < TaxonName
     @protonyms_by_rank
   end
 
-  # @return String
+  # @return [String]
   #   like 'species'
   # Adds a lot of SQL overhead
   def inferred_rank

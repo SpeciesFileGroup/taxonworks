@@ -29,6 +29,7 @@ module Workbench::NavigationHelper
     return {
       klass: k,
       id: k.tableize.singularize + '_id',
+      resource_path: '/' + k.tableize,
       tasks: tasks,
       base: b
     }
@@ -195,7 +196,7 @@ module Workbench::NavigationHelper
   # Determine wether an edit or destroy route exists
   # Custom routes can be added per Class by adding
   # a corresponding `_string` postfixed method.
-  # @return String
+  # @return [String]
   def edit_object_path_string(object)
     default  = "edit_#{metamorphosize_if(object).class.base_class.name.underscore}_path"
     specific = default + '_string'

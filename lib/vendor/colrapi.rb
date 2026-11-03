@@ -8,94 +8,174 @@ module Vendor
       col_extended: '3LXR'  # Human plus algorithmic extensions
     }.freeze
 
-    # @params taxonworks_object
-    #   any object that responds_to `.taxonomy`
-    #
-    # @params colrapi_result
-    #    a nameusage result
-    #
-    # @return [Array]
-    #   with hashes {
-    #    { rank: 'species'
-    #      col: 'name',
-    #      taxonworks: 'name'
-    #      rank_origin: :col, :taxonworks, :both
-    #    }
-    #
-    # 2 row alignment facilitator
-    #
-    def self.align_classification(taxonworks_object, colrapi_result)
-      r = []
-    end
 
-    # @params taxonworks_object
-    #   currently only an CollectionObject
-    #
-    # @return hash
-    #     { taxonworks_name: name }
-    #      col_results: [
-    #          { usage: {
-    #             name:
-    #             status:
-    # },
-    #          accepted: {}
-    #         }
-    #        ]
-    #      }
-    #
-    def self.name_status(taxonworks_object, colrapi_result)
-      o = taxonworks_object
+    # CoL usage statuses under which a name is in use.
+    COL_ACCEPTED_STATUSES = ['accepted', 'provisionally accepted'].freeze
 
-      r = {
-          taxonworks_name: collection_object_scientific_name(o),
-          col_usages: [],
-          provisional_status: :accepted,
-      }
+    # CoL usage statuses resolve_accepted_names follows to their accepted
+    # name.
+    COL_FOLLOWED_STATUSES = ['synonym', 'ambiguous synonym'].freeze
 
-      if colrapi_result.dig('total') == 0
-        r[:provisional_status] = :undeterminable
-        return r
+    # What CoL says about the status of a name.
+    #
+    # CoL's fuzzy /nameusage/search is queried with
+    # NameTranslation.search_term, and its usages are compared to the name by
+    # NameTranslation key, not exact string - CoL doesn't write a name the
+    # same way TaxonWorks does, or even consistently (see NameTranslation). A
+    # usage whose key matches makes the name
+    #   * :accepted - accepted, or a synonym of a name with the same key (e.g.
+    #     an original combination CoL lists under its own species)
+    #   * :synonym - a synonym of a different name, i.e. outdated
+    #   * :ambiguous_synonym - an ambiguous synonym (several possible targets)
+    # in that order of precedence. With no matching usage it's
+    # :undeterminable.
+    #
+    # A TaxonName is looked up by one of its NameTranslation.forms: an
+    # invalid Protonym by its published form (original combination), since
+    # CoL lists synonyms as published while TaxonWorks moves a synonym under
+    # its valid name's parent (project 13 sample, 2026-10: of 40 synonyms whose
+    # two forms differ, CoL had the original combination for 38 and #cached
+    # for 7, never #cached alone); anything else by its current form (a
+    # Combination, which has none, by its published one). A published form is
+    # searched at the rank it was published at.
+    #
+    # @param target [TaxonName, String, nil] the name to check: a TaxonName
+    #   when there is one (searched at its own rank, or the rank its
+    #   published form was published at), else a name string, searched as a
+    #   species
+    #   - for a CollectionObject see Tasks::CollectionObjects::
+    #   OutdatedNamesHelper#outdated_names_target
+    # @return [Hash]
+    #   { taxonworks_name: String,
+    #     col_usages: [ { usage: { name:, status: },
+    #                     accepted: { name:, status: } } ],
+    #     provisional_status: Symbol }
+    def self.name_status(target)
+      if target.is_a?(::Combination)
+        # Only a published form, at the rank it was published at (its finest
+        # element), which needn't be its protonym's rank now.
+        name = NameTranslation.forms(target)[:published]
+        rank = target.protonyms_by_rank.keys.last
+      elsif target.is_a?(::TaxonName)
+        forms = NameTranslation.forms(target)
+        invalid_protonym =
+          target.is_a?(::Protonym) && !target.cached_is_valid
+        rank = ::RANKS_LOOKUP[target.rank_class.to_s]
+        if invalid_protonym && forms[:published]
+          # At the rank it was published at, e.g. a species published as a
+          # variety, or a subgenus as a genus.
+          name = forms[:published]
+          rank = published_rank(target) || rank
+        else
+          name = forms[:current]
+        end
+      else
+        name = target
+        # TODO: try harder here.
+        rank = 'species'
       end
+      key = NameTranslation.name_key(name)
 
-      colrapi_result['result'].each do |u|
-        i = u['usage']
+      results =
+        if key.present?
+          ::Colrapi.nameusage_search(
+            q: NameTranslation.search_term(name),
+            dataset_id: DATASETS[:col],
+            rank:
+          )['result']
+        end
 
-        d = {
-          usage: {},
-          accepted: {}
+      statuses = []
+      col_usages = (results || []).map do |result|
+        usage = result['usage']
+        statuses << usage_status(usage, key) if usage_key(usage) == key
+
+        accepted = {}
+        if usage['accepted']
+          accepted = {
+            name: usage.dig('accepted', 'name', 'scientificName'),
+            status: usage.dig('accepted', 'status')
+          }
+        end
+
+        {
+          usage: {
+            name: usage.dig('name', 'scientificName'),
+            status: usage['status']
+          },
+          accepted:
         }
-
-        d[:usage][:name] = i.dig *%w{name scientificName}
-        d[:usage][:status] = i['status']
-
-        if i['accepted']
-          d[:accepted][:name] = i.dig *%w{accepted name scientificName}
-          d[:accepted][:status] = i.dig *%w{accepted status}
-        end
-
-        if d[:usage][:status] == 'synonym' && (d[:usage][:name] == r[:taxonworks_name])
-          r[:provisional_status] = :synonym
-        end
-
-        r[:col_usages].push d
       end
-      r
+
+      provisional_status =
+        [:accepted, :synonym, :ambiguous_synonym]
+          .find { |status| statuses.include?(status) } || :undeterminable
+
+      { taxonworks_name: name, col_usages:, provisional_status: }
     end
 
-    # Searches the Catalogue of Life by name string.
+    # @param protonym [Protonym]
+    # @return [String, nil] the rank protonym was published at, the finest
+    #   rank of its original combination; nil without one
+    def self.published_rank(protonym)
+      types = protonym.original_combination_relationships.pluck(:type)
+      ::ORIGINAL_COMBINATION_RANKS
+        .select { |_rank, type| types.include?(type) }
+        .keys.last&.to_s
+    end
+    private_class_method :published_rank
+
+    # @param usage [Hash] a nameusage_search usage
+    # @return [String, nil] its comparison key
+    def self.usage_key(usage)
+      NameTranslation.col_name_key(
+        usage.dig('name', 'scientificName'), usage.dig('name', 'rank')
+      )
+    end
+    private_class_method :usage_key
+
+    # @param usage [Hash] a nameusage_search usage whose key matches key
+    # @param key [String] the TaxonWorks name's comparison key
+    # @return [Symbol, nil] what the usage says about the name, see .name_status
+    def self.usage_status(usage, key)
+      case usage['status']
+      when *COL_ACCEPTED_STATUSES
+        :accepted
+      when 'synonym'
+        # A synonym of a name with the same key is the same name, so it isn't
+        # outdated. CoL lists "Aphrophora ambigua" (the original combination,
+        # no subgenus) as a synonym of accepted "Aphrophora (Aphrophora)
+        # ambigua".
+        accepted_key = NameTranslation.col_name_key(
+          usage.dig('accepted', 'name', 'scientificName'),
+          usage.dig('accepted', 'name', 'rank')
+        )
+        accepted_key == key ? :accepted : :synonym
+      when 'ambiguous synonym'
+        :ambiguous_synonym
+      end
+    end
+    private_class_method :usage_status
+
+    # Searches the Catalogue of Life by name string - the exact string only
+    # (/nameusage?q=): no partial names, and a name with or without a
+    # subgenus misses the other form (see NameTranslation).
     #
     # The Colrapi gem takes dataset_id as a positional first argument.
     # Response structure: { 'total' => Integer, 'result' => Array }
-    # Each result entry is a flat nameusage hash with keys:
+    # Each result entry is the name usage itself (not wrapped in 'usage' as
+    # nameusage_search entries are), with keys:
     #   'id', 'status', 'name' (hash with 'scientificName', 'rank', 'authorship', …),
     #   'label', 'labelHtml', 'parentId', etc.
     #
     # @param name_string [String]
-    # @param dataset_id [String, nil] CoL dataset ID; falls back to the default hardwired ID when nil
+    # @param dataset_id [String, nil] CoL dataset ID; falls back to the default
+    #   hardwired ID when nil
+    # @param limit [Integer] maximum number of results
     # @return [Hash] raw Colrapi nameusage response (keys 'total', 'result')
-    def self.search(name_string, dataset_id: nil)
+    def self.search(name_string, dataset_id: nil, limit: 20)
       target = dataset_id.presence || DATASETS[:col]
-      ::Colrapi.nameusage(target, q: name_string, limit: 20)
+      ::Colrapi.nameusage(target, q: name_string, limit:)
     rescue => e
       Rails.logger.warn "Vendor::Colrapi.search error: #{e.message}"
       { 'total' => 0, 'result' => [] }
@@ -103,8 +183,8 @@ module Vendor
 
     # Searches CoL datasets by name string.
     #
-    # Returns an array of dataset summaries, each containing at least 'id', 'title', and 'alias'.
-    # Used by the preferences UI to let users pick a target dataset.
+    # Returns an array of dataset summaries, each containing at least
+    # 'id', 'title', and 'alias'.
     #
     # @param q [String] dataset name search string
     # @param limit [Integer]
@@ -113,7 +193,13 @@ module Vendor
       # Text search by title/name.
       text_results = begin
         result = ::Colrapi.dataset(q: q, limit: limit)
-        (result['result'] || []).map { |d| { 'id' => d['key'].to_s, 'title' => d['title'], 'alias' => d['alias'] } }
+        (result['result'] || []).map { |d|
+          {
+            'id' => d['key'].to_s,
+            'title' => d['title'],
+            'alias' => d['alias']
+          }
+        }
       rescue => e
         Rails.logger.warn "Vendor::Colrapi.datasets text search error: #{e.message}"
         []
@@ -123,7 +209,12 @@ module Vendor
       # Colrapi.dataset(dataset_id:) returns a single hash, not a paged result.
       direct_hit = begin
         d = ::Colrapi.dataset(dataset_id: q)
-        d.is_a?(Hash) && d['key'].present? ? { 'id' => d['key'].to_s, 'title' => d['title'], 'alias' => d['alias'] } : nil
+        d.is_a?(Hash) && d['key'].present? ?
+          {
+            'id' => d['key'].to_s,
+            'title' => d['title'],
+            'alias' => d['alias']
+          } : nil
       rescue
         nil
       end
@@ -145,10 +236,13 @@ module Vendor
     # Only valid for backbone datasets (DATASETS[:col], DATASETS[:col_extended]).
     # For external datasets use ancestors_via_parent_id instead.
     #
+    # @param dataset_id [String] the backbone dataset taxon_id belongs to
     # @param taxon_id [String] CoL taxon ID (e.g. '6MB3T')
     # @return [Array<Hash>]
-    def self.ancestors(taxon_id)
-      ::Colrapi.taxon(DATASETS[:col], taxon_id: taxon_id, subresource: 'classification')
+    def self.ancestors(dataset_id, taxon_id)
+      ::Colrapi.taxon(
+        dataset_id, taxon_id: taxon_id, subresource: 'classification'
+      )
     rescue => e
       Rails.logger.warn "Vendor::Colrapi.ancestors error: #{e.message}"
       []
@@ -165,17 +259,21 @@ module Vendor
       DATASETS.values.include?(dataset_id.to_s)
     end
 
-    # Builds an ancestor chain for external/denormed datasets by following the parentId
-    # field of successive taxon records.
+    # Builds an ancestor chain for external/denormed datasets by following the
+    # parentId field of successive taxon records.
     #
-    # External datasets (like the Mammal Diversity Database) are ingested into ChecklistBank
-    # without a pre-built classification subresource.  Instead, each nameusage record carries
-    # a parentId pointing to the immediate parent within the same dataset.
+    # External datasets (like the Mammal Diversity Database) are ingested into
+    # ChecklistBank without a pre-built classification subresource.  Instead,
+    # each nameusage record carries a parentId pointing to the immediate parent
+    # within the same dataset.
     #
-    # Returns entries in the same format as the classification subresource used by ancestors():
-    #   { 'id', 'name' (String uninomial), 'rank', 'authorship', 'label', 'labelHtml' }
-    # Order is proximal-first (immediate parent first) matching ancestors() behavior.
-    # The starting taxon itself is NOT included; only its ancestors are.
+    # Returns entries in the same format as the classification subresource used
+    # by ancestors():
+    #   { 'id', 'name' (String, the full scientificName), 'rank', 'authorship',
+    #     'label', 'labelHtml' }
+    # Order is distal-first (kingdom before immediate parent), matching
+    # ancestors().
+    # !! The starting taxon itself is NOT included; only its ancestors are.
     #
     # @param dataset_id [String] the external dataset to query
     # @param taxon_id [String] ID of the starting taxon
@@ -200,7 +298,7 @@ module Vendor
 
         chain << {
           'id'         => current_id,
-          'name'       => uninomial_name(taxon['name']).to_s,
+          'name'       => taxon.dig('name', 'scientificName').to_s,
           'rank'       => taxon.dig('name', 'rank'),
           'authorship' => taxon.dig('name', 'authorship'),
           'label'      => taxon.fetch('label', '').to_s,
@@ -210,15 +308,16 @@ module Vendor
         current_id = taxon['parentId']
       end
 
-      # Return distal-first (kingdom before genus) to match the classification subresource
-      # order returned by ancestors(), so build_extension can treat both paths uniformly.
+      # Return distal-first (kingdom before genus) to match the classification
+      # subresource order returned by ancestors().
       chain.reverse
     rescue => e
       Rails.logger.warn "Vendor::Colrapi.ancestors_via_parent_id error: #{e.message}"
       []
     end
 
-    # Builds an alignment hash comparing a CoL nameusage result against TaxonNames in the project.
+    # Builds CoL's own classification chain for a nameusage result — pure CoL
+    # data, no TaxonWorks matching.
     #
     # col_result is a flat nameusage hash as returned by search (no 'usage' wrapper):
     #   { 'id' => '6MB3T', 'status' => 'accepted',
@@ -229,153 +328,283 @@ module Vendor
     #
     # Classification entries from ancestors() have:
     #   { 'id' => '636X2', 'name' => 'Homo', 'rank' => 'genus', 'label' => 'Homo', … }
-    # Note: in classification entries 'name' is a plain String, not a hash.
+    # Note: in classification entries 'name' is a plain String, not a hash: the
+    # full scientific name ('Olea europaea', 'Aedes (Stegomyia)').
     #
     # @param col_result [Hash] a single entry from search['result']
-    # @param project_id [Integer, nil]
-    # @param dataset_id [String, nil] the dataset that was searched; falls back to DATASETS[:col]
-    # @return [Hash] extension hash with :col_key, :col_name, :col_status, :col_authorship,
-    #   :col_year, :col_rank, :col_dataset_id, and :alignment (Array of ancestor hashes each including :col_id, :dataset_id)
-    def self.build_extension(col_result, project_id, dataset_id: nil)
-      col_key        = col_result['id']
-      col_name       = uninomial_name(col_result['name'])
-      col_rank       = col_result.dig('name', 'rank')&.downcase
-      col_name       = extract_subgenus_name(col_name) if col_rank == 'subgenus'
-      col_status     = col_result['status']
+    # @param dataset_id [String, nil] the dataset that was searched; falls back
+    #   to DATASETS[:col]
+    # @return [Hash] extension hash with :col_key, :col_name, :col_status,
+    #   :col_authorship, :col_year, :col_rank, :col_code, :col_dataset_id,
+    #   :non_accepted, :accepted (a synonym's accepted name: :col_name,
+    #   :col_authorship) and :alignment (Array of ancestor hashes,
+    #   kingdom-first, each with :rank, :col_name, :col_id, :dataset_id,
+    #   :col_authorship, :above_genus_group, :rank_unknown; empty for a
+    #   non-accepted name)
+    def self.classified_usage(col_result, dataset_id: nil)
+      col_key = col_result['id']
+      col_name = protonym_name_from(col_result['name'])
+      col_rank = col_result.dig('name', 'rank')&.downcase
+      col_status = col_result['status']
       col_authorship = col_result.dig('name', 'authorship')
-      col_year       = col_result.dig('name', 'combinationAuthorship', 'year') ||
-                       col_result.dig('name', 'basionymOrCombinationAuthorship', 'year')
+      col_year = col_result.dig('name', 'combinationAuthorship', 'year') ||
+        col_result.dig('name', 'basionymOrCombinationAuthorship', 'year')
 
-      # CoL nomenclatural code: 'zoological', 'botanical', 'bacterial', 'viral'
-      col_code       = col_result.dig('name', 'code')
+      # CoL nomenclatural code: 'zoological', 'botanical', 'bacterial', 'virus'
+      col_code = col_result.dig('name', 'code')
 
       # Dataset used for the search (target row).
       col_dataset_id = dataset_id.presence || DATASETS[:col]
 
-      # Backbone datasets (main CoL, extended CoL) expose a classification subresource.
-      # External/denormed datasets must be traversed via iterative parentId lookups.
-      # Ancestor records carry the dataset_id of whichever source they came from.
-      #
-      # For synonyms with a single accepted target, CoL attaches the synonym under its accepted
-      # name in the tree, so fetching classification via the synonym's own ID returns the accepted
-      # name in the chain.  Use the accepted name's ID for the lookup instead, then strip it out
-      # by ID (CoL's classification endpoint includes the queried taxon itself as the most
-      # proximal entry).
-      # Ambiguous synonyms have no single accepted target, so we look up via their own ID.
-      non_accepted    = col_status.present? && col_status != 'accepted'
-      accepted_id     = col_status == 'synonym' ? col_result.dig('accepted', 'id').presence : nil
-      ancestor_lookup_key = accepted_id || col_key
-
-      ancestor_chain, ancestor_dataset_id =
-        if ancestor_lookup_key.present?
-          if col_backbone_dataset?(col_dataset_id)
-            [ancestors(ancestor_lookup_key), DATASETS[:col]]
-          else
-            [ancestors_via_parent_id(col_dataset_id, ancestor_lookup_key), col_dataset_id]
-          end
-        else
-          [[], col_dataset_id]
-        end
-
-      ancestor_chain = ancestor_chain.reject { |a| a['id'] == accepted_id } if accepted_id
-
-      # For any non-accepted name, strip ancestors at or below the name's own rank.
-      # CoL places non-accepted names under their accepted name, so the accepted name's
-      # classification chain can include same- or lower-ranked entries that are not valid
-      # parents of the queried name (e.g. a genus synonym whose accepted name is a subgenus).
-      if non_accepted && col_rank.present?
-        target_sort = col_rank_sort(col_rank, col_code)
-        if target_sort
-          ancestor_chain = ancestor_chain.reject { |a|
-            anc_sort = col_rank_sort(a['rank']&.downcase, col_code)
-            anc_sort && anc_sort >= target_sort
+      # A non-accepted name (synonym, ambiguous synonym, misapplied, ...) gets
+      # no alignment. CoL hangs it off its accepted taxon, so the only
+      # classification CoL has for it is the accepted name's - which says
+      # where the taxon is now, nothing about the name's own genus or family.
+      non_accepted = col_status.present? &&
+        !COL_ACCEPTED_STATUSES.include?(col_status.downcase)
+      accepted_name =
+        if col_status == 'synonym' && col_result['accepted']
+          {
+            col_name: col_result.dig('accepted', 'name', 'scientificName'),
+            col_authorship: col_result.dig('accepted', 'name', 'authorship')
           }
         end
-      end
 
-      # Drop suprakingdom ranks (e.g. 'domain') that have no equivalent in TaxonWorks
-      # nomenclatural codes.  Kingdom is the highest rank we include.
-      # CoL classification returns proximal→distal (immediate parent first); reverse to kingdom-first.
-      ancestor_chain = ancestor_chain.reject { |a| a['rank']&.downcase == 'domain' }.reverse
+      # Ancestors come from the searched dataset, so their ids are its ids.
+      ancestor_chain =
+        if non_accepted || col_key.blank?
+          []
+        elsif col_backbone_dataset?(col_dataset_id)
+          ancestors(col_dataset_id, col_key)
+        else
+          ancestors_via_parent_id(col_dataset_id, col_key)
+        end
+
+      # Drop 'domain', which CoL's backbone puts above kingdom in every
+      # cellular lineage (Eukaryota, Bacteria, Archaea) and TaxonWorks has no
+      # rank for. Other ranks TaxonWorks can't resolve (e.g. 'unranked'
+      # Viruses, 'parvphylum') are kept and flagged :rank_unknown below, and
+      # virus 'realm', above kingdom, is a TaxonWorks (ICVCN) rank.
+      # Both ancestor sources are already distal→proximal (kingdom before
+      # genus).
+      ancestor_chain =
+        ancestor_chain.reject { |a| a['rank']&.downcase == 'domain' }
 
       alignment = ancestor_chain.map do |ancestor|
-        rank     = ancestor['rank']&.downcase
-        # In classification entries 'name' is a plain String (the uninomial name)
-        anc_name = ancestor['name'].is_a?(String) ? ancestor['name'] : ancestor.dig('name', 'scientificName')
-        anc_name = extract_subgenus_name(anc_name) if rank == 'subgenus'
-        col_id   = ancestor['id']
-
-        scope = ::TaxonName.where(cached: anc_name) # !!!
-        scope = scope.where(project_id:) if project_id.present?
-        tw_record = scope.first
+        rank = ancestor['rank']&.downcase
 
         {
           rank:,
-          col_name:        anc_name,
-          col_id:,
-          dataset_id:      ancestor_dataset_id,
-          col_authorship:  ancestor['authorship'].presence,
-          taxonworks_id:   tw_record&.id,
-          taxonworks_name: tw_record&.cached,
-          match:           tw_record ? 'exact' : 'none'
+          # As CoL gives it ("Aedes (Stegomyia)", "Olea europaea").
+          col_name: ancestor['name'],
+          col_id: ancestor['id'],
+          dataset_id: col_dataset_id,
+          col_authorship: ancestor['authorship'].presence,
+          above_genus_group: above_genus_group?(rank, col_code),
+          # e.g. 'parvphylum' - can't be created (ColCreator skips it)
+          rank_unknown: rank_class_for(rank, col_code:).nil?
         }
       end
 
-      { col_key:, col_name:, col_status:, col_authorship:, col_year:, col_rank:, col_code:, col_dataset_id:, alignment: }
+      {
+        col_key:, col_name:, col_status:, col_authorship:, col_year:, col_rank:,
+        col_code:, col_dataset_id:, alignment:, non_accepted:,
+        **(accepted_name ? { accepted: accepted_name} : {})
+      }
     end
 
-    # Returns the single-word name component suitable for storing as a TaxonWorks Protonym name.
-    # CoL's scientificName is the full combination (e.g. "Homo sapiens"), but TaxonWorks
-    # Protonym requires just the uninomial or epithet.
-    # Priority: specificEpithet (species) > infraspecificEpithet (infra) > uninomial (higher) > scientificName fallback.
+    # Resolves a free-text name (e.g. transcribed from a specimen label) to the
+    # names currently accepted by the Catalogue of Life, so a caller doesn't
+    # have to look up synonymy by hand before searching TaxonWorks.
+    #
+    # Every exact hit for name_string is resolved, in CoL's order: an accepted
+    # (or provisionally accepted) name to itself, a synonym to its accepted
+    # target. Several hits are homonyms - the same name in different codes
+    # (Pieris), or a later homonym CoL lists as a synonym of its replacement
+    # (Abies alba (Aiton) Michx. -> Picea glauca) - so each is resolved rather
+    # than picking one.
+    #
+    # An ambiguous synonym is followed too. Its `accepted` is only one of the
+    # name's possible targets - a pro parte synonym (Abax brunnipes Letzner,
+    # 1852) is one hit per target - so the caller should say so; each target
+    # is still a valid name the user may mean.
+    #
+    # Anything else is skipped. A misapplied name also carries an `accepted`
+    # usage, but it's the taxon some author misidentified as the name, not
+    # what the name means.
+    #
+    # Several hits can resolve to the same accepted name; it's given once, and
+    # the hit kept for it (which the caller's "valid name for" note names)
+    # is, in order of preference: the accepted name itself, a plain synonym,
+    # an ambiguous synonym. Ties go to the hit CoL lists first.
+    #
+    # @param name_string [String]
+    # @param dataset_id [String, nil] CoL dataset ID; falls back to the default
+    #   hardwired ID when nil
+    # @return [Array<Hash>] empty when CoL resolves nothing, else each
+    #   { input:, matched_name:, matched_authorship:, matched_status:,
+    #     matched_col_key:, valid_name:, valid_col_key:, valid_authorship:,
+    #     valid_status:, valid_col_result:, dataset_id: }
+    def self.resolve_accepted_names(name_string, dataset_id: nil)
+      target_dataset_id = dataset_id.presence || DATASETS[:col]
+      hits = search(name_string, dataset_id:)['result'] || []
+
+      resolved = hits.filter_map do |hit|
+        matched_status = hit['status']
+        if COL_FOLLOWED_STATUSES.include?(matched_status)
+          accepted = hit['accepted']
+        end
+        next if accepted.nil? &&
+          !COL_ACCEPTED_STATUSES.include?(matched_status.to_s.downcase)
+
+        # The full nameusage hash for the *valid* name - CoL nests the
+        # accepted usage (a complete nameusage record, same shape as a search
+        # result) right on the synonym hit.
+        valid_col_result = accepted || hit
+
+        {
+          input: name_string,
+          # Full scientific name (e.g. "Homo sapiens"), not the single-word
+          # component protonym_name_from extracts for building TW Protonym
+          # trees - TaxonName/Otu#cached holds the full combination, so
+          # that's what a caller needs to search against.
+          matched_name: hit.dig('name', 'scientificName'),
+          matched_authorship: hit.dig('name', 'authorship').presence,
+          matched_status:,
+          matched_col_key: hit['id'],
+          valid_name: valid_col_result.dig('name', 'scientificName'),
+          valid_col_key: valid_col_result['id'],
+          valid_authorship: valid_col_result.dig('name', 'authorship'),
+          valid_status:
+            accepted ? (accepted['status'] || 'accepted') : matched_status,
+          valid_col_result:,
+          dataset_id: target_dataset_id
+        }
+      end
+
+      resolved
+        .group_by { |r| r[:valid_col_key] }
+        .values
+        .map do |same_valid_name|
+          same_valid_name.min_by do |r|
+            if r[:matched_col_key] == r[:valid_col_key]
+              0
+            elsif r[:matched_status] == 'synonym'
+              1
+            else
+              2
+            end
+          end
+        end
+    end
+
+    # The TaxonWorks Protonym#name for a CoL name: the last epithet of a
+    # species-group name, a subgenus's epithet, or a uninomial (genus and
+    # above). CoL's scientificName is the full name ("Homo sapiens", "Aedes
+    # (Stegomyia)"); CoL parses a subgenus into genus + infragenericEpithet,
+    # with no uninomial.
+    # Priority: infraspecificEpithet > specificEpithet > infragenericEpithet
+    #   > uninomial > scientificName fallback.
     #
     # @param name_hash [Hash, nil] the 'name' sub-hash from a CoL nameusage result
     # @return [String, nil]
-    def self.uninomial_name(name_hash)
+    def self.protonym_name_from(name_hash)
       return nil if name_hash.nil?
       name_hash['infraspecificEpithet'].presence ||
         name_hash['specificEpithet'].presence ||
+        name_hash['infragenericEpithet'].presence ||
         name_hash['uninomial'].presence ||
         name_hash['scientificName']
     end
 
-    # Subgenus names in CoL classification arrive as "Genus (Subgenus)" combinations.
-    # Extract just the subgenus epithet from inside the parentheses when present.
-    def self.extract_subgenus_name(name)
-      return name if name.nil?
-      name[/\(([^)]+)\)/, 1] || name
+    # Maps a CoL nomenclatural code string to the TaxonWorks rank-name lookup
+    # (rank name => rank_class string) for that code.
+    #
+    # Lookups can return nil, see COL_CODE_TO_NOMENCLATURE_CODE.
+    COL_CODE_LOOKUP_MAP = {
+      'zoological' => ::ICZN_LOOKUP,
+      'botanical'  => ::ICN_LOOKUP,
+      'bacterial'  => ::ICNP_LOOKUP,
+      'virus'      => ::ICVCN_LOOKUP
+    }.freeze
+
+    # Maps a CoL nomenclatural code string to the TaxonWorks nomenclature_code
+    # symbol (NomenclaturalRank.nomenclatural_code /
+    # rank_class.nomenclatural_code) it corresponds to.
+    #
+    # Lookups can return nil: CoL may give no code for a name (name.code
+    # absent), or a code not mapped here (e.g. 'cultivars',
+    # 'phytosociological'). Callers must treat nil as "code unknown", not as
+    # a mismatch.
+    COL_CODE_TO_NOMENCLATURE_CODE = {
+      'zoological' => :iczn,
+      'botanical'  => :icn,
+      'bacterial'  => :icnp,
+      'virus'      => :icvcn
+    }.freeze
+
+    # CoL's acronym for each of its nomenclatural codes (from its
+    # /vocab/nomCode; CoL gives phyto and phylo the same one).
+    COL_CODE_ACRONYMS = {
+      'zoological' => 'ICZN',
+      'botanical' => 'ICN',
+      'bacterial' => 'ICNP',
+      'virus' => 'ICVCN',
+      'cultivars' => 'ICNCP',
+      'phyto' => 'ICPN',
+      'phylo' => 'ICPN'
+    }.freeze
+
+    # Maps a human-readable CoL rank string to a TaxonWorks rank_class string.
+    #
+    # When col_code is recognized (e.g. 'botanical' → ICN_LOOKUP), only that
+    # code's lookup is used: a rank class from another code would fail
+    # Protonym's same-code validation against its parent (a zoological
+    # 'variety' is unknown, not ICN's). Otherwise falls back through all four
+    # codes in order so any rank resolves if possible.
+    #
+    # @param rank_string [String, nil] e.g. 'genus', 'family'
+    # @param col_code [String, nil] 'zoological', 'botanical', 'bacterial',
+    #   'virus'
+    # @return [String, nil] a TaxonWorks rank_class string, or nil for an
+    #   unknown rank
+    def self.rank_class_for(rank_string, col_code: nil)
+      return nil if rank_string.blank?
+      r = rank_string.to_s.downcase
+
+      if (lookup = COL_CODE_LOOKUP_MAP[col_code])
+        return lookup[r]
+      end
+
+      COL_CODE_LOOKUP_MAP.values.each do |lookup|
+        result = lookup[r]
+        return result if result
+      end
+
+      nil
     end
 
     # Maps a CoL rank name ('genus', 'family', …) and CoL nomenclatural code
-    # ('zoological', 'botanical', 'bacterial', 'viral') to the TaxonWorks RANK_SORT
+    # ('zoological', 'botanical', 'bacterial', 'virus') to the TaxonWorks RANK_SORT
     # index. Higher index = more specific rank. Returns nil when unresolvable.
+    #
+    # Unlike rank_class_for, doesn't fall back through the other codes: callers
+    # compare these indices against each other, so all must come from one code.
+    # An unrecognized col_code is treated as zoological.
     def self.col_rank_sort(rank_name, col_code)
       return nil if rank_name.blank?
-      lookup = case col_code
-               when 'zoological' then ::ICZN_LOOKUP
-               when 'botanical'  then ::ICN_LOOKUP
-               when 'bacterial'  then ::ICNP_LOOKUP
-               when 'viral'      then ::ICVCN_LOOKUP
-               else ::ICZN_LOOKUP
-               end
+      lookup = COL_CODE_LOOKUP_MAP[col_code] || ::ICZN_LOOKUP
       rank_class = lookup[rank_name]
       rank_class ? ::RANK_SORT[rank_class] : nil
     end
 
-    # Extend to buffered with GNA in middle layer?
-    # Text only, taxon name cached or OTU name for the
-    # most recent determination
-    def self.collection_object_scientific_name(collection_object)
-      return nil if collection_object.nil?
-      if a = collection_object.taxon_determinations.order(:position)&.first
-        if a.otu.taxon_name
-          a.otu.taxon_name.cached
-        else
-          a.otu.name
-        end
-      else
-        nil
-      end
+    # True when rank_name resolves to FamilyGroup or above
+    # (HigherClassificationGroup) — i.e. strictly coarser than GenusGroup — for
+    # the given CoL nomenclatural code. Unresolvable ranks are treated as
+    # not-above (false).
+    def self.above_genus_group?(rank_name, col_code)
+      rank_class = rank_class_for(rank_name, col_code:)
+      rank_class ? ::FAMILY_AND_ABOVE_RANK_NAMES.include?(rank_class) : false
     end
   end
 

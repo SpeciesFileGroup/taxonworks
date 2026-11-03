@@ -319,7 +319,7 @@ class Source < ApplicationRecord
        .pluck(:id).uniq
   end
 
-  # @params target [String] a citable model name
+  # @param target [String] a citable model name
   # @return [Hash] sources optimized for user selection
   def self.select_optimized(user_id, project_id, target = 'TaxonName')
     r = used_recently(user_id, project_id, target)

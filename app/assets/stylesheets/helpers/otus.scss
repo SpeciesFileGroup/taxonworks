@@ -4,11 +4,19 @@
   }
 
   .otu_tag_taxon_name {
-    color: $color-complement-1;
-    background: $color-secondary-2-3;
+    color: var(--text-color);
+    background-color: var(--badge-default-bg);
     white-space: nowrap;
-    padding: 0.125rem 0.5rem;
-    border-radius: var(--border-radius-large);
+    padding: 0.125rem 0.375rem;
+    border-radius: 4px;
     width: min-content;
+  }
+
+  .otu_tag_taxon_name_invalid {
+    background-color: color-mix(
+      in srgb,
+      var(--taxon-name-invalid-color) 15%,
+      transparent
+    );
   }
 }

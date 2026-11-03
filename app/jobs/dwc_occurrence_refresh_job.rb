@@ -9,7 +9,7 @@ class DwcOccurrenceRefreshJob < ApplicationJob
     2
   end
 
-  # @parapm rebuild_set
+  # @param rebuild_set
   #   arbitrary set name, a random string
   def perform(rebuild_set: nil, user_id: nil)
     raise TaxonWorks::Error, 'no set id to refresh job' if rebuild_set.blank?

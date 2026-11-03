@@ -28,7 +28,7 @@ module Queries
 
       attr_accessor :alternate_value_object_type
 
-      # @params params [ActionController::Parameters]
+      # @param query_params [ActionController::Parameters]
       def initialize(query_params)
         super
         @alternate_value_id = params[:alternate_value_id]

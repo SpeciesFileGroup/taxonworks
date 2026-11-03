@@ -522,7 +522,7 @@ module TaxonNamesHelper
   end
 
   # Perhaps a /lib/catalog method
-  # @return Hash
+  # @return [Hash]
   def taxon_names_count_by_validity_and_year(scope = nil)
     return {} if scope.nil?
     invalid = taxon_names_by_year_count(scope.that_is_invalid)
@@ -579,7 +579,7 @@ module TaxonNamesHelper
   end
 
   # Perhaps a /lib/catalog method
-  # @return Hash
+  # @return [Hash]
   def taxon_names_cumulative_count_by_validity_and_year(scope = nil)
     return {} if scope.nil?
     invalid = taxon_names_by_year_count(scope.that_is_invalid)
@@ -649,7 +649,7 @@ module TaxonNamesHelper
   end
 
   # @return [String] with HTML
-  # @params selected_names [Scope]
+  # @param selected_names [Scope]
   #   optionally bold these names if found in names
   # !! Does not try to sort names, works best in combination with `ancestrify: true` in ::Queries::TaxonNames::Filter
   # TODO: there is some missalignment on the name matching, you'll see some names that likely matched not linked.

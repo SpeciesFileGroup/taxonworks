@@ -19,7 +19,6 @@ module NomenclatureCatalog
     # Required
     attr_accessor :taxon_name
 
-    # @param [Hash] args
     def initialize(object: nil, taxon_name: nil, citation: nil, nomenclature_date: nil, citation_date: nil)
       raise if object.nil? || taxon_name.nil?
       # raise if nomenclature_date.nil? && !(object.class.to_s == 'Protonym' || 'Combination' || 'TaxonNameRelationship')

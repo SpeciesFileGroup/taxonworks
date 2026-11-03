@@ -46,12 +46,12 @@ module Queries
       #   the full class name like 'TaxonNameRelationship::..etc.', or an Array of them
       attr_accessor :taxon_name_relationship_type
 
-      # @params subject_taxon_name_id [String, Array, nil]
+      # @param subject_taxon_name_id [String, Array, nil]
       #    TaxonName id(s)
       # Match all relationships where subject is this ID
       attr_accessor :subject_taxon_name_id
 
-      # @params object_taxon_name_id [String, Array, nil]
+      # @param object_taxon_name_id [String, Array, nil]
       #    TaxonName id(s)
       # Match all relationships where object is this ID
       attr_accessor :object_taxon_name_id
@@ -71,7 +71,7 @@ module Queries
       #   when nil, match to either subject or object.
       attr_accessor :taxon_name_subject_object
 
-      # @param params [Params]
+      # @param query_params [Params]
       def initialize(query_params)
         super
 

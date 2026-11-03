@@ -21,7 +21,6 @@ class Distribution
 
   attr_accessor :preferred_georeference_only
 
-  # @param [Hash] args
   def initialize(
     source_object_types: [
       :asserted_distribution,

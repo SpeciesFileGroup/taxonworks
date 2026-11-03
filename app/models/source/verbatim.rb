@@ -55,7 +55,7 @@ class Source::Verbatim < Source
     end
   end
 
-  # @retun [nil]
+  # @return [nil]
   #   verbatim sources do not have nomenclature dates, but this method is used in catalogs
   def nomenclature_date
     nil

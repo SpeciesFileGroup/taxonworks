@@ -47,7 +47,6 @@ class Catalog::EntryItem
   #   does this match the target Entry
   attr_accessor :matches_current_target
 
-  # @param [Hash] args
   def initialize(object: nil, base_object: nil, citation: nil, nomenclature_date: nil, year_suffix: nil, pages: nil, citation_date: nil, current_target: nil)
     raise if object.nil?
     @object = object
