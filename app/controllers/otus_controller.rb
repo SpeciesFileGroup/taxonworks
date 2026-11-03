@@ -458,6 +458,10 @@ class OtusController < ApplicationController
       end
 
       format.geojson do
+        if params[:coordinate_otus] == 'false'
+          @otus = Otu.where(id: @otu.id)
+          render :distribution_by_otus
+        end
       end
     end
   end
@@ -485,6 +489,10 @@ class OtusController < ApplicationController
         render '/otus/api/v1/inventory/distribution'
       end
       format.geojson do
+        if params[:coordinate_otus] == 'false'
+          @otus = Otu.where(id: @otu.id)
+          render '/otus/distribution_by_otus' and return
+        end
         render '/otus/api/v1/inventory/distribution'
       end
     end
@@ -573,6 +581,10 @@ class OtusController < ApplicationController
     @descendants = params[:descendants] == 'true'
     respond_to do |format|
       format.geojson do
+        if params[:coordinate_otus] == 'false'
+          @otus = Otu.where(id: @otu.id)
+          render :distribution_is_absent_by_otus
+        end
       end
     end
   end
@@ -596,6 +608,10 @@ class OtusController < ApplicationController
     @descendants = params[:descendants] == 'true'
     respond_to do |format|
       format.geojson do
+        if params[:coordinate_otus] == 'false'
+          @otus = Otu.where(id: @otu.id)
+          render '/otus/distribution_is_absent_by_otus' and return
+        end
         render '/otus/api/v1/inventory/distribution_is_absent'
       end
     end

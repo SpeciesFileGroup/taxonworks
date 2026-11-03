@@ -12,7 +12,9 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Occurrences importer: Import people and organizations via `TW:TaxonDetermination:determiner_ids` (e.g. `Person/123 | Organization/456`).
 - Occurrences importer: Import collectors by existing Person IDs via `TW:CollectingEvent:collector_ids` (e.g. `Person/123 | Person/456`).
 - Composition and CompositionItem models, the first Render models for tracking display of Data items in the UI [#5116] [#5117]
-- `coordinate_otus` parameter to `/otus/<id>/inventory/content`
+- `coordinate_otus` parameter to `/api/v1/otus/<id>/inventory/content`
+- `coordinate_otus` parameter to `/api/v1/otus/<id>/inventory/distribution.geojson`
+- `coordinate_otus` parameter to `/api/v1/otus/<id>/inventory/distribution_is_absent.geojson`
 - Browse OTUs: `All` tab in Timeline panel
 - extend[]=citations param to /api/v1/leads
 - Batch add/remove AssertedEnvironments from Filter OTU and Collecting Event [#5128]
