@@ -38,7 +38,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 ### Fixed
 
 - Batch update of Data Attributes - from filters *other than* Collection Objects, Collecting Events, Field Occurrences, OTUs, or Taxon Names - updated Data Attributes on every record in the project, not just the filtered ones [#5163]
-- Batch remove protocol in filters removed all protocols from the selected records instead of just the selected protocol[#5163]
+- Batch remove protocol in filters removed all protocols from the selected records instead of just the selected protocol [#5163]
 - Batch remove source from project removed sources from a project even when they were cited in that project [#5163]
 - Batch add sources to a project used to stop at the first source already in the project [#5163]
 - Contents are not republished after saving content that was already published [#5133]
@@ -50,9 +50,11 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - CSD: Saving a CO with a CE that has multiple uses displays a confirmation modal even if it has not been modified [#5146]
 - Unify issues related to matrices [#5129]
 - The PDF toolbar overlaps the scroll button
+- Outdated Names linker task from Filter Collection Objects reported wrong results for invalid names under a subgenus [#5115]
 - Improved coverage at https://rdoc.taxonworks.org/
 
 [#200]: https://github.com/SpeciesFileGroup/taxonpages/issues/200
+[#5115]: https://github.com/SpeciesFileGroup/taxonworks/issues/5115
 [#5116]: https://github.com/SpeciesFileGroup/taxonworks/issues/5116
 [#5117]: https://github.com/SpeciesFileGroup/taxonworks/issues/5117
 [#5128]: https://github.com/SpeciesFileGroup/taxonworks/issues/5128
