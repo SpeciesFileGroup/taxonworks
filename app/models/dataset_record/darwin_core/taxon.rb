@@ -519,7 +519,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
 
         if taxon_name.save
           # TODO add relationships and combinations to this hash
-          self.metadata[:imported_objects] = { taxon_name: { id: taxon_name.id } }
+          self.metadata['imported_objects'] = { taxon_name: { id: taxon_name.id } }
           self.status = 'Imported'
         else
           self.status = 'Errored'
@@ -538,7 +538,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
             errored_relationships.each { |r| r.errors.map { |error| taxon_name.errors.add(:taxon_name_relationships, message: error.message) } }
           end
 
-          self.metadata[:error_data] = {
+          self.metadata['error_data'] = {
             messages: taxon_name.errors.messages
           }
         end
@@ -572,7 +572,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
     rescue StandardError => e
       raise if Rails.env.development?
       self.status = 'Failed'
-      self.metadata[:exception_data] = {
+      self.metadata['exception_data'] = {
         message: e.message,
         backtrace: e.backtrace
       }

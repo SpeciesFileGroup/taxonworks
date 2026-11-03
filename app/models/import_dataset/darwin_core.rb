@@ -204,7 +204,7 @@ class ImportDataset::DarwinCore < ImportDataset
   # Sets import settings for this dataset
   def set_import_settings(import_settings)
     metadata['import_settings'] ||= {}
-    import_settings.each { |k, v| metadata['import_settings'].merge!({k => v}) }
+    import_settings.each { |key, value| metadata['import_settings'][key.to_s] = value }
 
     metadata['import_settings']
   end
