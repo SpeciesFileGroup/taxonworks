@@ -11,7 +11,10 @@ module PreparationTypesHelper
   end
 
   def preparation_type_autocomplete_tag(preparation_type, term = nil)
-    mark_tag(preparation_type_tag(preparation_type), term)
+    mark_tag(
+      content_tag(:span, safe_join([preparation_type_tag(preparation_type), ': ', preparation_type.definition])),
+      term
+    )
   end
 
   def preparation_type_link(preparation_type)
