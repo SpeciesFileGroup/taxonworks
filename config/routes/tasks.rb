@@ -833,7 +833,7 @@ scope :tasks do
     end
 
     scope :browse, controller: 'tasks/otus/browse' do
-      get '/(:otu_id)', action: :index, as: 'browse_otus_task'
+      get '/', action: :index, as: 'browse_otus_task'
     end
 
     scope :match_by_taxon_name, controller: 'tasks/otus/match_by_taxon_name' do

@@ -7,7 +7,9 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 ## [unreleased]
 
-\-
+###
+
+- Browse OTU link in OTU show page (Report) and taxon determination links not loading the OTU in the task
 
 ## [0.67.0] - 2026-11-4
 
