@@ -7,6 +7,10 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 ## [unreleased]
 
+\-
+
+## [0.67.0] - 2026-11-4
+
 ### Added
 
 - Support organizations as collectors in collecting events [#5164].
@@ -6677,7 +6681,8 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.66.1...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.67.0...development
+[0.67.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.66.1...v0.67.0
 [0.66.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.66.0...v0.66.1
 [0.66.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.65.0...v0.66.0
 [0.65.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.64.0...v0.65.0
