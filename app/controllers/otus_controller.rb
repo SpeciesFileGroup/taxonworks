@@ -421,8 +421,8 @@ class OtusController < ApplicationController
   # GET /api/v1/otus/:id/inventory/type_material
   def api_type_material_inventory
     @type_materials = TypeMaterial.where(protonym_id: @otu.taxon_name&.valid_taxon_name&.historical_taxon_names&.select(:id))
-      .eager_load(:protonym)
-      .includes(collection_object: [:collecting_event, :repository, :dwc_occurrence, :biocuration_classes, :identifiers])
+      .joins(:protonym)
+      .preload(:protonym, collection_object: [:collecting_event, :repository, :dwc_occurrence, :biocuration_classes, :identifiers])
       .order('taxon_names.cached_is_valid DESC, taxon_names.cached_nomenclature_date, type_materials.id')
 
     render '/otus/api/v1/inventory/type_material'
