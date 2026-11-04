@@ -39,6 +39,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Filter Biological Associations: change default taxon name search to `or` mode [#5153]
 - New observation matrix: replaced OTU autocompletes by autoselects
 - New image: Replaced OTU autocomplete by autoselect in "Depict some" panel [#5143]
+- Updated RubyGems and Node packages
 
 ### Fixed
 
