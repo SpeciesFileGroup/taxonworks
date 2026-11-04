@@ -9,6 +9,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 ### Added
 
+- Support organizations as collectors in collecting events [#5164].
 - Occurrences importer: Import people and organizations via `TW:TaxonDetermination:determiner_ids` (e.g. `Person/123 | Organization/456`).
 - Occurrences importer: Import people and organizations as collectors via `TW:CollectingEvent:collector_ids` (e.g. `Person/123 | Organization/456`).
 - Composition and CompositionItem models, the first Render models for tracking display of Data items in the UI [#5116] [#5117]
@@ -70,6 +71,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 [#5152]: https://github.com/SpeciesFileGroup/taxonworks/issues/5152
 [#5153]: https://github.com/SpeciesFileGroup/taxonworks/issues/5153
 [#5163]: https://github.com/SpeciesFileGroup/taxonworks/issues/5163
+[#5164]: https://github.com/SpeciesFileGroup/taxonworks/pull/5164
 
 ## [0.66.1] - 2026-10-09
 
