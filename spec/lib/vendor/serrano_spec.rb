@@ -154,10 +154,10 @@ describe Vendor::Serrano, type: :model, group: [:sources] do
       }
     }
 
-    # Expected result is a resolved citation of Source::Bibtex
-    let(:src2) {
-      use_cassette_with_retry('source_citation_kevan') {
-        Vendor::Serrano.new_from_citation(citation: 'Kevan, D.K.M. & Wighton. 1981. Paleocene orthopteroids from south-central Alberta, Canada. Canadian Journal of Earth Sciences. 18(12):1824-1837')
+    let(:article_title) { 'Molecular Structure of Nucleic Acids: A Structure for Deoxyribose Nucleic Acid' }
+    let(:article) {
+      use_cassette_with_retry('source_citation_watson_crick') {
+        Vendor::Serrano.new_from_citation(citation: "Watson, J. D. & Crick, F. H. C. (1953). #{article_title}. Nature 171, 737-738.")
       }
     }
 
@@ -170,25 +170,24 @@ describe Vendor::Serrano, type: :model, group: [:sources] do
         'Brauer, A. (1909) <i>Die Süsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg. von Dr. Brauer.</i> G. Fischer, Available at http://dx.doi.org/10.5962/bhl.title.1086')
     end
 
-    # Hacked Zootaxa format
-    # specify 'text2' do
-    #   expect(src2.cached_string('text')).to eq('Kevan, D.K.M.E. & Wighton, D.C. (1981) Paleocene orthopteroids from south-central Alberta, Canada. Canadian Journal of Earth Sciences 18(12), 1824–1837.')
-    # end
+    specify 'formats a resolved journal article as plain text' do
+      expect(article).to be_a(Source::Bibtex)
+      expect(article.doi).to eq('10.1038/171737a0')
 
-    specify 'text2' do
-      expect(src2.cached_string('text')).to start_with(
-        'Kevan, D.K.M.E. & Wighton, D.C. (1981) Paleocene orthopteroids from south-central Alberta, Canada.'
+      text = article.cached_string('text')
+      expect(text).to include(
+        'Watson', 'Crick', '1953', article_title, 'Nature', '10.1038/171737a0', ' & '
       )
+      expect(text).not_to match(/<[^>]+>/)
     end
 
-    # Hacked Zootaxa format
-    # specify 'html2' do
-    #   expect(src2.cached_string('html')).to eq('Kevan, D.K.M.E. &amp; Wighton, D.C. (1981) Paleocene orthopteroids from south-central Alberta, Canada. <i>Canadian Journal of Earth Sciences</i> 18(12), 1824–1837.')
-    # end
+    specify 'formats a resolved journal article as HTML' do
+      expect(article).to be_a(Source::Bibtex)
+      expect(article.doi).to eq('10.1038/171737a0')
 
-    specify 'html2' do
-      expect(src2.cached_string('html')).to start_with(
-        'Kevan, D.K.M.E. &amp; Wighton, D.C. (1981) Paleocene orthopteroids from south-central Alberta, Canada.'
+      html = article.cached_string('html')
+      expect(html).to include(
+        'Watson', 'Crick', '1953', article_title, '10.1038/171737a0', '&amp;', '<i>Nature</i>'
       )
     end
   end
