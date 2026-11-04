@@ -19,7 +19,7 @@ class BiologicalAssociationsController < ApplicationController
           .all
           .where(project_id: sessions_current_project_id)
           .includes(
-            citations: [:source, { citation_topics: :topic }],
+            citations: [:source, :topics, { citation_topics: :topic }],
             biological_relationship: :biological_relationship_types
           )
           .preload(:biological_association_subject, :biological_association_object)
@@ -27,6 +27,7 @@ class BiologicalAssociationsController < ApplicationController
           .per(params[:per])
           .load
 
+        # TODO: this isn't good, make it better.
         co_fo_subjects = @biological_associations
           .filter_map { |ba| ba.biological_association_subject if ['CollectionObject', 'FieldOccurrence'].include?(ba.biological_association_subject_type) }
         ActiveRecord::Associations::Preloader.new(records: co_fo_subjects, associations: [:taxon_determinations, :identifiers]).call unless co_fo_subjects.empty?

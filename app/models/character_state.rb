@@ -48,7 +48,7 @@ class CharacterState < ApplicationRecord
   end
 
   # @return [String] name of the character_state in a particular language
-  # @parm :target
+  # @param target [Symbol]
   #   one of :key, :description, nil
   def target_name(target, language_id)
     n = self.name

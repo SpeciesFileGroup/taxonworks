@@ -39,7 +39,7 @@ module Shared::Tags
       .where('k1.uri = ?', uri)
     end
 
-    # @params [Keyword] the target keyword object
+    # @param keyword [Keyword] the target keyword object
     # @return [Scope]
     #    only those instances with tags that use the kewyord
     def tagged_with_keyword(keyword)

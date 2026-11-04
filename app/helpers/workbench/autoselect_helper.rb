@@ -4,8 +4,10 @@ module Workbench::AutoselectHelper
   # (`app/javascript/vue/initializers/Autoselect/`).  The element is inert until
   # the initializer picks it up on `turbolinks:load`.
   #
-  # @param url [String]
-  #   the autoselect resource, e.g. `/taxon_names/autoselect`
+  # @param model [String]
+  #   the autoselect resource's model key, e.g. `'taxon_names'`; drives the
+  #   fetch url (`/<model>/autoselect`) and the `!n` create-component lookup
+  #   (see `AUTOSELECT_NEW_RECORD_COMPONENTS`)
   # @param param [String, Symbol]
   #   the key read from the selected item's `response_values`, e.g. `:taxon_name_id`
   # @param object [String, Symbol, nil]
@@ -21,11 +23,16 @@ module Workbench::AutoselectHelper
   # @param current_label [String, nil]
   #   HTML label for `current`; defaults to the model's `<model>_autoselect_tag`
   # @param new_record_component [String, nil]
-  #   key of the component opened by `!n`, e.g. 'TaxonNameNewModal'
+  #   key of the component opened by `!n`, e.g. 'TaxonNameNewModal'. When nil
+  #   (or not a known key) the model's default applies
+  #   (`AUTOSELECT_NEW_RECORD_COMPONENTS`); there's no way to turn `!n` off
+  #   from here.
   # @param preferences_options_component [String, nil]
-  #   key of the component rendered inside the `!p` modal, e.g. 'ColDatasetPicker'
+  #   key of the component rendered inside the `!p` modal, e.g.
+  #   'ColDatasetPicker'. When nil (or not a known key) the default,
+  #   ColDatasetPicker, applies.
   def autoselect_field(
-    url:,
+    model:,
     param:,
     method:,
     object: nil,
@@ -40,7 +47,7 @@ module Workbench::AutoselectHelper
   )
     content_tag(:div, '', data: {
       'autoselect' => true,
-      'autoselect-url' => url,
+      'autoselect-model' => model,
       'autoselect-param' => param,
       'autoselect-field-object' => object,
       'autoselect-field-property' => method,

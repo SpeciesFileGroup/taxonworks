@@ -519,7 +519,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
 
         if taxon_name.save
           # TODO add relationships and combinations to this hash
-          self.metadata[:imported_objects] = { taxon_name: { id: taxon_name.id } }
+          self.metadata['imported_objects'] = { taxon_name: { id: taxon_name.id } }
           self.status = 'Imported'
         else
           self.status = 'Errored'
@@ -538,7 +538,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
             errored_relationships.each { |r| r.errors.map { |error| taxon_name.errors.add(:taxon_name_relationships, message: error.message) } }
           end
 
-          self.metadata[:error_data] = {
+          self.metadata['error_data'] = {
             messages: taxon_name.errors.messages
           }
         end
@@ -572,7 +572,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
     rescue StandardError => e
       raise if Rails.env.development?
       self.status = 'Failed'
-      self.metadata[:exception_data] = {
+      self.metadata['exception_data'] = {
         message: e.message,
         backtrace: e.backtrace
       }
@@ -617,7 +617,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
     parent_elements
   end
 
-  # @return Optional[DatasetRecord::DarwinCore::Taxon, Array<DatasetRecord::DarwinCore::Taxon>]
+  # @return [DatasetRecord::DarwinCore::Taxon, nil]
   def get_parent
     DatasetRecord::DarwinCore::Taxon.where(id: import_dataset.core_records_fields
       .at(get_field_mapping(:taxonID))
@@ -626,7 +626,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
       .first
   end
 
-  # @return Optional[DatasetRecord::DarwinCore::Taxon, Array<DatasetRecord::DarwinCore::Taxon>]
+  # @return [DatasetRecord::DarwinCore::Taxon, nil]
   def get_original_combination
     DatasetRecord::DarwinCore::Taxon.where(
       id: import_dataset.core_records_fields.at(get_field_mapping(:taxonID))
@@ -635,7 +635,7 @@ class DatasetRecord::DarwinCore::Taxon < DatasetRecord::DarwinCore
       .first
   end
 
-  # @return Optional[DatasetRecord::DarwinCore::Taxon, Array<DatasetRecord::DarwinCore::Taxon>]
+  # @return [DatasetRecord::DarwinCore::Taxon, nil]
   def find_by_taxonID(taxon_id)
     DatasetRecord::DarwinCore::Taxon.where(
       id: import_dataset.core_records_fields.at(get_field_mapping(:taxonID))

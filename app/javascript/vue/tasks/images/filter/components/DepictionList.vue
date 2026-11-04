@@ -24,13 +24,17 @@
           </thead>
           <tbody>
             <tr
-              v-for="item in list"
+              v-for="(item, index) in list"
               :key="item.id"
             >
               <td>
                 <div class="horizontal-left-content gap-small">
                   <RadialAnnotator :global-id="item.global_id" />
-                  <RadialNavigator :global-id="item.global_id" />
+                  <RadialNavigator
+                    :global-id="item.global_id"
+                    :redirect="false"
+                    @delete="() => list.splice(index, 1)"
+                  />
                 </div>
               </td>
               <td>

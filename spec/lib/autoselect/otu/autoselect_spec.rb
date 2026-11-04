@@ -19,8 +19,19 @@ RSpec.describe Autoselect::Otu::Autoselect, type: :model do
       expect(config[:response]).to be_nil
     end
 
-    it 'includes fast, smart, catalogue_of_life as level keys in map' do
-      expect(config[:map]).to include('fast', 'smart', 'catalogue_of_life')
+    it 'includes fast, smart, catalogue_of_life, col_valid_name as level keys in map' do
+      expect(config[:map]).to include('fast', 'smart', 'catalogue_of_life', 'col_valid_name')
+    end
+
+    it 'col_valid_name level metadata has is_default: false' do
+      levels_by_key = config[:levels].index_by { |l| l[:key].to_s }
+      expect(levels_by_key['col_valid_name'][:is_default]).to be false
+    end
+
+    it 'col_valid_name uses the catalogue_of_life options (CoL dataset)' do
+      levels_by_key = config[:levels].index_by { |l| l[:key].to_s }
+      expect(levels_by_key['col_valid_name'][:options_level])
+        .to eq('catalogue_of_life')
     end
 
     it 'includes !n operator trigger' do
@@ -30,9 +41,19 @@ RSpec.describe Autoselect::Otu::Autoselect, type: :model do
   end
 
   describe 'level stack' do
-    it 'has three levels in order: fast → smart → catalogue_of_life' do
+    it 'has four levels: fast → smart → catalogue_of_life → col_valid_name' do
       keys = autoselect.levels.map { |l| l.key.to_s }
-      expect(keys).to eq(%w[fast smart catalogue_of_life])
+      expect(keys).to eq(%w[fast smart catalogue_of_life col_valid_name])
+    end
+
+    it 'col_valid_name is not default (present but unchecked absent a stored preference)' do
+      col_valid_name = autoselect.levels.find { |l| l.key.to_s == 'col_valid_name' }
+      expect(col_valid_name.is_default).to be false
+    end
+
+    it 'fast, smart, and catalogue_of_life are default' do
+      defaults = autoselect.levels.reject { |l| l.key.to_s == 'col_valid_name' }
+      expect(defaults.map(&:is_default)).to all(be true)
     end
   end
 
@@ -193,17 +214,15 @@ RSpec.describe Autoselect::Otu::Levels::CatalogueOfLife do
   context 'when CoL returns results' do
     let(:col_result) {
       {
-        'usage' => {
-          'id' => 'abc123',
-          'name' => { 'scientificName' => 'Homo sapiens' },
-          'status' => 'accepted'
-        }
+        'id' => 'abc123',
+        'name' => { 'scientificName' => 'Homo sapiens' },
+        'status' => 'accepted'
       }
     }
 
     before do
       allow(::Vendor::Colrapi).to receive(:search).and_return({ 'total' => 1, 'result' => [col_result] })
-      allow(::Vendor::Colrapi).to receive(:build_extension).and_return({
+      allow(::Vendor::Colrapi).to receive(:classified_usage).and_return({
         col_key: 'abc123', col_name: 'Homo sapiens', col_status: 'accepted', alignment: []
       })
     end

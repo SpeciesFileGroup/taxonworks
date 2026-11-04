@@ -220,7 +220,7 @@ module FieldOccurrence::DwcExtensions
     v.shift
     v.pop
     v.compact
-    v.join(Export::Dwca::DELIMITER)
+    v.join(Export::Dwca::DELIMITER).presence
   end
 
   def dwc_kingdom

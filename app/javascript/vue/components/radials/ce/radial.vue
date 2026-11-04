@@ -18,6 +18,7 @@ import VerbatimSlice from './components/VerbatimSlice.vue'
 import Georeference from './components/GeoreferenceSlice.vue'
 import PrintLabelSlice from './components/PrintLabelSlice.vue'
 import PrioritizeGeographicAreaSlice from './components/PrioritizeGeographicAreaSlice.vue'
+import AssertedEnvironmentSlice from '@/components/radials/shared/AssertedEnvironmentSlice.vue'
 
 const SLICES = {
   'Set georeference': Georeference,
@@ -26,7 +27,8 @@ const SLICES = {
   'Append New Collectors': CollectorSlice,
   'Set Collection Date/Time': DateTimeSlice,
   'Set verbatim fields': VerbatimSlice,
-  'Print label': PrintLabelSlice
+  'Print label': PrintLabelSlice,
+  'Asserted environment': AssertedEnvironmentSlice
 }
 
 defineOptions({

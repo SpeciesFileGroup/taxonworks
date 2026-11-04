@@ -1,4 +1,4 @@
-<% if request.path == '/hub' || @data_model -%>
+<% if request.path == '/hub' || @hub_model -%>
   <nav id="quick_bar">
     <div class="horizontal_navbar">
       <!--
@@ -14,11 +14,11 @@
       </div>
       -->
     </div>
-    <% if @data_model -%>
+    <% if @hub_model -%>
       <ul class="context-menu">
-        <% if Hub::Data::BY_NAME[@data_model.name] -%>
-          <%= content_tag(:li, link_to(Hub::Data::BY_NAME[@data_model.name].name, @data_model, 'class' => 'active-section')) -%>
-          <% Hub::Data::BY_NAME[@data_model.name].related_models.each do |m| -%>
+        <% if Hub::Data::BY_NAME[@hub_model.name] -%>
+          <%= content_tag(:li, link_to(Hub::Data::BY_NAME[@hub_model.name].name, @hub_model, 'class' => 'active-section')) -%>
+          <% Hub::Data::BY_NAME[@hub_model.name].related_models.each do |m| -%>
             <%= quick_bar_link(m) -%>
           <% end %>
         <% end %>

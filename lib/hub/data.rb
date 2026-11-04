@@ -39,7 +39,8 @@ module Hub::Data
 
     attr_accessor :application_defined
 
-    # @param [Hash] args
+    # @param klass [String]
+    # @param attributes [Hash]
     def initialize(klass, attributes)
       attributes ||= {}
       raise "Improperly defined user task #{data} in user_tasks.yml." if klass.nil?
@@ -91,6 +92,11 @@ module Hub::Data
   CONFIG_DATA = YAML.load_file(Rails.root + 'config/interface/hub/data.yml')
 
   SECTIONS = CONFIG_DATA.keys
+
+  # Sections displayed in their own hub tab rather than in the data tab
+  RENDER_SECTIONS = %w{Render}.freeze
+
+  DATA_SECTIONS = (SECTIONS - RENDER_SECTIONS).freeze
 
   data = {}
   by_name = {}

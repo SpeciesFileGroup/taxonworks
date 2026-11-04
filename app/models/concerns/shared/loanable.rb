@@ -32,7 +32,7 @@ module Shared::Loanable
     end
   end
 
-  # @return True
+  # @return [True]
   #   whether this object has this concern, NOT whether it is currently
   #   in possesion to be loaned out
   def is_loanable?
@@ -64,7 +64,7 @@ module Shared::Loanable
     end
   end
 
-  # @return Boolean
+  # @return [Boolean]
   # Accounts for Containers
   def on_loan?
     return true if container_loaned?
@@ -75,7 +75,7 @@ module Shared::Loanable
     current_loan_item&.loan
   end
 
-  # @return Boolean
+  # @return [Boolean]
   def current_loan_item
     if a = loan_item
       return a
@@ -101,7 +101,7 @@ module Shared::Loanable
     loans.count + container_times_loaned
   end
 
-  # @return Integer
+  # @return [Integer]
   def container_times_loaned
     # OTUs can't be contained, everything else loanable can
     return 0 if loan_item&.loan_item_object_type == 'Otu'

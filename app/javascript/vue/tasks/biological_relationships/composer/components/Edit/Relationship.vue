@@ -20,7 +20,7 @@
             type="text"
             v-model="biologicalRelationship.name">
         </div>
-        <div>
+        <div data-help="Inverted means the term read in the other direction (ant eats aphid, aphid eaten_by ant)">
           <label>Inverted name</label><br>
           <p class="disabled margin-small-top" v-html="biologicalRelationship.inverted_name ? biologicalRelationship.inverted_name : '<i>None</i>'"/>
         </div>
@@ -37,6 +37,7 @@
       <li>
         <label>
           <input
+            data-help="Transitive: if A is found_near B, and B is found_near C, then A is found_near C"
             type="checkbox"
             v-model="biologicalRelationship.is_transitive">
           Is transitive
@@ -45,6 +46,7 @@
       <li>
         <label>
           <input
+            data-help="Reflexive: the relationship is identical in both directions, if A is found near B, then B is found near A"
             type="checkbox"
             v-model="biologicalRelationship.is_reflexive">
           Is reflexive

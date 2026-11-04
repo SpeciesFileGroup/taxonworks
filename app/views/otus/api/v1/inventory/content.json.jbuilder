@@ -3,8 +3,15 @@
 json.array! @public_content do |c|
   json.content_id c.content.id
   json.public_content_id c.id
+  json.otu_id c.otu_id
   json.name c.topic.name
   json.text public_content_renderer(c, params[:mode])
+
+  if extend_response_with('otu')
+    json.otu do
+      json.partial! '/otus/api/v1/attributes', otu: c.otu
+    end
+  end
 
   if embed_response_with('depictions')
     json.depictions do

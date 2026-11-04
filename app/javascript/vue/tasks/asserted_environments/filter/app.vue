@@ -25,6 +25,7 @@
           :list="list"
           :preference-key="`tasks::filters::${ASSERTED_ENVIRONMENT}`"
           @on-sort="(sorted) => (list = sorted)"
+          @remove="({ index }) => list.splice(index, 1)"
         />
       </template>
     </FilterLayout>

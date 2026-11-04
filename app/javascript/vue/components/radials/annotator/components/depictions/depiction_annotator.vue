@@ -58,62 +58,65 @@
       </div>
     </div>
     <div v-else>
-      <SmartSelector
-        model="images"
-        :autocomplete="false"
-        :search="false"
-        :target="objectType"
-        :add-tabs="['new', 'filter']"
-        pin-section="Images"
-        @selected="createDepiction"
-      >
-        <template #new>
-          <dropzone
-            class="dropzone-card separate-bottom"
-            @vdropzone-sending="sending"
-            @vdropzone-success="success"
-            ref="figureRef"
-            url="/depictions"
-            :use-custom-dropzone-options="true"
-            :dropzone-options="DROPZONE_CONFIG"
-            prioritize-paste
-          />
-        </template>
-        <template #filter>
-          <div class="horizontal-left-content align-start gap-medium">
-            <div class="flex-wrap-column gap-medium filter-tab">
-              <VBtn
-                color="primary"
-                medium
-                @click="() => loadList(parameters)"
-                >Search</VBtn
-              >
-              <FilterImage v-model="parameters" />
-            </div>
-            <div class="margin-small-left flex-wrap-row">
-              <div
-                v-for="image in filterList"
-                :key="image.id"
-                class="thumbnail-container margin-small cursor-pointer"
-                @click="createDepiction(image)"
-              >
-                <img
-                  :width="image.alternatives.thumb.width"
-                  :height="image.alternatives.thumb.height"
-                  :src="image.alternatives.thumb.image_file_url"
-                />
+      <fieldset>
+        <legend>New</legend>
+        <SmartSelector
+          model="images"
+          :autocomplete="false"
+          :search="false"
+          :target="objectType"
+          :add-tabs="['upload', 'filter']"
+          pin-section="Images"
+          @selected="createDepiction"
+        >
+          <template #upload>
+            <dropzone
+              class="dropzone-card separate-bottom"
+              @vdropzone-sending="sending"
+              @vdropzone-success="success"
+              ref="figureRef"
+              url="/depictions"
+              :use-custom-dropzone-options="true"
+              :dropzone-options="DROPZONE_CONFIG"
+              prioritize-paste
+            />
+          </template>
+          <template #filter>
+            <div class="horizontal-left-content align-start gap-medium">
+              <div class="flex-wrap-column gap-medium filter-tab">
+                <VBtn
+                  color="primary"
+                  medium
+                  @click="() => loadList(parameters)"
+                  >Search</VBtn
+                >
+                <FilterImage v-model="parameters" />
+              </div>
+              <div class="margin-small-left flex-wrap-row">
+                <div
+                  v-for="image in filterList"
+                  :key="image.id"
+                  class="thumbnail-container margin-small cursor-pointer"
+                  @click="createDepiction(image)"
+                >
+                  <img
+                    :width="image.alternatives.thumb.width"
+                    :height="image.alternatives.thumb.height"
+                    :src="image.alternatives.thumb.image_file_url"
+                  />
+                </div>
               </div>
             </div>
-          </div>
-        </template>
-      </SmartSelector>
-      <label>
-        <input
-          type="checkbox"
-          v-model="isDataDepiction"
-        />
-        Is data depiction
-      </label>
+          </template>
+        </SmartSelector>
+        <label>
+          <input
+            type="checkbox"
+            v-model="isDataDepiction"
+          />
+          Is data depiction
+        </label>
+      </fieldset>
       <VPagination
         class="margin-large-top"
         :pagination="pagination"

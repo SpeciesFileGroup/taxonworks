@@ -33,6 +33,8 @@ gem 'net-smtp', '~> 0.4'
 gem 'mail', '~> 2.8', '>= 2.8.1'
 gem 'matrix', '~> 0.4.2'
 
+gem 'json', '>= 2.21.2', '< 3.0' # TODO: Remove this line when compatibility is guaranteed
+
 # Geo
 gem 'ffi-geos', '~> 2.5.0'
 gem 'rgeo', '~> 3.0'

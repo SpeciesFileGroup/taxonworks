@@ -40,9 +40,9 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
 
     update!(metadata:
       metadata.merge({
-         core_headers: headers[:core],
-      extensions_headers: headers[:extensions]
-       })
+        'core_headers' => headers[:core],
+        'extensions_headers' => headers[:extensions]
+      })
     )
 
     parse_results_ary = Biodiversity::Parser.parse_ary(records[:core].map { |r| r['scientificName'] || '' })
@@ -306,7 +306,7 @@ class ImportDataset::DarwinCore::Checklist < ImportDataset::DarwinCore
   private
 
   # @param [String, Symbol] column_name
-  # @param [Hash] record: The record hash to add the error message to
+  # @param [Hash] record The record hash to add the error message to
   # @param [String] message
   def add_error_message(record, column_name, message)
     record[:error_data] ||= { messages: {} }

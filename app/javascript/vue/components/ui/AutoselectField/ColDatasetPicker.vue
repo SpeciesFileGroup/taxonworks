@@ -4,7 +4,8 @@
 
   Renders a search box for CoL datasets. The user selects a dataset; the chosen id is
   stored in levelOptions['catalogue_of_life'].dataset_id and carried to the server on
-  every catalogue_of_life search.
+  every catalogue_of_life search, and on searches of every level whose
+  options_level is catalogue_of_life (e.g. col_valid_name).
 
   Props (from PreferencesModal):
     levels      Array of level metadata — used to detect whether catalogue_of_life is present
@@ -27,13 +28,18 @@
                 class="col-dataset-picker__selected-alias"
                 >{{ selectedDataset.alias }}</span
             >
-            <button
+            <VBtn
                 class="col-dataset-picker__clear"
+                circle
+                variant="ghost"
                 title="Clear — use default dataset"
                 @click="clearDataset"
             >
-                &#x2715;
-            </button>
+                <VIcon
+                    name="close"
+                    xx-small
+                />
+            </VBtn>
         </div>
         <p v-else class="col-dataset-picker__default-note">
             Using default dataset (Catalogue of Life).
@@ -86,6 +92,8 @@
 import { ref, computed } from "vue";
 import AjaxCall from "@/helpers/ajaxCall";
 import CatalogueOfLifeSpinner from "@/components/ui/AutoselectField/CatalogueOfLifeSpinner.vue";
+import VBtn from "@/components/ui/VBtn/index.vue";
+import VIcon from "@/components/ui/VIcon/index.vue";
 
 const props = defineProps({
     levels: { type: Array, required: true },
@@ -189,7 +197,7 @@ function emitOptions(datasetId, datasetTitle) {
 .col-dataset-picker__label {
     font-size: 11px;
     font-weight: 600;
-    color: var(--text-color-muted, #666);
+    color: var(--text-muted-color);
 }
 
 .col-dataset-picker__selected {
@@ -197,33 +205,24 @@ function emitOptions(datasetId, datasetTitle) {
     align-items: center;
     gap: 6px;
     padding: 3px 8px;
-    background: var(--input-bg-color, #f9f9f9);
-    border: 1px solid var(--border-color, #ccc);
+    background: var(--input-bg-color);
+    border: 1px solid var(--border-color);
     border-radius: 3px;
 }
 
 .col-dataset-picker__selected-alias {
     font-size: 10px;
-    color: var(--text-color-muted, #888);
+    color: var(--text-muted-color);
 }
 
+/* Placement only - the button itself is a shared VBtn. */
 .col-dataset-picker__clear {
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 11px;
-    color: var(--text-color-muted, #888);
     margin-left: auto;
-    padding: 0 2px;
-}
-
-.col-dataset-picker__clear:hover {
-    color: var(--color-destroy, #c00);
 }
 
 .col-dataset-picker__default-note {
     font-size: 11px;
-    color: var(--text-color-muted, #888);
+    color: var(--text-muted-color);
     margin: 0;
 }
 
@@ -242,11 +241,11 @@ function emitOptions(datasetId, datasetTitle) {
     list-style: none;
     margin: 0;
     padding: 0;
-    border: 1px solid var(--border-color, #ccc);
+    border: 1px solid var(--border-color);
     border-radius: 3px;
     max-height: 180px;
     overflow-y: auto;
-    background: var(--panel-bg-color, #fff);
+    background: var(--panel-bg-color);
 }
 
 .col-dataset-picker__result {
@@ -254,7 +253,7 @@ function emitOptions(datasetId, datasetTitle) {
     align-items: baseline;
     gap: 6px;
     padding: 5px 8px;
-    border-top: 1px solid var(--border-color, #eee);
+    border-top: 1px solid var(--border-color);
     cursor: pointer;
 }
 
@@ -263,19 +262,19 @@ function emitOptions(datasetId, datasetTitle) {
 }
 
 .col-dataset-picker__result:hover {
-    background: var(--border-color, #f0f0f0);
+    background: var(--border-color);
 }
 
 .col-dataset-picker__result-alias,
 .col-dataset-picker__result-id {
     font-size: 10px;
-    color: var(--text-color-muted, #888);
+    color: var(--text-muted-color);
     white-space: nowrap;
 }
 
 .col-dataset-picker__none {
     font-size: 11px;
-    color: var(--text-color-muted, #888);
+    color: var(--text-muted-color);
     margin: 2px 0 0;
 }
 </style>

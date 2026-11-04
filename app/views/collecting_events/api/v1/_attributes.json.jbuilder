@@ -30,9 +30,15 @@ json.global_id collecting_event.to_global_id.to_s
 if extend_response_with('roles')
   if collecting_event.roles.any?
     json.collector_roles do
-      json.array! collecting_event.collector_roles.each do |role|
+      json.array! collecting_event.collector_roles.order(:position).each do |role|
         json.extract! role, :id, :position, :type
-        json.partial! '/people/api/v1/brief', person: role.person
+        if role.organization
+          json.organization do
+            json.partial! '/organizations/api/v1/attributes', organization: role.organization, extensions: false
+          end
+        else
+          json.partial! '/people/api/v1/brief', person: role.person
+        end
       end
     end
   end

@@ -1,7 +1,7 @@
 # A Specimen is a single (by single we mean a curator has enumerated the object as 1), physical, and biological individual that has been collected.
 #
 #
-# @attribute total
+# @!attribute total
 #   @return [1]
 #     a specimen always has a total of one.
 #

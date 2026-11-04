@@ -49,7 +49,7 @@ module Queries::Concerns::Users
     attr_accessor :updated_since
 
     # @return [Boolean, nil]
-    # @param extend_housekeeping
+    # @param extend_housekeeping ['true', 'false', nil]
     #   if true and pertinent models have 'HOUSEKEEPING_EXTENSIONS = [:relation1, :relation2]'
     #     then include records that have changed in the extended models as well
     attr_accessor :extend_housekeeping

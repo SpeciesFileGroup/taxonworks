@@ -31,10 +31,16 @@ json.partial!('/shared/data/all/metadata', object: collecting_event)
 if extend_response_with('roles')
   if collecting_event.collector_roles.any?
     json.collector_roles do
-      json.array! collecting_event.collector_roles.each do |role|
+      json.array! collecting_event.collector_roles.order(:position).each do |role|
         json.extract! role, :id, :position, :type
-        json.person do
-          json.partial! '/people/base_attributes', person: role.person
+        if role.organization
+          json.organization do
+            json.partial! '/organizations/attributes', organization: role.organization, extensions: false
+          end
+        else
+          json.person do
+            json.partial! '/people/base_attributes', person: role.person
+          end
         end
       end
     end

@@ -38,7 +38,7 @@ module ImagesHelper
   end
 
   # Return a ShortenedUrl to the original file image
-  # @params image [Image, Integer]
+  # @param image [Image, Integer]
   def image_short_url(image, api: true)
     if !image.kind_of?(::Image) && (Integer(image) rescue false)
       image = ::Image.find(image)
@@ -88,8 +88,8 @@ module ImagesHelper
   # Integrate images and Depictions for concise, Otu-based responses
   # that are sortable by depiction type context. Somewhat convoluted.
   #
-  # @return Hash  {image_order:, images: }
-  # @param sort_order Array of base-class names
+  # @return [Hash] {image_order:, images: }
+  # @param sort_order [Array] of base-class names
   def image_inventory(depictions, api: true, sort_order: [])
     q = depictions
     sort_order = %w{Otu CollectionObject Observation} if sort_order.blank?

@@ -60,8 +60,8 @@ class Georeferences::GeoLocatesController < ApplicationController
   end
 
   # Over-ride the default model setting for this subclass
-  def set_data_model
-    @data_model = Georeference::GeoLocate
+  def set_hub_model
+    @hub_model = Georeference::GeoLocate
   end
 
 

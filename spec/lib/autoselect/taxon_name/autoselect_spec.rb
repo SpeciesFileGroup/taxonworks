@@ -23,13 +23,13 @@ RSpec.describe Autoselect::TaxonName::Autoselect, type: :model do
       expect(config[:config]).to be_a(Hash)
     end
 
-    it 'includes fast, smart, catalogue_of_life as level keys in map' do
-      expect(config[:map]).to include('fast', 'smart', 'catalogue_of_life')
+    it 'includes fast, smart, catalogue_of_life, col_valid_name as level keys in map' do
+      expect(config[:map]).to include('fast', 'smart', 'catalogue_of_life', 'col_valid_name')
     end
 
     it 'includes level metadata in levels array' do
       level_keys = config[:levels].map { |l| l[:key].to_s }
-      expect(level_keys).to include('fast', 'smart', 'catalogue_of_life')
+      expect(level_keys).to include('fast', 'smart', 'catalogue_of_life', 'col_valid_name')
     end
 
     it 'includes operators' do
@@ -52,6 +52,21 @@ RSpec.describe Autoselect::TaxonName::Autoselect, type: :model do
 
       it 'catalogue_of_life has longer fuse_ms than fast' do
         expect(levels_by_key['catalogue_of_life'][:fuse_ms]).to be > levels_by_key['fast'][:fuse_ms]
+      end
+
+      it 'col_valid_name level metadata has is_default: false' do
+        expect(levels_by_key['col_valid_name'][:is_default]).to be false
+      end
+
+      it 'col_valid_name uses the catalogue_of_life options (CoL dataset)' do
+        expect(levels_by_key['col_valid_name'][:options_level])
+          .to eq('catalogue_of_life')
+      end
+
+      it 'fast, smart, and catalogue_of_life are is_default: true' do
+        expect(levels_by_key['fast'][:is_default]).to be true
+        expect(levels_by_key['smart'][:is_default]).to be true
+        expect(levels_by_key['catalogue_of_life'][:is_default]).to be true
       end
     end
   end
@@ -134,9 +149,9 @@ RSpec.describe Autoselect::TaxonName::Autoselect, type: :model do
   end
 
   describe 'level stack' do
-    it 'has three levels in order' do
+    it 'has four levels in order: fast → smart → catalogue_of_life → col_valid_name' do
       keys = autoselect.levels.map { |l| l.key.to_s }
-      expect(keys).to eq(%w[fast smart catalogue_of_life])
+      expect(keys).to eq(%w[fast smart catalogue_of_life col_valid_name])
     end
   end
 end
@@ -197,7 +212,7 @@ RSpec.describe Autoselect::TaxonName::Levels::CatalogueOfLife do
 
     before do
       allow(::Vendor::Colrapi).to receive(:search).and_return({ 'total' => 1, 'result' => [col_result] })
-      allow(::Vendor::Colrapi).to receive(:build_extension).and_return({
+      allow(::Vendor::Colrapi).to receive(:classified_usage).and_return({
         col_key: 'abc123', col_name: 'Homo sapiens', col_status: 'accepted', alignment: []
       })
     end
@@ -252,6 +267,21 @@ RSpec.describe Autoselect::TaxonName::Levels::CatalogueOfLife do
 
       it 'record_label_html shows only the original author+year, parenthesized' do
         expect(level.record_label_html(record)).to eq('Aus bus (Chatton, 1925)')
+      end
+    end
+
+    context 'botanical recombination' do
+      let(:record) {
+        OpenStruct.new(
+          cached: 'Picea glauca',
+          _col_extension: {
+            col_authorship: '(Moench) Voss', col_code: 'botanical'
+          }
+        )
+      }
+
+      it 'record_label shows both authors' do
+        expect(level.record_label(record)).to eq('Picea glauca (Moench) Voss')
       end
     end
 

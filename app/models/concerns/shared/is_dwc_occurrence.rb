@@ -13,7 +13,7 @@ module Shared::IsDwcOccurrence
 
     # TODO: do we need a ENV check option for disableing dwc_occurrence setting here as well?
 
-    # @return Boolean, nil
+    # @return [Boolean, nil]
     #   when true prevents automatic dwc_index from being created
     attr_accessor :no_dwc_occurrence
 
@@ -28,7 +28,7 @@ module Shared::IsDwcOccurrence
 
   module ClassMethods
 
-    # @return Array of Arel::Attributes::Attribute
+    # @return [Array] of Arel::Attributes::Attribute
     def dwc_attribute_vector(mode = :all)
       t = ::DwcOccurrence.arel_table
       s = self.arel_table
@@ -78,7 +78,7 @@ module Shared::IsDwcOccurrence
     dwc_occurrence&.occurrence_identifier&.cached
   end
 
-  # @return String
+  # @return [String]
   #   the Darwin Core basisOfRecord value for this occurrence
   # Moved here from DwcOccurrence#basis since that method is only called in
   # before_validate, which never gets called on the dwc_occurrence_attributes
@@ -118,7 +118,7 @@ module Shared::IsDwcOccurrence
     end
   end
 
-  # @return Hash
+  # @return [Hash]
   #   of field: value
   #
   # !! This is expensive, it recomputes values for every field.

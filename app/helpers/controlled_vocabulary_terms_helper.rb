@@ -35,7 +35,7 @@ module ControlledVocabularyTermsHelper
     when 'Tag'
       Tag.where(keyword: controlled_vocabulary_term).where(a).count
     when 'BiologicalProperty'
-      BiocurationClassification.where(biocuration_class: controlled_vocabulary_term).where(a).count
+      controlled_vocabulary_term.biological_associations.where(a).count
     when 'Predicate'
       InternalAttribute.where(predicate: controlled_vocabulary_term).where(a).count
     when 'ConfidenceLevel'

@@ -4,7 +4,7 @@ module TaxonNames::TaxonomyHelper
   # def ancestry_id_path
   # end
 
-  # @return String
+  # @return [String]
   #   all names joined with the delimiter
   def ancestry_path(ancestry, delimiter: '|')
     return nil if ancestry.blank?

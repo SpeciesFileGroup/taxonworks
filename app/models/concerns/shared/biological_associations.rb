@@ -40,7 +40,7 @@ module Shared::BiologicalAssociations
 
   module ClassMethods
 
-    # @param relationship [Array, String]
+    # @param biological_relationship_ids [Array, String]
     def with_biological_relationship_id(biological_relationship_ids)
       a = joins(:biological_associations).where(biological_associations: {biological_relationship_id: biological_relationship_ids})
       b = joins(:related_biological_associations).where(biological_associations: {biological_relationship_id: biological_relationship_ids})

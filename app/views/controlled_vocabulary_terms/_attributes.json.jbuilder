@@ -13,7 +13,7 @@ if extend_response_with('controlled_vocabulary_use_count')
   when 'Predicate'
     controlled_vocabulary_term.internal_attributes.count
   when 'BiologicalProperty'
-    controlled_vocabulary_term.biological_relationship_types.count
+    controlled_vocabulary_term.biological_associations.count
   when 'BiocurationGroup'
     controlled_vocabulary_term.tags.count
   when 'BiocurationClass'

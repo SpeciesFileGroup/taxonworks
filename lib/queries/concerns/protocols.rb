@@ -9,8 +9,6 @@ module Queries::Concerns::Protocols
       :protocols,
       :protocol_id_or,
       :protocol_id_and,
-      :protocol_id,        # TODO: unused? or maybe in polymorphics setters!!
-      protocol_id: [],     # TODO: unused? or maybe in polymorphics setters!!
       protocol_id_or: [],
       protocol_id_and: [],
     ]
@@ -18,17 +16,17 @@ module Queries::Concerns::Protocols
 
   included do
     # @return [Array]
-    # @params protocol_id_and
+    # @param protocol_id_and [Integer, Array]
     #   match any objects linked to all Protocols referenced here
     attr_accessor :protocol_id_and
 
     # @return [Array]
-    # @params keyword_id_or
+    # @param protocol_id_or [Integer, Array]
     #   match any objects linked to any Protocol referenced here
     attr_accessor :protocol_id_or
 
     # @return [Boolean, nil]
-    # @params protocols ['true', 'false', nil]
+    # @param protocols ['true', 'false', nil]
     #   true - return objects that reference any Protocol
     #   false - return objects that reference no Protocol
     #   nil - ignored
@@ -40,11 +38,6 @@ module Queries::Concerns::Protocols
 
     def protocol_id_or
       [@protocol_id_or].flatten.compact.uniq
-    end
-
-    # TODO: why here?
-    def protocol_id=(value = [])
-      @protocol_id = value
     end
 
     def set_protocols_params(params)

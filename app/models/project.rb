@@ -14,7 +14,7 @@
 #   @return [String, nil]
 #      The token is not intended to be private.  Generating one is akin to indicating that your project's data are public, and they will be exposed in the general API to all.  The token is primarily for tracking "anonymous" use.
 #
-# @!data_curation_issue_tracker_url
+# @!attribute data_curation_issue_tracker_url
 #   @return [String, nil]
 #     The URL to an accessible issue tracker (e.g. Github repo issues) specific to data curation issues.
 #
@@ -42,11 +42,12 @@ class Project < ApplicationRecord
      CharacterState
      AlternateValue
      DataAttribute
-     TaggedSectionKeyword
      Tag
      Confidence
      Role
      Label
+     CompositionItem
+     Composition
      Attribution
      DwcOccurrence
      BiologicalAssociationIndex
@@ -83,8 +84,6 @@ class Project < ApplicationRecord
      LeadItem
      LoanItem
      Loan
-     OtuPageLayoutSection
-     OtuPageLayout
      ProjectOrganization
      ProjectSource
      TaxonDetermination

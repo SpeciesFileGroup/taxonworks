@@ -159,7 +159,14 @@ Object.assign(TW.views.shared.list, {
           show: { name: 'Show', icon: 'show' },
           sep1: '---------',
           edit: { name: 'Edit', icon: 'edit' },
-          pin: { name: 'Pin/Unpin', icon: 'pin' },
+          pin: {
+            name: 'Pin/Unpin',
+            icon: 'pin',
+            // Only rows of pinnable objects have a pin cell
+            visible: function () {
+              return this.find('[data-pin]').length > 0
+            }
+          },
           delete: { name: 'Delete', icon: 'delete' }
         }
       })

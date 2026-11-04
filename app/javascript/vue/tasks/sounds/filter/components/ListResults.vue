@@ -23,7 +23,7 @@
       </thead>
       <tbody>
         <tr
-          v-for="item in list"
+          v-for="(item, index) in list"
           :key="item.id"
           class="contextMenuCells"
         >
@@ -37,7 +37,11 @@
           <td>
             <div class="horizontal-right-content middle gap-small">
               <RadialAnnotator :global-id="item.global_id" />
-              <RadialNavigator :global-id="item.global_id" />
+              <RadialNavigator
+                :global-id="item.global_id"
+                :redirect="false"
+                @delete="emit('remove', { item, index })"
+              />
             </div>
           </td>
           <td>{{ item.name }}</td>
@@ -79,7 +83,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['update:modelValue'])
+const emit = defineEmits(['update:modelValue', 'remove'])
 
 const soundIds = defineModel({
   type: Array,

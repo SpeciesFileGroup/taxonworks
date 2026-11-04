@@ -53,7 +53,7 @@ module CollectingEvent::Georeference
     end
   end
 
-  # @param [Float] delta_z, will be used to fill in the z coordinate of the point
+  # @param [Float] delta_z will be used to fill in the z coordinate of the point
   # @return [RGeo::Geographic::ProjectedPointImpl, nil]
   #   for the *verbatim* latitude/longitude only
   def verbatim_map_center(delta_z = 0.0)
@@ -145,8 +145,8 @@ module CollectingEvent::Georeference
   end
 
   # @return [Integer]
-  # @TODO figure out how to convert verbatim_geolocation_uncertainty in different units (ft, m, km, mi) into meters
-  # @TODO: See Utilities::Geo.distance_in_meters(String)
+  # @todo figure out how to convert verbatim_geolocation_uncertainty in different units (ft, m, km, mi) into meters
+  # @todo See Utilities::Geo.distance_in_meters(String)
   def get_error_radius
     return nil if verbatim_geolocation_uncertainty.blank?
     return verbatim_geolocation_uncertainty.to_i if is.number?(verbatim_geolocation_uncertainty)

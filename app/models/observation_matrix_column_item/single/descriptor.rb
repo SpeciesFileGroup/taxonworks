@@ -16,5 +16,9 @@ class ObservationMatrixColumnItem::Single::Descriptor < ObservationMatrixColumnI
     [descriptor].compact
   end
 
+  def descriptor_ids_before_last_save
+    [descriptor_id_before_last_save].compact
+  end
+
 end
 

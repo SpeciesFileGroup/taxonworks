@@ -50,6 +50,49 @@ RSpec.describe ObservationMatrixColumnItem::Single::Descriptor, type: :model, gr
           observation_matrix_column_item.destroy
           expect(ObservationMatrixColumn.count).to eq(0)
         end
+
+        specify 'updating an attribute other than descriptor does not change reference_count' do
+          observation_matrix_column_item.update!(position: 5)
+          expect(ObservationMatrixColumn.first.reference_count).to eq 1
+        end
+
+        # As unify does, moving the item off of the descriptor it unifies away
+        context 'changing the descriptor' do
+          let(:other_descriptor) { FactoryBot.create(:valid_descriptor) }
+
+          before {
+            observation_matrix_column_item.update!(descriptor: other_descriptor)
+          }
+
+          specify 'removes the previous descriptor column' do
+            expect(ObservationMatrixColumn.where(descriptor: descriptor).count).to eq 0
+          end
+
+          specify 'adds a column for the new descriptor' do
+            c = ObservationMatrixColumn.where(descriptor: other_descriptor).first
+            expect(c.reference_count).to eq 1
+            expect(c.cached_observation_matrix_column_item_id).to eq observation_matrix_column_item.id
+          end
+        end
+
+        context 'changing the observation_matrix' do
+          let(:other_observation_matrix) { FactoryBot.create(:valid_observation_matrix) }
+
+          before {
+            observation_matrix_column_item.update!(observation_matrix: other_observation_matrix)
+          }
+
+          specify 'removes the column from the previous matrix' do
+            expect(ObservationMatrixColumn.where(observation_matrix:).count).to eq 0
+          end
+
+          specify 'adds a column to the new matrix' do
+            c = ObservationMatrixColumn.where(observation_matrix: other_observation_matrix).first
+            expect(c.descriptor_id).to eq descriptor.id
+            expect(c.reference_count).to eq 1
+            expect(c.cached_observation_matrix_column_item_id).to eq observation_matrix_column_item.id
+          end
+        end
       end
 
       specify 'descriptor can only be added once to observation_matrix_column_item' do

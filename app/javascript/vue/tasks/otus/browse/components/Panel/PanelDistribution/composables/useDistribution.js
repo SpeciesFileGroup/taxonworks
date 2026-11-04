@@ -1,6 +1,7 @@
 import { Otu, CachedMap } from '@/routes/endpoints'
 import { ref, computed } from 'vue'
 import {
+  COMBINATION,
   MAP_SHAPE_AGGREGATE,
   MAP_SHAPE_ASSERTED_DISTRIBUTION_ABSENT,
   TAXON_RANK_SPECIES_GROUP,
@@ -61,7 +62,7 @@ async function loadAbsentFeatures(otuIds) {
   }
 }
 
-async function loadAggregateMap(otuIds) {
+async function loadGeoJSONDistribution(otuIds) {
   try {
     const { body } = await Otu.geoJsonDistributionByOtus({
       otu_id: otuIds
@@ -77,7 +78,7 @@ async function loadAggregateMap(otuIds) {
   } catch {}
 }
 
-async function loadGeoJSONDistribution(otuId) {
+async function loadAggregateMap(otuId) {
   try {
     const { body } = await Otu.distribution(otuId)
     const { body: cached } = await CachedMap.find(body.cached_map.id)
@@ -110,15 +111,16 @@ export default () => {
 
   const loadMapData = async ({ otuId, otuIds, rank }) => {
     const isSpeciesGroup = rank && isRankInSpeciesGroups(rank)
+    const isRankEmpty = !rank
     const currentRequestId = ++requestId
 
     isLoading.value = true
 
     try {
       const [data, absentFeatures] = await Promise.all([
-        isSpeciesGroup
-          ? loadAggregateMap(otuIds)
-          : loadGeoJSONDistribution(otuId),
+        isSpeciesGroup || isRankEmpty
+          ? loadGeoJSONDistribution(otuIds)
+          : loadAggregateMap(otuId),
         loadAbsentFeatures(otuIds)
       ])
 

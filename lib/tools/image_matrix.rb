@@ -7,48 +7,48 @@ class Tools::ImageMatrix
 
   ##### FILTER PARAMETERS #####
 
-  # @!observation_matrix_id
+  # @!attribute observation_matrix_id
   #   @return [String]
   # Required attribude to build the key
   attr_accessor :observation_matrix_id
 
-  # @!project_id
+  # @!attribute project_id
   #   @return [String]
   # Required attribute to build the key
   attr_accessor :project_id
 
-  # @!language_id
+  # @!attribute language_id
   #   @return [String or null]
   # Optional attribute to display the descriptors and character_states in a particular language (when translations are available)
   attr_accessor :language_id
 
-  # @!keyword_ids
+  # @!attribute keyword_ids
   #   @return [String or null]
   # Optional attribute to provide a list of tagIDs to limit the set of descriptors to those taged: "keyword_ids=1|5|15"
   attr_accessor :keyword_ids
 
-  # @!row_filter
+  # @!attribute row_filter
   #   @return [String or null]
   # Optional attribute to provide a list of rowIDs to limit the set "row_filter=1|5|10"
   attr_accessor :row_filter
 
-  # @!otu_filter
+  # @!attribute otu_filter
   #   @return [String or null] like "otu_filter=1|5|10"
   # Optional attribute to provide a list of rowIDs to limit the set
   attr_accessor :otu_filter
 
-  # @!eliminate_unknown
+  # @!attribute eliminate_unknown
   #   @return [Boolean or null]
   # Optional attribute to eliminate taxa with no scores on a used descriptor: 'false' - default or 'true'
   # If true, the rows without scores will be eliminated
   attr_accessor :eliminate_unknown
 
-  # @!identified_to_rank
+  # @!attribute identified_to_rank
   #   @return [String or null]
   # Optional attribute to limit identification to OTU or a particular nomenclatural rank. Valid values are 'otu', 'species', 'genus', etc.
   attr_accessor :identified_to_rank
 
-  # @!per
+  # @!attribute per
   #   @return [Integer or null]
   # Optional attribute. Number of rows displayed per page
   attr_accessor :per
@@ -57,77 +57,77 @@ class Tools::ImageMatrix
   ##### RETURNED DATA ######
   #
 
-  # @!observation_matrix
+  # @!attribute observation_matrix
   #   @return [Object]
   # Returns observation_matrix as an object
   attr_accessor :observation_matrix
 
-  # @!observation_matrix_citation
+  # @!attribute observation_matrix_citation
   #   @return [Object]
   # Returns observation_matrix_citation as an object
   attr_accessor :observation_matrix_citation
 
-  # @!descriptors
+  # @!attribute descriptors
   #   @return [null]
   # Temporary attribute. Used for validation.
   attr_accessor :descriptors
 
-  # @!descriptor_available_keywords
+  # @!attribute descriptor_available_keywords
   #   @return [Array of Objects or null]
   # Returns the list of all Tags used with the descriptors. Descriptors could be filtered by tag_id
   attr_accessor :descriptor_available_keywords
 
-  # @!language_to_use
+  # @!attribute language_to_use
   #   @return [Object or null]
   # Returns Language as an object if the language_id was provided (used to display descriptors in a particular language)
   attr_accessor :language_to_use
 
-  # @!descriptors_with_filter
+  # @!attribute descriptors_with_filter
   #   @return [null]
   # Temporary attribute. Used for validation. List of descriptors reduced by keyword_ids
   attr_accessor :descriptors_with_filter
 
-  # @!descriptor_available_languages
+  # @!attribute descriptor_available_languages
   #   @return [Array of Objects or null]
   # Returns the list of available Languages used as translations for descriptors (in translations are available)
   attr_accessor :descriptor_available_languages
 
-  # @!rows_with_filter
+  # @!attribute rows_with_filter
   #   @return [null]
   # Temporary attribute. Used for validation. list of rows to be included into the matrix
   attr_accessor :rows_with_filter
 
-  # @!row_id_filter_array
+  # @!attribute row_id_filter_array
   #   @return [array]
   # Array of row_ids in the @row_filter
   attr_accessor :row_id_filter_array
 
-  # @!otu_id_filter_array
+  # @!attribute otu_id_filter_array
   #   @return [array]
   # Array of otu_ids in the @otu_filter
   attr_accessor :otu_id_filter_array
 
-  # @!list_of_descriptors
+  # @!attribute list_of_descriptors
   #   @return [Hash]
   # Return the list of descriptors and their states. Translated (if needed) and Sorted
   attr_accessor :list_of_descriptors
 
-  # @!depiction_matrix
+  # @!attribute depiction_matrix
   #   @return [Hash of Arrays]
   # Returns the table of observations with images.
   attr_accessor :depiction_matrix
 
-  # @!image_hash
+  # @!attribute image_hash
   #   @return [Hash]
   # Returns the hash with image attributes
   attr_accessor :image_hash
 
-  # @!row_hash
+  # @!attribute row_hash
   #   @return [null]
   # Temporary hash of rows; used for calculation of remaining and eliminated rows
   attr_accessor :row_hash
 
-  # @!descriptors_hash
+  # @!attribute descriptors_hash
   #   @return [null]
   #temporary hash of descriptors; used for calculation of useful and not useful descriptors and their states
   attr_accessor :descriptors_hash
@@ -137,32 +137,32 @@ class Tools::ImageMatrix
   #temporary array of image.ids; used to build the @image_hash
   attr_accessor :list_of_image_ids
 
-  # @!pagination_page
+  # @!attribute pagination_page
   #   @return [Integer]
   # Returns the page number
   attr_accessor :pagination_page
 
-  # @!pagination_next_page
+  # @!attribute pagination_next_page
   #   @return [Integer or null]
   # Returns the next page number
   attr_accessor :pagination_next_page
 
-  # @!pagination_previous_page
+  # @!attribute pagination_previous_page
   #   @return [Integer or null]
   # Returns the previous page number
   attr_accessor :pagination_previous_page
 
-  # @!pagination_per_page
+  # @!attribute pagination_per_page
   #   @return [Integer or null]
   # Returns number of records per page
   attr_accessor :pagination_per_page
 
-  # @!pagination_total
+  # @!attribute pagination_total
   #   @return [Integer or null]
   # Returns total number of records
   attr_accessor :pagination_total
 
-  # @!pagination_total_pages
+  # @!attribute pagination_total_pages
   #   @return [Integer or null]
   # Returns total number of pages
   attr_accessor :pagination_total_pages

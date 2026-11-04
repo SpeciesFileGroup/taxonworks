@@ -29,6 +29,7 @@ module Workbench::NavigationHelper
     return {
       klass: k,
       id: k.tableize.singularize + '_id',
+      resource_path: '/' + k.tableize,
       tasks: tasks,
       base: b
     }
@@ -195,7 +196,7 @@ module Workbench::NavigationHelper
   # Determine wether an edit or destroy route exists
   # Custom routes can be added per Class by adding
   # a corresponding `_string` postfixed method.
-  # @return String
+  # @return [String]
   def edit_object_path_string(object)
     default  = "edit_#{metamorphosize_if(object).class.base_class.name.underscore}_path"
     specific = default + '_string'
@@ -272,14 +273,6 @@ module Workbench::NavigationHelper
     else
       content_tag(:em, 'Data no longer available.', class: :warning)
     end
-  end
-
-  # @return [<a> tag, nil]
-  #   a link to the related data page
-  def related_data_link_tag(object)
-    return nil if object.nil?
-    p = "related_#{member_base_path(metamorphosize_if(object))}_path"
-    content_tag(:li, link_to('Related data', send(p, object))) if controller.respond_to?(p)
   end
 
   def a_to_z_links(targets = [])
