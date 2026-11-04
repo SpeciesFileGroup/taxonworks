@@ -401,7 +401,7 @@ const confirmLabel = computed(() => {
 
 // True when the target would have to be created but its rank isn't a TaxonWorks
 // rank — checked ancestors don't help, the target itself can't be made
-// (ColCreator refuses it too).
+// (CatalogueOfLifeCreator refuses it too).
 const cannotCreate = computed(
   () => !!ext.value.target_rank_unknown && !ext.value.target_taxonworks_id
 )
@@ -445,7 +445,7 @@ const chainConflict = computed(() => !chainConsistent.value && !nothingToCreate.
 
 // Server-computed (Vendor::Colrapi.classified_usage): CoL doesn't accept the
 // target (synonym, misapplied, ...) and has no classification of its own for
-// it, so it can't be created (ColCreator refuses it too). Selecting it when
+// it, so it can't be created (CatalogueOfLifeCreator refuses it too). Selecting it when
 // TaxonWorks already has the name is fine.
 const nonAcceptedBlocked = computed(
   () => !!ext.value.non_accepted && !ext.value.target_taxonworks_id
@@ -512,7 +512,7 @@ async function doCreate() {
   // as parent anchors so the chain it sees is a faithful, contiguous picture of the
   // real TaxonWorks lineage. Dropping any of them here would leave a gap: the
   // server would see an existing record under the wrong row above it with nothing
-  // inserted between, and refuse the request (ColCreator only reparents onto a row
+  // inserted between, and refuse the request (CatalogueOfLifeCreator only reparents onto a row
   // it just created).
   // Unchecked 'none' rows are the only alignment rows left out.
   const ancestorRows = (ext.value.alignment ?? [])
@@ -539,7 +539,7 @@ async function doCreate() {
     col_id: ext.value.col_key,
     dataset_id: ext.value.col_dataset_id ?? null,
     // When the target itself already exists locally (ext.target_taxonworks_id, set by
-    // TaxonName::Levels::CatalogueOfLife#call), pass it through so ColCreator reuses it
+    // TaxonName::Levels::CatalogueOfLife#call), pass it through so CatalogueOfLifeCreator reuses it
     // instead of creating a duplicate — same as exact-match ancestor rows above. A hook
     // flow (e.g. OTU creation) reaches here with an existing target when its own record
     // doesn't exist yet, or when ancestor rows are checked; the create endpoint then

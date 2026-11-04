@@ -401,7 +401,7 @@ module Vendor
           dataset_id: col_dataset_id,
           col_authorship: ancestor['authorship'].presence,
           above_genus_group: above_genus_group?(rank, col_code),
-          # e.g. 'parvphylum' - can't be created (ColCreator skips it)
+          # e.g. 'parvphylum' - can't be created (CatalogueOfLifeCreator skips it)
           rank_unknown: rank_class_for(rank, col_code:).nil?
         }
       end

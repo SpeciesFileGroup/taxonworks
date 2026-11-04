@@ -99,30 +99,48 @@ the `extension.hook` hash sent to the client:
 
 ```
 lib/autoselect/
-  autoselect.rb              # namespace module (Zeitwerk compatibility)
-  base.rb                    # Autoselect::Base — all model autoselects inherit this
-  level.rb                   # Autoselect::Level — base class for all levels
+  base.rb                         # Autoselect::Base, all autoselects inherit
+  level.rb                        # Autoselect::Level, base for all levels
+  hook.rb                         # Autoselect::Hook, cross-model level chains
+  operators.rb                    # `!` operator parsing, OPERATORS
+  response.rb                     # Autoselect::Response, JSON envelope
   levels/
-    smart.rb                 # Autoselect::Levels::Smart — Queries delegation
-  operators.rb               # Autoselect::Operators — parsing + OPERATORS constant
-  response.rb                # Autoselect::Response — JSON envelope
-  hook.rb                    # Autoselect::Hook — cross-model level chain base
+    smart.rb                      # Delegates to Queries::<Model>::Autocomplete
+    col_record_info.rb            # CoL levels' record_info mixin
+    col_record_label.rb           # TaxonName CoL levels' record_label mixin
+    col_resolved_name.rb          # col_valid_name levels' record_info
+    col_source_mark.rb            # TaxonWorks/CoL source icon on CoL results
+    col_code_badge.rb             # Code badge when CoL results span codes
 
   taxon_name/
-    autoselect.rb            # Autoselect::TaxonName::Autoselect (3 levels: fast→smart→CoL)
-    operators.rb             # TaxonName operator overrides (currently inherits default)
+    autoselect.rb                 # Levels: fast→smart→CoL→CoL valid name
+    operators.rb                  # Overrides (not included anywhere)
+    col_match.rb                  # Matches a CoL name usage to TaxonNames
+    col_ancestry_comparator.rb    # Diffs TaxonWorks/CoL ancestor chains
+    catalogue_of_life_creator.rb  # Creates TaxonNames from a CoL selection
     levels/
-      fast.rb                # Prefix match on cached column
-      smart.rb               # Delegates to Queries::TaxonName::Autocomplete
-      catalogue_of_life.rb     # External CoL search
-    col_creator.rb           # TaxonName creation logic from CoL alignment data
+      fast.rb                     # Prefix match on cached
+      smart.rb                    # Queries::TaxonName::Autocomplete
+      catalogue_of_life.rb        # External CoL search
+      col_valid_name.rb           # Resolves CoL synonyms to accepted names
 
   otu/
-    autoselect.rb            # Autoselect::Otu::Autoselect (2 levels: smart→CoL)
-    operators.rb             # OTU operator overrides (currently inherits default)
+    autoselect.rb                 # Levels: fast→smart→CoL→CoL valid name
+    operators.rb                  # Overrides (none yet, inherits default)
+    col_existing_otu.rb           # Existing Otu a CoL result reuses
     levels/
-      smart.rb               # Delegates to Queries::Otu::Autocomplete; handles !n sentinel
-      catalogue_of_life.rb     # Delegates to TaxonName CoL level; wraps with hook metadata
+      fast.rb                     # Prefix match on Otu/TaxonName names
+      smart.rb                    # Queries::Otu::Autocomplete; !n sentinel
+      catalogue_of_life.rb        # TaxonName CoL level + OTU hook
+      col_valid_name.rb           # TaxonName ColValidName level + OTU hook
+
+  asserted_environment/
+    autoselect.rb                 # Levels: fast→smart→ENVO
+    operators.rb                  # Drops !n (no new-record modal)
+    levels/
+      fast.rb                     # Prefix match on uri_label
+      smart.rb                    # Queries::AssertedEnvironment::Autocomplete
+      envo.rb                     # External ENVO search
 ```
 
 ## Request / response flow

@@ -2,12 +2,12 @@ module Vendor
 
   # Wraps the biodiversity gem (https://github.com/GlobalNamesArchitecture/biodiversity)
   # Links parsed string results to Protonyms/Combinations in TaxonWorks.
-  #   a = Vendor::Biodiversity::Result.new 
+  #   a = Vendor::Biodiversity::Result.new
   #   a.name = 'Aus bus'
   #   a.parse
   #
   module Biodiversity
-    
+
     RANKS = %i{genus subgenus species subspecies variety form}.freeze
 
     class Result
@@ -39,7 +39,7 @@ module Vendor
       # @return [String] the bit after ` in `
       attr_reader :citation
 
-      # @return [Boolean] 
+      # @return [Boolean]
       #   whether or not the query string was succesfully parsed
       attr_reader :parseable
 
@@ -52,14 +52,14 @@ module Vendor
       attr_reader :disambiguated_combination
 
       # @return [Combination]
-      #   a memoized combiantion with only unambiguous elements 
+      #   a memoized combiantion with only unambiguous elements
       attr_reader :combination
 
       # @return [Boolean]
       #   - true, we match on words from verbatim:
       #   - false, we match on words from normalized:
       attr_reader :normalized
-       
+
 
       def initialize(query_string: nil, project_id: nil, code: :iczn, match_mode: :groups, verbatim: false)
         @project_id = project_id
@@ -88,7 +88,7 @@ module Vendor
         rescue NoMethodError => e
           case e.message
           when /canonical/
-            @parseable = false 
+            @parseable = false
           else
             raise
           end
@@ -101,7 +101,7 @@ module Vendor
       # @return [Boolean]
       def parseable
         @parseable = parse_result[:parsed] && parse_result[:tail].blank? if @parseable.nil?
-        @parseable 
+        @parseable
       end
 
       # @return [Array]
@@ -124,7 +124,7 @@ module Vendor
         end
       end
 
-      # @return [String, nil] 
+      # @return [String, nil]
       def subgenus
         if parse_result[:rank] == 'subgen.'
           parse_result.dig(:details, :uninomial, :uninomial)
@@ -160,7 +160,7 @@ module Vendor
 
       # @return [Integer]
       #   the total monominals in the epithet
-      def name_count 
+      def name_count
         (detail[detail.keys.first].keys - [:authorship]).count
       end
 
@@ -200,8 +200,8 @@ module Vendor
 
       # return only references to ambiguous protonyms
       #
-      # Parse 'form' 
-      # Parse 'parse 'Var" 
+      # Parse 'form'
+      # Parse 'parse 'Var"
 
       # @return [Boolean]
       #   true if for each parsed piece of there name there is 1 and only 1 result
@@ -227,10 +227,10 @@ module Vendor
         if protonym_result[rank].size == 2
           n1 = protonym_result[rank].first
           n2 = protonym_result[rank].last
-          return n2 if n2.nominotypical_sub_of?(n1) 
-          return n1 if n1.nominotypical_sub_of?(n2) 
+          return n2 if n2.nominotypical_sub_of?(n1)
+          return n1 if n1.nominotypical_sub_of?(n2)
         end
-        nil 
+        nil
       end
 
       # @return [Array]
@@ -241,7 +241,7 @@ module Vendor
         protonym_result.each do |k, v|
           a.push k if v.count > 1
         end
-        a 
+        a
       end
 
       # @return [Combination]
@@ -265,7 +265,7 @@ module Vendor
 
       # @return [ String, false ]
       #   a wrapper on string returning methods
-      # @param rank [Symbol, String] 
+      # @param rank [Symbol, String]
       #   rank is one of `genus`, `subgenus`, `species, `subspecies`, `variety`, `form`
       def string(rank = nil)
         send(rank)
@@ -388,7 +388,7 @@ module Vendor
         end
       end
 
-      def author_word_position 
+      def author_word_position
         if a = parse_result[:words]
           b = (a.detect { |v| v[:wordType] == 'AUTHOR_WORD'})&.dig(:start)
           p = [name.length, b].compact.min
@@ -409,25 +409,25 @@ module Vendor
 
       # @return [Hash]
       #   `:verbatim` - names that have verbatim supplied, these should be the only names NOT parsed that user is interested in
-      #   `:subgenus` - names that exactly match a subgenus, these are potential new combinations as Genus alone 
+      #   `:subgenus` - names that exactly match a subgenus, these are potential new combinations as Genus alone
       #   `:original_combination` - names that exactly match the original combination
       def other_matches
-        h = { 
+        h = {
           verbatim: [],
-          subgenus: [], 
+          subgenus: [],
           original: []
         }
 
         h[:verbatim] = TaxonName.where(project_id: project_id, cached: name_without_author_year).
           where('verbatim_name is not null').order(:cached).all.to_a if parseable
-        
+
         h[:subgenus] = Protonym.where(
-          project_id: project_id, 
-          name: genus, 
+          project_id: project_id,
+          name: genus,
           rank_class: Ranks.lookup(nomenclature_code, :subgenus)
         ).all.to_a
 
-        h[:original_combination] = Protonym.where(project_id: project_id). 
+        h[:original_combination] = Protonym.where(project_id: project_id).
           where( cached_original_combination: name_without_author_year
                 ).all.to_a if parseable
 

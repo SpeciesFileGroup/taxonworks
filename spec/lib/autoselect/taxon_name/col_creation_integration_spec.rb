@@ -2,10 +2,10 @@ require 'rails_helper'
 
 # End-to-end regression guard for the interaction between the matching step
 # (Autoselect::TaxonName::Levels::CatalogueOfLife, via ColAncestryComparator) and the
-# creation step (Autoselect::TaxonName::ColCreator) — specifically the row ordering and
+# creation step (Autoselect::TaxonName::CatalogueOfLifeCreator) — specifically the row ordering and
 # reparenting contract between them. Neither class's own spec file exercises this
-# together: catalogue_of_life_spec.rb only checks the computed alignment, col_creator_spec.rb
-# only checks ColCreator given already-built rows. A regression in either one's row-order
+# together: catalogue_of_life_spec.rb only checks the computed alignment, catalogue_of_life_creator_spec.rb
+# only checks CatalogueOfLifeCreator given already-built rows. A regression in either one's row-order
 # assumptions about the other would only show up here.
 
 def col_classification_entry(id:, name:, rank:)
@@ -45,7 +45,7 @@ def rows_from_level_result(col_extension, target_col_name:, target_rank:, target
   ancestor_rows + [target_row]
 end
 
-RSpec.describe 'CatalogueOfLife matching + ColCreator creation, end to end', type: :model do
+RSpec.describe 'CatalogueOfLife matching + CatalogueOfLifeCreator creation, end to end', type: :model do
   before(:each) { find_or_create_root_taxon_name }
 
   let(:level) { Autoselect::TaxonName::Levels::CatalogueOfLife.new }
@@ -82,7 +82,7 @@ RSpec.describe 'CatalogueOfLife matching + ColCreator creation, end to end', typ
       ext = match_result.first._col_extension
       rows = rows_from_level_result(ext, target_col_name: 'novaspecies', target_rank: 'species')
 
-      Autoselect::TaxonName::ColCreator.new(rows:, project_id:, user_id:, col_code: 'zoological').call
+      Autoselect::TaxonName::CatalogueOfLifeCreator.new(rows:, project_id:, user_id:, col_code: 'zoological').call
 
       tribe = ::TaxonName.find_by(name: 'Testini', project_id:)
       expect(tribe.parent_id).to eq(subfamily.id)
@@ -93,7 +93,7 @@ RSpec.describe 'CatalogueOfLife matching + ColCreator creation, end to end', typ
 
   # TW: Cicadellidae > Deltocephalinae > Athysanini > Aus > Aus bus
   # CoL puts Aus in Paralimnini instead. The conflicting tribe row must still be
-  # sent (with TW's own record), otherwise ColCreator sees Aus directly below
+  # sent (with TW's own record), otherwise CatalogueOfLifeCreator sees Aus directly below
   # Deltocephalinae with nothing inserted between - and refuses the request.
   context 'when the existing target\'s lineage conflicts with CoL' do
     let!(:root) { ::TaxonName.where(project_id:, parent_id: nil).first }
@@ -126,7 +126,7 @@ RSpec.describe 'CatalogueOfLife matching + ColCreator creation, end to end', typ
       expect(ext[:alignment].find { |r| r[:rank] == 'tribe' }[:match]).to eq('conflict')
 
       rows = rows_from_level_result(ext, target_col_name: ext[:col_name], target_rank: 'species')
-      result = Autoselect::TaxonName::ColCreator.new(rows:, project_id:, user_id:, col_code: 'zoological').call
+      result = Autoselect::TaxonName::CatalogueOfLifeCreator.new(rows:, project_id:, user_id:, col_code: 'zoological').call
 
       expect(result[:taxon_name_id]).to eq(species.id)
       expect(result[:created_ids]).to be_empty
@@ -140,8 +140,8 @@ RSpec.describe 'CatalogueOfLife matching + ColCreator creation, end to end', typ
       rows = rows.reject { |r| r[:col_rank] == 'tribe' && r[:taxonworks_id] == tribe.id }
 
       expect {
-        Autoselect::TaxonName::ColCreator.new(rows:, project_id:, user_id:, col_code: 'zoological').call
-      }.to raise_error(Autoselect::TaxonName::ColCreator::CreationError, /Aus/)
+        Autoselect::TaxonName::CatalogueOfLifeCreator.new(rows:, project_id:, user_id:, col_code: 'zoological').call
+      }.to raise_error(Autoselect::TaxonName::CatalogueOfLifeCreator::CreationError, /Aus/)
       expect(genus.reload.parent_id).to eq(tribe.id)
     end
   end
@@ -172,7 +172,7 @@ RSpec.describe 'CatalogueOfLife matching + ColCreator creation, end to end', typ
       rows = rows_from_level_result(
         ext, target_col_name: ext[:col_name], target_rank: ext[:col_rank]
       )
-      result = Autoselect::TaxonName::ColCreator.new(
+      result = Autoselect::TaxonName::CatalogueOfLifeCreator.new(
         rows:, project_id:, user_id:, col_code: code
       ).call
       ::TaxonName.find(result[:taxon_name_id])

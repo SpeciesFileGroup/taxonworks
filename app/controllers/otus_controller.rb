@@ -524,10 +524,10 @@ class OtusController < ApplicationController
     tn_result = nil
     otu = nil
 
-    # ColCreator's own transaction joins this one, so an ambiguous OTU rolls
-    # back the TaxonNames too.
+    # CatalogueOfLifeCreator's own transaction joins this one, so an ambiguous
+    # OTU rolls back the TaxonNames too.
     ::ActiveRecord::Base.transaction do
-      tn_result = ::Autoselect::TaxonName::ColCreator.new(
+      tn_result = ::Autoselect::TaxonName::CatalogueOfLifeCreator.new(
         rows:     autoselect_col_create_params,
         col_code: params[:col_code],
         project_id: sessions_current_project_id,
@@ -546,7 +546,7 @@ class OtusController < ApplicationController
       taxon_name_id: tn_result[:taxon_name_id],
       global_id: otu.to_global_id.to_s
     }
-  rescue ::Autoselect::TaxonName::ColCreator::CreationError => e
+  rescue ::Autoselect::TaxonName::CatalogueOfLifeCreator::CreationError => e
     render json: {
       error:           e.message,
       failed_col_name: e.col_name,
