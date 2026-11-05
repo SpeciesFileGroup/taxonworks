@@ -27,6 +27,9 @@
 #           first_author_distance: 0, # edit distance, diacritics/case
 #             # folded, capped at AUTHOR_DISTANCE_CAP
 #           author_distances: [0, 0], # per row surname, closest Source author
+#           first_author_initials_match: true, # nil when either has none;
+#             # false when they share no initial (F.G.A.M. vs B.)
+#           source_first_author_initials: ['C', 'M'],
 #           source_author_count: 2,
 #           title_similarity: 0.93, # 0..1 trigram similarity
 #           journal_similarity: 0.61,
@@ -78,7 +81,7 @@ module Match
       INPUT_KEYS = %i{authors year title journal volume pages doi verbatim}.freeze
 
       SOURCE_COLUMNS = %i{
-        id type cached cached_author_string year year_suffix volume pages
+        id type cached cached_author_string author year year_suffix volume pages
       }.freeze
 
       def call
@@ -301,6 +304,7 @@ module Match
         source_surnames = source_surnames_for(source)
         first_input = row.surnames.first
         first_source = source_surnames.first
+        source_initials = source_first_author_initials_for(source)
 
         {
           source:,
@@ -315,6 +319,9 @@ module Match
           author_distances: row.surnames.map { |s|
             source_surnames.map { |t| surname_distance(s, t) }.min
           },
+          first_author_initials_match:
+            initials_match(row.first_author_initials, source_initials),
+          source_first_author_initials: source_initials,
           source_author_count: source_surnames.size,
           title_similarity: similarities[:title],
           journal_similarity: similarities[:journal],
@@ -353,6 +360,27 @@ module Match
         @source_surnames ||= {}
         @source_surnames[source.id] ||=
           ::Utilities::AuthorNames.surnames(source.cached_author_string)
+      end
+
+      # A Source's `author` is BibTeX ("Last, Given and Last, Given").
+      def source_first_author_initials_for(source)
+        @source_initials ||= {}
+        @source_initials[source.id] ||= ::Utilities::AuthorNames.initials(
+          BibTeX::Names.parse(source.author.to_s).first&.first
+        )
+      end
+
+      # Lenient on purpose: people go by a later given name (Jordan, K. is
+      # Heinrich Ernst Karl), and lists get middle initials wrong (Amarga,
+      # A.C. is Ace Kevin S.); only initials with nothing in common
+      # disagree.
+      #
+      # @return [Boolean, nil] nil when either has no initials, otherwise
+      #   whether they share an initial
+      def initials_match(a, b)
+        return nil if a.empty? || b.empty?
+
+        a.intersect?(b)
       end
 
       def score(c)

@@ -112,6 +112,67 @@ describe Match::Source::Candidates, type: :model do
     end
   end
 
+  context 'first author initials' do
+    let!(:smit_b) do
+      Source::Bibtex.create!(bibtex_type: 'article', author: 'Smit, B.', year: 1964)
+    end
+
+    let!(:smit_fgam) do
+      Source::Bibtex.create!(
+        bibtex_type: 'article',
+        author: 'Smit, Franciscus Gerardus Albertus Maria and Jones, A.',
+        year: 1964
+      )
+    end
+
+    let!(:smit_no_given) do
+      Source::Bibtex.create!(bibtex_type: 'article', author: 'Smit', year: 1964)
+    end
+
+    let(:result) { candidates([{ authors: 'Smit, F.G.A.M.', year: '1964' }]).first }
+
+    specify 'conflicting initials do not match' do
+      expect(candidate_for(result, smit_b)[:first_author_initials_match])
+        .to be false
+    end
+
+    specify 'initials agree with full given names' do
+      expect(candidate_for(result, smit_fgam)[:first_author_initials_match])
+        .to be true
+    end
+
+    specify 'a Source without given names is not compared' do
+      expect(candidate_for(result, smit_no_given)[:first_author_initials_match])
+        .to be_nil
+    end
+
+    specify 'a row without initials is not compared' do
+      r = candidates([{ authors: 'Smit', year: '1964' }]).first
+      expect(candidate_for(r, smit_b)[:first_author_initials_match]).to be_nil
+    end
+
+    specify 'fewer initials agree with more' do
+      r = candidates([{ authors: 'Smit, F.', year: '1964' }]).first
+      expect(candidate_for(r, smit_fgam)[:first_author_initials_match]).to be true
+    end
+
+    specify 'any shared initial agrees, e.g. a later given name' do
+      jordan = Source::Bibtex.create!(
+        bibtex_type: 'article',
+        author: 'Jordan, Heinrich Ernst Karl and Rothschild, Nathaniel Charles',
+        year: 1923
+      )
+      r = candidates([{ authors: 'Jordan, K. & N.C. Rothschild', year: '1923' }])
+      expect(candidate_for(r.first, jordan)[:first_author_initials_match])
+        .to be true
+    end
+
+    specify 'reports the Source initials' do
+      expect(candidate_for(result, smit_fgam)[:source_first_author_initials])
+        .to eq(%w{F G A M})
+    end
+  end
+
   context 'other fields' do
     let(:c) do
       candidate_for(

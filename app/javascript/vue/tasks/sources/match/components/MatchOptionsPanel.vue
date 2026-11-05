@@ -135,6 +135,23 @@
             @input="update('authorMaxEdits', Number($event.target.value))"
           />
         </div>
+
+        <div class="margin-small-top">
+          <label class="middle">
+            <input
+              type="checkbox"
+              :checked="options.requireFirstAuthorInitials"
+              @change="
+                update('requireFirstAuthorInitials', $event.target.checked)
+              "
+            />
+            First author initials must share a letter when both present
+          </label>
+          <span class="subtle"
+            >Smit, F.G.A.M. is not Smit, B.; Jordan, K. can be Jordan,
+            Heinrich Ernst Karl.</span
+          >
+        </div>
       </fieldset>
 
       <fieldset>

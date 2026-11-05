@@ -51,6 +51,56 @@ describe Utilities::AuthorNames do
     end
   end
 
+  context '.initials' do
+    {
+      'F.G.A.M.' => %w{F G A M},
+      'Franciscus Gerardus Albertus Maria' => %w{F G A M},
+      'C. M.' => %w{C M},
+      'J.-P.' => %w{J P},
+      'Jean-Pierre' => %w{J P},
+      'Y-L' => %w{Y L},
+      'Ch.' => %w{C},
+      'KB.' => %w{K B},
+      'g.' => %w{G},
+      'Émile' => %w{E},
+      '' => [],
+      nil => []
+    }.each do |given_names, expected|
+      specify given_names.inspect do
+        expect(Utilities::AuthorNames.initials(given_names)).to eq(expected)
+      end
+    end
+  end
+
+  context '.first_author_initials' do
+    # Author strings as they come in from real match lists.
+    {
+      'Smit, F.G.A.M.' => %w{F G A M},
+      'Smit F.G.A.M.' => %w{F G A M},
+      'Ritzi, C.M. & J.O. Whitaker, Jr.' => %w{C M},
+      '<html>Ritzi, C.M. & <b>J.O. Whitaker, Jr.</b></html>' => %w{C M},
+      'C.M. Ritzi & J.O. Whitaker' => %w{C M},
+      'Abbot, P., A.E. Aviles, L. Eller & L.A. Durden' => %w{P},
+      'Acosta, R, J.A. Fernandez, & J.Falcon-Ordaz' => %w{R},
+      'Wu, Y-L., S-F. Hu' => %w{Y L},
+      'Ayala-Barajas, R., et al.' => %w{R},
+      'Huang, g. et al.' => %w{G},
+      # Comma-separated surnames, no initials.
+      'Huang, Liu, Chen, Chen, Li & Hu' => [],
+      # Ambiguous: K. may be Dittmar's or de la Cruz's.
+      'Dittmar, K. de la Cruz & M.F. Whiting' => [],
+      'Amyot et Serville' => [],
+      'Smit' => [],
+      '' => [],
+      nil => []
+    }.each do |author_string, expected|
+      specify author_string.inspect do
+        expect(Utilities::AuthorNames.first_author_initials(author_string))
+          .to eq(expected)
+      end
+    end
+  end
+
   context '.authorship_key' do
     # As TaxonWorks (#cached_author_year) and CoL write them.
     {

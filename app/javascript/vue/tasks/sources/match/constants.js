@@ -160,6 +160,7 @@ export function defaultOptions() {
     authorScope: AUTHOR_SCOPE.ROW,
     authorMatching: AUTHOR_MATCHING.FOLDED,
     authorMaxEdits: 1,
+    requireFirstAuthorInitials: true,
     minTitleSimilarity: 0.6,
     minJournalSimilarity: 0,
     requireVolume: true,

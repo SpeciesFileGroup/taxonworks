@@ -12,6 +12,7 @@
 #     volume: '10(2):149-158'
 #   )
 #   r.surnames # => ['Ritzi', 'Whitaker']
+#   r.first_author_initials # => ['C', 'M']
 #   r.volume # => '10'
 #   r.first_page # => '149'
 #
@@ -34,8 +35,8 @@ module Match
         /,\s*(\d+)\s*(?:\([^)]*\))?\s*,\s*(?:pp?\.\s*)?(\d+)\s*[-–—]\s*\d+/
       ].freeze
 
-      attr_reader :surnames, :year, :year_suffix, :title, :journal, :volume,
-        :first_page, :doi, :text
+      attr_reader :surnames, :first_author_initials, :year, :year_suffix,
+        :title, :journal, :volume, :first_page, :doi, :text
 
       # @param authors [String, nil]
       #   e.g. `Ritzi, C.M. & J.O. Whitaker, Jr.`, `Emery, Emery & Popple`
@@ -50,8 +51,10 @@ module Match
       )
         verbatim_parts = parse_verbatim(verbatim)
 
-        @surnames = authors.present? ?
-          ::Utilities::AuthorNames.surnames(authors) : verbatim_parts[:surnames]
+        author_string = authors.presence || verbatim_parts[:authors]
+        @surnames = ::Utilities::AuthorNames.surnames(author_string)
+        @first_author_initials =
+          ::Utilities::AuthorNames.first_author_initials(author_string)
 
         parsed_year, parsed_suffix = parse_year(year)
         @year = parsed_year || verbatim_parts[:year]
@@ -113,7 +116,7 @@ module Match
 
       def parse_verbatim(verbatim)
         s = clean(verbatim)
-        return { surnames: [] } if s.nil?
+        return {} if s.nil?
 
         result = {}
 
@@ -126,10 +129,9 @@ module Match
         if (m = s.match(VERBATIM_YEAR_PATTERN))
           result[:year] = m[1].to_i
           result[:year_suffix] = m[2]
-          result[:surnames] = ::Utilities::AuthorNames.surnames(m.pre_match)
+          result[:authors] = m.pre_match
           rest = m.post_match
         else
-          result[:surnames] = []
           rest = s
         end
 

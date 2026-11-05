@@ -3,6 +3,8 @@
 # Usage:
 #   Utilities::AuthorNames.surnames('Ritzi, C.M. & J.O. Whitaker, Jr.')
 #     # => ['Ritzi', 'Whitaker']
+#   Utilities::AuthorNames.first_author_initials('Smit, F.G.A.M.')
+#     # => ['F', 'G', 'A', 'M']
 #   Utilities::AuthorNames.fold('Creão-Duarte') # => 'creaoduarte'
 #   Utilities::AuthorNames.authorship_key('(Walker, 1851)')
 #     # => { surnames: ['walker'], year: 1851, parenthesized: true }
@@ -23,15 +25,46 @@ module Utilities::AuthorNames
   # @return [Array<String>]
   #   surnames in author order, initials and name suffixes removed
   def self.surnames(author_string)
-    s = author_string.to_s
-      .gsub(/<[^>]*>/, ' ') # remove <...>
-      .gsub(/\([^)]*\)/, ' ') # remove (...)
-      .gsub(/\bet\.?\s*al\b\.?/i, ' ') # remove 'et al'
-      .gsub(%r{/\s*\d{4}\b}, ' ') # remove years
-
-    s.split(AUTHOR_SEPARATOR_PATTERN).flat_map { |chunk|
+    author_chunks(author_string).flat_map { |chunk|
       chunk.split(',').filter_map { |token| surname_from_token(token) }
     }
+  end
+
+  # @param given_names [String, nil]
+  #   e.g. `F.G.A.M.`, `Franciscus Gerardus Albertus Maria`, `J.-P.`
+  # @return [Array<String>] the initial of each given name, upcased, without
+  #   diacritics, e.g. ['F', 'G', 'A', 'M']
+  def self.initials(given_names)
+    given_names.to_s.split(/[\s.\-]+/).reject(&:empty?).flat_map { |part|
+      # `KB` is two initials, `Ch` (and `Charles`) one.
+      letters = part.match?(/\A[[:upper:]]{2,3}\z/) ? part.chars : [part[0]]
+      letters.map { |l| I18n.transliterate(l).upcase }
+    }
+  end
+
+  # Only initials written next to the first author's surname count:
+  # `Smit, F.G.A.M.`, `Smit F.G.A.M.`, `F.G.A.M. Smit`. Full given names
+  # aren't recognized, since in a comma separated list they can't be told
+  # apart from other authors' surnames (`Huang, Liu, Chen`).
+  #
+  # @param author_string [String, nil]
+  # @return [Array<String>] the first author's initials, see .initials;
+  #   empty when there are none or they're ambiguous
+  def self.first_author_initials(author_string)
+    chunk = author_chunks(author_string).first
+    return [] if chunk.nil?
+
+    tokens = chunk.split(',').map(&:strip).reject(&:empty?)
+    i = tokens.index { |token| surname_from_token(token) }
+    return [] if i.nil?
+
+    words = initials_words(token_words(tokens[i]))
+    if words.empty? && tokens[i + 1]
+      following = token_words(tokens[i + 1])
+      words = following if initials_words(following) == following
+    end
+
+    initials(words.join(' '))
   end
 
   # @return [String] for comparing names: no diacritics, case, spaces, or
@@ -77,21 +110,45 @@ module Utilities::AuthorNames
       (!parentheses || a[:parenthesized] == b[:parenthesized])
   end
 
-  def self.surname_from_token(token)
-    words = token
+  # @return [Array<String>] the authors' part of author_string, split on
+  #   author separators (`&`, `and`, ...); one chunk may still hold several
+  #   comma separated authors
+  def self.author_chunks(author_string)
+    author_string.to_s
+      .gsub(/<[^>]*>/, ' ') # remove <...>
+      .gsub(/\([^)]*\)/, ' ') # remove (...)
+      .gsub(/\bet\.?\s*al\b\.?/i, ' ') # remove 'et al'
+      .gsub(%r{/\s*\d{4}\b}, ' ') # remove years
+      .split(AUTHOR_SEPARATOR_PATTERN)
+      .select { |chunk| chunk.match?(/[[:alpha:]]/) }
+  end
+
+  # @return [Array<String>] the words of one comma separated token, with any
+  #   leading junk and words without letters removed
+  def self.token_words(token)
+    token
       .sub(/\A[^[:alpha:]]+/, '') # remove leading junk
       # The second pattern here matches the position between '.' and any letter,
       # like 'KB.Agwanda' (uncommon).
       .split(/\s+|(?<=\.)(?=[[:alpha:]])/)
       .map(&:strip)
-      .reject { |w|
-        !w.match?(/[[:alpha:]]/) || w.match?(INITIALS_PATTERN) ||
-          w.match?(NAME_SUFFIX_PATTERN)
-      }
+      .select { |w| w.match?(/[[:alpha:]]/) }
+  end
+
+  def self.initials_words(words)
+    words.select { |w| w.match?(INITIALS_PATTERN) }
+  end
+
+  def self.surname_from_token(token)
+    words = token_words(token).reject { |w|
+      w.match?(INITIALS_PATTERN) || w.match?(NAME_SUFFIX_PATTERN)
+    }
 
     name = words.join(' ').sub(/[.\s]+\z/, '')
     name.presence
   end
-  private_class_method :surname_from_token
+
+  private_class_method :author_chunks, :token_words, :initials_words,
+    :surname_from_token
 
 end

@@ -65,6 +65,18 @@ describe Match::Source::InputRow do
     end
   end
 
+  context 'first author initials' do
+    specify 'from structured authors' do
+      r = Match::Source::InputRow.new(authors: 'Smit, F.G.A.M.')
+      expect(r.first_author_initials).to eq(%w{F G A M})
+    end
+
+    specify 'from verbatim' do
+      r = Match::Source::InputRow.new(verbatim: 'Smit, F.G.A.M. 1964. Fleas.')
+      expect(r.first_author_initials).to eq(%w{F G A M})
+    end
+  end
+
   context 'verbatim' do
     let(:row) do
       Match::Source::InputRow.new(

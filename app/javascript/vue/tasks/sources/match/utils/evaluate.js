@@ -141,6 +141,18 @@ function authorCheck(candidate, parsed, options) {
     return [CHECK.FAIL, `First author differs (${firstAuthorDetail(candidate)})`]
   }
 
+  // Same surname, different person: Smit, F.G.A.M. vs Smit, B.
+  const initialsConflict = candidate.first_author_initials_match === false
+  const initialsDetail = initialsConflict
+    ? `First author initials differ (${formatInitials(
+        parsed.first_author_initials
+      )} vs ${formatInitials(candidate.source_first_author_initials)})`
+    : null
+
+  if (initialsConflict && options.requireFirstAuthorInitials) {
+    return [CHECK.FAIL, initialsDetail]
+  }
+
   const matchedCount = candidate.author_distances.filter(
     (d) => d != null && d <= maxEdits
   ).length
@@ -161,9 +173,22 @@ function authorCheck(candidate, parsed, options) {
   }
 
   return [
-    allMatch && candidate.first_author_exact ? CHECK.PASS : CHECK.DIFFERS,
-    `First author ${firstAuthorDetail(candidate)}; ${allDetail}`
+    allMatch && candidate.first_author_exact && !initialsConflict
+      ? CHECK.PASS
+      : CHECK.DIFFERS,
+    [
+      `First author ${firstAuthorDetail(candidate)}`,
+      initialsDetail,
+      allDetail
+    ]
+      .filter(Boolean)
+      .join('; ')
   ]
+}
+
+// ['F', 'G'] -> 'F.G.'
+function formatInitials(initials) {
+  return (initials || []).map((letter) => `${letter}.`).join('')
 }
 
 function firstAuthorDetail(candidate) {
