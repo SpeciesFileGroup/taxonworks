@@ -128,7 +128,13 @@ Object.assign(TW.views.shared.list, {
 
     function orderLists() {
       $('table').tablesorter({
-        widgets: ['zebra']
+        widgets: ['zebra'],
+        // Cells whose display text doesn't sort correctly (e.g. "3 days ago",
+        // "4.5 hours") can provide a sortable value in data-sort-value
+        textExtraction: function (node) {
+          const sortValue = node.getAttribute('data-sort-value')
+          return sortValue !== null ? sortValue : node.textContent
+        }
       })
     }
 
