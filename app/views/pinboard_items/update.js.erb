@@ -53,3 +53,10 @@ Object.assign(pinboardRemoteUpdate, {
 
 pinboardRemoteUpdate.init();
 
+TW.workbench.pinboard.broadcast('insert', {
+  id: <%= @pinboard_item.id -%>,
+  type: "<%= @pinboard_item.pinned_object_type -%>",
+  object_id: <%= @pinboard_item.pinned_object_id -%>,
+  is_inserted: <%= @pinboard_item.is_inserted -%>
+});
+

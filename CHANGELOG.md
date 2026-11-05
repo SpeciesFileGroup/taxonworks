@@ -7,9 +7,13 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 ## [unreleased]
 
-###
+### Fixed
 
 - Browse OTU link in OTU show page (Report) and taxon determination links not loading the OTU in the task
+- Pinboard buttons do not synchronize across browser tabs [#5167]
+
+
+[#5167]: https://github.com/SpeciesFileGroup/taxonworks/issues/5167
 
 ## [0.67.0] - 2026-11-4
 
