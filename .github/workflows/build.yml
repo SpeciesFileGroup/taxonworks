@@ -135,3 +135,14 @@ jobs:
         TEST_WORKER: ${{ matrix.worker }}
         TEST_WORKERS: 4
       run: .github/spec_runner.sh
+
+    # Read by .github/refresh_spec_runtimes.rb (monthly
+    # refresh-spec-runtimes workflow) to rebalance the workers.
+    - name: Upload spec runtimes
+      if: github.event_name != 'pull_request'
+      uses: actions/upload-artifact@v7
+      with:
+        name: spec-runtimes-${{ matrix.worker }}
+        path: tmp/spec_runtimes_${{ matrix.worker }}.log
+        retention-days: 30
+        overwrite: true
