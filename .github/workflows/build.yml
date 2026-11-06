@@ -134,6 +134,7 @@ jobs:
       env:
         TEST_WORKER: ${{ matrix.worker }}
         TEST_WORKERS: 4
+        SHAKAPACKER_CONFIG: config/shakapacker.yml.ci
       run: .github/spec_runner.sh
 
     # Read by .github/refresh_spec_runtimes.rb (monthly
