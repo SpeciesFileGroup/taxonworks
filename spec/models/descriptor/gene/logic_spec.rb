@@ -88,7 +88,7 @@ RSpec.describe Descriptor::Gene, type: :model, group: [:descriptor, :observation
       specify '#sequence_query_set' do
         expect(descriptor.sequence_query_set).to eq(
           [
-            [[attribute1.sequence_relationship_type, attribute1.to_param], [attribute2.sequence_relationship_type, attribute2.to_param ]]
+            [[attribute1.sequence_relationship_type, attribute1.sequence_id.to_s], [attribute2.sequence_relationship_type, attribute2.sequence_id.to_s]]
           ]
         )
       end

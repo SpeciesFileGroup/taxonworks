@@ -32,7 +32,7 @@ describe Queries::TaxonDetermination::Filter, type: :model, group: [:collection_
   end
 
   specify 'by #determiner_id' do
-    query.determiner_id = [d2.id]
+    query.determiner_id = [p1.id]
     expect(query.all.map(&:id)).to contain_exactly(td3.id)
   end
 
