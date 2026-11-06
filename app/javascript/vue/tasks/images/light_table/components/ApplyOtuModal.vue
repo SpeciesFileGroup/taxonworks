@@ -9,11 +9,14 @@
     <template #body>
       <VSpinner v-if="isLoading" />
       <div class="flex-col gap-small">
-        <OtuAutoselectPicker
+        <AutoselectPicker
           v-if="!otu"
+          model="otus"
+          param="otu_id"
+          get-object
           preferences-key="otu_for_light_table"
           autofocus
-          @get-item="selectOtu"
+          @select="selectOtu"
         />
         <SmartSelectorItem
           v-else
@@ -63,7 +66,7 @@ import { computed, ref } from 'vue'
 import { SKIP_REASONS } from '../adapters/applyOtu'
 import { useApplyOtu } from '../composables/useApplyOtu'
 import VModal from '@/components/ui/Modal.vue'
-import OtuAutoselectPicker from '@/components/otu/otu_picker/otu_autoselect_picker.vue'
+import AutoselectPicker from '@/components/ui/AutoselectPicker.vue'
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
