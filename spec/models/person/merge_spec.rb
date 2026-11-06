@@ -270,6 +270,52 @@ describe Person, type: :model, group: :people do
         expect(person1.alternate_values.count).to eq(1)
       end
 
+      specify 'first name with matching misspelling' do
+        AlternateValue::Misspelling.create!(
+          value: 'Janco',
+          alternate_value_object_attribute: 'first_name',
+          alternate_value_object: person1)
+        person1b.update(first_name: 'Janco')
+        person1.merge_with(person1b.id)
+        expect(person1.alternate_values.reload.pluck(:type, :value))
+          .to contain_exactly(['AlternateValue::Misspelling', 'Janco'])
+      end
+
+      specify 'last name with matching misspelling' do
+        AlternateValue::Misspelling.create!(
+          value: 'Smyth',
+          alternate_value_object_attribute: 'last_name',
+          alternate_value_object: person1)
+        person1b.update(last_name: 'Smyth')
+        person1.merge_with(person1b.id)
+        expect(person1.alternate_values.reload.pluck(:type, :value))
+          .to contain_exactly(['AlternateValue::Misspelling', 'Smyth'])
+      end
+
+      specify 'first name matching a misspelling of a different attribute' do
+        AlternateValue::Misspelling.create!(
+          value: 'Janco',
+          alternate_value_object_attribute: 'last_name',
+          alternate_value_object: person1)
+        person1b.update(first_name: 'Janco')
+        person1.merge_with(person1b.id)
+        expect(person1.alternate_values.reload.pluck(:type, :alternate_value_object_attribute, :value))
+          .to contain_exactly(
+            ['AlternateValue::Misspelling', 'last_name', 'Janco'],
+            ['AlternateValue::AlternateSpelling', 'first_name', 'Janco']
+          )
+      end
+
+      specify 'hard_merge with matching misspelling' do
+        AlternateValue::Misspelling.create!(
+          value: 'Janco',
+          alternate_value_object_attribute: 'first_name',
+          alternate_value_object: person1)
+        person1b.update(first_name: 'Janco')
+        person1.hard_merge(person1b.id)
+        expect(person1.alternate_values.reload.where(value: 'Janco').count).to eq(1)
+      end
+
       specify 'last name' do
         person1b.update(last_name: 'Smyth')
         person1.merge_with(person1b.id)
