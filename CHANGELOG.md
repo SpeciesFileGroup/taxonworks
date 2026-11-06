@@ -7,6 +7,10 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 ## [unreleased]
 
+### Changed
+
+- Replaced the jQuery tablesorter plugin with a native sorter.
+
 ### Fixed
 
 - Browse OTU link in OTU show page (Report) and taxon determination links not loading the OTU in the task
