@@ -268,11 +268,6 @@ thead th {
   min-width: 220px;
 }
 
-.subtle {
-  color: var(--text-muted-color);
-  font-size: 0.85em;
-}
-
 /* .table-striped sets a background on every td, so status tints must target
    td, with !important to beat its nth-of-type specificity. */
 .row-unmatched td {

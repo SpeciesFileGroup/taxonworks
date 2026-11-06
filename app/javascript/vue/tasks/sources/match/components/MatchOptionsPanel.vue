@@ -97,11 +97,12 @@
             />
             {{ option.label }}
           </label>
-          <span
+          <div
             v-if="option.description"
             class="subtle"
-            >{{ option.description }}</span
           >
+            {{ option.description }}
+          </div>
         </div>
 
         <div
@@ -118,7 +119,7 @@
             />
             {{ option.label }}
           </label>
-          <span class="subtle">{{ option.description }}</span>
+          <div class="subtle">{{ option.description }}</div>
         </div>
 
         <div
@@ -147,10 +148,10 @@
             />
             First author initials must share a letter when both present
           </label>
-          <span class="subtle"
-            >Smit, F.G.A.M. is not Smit, B.; Jordan, K. can be Jordan,
-            Heinrich Ernst Karl.</span
-          >
+          <div class="subtle">
+            Smit, F.G.A.M. is not Smit, B.; Jordan, K. can be Jordan, Heinrich
+            Ernst Karl.
+          </div>
         </div>
       </fieldset>
 
@@ -258,11 +259,5 @@ fieldset {
   display: flex;
   flex-direction: column;
   gap: 4px;
-}
-
-.subtle {
-  display: block;
-  color: var(--text-muted-color);
-  font-size: 0.85em;
 }
 </style>

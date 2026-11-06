@@ -47,34 +47,15 @@
           @download-unmatched="downloadUnmatched"
         />
 
-        <div
-          v-if="pageCount > 1"
-          class="horizontal-left-content middle gap-small margin-small-bottom"
-        >
-          <VBtn
-            color="primary"
-            medium
-            :disabled="page === 0"
-            @click="page--"
-          >
-            Previous
-          </VBtn>
-          <span>
-            Page {{ page + 1 }} of {{ pageCount }} ({{ visibleRows.length }}
-            rows)
-          </span>
-          <VBtn
-            color="primary"
-            medium
-            :disabled="page >= pageCount - 1"
-            @click="page++"
-          >
-            Next
-          </VBtn>
-        </div>
+        <VPagination
+          v-if="pagination.totalPages > 1"
+          class="margin-small-bottom"
+          :pagination="pagination"
+          @next-page="setPage"
+        />
 
         <ResultTable
-          :rows="pageRows"
+          :rows="pageItems"
           :evaluations="evaluations"
           v-model:filter="filter"
           @select-candidate="selectCandidate"
@@ -87,13 +68,15 @@
 </template>
 
 <script setup>
-import { computed, ref, watch } from 'vue'
+import { computed, ref } from 'vue'
 import { Parser } from '@json2csv/plainjs'
 import { Source, ProjectSource } from '@/routes/endpoints'
 import { downloadTextFile } from '@/helpers/files'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
+import VPagination from '@/components/pagination.vue'
+import { usePagedList } from '@/composables/usePagedList.js'
 import InputPanel from './components/InputPanel.vue'
 import MatchOptionsPanel from './components/MatchOptionsPanel.vue'
 import SummaryBar from './components/SummaryBar.vue'
@@ -119,8 +102,6 @@ const progressLegend = ref('')
 const rows = ref([])
 const headers = ref(null) // CSV headers, null for verbatim lines
 const options = ref(defaultOptions())
-const filter = ref(ROW_FILTER.ALL)
-const page = ref(0)
 const addToProject = ref(false)
 
 // Parallel to rows.
@@ -128,51 +109,26 @@ const evaluations = computed(() =>
   rows.value.map((row) => evaluateRow(row, options.value))
 )
 
-function matchesFilter(row) {
+function matchesFilter(row, filterValue) {
   const evaluation = evaluations.value[row.index]
 
-  if (filter.value === ROW_FILTER.ALL) return true
-  if (filter.value === ROW_FILTER.NOT_IN_PROJECT) {
+  if (filterValue === ROW_FILTER.NOT_IN_PROJECT) {
     return evaluation.source?.in_project === false
   }
-  return evaluation.status === filter.value
+  return evaluation.status === filterValue
 }
 
-// Which rows a filter shows is captured when the filter or options change,
-// not recomputed live, so that selecting a Source doesn't make the row
-// disappear from under the curator.
-const visibleRowIndices = ref(null) // null: no filter, every row
-
-function snapshotVisibleRows() {
-  page.value = 0
-
-  if (filter.value === ROW_FILTER.ALL) {
-    visibleRowIndices.value = null
-    return
+// Which rows a filter shows is captured when the filter or options change
+// (or matching finishes), not recomputed live, so that selecting a Source
+// doesn't make the row disappear from under the curator.
+const { filter, pageItems, pagination, setPage, refresh } = usePagedList(
+  rows,
+  {
+    matches: matchesFilter,
+    perPage: ROWS_PER_PAGE,
+    frozen: true,
+    refreshOn: [options]
   }
-
-  visibleRowIndices.value = new Set(
-    rows.value.filter(matchesFilter).map((row) => row.index)
-  )
-}
-
-watch([filter, options], snapshotVisibleRows)
-
-const visibleRows = computed(() =>
-  visibleRowIndices.value === null
-    ? rows.value
-    : rows.value.filter((row) => visibleRowIndices.value.has(row.index))
-)
-
-const pageCount = computed(() =>
-  Math.max(1, Math.ceil(visibleRows.value.length / ROWS_PER_PAGE))
-)
-
-const pageRows = computed(() =>
-  visibleRows.value.slice(
-    page.value * ROWS_PER_PAGE,
-    (page.value + 1) * ROWS_PER_PAGE
-  )
 )
 
 async function handleSubmit({ rows: submitted, headers: submittedHeaders }) {
@@ -234,7 +190,7 @@ async function fetchCandidates() {
     TW.workbench.alert.create('Error matching sources.', 'error')
   } finally {
     isProcessing.value = false
-    snapshotVisibleRows()
+    refresh()
   }
 }
 

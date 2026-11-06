@@ -4,19 +4,27 @@
       v-for="field in CHIP_FIELDS"
       :key="field.key"
     >
-      <span
+      <VBadge
         v-if="evaluation.checks[field.key] !== CHECK.NONE"
-        :class="['check-chip', `check-chip--${evaluation.checks[field.key]}`]"
+        class="check-chip"
+        :color="CHECK_COLORS[evaluation.checks[field.key]]"
         :title="`${field.label}: ${evaluation.details[field.key]}`"
       >
         {{ field.label }}
-      </span>
+      </VBadge>
     </template>
   </div>
 </template>
 
 <script setup>
+import VBadge from '@/components/ui/VBadge/VBadge.vue'
 import { CHECK } from '../constants.js'
+
+const CHECK_COLORS = {
+  [CHECK.PASS]: 'green',
+  [CHECK.DIFFERS]: 'yellow',
+  [CHECK.FAIL]: 'red'
+}
 
 const CHIP_FIELDS = [
   { key: 'doi', label: 'DOI' },
@@ -44,24 +52,6 @@ defineProps({
 }
 
 .check-chip {
-  padding: 0 0.35rem;
-  border-radius: 4px;
-  font-size: 0.75rem;
   cursor: help;
-}
-
-.check-chip--pass {
-  background-color: var(--badge-green-bg);
-  color: var(--badge-green-color);
-}
-
-.check-chip--differs {
-  background-color: var(--badge-yellow-bg);
-  color: var(--badge-yellow-color);
-}
-
-.check-chip--fail {
-  background-color: var(--badge-red-bg);
-  color: var(--badge-red-color);
 }
 </style>

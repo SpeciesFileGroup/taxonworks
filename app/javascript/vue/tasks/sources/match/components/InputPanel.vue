@@ -7,22 +7,12 @@
       {{ MAX_ROWS.toLocaleString() }} rows.
     </p>
 
-    <div
-      class="dropzone-area"
-      :class="{ 'dropzone-active': isDragging }"
-      @dragover.prevent="isDragging = true"
-      @dragleave.prevent="isDragging = false"
-      @drop.prevent="handleFileDrop"
-    >
-      <textarea
-        ref="textareaRef"
-        v-model="text"
-        class="full_width"
-        placeholder="Paste citations here, one per line, or drag a CSV file..."
-        rows="12"
-        @paste="handlePaste"
-      />
-    </div>
+    <TextFileDropArea
+      v-model:text="text"
+      v-model:file-name="fileName"
+      placeholder="Paste citations here, one per line, or drag a CSV file..."
+      autofocus
+    />
 
     <div
       v-if="table"
@@ -73,7 +63,7 @@
 
     <div
       v-if="rawRowCount > MAX_ROWS"
-      class="truncation-warning margin-small-top"
+      class="feedback feedback-warning feedback-thin margin-small-top"
     >
       More than {{ MAX_ROWS.toLocaleString() }} rows provided; only the first
       {{ MAX_ROWS.toLocaleString() }} will be processed.
@@ -94,29 +84,17 @@
 </template>
 
 <script setup>
-import {
-  ref,
-  computed,
-  watch,
-  onMounted,
-  onBeforeUnmount,
-  useTemplateRef
-} from 'vue'
+import { ref, computed, watch } from 'vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
-import { useDropzonePasteManager } from '@/composables/useDropzonePasteManager'
+import TextFileDropArea from '@/components/BatchLoad/TextFileDropArea.vue'
 import { parseDelimited } from '@/helpers/parseDelimited.js'
 import { FIELD, FIELD_LABELS, HEADER_ALIASES, MAX_ROWS } from '../constants.js'
 
 const emit = defineEmits(['submit'])
 
-const { registerPaster, unregisterPaster } = useDropzonePasteManager()
-
 const text = ref('')
-const isDragging = ref(false)
 const fileName = ref(null)
 const mapping = ref({})
-const textareaRef = useTemplateRef('textareaRef')
-let pasteZone = null
 
 // Tab separated text (a spreadsheet paste) or a loaded file is a table with
 // a header row; anything else is one verbatim citation per line.
@@ -197,85 +175,10 @@ function submit() {
     headers: table.value ? table.value.headers : null
   })
 }
-
-function loadFile(file) {
-  const reader = new FileReader()
-  reader.onload = (e) => {
-    fileName.value = file.name
-    text.value = e.target.result
-  }
-  reader.readAsText(file)
-}
-
-function handleFileDrop(event) {
-  isDragging.value = false
-  const file = event.dataTransfer?.files?.[0]
-  if (file) loadFile(file)
-}
-
-function handlePaste(event) {
-  const clipboardData = event.clipboardData
-  const items = clipboardData?.items
-  if (!items?.length) return
-
-  // Spreadsheet copies often also put an image of the selection on the
-  // clipboard; prefer the text.
-  if (clipboardData.getData('text')?.trim()) {
-    fileName.value = null
-    return
-  }
-
-  for (const item of items) {
-    if (item.kind !== 'file') continue
-    const file = item.getAsFile()
-    if (!file?.size) continue
-    event.preventDefault()
-    loadFile(file)
-    return
-  }
-}
-
-onMounted(() => {
-  pasteZone = { handler: handlePaste, prioritize: false }
-  registerPaster(pasteZone)
-  textareaRef.value?.focus()
-})
-
-onBeforeUnmount(() => {
-  unregisterPaster(pasteZone)
-})
 </script>
 
 <style scoped>
 .input-panel {
   max-width: 1000px;
-}
-
-.dropzone-area {
-  border: 2px dashed var(--border-color);
-  border-radius: 4px;
-  transition: border-color 0.2s;
-}
-
-.dropzone-active {
-  border-color: var(--color-primary);
-  background-color: var(--badge-blue-bg);
-}
-
-.dropzone-area textarea {
-  border: none;
-}
-
-.subtle {
-  color: var(--text-muted-color);
-  font-size: 0.85em;
-}
-
-.truncation-warning {
-  color: var(--badge-yellow-color);
-  background-color: var(--badge-yellow-bg);
-  border-radius: 4px;
-  padding: 6px 10px;
-  font-size: 0.85em;
 }
 </style>
