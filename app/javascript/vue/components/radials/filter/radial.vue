@@ -21,6 +21,7 @@
       </template>
     </VModal>
     <VBtn
+      v-if="showBottom"
       class="circle-button"
       color="radial"
       :title="title"
@@ -58,6 +59,11 @@ const EXCLUDE_PARAMETERS = ['page', 'per', 'extend', 'venn', 'venn_mode']
 const uuid = randomUUID()
 
 const props = defineProps({
+  showBottom: {
+    type: Boolean,
+    default: true
+  },
+
   extendedSlices: {
     type: Array,
     default: () => []
@@ -252,6 +258,8 @@ function filterEmptyParams(object) {
 
   return obj
 }
+
+defineExpose({ openRadialMenu })
 </script>
 
 <script>

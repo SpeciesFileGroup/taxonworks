@@ -456,4 +456,6 @@ function destroyObject() {
     })
     .catch(() => {})
 }
+
+defineExpose({ openRadialMenu })
 </script>
