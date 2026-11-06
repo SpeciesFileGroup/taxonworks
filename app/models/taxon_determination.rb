@@ -98,7 +98,7 @@ class TaxonDetermination < ApplicationRecord
   #   an Array or single id
   # @param params [Hash] TaxonDetermination attributes, including project_id
   # @param object_type [String] one of BATCH_CREATE_OBJECT_TYPES
-  # @return Hash
+  # @return [Hash]
   def self.batch_create(object_id, params, object_type:)
     if !BATCH_CREATE_OBJECT_TYPES.include?(object_type)
       raise ArgumentError, "Unsupported object_type: #{object_type}"

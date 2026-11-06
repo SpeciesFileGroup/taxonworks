@@ -30,7 +30,7 @@ module Queries
       ('::' + name.split('::').second).safe_constantize
     end
 
-    # @return String
+    # @return [String]
     #  like "otu" or "taxon_name"
     def self.base_name
       referenced_klass.name.tableize.singularize # classify ?

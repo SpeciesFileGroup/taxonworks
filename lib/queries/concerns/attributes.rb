@@ -65,28 +65,28 @@ module Queries::Concerns::Attributes
     #   repeated.
     attr_accessor :wildcard_attribute
 
-    # @param attribute_name
-    # @return Array[String]
+    # @param attribute_name [Array]
+    # @return [Array<String>]
     #   Attribute names for row-based attribute filters.
     attr_accessor :attribute_name
 
-    # @param attribute_value
-    # @return Array[String]
+    # @param attribute_value [Array]
+    # @return [Array<String>]
     #   Values for row-based attribute filters.
     attr_accessor :attribute_value
 
-    # @param attribute_value_type
-    # @return Array[String]
+    # @param attribute_value_type [Array]
+    # @return [Array<String>]
     #   One of: exact, wildcard, any, no
     attr_accessor :attribute_value_type
 
-    # @param attribute_value_negator
-    # @return Array[Boolean]
+    # @param attribute_value_negator [Array]
+    # @return [Array<Boolean>]
     #   True to negate the value_type in this row.
     attr_accessor :attribute_value_negator
 
     # @param attribute_combine_logic
-    # @return Array[Boolean]
+    # @return [Array<Boolean>]
     #   How to combine the results of the queries in this row and the next:
     #     nil - AND
     #     true - OR

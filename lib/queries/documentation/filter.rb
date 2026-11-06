@@ -19,7 +19,7 @@ module Queries
 
       attr_accessor :documentation_object_type
 
-      # @params params [ActionController::Parameters]
+      # @param query_params [ActionController::Parameters]
       def initialize(query_params)
         super
         @documentation_id = params[:documentation_id]

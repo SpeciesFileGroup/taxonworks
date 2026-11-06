@@ -4,69 +4,69 @@ class Catalog::Nomenclature::PaperCatalog < Catalog::Nomenclature
 
   ##### FILTER PARAMETERS #####
 
-  # @!classification_scope
+  # @!attribute classification_scope
   #   @return [String]
   # Higher level taxon to include all descendants
   attr_accessor :classification_scope
 
-  # @!project_id
+  # @!attribute project_id
   #   @return [String]
   # Required attribute to build the key
   attr_accessor :project_id
 
-  # @!rank_filter
+  # @!attribute rank_filter
   #   @return [String or null]
   # Optional attribute. Restrict output to particular ranks "rank_filter=genus|species|subspecies". Returns all ranks if values is nil
   attr_accessor :rank_filter
 
-  # @!otu_filter
+  # @!attribute otu_filter
   #   @return [String or null]
   # Optional attribute. Restrict output to particular otus_ids "otu_filter=3|5|15".
   attr_accessor :otu_filter
 
-  # @!taxon_name_filter
+  # @!attribute taxon_name_filter
   #   @return [String or null]
   # Optional attribute. Restrict output to particular taxon_name_ids "taxon_name_filter=3|5|15".
   attr_accessor :taxon_name_filter
 
-  # @!accepted_only
+  # @!attribute accepted_only
   #   @return [String or null]
   # Optional attribute. Restrict output to valid_names "accepted_only=true"
   attr_accessor :accepted_only
 
-  # @!type_information
+  # @!attribute type_information
   #   @return [String or null]
   # Optional attribute. Add type information "type=true"
   attr_accessor :type_information
 
-  # @!distribution
+  # @!attribute distribution
   #   @return [String or null]
   # Optional attribute to add distribution "distribution=true"
   attr_accessor :distribution
 
-  # @!otu_contents
+  # @!attribute otu_contents
   #   @return [String or null]
   # Optional attribute to add otu_contents
   attr_accessor :otu_contents
 
   ##### RETURNED DATA ######
 
-  # @!taxon_name_ids
+  # @!attribute taxon_name_ids
   #   @return [Hash]
   # Returns list of taxon_name_ids
   attr_accessor :taxon_name_ids
 
-  # @!otu_id_filter_array
+  # @!attribute otu_id_filter_array
   #   @return [Hash]
   # Returns list of otu_ids
   attr_accessor :otu_id_filter_array
 
-  # @!sources_hash
+  # @!attribute sources_hash
   #   @return [Hash]
   # Returns list of sources
   attr_accessor :source_hash
 
-  # @!results_hash
+  # @!attribute results_hash
   #   @return [Hash]
   # Returns taxa sorted hierarchically with all metadata
   attr_accessor :results_hash

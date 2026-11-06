@@ -112,7 +112,7 @@ module Shared::IsData
       scope
     end
 
-    # @return Hash
+    # @return [Hash]
     #  { restrict: {}, destroy: {} }
     #
     #  Summarizes the count of records that will be destroyed if these ids are destroyed, or records that
@@ -153,7 +153,7 @@ module Shared::IsData
 
     private
 
-    # @return Array of IDs for this class
+    # @return [Array] of IDs for this class
     #
     #  Make cutoff smaller to reach higher ids.
     #  Useful for pseudo-benchmarking.
@@ -172,9 +172,9 @@ module Shared::IsData
   end  # END CLASS METHODS
 
   # @return [Boolean]
-  # @params exclude [Array]
+  # @param exclude [Array]
   #   of symbols
-  # @params only [Array]
+  # @param only [Array]
   #   of symbols
   # !! provide only exclude or only
   def is_in_use?(exclude = [], only = [])

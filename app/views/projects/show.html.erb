@@ -223,8 +223,8 @@
                         <%= content_tag(:span, pm.user.name, class: 'member-name') -%>
                       <% end %>
                     </td>
-                    <td> <%= user_last_seen_in_project_tag(pm) -%> </td>
-                    <td> <%= user_time_active_in_project_tag(pm) -%> </td>
+                    <td data-sort-value="<%= pm.last_seen_at.to_i -%>"> <%= user_last_seen_in_project_tag(pm) -%> </td>
+                    <td data-sort-value="<%= pm.time_active.to_i -%>"> <%= user_time_active_in_project_tag(pm) -%> </td>
                     <td> <%= format_date_ymd(pm.created_at) -%></td>
                     <% if is_superuser? %>
 

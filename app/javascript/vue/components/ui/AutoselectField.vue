@@ -79,7 +79,7 @@
     <!-- Dropdown — visible only after a search completes -->
     <teleport to="body">
       <ul
-        v-if="showList && searchEnd"
+        v-if="showList && searchEnd && !modalOpen"
         v-show="showList"
         class="autoselect__dropdown"
         ref="dropdownEl"
@@ -116,43 +116,53 @@
       </ul>
     </teleport>
 
-    <!-- Help overlay (!?) -->
-    <div
-      v-if="showHelp"
-      class="autoselect__help-overlay"
-    >
-      <button
-        class="autoselect__help-close"
-        title='Use "Esc" to close'
-        @click="closeHelp"
+    <!-- Help overlay (!?) — teleported to escape any scrollable/clipping
+         ancestor. -->
+    <teleport to="body">
+      <div
+        v-if="showHelp"
+        class="autoselect__help-overlay"
+        :style="helpOverlayStyle"
       >
-        &#x2715;
-      </button>
-      <h4>Available operators</h4>
-      <ul class="autoselect__help-list">
-        <li
-          v-for="op in sortedOperators"
-          :key="op.trigger"
-          class="autoselect__help-item"
+        <VBtn
+          class="autoselect__help-close"
+          circle
+          variant="ghost"
+          title='Close (use "Esc" to close)'
+          @click="closeHelp"
         >
-          <template v-if="isOperatorLinkable(op)">
-            <button
-              ref="helpItemEls"
-              class="autoselect__help-btn"
-              @click="fireOperator(op)"
-              @keydown.up.prevent="moveHelpFocus(-1)"
-              @keydown.down.prevent="moveHelpFocus(1)"
-              @keydown.enter.prevent="fireOperator(op)"
-              @keydown.escape.prevent="closeHelp"
-            >
-              <code>{{ op.trigger }}</code>
-            </button>
-          </template>
-          <code v-else>{{ op.trigger }}</code>
-          <span class="autoselect__help-desc"> — {{ op.description }}</span>
-        </li>
-      </ul>
-    </div>
+          <VIcon
+            name="close"
+            xx-small
+          />
+        </VBtn>
+        <h4>Available operators</h4>
+        <ul class="autoselect__help-list">
+          <li
+            v-for="op in sortedOperators"
+            :key="op.trigger"
+            class="autoselect__help-item"
+          >
+            <template v-if="isOperatorLinkable(op)">
+              <button
+                ref="helpItemEls"
+                class="autoselect__help-btn"
+                @click="fireOperator(op)"
+                @keydown.up.prevent="moveHelpFocus(-1)"
+                @keydown.down.prevent="moveHelpFocus(1)"
+                @keydown.enter.prevent="fireOperator(op)"
+                @keydown.escape.prevent="closeHelp"
+              ><code>{{ op.trigger }}</code></button>
+            </template>
+            <code
+              v-else
+              class="autoselect__help-trigger-muted"
+            >{{ op.trigger }}</code>
+            <span class="autoselect__help-desc"> — {{ op.description }}</span>
+          </li>
+        </ul>
+      </div>
+    </teleport>
 
     <!-- CoL confirmation modal -->
     <Teleport to="body">
@@ -196,13 +206,18 @@ import { randomUUID } from '@/helpers'
 import { useAutoselect } from '@/components/ui/AutoselectField/useAutoselect'
 import { usePreferences } from '@/components/ui/AutoselectField/usePreferences'
 import VTooltip from '@/components/ui/VTooltip/VTooltip.vue'
+import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 import ColConfirmModal from '@/components/ui/AutoselectField/ColConfirmModal.vue'
 import PreferencesModal from '@/components/ui/AutoselectField/PreferencesModal.vue'
 import CatalogueOfLifeSpinner from '@/components/ui/AutoselectField/CatalogueOfLifeSpinner.vue'
 import TaxonWorksSpinner from '@/components/ui/AutoselectField/TaxonWorksSpinner.vue'
 
 const LEVEL_SPINNERS = {
-  catalogue_of_life: CatalogueOfLifeSpinner
+  catalogue_of_life: CatalogueOfLifeSpinner,
+  // Always a CoL round-trip while searching, regardless of whether the result
+  // turns out to be an existing TW match or a creation offer once it arrives.
+  col_valid_name: CatalogueOfLifeSpinner
 }
 
 // ── Props & emits ──────────────────────────────────────────────────────────────
@@ -228,7 +243,13 @@ const props = defineProps({
   // When true, clear the field and reset to level 0 after selection instead of filling
   // the input with the selected label.  Use for "append to list" contexts where the
   // field should be ready for the next search immediately after each pick.
-  resetOnSelect: { type: Boolean, default: false }
+  resetOnSelect: { type: Boolean, default: false },
+  // Focus the input once it's actually usable. A plain HTML `autofocus` attribute
+  // (or focusing from a parent right after mount) doesn't work here: the input is
+  // `:disabled` until the initial config fetch resolves, and browsers won't focus
+  // a disabled element. This waits for that internally instead of callers having to
+  // guess when the field becomes ready.
+  autofocus: { type: Boolean, default: false }
 })
 
 const emit = defineEmits(['update:modelValue', 'select'])
@@ -275,12 +296,71 @@ let fuseTimer = null
 const pinboardNoneFlash = ref(false)
 let pinboardNoneTimer = null
 
+const helpOverlayStyle = ref({})
+
+// Narrow inputs (e.g. a table cell) would otherwise squeeze the operator list
+// into a tall, thin column.
+const HELP_OVERLAY_MIN_WIDTH = 360
+// Gap kept between a teleported overlay and the viewport's left/right edges.
+const OVERLAY_VIEWPORT_MARGIN = 8
+
+// @return {Number} widest a teleported overlay may be
+function maxOverlayWidth() {
+  // clientWidth excludes a vertical scrollbar, innerWidth doesn't
+  return document.documentElement.clientWidth - 2 * OVERLAY_VIEWPORT_MARGIN
+}
+
+// Horizontal placement for a teleported overlay under the input: aligned with
+// the input's left edge, but shifted left (and narrowed if it has to be) so it
+// never runs off the viewport - an input near the right edge would otherwise
+// leave it almost no room.
+// @param {DOMRect} rect - the input's bounding rect
+// @param {Number} width - the overlay's preferred width
+// @return {{ left: Number, width: Number }} page-absolute left, and width
+function placeInViewport(rect, width) {
+  const margin = OVERLAY_VIEWPORT_MARGIN
+  const viewportWidth = document.documentElement.clientWidth
+  const placedWidth = Math.min(width, maxOverlayWidth())
+  const left = Math.max(
+    margin,
+    Math.min(rect.left, viewportWidth - margin - placedWidth)
+  )
+
+  return { left: left + window.scrollX, width: placedWidth }
+}
+
+// Page-absolute coordinates so the teleported overlay isn't clipped by a
+// scrollable ancestor (e.g. a table wrapper with overflow-x: auto). At least
+// HELP_OVERLAY_MIN_WIDTH wide.
+function updateHelpOverlayPosition() {
+  const rect = inputEl.value?.getBoundingClientRect()
+  if (!rect) return
+
+  const { left, width } = placeInViewport(
+    rect,
+    Math.max(rect.width, HELP_OVERLAY_MIN_WIDTH)
+  )
+
+  helpOverlayStyle.value = {
+    top: `${rect.bottom + window.scrollY}px`,
+    left: `${left}px`,
+    width: `${width}px`
+  }
+}
+
 // overlays
 const showHelp = ref(false)
 const showPreferences = ref(false)
 const helpItemEls = ref([])
 const pendingExtensionItem = ref(null)
 const newRecordName = ref(null)
+// The dropdown sits above modals (so a field inside a modal works), so it
+// has to be hidden while one of this field's own modals is open.
+const modalOpen = computed(() =>
+  !!pendingExtensionItem.value?.extension?.col_key ||
+  (newRecordName.value !== null && props.newRecordComponent !== null) ||
+  showPreferences.value
+)
 let preventBlur = false
 let preInputText = '' // text in field before !p was typed
 
@@ -288,7 +368,10 @@ let preInputText = '' // text in field before !p was typed
 const allFuseSegments = computed(() =>
   (config.value?.levels ?? []).map((l) => {
     const key = String(l.key)
-    const options = currentPrefs.value.levels?.[key]?.options || {}
+    // A level may search with another level's options (see
+    // Autoselect::Level#options_level) — label it with those too.
+    const optionsKey = l.options_level ? String(l.options_level) : key
+    const options = currentPrefs.value.levels?.[optionsKey]?.options || {}
     const displayLabel = options.dataset_title
       ? `${l.label} (${options.dataset_title})`
       : l.label
@@ -298,14 +381,16 @@ const allFuseSegments = computed(() =>
       displayLabel,
       description: l.description,
       external: l.external ?? false,
-      fuse_ms: l.fuse_ms ?? 600
+      fuse_ms: l.fuse_ms ?? 600,
+      is_default: l.is_default ?? true,
+      optionsKey
     }
   })
 )
 
-// Segments visible after applying preferences (hide flag)
+// Segments visible after applying preferences (hide flag, else is_default)
 const visibleFuseSegments = computed(() =>
-  allFuseSegments.value.filter((s) => prefs.isLevelVisible(s.key))
+  allFuseSegments.value.filter((s) => prefs.isLevelVisible(s.key, s.is_default))
 )
 
 // Help operator moved to bottom; !N is a pattern placeholder (not directly invokable)
@@ -338,16 +423,55 @@ const spinnerTitle = computed(() => {
 })
 
 // ── Lifecycle ──────────────────────────────────────────────────────────────────
+function repositionTeleportedOverlays() {
+  updateDropdownPosition()
+  if (showHelp.value) updateHelpOverlayPosition()
+}
+
+// Set by focus() called before config loads, while the input is disabled.
+let focusWhenReady = false
+let unmounted = false
+
 onMounted(async () => {
   await fetchConfig()
+  // Unmounted while config loaded: onBeforeUnmount already ran, so the
+  // listener added below would never be removed.
+  if (unmounted) return
+
   currentLevel.value = getFirstVisibleLevelKey()
   ready.value = true
-  window.addEventListener('resize', updateDropdownPosition)
+  window.addEventListener('resize', repositionTeleportedOverlays)
+
+  if (props.autofocus || focusWhenReady) {
+    // ready just flipped true, but the :disabled binding hasn't repainted yet.
+    await nextTick()
+    inputEl.value?.focus()
+  }
 })
 
 onBeforeUnmount(() => {
-  window.removeEventListener('resize', updateDropdownPosition)
+  unmounted = true
+  window.removeEventListener('resize', repositionTeleportedOverlays)
   cancelPinboardNoneFlash()
+})
+
+// Another instance sharing these prefs (same preferencesKey/id) saved them.
+// Pick up the new snapshot; if the active level was just hidden, drop any
+// pending/in-flight search and move to the leftmost visible level. The term
+// isn't re-run — this field isn't the one the user is working in.
+prefs.onChange(() => {
+  currentPrefs.value = prefs.getPrefs()
+  if (!ready.value) return
+  if (visibleFuseSegments.value.some((s) => s.key === currentLevel.value)) {
+    return
+  }
+
+  if (getRequest) clearTimeout(getRequest)
+  controller.value?.abort()
+  isSearching.value = false
+  cancelFuse()
+  clearResults()
+  currentLevel.value = getFirstVisibleLevelKey()
 })
 
 // ── Level helpers ──────────────────────────────────────────────────────────────
@@ -355,14 +479,45 @@ function getFirstVisibleLevelKey() {
   return visibleFuseSegments.value[0]?.key ?? getFirstLevelKey()
 }
 
+// Finds the first `!<trigger>` in text (trigger is a regex source; it may
+// appear anywhere in the string).
+// @return {{ cleanTerm: String, operand: String } | null} cleanTerm is text
+//   without the operator, operand what trigger matched
+function matchOperator(text, trigger) {
+  const match = text.match(
+    new RegExp(`^(.*?)\\s*!(${trigger})\\s*(.*)$`, 'i')
+  )
+  if (match === null) return null
+  return {
+    cleanTerm: (match[1] + ' ' + match[3]).replace(/\s+/g, ' ').trim(),
+    operand: match[2]
+  }
+}
+
+// @return {Boolean} true when text starts with an operator the server
+//   handles (!r, !u, !b, !!)
+function isServerOperator(text) {
+  return getOperators()
+    .filter((op) => !op.client_only)
+    .some((op) => text.startsWith(op.trigger))
+}
+
 function detectLevelOperator(text) {
-  const match = text.match(/^(.*?)!(\d+)\s*(.*)$/)
-  if (!match) return null
-  const n = parseInt(match[2], 10) - 1
+  const match = matchOperator(text, '\\d+')
+  if (match === null) return null
+  const n = parseInt(match.operand, 10) - 1
   const segs = visibleFuseSegments.value
   if (n < 0 || n >= segs.length) return null
-  const cleanTerm = (match[1] + match[3]).replace(/\s+/g, ' ').trim()
-  return { levelKey: segs[n].key, cleanTerm }
+  return { levelKey: segs[n].key, cleanTerm: match.cleanTerm }
+}
+
+function jumpToLevel(levelKey, cleanTerm) {
+  currentLevel.value = levelKey
+  inputText.value = cleanTerm
+  cancelFuse()
+  if (getRequest) clearTimeout(getRequest)
+  if (cleanTerm.length === 0) clearResults()
+  else triggerSearch(cleanTerm)
 }
 
 function firstExternalLevelKey() {
@@ -380,7 +535,7 @@ function nextVisibleLevelKey(currentKey) {
 
 // ── Input handler ──────────────────────────────────────────────────────────────
 function onInput() {
-  const text = inputText.value
+  let text = inputText.value
 
   if (!text.trim()) {
     clearResults()
@@ -395,21 +550,18 @@ function onInput() {
   }
 
   // !? — help overlay (may appear anywhere in the string, like other operators)
-  const helpMatch = text.match(/^(.*?)\s*!\?\s*(.*)$/)
-  if (helpMatch !== null) {
-    inputText.value = (helpMatch[1] + ' ' + helpMatch[2])
-      .replace(/\s+/g, ' ')
-      .trim()
+  const help = matchOperator(text, '\\?')
+  if (help !== null) {
+    inputText.value = help.cleanTerm
+    updateHelpOverlayPosition()
     showHelp.value = true
     return
   }
 
   // !p — preferences modal
-  const prefMatch = text.match(/^(.*?)\s*!p\s*(.*)$/i)
-  if (prefMatch !== null) {
-    preInputText = (prefMatch[1] + ' ' + prefMatch[2])
-      .replace(/\s+/g, ' ')
-      .trim()
+  const pref = matchOperator(text, 'p')
+  if (pref !== null) {
+    preInputText = pref.cleanTerm
     inputText.value = preInputText
     cancelFuse()
     if (getRequest) clearTimeout(getRequest)
@@ -419,58 +571,37 @@ function onInput() {
   }
 
   // !i — toggle info display
-  const infoMatch = text.match(/^(.*?)\s*!i\s*(.*)$/i)
-  if (infoMatch !== null) {
-    const cleanTerm = (infoMatch[1] + ' ' + infoMatch[2])
-      .replace(/\s+/g, ' ')
-      .trim()
-    inputText.value = cleanTerm
+  const info = matchOperator(text, 'i')
+  if (info !== null) {
+    inputText.value = info.cleanTerm
     prefs.toggleShowInfo()
     currentPrefs.value = prefs.getPrefs()
     return
   }
 
   // !n — new record modal
-  const newRecordMatch = text.match(/^(.*?)\s*!n\s*(.*)$/i)
-  if (newRecordMatch !== null && props.newRecordComponent !== null) {
-    const cleanName = (newRecordMatch[1] + ' ' + newRecordMatch[2])
-      .replace(/\s+/g, ' ')
-      .trim()
-    inputText.value = cleanName
+  const newRecord = matchOperator(text, 'n')
+  if (newRecord !== null && props.newRecordComponent !== null) {
+    inputText.value = newRecord.cleanTerm
     cancelFuse()
     if (getRequest) clearTimeout(getRequest)
     clearResults()
-    newRecordName.value = cleanName
+    newRecordName.value = newRecord.cleanTerm
     return
   }
 
   // !e — jump to leftmost external level
-  const externalMatch = text.match(/^(.*?)\s*!e\s*(.*)$/i)
-  if (externalMatch !== null) {
-    const externalKey = firstExternalLevelKey()
-    if (externalKey !== null) {
-      const cleanTerm = (externalMatch[1] + ' ' + externalMatch[2])
-        .replace(/\s+/g, ' ')
-        .trim()
-      inputText.value = cleanTerm
-      currentLevel.value = externalKey
-      cancelFuse()
-      if (getRequest) clearTimeout(getRequest)
-      if (cleanTerm.length === 0) clearResults()
-      else triggerSearch(cleanTerm)
-      return
-    }
+  const external = matchOperator(text, 'e')
+  const externalKey = firstExternalLevelKey()
+  if (external !== null && externalKey !== null) {
+    jumpToLevel(externalKey, external.cleanTerm)
+    return
   }
 
   // !1, !2 … — jump to visible level
   const levelOp = detectLevelOperator(text)
   if (levelOp !== null) {
-    currentLevel.value = levelOp.levelKey
-    inputText.value = levelOp.cleanTerm
-    cancelFuse()
-    if (getRequest) clearTimeout(getRequest)
-    if (levelOp.cleanTerm.length === 0) clearResults()
-    else triggerSearch(levelOp.cleanTerm)
+    jumpToLevel(levelOp.levelKey, levelOp.cleanTerm)
     return
   }
 
@@ -480,6 +611,27 @@ function onInput() {
     if (getRequest) clearTimeout(getRequest)
     triggerSearch(text)
     return
+  }
+
+  // Any other operator-shaped bang (! and a letter or number) is a
+  // client-only operator that can't apply here (!N past the visible levels,
+  // !n without a new-record form, !e without an external level): drop it
+  // rather than send it to the server as part of the term. Server operators
+  // (!r, !u) go through as typed, and so does other text with a bang in it
+  // ("bog !wet margin"). Not until config has loaded: before that every
+  // operator would look stray.
+  if (ready.value && !isServerOperator(text)) {
+    const stray = matchOperator(text, '(?:\\d+|[a-z])(?=\\s|$)')
+    if (stray !== null) {
+      text = stray.cleanTerm
+      inputText.value = text
+      if (text.length === 0) {
+        cancelFuse()
+        if (getRequest) clearTimeout(getRequest)
+        clearResults()
+        return
+      }
+    }
   }
 
   if (fuseActive.value) cancelFuse()
@@ -500,8 +652,14 @@ function triggerSearch(term) {
   isSearching.value = true
   dropdownItems.value = []
 
-  // Merge current level's preference options and global prefs into the request params
-  const levelOptions = prefs.getLevelOptions(currentLevel.value)
+  // Merge current level's preference options (or those of the level it takes
+  // its options from) and global prefs into the request params
+  const currentSegment = allFuseSegments.value.find(
+    (s) => s.key === currentLevel.value
+  )
+  const levelOptions = prefs.getLevelOptions(
+    currentSegment?.optionsKey ?? currentLevel.value
+  )
 
   AjaxCall('get', props.url, {
     params: {
@@ -566,36 +724,42 @@ function updateDropdownPosition() {
 
     const rect = input.getBoundingClientRect()
     const viewportHeight = window.innerHeight
-    const viewportWidth = window.innerWidth
     const spaceBelow = viewportHeight - rect.bottom
     const spaceAbove = rect.top
     const showAbove = spaceBelow < 150 && spaceAbove > spaceBelow
-    const maxWidth = viewportWidth - rect.left - 32
+    const maxWidth = maxOverlayWidth()
     const maxHeight = Math.min(
       showAbove ? spaceAbove - 12 : spaceBelow - 12,
       500
     )
 
+    // Measure the content's natural width from the viewport's left edge: at
+    // its current left an absolutely positioned box only shrink-wraps to the
+    // room left of it, which near the right edge is almost none.
     dropdown.style.removeProperty('width')
     dropdown.style.minWidth = '0'
+    dropdown.style.left = '0px'
     dropdown.style.maxHeight = maxHeight + 'px'
     dropdown.style.maxWidth = maxWidth + 'px'
 
     const contentWidth = dropdown.scrollWidth
-    dropdown.style.minWidth = rect.width + 'px'
 
-    const finalWidth = Math.min(contentWidth + 20, maxWidth)
+    const { left, width } = placeInViewport(
+      rect,
+      Math.max(contentWidth + 20, rect.width)
+    )
+    // Height at the final width, since text may wrap differently there.
+    dropdown.style.width = width + 'px'
     const dropdownH = dropdown.offsetHeight || maxHeight
     const top = showAbove
       ? rect.top + window.scrollY - dropdownH - 6
       : rect.bottom + window.scrollY + 2
-    const left = rect.left + window.scrollX
 
     dropdownStyle.value = {
       top: `${Math.max(top, 0)}px`,
-      left: `${Math.max(left, 0)}px`,
-      width: finalWidth + 'px',
-      minWidth: rect.width + 'px',
+      left: `${left}px`,
+      width: width + 'px',
+      minWidth: width + 'px',
       maxWidth: maxWidth + 'px'
     }
   })
@@ -668,17 +832,18 @@ function itemClicked(idx) {
 function completeSelection(item) {
   pendingExtensionItem.value = null
 
+  // Emitted before inputText changes, so `select` also carries the text the
+  // user typed to reach this item (e.g. to flag a synonym resolution).
+  emit('update:modelValue', props.resetOnSelect ? null : item)
+  emit('select', item, inputText.value)
+
   if (props.resetOnSelect) {
-    emit('select', item)
-    emit('update:modelValue', null)
     inputText.value = ''
     currentLevel.value = getFirstVisibleLevelKey()
     clearResults()
     nextTick(() => inputEl.value?.focus())
   } else {
     inputText.value = item.label ?? ''
-    emit('update:modelValue', item)
-    emit('select', item)
   }
 }
 
@@ -717,7 +882,7 @@ function onPrefsSave(updatedPrefs) {
   currentPrefs.value = updatedPrefs
   showPreferences.value = false
   // If the current level was hidden, jump to the first still-visible level
-  if (!prefs.isLevelVisible(currentLevel.value)) {
+  if (!visibleFuseSegments.value.some((s) => s.key === currentLevel.value)) {
     currentLevel.value = getFirstVisibleLevelKey()
   }
   // Reset search state so the field re-runs with the new preferences applied
@@ -750,24 +915,6 @@ function closeHelp() {
     el.setSelectionRange(len, len)
   })
 }
-
-// Fill the field from the outside, run the search, and leave the caret at the end so the
-// text can be trimmed straight away. Used where a caller already knows a good starting term.
-// @param text [String]
-function prefill(text) {
-  inputText.value = text ?? ''
-  onInput()
-
-  nextTick(() => {
-    const el = inputEl.value
-    if (!el) return
-    el.focus()
-    const len = el.value.length
-    el.setSelectionRange(len, len)
-  })
-}
-
-defineExpose({ prefill })
 
 // Fire an operator from the help list: close overlay, inject trigger, run onInput
 function fireOperator(op) {
@@ -858,6 +1005,40 @@ function clearResults() {
   showList.value = false
   searchEnd.value = false
 }
+
+// ── Exposed ────────────────────────────────────────────────────────────────────
+
+// Fill the field from the outside, run the search, and leave the caret at the
+// end so the text can be trimmed straight away. Used where a caller already
+// knows a good starting term.
+// @param text [String]
+function prefill(text) {
+  inputText.value = text ?? ''
+  onInput()
+
+  nextTick(() => {
+    const el = inputEl.value
+    if (!el) return
+    el.focus()
+    const len = el.value.length
+    el.setSelectionRange(len, len)
+  })
+}
+
+// @return {String} current input text — the complement of prefill(), for a
+// caller that swaps this field out and wants to carry the term to its replacement.
+function getSearchText() {
+  return inputText.value
+}
+
+// Focuses the input, once config has loaded if it hasn't yet (the input is
+// disabled until then).
+function focus() {
+  if (ready.value) inputEl.value?.focus()
+  else focusWhenReady = true
+}
+
+defineExpose({ prefill, getSearchText, focus })
 </script>
 
 <style scoped>
@@ -934,11 +1115,11 @@ function clearResults() {
 
 .autoselect__fuse-tooltip-label {
   font-weight: 600;
-  color: var(--text-color, #333);
+  color: var(--text-color);
 }
 
 .autoselect__fuse-tooltip-desc {
-  color: var(--text-color-muted, #666);
+  color: var(--text-muted-color);
 }
 
 /* ── Input row ── */
@@ -1019,7 +1200,7 @@ function clearResults() {
   padding: 6px 12px;
   border-top: 1px solid var(--border-color);
   font-size: 12px;
-  color: var(--text-color-muted, #888);
+  color: var(--text-muted-color);
 }
 
 @keyframes autoselect-none-fade {
@@ -1038,34 +1219,26 @@ function clearResults() {
 
 /* ── Help overlay ── */
 .autoselect__help-overlay {
+  /* top/left/width are page-absolute pixel coordinates set via :style (see
+     updateHelpOverlayPosition) — teleported to body, so this positions
+     against the page's containing block, not a parent that might clip it. */
   position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
+  /* width from updateHelpOverlayPosition includes padding and border */
+  box-sizing: border-box;
   z-index: 999998;
-  background: var(--panel-bg-color, #fff);
-  border: 1px solid var(--border-color, #ccc);
-  padding: var(--standard-padding, 8px);
+  background: var(--panel-bg-color);
+  border: 1px solid var(--border-color);
+  padding: var(--spacing-xs);
   border-radius: 3px;
   font-size: 12px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 }
 
+/* Placement only - the button itself is a shared VBtn. */
 .autoselect__help-close {
   position: absolute;
   top: 5px;
   right: 6px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 13px;
-  line-height: 1;
-  color: var(--text-color-muted, #888);
-  padding: 0 2px;
-}
-
-.autoselect__help-close:hover {
-  color: var(--color-destroy, #c00);
 }
 
 .autoselect__help-overlay h4 {
@@ -1101,11 +1274,15 @@ function clearResults() {
 
 .autoselect__help-btn:hover,
 .autoselect__help-btn:focus {
-  border-color: var(--color-primary, #2563eb);
+  border-color: var(--color-primary);
   outline: none;
 }
 
+.autoselect__help-trigger-muted {
+  color: var(--text-muted-color);
+}
+
 .autoselect__help-desc {
-  color: var(--text-color, #333);
+  color: var(--text-color);
 }
 </style>

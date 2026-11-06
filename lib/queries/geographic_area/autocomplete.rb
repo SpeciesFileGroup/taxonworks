@@ -21,7 +21,7 @@ module Queries
         matching_alternate_value_on(:name)
       end
 
-      # @return Array
+      # @return [Array]
       def autocomplete
         #t = Time.now
         pr_id = project_id.join(',') if project_id.present?

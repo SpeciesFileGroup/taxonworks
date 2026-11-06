@@ -33,7 +33,7 @@ module Queries
       #   text to match against
       attr_accessor :text
 
-      # @param [Hash] args
+      # @param query_params [Hash]
       def initialize(query_params)
         super
         @exact = boolean_param(params, :exact)

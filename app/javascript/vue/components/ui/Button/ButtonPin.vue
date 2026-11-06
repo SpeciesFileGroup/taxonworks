@@ -60,15 +60,27 @@ watch(() => props.objectId, retrievePinnedObject, { immediate: true })
 
 onBeforeMount(() => {
   document.addEventListener('pinboard:remove', clearPin)
+  document.addEventListener('pinboard:add', setPin)
 })
 
 onBeforeUnmount(() => {
   document.removeEventListener('pinboard:remove', clearPin)
+  document.removeEventListener('pinboard:add', setPin)
 })
 
 function clearPin(event) {
-  if (pin.value?.id === event.detail.id) {
+  if (pin.value && String(pin.value.id) === String(event.detail.id)) {
     pin.value = undefined
+  }
+}
+
+function setPin({ detail }) {
+  if (
+    !pin.value &&
+    detail.type === props.type &&
+    String(detail.object_id) === String(props.objectId)
+  ) {
+    pin.value = { id: detail.id, type: detail.type }
   }
 }
 

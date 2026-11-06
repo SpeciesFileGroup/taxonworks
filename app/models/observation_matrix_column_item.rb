@@ -266,7 +266,7 @@ class ObservationMatrixColumnItem < ApplicationRecord
     return created
   end
 
-  # @params klass [String] the subclass of the Descriptor ike `Descriptor::Working` or `Descriptor::Continuous`
+  # @param klass [String] the subclass of the Descriptor ike `Descriptor::Working` or `Descriptor::Continuous`
   # @return [Array, false]
   def self.batch_create_from_tags(keyword_id, klass, observation_matrix_id)
     created = []
@@ -291,7 +291,7 @@ class ObservationMatrixColumnItem < ApplicationRecord
     return created
   end
 
-  # @params klass [String] the class name like `Otu` or `CollectionObject`
+  # @param klass [String] the class name like `Otu` or `CollectionObject`
   # @return [Array, false]
   def self.batch_create_from_pinboard(observation_matrix_id, project_id, user_id, klass)
     return false if observation_matrix_id.blank? || project_id.blank? || user_id.blank?

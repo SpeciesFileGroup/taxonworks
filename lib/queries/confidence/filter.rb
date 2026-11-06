@@ -15,19 +15,19 @@ module Queries
         confidence_object_type: [],
       ].freeze
 
-      # @return Array
+      # @return [Array]
       attr_accessor :confidence_id
 
-      # @return Array
+      # @return [Array]
       attr_accessor :confidence_level_id
 
-      # @return Array
+      # @return [Array]
       attr_accessor :confidence_object_type
 
-      # @return Array
+      # @return [Array]
       attr_accessor :confidence_object_id
 
-      # @params params [ActionController::Parameters]
+      # @param query_params [ActionController::Parameters]
       def initialize(query_params)
         super
         @confidence_id = params[:confidence_id]

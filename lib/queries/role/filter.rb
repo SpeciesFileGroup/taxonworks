@@ -18,7 +18,7 @@ module Queries
         role_type: [],
       ].freeze
 
-      # @return Array
+      # @return [Array]
       attr_accessor :role_id
 
       # @param role [Array, String]
@@ -31,7 +31,7 @@ module Queries
 
       attr_accessor :role_object_id
 
-      # @params params [ActionController::Parameters]
+      # @param query_params [ActionController::Parameters]
       def initialize(query_params)
         super
         @role_type = params[:role_type]

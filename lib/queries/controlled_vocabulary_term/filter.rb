@@ -14,7 +14,7 @@ module Queries
       # @return [Array]
       attr_accessor :controlled_vocabulary_term_id
 
-      # @params params [ActionController::Parameters]
+      # @param query_params [ActionController::Parameters]
       def initialize(query_params)
         super
 

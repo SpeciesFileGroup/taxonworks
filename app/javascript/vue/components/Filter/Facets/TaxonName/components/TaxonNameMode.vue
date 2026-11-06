@@ -54,7 +54,7 @@ const isInputEnable = computed(
 
 watch(isInputEnable, (newVal, oldVal) => {
   if (newVal && !oldVal) {
-    params.value.taxon_name_id_mode = true
+    params.value.taxon_name_id_mode = false
   }
 })
 

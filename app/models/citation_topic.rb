@@ -11,7 +11,7 @@
 #   @return [Integer]
 #     the Topic in the specific citation
 #
-# @!citation_id
+# @!attribute citation_id
 #   @return [Integer]
 #     The citation (links subject to source)
 #

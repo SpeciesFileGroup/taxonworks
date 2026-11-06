@@ -104,7 +104,7 @@ class NomenclaturalRank
     ans
   end
 
-  # @param ranks Array
+  # @param rank_classes [Array]
   #   of  rank classes as string ( [ "NomenclaturalRank::Iczn::HigherClassificationGroup::Infraclass", ...] )
   def self.order_ranks(rank_classes)
     rank_classes.sort{|a,b| RANKS.index(a) <=> RANKS.index(b)}
@@ -112,7 +112,7 @@ class NomenclaturalRank
 
   # @param: expand
   #   true - include all columns discovered
-  # @params ranks Array
+  # @param ranks Array
   #   always include these ranks, regardless of whether they are present in the scope
   def self.rank_expansion_sql(ranks: [], expand: false, scope: nil, nomenclatural_code: nil, gender: true)
 

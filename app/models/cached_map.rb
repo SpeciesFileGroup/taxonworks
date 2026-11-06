@@ -8,10 +8,10 @@ class CachedMap < ApplicationRecord
   include Housekeeping::Timestamps
   include Shared::IsData
 
-  # @param GeoJSON in string form
+  # @param value [String] GeoJSON in string form
   attr_writer :geo_json_string
 
-  # @return Boolean, nil
+  # @return [Boolean, nil]
   attr_accessor :force_rebuild
 
   before_validation :rebuild, if: :force_rebuild, on: [ :update ]

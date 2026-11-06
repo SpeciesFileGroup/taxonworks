@@ -18,7 +18,7 @@ module Queries
         otu_scope: [],
       ].freeze
 
-      # @return Array
+      # @return [Array]
       attr_accessor :conveyance_id
 
       # @param name [String, nil]
@@ -26,23 +26,23 @@ module Queries
       attr_accessor :name
 
       # @return [Array]
-      # @params conveyance_object_type array or string
+      # @param conveyance_object_type [String, Array]
       attr_accessor :conveyance_object_type
 
       # @return [Array]
-      # @params conveyance_object_id array or string (integer)
+      # @param conveyance_object_id [Integer, Array]
       attr_accessor :conveyance_object_id
 
       # @return [Array]
-      # @params sound_id array or string (integer)
+      # @param sound_id [Integer, Array]
       attr_accessor :sound_id
 
       # @return [Array]
-      # @params otu_id array or string (integer)
+      # @param otu_id [Integer, Array]
       attr_accessor :otu_id
 
       # @return [Array]
-      # @params otu_scope array
+      # @param otu_scope [String, Array]
       attr_accessor :otu_scope
 
       def initialize(query_params)

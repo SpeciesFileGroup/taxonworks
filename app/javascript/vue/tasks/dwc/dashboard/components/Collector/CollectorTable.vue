@@ -17,7 +17,7 @@
           :key="id"
         >
           <td>
-            <a :href="peopleLink(id)">{{ collector }}</a>
+            <a :href="agentLink(id)">{{ collector }}</a>
           </td>
         </tr>
       </tbody>
@@ -47,5 +47,8 @@ onBeforeMount(async () => {
   collectors.value = (await DwcOcurrence.collectorMetadata()).body
 })
 
-const peopleLink = (id) => `/people/${id}`
+const agentLink = (key) => {
+  const [type, id] = key.split('_')
+  return `/${type === 'organization' ? 'organizations' : 'people'}/${id}`
+}
 </script>

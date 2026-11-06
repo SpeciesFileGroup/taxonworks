@@ -1,0 +1,33 @@
+.tablesorter {
+  > thead th {
+    position: relative;
+    user-select: none;
+
+    &[aria-sort]::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      right: 4px;
+      width: 4px;
+      height: 4px;
+      border-right: 1.5px solid currentColor;
+      border-bottom: 1.5px solid currentColor;
+    }
+
+    &[aria-sort='ascending']::after {
+      transform: translateY(-75%) rotate(45deg);
+    }
+
+    &[aria-sort='descending']::after {
+      transform: translateY(-25%) rotate(-135deg);
+    }
+  }
+}
+
+:where(.tablesorter:has(> thead) > tbody > tr:nth-child(odd)) {
+  background: var(--table-row-bg-even);
+}
+
+:where(.tablesorter:has(> thead) > tbody > tr:nth-child(even)) {
+  background: var(--table-row-bg-odd);
+}

@@ -20,7 +20,7 @@
           <td><%= lead.is_virtual %></td>
           <td><%= lead.is_public %></td>
           <%= content_tag(:td, lead[:key_updated_by]) +
-              content_tag(:td, time_ago_in_words(lead[:key_updated_at])) +
+              content_tag(:td, time_ago_in_words(lead[:key_updated_at]), data: { sort_value: lead[:key_updated_at].to_i }) +
               fancy_options_cells_tag(lead) -%>
       <% end %>
   <% end %>

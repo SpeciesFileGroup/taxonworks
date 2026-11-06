@@ -4,6 +4,7 @@ TW.workbench.pinboard = TW.workbench.pinboard || {}
 
 Object.assign(TW.workbench.pinboard, {
   storage: undefined,
+  channel: undefined,
 
   init() {
     this.storage = TW.workbench.storage.newStorage()
@@ -24,6 +25,7 @@ Object.assign(TW.workbench.pinboard, {
         class="slide-panel-category-item"
         data-insert="false"
         data-pinboard-object-id="${pinObject.pinned_object_id}"
+        data-pinboard-object-type="${pinObject.pinned_object_type}"
         data-pinboard-item-id="${pinObject.id}"
         data-pin-item="${pinObject.id}"
         id="order_${pinObject.id}">
@@ -60,7 +62,7 @@ Object.assign(TW.workbench.pinboard, {
             </a>
           </div>
         </div>
-      </li>'
+      </li>
       `.trim()
 
     return template.content.firstChild
@@ -151,17 +153,14 @@ Object.assign(TW.workbench.pinboard, {
           throw response
         })
         .then(() => {
-          const element = document.querySelector(
-            `[data-pinboard-section="${section}"]`
-          )
-
-          if (element) {
-            element.parentElement.remove()
+          if (this.applyClear(section)) {
             TW.workbench.alert.create(
               'Pinboard Items were successfully destroyed',
               'notice'
             )
           }
+
+          this.broadcast('clear', { section })
         })
         .catch(() => {})
     }
@@ -202,8 +201,42 @@ Object.assign(TW.workbench.pinboard, {
       })
   },
 
+  applyClear(section) {
+    const element = document.querySelector(
+      `[data-pinboard-section="${section}"]`
+    )
+
+    if (!element) return false
+
+    element.querySelectorAll('[data-pinboard-item-id]').forEach((item) => {
+      this.updateLegacyPinButtons({
+        pinned_object_id: item.dataset.pinboardObjectId,
+        pinned_object_type: item.dataset.pinboardObjectType
+      })
+      this.eventPinboardRemove(item.dataset.pinboardItemId)
+    })
+    element.parentElement.remove()
+
+    return true
+  },
+
   removeItem(id) {
-    const element = document.querySelector(`[data-pinboard-item-id="${id}"]`)
+    this.applyRemove(id)
+    this.broadcast('remove', { id })
+  },
+
+  applyRemove(id) {
+    const element = document.querySelector(
+      `#pinboard [data-pinboard-item-id="${id}"]`
+    )
+
+    if (!element) return
+
+    this.updateLegacyPinButtons({
+      pinned_object_id: element.dataset.pinboardObjectId,
+      pinned_object_type: element.dataset.pinboardObjectType
+    })
+
     const section = element.parentNode
 
     if (section.querySelectorAll('li').length > 1) {
@@ -216,6 +249,20 @@ Object.assign(TW.workbench.pinboard, {
   },
 
   addToPinboard(object) {
+    this.applyAdd(object)
+    this.broadcast('add', object)
+  },
+
+  applyAdd(object) {
+    const pinboardElement = document.querySelector('#pinboard')
+
+    if (
+      !pinboardElement ||
+      pinboardElement.querySelector(`[data-pinboard-item-id="${object.id}"]`)
+    ) {
+      return
+    }
+
     const insertedItem = this.getInsertedPin(object)
     const pinboardItemElement = this.createPinboardItem(object)
     let sectionElement = document.querySelector(
@@ -235,16 +282,120 @@ Object.assign(TW.workbench.pinboard, {
     if (!sectionElement) {
       sectionElement = this.createCategory(object.pinned_object_section)
       sectionElement.querySelector('ul').append(pinboardItemElement)
-      document.querySelector('#pinboard').append(sectionElement)
+      pinboardElement.append(sectionElement)
     } else {
       sectionElement.append(pinboardItemElement)
     }
     this.changeLink(pinboardItemElement, object.is_inserted)
     this.setDefaultClass()
+    this.updateLegacyPinButtons({
+      pinned_object_id: object.pinned_object_id,
+      pinned_object_type: object.pinned_object_type,
+      pinboard_item_id: object.id
+    })
     this.eventPinboardAdd(object)
 
     if (object.is_inserted) {
       this.eventPinboardInsert(object)
+    }
+  },
+
+  applyInsert(payload) {
+    const element = document.querySelector(
+      `#pinboard [data-pinboard-item-id="${payload.id}"]`
+    )
+
+    if (!element) return
+
+    if (payload.is_inserted) {
+      const currentDefault = element.parentNode.querySelector(
+        '[data-insert="true"]'
+      )
+
+      if (currentDefault && currentDefault !== element) {
+        this.changeLink(currentDefault, false)
+      }
+    }
+
+    this.changeLink(element, payload.is_inserted)
+    this.setDefaultClass()
+
+    document.dispatchEvent(
+      new CustomEvent('pinboard:insert', { detail: payload })
+    )
+  },
+
+  updateLegacyPinButtons({
+    pinned_object_id,
+    pinned_object_type,
+    pinboard_item_id
+  }) {
+    if (!pinned_object_id || !pinned_object_type) return
+
+    document
+      .querySelectorAll(
+        `[data-pin-button-item-id="${pinned_object_id}"][data-pin-button-item-type="${pinned_object_type}"]`
+      )
+      .forEach((button) => {
+        if (pinboard_item_id) {
+          button.className = 'unpin-button'
+          button.setAttribute('href', `/pinboard_items/${pinboard_item_id}`)
+          button.setAttribute('data-method', 'delete')
+          button.setAttribute('data-tooltip-content', 'Unpin from Pinboard')
+        } else {
+          const params = new URLSearchParams({
+            'pinboard_item[pinned_object_id]': pinned_object_id,
+            'pinboard_item[pinned_object_type]': pinned_object_type,
+            'pinboard_item[is_inserted]': true
+          })
+
+          button.className = 'navigation-item pin-button'
+          button.setAttribute('href', `/pinboard_items?${params}`)
+          button.setAttribute('data-method', 'post')
+          button.setAttribute('data-tooltip-content', 'Pin to Pinboard')
+        }
+      })
+  },
+
+  getProjectId() {
+    return document.querySelector('#pinboard')?.dataset.projectId
+  },
+
+  getChannel() {
+    if (!this.channel && window.BroadcastChannel) {
+      this.channel = new BroadcastChannel('tw_pinboard')
+      this.channel.addEventListener('message', ({ data }) =>
+        this.handleMessage(data)
+      )
+    }
+
+    return this.channel
+  },
+
+  broadcast(action, payload) {
+    const projectId = this.getProjectId()
+
+    if (projectId) {
+      this.getChannel()?.postMessage({ action, projectId, payload })
+    }
+  },
+
+  handleMessage({ action, projectId, payload }) {
+    if (!projectId || projectId !== this.getProjectId()) return
+
+    switch (action) {
+      case 'add':
+        this.applyAdd(payload)
+        break
+      case 'remove':
+        this.applyRemove(payload.id)
+        break
+      case 'insert':
+        this.applyInsert(payload)
+        break
+      case 'clear':
+        this.applyClear(payload.section)
+        break
     }
   },
 
@@ -331,5 +482,6 @@ document.addEventListener('turbolinks:load', () => {
   if (document.querySelectorAll('[data-panel-name="pinboard"]').length) {
     TW.workbench.pinboard.removeEvents()
     TW.workbench.pinboard.init()
+    TW.workbench.pinboard.getChannel()
   }
 })

@@ -44,7 +44,7 @@ module Shared::Maps
     end
 
     # TODO: deprecate for total rebuild approach (likely)
-    # @return Array
+    # @return [Array]
     #   of CachedMapItem
     def cached_map_items_to_clean
       maps = []
@@ -86,7 +86,7 @@ module Shared::Maps
       delay(queue: 'cached_map').clear_cached_maps
     end
 
-    # @return CachedMap scope
+    # @return [CachedMap] scope
     def cached_maps_to_clear
       s = 'WITH otu_clear_maps AS (' + touched_cached_maps.to_sql + ') ' +
         ::CachedMap

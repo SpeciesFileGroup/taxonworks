@@ -179,9 +179,7 @@ module Utilities::Dates
     b.sort{|a,b| a <=> b}.to_h
   end
 
-  # @param [String]
-  # @param [Integer]
-  # @param [Symbol]
+  # @param month_value [String, Integer, Symbol]
   # @return [Integer]
   #    return the month index
   def self.month_index(month_value)
@@ -200,7 +198,7 @@ module Utilities::Dates
     "#{'%4d' % date.year}-#{'%02d' % date.month}-#{'%02d' % date.day}" unless date.nil?
   end
 
-  # @return String
+  # @return [String]
   #   A date string unambiguosly formatted in yyyy/mm/dd.  Always includes all parts indicating
   #   not available parts with '?'
   def self.from_parts(y, m, d)
@@ -211,10 +209,10 @@ module Utilities::Dates
     ].join('/')
   end
 
-  # @params [year: integer]
-  # @params [month: integer, nil]
-  # @params [day: integer, nil]
-  # @return[Time] a UTC time (Uses Time instead of Date so that it can be saved as a UTC object -
+  # @param year [Integer]
+  # @param month [Integer, nil]
+  # @param day [Integer, nil]
+  # @return [Time] a UTC time (Uses Time instead of Date so that it can be saved as a UTC object -
   #   See http://www.ruby-doc.org/core-2.0.0/Time.html)
   #   Returns nomenclature_date based on computation of the values of :year, :month, :day.
   #    if :year is empty, return nil
@@ -487,7 +485,7 @@ module Utilities::Dates
     return start_date, end_date
   end
 
-  # @param [Array] of 0-2 dates
+  # @param date_range [Array] of 0-2 dates
   # @return [String, nil]
   #   a sentence spelling out the date range
   def self.date_range_sentence_tag(date_range)

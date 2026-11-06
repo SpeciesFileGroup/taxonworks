@@ -8,7 +8,7 @@ module Queries
 
     # @param [Integer] collecting_event_id
     # @param [Integer] project_id
-    # @param [Array] filters, array of symbolized filter names
+    # @param [Array] filters array of symbolized filter names
     # @return [Integer] project id
     def initialize(collecting_event_id: nil, project_id: nil, filters: [])
 
@@ -72,7 +72,7 @@ module Queries
       start_id.gt(Arel::Nodes::Quoted.new(collecting_event_id))
     end
 
-    # @param [String] filter, key to FILTERS regex string
+    # @param [String] filter key to FILTERS regex string
     # @return [Scope]
     def regex_function(filter)
       regex = Utilities::Dates::REGEXP_DATES[filter][:reg].to_s.gsub('(?i-mx:', '').chomp(')')

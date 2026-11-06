@@ -124,13 +124,6 @@ Object.assign(TW.views.shared.list, {
 
     initContextMenus()
     headerTableOptions()
-    orderLists()
-
-    function orderLists() {
-      $('table').tablesorter({
-        widgets: ['zebra']
-      })
-    }
 
     function initContextMenus() {
       $.contextMenu('destroy', '.contextMenuCells')

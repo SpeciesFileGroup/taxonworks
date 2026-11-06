@@ -27,6 +27,7 @@ import 'leaflet.markercluster/dist/MarkerCluster.Default.css'
 
 import '../vanilla/initializers/copyTable.js'
 import '../vanilla/initializers/stickyNavbar.js'
+import '../vanilla/initializers/tableSort.js'
 import '../vanilla/initializers/tooltip.js'
 import '../vanilla/views/navbar/header.js'
 import '../vanilla/views/news/systemHeaderBar.js'

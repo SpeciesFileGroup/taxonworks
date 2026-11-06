@@ -7,9 +7,9 @@ module PinboardItemsHelper
 
   def pin_item_to_pinboard_link(object, user)
     if !object.pinned?(user, sessions_current_project_id)
-      link_to('',  pinboard_items_path(pinboard_item: { pinned_object_id: object.id, pinned_object_type: object.metamorphosize.class.name, is_inserted: true }), data: { "pin-button-item-id": object.id, "tooltip-content": 'Pin to Pinboard', "tooltip-placement": 'bottom' }, class: 'navigation-item pin-button', remote: true, method: :post)
+      link_to('',  pinboard_items_path(pinboard_item: { pinned_object_id: object.id, pinned_object_type: object.metamorphosize.class.name, is_inserted: true }), data: { "pin-button-item-id": object.id, "pin-button-item-type": object.metamorphosize.class.name, "tooltip-content": 'Pin to Pinboard', "tooltip-placement": 'bottom' }, class: 'navigation-item pin-button', remote: true, method: :post)
     else
-      link_to('', pinboard_item_path(get_pinboard_item_from_object(object, user)), class: 'unpin-button', data: { "pin-button-item-id": object.id, "tooltip-content": 'Unpin from Pinboard', "tooltip-placement": 'bottom' }, method: :delete, remote: true)
+      link_to('', pinboard_item_path(get_pinboard_item_from_object(object, user)), class: 'unpin-button', data: { "pin-button-item-id": object.id, "pin-button-item-type": object.metamorphosize.class.name, "tooltip-content": 'Unpin from Pinboard', "tooltip-placement": 'bottom' }, method: :delete, remote: true)
     end
   end
 
@@ -46,7 +46,7 @@ module PinboardItemsHelper
   end
 
   def pinboard_item_li_tag(pinboard_item)
-    content_tag(:li, class: 'slide-panel-category-item', id: "order_#{pinboard_item.id}", data: { pinboard_object_id: pinboard_item.pinned_object.id, pinboard_item_id: pinboard_item.id, insert: pinboard_item.is_inserted }) do
+    content_tag(:li, class: 'slide-panel-category-item', id: "order_#{pinboard_item.id}", data: { pinboard_object_id: pinboard_item.pinned_object.id, pinboard_object_type: pinboard_item.pinned_object_type, pinboard_item_id: pinboard_item.id, insert: pinboard_item.is_inserted }) do
       content_tag(:div, class: [:handle, 'flex-separate', :middle]) do
         content_tag(:div, object_home_link(pinboard_item.pinned_object), class: 'flex-col') + pinboard_item_options(pinboard_item)
       end

@@ -238,6 +238,7 @@ class CollectingEvent < ApplicationRecord
   has_many :collection_objects, inverse_of: :collecting_event, dependent: :restrict_with_error
 
   has_many :collector_roles, class_name: 'Collector', as: :role_object, dependent: :destroy, inverse_of: :role_object
+  has_many :collectors_organization, -> { order('roles.position ASC') }, through: :collector_roles, source: :organization, inverse_of: :collecting_events
   has_many :collectors, -> { order('roles.position ASC') }, through: :collector_roles, source: :person, inverse_of: :collecting_events
 
   has_many :field_occurrences, inverse_of: :collecting_event, dependent: :restrict_with_error
@@ -347,7 +348,7 @@ class CollectingEvent < ApplicationRecord
     ::Queries.union(DwcOccurrence, [a,b])
   end
 
-  # @param [String]
+  # @param value [String]
   def verbatim_label=(value)
     write_attribute(:verbatim_label, value)
     write_attribute(:md5_of_verbatim_label, Utilities::Strings.generate_md5(value))
@@ -525,7 +526,7 @@ class CollectingEvent < ApplicationRecord
   end
 
   def has_collectors?
-    verbatim_collectors.present? || collectors.any?
+    verbatim_collectors.present? || collector_roles.any?
   end
 
   # @return [Boolean]
@@ -746,7 +747,9 @@ class CollectingEvent < ApplicationRecord
   end
 
   # DEPRECATED for shared code
-  # @param [String, String, Integer]
+  # @param compared_string [String]
+  # @param column [String]
+  # @param limit [Integer]
   # @return [Scope]
   def nearest_by_levenshtein(compared_string = nil, column = 'verbatim_locality', limit = 10)
     return CollectingEvent.none if compared_string.nil?
@@ -758,7 +761,7 @@ class CollectingEvent < ApplicationRecord
       limit(limit)
   end
 
-  # @param [String]
+  # @param types [String]
   #   one or more names from GeographicAreaType
   # @return [Hash]
   #    (
@@ -828,7 +831,7 @@ class CollectingEvent < ApplicationRecord
     @geographic_names ||= {}
   end
 
-  # @return Hash
+  # @return [Hash]
   #  a geographic_name_classification.
   # This (normally) prioritizes Georeferences over GeographicArea!
   def get_geographic_name_classification
@@ -892,7 +895,7 @@ class CollectingEvent < ApplicationRecord
     name_hash(GeographicAreaType::COUNTY_LEVEL_TYPES)
   end
 
-  # @param [Hash]
+  # @param name_hash [Hash]
   # @return [String]
   def name_from_geopolitical_hash(name_hash)
     return nil if name_hash.keys.count == 0
@@ -960,7 +963,7 @@ class CollectingEvent < ApplicationRecord
     base
   end
 
-  # @param [Float] delta_z, will be used to fill in the z coordinate of the point
+  # @param [Float] delta_z will be used to fill in the z coordinate of the point
   # @return [RGeo::Geographic::ProjectedPointImpl, nil]
   #   for the *verbatim* latitude/longitude only
   def verbatim_map_center(delta_z = 0.0)
@@ -1037,7 +1040,7 @@ class CollectingEvent < ApplicationRecord
         end
 
         roles.each do |r|
-          a.collector_roles.build(person: r.person, position: r.position)
+          a.collector_roles.build(person: r.person, organization: r.organization, position: r.position)
         end
 
         if georeferences.load.any?
@@ -1080,7 +1083,11 @@ class CollectingEvent < ApplicationRecord
   #   TODO: include initials when we find out a clean way of producing them
   # yes, it's a Helper
   def collector_names
-    [Utilities::Strings.authorship_sentence(collectors.collect{|a| a.last_name}), verbatim_collectors].compact.first
+    names = collector_roles.sort_by { |role| role.position || Float::INFINITY }.map do |role|
+      collector = role.agent
+      collector.is_a?(Person) ? collector.last_name : collector.name
+    end
+    [Utilities::Strings.authorship_sentence(names), verbatim_collectors].compact.first
   end
 
   # @return [Scalar (Int, Float, etc), nil]
@@ -1110,7 +1117,7 @@ class CollectingEvent < ApplicationRecord
       )
 
       request.cap = 5000
-      request.cap_reason = 'Max 5000 updated at a time.'
+      request.cap_reason = 'Max 5000 updated at a time.' if request.total_attempted > request.cap
       query_batch_update(request)
     end
   end

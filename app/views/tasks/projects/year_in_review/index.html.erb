@@ -356,14 +356,14 @@ function renderSummaryTable(data) {
 
   let html = '<table id="year-in-review-summary-table" class="tablesorter">';
   html += '<thead><tr>';
-  html += '<th>Table</th>';
-  html += '<th>Created</th>';
-  html += '<th>Updated (delta)</th>';
-  html += '<th>All Time</th>';
-  html += '<th>% New</th>';
-  html += '<th>Unique Creators</th>';
-  html += '<th>Unique Updaters</th>';
-  html += '<th>Avg Update (days)</th>';
+  html += '<th tabindex="0">Table</th>';
+  html += '<th tabindex="0">Created</th>';
+  html += '<th tabindex="0">Updated (delta)</th>';
+  html += '<th tabindex="0">All Time</th>';
+  html += '<th tabindex="0">% New</th>';
+  html += '<th tabindex="0">Unique Creators</th>';
+  html += '<th tabindex="0">Unique Updaters</th>';
+  html += '<th tabindex="0">Avg Update (days)</th>';
   html += '</tr></thead>';
   html += '<tbody>';
 
@@ -382,16 +382,5 @@ function renderSummaryTable(data) {
 
   html += '</tbody></table>';
   container.innerHTML = html;
-
-  // Initialize tablesorter on the new table
-  if (typeof jQuery !== 'undefined' && jQuery.fn.tablesorter) {
-    jQuery('#year-in-review-summary-table').tablesorter({
-      widgets: ['zebra'],
-      textExtraction: function(node) {
-        const sortValue = node.getAttribute('data-sort-value');
-        return sortValue !== null ? sortValue : node.textContent;
-      }
-    });
-  }
 }
 </script>

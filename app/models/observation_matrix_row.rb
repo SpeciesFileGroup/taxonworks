@@ -86,7 +86,7 @@ class ObservationMatrixRow < ApplicationRecord
     description: 'Observation matrix row cannot be separated from other rows in the matrix' )
 
   # @param array [Array]
-  # @return true
+  # @return [true]
   #   incrementally sort the supplied ids
   def self.sort(array)
     array.each_with_index do |id, index|

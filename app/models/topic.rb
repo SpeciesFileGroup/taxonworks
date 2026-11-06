@@ -62,10 +62,9 @@ class Topic < ControlledVocabularyTerm
     end
   end
 
-  # @params klass [String] if target is `Citation` then if provided limits to those classes with citations,
-  # if `Content` then not used
-  # @params target [String] one of `Citation` or `Content`
-  # @params klass [String] like TaxonName, required if target == `Citation`
+  # @param klass [String] like TaxonName, required if target is `Citation`,
+  #   limits to those classes with citations; if `Content` then not used
+  # @param target [String] one of `Citation` or `Content`
   # @return [Hash] topics optimized for user selection
   def self.select_optimized(user_id, project_id, klass, target = 'Citation')
     r = used_recently(user_id, project_id, klass, target)

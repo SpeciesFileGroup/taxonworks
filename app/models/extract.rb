@@ -77,7 +77,7 @@ class Extract < ApplicationRecord
   validates :month_made, date_month: true
   validates :day_made, date_day: {year_sym: :year_made, month_sym: :month_made}, unless: -> {year_made.nil? || month_made.nil?}
 
-  # @return Array
+  # @return [Array]
   #   all inferred or asserted OTUs that this OTU came from
   def referenced_otus
     [
@@ -172,7 +172,7 @@ class Extract < ApplicationRecord
     CollectionObject.joins(j).pluck(:id).uniq
   end
 
-  # @params target [String] one of `TaxonDetermination`, `BiologicalAssociation` , nil
+  # @param target [String] one of `TaxonDetermination`, `BiologicalAssociation` , nil
   # @return [Hash] otus optimized for user selection
   def self.select_optimized(user_id, project_id, target = nil)
     r = used_recently(user_id, project_id, target)

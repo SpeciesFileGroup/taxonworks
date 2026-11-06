@@ -20,7 +20,7 @@
           <td><%= download.type %></td>
           <td><%= download.name.html_safe %></td>
           <td><%= download.description %></td>
-          <td>in <%= distance_of_time_in_words Time.now - download.expires %></td>
+          <td data-sort-value="<%= download.expires.to_i %>"><%= download_expires_tag(download) %></td>
           <td><%= download.is_public %></td>
           <td><%= download.times_downloaded %></td>
           <%= fancy_metadata_cells_tag(download.metamorphosize) -%>
