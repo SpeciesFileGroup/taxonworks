@@ -1,0 +1,264 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://api.crossref.org/works?query=Watson,%20J.%20D.%20%26%20Crick,%20F.%20H.%20C.%20(1953).%20Molecular%20Structure%20of%20Nucleic%20Acids:%20A%20Structure%20for%20Deoxyribose%20Nucleic%20Acid.%20Nature%20171,%20737-738.&rows=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Faraday/v2.15.1 Serrano/v1.7
+      X-User-Agent:
+      - Faraday/v2.15.1 Serrano/v1.7
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Sat, 07 Nov 2026 02:46:18 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '4666'
+      Connection:
+      - keep-alive
+      Access-Control-Expose-Headers:
+      - Link
+      Access-Control-Allow-Headers:
+      - X-Requested-With, Accept, Accept-Encoding, Accept-Charset, Accept-Language,
+        Accept-Ranges, Cache-Control
+      Access-Control-Allow-Origin:
+      - "*"
+      Vary:
+      - Accept-Encoding
+      Server:
+      - Jetty(9.4.40.v20210413)
+      X-Rate-Limit-Limit:
+      - '1'
+      X-Rate-Limit-Interval:
+      - 1s
+      X-Concurrency-Limit:
+      - '1'
+      X-Api-Pool:
+      - public-array
+      Permissions-Policy:
+      - interest-cohort=()
+      Strict-Transport-Security:
+      - max-age=31536000;
+    body:
+      encoding: ASCII-8BIT
+      string: '{"status":"ok","message-type":"work-list","message-version":"1.0.0","message":{"facets":{},"total-results":351356,"items":[{"indexed":{"date-parts":[[2026,11,6]],"date-time":"2026-11-06T21:51:55Z","timestamp":1794001915098,"version":"4.8.0"},"reference-count":6,"publisher":"Springer
+        Science and Business Media LLC","issue":"4356","license":[{"start":{"date-parts":[[1953,4,25]],"date-time":"1953-04-25T00:00:00Z","timestamp":-526608000000},"content-version":"tdm","delay-in-days":0,"URL":"https:\/\/www.springer.com\/tdm"},{"start":{"date-parts":[[1953,4,25]],"date-time":"1953-04-25T00:00:00Z","timestamp":-526608000000},"content-version":"vor","delay-in-days":0,"URL":"https:\/\/www.springer.com\/tdm"}],"content-domain":{"domain":["link.springer.com"],"crossmark-restriction":false},"short-container-title":["Nature"],"published-print":{"date-parts":[[1953,4,25]]},"DOI":"10.1038\/171737a0","type":"journal-article","created":{"date-parts":[[2006,5,30]],"date-time":"2006-05-30T09:30:37Z","timestamp":1148981437000},"page":"737-738","update-policy":"https:\/\/doi.org\/10.1007\/springer_crossmark_policy","source":"Crossref","is-referenced-by-count":11383,"title":["Molecular
+        Structure of Nucleic Acids: A Structure for Deoxyribose Nucleic Acid"],"prefix":"10.1038","volume":"171","author":[{"given":"J.
+        D.","family":"WATSON","sequence":"first","affiliation":[],"role":[{"vocabulary":"crossref","role":"author"}]},{"given":"F.
+        H. C.","family":"CRICK","sequence":"additional","affiliation":[],"role":[{"vocabulary":"crossref","role":"author"}]}],"member":"297","published-online":{"date-parts":[[1953,4,25]]},"reference":[{"key":"BF171737a0_CR1","doi-asserted-by":"publisher","first-page":"346","DOI":"10.1038\/171346a0","volume":"171","author":"L
+        Pauling","year":"1953","unstructured":"Pauling, L., and Corey, R. B., Nature,
+        171, 346 (1953); Proc. U.S. Nat. Acad. Sci., 39, 84 (1953).","journal-title":"Nature"},{"key":"BF171737a0_CR2","doi-asserted-by":"publisher","first-page":"634","DOI":"10.3891\/acta.chem.scand.06-0634","volume":"6","author":"S
+        Furberg","year":"1952","unstructured":"Furberg, S., Acta Chem. Scand., 6,
+        634 (1952).","journal-title":"Acta Chem. Scand."},{"key":"BF171737a0_CR3","doi-asserted-by":"publisher","first-page":"402","DOI":"10.1016\/0006-3002(52)90184-4","volume":"9","author":"E
+        Chargaff","year":"1952","unstructured":"Chargaff, E., for references see Zamenhof,
+        S., Brawerman, G., and Chargaff, E., Biochim. et Biophys. Acta, 9, 402 (1952).","journal-title":"Biochim.
+        et Biophys. Acta"},{"key":"BF171737a0_CR4","doi-asserted-by":"publisher","first-page":"201","DOI":"10.1085\/jgp.36.2.201","volume":"36","author":"GR
+        Wyatt","year":"1952","unstructured":"Wyatt, G. R., J. Gen. Physiol., 36, 201
+        (1952).","journal-title":"J. Gen. Physiol."},{"key":"BF171737a0_CR5","unstructured":"Astbury,
+        W. T., Symp. Soc. Exp. Boil. 1, Nucleic Acid, 66 (Camb. Univ. Press, 1947)."},{"key":"BF171737a0_CR6","doi-asserted-by":"publisher","first-page":"192","DOI":"10.1016\/0006-3002(53)90232-7","volume":"10","author":"MHF
+        Wilkins","year":"1953","unstructured":"Wilkins, M. H. F., and Randall, J.
+        T., Biochim. et Biophys. Acta, 10, 192 (1953).","journal-title":"Biochim.
+        et Biophys. Acta"}],"container-title":["Nature"],"language":"en","link":[{"URL":"https:\/\/www.nature.com\/articles\/171737a0","content-type":"text\/html","content-version":"vor","intended-application":"text-mining"},{"URL":"https:\/\/www.nature.com\/articles\/171737a0.pdf","content-type":"application\/pdf","content-version":"vor","intended-application":"text-mining"},{"URL":"https:\/\/www.nature.com\/articles\/171737a0.pdf","content-type":"application\/pdf","content-version":"vor","intended-application":"similarity-checking"}],"deposited":{"date-parts":[[2021,10,12]],"date-time":"2021-10-12T19:03:35Z","timestamp":1634065415000},"score":120.51586,"resource":{"primary":{"URL":"https:\/\/www.nature.com\/articles\/171737a0"}},"issued":{"date-parts":[[1953,4,25]]},"references-count":6,"journal-issue":{"issue":"4356","published-print":{"date-parts":[[1953,4,25]]}},"alternative-id":["BF171737a0"],"URL":"https:\/\/doi.org\/10.1038\/171737a0","ISSN":["0028-0836","1476-4687"],"issn-type":[{"value":"0028-0836","type":"print"},{"value":"1476-4687","type":"electronic"}],"published":{"date-parts":[[1953,4,25]]},"assertion":[{"value":"25
+        April 1953","order":1,"name":"first_online","label":"First Online","group":{"name":"ArticleHistory","label":"Article
+        History"}}]}],"items-per-page":1,"query":{"start-index":0,"search-terms":"Watson,
+        J. D. & Crick, F. H. C. (1953). Molecular Structure of Nucleic Acids: A Structure
+        for Deoxyribose Nucleic Acid. Nature 171, 737-738."}}}'
+  recorded_at: Sat, 07 Nov 2026 02:46:18 GMT
+- request:
+    method: get
+    uri: https://doi.org/10.1038%2F171737a0
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Faraday/v2.15.1 Serrano/v1.7
+      Accept:
+      - application/x-bibtex
+      X-User-Agent:
+      - Faraday/v2.15.1 Serrano/v1.7
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 302
+      message: Found
+    headers:
+      Date:
+      - Sat, 07 Nov 2026 02:46:19 GMT
+      Content-Type:
+      - text/html;charset=utf-8
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Location:
+      - https://api.crossref.org/v1/works/10.1038%2F171737a0/transform
+      Server:
+      - cloudflare
+      Vary:
+      - Accept
+      - Origin
+      Expires:
+      - Sat, 07 Nov 2026 03:02:09 GMT
+      Permissions-Policy:
+      - interest-cohort=(),browsing-topics=()
+      Cf-Cache-Status:
+      - DYNAMIC
+      Nel:
+      - '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}'
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Report-To:
+      - '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=MxDVmainc%2FxgLT9A69852cmE57GWj51mcvTR6p5xSCf36%2B%2FDRXlAx0zePUFzWBBwWJLnSXSM5h2g7G2Avak8n1%2FH0m6V4Nr0e%2Fhz2Jt7%2BRyNbJXRorc3Eb5RAJjK6H3nyOXULtw%3D"}]}'
+      Cf-Ray:
+      - a56901c15eef771e-ORD
+      Alt-Svc:
+      - h3=":443"; ma=86400
+    body:
+      encoding: UTF-8
+      string: |-
+        <html><head><title>Handle Redirect</title></head>
+        <body><a href="https://api.crossref.org/v1/works/10.1038%2F171737a0/transform">https://api.crossref.org/v1/works/10.1038%2F171737a0/transform</a></body></html>
+  recorded_at: Sat, 07 Nov 2026 02:46:19 GMT
+- request:
+    method: get
+    uri: https://api.crossref.org/v1/works/10.1038%2F171737a0/transform
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Faraday/v2.15.1 Serrano/v1.7
+      Accept:
+      - application/x-bibtex
+      X-User-Agent:
+      - Faraday/v2.15.1 Serrano/v1.7
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Sat, 07 Nov 2026 02:46:19 GMT
+      Content-Type:
+      - application/x-bibtex
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Vary:
+      - Accept
+      Access-Control-Expose-Headers:
+      - Link
+      Access-Control-Allow-Headers:
+      - X-Requested-With, Accept, Accept-Encoding, Accept-Charset, Accept-Language,
+        Accept-Ranges, Cache-Control
+      Access-Control-Allow-Origin:
+      - "*"
+      Server:
+      - Jetty(9.4.40.v20210413)
+      X-Rate-Limit-Limit:
+      - '5'
+      X-Rate-Limit-Interval:
+      - 1s
+      X-Concurrency-Limit:
+      - '1'
+      X-Api-Pool:
+      - public-single
+      Permissions-Policy:
+      - interest-cohort=()
+      Strict-Transport-Security:
+      - max-age=31536000;
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        IEBhcnRpY2xle1dBVFNPTl8xOTUzLCB0aXRsZT17TW9sZWN1bGFyIFN0cnVjdHVyZSBvZiBOdWNsZWljIEFjaWRzOiBBIFN0cnVjdHVyZSBmb3IgRGVveHlyaWJvc2UgTnVjbGVpYyBBY2lkfSwgdm9sdW1lPXsxNzF9LCBJU1NOPXsxNDc2LTQ2ODd9LCB1cmw9e2h0dHA6Ly9keC5kb2kub3JnLzEwLjEwMzgvMTcxNzM3YTB9LCBET0k9ezEwLjEwMzgvMTcxNzM3YTB9LCBudW1iZXI9ezQzNTZ9LCBqb3VybmFsPXtOYXR1cmV9LCBwdWJsaXNoZXI9e1NwcmluZ2VyIFNjaWVuY2UgYW5kIEJ1c2luZXNzIE1lZGlhIExMQ30sIGF1dGhvcj17V0FUU09OLCBKLiBELiBhbmQgQ1JJQ0ssIEYuIEguIEMufSwgeWVhcj17MTk1M30sIG1vbnRoPUFwciwgcGFnZXM9ezczN+KAkzczOH0gfQo=
+  recorded_at: Sat, 07 Nov 2026 02:46:19 GMT
+- request:
+    method: get
+    uri: https://api.crossref.org/works/10.1038%2F171737a0/transform/application/vnd.citationstyles.csl+json
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Faraday/v2.15.1 Serrano/v1.7
+      X-User-Agent:
+      - Faraday/v2.15.1 Serrano/v1.7
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Sat, 07 Nov 2026 02:46:19 GMT
+      Content-Length:
+      - '4310'
+      Connection:
+      - keep-alive
+      Access-Control-Expose-Headers:
+      - Link
+      Access-Control-Allow-Headers:
+      - X-Requested-With, Accept, Accept-Encoding, Accept-Charset, Accept-Language,
+        Accept-Ranges, Cache-Control
+      Access-Control-Allow-Origin:
+      - "*"
+      Vary:
+      - Accept-Encoding
+      Server:
+      - Jetty(9.4.40.v20210413)
+      X-Rate-Limit-Limit:
+      - '5'
+      X-Rate-Limit-Interval:
+      - 1s
+      X-Concurrency-Limit:
+      - '1'
+      X-Api-Pool:
+      - public-single
+      Permissions-Policy:
+      - interest-cohort=()
+      Strict-Transport-Security:
+      - max-age=31536000;
+    body:
+      encoding: ASCII-8BIT
+      string: '{"indexed":{"date-parts":[[2026,11,6]],"date-time":"2026-11-06T21:51:55Z","timestamp":1794001915098,"version":"4.8.0"},"reference-count":6,"publisher":"Springer
+        Science and Business Media LLC","issue":"4356","license":[{"start":{"date-parts":[[1953,4,25]],"date-time":"1953-04-25T00:00:00Z","timestamp":-526608000000},"content-version":"tdm","delay-in-days":0,"URL":"https:\/\/www.springer.com\/tdm"},{"start":{"date-parts":[[1953,4,25]],"date-time":"1953-04-25T00:00:00Z","timestamp":-526608000000},"content-version":"vor","delay-in-days":0,"URL":"https:\/\/www.springer.com\/tdm"}],"content-domain":{"domain":["link.springer.com"],"crossmark-restriction":false},"published-print":{"date-parts":[[1953,4,25]]},"DOI":"10.1038\/171737a0","type":"journal-article","created":{"date-parts":[[2006,5,30]],"date-time":"2006-05-30T09:30:37Z","timestamp":1148981437000},"page":"737-738","update-policy":"https:\/\/doi.org\/10.1007\/springer_crossmark_policy","source":"Crossref","is-referenced-by-count":11383,"title":"Molecular
+        Structure of Nucleic Acids: A Structure for Deoxyribose Nucleic Acid","prefix":"10.1038","volume":"171","author":[{"given":"J.
+        D.","family":"WATSON","sequence":"first","affiliation":[],"role":[{"vocabulary":"crossref","role":"author"}]},{"given":"F.
+        H. C.","family":"CRICK","sequence":"additional","affiliation":[],"role":[{"vocabulary":"crossref","role":"author"}]}],"member":"297","published-online":{"date-parts":[[1953,4,25]]},"reference":[{"key":"BF171737a0_CR1","doi-asserted-by":"publisher","first-page":"346","DOI":"10.1038\/171346a0","volume":"171","author":"L
+        Pauling","year":"1953","unstructured":"Pauling, L., and Corey, R. B., Nature,
+        171, 346 (1953); Proc. U.S. Nat. Acad. Sci., 39, 84 (1953).","journal-title":"Nature"},{"key":"BF171737a0_CR2","doi-asserted-by":"publisher","first-page":"634","DOI":"10.3891\/acta.chem.scand.06-0634","volume":"6","author":"S
+        Furberg","year":"1952","unstructured":"Furberg, S., Acta Chem. Scand., 6,
+        634 (1952).","journal-title":"Acta Chem. Scand."},{"key":"BF171737a0_CR3","doi-asserted-by":"publisher","first-page":"402","DOI":"10.1016\/0006-3002(52)90184-4","volume":"9","author":"E
+        Chargaff","year":"1952","unstructured":"Chargaff, E., for references see Zamenhof,
+        S., Brawerman, G., and Chargaff, E., Biochim. et Biophys. Acta, 9, 402 (1952).","journal-title":"Biochim.
+        et Biophys. Acta"},{"key":"BF171737a0_CR4","doi-asserted-by":"publisher","first-page":"201","DOI":"10.1085\/jgp.36.2.201","volume":"36","author":"GR
+        Wyatt","year":"1952","unstructured":"Wyatt, G. R., J. Gen. Physiol., 36, 201
+        (1952).","journal-title":"J. Gen. Physiol."},{"key":"BF171737a0_CR5","unstructured":"Astbury,
+        W. T., Symp. Soc. Exp. Boil. 1, Nucleic Acid, 66 (Camb. Univ. Press, 1947)."},{"key":"BF171737a0_CR6","doi-asserted-by":"publisher","first-page":"192","DOI":"10.1016\/0006-3002(53)90232-7","volume":"10","author":"MHF
+        Wilkins","year":"1953","unstructured":"Wilkins, M. H. F., and Randall, J.
+        T., Biochim. et Biophys. Acta, 10, 192 (1953).","journal-title":"Biochim.
+        et Biophys. Acta"}],"container-title":"Nature","original-title":[],"language":"en","link":[{"URL":"https:\/\/www.nature.com\/articles\/171737a0","content-type":"text\/html","content-version":"vor","intended-application":"text-mining"},{"URL":"https:\/\/www.nature.com\/articles\/171737a0.pdf","content-type":"application\/pdf","content-version":"vor","intended-application":"text-mining"},{"URL":"https:\/\/www.nature.com\/articles\/171737a0.pdf","content-type":"application\/pdf","content-version":"vor","intended-application":"similarity-checking"}],"deposited":{"date-parts":[[2021,10,12]],"date-time":"2021-10-12T19:03:35Z","timestamp":1634065415000},"score":1,"resource":{"primary":{"URL":"https:\/\/www.nature.com\/articles\/171737a0"}},"subtitle":[],"short-title":[],"issued":{"date-parts":[[1953,4,25]]},"references-count":6,"journal-issue":{"issue":"4356","published-print":{"date-parts":[[1953,4,25]]}},"alternative-id":["BF171737a0"],"URL":"http:\/\/dx.doi.org\/10.1038\/171737a0","relation":{},"ISSN":["0028-0836","1476-4687"],"subject":[],"container-title-short":"Nature","published":{"date-parts":[[1953,4,25]]},"assertion":[{"value":"25
+        April 1953","order":1,"name":"first_online","label":"First Online","group":{"name":"ArticleHistory","label":"Article
+        History"}}]}'
+  recorded_at: Sat, 07 Nov 2026 02:46:19 GMT
+recorded_with: VCR 6.4.1

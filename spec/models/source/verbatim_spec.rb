@@ -72,34 +72,27 @@ describe Source::Verbatim, type: :model, group: :sources do
       end
     end
 
-    # The cassette is committed. Re-record (live CrossRef) only where requests
-    # carry CROSSREF_EMAIL, e.g. development builds; fork PRs have no secrets,
-    # and CrossRef can answer them with an empty body, so they replay instead.
     context 'valid conversion' do
-      let(:cassette_options) do
-        ENV['CROSSREF_EMAIL'].present? ? {} : {re_record_interval: nil}
-      end
-
       before do
         verbatim_source.verbatim = 'Cristofari, Cécile, and Matthieu J. Guitton. "The Steampunk Doctor: Practicing Medicine in a Mechanical Age." Advances in Anthropology 2014 (2014).'
         verbatim_source.save!
       end
 
       specify '#generate_bibtex for a non-resolvable reference returns a Source::Bibtex instance' do
-        VCR.use_cassette('verbatim_source_is_resolvable', cassette_options) do
+        VCR.use_cassette('verbatim_source_is_resolvable') do
           expect(verbatim_source.generate_bibtex).to be_truthy
         end
       end
 
       specify '#to_bibtex 1' do
-        VCR.use_cassette('verbatim_source_is_resolvable', cassette_options) do
+        VCR.use_cassette('verbatim_source_is_resolvable') do
           expect(verbatim_source.send(:to_bibtex)).to be_truthy
           expect(verbatim_source.type).to eq('Source::Bibtex')
         end
       end
 
       specify '#convert_to_bibtex 1' do
-        VCR.use_cassette('verbatim_source_is_resolvable', cassette_options) do
+        VCR.use_cassette('verbatim_source_is_resolvable') do
           verbatim_source.convert_to_bibtex = true
           verbatim_source.save!
           expect(verbatim_source.type).to eq('Source::Bibtex')
@@ -107,7 +100,7 @@ describe Source::Verbatim, type: :model, group: :sources do
       end
 
       specify '#convert_to_bibtex 2' do
-        VCR.use_cassette('verbatim_source_is_resolvable', cassette_options) do
+        VCR.use_cassette('verbatim_source_is_resolvable') do
           verbatim_source.convert_to_bibtex = nil 
           verbatim_source.save!
           expect(verbatim_source.type).to eq('Source::Verbatim')

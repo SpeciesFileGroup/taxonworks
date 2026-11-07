@@ -1,0 +1,57 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://api.checklistbank.org/dataset/3LR/nameusage?limit=20&q=Campa
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Faraday/v2.15.1 Nasturtium/v0.1.2
+      Accept:
+      - application/json,*/*
+      X-User-Agent:
+      - Faraday/v2.15.1 Nasturtium/v0.1.2
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Accept-Ranges:
+      - bytes
+      Age:
+      - '0'
+      Cache-Control:
+      - public, max-age=604800, s-maxage=604800
+      Content-Length:
+      - '2103'
+      Content-Type:
+      - application/json
+      Date:
+      - Sat, 07 Nov 2026 02:45:53 GMT
+      Vary:
+      - Cookie, Accept, Accept-Encoding, Accept-Language, User-Agent
+      - Origin
+      Via:
+      - 1.1 varnish (Varnish/7.1)
+      - HTTP/1.1 git.gammaspectra.live/git/go-away@v0.0.0-20250904213329-95ac08540b8c+dirty
+      X-Backend:
+      - api_read_only
+      X-Cache:
+      - miss_cached
+      X-Varnish:
+      - '707955718'
+    body:
+      encoding: ASCII-8BIT
+      string: '{"offset":0,"limit":20,"total":1,"result":[{"created":"2026-08-11T15:25:10.046095","createdBy":102,"modified":"2026-08-11T15:25:10.046095","modifiedBy":102,"datasetKey":316595,"id":"8LR8M","sectorKey":60399,"verbatimSourceKey":350013034,"name":{"created":"2026-08-11T15:25:10.046095","createdBy":102,"modified":"2026-08-11T15:25:10.046095","modifiedBy":102,"datasetKey":316595,"id":"RriEwlh9uZcK90jJrdgiZ","sectorKey":60399,"verbatimSourceKey":350013034,"namesIndexId":1161993,"scientificName":"Campa","authorship":"Motschulsky,
+        1844","rank":"genus","uninomial":"Campa","combinationAuthorship":{"authors":["Motschulsky"],"year":"1844"},"code":"zoological","nomStatus":"established","publishedInId":"f03db696-87e2-484c-a133-ee4b2fe6dab6","publishedInPage":"238","origin":"source","type":"scientific","parsed":true,"notho":[]},"status":"synonym","origin":"source","parentId":"8LSGT","accepted":{"created":"2026-08-11T15:22:25.377018","createdBy":102,"modified":"2026-08-11T15:22:25.377018","modifiedBy":102,"datasetKey":316595,"id":"8LSGT","sectorKey":60399,"verbatimSourceKey":349982647,"name":{"created":"2026-08-11T15:22:25.377018","createdBy":102,"modified":"2026-08-11T15:22:25.377018","modifiedBy":102,"datasetKey":316595,"id":"Oo7rZ42N1Hec6taYSBZ9_1","sectorKey":60399,"verbatimSourceKey":349982647,"namesIndexId":1164551,"scientificName":"Bembidion
+        (Philochthus)","authorship":"Stephens, 1828","rank":"subgenus","genus":"Bembidion","infragenericEpithet":"Philochthus","combinationAuthorship":{"authors":["Stephens"],"year":"1828"},"code":"zoological","nomStatus":"established","publishedInId":"5c8b6ba5-7de5-4809-8509-36fa979eae0b","publishedInPage":"7","origin":"source","type":"scientific","parsed":true,"notho":[]},"status":"accepted","origin":"source","parentId":"8KVB5","scrutinizer":"Lorenz,
+        W.","scrutinizerDate":"2021-07-29","extinct":false,"environments":["terrestrial"],"label":"Bembidion
+        (Philochthus) Stephens, 1828","labelHtml":"<i>Bembidion (Philochthus)</i>
+        Stephens, 1828"},"label":"Campa Motschulsky, 1844","labelHtml":"<i>Campa</i>
+        Motschulsky, 1844"}],"empty":false,"last":true}'
+  recorded_at: Sat, 07 Nov 2026 02:45:53 GMT
+recorded_with: VCR 6.4.1
