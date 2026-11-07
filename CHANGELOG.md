@@ -13,6 +13,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 ### Fixed
 
+- Darwin Core Media Extension Preview
 - Browse OTU link in OTU show page (Report) and taxon determination links not loading the OTU in the task
 - Pinboard buttons do not synchronize across browser tabs [#5167]
 - Fix some table columns sorting by text rather than number (Project page's 'last seen', 'time in project'; Data tab list tables' 'last updated'; Downloads list table's 'expires') [#5175]
