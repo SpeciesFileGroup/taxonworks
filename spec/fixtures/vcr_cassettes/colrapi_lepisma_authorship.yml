@@ -1,0 +1,55 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://api.checklistbank.org/dataset/3LR/nameusage?limit=20&q=Lepisma
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Faraday/v2.15.1 Nasturtium/v0.1.2
+      Accept:
+      - application/json,*/*
+      X-User-Agent:
+      - Faraday/v2.15.1 Nasturtium/v0.1.2
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Accept-Ranges:
+      - bytes
+      Age:
+      - '0'
+      Cache-Control:
+      - public, max-age=604800, s-maxage=604800
+      Content-Length:
+      - '2781'
+      Content-Type:
+      - application/json
+      Date:
+      - Sat, 07 Nov 2026 02:45:51 GMT
+      Vary:
+      - Cookie, Accept, Accept-Encoding, Accept-Language, User-Agent
+      - Origin
+      Via:
+      - 1.1 varnish (Varnish/7.1)
+      - HTTP/1.1 git.gammaspectra.live/git/go-away@v0.0.0-20250904213329-95ac08540b8c+dirty
+      X-Backend:
+      - api_read_only
+      X-Cache:
+      - miss_cached
+      X-Varnish:
+      - '696466706'
+    body:
+      encoding: ASCII-8BIT
+      string: '{"offset":0,"limit":20,"total":2,"result":[{"created":"2026-08-24T22:55:08.427731","createdBy":102,"modified":"2026-08-24T22:55:08.427731","modifiedBy":102,"datasetKey":316595,"id":"5TBX9","sectorKey":66195,"verbatimSourceKey":355751002,"name":{"created":"2026-08-24T22:55:08.427731","createdBy":102,"modified":"2026-08-24T22:55:08.427731","modifiedBy":102,"datasetKey":316595,"id":"TvsyoAA0Fwtz3x_ZLzYTD","sectorKey":66195,"verbatimSourceKey":355751002,"namesIndexId":4905695,"scientificName":"Lepisma","authorship":"E.Mey.","rank":"genus","uninomial":"Lepisma","combinationAuthorship":{"authors":["E.Mey."]},"code":"botanical","publishedInId":"aef2c623-7da1-498d-9fb9-3c79d8d81d88","origin":"source","type":"scientific","parsed":true,"notho":[]},"status":"synonym","origin":"source","parentId":"62BT5","referenceIds":["aef2c623-7da1-498d-9fb9-3c79d8d81d88"],"accepted":{"created":"2026-08-24T22:54:56.781591","createdBy":102,"modified":"2026-08-24T22:54:56.781591","modifiedBy":102,"datasetKey":316595,"id":"62BT5","sectorKey":66195,"verbatimSourceKey":355747865,"name":{"created":"2026-08-24T22:54:56.781591","createdBy":102,"modified":"2026-08-24T22:54:56.781591","modifiedBy":102,"datasetKey":316595,"id":"UT9AdGYHg59i2hL90GHzS","sectorKey":66195,"verbatimSourceKey":355747865,"namesIndexId":571690,"scientificName":"Anginon","authorship":"Raf.","rank":"genus","uninomial":"Anginon","combinationAuthorship":{"authors":["Raf."]},"code":"botanical","publishedInId":"069d10de-f998-4c4c-b0aa-c120796ccee7","origin":"source","type":"scientific","parsed":true,"notho":[]},"status":"accepted","origin":"source","parentId":"VC36W","referenceIds":["069d10de-f998-4c4c-b0aa-c120796ccee7"],"label":"Anginon
+        Raf.","labelHtml":"<i>Anginon</i> Raf."},"label":"Lepisma E.Mey.","labelHtml":"<i>Lepisma</i>
+        E.Mey."},{"created":"2026-10-07T16:09:58.776439","createdBy":102,"modified":"2026-10-07T16:09:58.776439","modifiedBy":102,"datasetKey":316595,"id":"Q86PY","sectorKey":66719,"verbatimSourceKey":361683708,"name":{"created":"2026-10-07T16:09:58.776439","createdBy":102,"modified":"2026-10-07T16:09:58.776439","modifiedBy":102,"datasetKey":316595,"id":"vBJHVu6bFcQO9xWhhAHB60","sectorKey":66719,"verbatimSourceKey":361683708,"namesIndexId":4905695,"scientificName":"Lepisma","authorship":"Linnaeus,
+        1758","rank":"genus","uninomial":"Lepisma","combinationAuthorship":{"authors":["Linnaeus"],"year":"1758"},"code":"zoological","publishedInId":"982e3710-52cf-4b26-a3e8-7d204aa2807a","publishedInPage":"608","origin":"source","type":"scientific","parsed":true,"notho":[]},"status":"accepted","origin":"source","parentId":"VDV4M","link":"https://misc.speciesfile.org/otus/1363954/overview","label":"Lepisma
+        Linnaeus, 1758","labelHtml":"<i>Lepisma</i> Linnaeus, 1758"}],"empty":false,"last":true}'
+  recorded_at: Sat, 07 Nov 2026 02:45:51 GMT
+recorded_with: VCR 6.4.1

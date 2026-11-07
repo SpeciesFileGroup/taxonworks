@@ -17,7 +17,7 @@ module Vendor
   module Gnfinder 
 
     def self.finder
-      ::Gnfinder::Client.new
+      Vendor::Gnfinder::Client.new
     end
 
     def self.result(text, verification: true, tokens: 3, language: nil, detect_language: true, sources: [ ], project_id: [])

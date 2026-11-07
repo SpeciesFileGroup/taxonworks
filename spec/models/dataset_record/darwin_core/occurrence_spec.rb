@@ -1151,7 +1151,7 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
                            'require_type_material_success' => true }
       ).tap { |i| i.stage }
 
-      kingdom = Protonym.create!(parent_id: 1, name: 'Animalia', rank_class: Ranks.lookup(:iczn, :kingdom))
+      kingdom = Protonym.create!(parent: @root, name: 'Animalia', rank_class: Ranks.lookup(:iczn, :kingdom))
       phylum = Protonym.create!(parent: kingdom, name: 'Arthropoda', rank_class: Ranks.lookup(:iczn, :phylum))
       klass = Protonym.create!(parent: phylum, name: 'Insecta', rank_class: Ranks.lookup(:iczn, :class))
       order = Protonym.create!(parent: klass, name: 'Hymenoptera', rank_class: Ranks.lookup(:iczn, :order))
@@ -1208,7 +1208,7 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
                            'require_type_material_success' => true }
       ).tap { |i| i.stage }
 
-      kingdom = Protonym.create!(parent_id: 1, name: 'Animalia', rank_class: Ranks.lookup(:iczn, :kingdom))
+      kingdom = Protonym.create!(parent: @root, name: 'Animalia', rank_class: Ranks.lookup(:iczn, :kingdom))
       phylum = Protonym.create!(parent: kingdom, name: 'Arthropoda', rank_class: Ranks.lookup(:iczn, :phylum))
       klass = Protonym.create!(parent: phylum, name: 'Insecta', rank_class: Ranks.lookup(:iczn, :class))
       order = Protonym.create!(parent: klass, name: 'Hymenoptera', rank_class: Ranks.lookup(:iczn, :order))
@@ -1270,7 +1270,7 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
                            'require_type_material_success' => true }
       ).tap { |i| i.stage }
 
-      kingdom = Protonym.create!(parent_id: 1, name: 'Animalia', rank_class: Ranks.lookup(:iczn, :kingdom))
+      kingdom = Protonym.create!(parent: @root, name: 'Animalia', rank_class: Ranks.lookup(:iczn, :kingdom))
       phylum = Protonym.create!(parent: kingdom, name: 'Arthropoda', rank_class: Ranks.lookup(:iczn, :phylum))
       klass = Protonym.create!(parent: phylum, name: 'Insecta', rank_class: Ranks.lookup(:iczn, :class))
       order = Protonym.create!(parent: klass, name: 'Hymenoptera', rank_class: Ranks.lookup(:iczn, :order))
@@ -1327,7 +1327,7 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
           'restrict_to_existing_nomenclature' => true,
           'require_type_material_success' => true })
 
-      kingdom = Protonym.create!(parent_id: 1, name: 'Animalia', rank_class: Ranks.lookup(:iczn, :kingdom))
+      kingdom = Protonym.create!(parent: @root, name: 'Animalia', rank_class: Ranks.lookup(:iczn, :kingdom))
       phylum = Protonym.create!(parent: kingdom, name: 'Arthropoda', rank_class: Ranks.lookup(:iczn, :phylum))
       klass = Protonym.create!(parent: phylum, name: 'Insecta', rank_class: Ranks.lookup(:iczn, :class))
       order = Protonym.create!(parent: klass, name: 'Hymenoptera', rank_class: Ranks.lookup(:iczn, :order))
@@ -1399,7 +1399,7 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
         import_settings: { 'restrict_to_existing_nomenclature' => true,
                            'require_type_material_success' => true })
 
-      kingdom = Protonym.create!(parent_id: 1, name: 'Animalia', rank_class: Ranks.lookup(:iczn, :kingdom))
+      kingdom = Protonym.create!(parent: @root, name: 'Animalia', rank_class: Ranks.lookup(:iczn, :kingdom))
       phylum = Protonym.create!(parent: kingdom, name: 'Arthropoda', rank_class: Ranks.lookup(:iczn, :phylum))
       klass = Protonym.create!(parent: phylum, name: 'Insecta', rank_class: Ranks.lookup(:iczn, :class))
       order = Protonym.create!(parent: klass, name: 'Hymenoptera', rank_class: Ranks.lookup(:iczn, :order))
@@ -1468,7 +1468,7 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
                            'require_type_material_success' => true }
       ).tap { |i| i.stage }
 
-      kingdom = Protonym.create!(parent_id: 1, name: 'Animalia', rank_class: Ranks.lookup(:iczn, :kingdom))
+      kingdom = Protonym.create!(parent: @root, name: 'Animalia', rank_class: Ranks.lookup(:iczn, :kingdom))
       phylum = Protonym.create!(parent: kingdom, name: 'Arthropoda', rank_class: Ranks.lookup(:iczn, :phylum))
       klass = Protonym.create!(parent: phylum, name: 'Insecta', rank_class: Ranks.lookup(:iczn, :class))
       order = Protonym.create!(parent: klass, name: 'Hymenoptera', rank_class: Ranks.lookup(:iczn, :order))
@@ -1525,7 +1525,7 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
       ).tap { |i| i.stage }
 
 
-      kingdom = Protonym.create!(parent_id: 1, name: 'Animalia', rank_class: Ranks.lookup(:iczn, :kingdom))
+      kingdom = Protonym.create!(parent: @root, name: 'Animalia', rank_class: Ranks.lookup(:iczn, :kingdom))
       phylum = Protonym.create!(parent: kingdom, name: 'Arthropoda', rank_class: Ranks.lookup(:iczn, :phylum))
       klass = Protonym.create!(parent: phylum, name: 'Insecta', rank_class: Ranks.lookup(:iczn, :class))
       order = Protonym.create!(parent: klass, name: 'Hymenoptera', rank_class: Ranks.lookup(:iczn, :order))
@@ -1587,7 +1587,7 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
           'require_type_material_success' => true }
       )
 
-      kingdom = Protonym.create!(parent_id: 1, name: 'Animalia', rank_class: Ranks.lookup(:iczn, :kingdom))
+      kingdom = Protonym.create!(parent: @root, name: 'Animalia', rank_class: Ranks.lookup(:iczn, :kingdom))
       phylum = Protonym.create!(parent: kingdom, name: 'Arthropoda', rank_class: Ranks.lookup(:iczn, :phylum))
       klass = Protonym.create!(parent: phylum, name: 'Insecta', rank_class: Ranks.lookup(:iczn, :class))
       order = Protonym.create!(parent: klass, name: 'Hymenoptera', rank_class: Ranks.lookup(:iczn, :order))
@@ -1663,7 +1663,7 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
       ).tap { |i| i.stage }
 
 
-      kingdom = Protonym.create!(parent_id: 1, name: 'Animalia', rank_class: Ranks.lookup(:iczn, :kingdom))
+      kingdom = Protonym.create!(parent: @root, name: 'Animalia', rank_class: Ranks.lookup(:iczn, :kingdom))
       phylum = Protonym.create!(parent: kingdom, name: 'Arthropoda', rank_class: Ranks.lookup(:iczn, :phylum))
       klass = Protonym.create!(parent: phylum, name: 'Insecta', rank_class: Ranks.lookup(:iczn, :class))
       order = Protonym.create!(parent: klass, name: 'Hymenoptera', rank_class: Ranks.lookup(:iczn, :order))
@@ -1723,7 +1723,7 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
         import_settings: { 'restrict_to_existing_nomenclature' => false }
       ).tap { |i| i.stage }
 
-      kingdom = Protonym.create(parent_id: 1, name: 'Animalia', rank_class: Ranks.lookup(:iczn, :kingdom))
+      kingdom = Protonym.create(parent: @root, name: 'Animalia', rank_class: Ranks.lookup(:iczn, :kingdom))
       phylum = Protonym.create(parent: kingdom, name: 'Arthropoda', rank_class: Ranks.lookup(:iczn, :phylum))
       klass = Protonym.create(parent: phylum, name: 'Insecta', rank_class: Ranks.lookup(:iczn, :class))
       order = Protonym.create(parent: klass, name: 'Hymenoptera', rank_class: Ranks.lookup(:iczn, :order))
@@ -1851,7 +1851,7 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
                                                import_settings: { 'restrict_to_existing_nomenclature' => true,
                                                                   'require_type_material_success' => true })
 
-      kingdom = Protonym.create!(parent_id: 1, name: 'Animalia', rank_class: Ranks.lookup(:iczn, :kingdom))
+      kingdom = Protonym.create!(parent: @root, name: 'Animalia', rank_class: Ranks.lookup(:iczn, :kingdom))
       phylum = Protonym.create!(parent: kingdom, name: 'Arthropoda', rank_class: Ranks.lookup(:iczn, :phylum))
       klass = Protonym.create!(parent: phylum, name: 'Insecta', rank_class: Ranks.lookup(:iczn, :class))
       order = Protonym.create!(parent: klass, name: 'Hymenoptera', rank_class: Ranks.lookup(:iczn, :order))
@@ -1900,7 +1900,7 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
     before :all do
       @import_dataset = prepare_occurrence_tsv('otus/identification_qualifier.tsv', import_settings: { 'restrict_to_existing_nomenclature' => false })
 
-      kingdom = Protonym.create!(parent_id: 1, name: 'Animalia', rank_class: Ranks.lookup(:iczn, :kingdom))
+      kingdom = Protonym.create!(parent: @root, name: 'Animalia', rank_class: Ranks.lookup(:iczn, :kingdom))
       phylum = Protonym.create!(parent: kingdom, name: 'Arthropoda', rank_class: Ranks.lookup(:iczn, :phylum))
       klass = Protonym.create!(parent: phylum, name: 'Insecta', rank_class: Ranks.lookup(:iczn, :class))
       order = Protonym.create!(parent: klass, name: 'Hymenoptera', rank_class: Ranks.lookup(:iczn, :order))
@@ -1933,7 +1933,7 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
 
       @person = Person.create!(last_name: 'Forel', first_name: 'Auguste')
 
-      kingdom = Protonym.create!(parent_id: 1, name: 'Animalia', rank_class: Ranks.lookup(:iczn, :kingdom))
+      kingdom = Protonym.create!(parent: @root, name: 'Animalia', rank_class: Ranks.lookup(:iczn, :kingdom))
       phylum = Protonym.create!(parent: kingdom, name: 'Arthropoda', rank_class: Ranks.lookup(:iczn, :phylum))
       klass = Protonym.create!(parent: phylum, name: 'Insecta', rank_class: Ranks.lookup(:iczn, :class))
       order = Protonym.create!(parent: klass, name: 'Hymenoptera', rank_class: Ranks.lookup(:iczn, :order))
@@ -1973,7 +1973,7 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
                                                import_settings: { 'restrict_to_existing_nomenclature' => true,
                                                                   'require_type_material_success' => true})
 
-      kingdom = Protonym.create!(parent_id: 1, name: 'Animalia', rank_class: Ranks.lookup(:iczn, :kingdom))
+      kingdom = Protonym.create!(parent: @root, name: 'Animalia', rank_class: Ranks.lookup(:iczn, :kingdom))
       phylum = Protonym.create!(parent: kingdom, name: 'Arthropoda', rank_class: Ranks.lookup(:iczn, :phylum))
       klass = Protonym.create!(parent: phylum, name: 'Insecta', rank_class: Ranks.lookup(:iczn, :class))
       order = Protonym.create!(parent: klass, name: 'Hymenoptera', rank_class: Ranks.lookup(:iczn, :order))
@@ -2019,7 +2019,7 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
       init_housekeeping
 
       @import_dataset = prepare_occurrence_tsv('authorship_missing_subgenus.tsv', import_settings: { 'restrict_to_existing_nomenclature' => true })
-      kingdom = Protonym.create!(parent_id: 1, name: 'Animalia', rank_class: Ranks.lookup(:iczn, :kingdom))
+      kingdom = Protonym.create!(parent: @root, name: 'Animalia', rank_class: Ranks.lookup(:iczn, :kingdom))
       phylum = Protonym.create!(parent: kingdom, name: 'Arthropoda', rank_class: Ranks.lookup(:iczn, :phylum))
       klass = Protonym.create!(parent: phylum, name: 'Insecta', rank_class: Ranks.lookup(:iczn, :class))
       order = Protonym.create!(parent: klass, name: 'Hymenoptera', rank_class: Ranks.lookup(:iczn, :order))
@@ -2067,7 +2067,7 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
       init_housekeeping
 
       @import_dataset = prepare_occurrence_tsv('homonym_name.tsv', import_settings: { 'restrict_to_existing_nomenclature' => true })
-      kingdom = Protonym.create!(parent_id: 1, name: 'Animalia', rank_class: Ranks.lookup(:iczn, :kingdom))
+      kingdom = Protonym.create!(parent: @root, name: 'Animalia', rank_class: Ranks.lookup(:iczn, :kingdom))
       phylum = Protonym.create!(parent: kingdom, name: 'Arthropoda', rank_class: Ranks.lookup(:iczn, :phylum))
       klass = Protonym.create!(parent: phylum, name: 'Insecta', rank_class: Ranks.lookup(:iczn, :class))
       order = Protonym.create!(parent: klass, name: 'Hymenoptera', rank_class: Ranks.lookup(:iczn, :order))
@@ -2147,7 +2147,7 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
 
       @import_dataset = prepare_occurrence_tsv('missing_subgenus.tsv', import_settings: { 'restrict_to_existing_nomenclature' => false })
 
-      kingdom = Protonym.create!(parent_id: 1, name: 'Animalia', rank_class: Ranks.lookup(:iczn, :kingdom))
+      kingdom = Protonym.create!(parent: @root, name: 'Animalia', rank_class: Ranks.lookup(:iczn, :kingdom))
       phylum = Protonym.create!(parent: kingdom, name: 'Arthropoda', rank_class: Ranks.lookup(:iczn, :phylum))
       klass = Protonym.create!(parent: phylum, name: 'Insecta', rank_class: Ranks.lookup(:iczn, :class))
       order = Protonym.create!(parent: klass, name: 'Hymenoptera', rank_class: Ranks.lookup(:iczn, :order))
@@ -2201,7 +2201,7 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
       init_housekeeping
 
       @import_dataset = prepare_occurrence_tsv('homonym_same_author.tsv', import_settings: { 'restrict_to_existing_nomenclature' => true })
-      kingdom = Protonym.create!(parent_id: 1, name: 'Animalia', rank_class: Ranks.lookup(:iczn, :kingdom))
+      kingdom = Protonym.create!(parent: @root, name: 'Animalia', rank_class: Ranks.lookup(:iczn, :kingdom))
       phylum = Protonym.create!(parent: kingdom, name: 'Arthropoda', rank_class: Ranks.lookup(:iczn, :phylum))
       klass = Protonym.create!(parent: phylum, name: 'Insecta', rank_class: Ranks.lookup(:iczn, :class))
       order = Protonym.create!(parent: klass, name: 'Hymenoptera', rank_class: Ranks.lookup(:iczn, :order))
@@ -2268,7 +2268,7 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
       @import_dataset = prepare_occurrence_tsv('conjugation_misspelling.tsv',
                                                import_settings: { 'restrict_to_existing_nomenclature' => true})
 
-      family = Protonym.create!(parent_id: 1, name: 'Formicidae', rank_class: Ranks.lookup(:iczn, :family))
+      family = Protonym.create!(parent: @root, name: 'Formicidae', rank_class: Ranks.lookup(:iczn, :family))
       genus = Protonym.create!(parent: family, name: 'Fulakora', rank_class: Ranks.lookup(:iczn, :genus))
       TaxonNameClassification::Latinized::Gender::Feminine.create!(taxon_name: genus)
 
@@ -2312,7 +2312,7 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
         'restrict_to_existing_nomenclature' => true,
         'require_type_material_success' => true })
 
-      kingdom = Protonym.create!(parent_id: 1, name: 'Animalia', rank_class: Ranks.lookup(:iczn, :kingdom))
+      kingdom = Protonym.create!(parent: @root, name: 'Animalia', rank_class: Ranks.lookup(:iczn, :kingdom))
       phylum = Protonym.create!(parent: kingdom, name: 'Arthropoda', rank_class: Ranks.lookup(:iczn, :phylum))
       klass = Protonym.create!(parent: phylum, name: 'Insecta', rank_class: Ranks.lookup(:iczn, :class))
       order = Protonym.create!(parent: klass, name: 'Hymenoptera', rank_class: Ranks.lookup(:iczn, :order))
@@ -2377,7 +2377,7 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
                                                { 'restrict_to_existing_nomenclature' => true,
                                                  'require_type_material_success' => true })
 
-      kingdom = Protonym.create!(parent_id: 1, name: 'Animalia', rank_class: Ranks.lookup(:iczn, :kingdom))
+      kingdom = Protonym.create!(parent: @root, name: 'Animalia', rank_class: Ranks.lookup(:iczn, :kingdom))
       phylum = Protonym.create!(parent: kingdom, name: 'Arthropoda', rank_class: Ranks.lookup(:iczn, :phylum))
       klass = Protonym.create!(parent: phylum, name: 'Insecta', rank_class: Ranks.lookup(:iczn, :class))
       order = Protonym.create!(parent: klass, name: 'Hymenoptera', rank_class: Ranks.lookup(:iczn, :order))

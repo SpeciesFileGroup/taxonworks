@@ -1,0 +1,334 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://api.crossref.org/works?query=Cristofari,%20C%C3%A9cile,%20and%20Matthieu%20J.%20Guitton.%20%22The%20Steampunk%20Doctor:%20Practicing%20Medicine%20in%20a%20Mechanical%20Age.%22%20Advances%20in%20Anthropology%202014%20(2014).&rows=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Faraday/v2.15.1 Serrano/v1.7
+      X-User-Agent:
+      - Faraday/v2.15.1 Serrano/v1.7
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Sat, 07 Nov 2026 01:42:00 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '7667'
+      Connection:
+      - keep-alive
+      Access-Control-Expose-Headers:
+      - Link
+      Access-Control-Allow-Headers:
+      - X-Requested-With, Accept, Accept-Encoding, Accept-Charset, Accept-Language,
+        Accept-Ranges, Cache-Control
+      Access-Control-Allow-Origin:
+      - "*"
+      Vary:
+      - Accept-Encoding
+      Server:
+      - Jetty(9.4.40.v20210413)
+      X-Rate-Limit-Limit:
+      - '1'
+      X-Rate-Limit-Interval:
+      - 1s
+      X-Concurrency-Limit:
+      - '1'
+      X-Api-Pool:
+      - public-array
+      Permissions-Policy:
+      - interest-cohort=()
+      Strict-Transport-Security:
+      - max-age=31536000;
+    body:
+      encoding: ASCII-8BIT
+      string: '{"status":"ok","message-type":"work-list","message-version":"1.0.0","message":{"facets":{},"total-results":5482413,"items":[{"indexed":{"date-parts":[[2026,3,11]],"date-time":"2026-03-11T20:02:10Z","timestamp":1773259330130,"version":"3.50.1"},"reference-count":41,"publisher":"Scientific
+        Research Publishing, Inc.","issue":"02","license":[{"start":{"date-parts":[[2014,1,1]],"date-time":"2014-01-01T00:00:00Z","timestamp":1388534400000},"content-version":"unspecified","delay-in-days":0,"URL":"http:\/\/creativecommons.org\/licenses\/by\/4.0\/"}],"content-domain":{"domain":[],"crossmark-restriction":false},"short-container-title":["AA"],"published-print":{"date-parts":[[2014]]},"DOI":"10.4236\/aa.2014.42012","type":"journal-article","created":{"date-parts":[[2014,5,21]],"date-time":"2014-05-21T01:50:40Z","timestamp":1400637040000},"page":"89-98","source":"Crossref","is-referenced-by-count":2,"title":["The
+        Steampunk Doctor: Practicing Medicine in a Mechanical Age"],"prefix":"10.4236","volume":"04","author":[{"given":"C\u00e9cile","family":"Cristofari","sequence":"first","affiliation":[],"role":[{"role":"author","vocabulary":"crossref"}]},{"given":"Matthieu
+        J.","family":"Guitton","sequence":"additional","affiliation":[],"role":[{"role":"author","vocabulary":"crossref"}]}],"member":"2751","reference":[{"key":"ref1","unstructured":"Arakawa,
+        H. (2001-2010). Full Metal Alchemist. San Francisco: Viz Media."},{"key":"ref2","doi-asserted-by":"crossref","unstructured":"Bostrom,
+        N., & Sandberg, A. (2008). The Wisdom of Nature: An Evolutionary Heuristic
+        for Human Enhancement. In N. Bostrom (Ed.), Human Enhancement (pp. 375-416).
+        Oxford: Oxford University Press.","DOI":"10.1093\/oso\/9780199299720.003.0019"},{"key":"ref3","unstructured":"Bowser,
+        R., & Croxall, B. (2010). Introduction: Industrial Evolution. Journal of Neo-Victorian
+        Studies, 3, 1-45."},{"key":"ref4","unstructured":"Brook, M. (2010). The Iron
+        Duke. New York: Berkley Books."},{"key":"ref5","unstructured":"Caro, M., &
+        Jeunet, J. P. (dir). (1995). The City of Lost Children. Adrien, G., Caro,
+        M. & Jeunet, J. P. (writ). UGC."},{"key":"ref6","unstructured":"Colson, R.,
+        & Ruaud, A. F. (2006). Science-Fiction: une litterature du reel. Paris: Klincksieck."},{"key":"ref7","unstructured":"DiFilippo,
+        P. (1997). The Steampunk Trilogy. Philadelphia: Running Press."},{"key":"ref8","unstructured":"Ferguson,
+        C. (2011). Surface Tensions: Steampunk, Subculture and the Ideology of Style.
+        Journal of Neo-Victorian Studies, 4, 66-90."},{"key":"ref9","unstructured":"Foglio,
+        P., & Foglio, K. (2001-present). Girl Genius. http:\/\/www.girlgeniusonline.com"},{"key":"ref10","unstructured":"Forlini,
+        S. (2010). Technology and Morality: The Stuff of Steampunk. Journal of Neo-Victorian
+        Studies, 3, 72-98."},{"key":"ref11","unstructured":"Foucault, M. (1973). The
+        Birth of the Clinic: An Archaeology of Medical Perception. Sheridan, A. (trad).
+        London: Routledge."},{"key":"ref12","doi-asserted-by":"publisher","DOI":"10.1093\/jurban\/78.1.29"},{"key":"ref13","unstructured":"Freidson,
+        E. (1970). Professional Dominance: The Social Structure of Medical Care. Piscataway:
+        Transaction Publishers."},{"key":"ref14","doi-asserted-by":"publisher","DOI":"10.4236\/aa.2013.33021"},{"key":"ref15","doi-asserted-by":"publisher","DOI":"10.1057\/9780230281691"},{"key":"ref16","unstructured":"Hodder,
+        M. (2010). The Strange Affair of Spring-Heeled Jack. London: Snowbooks."},{"key":"ref17","doi-asserted-by":"publisher","DOI":"10.1080\/01459740214076"},{"key":"ref18","unstructured":"James,
+        E. (1994). Science Fiction in the 20th Century. Oxford: Oxford University
+        Press."},{"key":"ref19","unstructured":"Jeter, K. W. (1987). Infernal Devices.
+        New York: St Martin\u2019s Press."},{"key":"ref20","doi-asserted-by":"publisher","DOI":"10.1080\/15265160590945101"},{"key":"ref21","unstructured":"Mann,
+        G. (2008). The Affinity Bridge. London: Snowbooks."},{"key":"ref22","unstructured":"Mann,
+        G. (2011). The Immorality Engine. London: Snowbooks."},{"key":"ref23","unstructured":"Mieville,
+        C. (2003). Perdido Street Station. New York: Del Rey Books."},{"key":"ref24","doi-asserted-by":"crossref","unstructured":"Nevins,
+        J. (2011). Prescriptivists versus Descriptivists: Defining Steampunk. Science
+        Fiction Studies, 38, 513-518.","DOI":"10.5621\/sciefictstud.38.3.0513"},{"key":"ref25","unstructured":"Newman,
+        K. (1992). Anno Dracula. New York: Simon & Schuster."},{"key":"ref26","unstructured":"Norrington,
+        S. (Dir.) (2003). The League of Extraordinary Gentlemen. J. D. Robinson (Writer),
+        Los Angeles, CA: 20th Century Fox."},{"key":"ref27","unstructured":"Onion,
+        R. (2008). Reclaiming the Machine: An Introductory Look at Steampunk in Everyday
+        Practice. Journal of Neo-Victorian Studies, 1, 138-163."},{"key":"ref28","unstructured":"Perschon,
+        M. (2010). Steam Wars. Journal of Neo-Victorian Studies, 3, 127-166."},{"key":"ref29","unstructured":"Priest,
+        C. (2009). Boneshaker. New York: Tor Books."},{"key":"ref30","doi-asserted-by":"publisher","DOI":"10.1162\/15265160360706417"},{"key":"ref31","unstructured":"Saint-Gelais,
+        R. (2011). Fictions Transfuges. Paris: Seuil."},{"key":"ref32","doi-asserted-by":"publisher","DOI":"10.1080\/15265160591002755"},{"key":"ref33","unstructured":"Sedia,
+        E. (2008). The Alchemy of Stone. Gaithersburg, MD: Prime Books."},{"key":"ref34","unstructured":"Shelley,
+        M. (1818). Frankenstein or the Modern Prometheus. London: Lackington, Hughes,
+        Harding, Mavor and Jones."},{"key":"ref35","unstructured":"Stephenson, N.
+        (1995). The Diamond Age. New York: Bantam Spectra."},{"key":"ref36","unstructured":"Stevenson,
+        R. L. (1886). The Strange Case of Dr. Jekyll and Mr. Hyde. London: Longman
+        and Green, Co."},{"key":"ref37","unstructured":"Valentine, G. (2011). Mechanique.
+        Gaithersburg, MD: Prime Books."},{"key":"ref38","unstructured":"Wells, H.
+        G. (1896). The Island of Doctor Moreau. London: Heinemann, Stone and Kimball."},{"key":"ref39","unstructured":"Westerfeld,
+        S. (2009). Leviathan. New York: Simon Pulse."},{"key":"ref40","unstructured":"Wolf,
+        T. (2005). Barton-Wright\u2019s Misadventures in Electrotherapy. In T. Wolf
+        (Ed.), The Bartitsu Compendium, Volume 1: History and the Canonical Syllabus
+        (pp. 63-67). Raleigh, NC: Lulu Press."},{"key":"ref41","unstructured":"Wood,
+        M. (Dir.) (2008-2011). Sanctuary. New York: Syfy."}],"container-title":["Advances
+        in Anthropology"],"link":[{"URL":"http:\/\/www.scirp.org\/journal\/PaperDownload.aspx?DOI=10.4236\/aa.2014.42012","content-type":"unspecified","content-version":"vor","intended-application":"text-mining"},{"URL":"https:\/\/www.scirp.org\/journal\/paperinformation?paperid=46110","content-type":"application\/pdf","content-version":"vor","intended-application":"text-mining"},{"URL":"https:\/\/www.scirp.org\/journal\/paperinformation?paperid=46110","content-type":"unspecified","content-version":"vor","intended-application":"similarity-checking"}],"deposited":{"date-parts":[[2026,3,11]],"date-time":"2026-03-11T03:17:07Z","timestamp":1773199027000},"score":115.94563,"resource":{"primary":{"URL":"https:\/\/www.scirp.org\/journal\/paperinformation?paperid=46110"}},"issued":{"date-parts":[[2014]]},"references-count":41,"journal-issue":{"issue":"02","published-print":{"date-parts":[[2014]]}},"URL":"https:\/\/doi.org\/10.4236\/aa.2014.42012","ISSN":["2163-9353","2163-9361"],"issn-type":[{"value":"2163-9353","type":"print"},{"value":"2163-9361","type":"electronic"}],"published":{"date-parts":[[2014]]}}],"items-per-page":1,"query":{"start-index":0,"search-terms":"Cristofari,
+        C\u00e9cile, and Matthieu J. Guitton. \"The Steampunk Doctor: Practicing Medicine
+        in a Mechanical Age.\" Advances in Anthropology 2014 (2014)."}}}'
+  recorded_at: Sat, 07 Nov 2026 01:42:00 GMT
+- request:
+    method: get
+    uri: https://doi.org/10.4236%2Faa.2014.42012
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Faraday/v2.15.1 Serrano/v1.7
+      Accept:
+      - application/x-bibtex
+      X-User-Agent:
+      - Faraday/v2.15.1 Serrano/v1.7
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 302
+      message: Found
+    headers:
+      Date:
+      - Sat, 07 Nov 2026 01:42:00 GMT
+      Content-Type:
+      - text/html;charset=utf-8
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Location:
+      - https://api.crossref.org/v1/works/10.4236%2Faa.2014.42012/transform
+      Server:
+      - cloudflare
+      Vary:
+      - Accept
+      - Origin
+      Expires:
+      - Sat, 07 Nov 2026 01:54:04 GMT
+      Permissions-Policy:
+      - interest-cohort=(),browsing-topics=()
+      Cf-Cache-Status:
+      - DYNAMIC
+      Nel:
+      - '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}'
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Report-To:
+      - '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=MR%2BT65Vpw2HcIrbj2GiFxyt%2Fx35BoTpbj04YDXr9EtOwl2VzVjRhf6iMzJJL8NHs6%2Fk6O%2BqGjkX2Wo7yKszi4QVb6Au3zLnKGxHn%2FFauKxfxQlkpvPFAPtY0PbDNaiA%2BdBfW4T0%3D"}]}'
+      Cf-Ray:
+      - a568a38c092865a0-ORD
+      Alt-Svc:
+      - h3=":443"; ma=86400
+    body:
+      encoding: UTF-8
+      string: |-
+        <html><head><title>Handle Redirect</title></head>
+        <body><a href="https://api.crossref.org/v1/works/10.4236%2Faa.2014.42012/transform">https://api.crossref.org/v1/works/10.4236%2Faa.2014.42012/transform</a></body></html>
+  recorded_at: Sat, 07 Nov 2026 01:42:00 GMT
+- request:
+    method: get
+    uri: https://api.crossref.org/v1/works/10.4236%2Faa.2014.42012/transform
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Faraday/v2.15.1 Serrano/v1.7
+      Accept:
+      - application/x-bibtex
+      X-User-Agent:
+      - Faraday/v2.15.1 Serrano/v1.7
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Sat, 07 Nov 2026 01:42:00 GMT
+      Content-Type:
+      - application/x-bibtex
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Vary:
+      - Accept
+      Access-Control-Expose-Headers:
+      - Link
+      Access-Control-Allow-Headers:
+      - X-Requested-With, Accept, Accept-Encoding, Accept-Charset, Accept-Language,
+        Accept-Ranges, Cache-Control
+      Access-Control-Allow-Origin:
+      - "*"
+      Server:
+      - Jetty(9.4.40.v20210413)
+      X-Rate-Limit-Limit:
+      - '5'
+      X-Rate-Limit-Interval:
+      - 1s
+      X-Concurrency-Limit:
+      - '1'
+      X-Api-Pool:
+      - public-single
+      Permissions-Policy:
+      - interest-cohort=()
+      Strict-Transport-Security:
+      - max-age=31536000;
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        IEBhcnRpY2xle0NyaXN0b2ZhcmlfMjAxNCwgdGl0bGU9e1RoZSBTdGVhbXB1bmsgRG9jdG9yOiBQcmFjdGljaW5nIE1lZGljaW5lIGluIGEgTWVjaGFuaWNhbCBBZ2V9LCB2b2x1bWU9ezA0fSwgSVNTTj17MjE2My05MzYxfSwgdXJsPXtodHRwOi8vZHguZG9pLm9yZy8xMC40MjM2L2FhLjIwMTQuNDIwMTJ9LCBET0k9ezEwLjQyMzYvYWEuMjAxNC40MjAxMn0sIG51bWJlcj17MDJ9LCBqb3VybmFsPXtBZHZhbmNlcyBpbiBBbnRocm9wb2xvZ3l9LCBwdWJsaXNoZXI9e1NjaWVudGlmaWMgUmVzZWFyY2ggUHVibGlzaGluZywgSW5jLn0sIGF1dGhvcj17Q3Jpc3RvZmFyaSwgQ8OpY2lsZSBhbmQgR3VpdHRvbiwgTWF0dGhpZXUgSi59LCB5ZWFyPXsyMDE0fSwgcGFnZXM9ezg54oCTOTh9IH0K
+  recorded_at: Sat, 07 Nov 2026 01:42:00 GMT
+- request:
+    method: get
+    uri: https://api.crossref.org/works/10.4236%2Faa.2014.42012/transform/application/vnd.citationstyles.csl+json
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Faraday/v2.15.1 Serrano/v1.7
+      X-User-Agent:
+      - Faraday/v2.15.1 Serrano/v1.7
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Sat, 07 Nov 2026 01:42:00 GMT
+      Content-Length:
+      - '7296'
+      Connection:
+      - keep-alive
+      Access-Control-Expose-Headers:
+      - Link
+      Access-Control-Allow-Headers:
+      - X-Requested-With, Accept, Accept-Encoding, Accept-Charset, Accept-Language,
+        Accept-Ranges, Cache-Control
+      Access-Control-Allow-Origin:
+      - "*"
+      Vary:
+      - Accept-Encoding
+      Server:
+      - Jetty(9.4.40.v20210413)
+      X-Rate-Limit-Limit:
+      - '5'
+      X-Rate-Limit-Interval:
+      - 1s
+      X-Concurrency-Limit:
+      - '1'
+      X-Api-Pool:
+      - public-single
+      Permissions-Policy:
+      - interest-cohort=()
+      Strict-Transport-Security:
+      - max-age=31536000;
+    body:
+      encoding: ASCII-8BIT
+      string: '{"indexed":{"date-parts":[[2026,3,11]],"date-time":"2026-03-11T20:02:10Z","timestamp":1773259330130,"version":"3.50.1"},"reference-count":41,"publisher":"Scientific
+        Research Publishing, Inc.","issue":"02","license":[{"start":{"date-parts":[[2014,1,1]],"date-time":"2014-01-01T00:00:00Z","timestamp":1388534400000},"content-version":"unspecified","delay-in-days":0,"URL":"http:\/\/creativecommons.org\/licenses\/by\/4.0\/"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2014]]},"DOI":"10.4236\/aa.2014.42012","type":"journal-article","created":{"date-parts":[[2014,5,21]],"date-time":"2014-05-21T01:50:40Z","timestamp":1400637040000},"page":"89-98","source":"Crossref","is-referenced-by-count":2,"title":"The
+        Steampunk Doctor: Practicing Medicine in a Mechanical Age","prefix":"10.4236","volume":"04","author":[{"given":"C\u00e9cile","family":"Cristofari","sequence":"first","affiliation":[],"role":[{"role":"author","vocabulary":"crossref"}]},{"given":"Matthieu
+        J.","family":"Guitton","sequence":"additional","affiliation":[],"role":[{"role":"author","vocabulary":"crossref"}]}],"member":"2751","reference":[{"key":"ref1","unstructured":"Arakawa,
+        H. (2001-2010). Full Metal Alchemist. San Francisco: Viz Media."},{"key":"ref2","doi-asserted-by":"crossref","unstructured":"Bostrom,
+        N., & Sandberg, A. (2008). The Wisdom of Nature: An Evolutionary Heuristic
+        for Human Enhancement. In N. Bostrom (Ed.), Human Enhancement (pp. 375-416).
+        Oxford: Oxford University Press.","DOI":"10.1093\/oso\/9780199299720.003.0019"},{"key":"ref3","unstructured":"Bowser,
+        R., & Croxall, B. (2010). Introduction: Industrial Evolution. Journal of Neo-Victorian
+        Studies, 3, 1-45."},{"key":"ref4","unstructured":"Brook, M. (2010). The Iron
+        Duke. New York: Berkley Books."},{"key":"ref5","unstructured":"Caro, M., &
+        Jeunet, J. P. (dir). (1995). The City of Lost Children. Adrien, G., Caro,
+        M. & Jeunet, J. P. (writ). UGC."},{"key":"ref6","unstructured":"Colson, R.,
+        & Ruaud, A. F. (2006). Science-Fiction: une litterature du reel. Paris: Klincksieck."},{"key":"ref7","unstructured":"DiFilippo,
+        P. (1997). The Steampunk Trilogy. Philadelphia: Running Press."},{"key":"ref8","unstructured":"Ferguson,
+        C. (2011). Surface Tensions: Steampunk, Subculture and the Ideology of Style.
+        Journal of Neo-Victorian Studies, 4, 66-90."},{"key":"ref9","unstructured":"Foglio,
+        P., & Foglio, K. (2001-present). Girl Genius. http:\/\/www.girlgeniusonline.com"},{"key":"ref10","unstructured":"Forlini,
+        S. (2010). Technology and Morality: The Stuff of Steampunk. Journal of Neo-Victorian
+        Studies, 3, 72-98."},{"key":"ref11","unstructured":"Foucault, M. (1973). The
+        Birth of the Clinic: An Archaeology of Medical Perception. Sheridan, A. (trad).
+        London: Routledge."},{"key":"ref12","doi-asserted-by":"publisher","DOI":"10.1093\/jurban\/78.1.29"},{"key":"ref13","unstructured":"Freidson,
+        E. (1970). Professional Dominance: The Social Structure of Medical Care. Piscataway:
+        Transaction Publishers."},{"key":"ref14","doi-asserted-by":"publisher","DOI":"10.4236\/aa.2013.33021"},{"key":"ref15","doi-asserted-by":"publisher","DOI":"10.1057\/9780230281691"},{"key":"ref16","unstructured":"Hodder,
+        M. (2010). The Strange Affair of Spring-Heeled Jack. London: Snowbooks."},{"key":"ref17","doi-asserted-by":"publisher","DOI":"10.1080\/01459740214076"},{"key":"ref18","unstructured":"James,
+        E. (1994). Science Fiction in the 20th Century. Oxford: Oxford University
+        Press."},{"key":"ref19","unstructured":"Jeter, K. W. (1987). Infernal Devices.
+        New York: St Martin\u2019s Press."},{"key":"ref20","doi-asserted-by":"publisher","DOI":"10.1080\/15265160590945101"},{"key":"ref21","unstructured":"Mann,
+        G. (2008). The Affinity Bridge. London: Snowbooks."},{"key":"ref22","unstructured":"Mann,
+        G. (2011). The Immorality Engine. London: Snowbooks."},{"key":"ref23","unstructured":"Mieville,
+        C. (2003). Perdido Street Station. New York: Del Rey Books."},{"key":"ref24","doi-asserted-by":"crossref","unstructured":"Nevins,
+        J. (2011). Prescriptivists versus Descriptivists: Defining Steampunk. Science
+        Fiction Studies, 38, 513-518.","DOI":"10.5621\/sciefictstud.38.3.0513"},{"key":"ref25","unstructured":"Newman,
+        K. (1992). Anno Dracula. New York: Simon & Schuster."},{"key":"ref26","unstructured":"Norrington,
+        S. (Dir.) (2003). The League of Extraordinary Gentlemen. J. D. Robinson (Writer),
+        Los Angeles, CA: 20th Century Fox."},{"key":"ref27","unstructured":"Onion,
+        R. (2008). Reclaiming the Machine: An Introductory Look at Steampunk in Everyday
+        Practice. Journal of Neo-Victorian Studies, 1, 138-163."},{"key":"ref28","unstructured":"Perschon,
+        M. (2010). Steam Wars. Journal of Neo-Victorian Studies, 3, 127-166."},{"key":"ref29","unstructured":"Priest,
+        C. (2009). Boneshaker. New York: Tor Books."},{"key":"ref30","doi-asserted-by":"publisher","DOI":"10.1162\/15265160360706417"},{"key":"ref31","unstructured":"Saint-Gelais,
+        R. (2011). Fictions Transfuges. Paris: Seuil."},{"key":"ref32","doi-asserted-by":"publisher","DOI":"10.1080\/15265160591002755"},{"key":"ref33","unstructured":"Sedia,
+        E. (2008). The Alchemy of Stone. Gaithersburg, MD: Prime Books."},{"key":"ref34","unstructured":"Shelley,
+        M. (1818). Frankenstein or the Modern Prometheus. London: Lackington, Hughes,
+        Harding, Mavor and Jones."},{"key":"ref35","unstructured":"Stephenson, N.
+        (1995). The Diamond Age. New York: Bantam Spectra."},{"key":"ref36","unstructured":"Stevenson,
+        R. L. (1886). The Strange Case of Dr. Jekyll and Mr. Hyde. London: Longman
+        and Green, Co."},{"key":"ref37","unstructured":"Valentine, G. (2011). Mechanique.
+        Gaithersburg, MD: Prime Books."},{"key":"ref38","unstructured":"Wells, H.
+        G. (1896). The Island of Doctor Moreau. London: Heinemann, Stone and Kimball."},{"key":"ref39","unstructured":"Westerfeld,
+        S. (2009). Leviathan. New York: Simon Pulse."},{"key":"ref40","unstructured":"Wolf,
+        T. (2005). Barton-Wright\u2019s Misadventures in Electrotherapy. In T. Wolf
+        (Ed.), The Bartitsu Compendium, Volume 1: History and the Canonical Syllabus
+        (pp. 63-67). Raleigh, NC: Lulu Press."},{"key":"ref41","unstructured":"Wood,
+        M. (Dir.) (2008-2011). Sanctuary. New York: Syfy."}],"container-title":"Advances
+        in Anthropology","original-title":[],"link":[{"URL":"http:\/\/www.scirp.org\/journal\/PaperDownload.aspx?DOI=10.4236\/aa.2014.42012","content-type":"unspecified","content-version":"vor","intended-application":"text-mining"},{"URL":"https:\/\/www.scirp.org\/journal\/paperinformation?paperid=46110","content-type":"application\/pdf","content-version":"vor","intended-application":"text-mining"},{"URL":"https:\/\/www.scirp.org\/journal\/paperinformation?paperid=46110","content-type":"unspecified","content-version":"vor","intended-application":"similarity-checking"}],"deposited":{"date-parts":[[2026,3,11]],"date-time":"2026-03-11T03:17:07Z","timestamp":1773199027000},"score":1,"resource":{"primary":{"URL":"https:\/\/www.scirp.org\/journal\/paperinformation?paperid=46110"}},"subtitle":[],"short-title":[],"issued":{"date-parts":[[2014]]},"references-count":41,"journal-issue":{"issue":"02","published-print":{"date-parts":[[2014]]}},"URL":"http:\/\/dx.doi.org\/10.4236\/aa.2014.42012","relation":{},"ISSN":["2163-9353","2163-9361"],"subject":[],"container-title-short":"AA","published":{"date-parts":[[2014]]}}'
+  recorded_at: Sat, 07 Nov 2026 01:42:00 GMT
+recorded_with: VCR 6.4.1
