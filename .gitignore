@@ -58,7 +58,9 @@ config/initializers/vendor/better_errors.rb
 /public/system
 /public/images/tmp
 /public/assets/
-/spec/fixtures/vcr_cassettes
+/spec/fixtures/vcr_cassettes/*
+# Committed so these specs never depend on the CI cache or a live CrossRef call
+!/spec/fixtures/vcr_cassettes/verbatim_source_is_resolvable.yml
 /spec/test_files/
 spec/tmp/
 
