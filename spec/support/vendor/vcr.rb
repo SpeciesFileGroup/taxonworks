@@ -15,4 +15,12 @@ VCR.configure do |c|
   c.cassette_library_dir = 'spec/fixtures/vcr_cassettes'
   c.hook_into :webmock
   c.allow_http_connections_when_no_cassette = true
+
+  # Keep contact emails (sent in API User-Agents) out of the committed
+  # cassettes. Add a filter here for any credential a recorded request sends.
+  c.filter_sensitive_data('<CROSSREF_EMAIL>') { ENV['CROSSREF_EMAIL'] }
+  c.filter_sensitive_data('<COL_API_EMAIL>') { ENV['COL_API_EMAIL'] }
+  c.filter_sensitive_data('<NASTURTIUM_API_EMAIL>') do
+    ENV['NASTURTIUM_API_EMAIL']
+  end
 end
