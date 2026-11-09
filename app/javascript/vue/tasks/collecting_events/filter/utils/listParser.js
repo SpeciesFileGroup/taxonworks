@@ -55,7 +55,7 @@ export async function listParser(list, { parameters }) {
       collecting_event: {
         ...item,
         roles: (item?.collector_roles || [])
-          .map((role) => role.person.cached)
+          .map((role) => (role.person?.cached || role.organization?.name))
           .join('; '),
         identifiers: identifiers.map((i) => i.cached).join('; ')
       },

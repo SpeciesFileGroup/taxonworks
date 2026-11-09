@@ -8,6 +8,7 @@ module Queries
         :geographic_area_id,
         :geographic_items,
         :name,
+        geographic_area_id: [],
         name: []
       ].freeze
 
@@ -34,6 +35,7 @@ module Queries
 
       def initialize(query_params)
         super
+        @geographic_area_id = params[:geographic_area_id]
         @name = params[:name]
         @containing_point = params[:containing_point]
         @geographic_items = boolean_param(params, :geographic_items)

@@ -49,6 +49,7 @@
         </template>
       </VModal>
       <VBtn
+        v-if="showBottom"
         circle
         variant="tonal"
         color="primary"
@@ -86,6 +87,11 @@ defineOptions({
 })
 
 const props = defineProps({
+  showBottom: {
+    type: Boolean,
+    default: true
+  },
+
   disabled: {
     type: Boolean,
     default: false
@@ -140,4 +146,6 @@ onBeforeMount(() => {
     annotatorTypes.value = body
   })
 })
+
+defineExpose({ openRadialMenu: openRadialBatch })
 </script>

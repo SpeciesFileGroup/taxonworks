@@ -169,7 +169,7 @@ module Queries
         s << ::BiologicalAssociationsGraph.joins(:biological_associations_biological_associations_graphs)
           .joins('JOIN query_ba_bag as query_ba_bag1 on biological_associations_biological_associations_graphs.biological_association_id = query_ba_bag1.id').to_sql
 
-        ::BiologicalAssociation.from('(' + s + ') as biological_associations')
+        ::BiologicalAssociationsGraph.from('(' + s + ') as biological_associations_graphs').distinct
       end
 
       def and_clauses
@@ -179,6 +179,7 @@ module Queries
       def merge_clauses
         [
           biological_association_id_facet,
+          biological_association_query_facet,
           biological_relationship_id_facet,
           wkt_facet,
           geo_json_facet,

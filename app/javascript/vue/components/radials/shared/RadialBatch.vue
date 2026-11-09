@@ -57,6 +57,7 @@
         </template>
       </VModal>
       <VBtn
+        v-if="showBottom"
         :title="title"
         circle
         variant="tonal"
@@ -91,6 +92,11 @@ defineOptions({
 })
 
 const props = defineProps({
+  showBottom: {
+    type: Boolean,
+    default: true
+  },
+
   ids: {
     type: Array,
     default: () => []
@@ -165,4 +171,6 @@ const {
   props,
   slices: props.slices
 })
+
+defineExpose({ openRadialMenu: openRadialBatch })
 </script>

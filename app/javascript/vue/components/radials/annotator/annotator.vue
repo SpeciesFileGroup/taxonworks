@@ -433,6 +433,8 @@ function deleteTag() {
 function resetAnnotator() {
   metadata.value = undefined
 }
+
+defineExpose({ openRadialMenu: displayAnnotator })
 </script>
 <style lang="scss">
 .dark {

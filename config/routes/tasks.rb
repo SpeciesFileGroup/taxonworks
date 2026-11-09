@@ -353,6 +353,10 @@ scope :tasks do
   end
 
   scope :images do
+    scope :light_table, controller: 'tasks/images/light_table' do
+      get '/', action: :index, as: 'light_table_task'
+    end
+
     scope :browse, controller: 'tasks/images/browse' do
       get '', action: :index, as: 'browse_images_task'
     end
@@ -833,7 +837,7 @@ scope :tasks do
     end
 
     scope :browse, controller: 'tasks/otus/browse' do
-      get '/(:otu_id)', action: :index, as: 'browse_otus_task'
+      get '/', action: :index, as: 'browse_otus_task'
     end
 
     scope :match_by_taxon_name, controller: 'tasks/otus/match_by_taxon_name' do

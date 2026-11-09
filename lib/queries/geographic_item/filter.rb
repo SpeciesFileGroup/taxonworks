@@ -29,7 +29,8 @@ module Queries
 
     class Filter < Query::Filter
       PARAMS = [
-        :geographic_item_id
+        :geographic_item_id,
+        geographic_item_id: [],
       ].freeze
 
       # @return [Array]

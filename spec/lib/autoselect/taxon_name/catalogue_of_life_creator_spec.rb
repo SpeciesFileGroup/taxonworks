@@ -1,9 +1,9 @@
 require 'rails_helper'
 
-# ColCreator needs a project root TaxonName to seed parent_id for the topmost created name.
+# CatalogueOfLifeCreator needs a project root TaxonName to seed parent_id for the topmost created name.
 # Model specs use project_id: 1 / user_id: 1 via Current; a root is created on demand below.
 
-RSpec.describe Autoselect::TaxonName::ColCreator, type: :model do
+RSpec.describe Autoselect::TaxonName::CatalogueOfLifeCreator, type: :model do
   before(:each) { find_or_create_root_taxon_name }
 
   # Minimal row helper — creates a row hash as the modal would send it.

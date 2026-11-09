@@ -3,7 +3,7 @@
 <% end %>
 
 <%= content_for :report do -%>
-  <%= content_tag(:li, link_to('Browse', browse_otus_task_path(@otu), data: {turbolinks: false} )) %>
+  <%= content_tag(:li, link_to('Browse', browse_otus_task_path(otu_id: @otu.id), data: {turbolinks: false} )) %>
 <% end %>
 
 <%= content_for :associated do -%>

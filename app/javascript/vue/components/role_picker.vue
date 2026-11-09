@@ -114,7 +114,7 @@
       class="table-entrys-list"
       element="ul"
       v-model="roles_attributes"
-      item-key="id"
+      :item-key="roleKey"
       @end="onSortable"
     >
       <template #item="{ element, index }">
@@ -259,7 +259,17 @@ function reset() {
   autocompleteRef.value.cleanInput()
 }
 
+function roleKey(role) {
+  return role.id || [
+    role.type,
+    role.organization_id ? 'Organization' : 'Person',
+    role.organization_id || role.person_id || role.person?.id
+  ].join('-')
+}
+
 function getUrl(role) {
+  if (role.organization_id) return `/organizations/${role.organization_id}`
+
   const id = role?.person_id || role?.person?.id
 
   return id ? `/people/${id}` : '#'
@@ -455,19 +465,22 @@ function addPerson(data) {
 }
 
 function addOrganization(organization) {
-  const alreadyExist = !!roles_attributes.value.find(
-    (role) => organization.id === role?.organization_id
+  const role = roles_attributes.value.find(
+    (role) => organization.id === role?.organization_id && role.type === props.roleType
   )
 
-  if (!alreadyExist) {
+  if (role) {
+    delete role._destroy
+  } else {
     roles_attributes.value.push({
       global_id: organization.global_id,
       organization_id: organization.id,
       name: organization.name,
-      type: props.roleType
+      type: props.roleType,
+      position: roles_attributes.value.length + 1
     })
-    peopleList.value = roles_attributes.value
   }
+  peopleList.value = roles_attributes.value
 }
 defineExpose({
   addPerson,

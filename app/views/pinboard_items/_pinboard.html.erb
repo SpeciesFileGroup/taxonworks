@@ -1,4 +1,4 @@
-<div id="pinboard" data-observe-field-spinner-target>
+<div id="pinboard" data-observe-field-spinner-target data-project-id="<%= sessions_current_project_id -%>">
   <% sessions_current_user.pinboard_hash(sessions_current_project_id).each do |object_type, items| -%>
     <%= content_tag :div, {id: "order_#{object_type.pluralize}" } do -%>
       <div class="slide-panel-category-header flex-separate">

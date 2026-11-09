@@ -28,6 +28,7 @@ module Queries
 
       def initialize(query_params)
         super
+        @gazetteer_id = params[:gazetteer_id]
         @name = params[:name]
         @containing_point = params[:containing_point]
       end

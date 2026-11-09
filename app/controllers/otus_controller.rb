@@ -420,6 +420,11 @@ class OtusController < ApplicationController
 
   # GET /api/v1/otus/:id/inventory/type_material
   def api_type_material_inventory
+    @type_materials = TypeMaterial.where(protonym_id: @otu.taxon_name&.valid_taxon_name&.historical_taxon_names&.select(:id))
+      .joins(:protonym)
+      .preload(:protonym, collection_object: [:collecting_event, :repository, :dwc_occurrence, :biocuration_classes, :identifiers])
+      .order('taxon_names.cached_is_valid DESC, taxon_names.cached_nomenclature_date, type_materials.id')
+
     render '/otus/api/v1/inventory/type_material'
   end
 
@@ -458,6 +463,10 @@ class OtusController < ApplicationController
       end
 
       format.geojson do
+        if params[:coordinate_otus] == 'false'
+          @otus = Otu.where(id: @otu.id)
+          render :distribution_by_otus
+        end
       end
     end
   end
@@ -485,6 +494,10 @@ class OtusController < ApplicationController
         render '/otus/api/v1/inventory/distribution'
       end
       format.geojson do
+        if params[:coordinate_otus] == 'false'
+          @otus = Otu.where(id: @otu.id)
+          render '/otus/distribution_by_otus' and return
+        end
         render '/otus/api/v1/inventory/distribution'
       end
     end
@@ -511,10 +524,10 @@ class OtusController < ApplicationController
     tn_result = nil
     otu = nil
 
-    # ColCreator's own transaction joins this one, so an ambiguous OTU rolls
-    # back the TaxonNames too.
+    # CatalogueOfLifeCreator's own transaction joins this one, so an ambiguous
+    # OTU rolls back the TaxonNames too.
     ::ActiveRecord::Base.transaction do
-      tn_result = ::Autoselect::TaxonName::ColCreator.new(
+      tn_result = ::Autoselect::TaxonName::CatalogueOfLifeCreator.new(
         rows:     autoselect_col_create_params,
         col_code: params[:col_code],
         project_id: sessions_current_project_id,
@@ -533,7 +546,7 @@ class OtusController < ApplicationController
       taxon_name_id: tn_result[:taxon_name_id],
       global_id: otu.to_global_id.to_s
     }
-  rescue ::Autoselect::TaxonName::ColCreator::CreationError => e
+  rescue ::Autoselect::TaxonName::CatalogueOfLifeCreator::CreationError => e
     render json: {
       error:           e.message,
       failed_col_name: e.col_name,
@@ -573,6 +586,10 @@ class OtusController < ApplicationController
     @descendants = params[:descendants] == 'true'
     respond_to do |format|
       format.geojson do
+        if params[:coordinate_otus] == 'false'
+          @otus = Otu.where(id: @otu.id)
+          render :distribution_is_absent_by_otus
+        end
       end
     end
   end
@@ -596,6 +613,10 @@ class OtusController < ApplicationController
     @descendants = params[:descendants] == 'true'
     respond_to do |format|
       format.geojson do
+        if params[:coordinate_otus] == 'false'
+          @otus = Otu.where(id: @otu.id)
+          render '/otus/distribution_is_absent_by_otus' and return
+        end
         render '/otus/api/v1/inventory/distribution_is_absent'
       end
     end

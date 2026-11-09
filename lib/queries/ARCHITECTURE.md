@@ -12,7 +12,7 @@ Filters work by merging `and` (e.g. `table[:id].in(otu_id)`) and `merge` (e.g. `
 ### Default facets
 There are several near "global" facets that are applied to all filters for example
 `model_id_facet` takes all references to variables like `otu_id` and turns them into `table[:id].in(otu_id)`,
-and `project_id_facet` applies project_id.  These defaults live in `Queries::Filter`.
+and `project_id_facet` applies project_id.  These defaults live in `Queries::Query::Filter`.
 
 ### Concerns
 Filters have concerns where sharing facets is of use. `And` and `merge` clauses (sets of facets) are automatically applied to the filter result.
@@ -52,6 +52,19 @@ def citations_facet
 # filter logic
 end
 ```
+
+### Nested queries (`<model>_query`)
+A filter accepts the results of another filter as a scope via a nested
+`<model>_query` param, registered in `Queries::Query::Filter::SUBQUERIES`
+(see the comment there).
+
+* An unregistered nested query, or more than one at the same level, raises
+  `TaxonWorks::Error::NestedQuery` (a 400 for JSON requests). Never rescue or
+  skip it: an ignored scope runs the filter without it, e.g. a batch update
+  touching records outside the intended set.
+* Registering a pair only permits and builds the nested filter. The filter
+  must also apply it in its `and`/`merge` clauses, usually as a
+  `<model>_query_facet`.
 
 ## Autocomplete
 TODO:

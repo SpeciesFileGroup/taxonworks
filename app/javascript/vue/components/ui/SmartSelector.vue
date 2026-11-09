@@ -127,7 +127,7 @@
                     @keyup.space="sendObject(item)"
                   />
                   <span
-                    :title="item[label]"
+                    :title="decodeBasicEntities(sanitizeHtml(item[label]))"
                     v-html="item[label]"
                   />
                 </label>
@@ -157,6 +157,7 @@ import DefaultPin from '@/components/ui/Button/ButtonPinned.vue'
 import OtuPicker from '@/components/otu/otu_picker/otu_picker.vue'
 import AutoselectPicker from '@/components/ui/AutoselectPicker.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
+import { sanitizeHtml, decodeBasicEntities } from '@/helpers'
 
 const props = defineProps({
   modelValue: {

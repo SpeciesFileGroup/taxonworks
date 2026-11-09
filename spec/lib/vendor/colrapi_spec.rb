@@ -53,8 +53,6 @@ end
 
 describe Vendor::Colrapi, type: :model do
 
-  # ── search ────────────────────────────────────────────────────────────────────
-
   describe '.search' do
     context 'when Colrapi returns results' do
       before do
@@ -94,8 +92,6 @@ describe Vendor::Colrapi, type: :model do
       end
     end
   end
-
-  # ── ancestors ─────────────────────────────────────────────────────────────────
 
   describe '.ancestors' do
     # The real classification subresource returns kingdom-first (distal-to-proximal) —
@@ -153,8 +149,6 @@ describe Vendor::Colrapi, type: :model do
     end
   end
 
-  # ── rank_class_for ────────────────────────────────────────────────────────────
-
   describe '.rank_class_for' do
     # When col_code is recognized only that code's lookup is used; otherwise
     # falls back through all four codes in order.
@@ -203,8 +197,6 @@ describe Vendor::Colrapi, type: :model do
         .to eq(described_class.rank_class_for('species', col_code: 'zoological'))
     end
   end
-
-  # ── classified_usage ─────────────────────────────────────────────────────────
 
   describe '.protonym_name_from' do
     specify 'a subgenus is its infragenericEpithet' do
@@ -490,8 +482,6 @@ describe Vendor::Colrapi, type: :model do
     end
   end
 
-  # ── col_backbone_dataset? ────────────────────────────────────────────────────
-
   describe '.col_backbone_dataset?' do
     it 'returns true for the main CoL dataset' do
       expect(described_class.col_backbone_dataset?('3LR')).to be true
@@ -509,8 +499,6 @@ describe Vendor::Colrapi, type: :model do
       expect(described_class.col_backbone_dataset?('')).to be false
     end
   end
-
-  # ── col_rank_sort ────────────────────────────────────────────────────────────
 
   describe '.col_rank_sort' do
     it 'uses the lookup for the given code' do
@@ -534,8 +522,6 @@ describe Vendor::Colrapi, type: :model do
         .to be > described_class.col_rank_sort('genus', 'zoological')
     end
   end
-
-  # ── resolve_accepted_names ───────────────────────────────────────────────────
 
   describe '.resolve_accepted_names' do
     def stub_hits(*hits)
@@ -764,8 +750,6 @@ describe Vendor::Colrapi, type: :model do
     end
   end
 
-  # ── ancestors_via_parent_id ──────────────────────────────────────────────────
-
   describe '.ancestors_via_parent_id' do
     # Species → genus → family chain, family has no parent (chain stops)
     let(:species_record) { col_taxon_record(id: 'SP1', name: 'Mus musculus', rank: 'species', parent_id: 'GEN1') }
@@ -867,8 +851,6 @@ describe Vendor::Colrapi, type: :model do
     end
 
   end
-
-  # ── VCR integration ──────────────────────────────────────────────────────────
 
   context 'VCR integration — Mammal Diversity Database (dataset 9802)' do
     it 'retrieves real ancestors for Mus musculus via parentId traversal' do
@@ -980,8 +962,6 @@ describe Vendor::Colrapi, type: :model do
       end
     end
   end
-
-  # ── Outdated Names (name_status) ─────────────────────────────────────────────
 
   # nameusage_search result entries wrap the usage: { 'usage' => { ... } }
   def col_search_usage(name:, status:, accepted: nil, rank: 'species')
