@@ -294,6 +294,13 @@ describe BatchLoad::Import::AssertedDistributions, type: :model do
         )
         expect(import.processed_rows[5].all_objects).to be_empty
       end
+
+      specify 'invalid citation does not invalidate the earlier line' do
+        import.processed_rows[2].objects[:citations].first.source = nil
+        expect(
+          import.processed_rows[1].objects[:asserted_distributions].first
+        ).to be_valid
+      end
     end
 
     context 'create' do
@@ -313,6 +320,47 @@ describe BatchLoad::Import::AssertedDistributions, type: :model do
 
       specify 'adds citation to existing asserted distribution' do
         expect(existing_ad.reload.sources).to contain_exactly(source1, source2)
+      end
+    end
+  end
+
+  context 'Invalid new asserted distribution' do
+    # The OTU/area pair is already asserted in another project, so every new
+    # asserted distribution for it is invalid.
+    let(:file_name) {
+      'spec/files/batch/asserted_distribution/' \
+        'invalid_new_asserted_distribution.tsv'
+    }
+    let(:upload_file) { Rack::Test::UploadedFile.new(file_name) }
+    let(:import) { BatchLoad::Import::AssertedDistributions.new(
+      project_id: project.id,
+      user_id: user.id,
+      file: upload_file)
+    }
+
+    let!(:otu) { FactoryBot.create(:valid_otu, id: 100) }
+    let!(:ga) { FactoryBot.create(:valid_geographic_area, id: 110) }
+    let!(:source1) { FactoryBot.create(:valid_source, id: 120) }
+    let!(:source2) { FactoryBot.create(:valid_source, id: 121) }
+
+    let!(:other_project_ad) {
+      ad = AssertedDistribution.create!(
+        asserted_distribution_object: otu,
+        asserted_distribution_shape: ga,
+        source: source1
+      )
+      ad.update_column(:project_id, FactoryBot.create(:valid_project).id)
+      ad
+    }
+
+    before { import }
+
+    specify 'later lines are not attached to the invalid line' do
+      (1..3).each do |line|
+        rp = import.processed_rows[line]
+        expect(rp.parse_errors).to be_empty
+        expect(rp.objects[:citations]).to be_blank
+        expect(rp.objects[:asserted_distributions].first).not_to be_valid
       end
     end
   end

@@ -51,26 +51,10 @@ module BatchLoad
             # database or on an earlier line.
             cited_lines[citation_key] = i
 
-            # Reference persisted records by id so that citations aren't
-            # added to (and validated with) the shared in-memory record,
-            # where one invalid citation would invalidate the others.
-            citation_object =
-              if asserted_distribution.persisted?
-                { citation_object_id: asserted_distribution.id, citation_object_type: 'AssertedDistribution' }
-              else
-                { citation_object: asserted_distribution }
-              end
-
             rp.objects[:citations] = [
-              Citation.new(
-                **citation_object,
-                source: s.item,
-                project_id: @project_id,
-                by: @user
-              )
+              detached_citation(asserted_distribution, s.item)
             ]
           else
-            cited_lines[citation_key] = i
             asserted_distribution = AssertedDistribution.new(
               asserted_distribution_object: o.item,
               source: s.item,
@@ -78,8 +62,14 @@ module BatchLoad
               project_id: @project_id,
               by: @user
             )
-            @asserted_distributions[pair_key] = asserted_distribution
             rp.objects[:asserted_distributions] = [asserted_distribution]
+
+            # Later lines for this pair would only inherit this line's
+            # error, so let them build (and report on) their own.
+            if asserted_distribution.valid?
+              cited_lines[citation_key] = i
+              @asserted_distributions[pair_key] = asserted_distribution
+            end
           end
         else
           rp.parse_errors += o.error_messages unless o.resolvable?
@@ -113,6 +103,34 @@ module BatchLoad
       return false unless asserted_distribution&.persisted?
 
       asserted_distribution.citations.where(source:, pages: nil).exists?
+    end
+
+    # Citations aren't added to (and so validated with) the shared
+    # asserted distribution, where one invalid citation would invalidate the
+    # asserted distribution and every other citation on it.
+    # @return [Citation]
+    def detached_citation(asserted_distribution, source)
+      if asserted_distribution.persisted?
+        return Citation.new(
+          citation_object_id: asserted_distribution.id,
+          citation_object_type: 'AssertedDistribution',
+          source:,
+          project_id: @project_id,
+          by: @user
+        )
+      end
+
+      # Built on an earlier line: it's saved before this citation (lines are
+      # saved in order), but assigning it adds the citation to its in-memory
+      # citations (inverse_of), so take it back out.
+      citation = Citation.new(
+        citation_object: asserted_distribution,
+        source:,
+        project_id: @project_id,
+        by: @user
+      )
+      asserted_distribution.citations.target.delete(citation)
+      citation
     end
 
     # @return [AssertedDistribution, nil]
