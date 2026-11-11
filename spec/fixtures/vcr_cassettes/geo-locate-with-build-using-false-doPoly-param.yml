@@ -1,0 +1,75 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: http://www.geo-locate.org/webservices/geolocatesvcv2/glcwrap.aspx?country=usa&county=&displacePoly=false&doPoly=false&doUncert=true&enableH2O=false&fmt=json&hwyX=false&languageKey=0&locality=Urbana&state=IL
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Cache-Control:
+      - private
+      Content-Type:
+      - application/json; charset=utf-8
+      Server:
+      - Microsoft-IIS/10.0
+      X-Aspnet-Version:
+      - 4.0.30319
+      X-Powered-By:
+      - ASP.NET
+      Date:
+      - Sat, 07 Nov 2026 02:46:20 GMT
+      Content-Length:
+      - '1033'
+    body:
+      encoding: UTF-8
+      string: |
+        {
+        "engineVersion" : "GLC:9.4|U:1.01374|eng:1.0",
+        "numResults" : 2,
+        "executionTimems" : 126.6767,
+        "resultSet" : { "type": "FeatureCollection",
+        "features": [
+        { "type": "Feature",
+        "geometry": {"type": "Point", "coordinates": [-88.20727, 40.110588]},
+        "properties": {
+        "parsePattern" : "URBANA",
+        "precision" : "High",
+        "score" : 83,
+        "uncertaintyRadiusMeters" : 5592,
+        "uncertaintyPolygon" : "Unavailable",
+        "displacedDistanceMiles" : 0,
+        "displacedHeadingDegrees" : 0,
+        "debug" : ":GazPartMatch=False|:inAdm=True|:Adm=CHAMPAIGN|:NPExtent=9283|:NP=URBANA|:KFID=IL:ppl:6259|URBANA"
+        }
+        },
+        { "type": "Feature",
+        "geometry": {"type": "Point", "coordinates": [-88.2, 40.1]},
+        "properties": {
+        "parsePattern" : "URBANA",
+        "precision" : "High",
+        "score" : 81,
+        "uncertaintyRadiusMeters" : "Unavailable",
+        "uncertaintyPolygon" : "Unavailable",
+        "displacedDistanceMiles" : 0,
+        "displacedHeadingDegrees" : 0,
+        "debug" : ":GazPartMatch=False|:inAdm=True|:Adm=CHAMPAIGN|:NP=URBANA|:KFID=|URBANA"
+        }
+        }
+         ],
+        "crs": { "type" : "EPSG", "properties" : { "code" : 4326 }}
+        }
+        }
+  recorded_at: Sat, 07 Nov 2026 02:46:20 GMT
+recorded_with: VCR 6.4.1
