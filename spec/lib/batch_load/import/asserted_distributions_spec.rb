@@ -283,7 +283,8 @@ describe BatchLoad::Import::AssertedDistributions, type: :model do
 
       specify 'existing citation is a parse error' do
         expect(import.processed_rows[4].parse_errors).to contain_exactly(
-          'Source is already cited on the existing asserted distribution.'
+          'Source is already cited on the existing ' \
+            'asserted distribution for this OTU and area.'
         )
         expect(import.processed_rows[4].all_objects).to be_empty
       end
@@ -300,6 +301,21 @@ describe BatchLoad::Import::AssertedDistributions, type: :model do
         expect(
           import.processed_rows[1].objects[:asserted_distributions].first
         ).to be_valid
+      end
+    end
+
+    context 'existing citation has pages' do
+      before do
+        existing_ad.citations.first.update!(pages: '12')
+        import
+      end
+
+      specify 'existing citation is still a parse error' do
+        expect(import.processed_rows[4].parse_errors).to contain_exactly(
+          'Source is already cited on the existing ' \
+            'asserted distribution for this OTU and area.'
+        )
+        expect(import.processed_rows[4].all_objects).to be_empty
       end
     end
 
