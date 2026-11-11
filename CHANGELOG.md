@@ -10,6 +10,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 ### Changed
 
 - Replaced the jQuery tablesorter plugin with a native sorter.
+- System news bar: titles are now always underlined and the whole bar is clickable, making it clear that news items are links
 
 ### Fixed
 
@@ -17,7 +18,6 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Browse OTU link in OTU show page (Report) and taxon determination links not loading the OTU in the task
 - Pinboard buttons do not synchronize across browser tabs [#5167]
 - Fix some table columns sorting by text rather than number (Project page's 'last seen', 'time in project'; Data tab list tables' 'last updated'; Downloads list table's 'expires') [#5175]
-
 
 [#5167]: https://github.com/SpeciesFileGroup/taxonworks/issues/5167
 [#5175]: https://github.com/SpeciesFileGroup/taxonworks/issues/5175
@@ -56,7 +56,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 ### Fixed
 
-- Batch update of Data Attributes - from filters *other than* Collection Objects, Collecting Events, Field Occurrences, OTUs, or Taxon Names - updated Data Attributes on every record in the project, not just the filtered ones [#5163]
+- Batch update of Data Attributes - from filters _other than_ Collection Objects, Collecting Events, Field Occurrences, OTUs, or Taxon Names - updated Data Attributes on every record in the project, not just the filtered ones [#5163]
 - Batch remove protocol in filters removed all protocols from the selected records instead of just the selected protocol [#5163]
 - Batch remove source from project removed sources from a project even when they were cited in that project [#5163]
 - Batch add sources to a project used to stop at the first source already in the project [#5163]
