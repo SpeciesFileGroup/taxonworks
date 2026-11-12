@@ -1,5 +1,12 @@
 import { KEY_CODE } from './keycode.js'
 
+const MODIFIERS = [
+  { name: 'alt', key: 'alt', flag: 'altKey' },
+  { name: 'ctrl', key: 'control', flag: 'ctrlKey' },
+  { name: 'shift', key: 'shift', flag: 'shiftKey' },
+  { name: 'meta', key: 'meta', flag: 'metaKey' }
+]
+
 class HotKeyManager {
   registeredHotkeys = {}
   pressedKeys = new Map()
@@ -8,18 +15,15 @@ class HotKeyManager {
     if (typeof window !== 'undefined') {
       window.addEventListener('keydown', (e) => {
         const key = this.normalizeKey(e.key)
+        const activeModifiers = this.getActiveModifiers(e)
 
-        if (e.altKey || e.ctrlKey || e.shiftKey || e.metaKey) {
-          this.pressedKeys.clear()
-          if (e.altKey) this.pressedKeys.set('alt', false)
-          if (e.ctrlKey) this.pressedKeys.set('ctrl', false)
-          if (e.shiftKey) this.pressedKeys.set('shift', false)
-          if (e.metaKey) this.pressedKeys.set('meta', false)
-        }
+        if (activeModifiers.length) this.pressedKeys.clear()
 
-        this.pressedKeys.set(key, e.repeat)
+        this.removeReleasedModifiers(e)
+        this.pressedKeys.set(e.code || key, key)
 
-        const keyComb = this.getKeyComb(Array.from(this.pressedKeys.keys()))
+        const keys = new Set([...activeModifiers, ...this.pressedKeys.values()])
+        const keyComb = this.getKeyComb([...keys])
         this.registeredHotkeys[keyComb]?.forEach((hotKey) => {
           if (!e.repeat || hotKey?.repeat) {
             if (hotKey.preventDefault) e.preventDefault()
@@ -29,9 +33,8 @@ class HotKeyManager {
       })
 
       window.addEventListener('keyup', (e) => {
-        const key = this.normalizeKey(e.key)
-
-        if (this.pressedKeys.has(key)) this.pressedKeys.delete(key)
+        this.pressedKeys.delete(e.code || this.normalizeKey(e.key))
+        this.removeReleasedModifiers(e)
       })
 
       window.addEventListener('blur', () => {
@@ -45,6 +48,19 @@ class HotKeyManager {
   }
 
   normalizeKey = (key) => String(key).toLowerCase()
+
+  getActiveModifiers = (e) =>
+    MODIFIERS.filter(({ flag }) => e[flag]).map(({ name }) => name)
+
+  removeReleasedModifiers = (e) => {
+    const releasedKeys = MODIFIERS.filter(({ flag }) => !e[flag]).map(
+      ({ key }) => key
+    )
+
+    this.pressedKeys.forEach((key, code) => {
+      if (releasedKeys.includes(key)) this.pressedKeys.delete(code)
+    })
+  }
 
   registerHotKey = (hotkey) => {
     const keyComb = this.getKeyComb([...hotkey.keys])
