@@ -68,13 +68,8 @@ module BatchLoad
             by: @user
           )
           rp.objects[:asserted_distributions] = [asserted_distribution]
-
-          # Later lines for this pair would only inherit this line's error, so
-          # let them build (and report on) their own if this one is invalid.
-          if asserted_distribution.valid?
-            cited_lines[citation_key] = i
-            @asserted_distributions[pair_key] = asserted_distribution
-          end
+          cited_lines[citation_key] = i
+          @asserted_distributions[pair_key] = asserted_distribution
         end
       end
       @total_lines = i
@@ -111,8 +106,10 @@ module BatchLoad
 
     # A citation on an existing asserted distribution (in the database, or
     # built by an earlier line and saved before this one), saved on its own.
-    # The asserted distribution isn't told about the citation, so each line
-    # validates, saves, and reports only its own objects.
+    # The asserted distribution isn't told about the citation, so the
+    # citation can't affect that asserted distribution's validity or save; it's
+    # validated, saved, and reported on this line. (The citation still
+    # validates the asserted distribution it cites.)
     # @return [Citation]
     def detached_citation(asserted_distribution, source)
       citation = Citation.new(
