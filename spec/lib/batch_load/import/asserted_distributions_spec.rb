@@ -326,6 +326,14 @@ describe BatchLoad::Import::AssertedDistributions, type: :model do
         expect(import.total_records_created).to eq(3)
       end
 
+      specify '#asserted_distributions_created' do
+        expect(import.asserted_distributions_created).to eq(1)
+      end
+
+      specify '#citations_created' do
+        expect(import.citations_created).to eq(3)
+      end
+
       specify 'does not duplicate asserted distributions' do
         expect(AssertedDistribution.count).to eq(2)
       end

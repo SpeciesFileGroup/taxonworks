@@ -169,7 +169,8 @@ class AssertedDistributionsController < ApplicationController
       @result = BatchLoad::Import::AssertedDistributions.new(**batch_params)
       if @result.create
         flash[:notice] = 'Successfully processed file, ' \
-          "#{@result.total_records_created} asserted distributions were created."
+          "#{@result.asserted_distributions_created} asserted distributions " \
+          "and #{@result.citations_created} citations were created."
         render 'asserted_distributions/batch_load/simple/create' and return
       else
         flash[:alert] = 'Batch import failed.'

@@ -86,7 +86,25 @@ module BatchLoad
       end
     end
 
+    # @return [Integer]
+    def asserted_distributions_created
+      persisted_count(:asserted_distributions)
+    end
+
+    # @return [Integer]
+    #   each new asserted distribution is saved with its origin citation
+    def citations_created
+      asserted_distributions_created + persisted_count(:citations)
+    end
+
     private
+
+    # @return [Integer]
+    def persisted_count(type)
+      processed_rows.values.sum do |rp|
+        Array(rp.objects[type]).count(&:persisted?)
+      end
+    end
 
     # @return [Hash]
     #   [object type, object id, shape type, shape id, source id] => first line using it
