@@ -112,7 +112,7 @@ const links = ref()
 const isModalVisible = ref(false)
 const bibtexStyle = ref()
 const styleId = ref(DEFAULT_CSL_STYLE)
-const stripHtml = ref(true)
+const stripHtml = ref(false)
 
 const payload = computed(() =>
   Object.assign(
