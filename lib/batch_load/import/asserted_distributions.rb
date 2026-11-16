@@ -46,20 +46,23 @@ module BatchLoad
         citation_key = pair_key + [s.item.id]
         asserted_distribution = existing_asserted_distribution(pair_key, o.item, g.item)
 
-        if line = cited_lines[citation_key]
+        if line = line_citing[citation_key]
           rp.parse_errors << "Duplicates the OTU, area and source of line #{line}."
-        elsif already_cited?(asserted_distribution, s.item)
+        elsif already_cited_in_database?(asserted_distribution, s.item)
           rp.parse_errors << 'Source is already cited on the existing ' \
             'asserted distribution for this OTU and area.'
         elsif asserted_distribution
-          # Another citation for an asserted distribution already in the
-          # database or on an earlier line.
-          cited_lines[citation_key] = i
+          # A new source for an asserted distribution already in the database
+          # or built by an earlier line.
+          line_citing[citation_key] = i
 
           rp.objects[:citations] = [
             detached_citation(asserted_distribution, s.item)
           ]
         else
+          # `source:` builds the asserted distribution's origin citation, so
+          # this line's citation is the original one (is_original: true).
+          # Citations added by detached_citation are not.
           asserted_distribution = AssertedDistribution.new(
             asserted_distribution_object: o.item,
             source: s.item,
@@ -68,7 +71,7 @@ module BatchLoad
             by: @user
           )
           rp.objects[:asserted_distributions] = [asserted_distribution]
-          cited_lines[citation_key] = i
+          line_citing[citation_key] = i
           @asserted_distributions[pair_key] = asserted_distribution
         end
       end
@@ -87,15 +90,15 @@ module BatchLoad
 
     # @return [Hash]
     #   [object type, object id, shape type, shape id, source id] => first line using it
-    def cited_lines
-      @cited_lines ||= {}
+    def line_citing
+      @line_citing ||= {}
     end
 
     # Any citation of the source counts, with or without pages.
-    # Checked here, rather than left to Citation validation, so the error
-    # message isn't obscured by the (then also invalid) asserted distribution.
+    # Checked here, rather than left to Citation validation, because it's
+    # stricter (see below), and to report a clear parse error.
     # @return [Boolean]
-    def already_cited?(asserted_distribution, source)
+    def already_cited_in_database?(asserted_distribution, source)
       return false unless asserted_distribution&.persisted?
 
       # Stricter than Citation's uniqueness validation (scoped to pages), since
@@ -104,14 +107,16 @@ module BatchLoad
       asserted_distribution.citations.where(source:).exists?
     end
 
-    # A citation on an existing asserted distribution (in the database, or
-    # built by an earlier line and saved before this one), saved on its own.
-    # The asserted distribution isn't told about the citation, so the
-    # citation can't affect that asserted distribution's validity or save; it's
-    # validated, saved, and reported on this line. (The citation still
-    # validates the asserted distribution it cites.)
+    # The citation for the file line being built, on an existing asserted
+    # distribution (in the database, or built by an earlier line, and so
+    # saved first). The asserted distribution isn't told about the citation,
+    # so the citation can't affect that asserted distribution's validity or
+    # save; it's validated, saved, and reported on its own line. (The
+    # citation still validates the asserted distribution it cites.)
     # @return [Citation]
     def detached_citation(asserted_distribution, source)
+      # Not original (is_original: nil); only the citation the asserted
+      # distribution was created with is.
       citation = Citation.new(
         citation_object: asserted_distribution,
         source:,

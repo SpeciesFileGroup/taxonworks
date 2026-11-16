@@ -8,9 +8,8 @@
       <p> Creates asserted distributions (distribution records for taxa, not specimens, from published accounts).
         <ul class="no_bullets">
           <li>
-            You must provide at least one of otu_name, otu_id, taxon_name, or name.
-            If more than one is provided, otu_id will be used.
-            The taxon_name column matches the OTU's taxon name label (cached).
+            You must provide at least one of (with priority in the given order)
+            otu_id, otu_name, taxon_name, or name.
             The name column first matches OTU name, then falls back to taxon name.
           </li>
           <li>
@@ -93,10 +92,10 @@
           <td></td>
           <td></td>
           <td></td>
-          <td></td>
           <td>12</td>
           <td></td>
-          <td>Saskatchewan</td>
+          <td></td>
+          <td></td>
           <td></td>
           <td></td>
           <td>19</td>
@@ -109,8 +108,8 @@
           <td>19</td>
           <td></td>
           <td></td>
-          <td>Canada</td>
           <td></td>
+          <td>Canada</td>
           <td></td>
           <td></td>
           <td></td>
@@ -133,6 +132,22 @@
           <td>42</td>
           <td></td>
           <td>10.1234/example.doi</td>
+          <td></td>
+        </tr>
+
+        <tr>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td>Eus fus</td>
+          <td></td>
+          <td></td>
+          <td>Canada</td>
+          <td>Saskatchewan</td>
+          <td></td>
+          <td></td>
+          <td>19</td>
+          <td></td>
           <td></td>
         </tr>
       </table>
