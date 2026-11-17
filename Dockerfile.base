@@ -7,7 +7,6 @@ RUN rm /etc/nginx/sites-enabled/default
 ADD config/docker/nginx/gzip_max.conf /etc/nginx/conf.d/gzip_max.conf
 
 # TaxonWorks dependencies
-COPY exe/install-source-han-sans.sh /usr/local/bin
 RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates curl gnupg && \
       install -d -m 0755 /usr/share/postgresql-common/pgdg /usr/share/keyrings && \
       curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc \
@@ -28,11 +27,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates
                          tesseract-ocr \
                          cmake \
                          zip \
-                         p7zip-full \
                          nodejs \
                          redis-server libhiredis-dev \
+                         fonts-liberation fonts-droid-fallback \
                          imagemagick libmagickwand-dev && \
-      /usr/local/bin/install-source-han-sans.sh && \
       apt-get autoremove -y && apt clean && \
       rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/src/*
 
