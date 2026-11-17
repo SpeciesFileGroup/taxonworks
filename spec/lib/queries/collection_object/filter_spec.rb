@@ -770,4 +770,55 @@ describe Queries::CollectionObject::Filter, type: :model, group: [:geo, :collect
     end
 
   end
+
+  context '#container_id' do
+    let!(:vial) { FactoryBot.create(:valid_container_vial) }
+    let!(:other_vial) { FactoryBot.create(:valid_container_vial) }
+    let!(:rack) { FactoryBot.create(:valid_container_vial_rack) }
+
+    let!(:s) { Specimen.create!(contained_in: vial) }
+    let!(:s1) { Specimen.create!(contained_in: other_vial) }
+    let!(:s2) { Specimen.create! } # not contained
+
+    specify 'matches collection objects directly contained' do
+      query.container_id = vial.id
+      expect(query.all).to contain_exactly(s)
+    end
+
+    specify 'matches collection objects in nested containers' do
+      vial.update!(contained_in: rack)
+
+      query.container_id = rack.id
+      expect(query.all).to contain_exactly(s)
+    end
+
+    specify 'matches the union of multiple containers' do
+      query.container_id = [vial.id, other_vial.id]
+      expect(query.all).to contain_exactly(s, s1)
+    end
+
+    specify 'is not applied when empty' do
+      query.container_id = []
+      expect(query.all).to contain_exactly(s, s1, s2)
+    end
+  end
+
+  context 'anatomical_part_query' do
+    let!(:specimen) { FactoryBot.create(:valid_specimen) }
+    let!(:anatomical_part) { FactoryBot.create(:valid_anatomical_part, ancestor: specimen) }
+
+    specify 'matches the origin CollectionObject' do
+      query.anatomical_part_query = ::Queries::AnatomicalPart::Filter.new(anatomical_part_id: anatomical_part.id)
+      expect(query.all).to contain_exactly(specimen)
+    end
+
+    specify 'ignores a non-AnatomicalPart descendant whose id collides with the anatomical part id' do
+      other_specimen = FactoryBot.create(:valid_specimen)
+      FactoryBot.create(:valid_extract, origin: other_specimen, id: anatomical_part.id)
+
+      query.anatomical_part_query = ::Queries::AnatomicalPart::Filter.new(anatomical_part_id: anatomical_part.id)
+      expect(query.all).to contain_exactly(specimen)
+    end
+  end
+
 end

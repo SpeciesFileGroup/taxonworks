@@ -46,6 +46,12 @@ export const TASK_IMAGES_PACKAGER = {
   saveQuery: true,
 };
 
+export const TASK_LIGHT_TABLE = {
+  label: "Light table",
+  link: "/tasks/images/light_table",
+  saveQuery: true,
+};
+
 export const TASK_LOANS_DASHBOARD = {
   label: "Loan dashboard",
   link: "/tasks/loans/dashboard/",
@@ -87,6 +93,16 @@ export const TASK_INTERACTIVE_KEY = {
   parseParams: ({ params }) => ({
     otu_filter: params.otu_id?.join("|"),
   }),
+};
+
+export const TASK_CITE_KEY = {
+  label: "Cite a key",
+  link: "/tasks/leads/cite_key",
+  saveQuery: true,
+  parseParams: ({ params }) => {
+    if (params.otu_id) return { otu_ids: params.otu_id };
+    return { otu_query: params };
+  },
 };
 
 export const TASK_BIOLOGICAL_ASSOCIATION_EXTENSION = {

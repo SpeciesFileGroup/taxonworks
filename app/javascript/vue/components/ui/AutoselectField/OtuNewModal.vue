@@ -33,11 +33,17 @@
           <template v-if="selectedTaxonName">
             <span class="otu-new-modal__taxon-selected">
               <span v-html="selectedTaxonName.label_html || selectedTaxonName.label" />
-              <button
-                class="otu-new-modal__taxon-clear"
+              <VBtn
+                circle
+                variant="ghost"
                 title="Clear taxon name"
                 @click="clearTaxonName"
-              >&#x2715;</button>
+              >
+                <VIcon
+                  name="close"
+                  xx-small
+                />
+              </VBtn>
             </span>
           </template>
           <template v-else>
@@ -126,6 +132,7 @@
 import { ref, onMounted, nextTick } from 'vue'
 import Modal from '@/components/ui/Modal.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import VIcon from '@/components/ui/VIcon/index.vue'
 import Autocomplete from '@/components/ui/Autocomplete.vue'
 import AjaxCall from '@/helpers/ajaxCall'
 
@@ -274,7 +281,7 @@ async function doCreate() {
 .otu-new-modal__label {
   font-weight: 600;
   font-size: 11px;
-  color: var(--text-color-muted, #666);
+  color: var(--text-muted-color);
   margin-bottom: 1px;
 }
 
@@ -300,31 +307,17 @@ async function doCreate() {
   align-items: center;
   gap: 6px;
   padding: 3px 8px;
-  background: var(--input-bg-color, #f9f9f9);
-  border: 1px solid var(--border-color, #ccc);
+  background: var(--input-bg-color);
+  border: 1px solid var(--border-color);
   border-radius: 3px;
   font-size: 12px;
   flex: 1;
   min-width: 0;
 }
 
-.otu-new-modal__taxon-clear {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 11px;
-  color: var(--text-color-muted, #888);
-  padding: 0 2px;
-  line-height: 1;
-}
-
-.otu-new-modal__taxon-clear:hover {
-  color: var(--color-destroy, #c00);
-}
-
 .otu-new-modal__searching {
   font-size: 11px;
-  color: var(--text-color-muted, #888);
+  color: var(--text-muted-color);
   white-space: nowrap;
 }
 
@@ -332,15 +325,15 @@ async function doCreate() {
   list-style: none;
   margin: 0;
   padding: 0;
-  border: 1px solid var(--border-color, #ccc);
+  border: 1px solid var(--border-color);
   border-radius: 3px;
   max-height: 160px;
   overflow-y: auto;
-  background: var(--panel-bg-color, #fff);
+  background: var(--panel-bg-color);
 }
 
 .otu-new-modal__disambig-item {
-  border-top: 1px solid var(--border-color, #ccc);
+  border-top: 1px solid var(--border-color);
   padding: 4px 8px;
 }
 
@@ -363,7 +356,7 @@ async function doCreate() {
 }
 
 .otu-new-modal__error {
-  color: var(--color-destroy, #c00);
+  color: var(--color-destroy);
   font-size: 12px;
   margin: 4px 0 0;
 }

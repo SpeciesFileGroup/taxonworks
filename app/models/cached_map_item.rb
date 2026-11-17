@@ -48,7 +48,7 @@ class CachedMapItem < ApplicationRecord
   validates_uniqueness_of :otu_id, scope: [:type, :geographic_item_id]
   validates_presence_of :otu, :geographic_item, :type
 
-  # @return Hash
+  # @return [Hash]
   #   {country:, state:, county: }
   #  Check to see if a record is already present rather than-recalculate spatially
   #  CONSIDER: Use Reddis store to cache these results and look them up from there.
@@ -77,7 +77,7 @@ class CachedMapItem < ApplicationRecord
     ::GeographicItem.from('(' + s + ') as geographic_items').distinct
   end
 
-  # @return Array
+  # @return [Array]
   def self.types_by_data_origin(data_origin = [])
     types = []
     data_origin.each do |o|
@@ -381,7 +381,7 @@ class CachedMapItem < ApplicationRecord
   # Create breadth-first CachedMapItems
   #   Only applicable to Georeferences.
   #
-  # @params batch_stubs [Hash]
+  # @param batch_stubs [Hash]
   # {
   #  map_type: ,
   #  geographic_item_id: []

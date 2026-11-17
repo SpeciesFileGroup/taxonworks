@@ -47,46 +47,50 @@
       </tr>
     </tbody>
   </table>
-  <table
+  <div
     v-if="previewErrors.length"
-    class="table-striped full_width"
+    class="preview-table-scroll"
   >
-    <thead>
-      <tr>
-        <th>Errors</th>
-        <th>Total</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr
-        v-for="item in previewErrors"
-        :key="item.label"
-      >
-        <td>{{ item.label }}</td>
-        <td>{{ item.total }}</td>
-      </tr>
-    </tbody>
-  </table>
-  <table
+    <table class="table-striped full_width">
+      <thead>
+        <tr>
+          <th>Errors</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          v-for="item in previewErrors"
+          :key="item.label"
+        >
+          <td>{{ item.label }}</td>
+          <td>{{ item.total }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div
     v-if="validationErrors.length"
-    class="table-striped full_width margin-medium-top"
+    class="preview-table-scroll margin-medium-top"
   >
-    <thead>
-      <tr>
-        <th>Reason not updated</th>
-        <th>Count</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr
-        v-for="item in validationErrors"
-        :key="item.label"
-      >
-        <td>{{ item.label }}</td>
-        <td>{{ item.total }}</td>
-      </tr>
-    </tbody>
-  </table>
+    <table class="table-striped full_width">
+      <thead>
+        <tr>
+          <th>Reason not updated</th>
+          <th>Count</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          v-for="item in validationErrors"
+          :key="item.label"
+        >
+          <td>{{ item.label }}</td>
+          <td>{{ item.total }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </template>
 
 <script setup>
@@ -116,3 +120,10 @@ const validationErrors = computed(() => {
   )
 })
 </script>
+
+<style scoped>
+.preview-table-scroll {
+  max-height: 320px;
+  overflow-y: auto;
+}
+</style>

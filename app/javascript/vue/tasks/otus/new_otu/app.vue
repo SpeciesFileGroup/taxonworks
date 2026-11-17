@@ -179,7 +179,9 @@ function getOtus(otuNames) {
 
   Promise.all(requests).then(() => {
     isLoading.value = false
-    selected.value = otuList.value.map((item) => item.uuid)
+    selected.value = otuList.value
+      .filter((item) => !item.exist)
+      .map((item) => item.uuid)
   })
 }
 

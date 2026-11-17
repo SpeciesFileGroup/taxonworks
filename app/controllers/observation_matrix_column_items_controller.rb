@@ -47,7 +47,9 @@ class ObservationMatrixColumnItemsController < ApplicationController
   # PATCH/PUT /observation_matrix_column_items/1.json
   def update
     respond_to do |format|
-      if @observation_matrix_column_item.update(observation_matrix_column_item_params)
+      if @observation_matrix_column_item.update(
+          observation_matrix_column_item_update_params
+        )
         format.json { render :show, status: :ok, location: @observation_matrix_column_item.metamorphosize }
       else
         format.json { render json: @observation_matrix_column_item.errors, status: :unprocessable_content }
@@ -117,5 +119,10 @@ class ObservationMatrixColumnItemsController < ApplicationController
       :descriptor_id,
       :keyword_id, 
       :position)
+  end
+
+  # What an item covers (and its matrix) is fixed once created
+  def observation_matrix_column_item_update_params
+    params.require(:observation_matrix_column_item).permit(:position)
   end
 end

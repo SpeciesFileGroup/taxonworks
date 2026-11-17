@@ -39,13 +39,16 @@
                 :legend="null"
               />
               <div
-                v-else-if="row.matches.length === 0 &&
-                  !row.alreadyExists && !row.isFuzzySearchPending"
+                v-else-if="
+                  row.matches.length === 0 &&
+                  !row.alreadyExists &&
+                  !row.isFuzzySearchPending
+                "
               >
                 <span class="no-matches">No matches found</span>
               </div>
               <div
-                v-else-if="!row.alreadyExists && !row.createdPerson"
+                v-else-if="!row.alreadyExists"
                 class="matches-list"
               >
                 <div class="match-option">
@@ -55,6 +58,7 @@
                       :name="`author-match-${index}`"
                       :value="null"
                       v-model="row.selectedPersonId"
+                      @change="row.createdPerson = null"
                     />
                     <span>none</span>
                   </label>
@@ -70,9 +74,14 @@
                       :name="`author-match-${index}`"
                       :value="person.id"
                       v-model="row.selectedPersonId"
-                      @change="row.createdPerson = null"
+                      @change="selectMatch(row, person)"
                     />
                     <span v-html="person.cached || person.name" />
+                    <span
+                      v-if="person.isNewlyCreated"
+                      class="new-person-tag"
+                      >new</span
+                    >
                   </label>
                   <a
                     :href="`/people/${person.id}`"
@@ -87,7 +96,9 @@
                   <span
                     class="use-count"
                     :title="`${person.use_count} project ${person.use_count === 1 ? 'use' : 'uses'}`"
-                  >{{ person.use_count }} {{ person.use_count === 1 ? 'use' : 'uses' }}</span>
+                    >{{ person.use_count }}
+                    {{ person.use_count === 1 ? 'use' : 'uses' }}</span
+                  >
                 </div>
               </div>
               <div
@@ -153,7 +164,9 @@
                 <VBtn
                   color="create"
                   medium
-                  :disabled="!row.newPersonForm.last_name || !!row.selectedPersonId"
+                  :disabled="
+                    !row.newPersonForm.last_name || !!row.selectedPersonId
+                  "
                   @click="createPerson(row)"
                 >
                   Create
@@ -375,20 +388,8 @@ async function searchMatches(row, claimedRoleIds) {
     }
   }
 
-  // Preserves the backend's name-group order (e.g. exact matches before fuzzy),
-  // but within each group of identically-named people sorts by project use count descending.
-  const sortByUsage = (matches) => {
-    const groupOrder = {}
-    matches.forEach((p) => {
-      const key = p.cached || p.name || ''
-      if (!(key in groupOrder)) groupOrder[key] = Object.keys(groupOrder).length
-    })
-    return [...matches].sort((a, b) => {
-      const groupDiff = groupOrder[a.cached || a.name || ''] - groupOrder[b.cached || b.name || '']
-      if (groupDiff !== 0) return groupDiff
-      return (b.use_count || 0) - (a.use_count || 0)
-    })
-  }
+  const sortByUsage = (matches) =>
+    [...matches].sort((a, b) => (b.use_count || 0) - (a.use_count || 0))
 
   const handleResult = (people) => {
     if (!firstReturned) {
@@ -408,15 +409,25 @@ async function searchMatches(row, claimedRoleIds) {
   await Promise.allSettled([
     People.authorMatch(exactPayload)
       .then(({ body }) => handleResult(body))
-      .catch(() => { firstReturned = true; row.isSearching = false }),
+      .catch(() => {
+        firstReturned = true
+        row.isSearching = false
+      }),
     People.authorMatch(fuzzyPayload)
       .then(({ body }) => handleResult(body))
-      .catch(() => { firstReturned = true; row.isFuzzySearchPending = false })
+      .catch(() => {
+        firstReturned = true
+        row.isFuzzySearchPending = false
+      })
   ])
 
   // safety net if both requests fail
   row.isSearching = false
   row.isFuzzySearchPending = false
+}
+
+function selectMatch(row, person) {
+  row.createdPerson = person.isNewlyCreated ? person : null
 }
 
 async function createPerson(row) {
@@ -430,8 +441,18 @@ async function createPerson(row) {
       }
     })
 
-    row.createdPerson = body
-    row.selectedPersonId = null
+    const createdPerson = {
+      ...body,
+      use_count: body.use_count ?? 0,
+      isNewlyCreated: true
+    }
+
+    row.matches = [
+      createdPerson,
+      ...row.matches.filter((p) => p.id !== createdPerson.id)
+    ]
+    row.createdPerson = createdPerson
+    row.selectedPersonId = createdPerson.id
 
     TW.workbench.alert.create('Person created successfully', 'notice')
   } catch {}
@@ -483,12 +504,14 @@ td {
 
 .matches-cell {
   min-width: 200px;
+  overflow-y: auto;
 }
 
 .matches-list {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  max-height: 280px;
 }
 
 .match-option {
@@ -522,6 +545,14 @@ td {
 .use-count {
   font-size: 0.8em;
   color: var(--text-muted-color);
+}
+
+.new-person-tag {
+  font-size: 0.8em;
+  padding: 0px 4px;
+  border-radius: 4px;
+  background-color: var(--badge-blue-bg);
+  color: var(--badge-blue-color);
 }
 
 .create-cell {

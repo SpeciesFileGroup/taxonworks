@@ -66,7 +66,6 @@ module BatchLoad
     # User provided map of their header (key) to our attribute (value)
     attr_accessor :user_header_map
 
-    # @param [Hash] args
     def initialize(project_id: nil, user_id: nil, file: nil, process: true, import_level: :warn, user_header_map: {})
       @processed = false
       @import_level = import_level

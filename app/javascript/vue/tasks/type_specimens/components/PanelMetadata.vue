@@ -34,6 +34,7 @@
           @update="() => (store.typeMaterial.isUnsaved = true)"
         />
       </div>
+      <CustomAttributes />
     </template>
   </BlockLayout>
 </template>
@@ -44,6 +45,7 @@ import { TypeMaterial } from '@/routes/endpoints'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
 import Spinner from '@/components/ui/VSpinner.vue'
 import FormCitation from '@/components/Form/FormCitation.vue'
+import CustomAttributes from './CustomAttributes.vue'
 import useStore from '../store/store.js'
 
 const store = useStore()

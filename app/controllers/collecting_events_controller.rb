@@ -127,7 +127,19 @@ class CollectingEventsController < ApplicationController
   end
 
   def autocomplete
-    @collecting_events = Queries::CollectingEvent::Autocomplete.new(params[:term], project_id: sessions_current_project_id).autocomplete
+    @collecting_events = Queries::CollectingEvent::Autocomplete.new(
+      params[:term],
+      project_id: sessions_current_project_id,
+      georeferences: params[:georeferences]
+    ).autocomplete
+
+    # `autocomplete` returns an Array, and the response renders a georeference
+    # count per record when the restriction was asked for.
+    if params[:georeferences].present?
+      ActiveRecord::Associations::Preloader.new(
+        records: @collecting_events, associations: [:georeferences]
+      ).call
+    end
   end
 
   # PATCH /collecting_events/batch_update.json?collecting_event_query=<>&collecting_event={}
@@ -255,7 +267,11 @@ class CollectingEventsController < ApplicationController
 
   # GET /collecting_events/select_options
   def select_options
-    @collecting_events = CollectingEvent.select_optimized(sessions_current_user_id, sessions_current_project_id)
+    @collecting_events = CollectingEvent.select_optimized(
+      sessions_current_user_id,
+      sessions_current_project_id,
+      georeferences: ActiveModel::Type::Boolean.new.cast(params[:georeferences])
+    )
   end
 
   def api_index
@@ -273,7 +289,11 @@ class CollectingEventsController < ApplicationController
 
   def api_autocomplete
     render json: {} and return if params[:term].blank?
-    @collecting_events = Queries::CollectingEvent::Autocomplete.new(params[:term], project_id: sessions_current_project_id).autocomplete
+    @collecting_events = Queries::CollectingEvent::Autocomplete.new(
+      params[:term],
+      project_id: sessions_current_project_id,
+      georeferences: params[:georeferences]
+    ).autocomplete
     render '/collecting_events/api/v1/autocomplete'
   end
 
@@ -302,7 +322,7 @@ class CollectingEventsController < ApplicationController
       georeferences_attributes: [:type, :geographic_item_id, :error_radius,
         :error_depth, :error_geographic_item, :is_public, :api_request,
         :year_georeferenced, :month_georeferenced, :day_georeferenced], # batch add only use right now
-      roles_attributes: [:id, :_destroy, :type, :person_id, :position, :by,
+      roles_attributes: [:id, :_destroy, :type, :person_id, :organization_id, :position, :by,
                          person_attributes: [:last_name, :first_name, :suffix, :prefix, :by]],
     identifiers_attributes: [:id, :namespace_id, :identifier, :type, :_destroy],
     data_attributes_attributes: [ :id, :_destroy, :controlled_vocabulary_term_id, :type, :attribute_subject_id, :attribute_subject_type, :value ]

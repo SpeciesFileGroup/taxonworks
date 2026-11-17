@@ -114,6 +114,25 @@ class AlternateValuesController < ApplicationController
     @object = GlobalID::Locator.locate(params.require(:global_id))
   end
 
+  # GET /api/v1/alternate_values
+  def api_index
+    @alternate_values = ::Queries::AlternateValue::Filter.new(
+      params.merge(project_id: sessions_current_project_id, api: true)
+    ).all
+      .order('alternate_values.id')
+      .page(params[:page])
+      .per(params[:per])
+    render '/alternate_values/api/v1/index'
+  end
+
+  # GET /api/v1/alternate_values/:id
+  def api_show
+    @alternate_value = AlternateValue
+      .where(project_id: [sessions_current_project_id, nil])
+      .find(params[:id])
+    render '/alternate_values/api/v1/show'
+  end
+
   private
 
   def set_alternate_value

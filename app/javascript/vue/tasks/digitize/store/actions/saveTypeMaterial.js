@@ -1,6 +1,6 @@
 import { MutationNames } from '../mutations/mutations'
 import { TypeMaterial, Citation } from '@/routes/endpoints'
-import makeTypeMaterial from '@/factory/TypeMaterial.js'
+import makeTypeMaterial from '../../helpers/makeTypeMaterial.js'
 import makeCitation from '@/factory/Citation'
 import { TYPE_MATERIAL } from '@/constants'
 
@@ -84,11 +84,16 @@ async function saveCitation(typeMaterial) {
 }
 
 function makeTypeSpecimenPayback(state, typeSpecimen) {
+  const dataAttributes = typeSpecimen.data_attributes_attributes || []
   const payload = {
     id: typeSpecimen.id,
     protonym_id: typeSpecimen.protonymId,
     type_type: typeSpecimen.type,
     collection_object_id: state.collection_object.id
+  }
+
+  if (dataAttributes.length) {
+    payload.data_attributes_attributes = dataAttributes
   }
 
   return payload

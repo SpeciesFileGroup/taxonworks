@@ -146,7 +146,7 @@ module BatchLoad::ColumnResolver
         begin
           r.assign(GeographicArea.find(columns['geographic_area_id']))
         rescue ActiveRecord::RecordNotFound
-          r.error_messages << "No Geographic area with id #{columns['source_id']} exists."
+          r.error_messages << "No Geographic area with id #{columns['geographic_area_id']} exists."
         end
       elsif columns['geographic_area_name']
         search_list = columns['geographic_area_name']

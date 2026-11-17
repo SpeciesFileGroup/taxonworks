@@ -34,13 +34,13 @@ class Import < ApplicationRecord
   def set(key, value)
     h      = metadata_json
     h      ||= {}
-    h[key] = value
+    h[key.to_s] = value
     update_attribute(:metadata_json, h)
   end
 
   def get(key)
     return nil if metadata_json.nil?
-    metadata_json[key]
+    metadata_json[key.to_s]
   end
 
 end

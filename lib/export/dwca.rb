@@ -20,7 +20,8 @@ module Export::Dwca
     '2023-12-14 16:30:00.000000 -0500',    # add verbatimLabel
     '2023-12-21 11:00:00.000000 -0500',    # add caste (via biocuration), identificationRemarks
     '2024-09-13 11:00:00.000000 -0500',    # enable collectionCode, object and collecting event related IDs
-    '2026-03-21 12:00:00.000000 -0500'     # add otu_id to dwc_occurrences
+    '2026-03-21 12:00:00.000000 -0500',    # add otu_id to dwc_occurrences
+    '2026-10-24 00:00:00.000000 +0000' # Organization collectors and determiners
   ].freeze
 
   # Delimiter used for concatenating multiple values in DwC fields

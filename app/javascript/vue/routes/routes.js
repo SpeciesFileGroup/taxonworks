@@ -32,6 +32,7 @@ const RouteNames = {
   BrowseNomenclature: '/tasks/nomenclature/browse',
   BrowseOtu: '/tasks/otus/browse',
   BrowseSound: '/tasks/sounds/browse',
+  CiteKey: '/tasks/leads/cite_key',
   ContentEditor: '/tasks/content/editor',
   DichotomousKey: '/tasks/leads/dichotomous_key',
   DigitizeTask: '/tasks/accessions/comprehensive',
@@ -63,6 +64,7 @@ const RouteNames = {
   ImageMatrix: '/tasks/observation_matrices/image_matrix',
   InteractiveKeys: '/tasks/observation_matrices/interactive_key',
   LeadsHub: '/tasks/leads/hub',
+  LightTable: '/tasks/images/light_table',
   ManageBiocurationTask:
     '/tasks/controlled_vocabularies/biocuration/build_collection',
   ManageControlledVocabularyTask: '/tasks/controlled_vocabularies/manage',
@@ -72,6 +74,8 @@ const RouteNames = {
   MatrixRowCoder: '/tasks/observation_matrices/row_coder/index',
   NewAssertedDistribution:
     '/tasks/asserted_distributions/new_asserted_distribution',
+  NewAssertedEnvironment:
+    '/tasks/asserted_environments/new_asserted_environment',
   NewBiologicalAssociations:
     '/tasks/biological_associations/new_biological_association',
   NewBiologicalAssociationsII: '/tasks/biological_associations/new_ba',

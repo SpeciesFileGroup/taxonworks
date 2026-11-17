@@ -88,6 +88,15 @@ class PreparationTypesController < ApplicationController
     ).autocomplete
   end
 
+  # GET /preparation_types/select_options?target=CollectionObject
+  def select_options
+    @preparation_types = PreparationType.select_optimized(
+      sessions_current_user_id,
+      sessions_current_project_id,
+      params.require(:target)
+    )
+  end
+
   # GET /preparation_types/download
   def download
     send_data(Export::CSV.generate_csv(PreparationType.all),

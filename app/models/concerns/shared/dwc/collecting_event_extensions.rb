@@ -175,22 +175,22 @@ module Shared::Dwc::CollectingEventExtensions
     collecting_event&.verbatim_method
   end
 
-  def dwc_verbatim_habitat
-    collecting_event&.verbatim_habitat
+  # Prioritize the curated AssertedEnvironments (ENVO terms) over the free-text
+  # verbatim_habitat, falling back to the latter when none have been asserted.
+  def dwc_habitat
+    return nil unless collecting_event
+
+    collecting_event.asserted_environments.order(:position).pluck(:uri_label)
+      .join(Export::Dwca::DELIMITER).presence || collecting_event.verbatim_habitat
   end
 
   # See dwc_recorded_by
   # TODO: Expand to any GlobalIdentifier
   def dwc_recorded_by_id
     if collecting_event
-      collecting_event.collectors
-        .joins(:identifiers)
-        .where(identifiers: {type: ['Identifier::Global::Orcid', 'Identifier::Global::Wikidata']})
-        .select('identifiers.identifier_object_id, identifiers.cached')
-        .unscope(:order)
-        .distinct
-        .pluck('identifiers.cached')
-        .join(Export::Dwca::DELIMITER)&.presence
+      collecting_event.collector_roles.sort_by { |role| role.position || Float::INFINITY }.flat_map do |role|
+        role.agent.identifiers.where(type: ['Identifier::Global::Orcid', 'Identifier::Global::Wikidata']).pluck(:cached)
+      end.uniq.join(Export::Dwca::DELIMITER).presence
     end
   end
 
@@ -200,9 +200,9 @@ module Shared::Dwc::CollectingEventExtensions
   def dwc_recorded_by
     v = nil
     if collecting_event
-      v = collecting_event.collectors
-        .order('roles.position')
-        .map(&:name)
+      v = collecting_event.collector_roles
+        .sort_by { |role| role.position || Float::INFINITY }
+        .map { |role| role.agent.name }
         .join(Export::Dwca::DELIMITER)
         .presence
       v = collecting_event.verbatim_collectors.presence if v.blank?

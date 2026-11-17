@@ -34,7 +34,7 @@
 import SmartSelector from '@/components/ui/SmartSelector'
 import { MutationNames } from '../../store/mutations/mutations'
 import { GetterNames } from '../../store/getters/getters'
-import { GetCollectingEvent } from '../../request/resource'
+import { CollectingEvent } from '@/routes/endpoints'
 import SharedComponent from '../shared/lock.js'
 
 export default {
@@ -68,7 +68,7 @@ export default {
 
   mounted() {
     if (this.collectionObject.collecting_event_id) {
-      GetCollectingEvent(this.collectionObject.collecting_event_id).then(
+      CollectingEvent.find(this.collectionObject.collecting_event_id).then(
         (response) => {
           this.collectingEvent = response.body
         }

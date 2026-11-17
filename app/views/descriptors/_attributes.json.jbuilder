@@ -23,3 +23,11 @@ if descriptor.gene?
     end
   end
 end
+
+if extend_response_with('observation_matrices')
+  json.observation_matrices do
+    json.array! descriptor.observation_matrices do |observation_matrix|
+      json.extract! observation_matrix, :id, :name
+    end
+  end
+end

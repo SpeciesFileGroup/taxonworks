@@ -22,8 +22,8 @@ module Utilities::Files
 
 
   # @return [Boolean]
-  # @param file_to_replace a file path, this file will be destroyed
-  # @param file_to_keep a file path, this file will named the name of file_to_replace
+  # @param original_file a file path, this file will be destroyed
+  # @param new_file a file path, this file will named the name of original_file
   def self.replace(original_file, new_file)
     return false unless File.exist?(original_file) && File.exist?(new_file)
     fo = original_file

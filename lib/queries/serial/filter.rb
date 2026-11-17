@@ -10,7 +10,7 @@ module Queries
         serial_id: []
       ].freeze
 
-      # @return Array
+      # @return [Array]
       attr_accessor :serial_id
 
       # @param [String]

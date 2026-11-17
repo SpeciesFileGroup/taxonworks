@@ -37,8 +37,9 @@ module BatchLoad
 
     # @return [Integer]
     def build_descriptors
-      i = 0 
+      i = 0
       csv.each do |row|
+        i += 1
         parse_result = BatchLoad::RowParse.new
 
         parse_result.objects[:descriptor] = []
@@ -71,12 +72,9 @@ module BatchLoad
 
         # attach the results to the row
         @processed_rows[i] = parse_result
-
-        i += 1
       end
 
-
-      @total_lines = i - 1
+      @total_lines = i
     end
 
     def build

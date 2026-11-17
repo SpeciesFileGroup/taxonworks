@@ -27,6 +27,17 @@
               value: e.target.value
             })
         "
+        @paste="
+          (e) => {
+            e.preventDefault()
+            emit('paste', {
+              text: e.clipboardData.getData('text/plain'),
+              rowIndex: rowIndex,
+              columnKey: attribute,
+              kind: 'attribute'
+            })
+          }
+        "
       />
     </div>
   </td>
@@ -47,6 +58,11 @@ const props = defineProps({
     required: true
   },
 
+  rowIndex: {
+    type: Number,
+    required: true
+  },
+
   disabled: {
     type: Boolean,
     default: false
@@ -57,6 +73,8 @@ const props = defineProps({
     required: true
   }
 })
+
+const emit = defineEmits(['paste'])
 
 const isUpdating = ref(false)
 

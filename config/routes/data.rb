@@ -11,10 +11,6 @@ concern :data_routes do |options|
     get 'autocomplete'
     get 'search' # TODO: deprecate/remove
   end
-
-  member do
-    get 'related' # TODO: remove or redirect here to Task route
-  end
 end
 
 resources :alternate_values, except: [:show, :new] do
@@ -63,10 +59,23 @@ resources :asserted_distributions do
     post :batch_template_create, defaults: {format: :json}
     post :sources, defaults: {format: :json}
     post :preview_simple_batch_load # should be get
-    post :create_simple_batch_load, defaults: {format: :json}
+    post :create_simple_batch_load
     match :filter, to: 'asserted_distributions#index', via: [:get, :post]
   end
   resources :origin_relationships, shallow: true, only: [:index], defaults: {format: :json}
+end
+
+resources :asserted_environments, except: [:update] do
+  collection do
+    get :list
+    get :download
+    get :search
+    get :autocomplete, defaults: {format: :json}
+    get :autoselect, defaults: {format: :json}
+    get :object_types, defaults: {format: :json}
+    match :filter, to: 'asserted_environments#index', via: [:get, :post]
+    post :batch_by_filter_scope, defaults: {format: :json}
+  end
 end
 
 resources :biocuration_classifications, only: [:create, :update, :destroy] do
@@ -222,6 +231,19 @@ end
 
 resources :common_names do
   concerns [:data_routes]
+  collection do
+    match :filter, to: 'common_names#index', via: [:get, :post]
+  end
+end
+
+resources :composition_items, only: [:show, :create, :update, :destroy], defaults: {format: :json}
+
+resources :compositions do
+  concerns [:data_routes]
+  collection do
+    get :select_options, defaults: {format: :json}
+  end
+  resources :composition_items, shallow: true, only: [:index], defaults: {format: :json}
 end
 
 get 'confidences/exists', to: 'confidences#exists', defaults: {format: :json}
@@ -284,6 +306,7 @@ resources :conveyances do
     get :navigation, defaults: {format: :json}
   end
   collection do
+    match :filter, to: 'conveyances#index', via: [:get, :post]
     get :autocomplete, defaults: {format: :json}
     get :select_options, defaults: {format: :json}
   end
@@ -323,6 +346,7 @@ resources :descriptors do
   end
   collection do
     match :filter, to: 'descriptors#index', via: [:get, :post]
+    patch :sort, defaults: {format: :json}
     get :units
     post :preview_modify_gene_descriptor_batch_load
     post :create_modify_gene_descriptor_batch_load
@@ -347,10 +371,6 @@ resources :documentation, as: :documentation do
     get 'list'
 
     patch :sort
-  end
-
-  member do
-    get 'related'
   end
 end
 
@@ -435,10 +455,6 @@ resources :geographic_areas, only: [:index, :show] do
     get 'display_coordinates', as: 'getdisplaycoordinates'
     get :select_options, defaults: {format: :json}
     get :by_lat_long, defaults: {format: :json}
-  end
-
-  member do
-    get 'related'
   end
 end
 
@@ -541,6 +557,7 @@ resources :leads do
     post :insert_couplet, defaults: {format: :json}
     post :destroy_children, defaults: {format: :json}
     post :delete_children, defaults: {format: :json}
+    delete :destroy_simple_lead, defaults: {format: :json}
     post :duplicate
     get :redirect_option_texts, defaults: {format: :json}
     get :otus, defaults: {format: :json}
@@ -554,6 +571,7 @@ resources :leads do
   end
   collection do
     post :batch_create_lead_items, defaults: {format: :json}
+    get :cite_key_bootstrap, defaults: {format: :json}
   end
 end
 
@@ -730,8 +748,12 @@ resources :otus do
     get :autoselect, defaults: { format: :json }
     get :select_options, defaults: {format: :json}
     post :autoselect_col_create, defaults: { format: :json }
+    post :create_morphospecies_otu, defaults: { format: :json }
 
     patch :batch_update
+
+    match :distribution, action: :distribution_by_otus, via: [:get, :post], defaults: {format: :geojson}
+    match :distribution_is_absent, action: :distribution_is_absent_by_otus, via: [:get, :post], defaults: {format: :geojson}
   end
 
   member do
@@ -746,16 +768,6 @@ resources :otus do
     get 'inventory/citations', action: :citations_inventory, defaults: {format: :json}
   end
 
-end
-
-resources :otu_page_layouts do
-  collection do
-    get :list
-    get :lookup_topic, controller: 'topics'
-  end
-  member do
-    get 'related'
-  end
 end
 
 resources :otu_relationships do
@@ -776,8 +788,6 @@ end
 resources :origin_relationships do
   concerns [:data_routes]
 end
-
-resources :otu_page_layout_sections, only: [:create, :update, :destroy]
 
 match 'people/role_types', to: 'people#role_types', via: :get, method: :json
 resources :people do
@@ -805,6 +815,9 @@ end
 
 resources :preparation_types do
   concerns [:data_routes]
+  collection do
+    get :select_options, defaults: {format: :json}
+  end
 end
 
 resources :projects, only: [] do
@@ -969,8 +982,6 @@ resources :tags, except: [:edit, :show, :new] do
     post :batch_remove, defaults: {format: :json}
   end
 end
-
-resources :tagged_section_keywords, only: [:create, :update, :destroy]
 
 resources :taxon_determinations do
   collection do

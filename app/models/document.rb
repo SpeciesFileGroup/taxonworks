@@ -175,14 +175,14 @@ class Document < ApplicationRecord
     joins(k).distinct.limit(10).pluck(:id)
   end
 
-  # @params target [String], nil or the base class name of an object that
+  # @param target [String], nil or the base class name of an object that
   # can be documented.
   # @return [Hash] documents optimized for user selection
   def self.select_optimized(user_id, project_id, target = nil)
     r = target ? used_recently(user_id, project_id, target) : []
     h = {
       quick: [],
-      pinboard: Document.pinned_by(user_id).where(project_id:).to_a,
+      pinboard: Document.pinned_by(user_id).where(project_id:).pinboard_ordered.to_a,
       recent: []
     }
 

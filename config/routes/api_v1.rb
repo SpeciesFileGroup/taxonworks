@@ -102,6 +102,9 @@ namespace :api, defaults: {format: :json} do
       get '/notes', to: '/notes#api_index'
       get '/notes/:id', to: '/notes#api_show'
 
+      get '/alternate_values', to: '/alternate_values#api_index'
+      get '/alternate_values/:id', to: '/alternate_values#api_show'
+
       get '/identifiers', to: '/identifiers#api_index'
       get '/identifiers/autocomplete', to: '/identifiers#api_autocomplete'
       get '/identifiers/:id', to: '/identifiers#api_show'

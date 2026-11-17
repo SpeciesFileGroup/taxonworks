@@ -72,60 +72,60 @@ module Queries
         :any_global_id
       ]
 
-      # @return Boolean, nil
+      # @return [Boolean, nil]
       #  if true then return relationships *excluding*
       # those listed in biological_relationship_id
       attr_accessor :exclude_taxon_name_relationship
 
-      # @param collecting_event_id
-      # @return Integer
+      # @param collecting_event_id [Integer, Array]
+      # @return [Integer]
       #   All BiologicalAssociations with CollectionObjects
       # linked to one or more CollectingEvent
       attr_accessor :collecting_event_id
 
-      # @param otu_id
+      # @param otu_id [Integer, Array]
       # @return [Array]
       #   All BiologicalAssociations with OTU (only)
       #  matching subject OR object
       attr_accessor :otu_id
 
-      # @param collection_object_id
+      # @param collection_object_id [Integer, Array]
       # @return [Array]
       #   All biological relationships with CollectionObject (only)
       #  matching subject OR object
       attr_accessor :collection_object_id
 
-      # @param field_occurrence_id
+      # @param field_occurrence_id [Integer, Array]
       # @return [Array]
       #   All biological relationships with FieldOccurrence (only)
       #  matching subject OR object
       attr_accessor :field_occurrence_id
 
-      # @param anatomical_part_id
+      # @param anatomical_part_id [Integer, Array]
       # @return [Array]
       #   All biological relationships with AnatomicalPart (only)
       #  matching subject OR object
       attr_accessor :anatomical_part_id
 
-      # @param collection_object_as_subject_or_as_object
+      # @param collection_object_as_subject_or_as_object ['subject', 'object', nil]
       #   Whether collection_object_query should be matched against subject or
       # object.
       # !! Only used in tandem with collection_object_query!
       attr_accessor :collection_object_as_subject_or_as_object
 
-      # @param subject_taxon_name_id
+      # @param subject_taxon_name_id [Integer, Array]
       #   All BiologicalAssociations matching this name or
       # its children.
       # !! TaxonName must be valid!
       attr_accessor :subject_taxon_name_id
 
-      # @param object_taxon_name_id
+      # @param object_taxon_name_id [Integer, Array]
       #   All BiologicalAssociations matching this name or
       # its children
       # !! TaxonName must be valid!
       attr_accessor :object_taxon_name_id
 
-      # @param taxon_name_id
+      # @param taxon_name_id [Integer, Array]
       # @return [Array]
       #   All BiologicalAssociations matching these names or
       # their children
@@ -136,7 +136,7 @@ module Queries
 
       attr_accessor :descendants
 
-      # @param biological_associations_graph_id
+      # @param biological_associations_graph_id [Integer, Array]
       #   All BiologicalAssociations in any of the graphs above
       attr_accessor :biological_associations_graph_id
 
@@ -661,7 +661,7 @@ module Queries
 
         return nil if a_query.nil? && b_query.nil? && c_query.nil?
 
-        d, e, f = nil, nil, nil
+        d, e, f, g = nil, nil, nil, nil
 
         if a_query
           d = ::BiologicalAssociation
@@ -681,7 +681,14 @@ module Queries
             .joins("JOIN c ON c.id = biological_associations.biological_association_#{target}_id AND biological_associations.biological_association_#{target}_type = 'FieldOccurrence'")
         end
 
-        referenced_klass_union([d,e,f])
+        if a_query
+          g = ::BiologicalAssociation
+            .with(ap: a_query)
+            .joins("JOIN anatomical_parts ON anatomical_parts.id = biological_associations.biological_association_#{target}_id AND biological_associations.biological_association_#{target}_type = 'AnatomicalPart'")
+            .joins('JOIN ap ON ap.id = anatomical_parts.cached_otu_id')
+        end
+
+        referenced_klass_union([d,e,f,g])
       end
 
       # Merges results from Otu and CollectionObject filters
@@ -859,7 +866,7 @@ module Queries
 
         ::BiologicalAssociation
           .with(ad: asserted_distribution_query.all)
-          .joins("JOIN asserted_distributions ON asserted_distributions.asserted_distribution_object_id = biological_associations.id AND asserted_distributions.asserted_distribution_object_type = 'BiologicalAssociation'").distinct
+          .joins("JOIN ad ON ad.asserted_distribution_object_id = biological_associations.id AND ad.asserted_distribution_object_type = 'BiologicalAssociation'").distinct
       end
 
       def collection_object_query_facet
@@ -1003,7 +1010,7 @@ module Queries
           biological_association_object_id_facet,
           biological_association_object_type_facet,
           biological_association_subject_id_facet,
-          biological_association_subject_id_facet
+          biological_association_subject_type_facet
         ]
       end
 

@@ -8,6 +8,7 @@
         <TypeMaterialTaxon />
         <TypeMaterialType />
         <TypeMaterialSource />
+        <TypeMaterialPredicates />
         <TypeMaterialAdd class="margin-small-top margin-small-bottom" />
         <TypeMaterialList />
       </div>
@@ -27,6 +28,7 @@ import platformKey from '@/helpers/getPlatformKey'
 import TypeMaterialList from './TypeMaterialList.vue'
 import TypeMaterialTaxon from './TypeMaterialTaxon.vue'
 import TypeMaterialSource from './TypeMaterialSource.vue'
+import TypeMaterialPredicates from './TypeMaterialPredicates.vue'
 import TypeMaterialAdd from './TypeMaterialAdd.vue'
 import { useHotkey } from '@/composables'
 

@@ -34,6 +34,16 @@ scope :tasks do
     end
   end
 
+  scope :asserted_environments do
+    scope :new_asserted_environment, controller: 'tasks/asserted_environments/new_asserted_environment' do
+      get '/', action: :index, as: 'new_asserted_environment_task'
+    end
+
+    scope :filter, controller: 'tasks/asserted_environments/filter' do
+      get '/', action: :index, as: 'filter_asserted_environments_task'
+    end
+  end
+
   scope :taxon_name_relationships do
     scope :filter, controller: 'tasks/taxon_name_relationships/filter' do
       get '/', action: :index, as: 'filter_taxon_name_relationships_task'
@@ -110,6 +120,10 @@ scope :tasks do
   end
 
   scope :leads do
+    scope :cite_key, controller: 'tasks/leads/cite_key' do
+      get '/', action: :index, as: 'cite_key_task'
+    end
+
     scope :dichotomous_key, controller: 'tasks/leads/dichotomous_key' do
       get '/', action: :index, as: 'dichotomous_key_task'
     end
@@ -339,6 +353,10 @@ scope :tasks do
   end
 
   scope :images do
+    scope :light_table, controller: 'tasks/images/light_table' do
+      get '/', action: :index, as: 'light_table_task'
+    end
+
     scope :browse, controller: 'tasks/images/browse' do
       get '', action: :index, as: 'browse_images_task'
     end
@@ -675,11 +693,6 @@ scope :tasks do
     end
   end
 
-  scope :contents, controller: 'tasks/content/preview' do
-    get 'otu_content_for_layout/:otu_id', action: :otu_content_for_layout, as: 'preview_otu_content_for_layout'
-    get ':otu_id', action: 'otu_content', as: 'preview_otu_content'
-  end
-
   scope :controlled_vocabularies do
     scope :manage, controller: 'tasks/controlled_vocabularies/manage' do
       get '/', action: :index, as: 'manage_controlled_vocabulary_terms_task'
@@ -824,7 +837,7 @@ scope :tasks do
     end
 
     scope :browse, controller: 'tasks/otus/browse' do
-      get '/(:otu_id)', action: :index, as: 'browse_otus_task'
+      get '/', action: :index, as: 'browse_otus_task'
     end
 
     scope :match_by_taxon_name, controller: 'tasks/otus/match_by_taxon_name' do

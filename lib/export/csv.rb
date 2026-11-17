@@ -11,7 +11,7 @@ module ::Export::CSV
   # @param [Array] header_converters
   # @param [Boolean] trim_rows
   # @param [Boolean] trim_columns
-  # @param [Hash] copy_column, copy the values (not the header) in column
+  # @param [Hash] copy_column copy the values (not the header) in column
   #   copy_column[:from] to the values in copy_column[:to]
   # @return [String] in CSV format
   def self.generate_csv(scope, exclude_columns: [], header_converters: [], trim_rows: false, trim_columns: false, column_order: [], copy_column: nil)
@@ -74,7 +74,7 @@ module ::Export::CSV
     output.string
   end
 
-  # @param table [Array]
+  # @param tbl [Array]
   # @param columns [Array]
   # @return [Array]
   #   delete the specified columns

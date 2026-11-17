@@ -28,6 +28,7 @@ json.image_hash do
         json.original_url i.image_file.url
         json.medium_url i.image_file.url(:medium)
         json.thumb_url i.image_file.url(:thumb)
+        json.original_png original_as_scaled_png_via_api(i, api: false)
       end
 
       json.citations data[:citations] do |citation|

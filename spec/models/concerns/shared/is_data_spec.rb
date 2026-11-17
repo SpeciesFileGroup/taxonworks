@@ -76,9 +76,30 @@ describe 'Shared::IsData', type: :model do
         end
       end
     end
+
+    context '.not_self' do
+      let!(:otu1) { FactoryBot.create(:valid_otu) }
+      let!(:otu2) { FactoryBot.create(:valid_otu) }
+
+      specify 'excludes a persisted record' do
+        expect(Otu.not_self(otu1).to_a).to contain_exactly(otu2)
+      end
+
+      specify 'excludes nothing for a new record' do
+        expect(Otu.not_self(Otu.new).to_a).to contain_exactly(otu1, otu2)
+      end
+
+      specify 'excludes nothing for nil' do
+        expect(Otu.not_self(nil).to_a).to contain_exactly(otu1, otu2)
+      end
+
+      specify 'preserves an existing scope for a new record' do
+        expect(Otu.where(id: otu1.id).not_self(Otu.new).to_a).to contain_exactly(otu1)
+      end
+    end
   end
 
-  
+
 end
 
 class TestIsData < ApplicationRecord

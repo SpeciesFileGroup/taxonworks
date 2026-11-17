@@ -2,7 +2,6 @@ module Queries
   module PreparationType
     class Autocomplete < Query::Autocomplete
 
-      # @param [Hash] args
       def initialize(string)
         super
       end

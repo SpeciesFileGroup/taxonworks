@@ -113,7 +113,7 @@ class DwcOccurrence < ApplicationRecord
     super(options.merge(except: attributes.keys.select{ |key| self[key].nil? }))
   end
 
-  # @return Hash
+  # @return [Hash]
   #   * Legally formatted DwC fields only, with things like `dwcClass` translated
   #   * Only fields with values returned
   #   * Keys are sorted

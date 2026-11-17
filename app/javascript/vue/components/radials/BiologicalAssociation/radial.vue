@@ -13,10 +13,12 @@ import { BIOLOGICAL_ASSOCIATION } from '@/constants'
 import RadialBatch from '@/components/radials/shared/RadialBatch.vue'
 import RotateSlice from './components/RotateSlice.vue'
 import RelationshipSlice from './components/RelationshipSlice.vue'
+import AssertedDistributionSlice from '@/components/radials/shared/AssertedDistributionSlice.vue'
 
 const SLICES = {
   Rotate: RotateSlice,
-  'Change relationship': RelationshipSlice
+  'Change relationship': RelationshipSlice,
+  'Add asserted distribution': AssertedDistributionSlice
 }
 
 defineOptions({

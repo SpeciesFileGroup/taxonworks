@@ -4,10 +4,9 @@
 class News < ApplicationRecord
   include Housekeeping::Users
   include Housekeeping::Timestamps
-  include Shared::IsData::Navigation
-  include Shared::IsData::Metamorphosize
+  include Shared::Metamorphosize
   include Shared::HasPapertrail
-  include Shared::Permissions
+  include Shared::IsSteppable
 
   ignore_whitespace_on(:body)
 

@@ -33,6 +33,9 @@
 </template>
 
 <script setup>
+import { onBeforeMount } from 'vue'
+import { Gazetteer, GeographicArea } from '@/routes/endpoints'
+import { GAZETTEER, GEOGRAPHIC_AREA } from '@/constants'
 import { useStore } from '../../store/store'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'
@@ -41,6 +44,11 @@ import ShapePicker from '@/components/ui/SmartSelector/ShapePicker.vue'
 
 const store = useStore()
 
+const paramToService = {
+  gazetteer_id: { service: Gazetteer, shapeType: GAZETTEER },
+  geographic_area_id: { service: GeographicArea, shapeType: GEOGRAPHIC_AREA }
+}
+
 function setShape(item) {
   store.shape = item
 
@@ -48,4 +56,22 @@ function setShape(item) {
     store.saveAssertedDistribution()
   }
 }
+
+onBeforeMount(() => {
+  const urlParams = new URLSearchParams(window.location.search)
+  const idParam = Object.keys(paramToService).find((param) =>
+    /^\d+$/.test(urlParams.get(param))
+  )
+
+  if (!idParam) return
+
+  const { service, shapeType } = paramToService[idParam]
+
+  service
+    .find(urlParams.get(idParam))
+    .then(({ body }) => {
+      store.shape = { ...body, shapeType }
+    })
+    .catch(() => {})
+})
 </script>

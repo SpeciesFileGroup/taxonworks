@@ -37,7 +37,12 @@ class ObservationMatrixColumnItem < ApplicationRecord
   validates_presence_of :observation_matrix
   validate :other_subclass_attributes_not_set, if: -> { !type.blank? }
 
-  after_save :update_matrix_columns
+  after_create :update_matrix_columns
+  after_update :move_matrix_column, if: -> {
+    saved_change_to_descriptor_id? ||
+      saved_change_to_controlled_vocabulary_term_id? ||
+      saved_change_to_observation_matrix_id?
+  }
   after_destroy :cleanup_matrix_columns
 
   # @return [Array]
@@ -59,6 +64,50 @@ class ObservationMatrixColumnItem < ApplicationRecord
 
   def update_matrix_columns
     descriptors.each do |d|
+      update_single_matrix_column(d)
+    end
+  end
+
+  # The item now covers other descriptors (e.g. unify moved it to the kept
+  # descriptor or keyword) and/or is in another matrix: decrement the previous
+  # descriptors' columns (in the previous matrix), increment the new ones
+  def move_matrix_column
+    previous_ids = descriptor_ids_before_last_save
+    current = descriptors
+    same_matrix =
+      observation_matrix_id_before_last_save == observation_matrix_id
+
+    if same_matrix # columns in both sets are left untouched
+      unchanged_ids = previous_ids & current.map(&:id)
+      previous_ids -= unchanged_ids
+      current = current.reject { |d| unchanged_ids.include?(d.id) }
+    end
+
+    # One descriptor replaced by another: repoint a column that would
+    # otherwise be deleted, so it keeps its position
+    if same_matrix && previous_ids.size == 1 && current.size == 1
+      mc = ObservationMatrixColumn.where(
+        descriptor_id: previous_ids.first, observation_matrix_id:
+      ).first
+
+      if mc&.reference_count == 1 &&
+          !ObservationMatrixColumn.where(
+            descriptor_id: current.first.id, observation_matrix_id:
+          ).exists?
+        mc.update_columns(descriptor_id: current.first.id)
+        return
+      end
+    end
+
+    previous_ids.each do |id|
+      mc = ObservationMatrixColumn.where(
+        descriptor_id: id,
+        observation_matrix_id: observation_matrix_id_before_last_save
+      ).first
+      decrement_matrix_column_reference_count(mc) if !mc.nil?
+    end
+
+    current.each do |d|
       update_single_matrix_column(d)
     end
   end
@@ -116,6 +165,14 @@ class ObservationMatrixColumnItem < ApplicationRecord
   # override
   def descriptors
     false
+  end
+
+  # @return [Array]
+  #    ids of the descriptors "defined" by this matrix column item before its
+  #    last save
+  # override
+  def descriptor_ids_before_last_save
+    []
   end
 
   # @return [Array] of ObservationMatrixColumnItems
@@ -209,7 +266,7 @@ class ObservationMatrixColumnItem < ApplicationRecord
     return created
   end
 
-  # @params klass [String] the subclass of the Descriptor ike `Descriptor::Working` or `Descriptor::Continuous`
+  # @param klass [String] the subclass of the Descriptor ike `Descriptor::Working` or `Descriptor::Continuous`
   # @return [Array, false]
   def self.batch_create_from_tags(keyword_id, klass, observation_matrix_id)
     created = []
@@ -234,7 +291,7 @@ class ObservationMatrixColumnItem < ApplicationRecord
     return created
   end
 
-  # @params klass [String] the class name like `Otu` or `CollectionObject`
+  # @param klass [String] the class name like `Otu` or `CollectionObject`
   # @return [Array, false]
   def self.batch_create_from_pinboard(observation_matrix_id, project_id, user_id, klass)
     return false if observation_matrix_id.blank? || project_id.blank? || user_id.blank?

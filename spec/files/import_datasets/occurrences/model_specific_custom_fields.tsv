@@ -1,0 +1,3 @@
+occurrenceID	basisOfRecord	scientificName	TW:CollectionObject:buffered_determinations	TW:FieldOccurrence:total	TW:DataAttribute:CollectionObject:Custom attribute	TW:DataAttribute:FieldOccurrence:Custom attribute	TW:Tag:CollectionObject:Custom tag	TW:Tag:FieldOccurrence:Custom tag
+custom-human-1	HumanObservation	Orotettix andeanus	ignored physical label	4	ignored physical value	observation value	true	true
+custom-specimen-1	PreservedSpecimen	Orotettix andeanus	physical label	9	specimen value	ignored observation value	true	true

@@ -11,6 +11,568 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
 
   after(:all) { DatabaseCleaner.clean }
 
+  context 'when importing existing collector IDs' do
+    before :all do
+      DatabaseCleaner.start
+      init_housekeeping
+      @collector_a = FactoryBot.create(:valid_person, id: 813301, type: 'Person::Vetted')
+      @collector_b = FactoryBot.create(:valid_person, id: 813302)
+      @collector_org_a = FactoryBot.create(:valid_organization, id: 813301)
+      @collector_org_b = FactoryBot.create(:valid_organization, id: 813302)
+      Otu.create!(id: 813300, name: 'Collector import OTU')
+      FactoryBot.create(:valid_namespace, short_name: 'COLLECTOR-FIELD')
+      @collector_dataset = ImportDataset::DarwinCore::Occurrences.create!(
+        source: fixture_file_upload(Rails.root + 'spec/files/import_datasets/occurrences/collector_ids.tsv', 'text/plain'),
+        description: 'Existing collectors'
+      ).tap(&:stage)
+      @collector_rows = @collector_dataset.core_records.order(:id).to_h do |record|
+        record.import
+        [record.get_field_value(:occurrenceID), record]
+      end
+    end
+
+    after(:all) { DatabaseCleaner.clean }
+
+    def collector_event(row_name)
+      record = @collector_rows.fetch(row_name)
+      type, data = record.metadata.fetch('imported_objects').first
+      type.classify.constantize.find(data.fetch('id')).collecting_event
+    end
+
+    it 'recognizes the new column as mapped' do
+      index = @collector_rows['single'].send(:get_field_mapping, 'TW:CollectingEvent:collector_ids')
+      expect(@collector_dataset.core_records_mapped_fields).to include(index)
+    end
+
+    it 'uses existing vetted and unvetted people in input order, trimming and deduplicating references' do
+      expect(collector_event('single').collectors.pluck(:id)).to eq([@collector_a.id])
+      expect(collector_event('ordered').collectors.pluck(:id)).to eq([@collector_b.id, @collector_a.id])
+      expect(collector_event('ordered').verbatim_collectors).to eq('Unrelated Collector')
+      expect(Person.count).to eq(3) # The two existing people and the blank-cell name fallback.
+      expect(Organization.count).to eq(2)
+    end
+
+    it 'accepts uppercase and mixed-case prefixes while preserving order and deduplicating IDs' do
+      expect(@collector_rows['mixed-case'].status).to eq('Imported')
+      expect(collector_event('mixed-case').collectors.pluck(:id)).to eq([@collector_b.id, @collector_a.id])
+    end
+
+    it 'imports organization collectors and preserves recordedBy as verbatim text' do
+      expect(@collector_rows['organization'].status).to eq('Imported')
+      event = collector_event('organization')
+      expect(event.collectors_organization.pluck(:id)).to eq([@collector_org_a.id])
+      expect(event.collectors).to be_empty
+      expect(event.verbatim_collectors).to eq('Organization label')
+    end
+
+    it 'preserves mixed collector order, distinguishes agent types, and deduplicates case variants' do
+      event = collector_event('mixed-agents')
+      expect(event.collector_roles.order(:position).pluck(:person_id, :organization_id)).to eq([
+        [nil, @collector_org_a.id], [@collector_a.id, nil],
+        [nil, @collector_org_b.id], [@collector_b.id, nil]
+      ])
+      expect(event.collector_roles.order(:position).pluck(:position)).to eq([1, 2, 3, 4])
+      expect(event.verbatim_collectors).to eq('Mixed label')
+    end
+
+    it 'supports HumanObservation collectors' do
+      expect(@collector_rows['observation'].status).to eq('Imported')
+      expect(collector_event('observation').collectors.pluck(:id)).to eq([@collector_a.id, @collector_b.id])
+      expect(@collector_rows['organization-observation'].status).to eq('Imported')
+      expect(collector_event('organization-observation').collectors_organization.pluck(:id)).to eq([@collector_org_a.id])
+      expect(@collector_rows['mixed-observation'].status).to eq('Imported')
+      expect(collector_event('mixed-observation').collector_roles.order(:position).pluck(:person_id, :organization_id)).to eq(
+        collector_event('mixed-agents').collector_roles.order(:position).pluck(:person_id, :organization_id)
+      )
+    end
+
+    it 'falls back to name parsing for blank IDs and preserves explicit verbatim overrides' do
+      expect(collector_event('blank').collectors.first.last_name).to eq('Observer')
+      expect(collector_event('verbatim').verbatim_collectors).to eq('Explicit label')
+    end
+
+    it 'reuses matching collecting events through either identifier' do
+      expect(collector_event('event-match')).to eq(collector_event('event-seed'))
+      expect(collector_event('field-match')).to eq(collector_event('field-seed'))
+      expect(collector_event('mixed-event-match')).to eq(collector_event('mixed-event-seed'))
+      expect(collector_event('mixed-field-match')).to eq(collector_event('mixed-field-seed'))
+    end
+
+    it 'rejects different collector lists without changing shared events' do
+      %w[event-reordered event-missing event-additional field-mismatch
+         mixed-event-reordered mixed-event-people-only event-extra-organization event-wrong-agent-type
+         mixed-field-reordered mixed-field-people-only].each do |name|
+        record = @collector_rows.fetch(name)
+        expect(record.status).to eq('Errored')
+        expect(record.metadata.dig('error_data', 'messages')).to have_key('TW:CollectingEvent:collector_ids')
+        expect(record.metadata['imported_objects']).to be_nil
+      end
+      expect(collector_event('event-seed').collectors.pluck(:id)).to eq([@collector_a.id, @collector_b.id])
+      expect(collector_event('field-seed').collectors.pluck(:id)).to eq([@collector_a.id])
+      %w[mixed-event-seed mixed-field-seed].each do |name|
+        expect(collector_event(name).collector_roles.order(:position).pluck(:person_id, :organization_id)).to eq([
+          [nil, @collector_org_a.id], [@collector_a.id, nil],
+          [nil, @collector_org_b.id], [@collector_b.id, nil]
+        ])
+      end
+    end
+
+    it 'rejects malformed and missing references without partial imports or new agents' do
+      invalid = @collector_rows.select { |name, _| name.start_with?('invalid-') }.values
+      expect(invalid.size).to eq(16)
+      invalid.each do |record|
+        expect(record.status).to eq('Errored')
+        expect(record.metadata.dig('error_data', 'messages')).to have_key('TW:CollectingEvent:collector_ids')
+        expect(record.metadata['imported_objects']).to be_nil
+      end
+      expect(CollectionObject.count + FieldOccurrence.count).to eq(@collector_rows.values.count { |r| r.status == 'Imported' })
+    end
+  end
+
+  context 'when importing existing determiner IDs' do
+    before :all do
+      DatabaseCleaner.start
+      init_housekeeping
+      @determiner_a = FactoryBot.create(:valid_person, id: 812301, type: 'Person::Vetted')
+      @determiner_b = FactoryBot.create(:valid_person, id: 812302)
+      @determiner_org_a = FactoryBot.create(:valid_organization, id: 812301, name: 'Determiner Institute', alternate_name: 'Alternate Institute')
+      @determiner_org_b = FactoryBot.create(:valid_organization, id: 812302)
+      Otu.create!(id: 812300, name: 'Determiner import OTU')
+      @determiner_dataset = ImportDataset::DarwinCore::Occurrences.create!(
+        source: fixture_file_upload(Rails.root + 'spec/files/import_datasets/occurrences/determiner_ids.tsv', 'text/plain'),
+        description: 'Existing determiners'
+      ).tap(&:stage)
+      @determiner_rows = @determiner_dataset.core_records.order(:id).to_h do |record|
+        record.import
+        [record.get_field_value(:occurrenceID), record]
+      end
+
+      @organization_name_dataset = ImportDataset::DarwinCore::Occurrences.create!(
+        source: fixture_file_upload(Rails.root + 'spec/files/import_datasets/occurrences/determiner_ids.tsv', 'text/plain'),
+        description: 'Organization name lookup',
+        import_settings: { enable_organization_determiners: true, enable_organization_determiners_alt_name: true }
+      ).tap(&:stage)
+      @organization_name_rows = @organization_name_dataset.core_records.order(:id).filter_map do |record|
+        name = record.get_field_value(:occurrenceID)
+        if %w[organization fallback-organization fallback-alternate].include?(name)
+          record.import
+          [name, record]
+        end
+      end.to_h
+      @determiner_a = Person.find(@determiner_a.id)
+      @determiner_b = Person.find(@determiner_b.id)
+      @determiner_occurrence_count = CollectionObject.count + FieldOccurrence.count
+    end
+
+    after(:all) { DatabaseCleaner.clean }
+
+    def imported_determination(record)
+      type, data = record.metadata.fetch('imported_objects').first
+      type.classify.constantize.find(data.fetch('id')).taxon_determinations.first
+    end
+
+    def determiner_agents(name)
+      imported_determination(@determiner_rows.fetch(name)).determiner_roles.order(:position).map(&:agent)
+    end
+
+    it 'recognizes the column and imports existing people and organizations without creating agents from names' do
+      index = @determiner_rows['person'].send(:get_field_mapping, 'TW:TaxonDetermination:determiner_ids')
+      expect(@determiner_dataset.core_records_mapped_fields).to include(index)
+      expect(determiner_agents('person')).to eq([@determiner_a])
+      expect(determiner_agents('organization')).to eq([@determiner_org_a])
+      expect(Person.count).to eq(3) # Two existing people and the blank-ID person name fallback.
+      expect(Organization.count).to eq(2)
+    end
+
+    it 'preserves mixed agent order and deduplicates by type and ID across case variants' do
+      expect(determiner_agents('mixed')).to eq([@determiner_org_a, @determiner_b, @determiner_a])
+      roles = imported_determination(@determiner_rows['mixed']).determiner_roles.order(:position)
+      expect(roles.pluck(:position)).to eq([1, 2, 3])
+    end
+
+    it 'supports HumanObservation and retains identification dates and notes' do
+      record = @determiner_rows['observation']
+      expect(record.status).to eq('Imported')
+      expect(determiner_agents('observation')).to eq([@determiner_a, @determiner_org_b])
+      determination = imported_determination(record)
+      expect([determination.year_made, determination.month_made, determination.day_made]).to eq([2024, 4, 3])
+      expect(determination.notes.pluck(:text)).to eq(['Identification note'])
+    end
+
+    it 'uses explicit organization references regardless of name-lookup settings' do
+      expect(@determiner_dataset.enable_organization_determiners?).to be_falsey
+      expect(determiner_agents('organization')).to eq([@determiner_org_a])
+      record = @organization_name_rows.fetch('organization')
+      expect(record.status).to eq('Imported')
+      expect(imported_determination(record).determiners_organization).to eq([@determiner_org_a])
+    end
+
+    it 'keeps name and organization lookup for blank references' do
+      record = @determiner_rows['blank']
+      expect(record.status).to eq('Imported'), record.metadata.inspect
+      expect(determiner_agents('blank').first.last_name).to eq('Observer')
+      %w[fallback-organization fallback-alternate].each do |name|
+        record = @organization_name_rows.fetch(name)
+        expect(record.status).to eq('Imported')
+        expect(imported_determination(record).determiners_organization).to eq([@determiner_org_a])
+      end
+    end
+
+    it 'keeps name parsing when the ID column is absent' do
+      dataset = ImportDataset::DarwinCore::Occurrences.find(@determiner_dataset.id)
+      dataset.metadata['core_headers'] = ['identifiedBy']
+      record = DatasetRecord::DarwinCore::Occurrence.new(import_dataset: dataset)
+      record.initialize_data_fields(['Jane Observer'])
+      determiners = record.send(:parse_identification_class, nil).dig(:taxon_determination, :determiners)
+      expect(determiners).to eq(determiner_agents('blank'))
+    end
+
+    it 'marks overridden identifiedBy cells ignored but keeps blank-ID name cells active' do
+      %w[person organization mixed observation].each do |name|
+        record = @determiner_rows.fetch(name)
+        expect(record.ignored_fields).to include(record.send(:get_field_mapping, 'identifiedBy'))
+      end
+      record = @determiner_rows['blank']
+      expect(record.ignored_fields).not_to include(record.send(:get_field_mapping, 'identifiedBy'))
+    end
+
+    it 'keeps identifiedBy active when a project attribute consumes it' do
+      project = Project.find(Current.project_id)
+      original_mapping = project.preferences['model_predicate_sets'].deep_dup
+      predicate = FactoryBot.create(:valid_predicate, name: 'Verbatim identifier', uri: 'http://rs.tdwg.org/dwc/terms/identifiedBy')
+      begin
+        project.update!(model_predicate_sets: { 'CollectionObject' => [predicate.id] })
+        dataset = ImportDataset::DarwinCore::Occurrences.create!(
+          source: fixture_file_upload(Rails.root + 'spec/files/import_datasets/occurrences/determiner_ids.tsv', 'text/plain'),
+          description: 'Determiner attribute mapping'
+        ).tap(&:stage)
+        record = dataset.core_records.detect { |r| r.get_field_value(:occurrenceID) == 'mapped' }
+        record.import(dataset.dwc_data_attributes)
+        expect(record.status).to eq('Imported')
+        expect(record.ignored_fields).not_to include(record.send(:get_field_mapping, 'identifiedBy'))
+        determination = imported_determination(record)
+        expect(determination.determiners).to eq([@determiner_a])
+        expect(determination.taxon_determination_object.internal_attributes.pluck(:value)).to eq(['Original identifier text'])
+      ensure
+        project.update!(model_predicate_sets: original_mapping)
+      end
+    end
+
+    it 'reports invalid references on the ID column and rolls back partial imports' do
+      invalid = @determiner_rows.select { |name, _| name.start_with?('invalid-') }.values
+      expect(invalid.size).to eq(11)
+      invalid.each do |record|
+        expect(record.status).to eq('Errored')
+        expect(record.metadata.dig('error_data', 'messages')).to have_key('TW:TaxonDetermination:determiner_ids')
+        expect(record.metadata['imported_objects']).to be_nil
+      end
+      imported = @determiner_rows.values.count { |r| r.status == 'Imported' } + @organization_name_rows.size
+      expect(@determiner_occurrence_count).to eq(imported)
+    end
+  end
+
+  context 'when importing project-configured Darwin Core attributes' do
+    before :all do
+      DatabaseCleaner.start
+      init_housekeeping
+
+      @predicates = %w[lifeStage behavior establishmentMeans associatedReferences substrate habitat reproductiveCondition].to_h do |term|
+        [term, FactoryBot.create(:valid_predicate, name: term, uri: "http://rs.tdwg.org/dwc/terms/#{term}")]
+      end
+      Project.find(Current.project_id).update!(model_predicate_sets: {
+        'CollectionObject' => @predicates.values_at('lifeStage', 'establishmentMeans', 'substrate', 'habitat', 'reproductiveCondition').map(&:id),
+        'FieldOccurrence' => @predicates.values_at('behavior', 'establishmentMeans', 'reproductiveCondition').map(&:id),
+        'CollectingEvent' => @predicates.values_at('associatedReferences', 'substrate').map(&:id)
+      })
+
+      @import_dataset = ImportDataset::DarwinCore::Occurrences.create!(
+        source: fixture_file_upload(
+          Rails.root + 'spec/files/import_datasets/occurrences/project_dwc_attributes.tsv', 'text/plain'
+        ),
+        description: 'Project Darwin Core predicates'
+      ).tap(&:stage)
+      @results = @import_dataset.import(5000, 100)
+    end
+
+    after(:all) { DatabaseCleaner.clean }
+
+    it 'imports both record types' do
+      expect(@results.map(&:status)).to eq(%w[Imported Imported])
+    end
+
+    it 'recognizes columns mapped only to FieldOccurrence at the dataset level' do
+      index = @results.first.send(:get_field_mapping, 'behavior')
+      expect(@import_dataset.core_records_mapped_fields).to include(index)
+    end
+
+    it 'saves only FieldOccurrence predicates on HumanObservation records' do
+      expect(FieldOccurrence.first.internal_attributes.pluck(:controlled_vocabulary_term_id, :value)).to contain_exactly(
+        [@predicates['behavior'].id, 'feeding'],
+        [@predicates['establishmentMeans'].id, 'native']
+      )
+    end
+
+    it 'saves only CollectionObject predicates on specimen records' do
+      expect(CollectionObject.first.internal_attributes.pluck(:controlled_vocabulary_term_id, :value)).to contain_exactly(
+        [@predicates['lifeStage'].id, 'adult'],
+        [@predicates['establishmentMeans'].id, 'native'],
+        [@predicates['substrate'].id, 'rock'],
+        [@predicates['habitat'].id, 'forest']
+      )
+    end
+
+    it 'saves CollectingEvent predicates for either record type' do
+      [FieldOccurrence.first, CollectionObject.first].each do |occurrence|
+        expect(occurrence.collecting_event.internal_attributes.pluck(:controlled_vocabulary_term_id, :value)).to contain_exactly(
+          [@predicates['associatedReferences'].id, 'event reference'],
+          [@predicates['substrate'].id, 'rock']
+        )
+      end
+    end
+
+    it 'flags only unused model-specific columns as ignored for each row' do
+      human_row, specimen_row = @results
+      expect(human_row.ignored_fields).to contain_exactly(human_row.send(:get_field_mapping, 'lifeStage'))
+      expect(specimen_row.ignored_fields).to contain_exactly(specimen_row.send(:get_field_mapping, 'behavior'))
+    end
+
+    it 'keeps built-in handling when a predicate belongs only to the other model' do
+      expect(FieldOccurrence.first.collecting_event.verbatim_habitat).to eq('forest')
+    end
+
+    it 'does not create attributes for blank values' do
+      expect(InternalAttribute.where(predicate: @predicates['reproductiveCondition'])).not_to exist
+    end
+  end
+
+  context 'when project Darwin Core mappings omit target models' do
+    before :all do
+      DatabaseCleaner.start
+      init_housekeeping
+      predicate = FactoryBot.create(:valid_predicate, name: 'Life stage', uri: 'http://rs.tdwg.org/dwc/terms/lifeStage')
+      Project.find(Current.project_id).update!(model_predicate_sets: { 'CollectionObject' => [predicate.id] })
+      @import_dataset = ImportDataset::DarwinCore::Occurrences.create!(
+        source: fixture_file_upload(
+          Rails.root + 'spec/files/import_datasets/occurrences/project_dwc_attributes.tsv', 'text/plain'
+        ),
+        description: 'Missing target mappings'
+      ).tap(&:stage)
+      @results = @import_dataset.import(5000, 100)
+    end
+
+    after(:all) { DatabaseCleaner.clean }
+
+    it 'imports without requiring FieldOccurrence or CollectingEvent mappings' do
+      expect(@results.map(&:status)).to eq(%w[Imported Imported])
+      expect(FieldOccurrence.first.internal_attributes).to be_empty
+      expect(CollectionObject.first.internal_attributes.pluck(:value)).to contain_exactly('adult')
+      expect(@results.first.ignored_fields).to include(@results.first.send(:get_field_mapping, 'lifeStage'))
+    end
+  end
+
+  context 'when importing HumanObservation occurrences' do
+    before :all do
+      DatabaseCleaner.start
+      init_housekeeping
+
+      FactoryBot.create(:valid_namespace, short_name: 'INAT-RECORD')
+      FactoryBot.create(:valid_namespace, short_name: 'INAT-CATALOG')
+
+      @import_dataset = ImportDataset::DarwinCore::Occurrences.create!(
+        source: fixture_file_upload(
+          Rails.root + 'spec/files/import_datasets/occurrences/human_observation.tsv',
+          'text/plain'
+        ),
+        description: 'Human observations'
+      ).tap(&:stage)
+
+      @results = @import_dataset.import(5000, 100)
+    end
+
+    after(:all) { DatabaseCleaner.clean }
+
+    it 'imports canonical and GBIF-style basisOfRecord values' do
+      expect(@results.map(&:status)).to eq(%w[Imported Imported])
+    end
+
+    it 'allows Event as the type for a HumanObservation' do
+      expect(@results.first.status).to eq('Imported')
+    end
+
+    it 'creates FieldOccurrences instead of CollectionObjects' do
+      expect(FieldOccurrence.count).to eq(2)
+      expect(CollectionObject.count).to eq(0)
+    end
+
+    it 'uses individualCount as the FieldOccurrence total without creating a Lot' do
+      expect(FieldOccurrence.order(:id).pluck(:total)).to eq([3, 1])
+      expect(Lot.count).to eq(0)
+    end
+
+    it 'attaches the collecting event and taxon determination' do
+      field_occurrence = FieldOccurrence.order(:id).first
+
+      expect(field_occurrence.collecting_event.start_date_year).to eq(2024)
+      expect(field_occurrence.collecting_event.verbatim_collectors).to eq('Jane Observer')
+      expect(field_occurrence.collecting_event.collectors.count).to eq(1)
+      expect(field_occurrence.current_otu.taxon_name.cached).to eq('Orotettix andeanus')
+    end
+
+    it 'attaches occurrence, catalog, and record identifiers to the FieldOccurrence' do
+      field_occurrence = FieldOccurrence.order(:id).first
+
+      expect(field_occurrence.identifiers.find_by(type: 'Identifier::Local::Import::Dwc').identifier).to eq('inat-observation-1')
+      expect(field_occurrence.identifiers.find_by(type: 'Identifier::Local::CatalogNumber').identifier).to eq('catalog-1')
+      expect(field_occurrence.identifiers.find_by(type: 'Identifier::Local::RecordNumber').identifier).to eq('record-1')
+    end
+
+    it 'maps occurrence remarks to a FieldOccurrence note' do
+      expect(FieldOccurrence.order(:id).first.notes.pluck(:text)).to contain_exactly('Observed alive')
+    end
+
+    it 'ignores institutionCode rather than resolving a repository' do
+      expect(@results.first.send(:ignored_fields)).to include(
+        @results.first.send(:get_field_mapping, 'institutionCode')
+      )
+    end
+
+    it 'retains institutionCode for catalog number namespace mapping' do
+      expect(@import_dataset.metadata['catalog_numbers_namespaces']).to include(
+        [['iNaturalist', nil], nil]
+      )
+    end
+
+    it 'records the imported FieldOccurrence in row metadata' do
+      expect(@results.first.metadata.dig('imported_objects', 'field_occurrence', 'id')).to eq(FieldOccurrence.order(:id).first.id)
+    end
+
+    it 'indexes the FieldOccurrence as a HumanObservation' do
+      dwc_occurrence = FieldOccurrence.order(:id).first.set_dwc_occurrence
+
+      expect(dwc_occurrence.basisOfRecord).to eq('HumanObservation')
+      expect(dwc_occurrence.dwc_occurrence_object_type).to eq('FieldOccurrence')
+    end
+  end
+
+  context 'when HumanObservation input contains unsupported physical-object data' do
+    before :all do
+      DatabaseCleaner.start
+      init_housekeeping
+
+      @import_dataset = ImportDataset::DarwinCore::Occurrences.create!(
+        source: fixture_file_upload(
+          Rails.root + 'spec/files/import_datasets/occurrences/human_observation_errors.tsv',
+          'text/plain'
+        ),
+        description: 'Unsupported observation data'
+      ).tap(&:stage)
+
+      @results = @import_dataset.import(5000, 100)
+    end
+
+    after(:all) { DatabaseCleaner.clean }
+
+    it 'continues to reject MachineObservation' do
+      expect(@results.first.status).to eq('Errored')
+      expect(@results.first.metadata.dig('error_data', 'messages', 'basisOfRecord')).to be_present
+    end
+
+    it 'reports preparations as an importer error' do
+      expect(@results.second.status).to eq('Errored')
+      expect(@results.second.metadata.dig('error_data', 'messages', 'preparations')).to include(
+        'is not supported for HumanObservation'
+      )
+    end
+
+    it 'reports typeStatus as an importer error' do
+      expect(@results.third.status).to eq('Errored')
+      expect(@results.third.metadata.dig('error_data', 'messages', 'typeStatus')).to include(
+        'requires a physical CollectionObject'
+      )
+    end
+  end
+
+  context 'when HumanObservations have duplicate catalog numbers' do
+    before :all do
+      DatabaseCleaner.start
+      init_housekeeping
+      FactoryBot.create(:valid_namespace, short_name: 'INAT-CATALOG')
+
+      @import_dataset = ImportDataset::DarwinCore::Occurrences.create!(
+        source: fixture_file_upload(
+          Rails.root + 'spec/files/import_datasets/occurrences/human_observation_duplicate_catalog_number.tsv',
+          'text/plain'
+        ),
+        description: 'Duplicate observation catalog numbers'
+      ).tap(&:stage)
+
+      @results = @import_dataset.import(5000, 100)
+    end
+
+    after(:all) { DatabaseCleaner.clean }
+
+    it 'errors instead of containerizing the second FieldOccurrence' do
+      expect(@results.map(&:status)).to eq(%w[Imported Errored])
+      expect(@results.second.metadata.dig('error_data', 'messages', 'catalogNumber')).to include(
+        'Is already in use; FieldOccurrences can not be containerized'
+      )
+      expect(FieldOccurrence.count).to eq(1)
+    end
+  end
+
+  context 'when importing model-specific custom fields' do
+    before :all do
+      DatabaseCleaner.start
+      init_housekeeping
+      FactoryBot.create(:valid_predicate, name: 'Custom attribute')
+      FactoryBot.create(:valid_keyword, name: 'Custom tag')
+
+      @import_dataset = ImportDataset::DarwinCore::Occurrences.create!(
+        source: fixture_file_upload(
+          Rails.root + 'spec/files/import_datasets/occurrences/model_specific_custom_fields.tsv',
+          'text/plain'
+        ),
+        description: 'Model-specific custom fields'
+      ).tap(&:stage)
+
+      @results = @import_dataset.import(5000, 100)
+    end
+
+    after(:all) { DatabaseCleaner.clean }
+
+    it 'imports both occurrence types' do
+      expect(@results.map(&:status)).to eq(%w[Imported Imported])
+    end
+
+    it 'maps TW:FieldOccurrence attributes, data attributes, and tags only to HumanObservation' do
+      field_occurrence = FieldOccurrence.first
+
+      expect(field_occurrence.total).to eq(4)
+      expect(field_occurrence.internal_attributes.pluck(:value)).to contain_exactly('observation value')
+      expect(field_occurrence.keywords.pluck(:name)).to contain_exactly('Custom tag')
+    end
+
+    it 'maps TW:CollectionObject attributes, data attributes, and tags only to physical occurrences' do
+      specimen = Specimen.first
+
+      expect(specimen.total).to eq(1)
+      expect(specimen.buffered_determinations).to eq('physical label')
+      expect(specimen.internal_attributes.pluck(:value)).to contain_exactly('specimen value')
+      expect(specimen.keywords.pluck(:name)).to contain_exactly('Custom tag')
+    end
+
+    it 'marks the opposite model field groups ignored for each row' do
+      human_row, specimen_row = @results
+      collection_object_field = human_row.send(:get_field_mapping, 'TW:CollectionObject:buffered_determinations')
+      field_occurrence_field = specimen_row.send(:get_field_mapping, 'TW:FieldOccurrence:total')
+
+      expect(human_row.send(:ignored_fields)).to include(collection_object_field)
+      expect(human_row.send(:ignored_fields)).not_to include(field_occurrence_field)
+      expect(specimen_row.send(:ignored_fields)).to include(field_occurrence_field)
+      expect(specimen_row.send(:ignored_fields)).not_to include(collection_object_field)
+    end
+  end
+
   context 'when working with date fields' do
     before :all do
       DatabaseCleaner.start

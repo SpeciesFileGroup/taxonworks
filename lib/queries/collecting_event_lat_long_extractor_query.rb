@@ -38,7 +38,7 @@ information. (called from where_sql at
 
     # @param [Integer] collecting_event_id
     # @param [Integer] project_id
-    # @param [Integer] Project_id
+    # @param [Array] filters
     def initialize(collecting_event_id: nil, project_id: nil, filters: [])
 
       collecting_event_id = 0 if collecting_event_id.nil?

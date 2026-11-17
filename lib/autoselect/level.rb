@@ -37,6 +37,22 @@ class Autoselect::Level
     false
   end
 
+  # @return [Boolean] whether this level should be checked (visible in the fuse
+  #   bar) by default, absent any stored user preference. Task-specific/niche
+  #   levels (e.g. a level only ever included when explicitly requested by a
+  #   particular caller) should override this to false so they stay opt-in.
+  def is_default
+    true
+  end
+
+  # @return [Symbol, nil] the key of another level whose stored preference
+  #   options this level searches with, instead of its own. For levels that
+  #   share one setting (e.g. every Catalogue of Life level uses the same
+  #   dataset) so it's stored, and set, in one place.
+  def options_level
+    nil
+  end
+
   # @return [Integer] milliseconds for the fuse animation before auto-escalating
   def fuse_ms
     external? ? EXTERNAL_FUSE_MS : DEFAULT_FUSE_MS
@@ -65,7 +81,9 @@ class Autoselect::Level
       label:,
       description:,
       external: external?,
-      fuse_ms:
+      fuse_ms:,
+      is_default:,
+      options_level: options_level&.to_s
     }
   end
 
@@ -82,10 +100,10 @@ class Autoselect::Level
   # HTML label shown left-justified in the dropdown row.
   # Delegates to <model>_autoselect_tag in app/helpers by default.
   # External levels must override this.
-  def record_label_html(record)
+  def record_label_html(record, term = nil)
     h = ApplicationController.helpers
     helper = "#{model_key}_autoselect_tag"
-    return h.send(helper, record).to_s if h.respond_to?(helper)
+    return h.send(helper, record, term).to_s if h.respond_to?(helper)
     record_label(record)
   end
 

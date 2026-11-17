@@ -46,7 +46,7 @@ module SoftValidation
     #     :no_fix_available       (no fix method was provided)
     attr_accessor :fixed
 
-    # @param [Hash] args
+    # @param options [Hash]
     def initialize(options = {})
       @fixed = :fix_not_yet_run
       options.each do |k,v|

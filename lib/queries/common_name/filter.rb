@@ -20,6 +20,7 @@ module Queries
 
       def initialize(query_params)
         super
+        @common_name_id = params[:common_name_id]
         @gazetteer_id = params[:gazetteer_id]
         @geographic_area_id = params[:geographic_area_id]
         @language_id = params[:language_id]
@@ -41,7 +42,7 @@ module Queries
       end
 
       def geographic_area_id
-        [@geographic_area_id_id].flatten.compact
+        [@geographic_area_id].flatten.compact
       end
 
       def common_name_id

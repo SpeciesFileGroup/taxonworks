@@ -57,7 +57,7 @@ module Queries
       end
 
       def old_object_id
-        [@new_object_id].flatten.compact
+        [@old_object_id].flatten.compact
       end
 
       def old_object_type

@@ -72,7 +72,7 @@ class Language < ApplicationRecord
 
     h = {
       recent: Language.where(id: language_ids.first(10)).order(:english_name).to_a,
-      pinboard: Language.pinned_by(user_id).pinned_in_project(project_id).to_a,
+      pinboard: Language.pinned_by(user_id).pinned_in_project(project_id).pinboard_ordered.to_a,
       quick: (Language.pinned_by(user_id).pinboard_inserted.pinned_in_project(project_id).to_a + Language.where(id: language_ids.first(4)).order(:english_name).to_a).uniq
     }
     h

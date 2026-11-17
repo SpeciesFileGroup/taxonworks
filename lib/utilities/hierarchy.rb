@@ -13,32 +13,32 @@ class Utilities::Hierarchy
   #   klass  * not implements
   #   alias  * alternative label
 
-  # @return Array
+  # @return [Array]
   #   of objects with interface of properties above
   attr_accessor :nodes
 
-  # @return Hash
+  # @return [Hash]
   #   { node_id => object, ... }
   attr_accessor :node_map
 
-  # @return Hash
+  # @return [Hash]
   #   {id => [child ids], id2 => [] }
   #   Not really a hierarchy, just a parent/child lookup
   attr_accessor :hierarchy
 
-  # @return Array
+  # @return [Array]
   #  inferred root ids, not used when `root` provided
   attr_accessor :root_nodes
 
-  # @return Array
+  # @return [Array]
   #  asserted root ids
   attr_accessor :root
 
-  # @return Array
+  # @return [Array]
   #   memoized list of node ids
   attr_accessor :observed
 
-  # @return Array
+  # @return [Array]
   #   node_ids to be flagged as matched.
   #  permits return a simple true/false property in the result
   attr_accessor :match

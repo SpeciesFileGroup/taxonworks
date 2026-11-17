@@ -9,7 +9,7 @@ module Utilities::Strings
     # "\u00A0", # no-break space !! Rails .blank? is true
   ].freeze
 
-  # @return String, nil
+  # @return [String, nil]
   #   replace <br>, <i>, <b> tags with their asciidoc equivalents
   def self.asciify(string)
     return nil if string.to_s.length == 0
@@ -25,7 +25,7 @@ module Utilities::Strings
     string.gsub(/\n|(\r\n)/, separator)
   end
 
-  # @return String,nil
+  # @return [String, nil]
   #   the string preceeded with "a" or "an"
   def self.a_label(string)
     return nil if string.to_s.length == 0
@@ -53,7 +53,7 @@ module Utilities::Strings
   end
 
   # @param [String] string
-  # @return Boolean
+  # @return [Boolean]
   def self.cleanable?(string)
     string =~ /#{CLEANABLE.join('|')}|\s/
   end

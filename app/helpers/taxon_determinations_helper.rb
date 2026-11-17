@@ -27,7 +27,7 @@ module TaxonDeterminationsHelper
   # @return [String]
   #   as for taxon_determination_tag but does not reference collection object, links to OTU
   def taxon_determination_link(taxon_determination)
-    link_to(determination_tag(taxon_determination), browse_otus_task_path(taxon_determination.otu))
+    link_to(determination_tag(taxon_determination), browse_otus_task_path(otu_id: taxon_determination.otu_id))
   end
 
   # @return [String]

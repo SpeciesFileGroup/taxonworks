@@ -15,5 +15,12 @@ class ObservationMatrixColumnItem::Dynamic::Tag < ObservationMatrixColumnItem::D
     Descriptor.joins(:tags).where(tags: {keyword: controlled_vocabulary_term}).to_a
   end
 
+  def descriptor_ids_before_last_save
+    return [] if controlled_vocabulary_term_id_before_last_save.nil?
+    Descriptor.joins(:tags)
+      .where(tags: {keyword_id: controlled_vocabulary_term_id_before_last_save})
+      .pluck(:id)
+  end
+
 end
 

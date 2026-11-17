@@ -30,7 +30,8 @@ import {
   COLLECTING_EVENT,
   TAXON_NAME,
   EXTRACT,
-  FIELD_OCCURRENCE
+  FIELD_OCCURRENCE,
+  TYPE_MATERIAL
 } from '@/constants/index.js'
 
 const MODEL_TYPES = [
@@ -40,7 +41,8 @@ const MODEL_TYPES = [
   EXTRACT,
   FIELD_OCCURRENCE,
   OTU,
-  TAXON_NAME
+  TAXON_NAME,
+  TYPE_MATERIAL
 ]
 
 const props = defineProps({

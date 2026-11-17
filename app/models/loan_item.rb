@@ -124,7 +124,7 @@ class LoanItem < ApplicationRecord
     end
   end
 
-  # @params :ids -> an ID of a loan_item
+  # @param ids [Array] IDs of loan_items
   def self.batch_determine_loan_items(ids: [], params: {})
     return false if ids.empty?
     # these objects will be created/persisted to be used for each of the loan items identified by the input ids
@@ -362,7 +362,7 @@ class LoanItem < ApplicationRecord
     return { moved:, unmoved: }
   end
 
-  # @param param[:collection_object_query] required
+  # @param params [Hash] params[:collection_object_query] required
   #
   # Return all CollectionObjects matching the query. Does not yet work with OtuQuery
   def self.batch_return(params)

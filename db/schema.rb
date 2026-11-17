@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_26_165536) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_12_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -111,6 +111,26 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_26_165536) do
     t.index ["created_by_id"], name: "index_asserted_distributions_on_created_by_id"
     t.index ["project_id"], name: "index_asserted_distributions_on_project_id"
     t.index ["updated_by_id"], name: "index_asserted_distributions_on_updated_by_id"
+  end
+
+  create_table "asserted_environments", force: :cascade do |t|
+    t.bigint "asserted_environment_object_id", null: false
+    t.string "asserted_environment_object_type", null: false
+    t.text "cached"
+    t.datetime "created_at", null: false
+    t.integer "created_by_id", null: false
+    t.integer "position"
+    t.bigint "project_id", null: false
+    t.datetime "updated_at", null: false
+    t.integer "updated_by_id", null: false
+    t.text "uri", null: false
+    t.text "uri_label", null: false
+    t.index ["asserted_environment_object_id", "asserted_environment_object_type"], name: "asserted_environment_polymorphic_object_index"
+    t.index ["created_by_id"], name: "index_asserted_environments_on_created_by_id"
+    t.index ["project_id"], name: "index_asserted_environments_on_project_id"
+    t.index ["updated_by_id"], name: "index_asserted_environments_on_updated_by_id"
+    t.index ["uri"], name: "index_asserted_environments_on_uri"
+    t.index ["uri_label"], name: "ae_uri_label_gin_trgm", opclass: :gin_trgm_ops, using: :gin
   end
 
   create_table "attributions", force: :cascade do |t|
@@ -549,6 +569,59 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_26_165536) do
     t.index ["otu_id"], name: "index_common_names_on_otu_id"
     t.index ["project_id"], name: "index_common_names_on_project_id"
     t.index ["updated_by_id"], name: "index_common_names_on_updated_by_id"
+  end
+
+  create_table "composition_items", force: :cascade do |t|
+    t.bigint "composition_id"
+    t.bigint "composition_item_object_id"
+    t.string "composition_item_object_type"
+    t.datetime "created_at", null: false
+    t.integer "created_by_id", null: false
+    t.text "css_style"
+    t.integer "height"
+    t.boolean "is_visible"
+    t.float "opacity"
+    t.bigint "parent_id"
+    t.integer "position"
+    t.bigint "project_id"
+    t.float "rotation_z"
+    t.xml "svg_clip"
+    t.string "svg_view_box"
+    t.text "text"
+    t.integer "total"
+    t.string "type", null: false
+    t.datetime "updated_at", null: false
+    t.integer "updated_by_id", null: false
+    t.integer "width"
+    t.float "x"
+    t.float "y"
+    t.float "z"
+    t.float "zoom"
+    t.index ["composition_id"], name: "index_composition_items_on_composition_id"
+    t.index ["composition_item_object_type", "composition_item_object_id"], name: "index_composition_items_on_composition_item_object"
+    t.index ["created_by_id"], name: "index_composition_items_on_created_by_id"
+    t.index ["parent_id"], name: "index_composition_items_on_parent_id"
+    t.index ["project_id"], name: "index_composition_items_on_project_id"
+    t.index ["updated_by_id"], name: "index_composition_items_on_updated_by_id"
+    t.check_constraint "opacity >= 0::double precision AND opacity <= 100::double precision", name: "composition_item_opacity_check"
+  end
+
+  create_table "compositions", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "created_by_id", null: false
+    t.text "description"
+    t.boolean "is_community"
+    t.text "name", null: false
+    t.bigint "project_id"
+    t.string "type", null: false
+    t.datetime "updated_at", null: false
+    t.integer "updated_by_id", null: false
+    t.index ["created_by_id"], name: "index_compositions_on_created_by_id"
+    t.index ["is_community"], name: "index_compositions_on_is_community"
+    t.index ["project_id", "type", "name"], name: "composition_unique_name_index", unique: true, nulls_not_distinct: true
+    t.index ["project_id"], name: "index_compositions_on_project_id"
+    t.index ["updated_by_id"], name: "index_compositions_on_updated_by_id"
+    t.check_constraint "(is_community IS TRUE) = (project_id IS NULL)", name: "composition_community_project_check"
   end
 
   create_table "confidences", id: :serial, force: :cascade do |t|
@@ -1396,6 +1469,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_26_165536) do
     t.integer "created_by_id", null: false
     t.text "description"
     t.boolean "is_public"
+    t.boolean "is_virtual"
     t.text "link_out"
     t.string "link_out_text"
     t.bigint "observation_matrix_id"
@@ -1690,38 +1764,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_26_165536) do
     t.index ["old_object_type", "old_object_id"], name: "index_origin_relationships_on_old_object_type_and_old_object_id"
     t.index ["project_id"], name: "index_origin_relationships_on_project_id"
     t.index ["updated_by_id"], name: "index_origin_relationships_on_updated_by_id"
-  end
-
-  create_table "otu_page_layout_sections", id: :serial, force: :cascade do |t|
-    t.datetime "created_at", precision: nil, null: false
-    t.integer "created_by_id", null: false
-    t.string "dynamic_content_class"
-    t.integer "otu_page_layout_id", null: false
-    t.integer "position", null: false
-    t.integer "project_id", null: false
-    t.integer "topic_id"
-    t.string "type", null: false
-    t.datetime "updated_at", precision: nil, null: false
-    t.integer "updated_by_id", null: false
-    t.index ["created_by_id"], name: "index_otu_page_layout_sections_on_created_by_id"
-    t.index ["otu_page_layout_id"], name: "index_otu_page_layout_sections_on_otu_page_layout_id"
-    t.index ["position"], name: "index_otu_page_layout_sections_on_position"
-    t.index ["project_id"], name: "index_otu_page_layout_sections_on_project_id"
-    t.index ["topic_id"], name: "index_otu_page_layout_sections_on_topic_id"
-    t.index ["type"], name: "index_otu_page_layout_sections_on_type"
-    t.index ["updated_by_id"], name: "index_otu_page_layout_sections_on_updated_by_id"
-  end
-
-  create_table "otu_page_layouts", id: :serial, force: :cascade do |t|
-    t.datetime "created_at", precision: nil, null: false
-    t.integer "created_by_id", null: false
-    t.string "name", null: false
-    t.integer "project_id", null: false
-    t.datetime "updated_at", precision: nil, null: false
-    t.integer "updated_by_id", null: false
-    t.index ["created_by_id"], name: "index_otu_page_layouts_on_created_by_id"
-    t.index ["project_id"], name: "index_otu_page_layouts_on_project_id"
-    t.index ["updated_by_id"], name: "index_otu_page_layouts_on_updated_by_id"
   end
 
   create_table "otu_relationships", force: :cascade do |t|
@@ -2158,23 +2200,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_26_165536) do
     t.index ["project_id"], name: "index_sqed_depictions_on_project_id"
   end
 
-  create_table "tagged_section_keywords", id: :serial, force: :cascade do |t|
-    t.datetime "created_at", precision: nil, null: false
-    t.integer "created_by_id", null: false
-    t.integer "keyword_id", null: false
-    t.integer "otu_page_layout_section_id", null: false
-    t.integer "position", null: false
-    t.integer "project_id", null: false
-    t.datetime "updated_at", precision: nil, null: false
-    t.integer "updated_by_id", null: false
-    t.index ["created_by_id"], name: "index_tagged_section_keywords_on_created_by_id"
-    t.index ["keyword_id"], name: "index_tagged_section_keywords_on_keyword_id"
-    t.index ["otu_page_layout_section_id"], name: "index_tagged_section_keywords_on_otu_page_layout_section_id"
-    t.index ["position"], name: "index_tagged_section_keywords_on_position"
-    t.index ["project_id"], name: "index_tagged_section_keywords_on_project_id"
-    t.index ["updated_by_id"], name: "index_tagged_section_keywords_on_updated_by_id"
-  end
-
   create_table "tags", id: :serial, force: :cascade do |t|
     t.datetime "created_at", precision: nil, null: false
     t.integer "created_by_id", null: false
@@ -2417,9 +2442,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_26_165536) do
   add_foreign_key "asserted_distributions", "projects", name: "asserted_distributions_project_id_fkey"
   add_foreign_key "asserted_distributions", "users", column: "created_by_id", name: "asserted_distributions_created_by_id_fkey"
   add_foreign_key "asserted_distributions", "users", column: "updated_by_id", name: "asserted_distributions_updated_by_id_fkey"
+  add_foreign_key "asserted_environments", "projects"
+  add_foreign_key "asserted_environments", "users", column: "created_by_id"
+  add_foreign_key "asserted_environments", "users", column: "updated_by_id"
   add_foreign_key "attributions", "projects"
   add_foreign_key "attributions", "users", column: "created_by_id"
   add_foreign_key "attributions", "users", column: "updated_by_id"
+  add_foreign_key "biocuration_classifications", "controlled_vocabulary_terms", column: "biocuration_class_id", name: "biocuration_classifications_biocuration_class_id_fkey"
   add_foreign_key "biocuration_classifications", "projects", name: "biocuration_classifications_project_id_fkey"
   add_foreign_key "biocuration_classifications", "users", column: "created_by_id", name: "biocuration_classifications_created_by_id_fkey"
   add_foreign_key "biocuration_classifications", "users", column: "updated_by_id", name: "biocuration_classifications_updated_by_id_fkey"
@@ -2484,6 +2513,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_26_165536) do
   add_foreign_key "common_names", "projects"
   add_foreign_key "common_names", "users", column: "created_by_id"
   add_foreign_key "common_names", "users", column: "updated_by_id"
+  add_foreign_key "composition_items", "composition_items", column: "parent_id"
+  add_foreign_key "composition_items", "compositions"
+  add_foreign_key "composition_items", "projects"
+  add_foreign_key "composition_items", "users", column: "created_by_id"
+  add_foreign_key "composition_items", "users", column: "updated_by_id"
+  add_foreign_key "compositions", "projects"
+  add_foreign_key "compositions", "users", column: "created_by_id"
+  add_foreign_key "compositions", "users", column: "updated_by_id"
   add_foreign_key "confidences", "controlled_vocabulary_terms", column: "confidence_level_id"
   add_foreign_key "confidences", "projects"
   add_foreign_key "confidences", "users", column: "created_by_id"
@@ -2641,20 +2678,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_26_165536) do
   add_foreign_key "origin_relationships", "projects"
   add_foreign_key "origin_relationships", "users", column: "created_by_id"
   add_foreign_key "origin_relationships", "users", column: "updated_by_id"
-  add_foreign_key "otu_page_layout_sections", "controlled_vocabulary_terms", column: "topic_id", name: "otu_page_layout_sections_topic_id_fkey"
-  add_foreign_key "otu_page_layout_sections", "otu_page_layouts", name: "otu_page_layout_sections_otu_page_layout_id_fkey"
-  add_foreign_key "otu_page_layout_sections", "projects", name: "otu_page_layout_sections_project_id_fkey"
-  add_foreign_key "otu_page_layout_sections", "users", column: "created_by_id", name: "otu_page_layout_sections_created_by_id_fkey"
-  add_foreign_key "otu_page_layout_sections", "users", column: "updated_by_id", name: "otu_page_layout_sections_updated_by_id_fkey"
-  add_foreign_key "otu_page_layouts", "projects", name: "otu_page_layouts_project_id_fkey"
-  add_foreign_key "otu_page_layouts", "users", column: "created_by_id", name: "otu_page_layouts_created_by_id_fkey"
-  add_foreign_key "otu_page_layouts", "users", column: "updated_by_id", name: "otu_page_layouts_updated_by_id_fkey"
   add_foreign_key "otu_relationships", "otus", column: "object_otu_id"
   add_foreign_key "otu_relationships", "otus", column: "subject_otu_id"
   add_foreign_key "otu_relationships", "projects"
   add_foreign_key "otu_relationships", "users", column: "created_by_id"
   add_foreign_key "otu_relationships", "users", column: "updated_by_id"
   add_foreign_key "otus", "projects", name: "otus_project_id_fkey"
+  add_foreign_key "otus", "taxon_names", name: "otus_taxon_name_id_fkey"
   add_foreign_key "otus", "users", column: "created_by_id", name: "otus_created_by_id_fkey"
   add_foreign_key "otus", "users", column: "updated_by_id", name: "otus_updated_by_id_fkey"
   add_foreign_key "people", "users", column: "created_by_id", name: "people_created_by_id_fkey"
@@ -2732,11 +2762,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_26_165536) do
   add_foreign_key "sqed_depictions", "projects"
   add_foreign_key "sqed_depictions", "users", column: "created_by_id"
   add_foreign_key "sqed_depictions", "users", column: "updated_by_id"
-  add_foreign_key "tagged_section_keywords", "controlled_vocabulary_terms", column: "keyword_id", name: "tagged_section_keywords_keyword_id_fkey"
-  add_foreign_key "tagged_section_keywords", "otu_page_layout_sections", name: "tagged_section_keywords_otu_page_layout_section_id_fkey"
-  add_foreign_key "tagged_section_keywords", "projects", name: "tagged_section_keywords_project_id_fkey"
-  add_foreign_key "tagged_section_keywords", "users", column: "created_by_id", name: "tagged_section_keywords_created_by_id_fkey"
-  add_foreign_key "tagged_section_keywords", "users", column: "updated_by_id", name: "tagged_section_keywords_updated_by_id_fkey"
+  add_foreign_key "tags", "controlled_vocabulary_terms", column: "keyword_id", name: "tags_keyword_id_fkey"
   add_foreign_key "tags", "projects", name: "tags_project_id_fkey"
   add_foreign_key "tags", "users", column: "created_by_id", name: "tags_created_by_id_fkey"
   add_foreign_key "tags", "users", column: "updated_by_id", name: "tags_updated_by_id_fkey"
@@ -2745,6 +2771,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_26_165536) do
   add_foreign_key "taxon_determinations", "users", column: "created_by_id", name: "taxon_determinations_created_by_id_fkey"
   add_foreign_key "taxon_determinations", "users", column: "updated_by_id", name: "taxon_determinations_updated_by_id_fkey"
   add_foreign_key "taxon_name_classifications", "projects", name: "taxon_name_classifications_project_id_fkey"
+  add_foreign_key "taxon_name_classifications", "taxon_names", name: "taxon_name_classifications_taxon_name_id_fkey"
   add_foreign_key "taxon_name_classifications", "users", column: "created_by_id", name: "taxon_name_classifications_created_by_id_fkey"
   add_foreign_key "taxon_name_classifications", "users", column: "updated_by_id", name: "taxon_name_classifications_updated_by_id_fkey"
   add_foreign_key "taxon_name_relationships", "projects", name: "taxon_name_relationships_project_id_fkey"

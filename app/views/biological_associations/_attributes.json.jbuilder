@@ -3,6 +3,7 @@ json.partial! '/shared/data/all/metadata', object: biological_association
 
 if extend_response_with('biological_relationship')
   json.biological_relationship do
+    json.extract! biological_association.biological_relationship, :name, :inverted_name
     json.partial! '/shared/data/all/metadata', object: biological_association.biological_relationship, extensions: false
   end
 end

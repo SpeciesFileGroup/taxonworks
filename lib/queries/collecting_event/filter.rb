@@ -121,12 +121,12 @@ module Queries
       #   legal values are 'true', 'false'
       #   `true` - match only CollectingEvents with associated CollectionObjects
       #   `false` - match only CollectingEvents without associated CollectionObjects
-      # @return collection_objects [Boolean, nil]
+      # @return [Boolean, nil]
       #
       #  whether the CollectingEvent has associated CollectionObjects
       attr_accessor :collection_objects
 
-      # @return Array
+      # @return [Array]
       # @param collection_object_id [Array, Integer, String]
       #    all collecting events matching collection objects
       attr_accessor :collection_object_id
@@ -296,7 +296,7 @@ module Queries
         end
       end
 
-      # @return Scope
+      # @return [Scope]
       def collection_objects_facet
         return nil if collection_objects.nil?
         subquery = ::CollectionObject.where(::CollectionObject.arel_table[:collecting_event_id].eq(::CollectingEvent.arel_table[:id])).arel.exists
@@ -434,9 +434,9 @@ module Queries
       def collectors_facet
         return nil if collectors.nil?
         if collectors
-          ::CollectingEvent.joins(:collectors).distinct
+          ::CollectingEvent.joins(:collector_roles).distinct
         else
-          ::CollectingEvent.where.missing(:collectors)
+          ::CollectingEvent.where.missing(:collector_roles)
         end
       end
 
@@ -450,6 +450,14 @@ module Queries
           .to_sql
 
         ::CollectingEvent.from('(' + s + ') as collecting_events').distinct
+      end
+
+      def asserted_environment_query_facet
+        return nil if asserted_environment_query.nil?
+        ::CollectingEvent
+          .with(query_ae_ce: asserted_environment_query.all)
+          .joins("JOIN query_ae_ce ON query_ae_ce.asserted_environment_object_id = collecting_events.id AND query_ae_ce.asserted_environment_object_type = 'CollectingEvent'")
+          .distinct
       end
 
       def otu_query_facet
@@ -535,6 +543,7 @@ module Queries
 
       def merge_clauses
         [
+          asserted_environment_query_facet,
           biological_association_query_facet,
           collection_object_query_facet,
           field_occurrence_query_facet,

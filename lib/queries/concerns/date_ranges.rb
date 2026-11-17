@@ -34,12 +34,16 @@ module Queries::Concerns::DateRanges
     def start_date=(value)
       @start_date = value
       @start_year, @start_month, @start_day = start_date.split('-').map(&:to_i)
+      @start_month ||= 1
+      @start_day ||= 1
       @start_date
     end
 
     def end_date=(value)
       @end_date = value
       @end_year, @end_month, @end_day = end_date.split('-').map(&:to_i)
+      @end_month ||= 12
+      @end_day ||= Date.new(@end_year, @end_month, -1).day
       @end_date
     end
 
@@ -47,7 +51,7 @@ module Queries::Concerns::DateRanges
       self.send('start_date='.to_sym, params[:start_date]) if params[:start_date].present?
       self.send('end_date=', params[:end_date]) if params[:end_date].present?
 
-      @partial_overlap_dates = params[:partial_overlap_dates]
+      @partial_overlap_dates = boolean_param(params, :partial_overlap_dates)
       @partial_overlap_dates = true if @partial_overlap_dates.nil?
     end
   end

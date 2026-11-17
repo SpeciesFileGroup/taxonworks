@@ -20,5 +20,37 @@ describe Queries::AlternateValue::Filter, type: :model, group: :alternate_values
     q = Queries::AlternateValue::Filter.new( p.merge(otu_id: '123') )
     expect(q.ignores_project?).to be_falsey
   end
-end
 
+  context 'community annotations' do
+    let!(:project_annotation) do
+      AlternateValue::AlternateSpelling.create!(
+        alternate_value_object: FactoryBot.create(:valid_keyword),
+        alternate_value_object_attribute: 'name',
+        value: 'Blorf'
+      )
+    end
+
+    let!(:community_annotation) do
+      AlternateValue::AlternateSpelling.create!(
+        alternate_value_object: FactoryBot.create(:valid_serial),
+        alternate_value_object_attribute: 'name',
+        value: 'Blorf'
+      )
+    end
+
+    specify 'are excluded without `api`' do
+      q = Queries::AlternateValue::Filter.new(p.merge(project_id: 1))
+      expect(q.all.to_a).to contain_exactly(project_annotation)
+    end
+
+    specify 'are included with `api`' do
+      q = Queries::AlternateValue::Filter.new(p.merge(project_id: 1, api: true))
+      expect(q.all.to_a).to contain_exactly(project_annotation, community_annotation)
+    end
+
+    specify 'are reachable by `alternate_value_object_type` without `api`' do
+      q = Queries::AlternateValue::Filter.new(p.merge(project_id: 1, alternate_value_object_type: 'Serial'))
+      expect(q.all.to_a).to contain_exactly(community_annotation)
+    end
+  end
+end

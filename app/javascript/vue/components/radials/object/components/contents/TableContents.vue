@@ -16,7 +16,10 @@
         <td v-html="shorten(item.text, 150)"></td>
         <td v-html="item.topic.name"></td>
         <td>
-          <PublishContent :content-id="item.id" />
+          <PublishContent
+            :content-id="item.id"
+            @change="(value) => emit('publish', { item, value })"
+          />
         </td>
         <td>
           <div class="flex-row gap-small">
@@ -62,7 +65,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits('edit', 'delete')
+const emit = defineEmits(['edit', 'delete', 'publish'])
 
 function emitDelete(item) {
   if (

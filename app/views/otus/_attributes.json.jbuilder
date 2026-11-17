@@ -6,3 +6,13 @@ if extend_response_with('taxonomy')
     json.merge! otu.taxonomy
   end
 end
+
+if extend_response_with('taxon_name')
+  json.taxon_name do
+    if otu.taxon_name.nil?
+      json.nil!
+    else
+      json.partial! '/taxon_names/base_attributes', taxon_name: otu.taxon_name
+    end
+  end
+end

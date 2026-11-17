@@ -41,12 +41,19 @@
             v-if="isLoading"
           />
           <template
-            v-for="({ component, title, isAvailableFor }, index) in SectionComponents"
+            v-for="(
+              { component, title, isAvailableFor }, index
+            ) in SectionComponents"
             :key="title"
           >
             <component
               v-if="isAvailableFor(taxon)"
-              :ref="el => { if (el) sectionRefs[index] = el; else delete sectionRefs[index] }"
+              :ref="
+                (el) => {
+                  if (el) sectionRefs[index] = el
+                  else delete sectionRefs[index]
+                }
+              "
               class="margin-medium-bottom"
               :is="component"
             />
@@ -68,7 +75,11 @@ import NavHeader from './components/navHeader.vue'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import platformKey from '@/helpers/getPlatformKey'
 import ColumnRight from './components/ColumnRight.vue'
-import { useHotkey, useUserPreference } from '@/composables'
+import {
+  useHotkey,
+  usePopstateListener,
+  useUserPreference
+} from '@/composables'
 import { SectionComponents } from './const/components.js'
 import { GetterNames } from './store/getters/getters'
 import { MutationNames } from './store/mutations/mutations'
@@ -109,33 +120,50 @@ watch(
 )
 
 onMounted(() => {
-  const urlParams = new URLSearchParams(window.location.search)
-  let taxonId = urlParams.get('taxon_name_id')
-
-  if (!taxonId) {
-    taxonId = location.pathname.split('/')[4]
-  }
+  const taxonId = getTaxonIdFromUrl()
 
   initLoad().then(() => {
-    if (/^\d+$/.test(taxonId)) {
-      isLoading.value = true
-      store
-        .dispatch(ActionNames.LoadTaxonName, taxonId)
-        .then((taxon) => {
-          store.dispatch(ActionNames.LoadTaxonStatus, taxonId)
-          store.dispatch(ActionNames.LoadTaxonRelationships, taxonId)
-          store.dispatch(ActionNames.LoadOriginalCombination, taxonId)
-          store.dispatch(ActionNames.LoadCombinations, taxon.id)
-        })
-        .catch(() => {})
-        .finally(() => {
-          isLoading.value = false
-        })
+    if (taxonId) {
+      loadTaxonById(taxonId)
     }
   })
 
   addShortcutsDescription()
 })
+
+usePopstateListener(() => {
+  const taxonId = getTaxonIdFromUrl()
+
+  if (taxonId) {
+    loadTaxonById(taxonId)
+  } else {
+    store.commit(MutationNames.ResetTaxon)
+  }
+})
+
+function getTaxonIdFromUrl() {
+  const urlParams = new URLSearchParams(window.location.search)
+  const taxonId =
+    urlParams.get('taxon_name_id') || location.pathname.split('/')[4]
+
+  return /^\d+$/.test(taxonId) ? taxonId : undefined
+}
+
+function loadTaxonById(taxonId) {
+  isLoading.value = true
+  store
+    .dispatch(ActionNames.LoadTaxonName, taxonId)
+    .then((taxon) => {
+      store.dispatch(ActionNames.LoadTaxonStatus, taxonId)
+      store.dispatch(ActionNames.LoadTaxonRelationships, taxonId)
+      store.dispatch(ActionNames.LoadOriginalCombination, taxonId)
+      store.dispatch(ActionNames.LoadCombinations, taxon.id)
+    })
+    .catch(() => {})
+    .finally(() => {
+      isLoading.value = false
+    })
+}
 
 function addShortcutsDescription() {
   const TASK = 'New taxon name'
@@ -198,7 +226,9 @@ function loadTaxon(taxon) {
 function focusSectionComponent(index) {
   const component = sectionRefs[index]
   if (!component) return
-  component.$el?.querySelector('a[name]')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  component.$el
+    ?.querySelector('a[name]')
+    ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   component.focus?.()
 }
 

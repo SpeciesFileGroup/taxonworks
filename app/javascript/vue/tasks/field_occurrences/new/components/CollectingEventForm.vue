@@ -62,6 +62,7 @@
                 <RadialAnnotator
                   :global-id="ceStore.collectingEvent.global_id"
                 />
+                <RadialObject :global-id="ceStore.collectingEvent.global_id" />
                 <RadialNavigator
                   :global-id="ceStore.collectingEvent.global_id"
                 />
@@ -106,6 +107,7 @@
 
 <script setup>
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
+import RadialObject from '@/components/radials/object/radial.vue'
 import FormCollectingEvent from '@/components/Form/FormCollectingEvent/FormCollectingEvent.vue'
 import BlockLayout from '@/components/layout/BlockLayout.vue'
 import SmartSelector from '@/components/ui/SmartSelector.vue'

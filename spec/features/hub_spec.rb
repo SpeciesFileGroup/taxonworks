@@ -27,6 +27,47 @@ describe 'Hub', type: :feature do
         # specify 'there the user can re-arrange their tabs'
       end
 
+      specify 'missing default tabs go before favorite when it was last' do
+        @user.update_attribute(:hub_tab_order, %w{data tasks favorite})
+        visit hub_path
+        expect(@user.reload.hub_tab_order).to eq(%w{data tasks render favorite})
+        expect(page).to have_link('render', href: hub_path(list: 'render'))
+      end
+
+      specify 'missing default tabs are appended when favorite was not last' do
+        @user.update_attribute(:hub_tab_order, %w{favorite data tasks})
+        visit hub_path
+        expect(@user.reload.hub_tab_order).to eq(%w{favorite data tasks render})
+      end
+
+      specify 'the previous default order becomes the current default' do
+        @user.update_attribute(:hub_tab_order, %w{tasks data favorite})
+        visit hub_path
+        expect(@user.reload.hub_tab_order).to eq(DEFAULT_HUB_TAB_ORDER)
+      end
+
+      context 'render tab' do
+        before { visit hub_path(list: 'render') }
+
+        specify 'has the Render section' do
+          expect(page).to have_css('[data-section="Render"]')
+          expect(page).to have_link('Compositions')
+        end
+
+        specify 'does not have data sections' do
+          expect(page).to_not have_css('[data-section="Core"]')
+        end
+      end
+
+      context 'data tab' do
+        before { visit hub_path(list: 'data') }
+
+        specify 'does not have the Render section' do
+          expect(page).to have_css('[data-section="Core"]')
+          expect(page).to_not have_css('[data-section="Render"]')
+        end
+      end
+
       context 'favorite tab' do
         context 'before a user has selected any favorite pages' do
           # specify 'a notice describing how to add pages to this list is provided'

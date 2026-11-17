@@ -18,6 +18,7 @@ class Export::Graph
     'Source' => '#2196F3',
     'AssertedDistribution' => '#FF9800',
     'Image' => '#CDDC39',
+    'AssertedEnvironment' => '#795548',
   }.freeze
 
   NODE_SHAPES = {
@@ -37,6 +38,7 @@ class Export::Graph
     'Source' => 'pentagon',
     'Citation' => 'octagon',
     'AssertedDistribution' => 'pentagon',
+    'AssertedEnvironment' => 'pentagon',
     'Image' => 'square',
     'GeographicArea' => 'square'
   }.freeze
@@ -48,7 +50,7 @@ class Export::Graph
 
   attr_accessor :draw_annotations
 
-  # @params object [An AR record, nil]
+  # @param object [An AR record, nil]
   #   the "base" of the object, if rooted
   def initialize(object: nil, annotations_to_draw: RENDERABLE_ANNOTATIONS )
     @draw_annotations = annotations_to_draw
@@ -146,7 +148,7 @@ class Export::Graph
     h
   end
 
-  # @return True
+  # @return [True]
   # !param graph [Export::Graph]
   # Merges the edges and nodes from another graph to this one
   def merge(graph)

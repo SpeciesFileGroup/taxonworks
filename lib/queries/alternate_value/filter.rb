@@ -28,7 +28,7 @@ module Queries
 
       attr_accessor :alternate_value_object_type
 
-      # @params params [ActionController::Parameters]
+      # @param query_params [ActionController::Parameters]
       def initialize(query_params)
         super
         @alternate_value_id = params[:alternate_value_id]
@@ -72,6 +72,7 @@ module Queries
       def community_project_id_facet
         return nil if project_id.nil?
         if !ignores_project?
+          return table[:project_id].in(project_id).or(table[:project_id].eq(nil)) if api
           return table[:project_id].in(project_id)
         end
         nil

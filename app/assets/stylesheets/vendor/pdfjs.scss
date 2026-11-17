@@ -15,15 +15,9 @@
 
 .toolbar-pdf {
   padding-left: 2em;
-  position: absolute;
   display: flex;
   align-items: center;
   height: 32px;
-  right: 0;
-  left: 0;
-  top: 60px;
-  bottom: 0;
-  z-index: 9999;
   background-color: #474747;
   background-image:
     image-url('pdfviewer/texture.png'),
@@ -100,10 +94,10 @@
   background-image: image-url('pdfviewer/texture.png');
   background-color: var(--panel-bg-color);
   text-align: center;
+  height: calc(100vh - 92px) !important;
 }
 #viewer {
   position: relative;
-  margin-top: 30px;
 }
 
 #pdfEmptyMessage {

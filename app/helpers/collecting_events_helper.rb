@@ -31,6 +31,16 @@ module CollectingEventsHelper
     mark_tag(s, term)
   end
 
+  # Deliberately not part of `collecting_event_autocomplete_tag`: that method
+  # backs `collecting_event_tag`, and so `object_tag`, project wide.
+  # `size` rather than `count` so that a preloaded association is not re-counted.
+  def collecting_event_georeferences_tag(collecting_event)
+    return nil if collecting_event.nil?
+    c = collecting_event.georeferences.size
+    return nil if c == 0
+    content_tag(:span, 'Georeferences: ' + c.to_s, class: [ :feedback, 'feedback-thin', 'feedback-secondary' ])
+  end
+
   def collecting_event_uses_tag(collecting_event)
     return nil if collecting_event.nil?
     if collecting_event.collection_objects.any?
@@ -70,12 +80,17 @@ module CollectingEventsHelper
   end
 
   def collecting_event_collectors_tag(collecting_event)
-    return nil if collecting_event.nil? || (collecting_event.verbatim_collectors.blank? && !collecting_event.collectors.load.any?)
+    return nil if collecting_event.nil? || (collecting_event.verbatim_collectors.blank? && !collecting_event.collector_roles.any?)
+    roles = collecting_event.collector_roles.sort_by { |role| role.position || Float::INFINITY }
+    names = roles.map do |role|
+      collector = role.agent
+      collector.is_a?(Person) ? collector.cached : collector.name
+    end
     a = ''
 
     a << content_tag(
-      :span, Utilities::Strings.authorship_sentence(collecting_event.collectors.collect{|a| a.cached})
-    ) if collecting_event.collectors.any?
+      :span, Utilities::Strings.authorship_sentence(names)
+    ) if roles.any?
 
     a << '&nbsp;'.html_safe + content_tag(:span,  collecting_event.verbatim_collectors, class: [:feedback, 'feedback-thin','feedback-secondary']) if collecting_event.verbatim_collectors
     a.html_safe

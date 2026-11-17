@@ -231,45 +231,215 @@ describe Queries::Otu::Autocomplete, type: :model do
       expect(query.autocomplete.first).to eq(otu2)
     end
 
-    # Regression: `terms` (Queries::Query#terms) always returns a 2-element
-    # array of wildcarded copies of the *whole* query_string, never the
-    # query_string split on whitespace. `autocomplete_taxon_name_hybrid` was
-    # (mis)written assuming `terms.first`/`terms.second` were the genus and
-    # otu.name (e.g. "Tapinoma CASC_2231") words, so `terms.length == 2` was
-    # vacuously true for any query, and it trigram-matched the *entire*
-    # phrase against both `taxon_names.cached` and `otus.name` instead of
-    # matching each word against its own column.
-    context '#autocomplete_taxon_name_hybrid' do
+    context '#autocomplete_taxon_name_and_otu_name' do
       let!(:tapinoma) { Protonym.create!(name: 'Tapinoma', rank_class: Ranks.lookup(:iczn, 'genus'), parent: root) }
       let!(:target) { Otu.create!(taxon_name: tapinoma, name: 'CASC_2231', project_id: project_id) }
 
-      specify 'matches genus term to taxon_names.cached and otu term to otus.name, independently' do
-        # This otu.name redundantly restates the genus (as happens in real
-        # data, e.g. "Scaphoideus menoni_E26" under genus "Scaphoideus").
-        # Under the old whole-phrase bug this shared genus text was enough
-        # to pass both trigram conditions even though the otu-specific part
-        # ("sp2_Z9") has nothing to do with the query's otu term
-        # ("CASC_2231").
-        decoy = Otu.create!(taxon_name: tapinoma, name: 'Tapinoma sp2_Z9', project_id: project_id)
-
+      specify 'matches an exact single-word taxon name and otu name' do
         q = Queries::Otu::Autocomplete.new('Tapinoma CASC_2231', project_id: project_id)
-        r = q.autocomplete_taxon_name_hybrid.to_a
-
-        expect(r).to include(target)
-        expect(r).not_to include(decoy)
+        expect(q.autocomplete_taxon_name_and_otu_name.to_a).to include(target)
       end
 
-      specify 'does not run for single-word queries' do
-        q = Queries::Otu::Autocomplete.new('Tapinoma', project_id: project_id)
-        expect(q.autocomplete_taxon_name_hybrid).to be_nil
-      end
-
-      specify 'does not run for queries with more than two words' do
-        q = Queries::Otu::Autocomplete.new('Tapinoma CASC 2231', project_id: project_id)
-        expect(q.autocomplete_taxon_name_hybrid).to be_nil
+      specify 'matches on prefixes of both terms' do
+        q = Queries::Otu::Autocomplete.new('Tapino CASC', project_id: project_id)
+        expect(q.autocomplete_taxon_name_and_otu_name.to_a).to include(target)
       end
     end
 
+  end
+
+  context 'restrict_to' do
+    let!(:otu2) { Otu.create!(name: name + ' two') }
+
+    specify 'restricts results to the given Otus' do
+      q = Queries::Otu::Autocomplete.new(name, restrict_to: Otu.where(id: otu2.id))
+      expect(q.autocomplete.map(&:id)).to contain_exactly(otu2.id)
+    end
+
+    specify 'is not applied when nil' do
+      q = Queries::Otu::Autocomplete.new(name)
+      expect(q.autocomplete.map(&:id)).to include(otu.id, otu2.id)
+    end
+  end
+
+  context 'restrict_to taxon names' do
+    specify 'takes unrestricted TaxonName results, filtered by the Otu restriction' do
+      expect(Queries::TaxonName::Autocomplete).to receive(:new)
+        .with('Erasmoneura', hash_excluding(:restrict_to))
+        .and_call_original
+
+      q = Queries::Otu::Autocomplete.new('Erasmoneura', restrict_to: Otu.where(id: otu2.id))
+      expect(q.autocomplete).to contain_exactly(otu2)
+    end
+
+    specify 'extended takes unrestricted TaxonName results, filtered by the Otu restriction' do
+      expect(Queries::TaxonName::Autocomplete).to receive(:new)
+        .with('Erasmoneura', hash_excluding(:restrict_to))
+        .and_call_original
+
+      q = Queries::Otu::Autocomplete.new('Erasmoneura', restrict_to: Otu.where(id: otu2.id))
+      expect(q.autocomplete_taxon_name_extended).to contain_exactly(otu2)
+    end
+
+    specify 'keeps a Combination whose valid name is that of a restricted Otu' do
+      combination = FactoryBot.create(:valid_combination)
+      combination.reload
+      o = Otu.create!(taxon_name_id: combination.cached_valid_taxon_name_id)
+
+      q = Queries::Otu::Autocomplete.new(combination.cached, restrict_to: Otu.where(id: o.id))
+      expect(q.taxon_name_autocomplete).to include(combination)
+      expect(q.autocomplete_taxon_name).to include(o)
+    end
+
+    context 'shorter than DELEGATED_MINIMUM_LENGTH' do
+      let!(:otu) { Otu.create!(taxon_name: Protonym.create!(name: 'Zz', rank_class: Ranks.lookup(:iczn, 'genus'), parent: root)) }
+
+      specify 'restricted, does not run the TaxonName autocomplete' do
+        expect_any_instance_of(Queries::TaxonName::Autocomplete).to_not receive(:autocomplete)
+
+        q = Queries::Otu::Autocomplete.new('Zz', restrict_to: Otu.where(id: otu.id))
+        expect(q.taxon_name_autocomplete).to eq([])
+      end
+
+      specify 'unrestricted, runs the TaxonName autocomplete' do
+        q = Queries::Otu::Autocomplete.new('Zz')
+        expect(q.taxon_name_autocomplete).to include(otu.taxon_name)
+      end
+    end
+
+    context 'deep TaxonName results' do
+      let(:crowd_genus) { Protonym.create!(name: 'Zzyzxdeep', rank_class: Ranks.lookup(:iczn, 'genus'), parent: root) }
+      let!(:target_otu) {
+        # Shorter names sort first in TaxonName autocomplete
+        ('aa'..'az').each do |n|
+          Protonym.create!(name: n, rank_class: Ranks.lookup(:iczn, 'species'), parent: crowd_genus)
+        end
+        Otu.create!(taxon_name: Protonym.create!(name: 'zzzzzzzz', rank_class: Ranks.lookup(:iczn, 'species'), parent: crowd_genus))
+      }
+
+      let(:depths) { [] }
+
+      before do
+        allow_any_instance_of(Queries::TaxonName::Autocomplete).to receive(:autocomplete).and_wrap_original do |m|
+          depths << m.receiver.limit
+          m.call
+        end
+      end
+
+      specify 'are fetched once, DELEGATED_DEPTH deep' do
+        q = Queries::Otu::Autocomplete.new('Zzyzxdeep', restrict_to: Otu.where(id: target_otu.id))
+        expect(q.autocomplete).to contain_exactly(target_otu)
+        expect(depths).to eq([Queries::Query::Autocomplete::DELEGATED_DEPTH])
+      end
+
+      specify 'beyond DELEGATED_DEPTH are not found (best effort)' do
+        stub_const('Queries::Query::Autocomplete::DELEGATED_DEPTH', 20)
+
+        q = Queries::Otu::Autocomplete.new('Zzyzxdeep', restrict_to: Otu.where(id: target_otu.id))
+        expect(q.taxon_name_autocomplete).to eq([])
+        expect(depths).to eq([20])
+      end
+    end
+
+    specify 'finds a restricted Otu whose taxon name is crowded out of the default TaxonName limit' do
+      crowd_genus = Protonym.create!(name: 'Zzyzxcrowd', rank_class: Ranks.lookup(:iczn, 'genus'), parent: root)
+      # Shorter names sort first in TaxonName autocomplete
+      ('aa'..'az').each do |n|
+        Protonym.create!(name: n, rank_class: Ranks.lookup(:iczn, 'species'), parent: crowd_genus)
+      end
+      target = Protonym.create!(name: 'zzzzzzzz', rank_class: Ranks.lookup(:iczn, 'species'), parent: crowd_genus)
+      target_otu = Otu.create!(taxon_name: target)
+
+      expect(Queries::TaxonName::Autocomplete.new('Zzyzxcrowd').autocomplete).to_not include(target)
+
+      q = Queries::Otu::Autocomplete.new('Zzyzxcrowd', restrict_to: Otu.where(id: target_otu.id))
+      expect(q.autocomplete).to contain_exactly(target_otu)
+    end
+  end
+
+  context 'limit' do
+    let(:crowd_genus) { Protonym.create!(name: 'Zzyzxlimit', rank_class: Ranks.lookup(:iczn, 'genus'), parent: root) }
+    let!(:crowd_otus) {
+      ('aa'..'az').map do |n|
+        Otu.create!(taxon_name: Protonym.create!(name: n, rank_class: Ranks.lookup(:iczn, 'species'), parent: crowd_genus))
+      end
+    }
+
+    specify 'defaults to 40' do
+      expect(Queries::Otu::Autocomplete.new('Zzyzxlimit').limit).to eq(40)
+    end
+
+    specify 'fills its own default limit (not TaxonName\'s) from taxon name matches' do
+      expect(crowd_otus.size).to be > Queries::TaxonName::Autocomplete::DEFAULT_LIMIT
+      expect(Queries::Otu::Autocomplete.new('Zzyzxlimit').autocomplete).to match_array(crowd_otus)
+    end
+
+    specify 'caps results' do
+      expect(Queries::Otu::Autocomplete.new('Zzyzxlimit').autocomplete.size).to be > 5
+      # TaxonName names count towards the limit, and not all have an Otu
+      # (e.g. the genus), so it is a maximum
+      expect(Queries::Otu::Autocomplete.new('Zzyzxlimit', limit: 5).autocomplete.size).to be_between(1, 5)
+    end
+
+    context 'an Otu matched by more than one query' do
+      let!(:dup_otu) {
+        Otu.create!(name: 'Zzyzxdup', taxon_name: Protonym.create!(name: 'Zzyzxdup', rank_class: Ranks.lookup(:iczn, 'genus'), parent: root))
+      }
+      let!(:other_otus) { 3.times.map { |i| Otu.create!(name: "Zzyzxdup#{i}") } }
+
+      specify '#autocomplete_base has it more than once' do
+        ids = Queries::Otu::Autocomplete.new('Zzyzxdup').autocomplete_base.map(&:id)
+        expect(ids.count(dup_otu.id)).to be > 1
+      end
+
+      specify '#distinct_autocomplete_base has each Otu once, at its best priority, in priority order' do
+        rows = Queries::Otu::Autocomplete.new('Zzyzxdup').autocomplete_base.to_a
+        best = rows.group_by(&:id).transform_values { |r| r.map(&:priority).min }
+
+        distinct = Queries::Otu::Autocomplete.new('Zzyzxdup').distinct_autocomplete_base.to_a
+        expect(distinct.map { [_1.id, _1.priority] }.to_h).to eq(best)
+        expect(distinct.size).to eq(best.size)
+        expect(distinct.map(&:priority)).to eq(distinct.map(&:priority).sort)
+      end
+
+      specify '#autocomplete limit counts Otus, not matches' do
+        expect(Queries::Otu::Autocomplete.new('Zzyzxdup', limit: 4).autocomplete)
+          .to match_array([dup_otu] + other_otus)
+      end
+
+      specify 'BA subject candidates are each Otu once' do
+        ([dup_otu] + other_otus).each { |o| FactoryBot.create(:valid_biological_association, biological_association_subject: o) }
+
+        q = Queries::BiologicalAssociation::Autocomplete.new('Zzyzxdup', project_id:)
+        expect(q.otu_matches(:subject, 4).map(&:biological_association_subject)).to match_array([dup_otu] + other_otus)
+      end
+    end
+
+    specify 'when not given, the TaxonName autocomplete is given the Otu default' do
+      expect(Queries::TaxonName::Autocomplete).to receive(:new)
+        .with('Zzyzxlimit', hash_including(limit: Queries::Otu::Autocomplete::DEFAULT_LIMIT))
+        .and_call_original
+
+      Queries::Otu::Autocomplete.new('Zzyzxlimit').autocomplete_taxon_name
+    end
+
+    specify 'is passed to the TaxonName autocomplete' do
+      expect(Queries::TaxonName::Autocomplete).to receive(:new)
+        .with('Zzyzxlimit', hash_including(limit: 30))
+        .and_call_original
+
+      Queries::Otu::Autocomplete.new('Zzyzxlimit', limit: 30).autocomplete_taxon_name
+    end
+
+    specify 'restricted, finds as many names as the limit asks for' do
+      q = Queries::Otu::Autocomplete.new('Zzyzxlimit', limit: 30, restrict_to: Otu.where(id: crowd_otus.map(&:id)))
+      expect(q.autocomplete_taxon_name.map(&:id)).to include(*crowd_otus.map(&:id))
+    end
+
+    specify 'restricted, keeps no more names than the limit' do
+      q = Queries::Otu::Autocomplete.new('Zzyzxlimit', limit: 5, restrict_to: Otu.where(id: crowd_otus.map(&:id)))
+      expect(q.taxon_name_autocomplete.size).to eq(5)
+    end
   end
 
 end

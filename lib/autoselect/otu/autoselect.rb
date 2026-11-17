@@ -14,6 +14,11 @@ module Autoselect
           ::Autoselect::Otu::Levels::Fast.new,
           ::Autoselect::Otu::Levels::Smart.new,
           ::Autoselect::Otu::Levels::CatalogueOfLife.new,
+          # Unchecked by default - the "plain" CoL level will always return
+          # something if this level would - users need to either ! select it or
+          # deselect the CoL level in specific contexts where they know they
+          # always want a valid name result.
+          ::Autoselect::Otu::Levels::ColValidName.new,
         ]
       end
 
@@ -37,7 +42,7 @@ module Autoselect
             id: record.id,
             global_id: record.respond_to?(:to_global_id) ? record.to_global_id.to_s : nil,
             label: level_instance.record_label(record),
-            label_html: level_instance.record_label_html(record),
+            label_html: level_instance.record_label_html(record, effective_term),
             info_html: @show_info ? level_instance.record_info_html(record) : '',
             response_values: response_values(record),
             extension: ext

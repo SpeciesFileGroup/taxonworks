@@ -14,6 +14,7 @@ const permitParams = {
     link_out: Text,
     link_out_text: String,
     is_public: Boolean,
+    is_virtual: Boolean,
     global_id: String
   }
 }
@@ -37,6 +38,9 @@ export const Lead = {
 
   delete_children: (id) =>
     AjaxCall('post', `/${controller}/${id}/delete_children.json`),
+
+  destroySimpleLead: (id) =>
+    AjaxCall('delete', `/${controller}/${id}/destroy_simple_lead.json`),
 
   otus: (id) => AjaxCall('get', `/${controller}/${id}/otus.json`),
 
@@ -71,5 +75,10 @@ export const Lead = {
     AjaxCall('get', `/${controller}/${id}/eliminated_otus`),
 
   depictions: (id, params) =>
-    AjaxCall('post', `/${controller}/${id}/depictions.json`, params)
+    AjaxCall('post', `/${controller}/${id}/depictions.json`, params),
+
+  citeKeyBootstrap: ({ otuIds, otuQuery } = {}) =>
+    AjaxCall('get', `/${controller}/cite_key_bootstrap.json`, {
+      params: { otu_ids: otuIds, otu_query: otuQuery }
+    })
 }

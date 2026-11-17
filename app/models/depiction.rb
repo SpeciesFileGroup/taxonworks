@@ -167,16 +167,16 @@ class Depiction < ApplicationRecord
     r = used_recently(user_id, project_id, klass)
     h = {
       quick: [],
-      pinboard: Conveyance.pinned_by(user_id).where(project_id: project_id).to_a,
+      pinboard: Depiction.pinned_by(user_id).where(project_id: project_id).pinboard_ordered.to_a,
       recent: []
     }
 
     if r.empty?
-      h[:quick] = Conveyance.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a
+      h[:quick] = Depiction.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a
     else
-      h[:recent] = Conveyance.where('"conveyances"."id" IN (?)', r.first(10) ).order(updated_at: :desc).to_a
-      h[:quick] = (Conveyance.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a +
-                   Conveyance.where('"conveyances"."id" IN (?)', r.first(4) ).order(updated_at: :desc).to_a).uniq
+      h[:recent] = Depiction.where('"depictions"."id" IN (?)', r.first(10) ).order(updated_at: :desc).to_a
+      h[:quick] = (Depiction.pinned_by(user_id).pinboard_inserted.where(project_id: project_id).to_a +
+                   Depiction.where('"depictions"."id" IN (?)', r.first(4) ).order(updated_at: :desc).to_a).uniq
     end
 
     h
@@ -187,6 +187,12 @@ class Depiction < ApplicationRecord
   #  Deprecate for calls to unify() ?!
   def remove_media_observation2
     if v = depiction_object_id_previously_was
+      # An enclosing Shared::Unify#unify destroys the observation itself, after
+      # its remaining relations (notes, tags, ...) have been moved.
+      return if UnifyDestroyContext.objects_in_destroy&.include?(
+        { id: v, type: 'Observation' }
+      )
+
       o = Observation::Media.find(v)
       if o.depictions.size == 0
         o.destroy!
@@ -195,6 +201,11 @@ class Depiction < ApplicationRecord
   end
 
   def remove_media_observation
+    # As in remove_media_observation2, e.g. when unify dedups this depiction
+    return if UnifyDestroyContext.objects_in_destroy&.include?(
+      { id: depiction_object_id, type: 'Observation' }
+    )
+
     if depiction_object.depictions.size == 0
       depiction_object.destroy!
     end

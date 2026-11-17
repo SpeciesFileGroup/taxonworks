@@ -11,7 +11,7 @@ module Queries::Concerns::Verifiers
   end
 
   included do
-    # @params verifiers [String]
+    # @param verifiers [String]
     # @return [Boolean]
     #  nil - with/out
     #  true - with verifiers

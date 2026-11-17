@@ -15,7 +15,7 @@
 
 <p>
   <strong><%= @download.expired? ? 'Expired' : 'Expires' %>:</strong>
-  <%= @download.expired? ? "#{time_ago_in_words(@download.expires)} ago" : "in #{time_ago_in_words(@download.expires)}" %>
+  <%= download_expires_tag(@download) %>
 </p>
 
 <p>

@@ -1,5 +1,6 @@
 class Collector < Role::ProjectRole
 
+  include Roles::Organization
   include Shared::DwcOccurrenceHooks
 
   def dwc_occurrences

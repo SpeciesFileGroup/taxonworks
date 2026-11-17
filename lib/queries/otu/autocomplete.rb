@@ -10,12 +10,14 @@ module Queries
     #
     class Autocomplete < Query::Autocomplete
 
-      # @return Boolean, nil
+      DEFAULT_LIMIT = 40
+
+      # @return [Boolean, nil]
       #   true - only return Otus with `name` = nil
       #   false,nil - no effect
       attr_accessor :having_taxon_name_only
 
-      # @return Boolean, nil
+      # @return [Boolean, nil]
       #   true - OTU must have taxon name
       #   false - OTU must not have taxon name
       #   nil - ignored
@@ -26,12 +28,12 @@ module Queries
       #   if 'true' then only #name = query_string results are returned (no fuzzy matching)
       attr_accessor :exact
 
-      # @return Boolean, nil
+      # @return [Boolean, nil]
       #  true - 'pre-load' common names with otus
       #  false/nil - ignored
       attr_accessor :include_common_names
 
-      # @return Boolean, nil
+      # @return [Boolean, nil]
       #  true - 'pre-load' taxon name with otus
       #  false/nil - ignored
       #
@@ -43,7 +45,7 @@ module Queries
       # before requesting the query
       QUERIES = {
         # OTU
-        autocomplete_taxon_name_hybrid: {priority: 1},
+        autocomplete_taxon_name_and_otu_name: {priority: 1},
         otu_name_exact: {priority: 2}, # Was 1
         autocomplete_exact_id: {priority: 2},
         autocomplete_identifier_cached_exact: {priority: 3},
@@ -70,10 +72,10 @@ module Queries
       def initialize(
         string, project_id: nil, having_taxon_name_only: false,
         with_taxon_name: nil, exact: 'false', include_common_names: false,
-        include_taxon_name: false
+        include_taxon_name: false, restrict_to: nil, limit: nil
       )
 
-        super(string, project_id:)
+        super(string, project_id:, restrict_to:, limit:)
         @having_taxon_name_only = boolean_param({having_taxon_name_only:}, :having_taxon_name_only)
         @with_taxon_name = boolean_param({with_taxon_name:}, :with_taxon_name)
 
@@ -86,7 +88,7 @@ module Queries
 
       def base_query
         q = ::Otu.all
-        q = q.where(project_id:) if project_id.any? # TODO: this needs to be a wrapping layer check, not here
+        q = q.where(project_id:) if project_id.any? # TODO: this needs to be a wrapping layer check, definitely not here
         q
       end
 
@@ -114,28 +116,52 @@ module Queries
 
       # For names like Tapinoma CASC_2231
       #
-      # Note this intentionally does not use `terms` (Queries::Query#terms) -
-      # that always returns a 2-element array of wildcarded copies of the
-      # *whole* query_string, not the query_string split into words.
-      def autocomplete_taxon_name_hybrid
-        parts = query_string.to_s.split(/\s+/)
-        return nil unless parts.length == 2
+      # The query is a prefix match on the taxon name (without authorship)
+      # followed by a prefix match on the otu name - in that order. Only
+      # exactly two terms are supported.
+      def autocomplete_taxon_name_and_otu_name
+        words = query_string.to_s.split(/\s+/)
+        return nil unless words.length == 2
 
-        genus_term, otu_term = parts
+        genus_term, otu_term = words
 
         base_query
           .joins(:taxon_name)
-          .where('taxon_names.cached % ? AND otus.name % ?', genus_term, otu_term)
+          .where('taxon_names.cached ILIKE ? AND otus.name ILIKE ?', "#{genus_term}%", "#{otu_term}%")
           .order('taxon_names.cached, otus.name, length(taxon_names.cached), length(otus.name)')
+      end
+
+      # @return [Integer]
+      #   the id of the TaxonName whose Otus a TaxonName autocomplete result
+      #   resolves to
+      def otu_taxon_name_id(taxon_name)
+        taxon_name.is_combination? ? taxon_name.cached_valid_taxon_name_id : taxon_name.id
+      end
+
+      # @return [Array<TaxonName>]
+      #   the TaxonName autocomplete results for
+      #   #autocomplete_taxon_name(_extended), when restricted only those that
+      #   resolve to a restrict_to Otu, see #delegated_autocomplete
+      def taxon_name_autocomplete
+        @taxon_name_autocomplete ||= delegated_autocomplete(
+          build: ->(l) { Queries::TaxonName::Autocomplete.new(query_string, exact:, project_id:, limit: l) },
+          key: [query_string, exact, project_id],
+          keep: ->(names) {
+            allowed = apply_restriction(::Otu.where(taxon_name_id: names.map { otu_taxon_name_id(_1) }))
+              .distinct.pluck(:taxon_name_id).to_set
+
+            names.select { allowed.include?(otu_taxon_name_id(_1)) }
+          }
+        )
       end
 
       # @return [Scope]
       #   Pull the result of a TaxonName autocomplete. Maintain the order returned, and
       #   re-cast the result in terms of an OTU query. Expensive but maintaining order is key.
       def autocomplete_taxon_name
-        taxon_names = Queries::TaxonName::Autocomplete.new(query_string, exact:, project_id:).autocomplete # an array, not a query
+        taxon_names = taxon_name_autocomplete # an array, not a query
 
-        ids = taxon_names.collect{|n| n.is_combination? ? n.cached_valid_taxon_name_id : n.id} # TODO: Experiment with :cached_valid_taxon_name_id) # We assume we want to land on Valid OTUs, but see #
+        ids = taxon_names.collect{|n| otu_taxon_name_id(n)} # TODO: Experiment with :cached_valid_taxon_name_id) # We assume we want to land on Valid OTUs, but see #
         return nil if ids.empty?
 
         min = 10.0
@@ -175,11 +201,11 @@ module Queries
       end
 
       def autocomplete_taxon_name_extended
-        taxon_names = Queries::TaxonName::Autocomplete.new(query_string, exact:, project_id:).autocomplete # an array, not a query
+        taxon_names = taxon_name_autocomplete # an array, not a query
 
         ids = taxon_names.collect{|n|
           [
-            (n.is_combination? ? n.cached_valid_taxon_name_id : n.id), # Points to the OTU target, if there is one
+            otu_taxon_name_id(n), # Points to the OTU target, if there is one
             n.id,  # points to the label target
           ]
         }
@@ -304,9 +330,16 @@ module Queries
       end
 
       def autocomplete
-        compact_priorities( autocomplete_base.limit(40) )
+        distinct_autocomplete_base.limit(limit).to_a
       end
 
+      # DEPRECATED
+      # API only (#api_autocomplete, #api_autocomplete_extended), otherwise
+      # use #distinct_autocomplete_base, which builds on it.
+      #
+      # @return [Scope]
+      #   an Otu once for each query it matches, at that query's priority, so
+      #   a limit on it counts matches, not Otus
       def autocomplete_base(targets = QUERIES)
         queries = []
 
@@ -320,6 +353,8 @@ module Queries
 
             a = scope_autocomplete(a)
 
+            # This is probably messing with the eager load
+            # Need to refine all auto auto complete/select to include taxon name, parent, and valid name within the query
             a = a.select("otus.*, #{y} as priority") unless y.nil?
 
             queries.push a
@@ -328,15 +363,33 @@ module Queries
 
         queries.compact!
 
-        q = referenced_klass_union(queries).order('priority')
+        include_associations(referenced_klass_union(queries).order('priority'))
+      end
 
+      # @return [Scope]
+      #   #autocomplete_base with each Otu once, at its best (lowest)
+      #   priority, so that a limit on it counts Otus, not matches (an Otu can
+      #   match more than one query, e.g. by a Protonym and its Combination)
+      def distinct_autocomplete_base(targets = QUERIES)
+        matches = autocomplete_base(targets).unscope(:order)
+
+        include_associations(
+          ::Otu.from(<<~SQL.squish).order('priority')
+            (SELECT DISTINCT ON (otus.id) otus.*
+              FROM (#{matches.to_sql}) AS otus
+              ORDER BY otus.id, otus.priority) AS otus
+          SQL
+        )
+      end
+
+      # @return [Scope]
+      def include_associations(q)
         q = include_common_names ? q.includes(:common_names) : q
-        q = include_taxon_name ? q.includes(:taxon_name) : q
-
-        q
+        include_taxon_name ? q.includes(:taxon_name) : q
       end
 
       def scope_autocomplete(query)
+        query = apply_restriction(query)
         query = query.joins(:taxon_name) if with_taxon_name
         query = query.where.missing(:taxon_name) if with_taxon_name == false
         query = query.where(otus: {name: nil}) if having_taxon_name_only

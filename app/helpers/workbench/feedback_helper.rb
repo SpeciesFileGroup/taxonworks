@@ -7,6 +7,13 @@ module Workbench::FeedbackHelper
     tag.div(content, class: c)
   end
 
+  # An inline badge, e.g. a status or rank beside a name.
+  # @param type [Symbol, String] the feedback modifier, e.g. :warning, :light
+  # @return [ActiveSupport::SafeBuffer] content escaped
+  def feedback_badge_tag(content, type = :info)
+    tag.span(content, class: [:feedback, 'feedback-thin', "feedback-#{type}"])
+  end
+
   def warning_tag(content)
     tag.span(content, data: {icon: :warning})
   end

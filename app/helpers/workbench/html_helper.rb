@@ -14,17 +14,26 @@ module Workbench::HtmlHelper
   def mark_tag(string, term, html_safe: true)
     return nil if string.nil?
 
+    term = term.to_s.strip
+
     s = if term.blank?
       string
     else
-      t = Regexp.escape(term)
+      # Prefer matching the whole term contiguously, but tags injected around
+      # name parts (e.g. italics split around subgenus parens) can break the
+      # term across multiple non-tag pieces, so also fall back to matching
+      # its individual words, same as the word-based fragments used to build
+      # the autocomplete matches themselves.
+      alternatives = ([term] + Utilities::Strings.alphanumeric_strings(term)).uniq
+      t = Regexp.new(alternatives.map { |a| Regexp.escape(a) }.join('|'), Regexp::IGNORECASE)
+
       string.split(/(<[^>]*>)/).map { |piece|
         next piece if piece.start_with?('<')
 
         # We split on the html entities content_tag could produce (though at
         # time of writing these could also come from user input).
         piece.split(/(&(?:amp|lt|gt|quot|\#39);)/).map { |chunk|
-          chunk.start_with?('&') ? chunk : chunk.gsub(/(#{t})/i) { content_tag(:mark, $1) }
+          chunk.start_with?('&') ? chunk : chunk.gsub(t) { |m| content_tag(:mark, m) }
         }.join
       }.join
     end

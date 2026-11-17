@@ -6,7 +6,7 @@
           <strong>{{ totalRows }}</strong> rows
         </span>
         <span class="matched-count">
-          <strong>{{ matchedCount }}</strong> matched
+          <strong>{{ matchedCount }}</strong> matched (<span class="ambiguous-count"><strong>{{ ambiguousCount }}</strong> ambiguous</span>)
         </span>
         <span class="unmatched-count">
           <strong>{{ unmatchedCount }}</strong> unmatched
@@ -48,6 +48,10 @@ const props = defineProps({
   rows: {
     type: Array,
     required: true
+  },
+  filteredRows: {
+    type: Array,
+    required: true
   }
 })
 
@@ -58,6 +62,9 @@ const matchedCount = computed(
 )
 const unmatchedCount = computed(
   () => nonEmptyRows.value.length - matchedCount.value
+)
+const ambiguousCount = computed(
+  () => nonEmptyRows.value.filter((r) => r.matched && r.ambiguous).length
 )
 
 const matchedPercent = computed(() =>
@@ -90,7 +97,7 @@ const uniqueOtuCount = computed(() => {
 const clipboardText = computed(() =>
   [
     CLIPBOARD_HEADERS.join('\t'),
-    ...props.rows.map((row) => {
+    ...props.filteredRows.map((row) => {
       const name = row.scientificName || ''
       const match = effectiveName(row)
       const otuId = row.selectedOtuId != null ? String(row.selectedOtuId) : ''
@@ -125,5 +132,9 @@ const clipboardText = computed(() =>
 
 .unmatched-count {
   color: #d9534f;
+}
+
+.ambiguous-count {
+  color: var(--badge-yellow-color);
 }
 </style>

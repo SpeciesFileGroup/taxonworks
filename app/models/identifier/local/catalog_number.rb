@@ -2,7 +2,7 @@
 #
 # Does *not* imply an accessioning process.
 #
-# @TODO Validate scope to CollectionObject
+# @todo Validate scope to CollectionObject
 #
 class Identifier::Local::CatalogNumber < Identifier::Local
 

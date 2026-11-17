@@ -195,6 +195,7 @@ class CollectingEvent < ApplicationRecord
   include Shared::Documentation
   include Shared::ProtocolRelationships
   include Shared::HasPapertrail
+  include Shared::AssertedEnvironments
   include SoftValidation
   include Shared::Labels
   include Shared::DwcOccurrenceHooks
@@ -210,6 +211,8 @@ class CollectingEvent < ApplicationRecord
   ignore_whitespace_on(:document_label, :verbatim_label, :print_label)
 
   is_origin_for 'Sound'
+
+  GRAPH_ENTRY_POINTS = [:asserted_environments].freeze
 
   NEARBY_DISTANCE = 5000
   MINIMUM_ELEVATION = -11000
@@ -235,6 +238,7 @@ class CollectingEvent < ApplicationRecord
   has_many :collection_objects, inverse_of: :collecting_event, dependent: :restrict_with_error
 
   has_many :collector_roles, class_name: 'Collector', as: :role_object, dependent: :destroy, inverse_of: :role_object
+  has_many :collectors_organization, -> { order('roles.position ASC') }, through: :collector_roles, source: :organization, inverse_of: :collecting_events
   has_many :collectors, -> { order('roles.position ASC') }, through: :collector_roles, source: :person, inverse_of: :collecting_events
 
   has_many :field_occurrences, inverse_of: :collecting_event, dependent: :restrict_with_error
@@ -344,7 +348,7 @@ class CollectingEvent < ApplicationRecord
     ::Queries.union(DwcOccurrence, [a,b])
   end
 
-  # @param [String]
+  # @param value [String]
   def verbatim_label=(value)
     write_attribute(:verbatim_label, value)
     write_attribute(:md5_of_verbatim_label, Utilities::Strings.generate_md5(value))
@@ -353,26 +357,54 @@ class CollectingEvent < ApplicationRecord
   scope :used_recently, -> { joins(:collection_objects).includes(:collection_objects).where(collection_objects: { updated_at: 1.week.ago..Time.now } ).order('"collection_objects"."updated_at" DESC') }
   scope :used_in_project, -> (project_id) { joins(:collection_objects).where( collection_objects: { project_id: } ) }
 
+  def self.georeferences_exist_arel
+    ::Georeference.where(
+      ::Georeference.arel_table[:collecting_event_id].eq(arel_table[:id])
+    ).arel.exists
+  end
+
+  scope :with_georeferences, -> { where(georeferences_exist_arel) }
+  scope :without_georeferences, -> { where(georeferences_exist_arel.not) }
+
   class << self
 
     #
     # Scopes
     #
 
-    def select_optimized(user_id, project_id)
+    # @param georeferences [Boolean, nil]
+    #   true - only collecting events with a georeference
+    #   false - only collecting events without a georeference
+    #   nil - no restriction
+    # Same semantics as the `georeferences` facet of
+    # `Queries::CollectingEvent::Filter`. Callers must pass nil, not false, to
+    # mean 'no restriction'.
+    # The restriction is merged into each scope *before* its limit, so that a
+    # list is not silently emptied by the limit landing on excluded records.
+    def select_optimized(user_id, project_id, georeferences: nil)
+      georeference_restriction = case georeferences
+                                 when true then CollectingEvent.with_georeferences
+                                 when false then CollectingEvent.without_georeferences
+                                 else CollectingEvent.all
+                                 end
+
       h = {
         recent: (CollectingEvent.used_in_project(project_id)
           .where(collection_objects: {updated_by_id: user_id})
           .used_recently
+          .merge(georeference_restriction)
           .distinct
           .limit(5)
           .order(:cached)
           .to_a +
-        CollectingEvent.where(project_id:, updated_by_id: user_id, created_at: 3.hours.ago..Time.now).limit(5).to_a).uniq,
-        pinboard: CollectingEvent.pinned_by(user_id).pinned_in_project(project_id).to_a
+        CollectingEvent.where(project_id:, updated_by_id: user_id, created_at: 3.hours.ago..Time.now)
+          .merge(georeference_restriction).limit(5).to_a).uniq,
+        pinboard: CollectingEvent.pinned_by(user_id).pinned_in_project(project_id)
+          .merge(georeference_restriction).pinboard_ordered.to_a
       }
 
-      h[:quick] = (CollectingEvent.pinned_by(user_id).pinboard_inserted.pinned_in_project(project_id).to_a  +
+      h[:quick] = (CollectingEvent.pinned_by(user_id).pinboard_inserted.pinned_in_project(project_id)
+                   .merge(georeference_restriction).to_a +
                    h[:recent]).uniq
       h
     end
@@ -494,7 +526,7 @@ class CollectingEvent < ApplicationRecord
   end
 
   def has_collectors?
-    verbatim_collectors.present? || collectors.any?
+    verbatim_collectors.present? || collector_roles.any?
   end
 
   # @return [Boolean]
@@ -715,7 +747,9 @@ class CollectingEvent < ApplicationRecord
   end
 
   # DEPRECATED for shared code
-  # @param [String, String, Integer]
+  # @param compared_string [String]
+  # @param column [String]
+  # @param limit [Integer]
   # @return [Scope]
   def nearest_by_levenshtein(compared_string = nil, column = 'verbatim_locality', limit = 10)
     return CollectingEvent.none if compared_string.nil?
@@ -727,7 +761,7 @@ class CollectingEvent < ApplicationRecord
       limit(limit)
   end
 
-  # @param [String]
+  # @param types [String]
   #   one or more names from GeographicAreaType
   # @return [Hash]
   #    (
@@ -747,7 +781,7 @@ class CollectingEvent < ApplicationRecord
       .where(geographic_area_types: {name: types})
 
     source_geographic_item_ids = if self.georeferences.any?
-      geographic_items.pluck(:id)
+                                   geographic_items.pluck(:id)
     elsif self.geographic_area
       self.geographic_area.geographic_items.pluck(:id)
     else
@@ -797,7 +831,7 @@ class CollectingEvent < ApplicationRecord
     @geographic_names ||= {}
   end
 
-  # @return Hash
+  # @return [Hash]
   #  a geographic_name_classification.
   # This (normally) prioritizes Georeferences over GeographicArea!
   def get_geographic_name_classification
@@ -861,7 +895,7 @@ class CollectingEvent < ApplicationRecord
     name_hash(GeographicAreaType::COUNTY_LEVEL_TYPES)
   end
 
-  # @param [Hash]
+  # @param name_hash [Hash]
   # @return [String]
   def name_from_geopolitical_hash(name_hash)
     return nil if name_hash.keys.count == 0
@@ -929,7 +963,7 @@ class CollectingEvent < ApplicationRecord
     base
   end
 
-  # @param [Float] delta_z, will be used to fill in the z coordinate of the point
+  # @param [Float] delta_z will be used to fill in the z coordinate of the point
   # @return [RGeo::Geographic::ProjectedPointImpl, nil]
   #   for the *verbatim* latitude/longitude only
   def verbatim_map_center(delta_z = 0.0)
@@ -1006,7 +1040,7 @@ class CollectingEvent < ApplicationRecord
         end
 
         roles.each do |r|
-          a.collector_roles.build(person: r.person, position: r.position)
+          a.collector_roles.build(person: r.person, organization: r.organization, position: r.position)
         end
 
         if georeferences.load.any?
@@ -1049,7 +1083,11 @@ class CollectingEvent < ApplicationRecord
   #   TODO: include initials when we find out a clean way of producing them
   # yes, it's a Helper
   def collector_names
-    [Utilities::Strings.authorship_sentence(collectors.collect{|a| a.last_name}), verbatim_collectors].compact.first
+    names = collector_roles.sort_by { |role| role.position || Float::INFINITY }.map do |role|
+      collector = role.agent
+      collector.is_a?(Person) ? collector.last_name : collector.name
+    end
+    [Utilities::Strings.authorship_sentence(names), verbatim_collectors].compact.first
   end
 
   # @return [Scalar (Int, Float, etc), nil]
@@ -1079,7 +1117,7 @@ class CollectingEvent < ApplicationRecord
       )
 
       request.cap = 5000
-      request.cap_reason = 'Max 5000 updated at a time.'
+      request.cap_reason = 'Max 5000 updated at a time.' if request.total_attempted > request.cap
       query_batch_update(request)
     end
   end
@@ -1181,13 +1219,13 @@ class CollectingEvent < ApplicationRecord
   def sv_missing_georeference
     if !georeferences.any?
       text = 'Georeference is missing'
-      if !verbatim_longitude.blank? && !verbatim_latitude.blank?
+      if verbatim_longitude.present? && verbatim_latitude.present?
         text = 'Georeference is missing. Verbatim latitude and longitude are available.'
       end
       unless geographic_area_id.nil?
-        if !verbatim_label.blank? && !Utilities::Geo.coordinates_regex_from_verbatim_label(verbatim_label.to_s).blank?
+        if verbatim_label.present? && Utilities::Geo.coordinates_regex_from_verbatim_label(verbatim_label.to_s).present?
           text = 'Georeference is missing. Label has verbatim latitude and longitude.'
-        elsif !verbatim_locality.blank?
+        elsif verbatim_locality.present?
           with_geo = ::Georeference
                        .joins(:collecting_event)
                        .where(collecting_events: { project_id: project_id, verbatim_locality: verbatim_locality, geographic_area_id: geographic_area_id })
@@ -1213,7 +1251,7 @@ class CollectingEvent < ApplicationRecord
 
   def sv_fix_missing_georeference
     if !georeferences.any? && !geographic_area_id.nil? &&
-       verbatim_longitude.blank? && verbatim_latitude.blank? && !verbatim_locality.blank? &&
+       verbatim_longitude.blank? && verbatim_latitude.blank? && verbatim_locality.present? &&
        Utilities::Geo.coordinates_regex_from_verbatim_label(verbatim_label.to_s).blank?
       with_geo = ::Georeference
                    .joins(:collecting_event)
@@ -1232,7 +1270,7 @@ class CollectingEvent < ApplicationRecord
           ::Georeference.transaction do
             gr = georeferences.create(geographic_item_id: with_geo.geographic_item_id,
                                       collecting_event_id: id,
-                                      type: "Georeference::Point")
+                                      type: 'Georeference::Point')
             gr.data_attributes.create(type: 'ImportAttribute', import_predicate: 'georeferenceProtocol', value: 'Copied from another collecting event.') unless gr.id.nil?
           end
         rescue ActiveRecord::RecordInvalid

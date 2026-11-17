@@ -296,12 +296,12 @@ class FieldOccurrence < ApplicationRecord
     FieldOccurrence.joins(j).pluck(:id).uniq
   end
 
-  # @params target [String] currently only 'TaxonDetermination' is accepted
+  # @param target [String] currently only 'TaxonDetermination' is accepted
   # @return [Hash] field_occurrences optimized for user selection
   def self.select_optimized(user_id, project_id, target = nil, ba_target = 'object')
     h = {
       quick: [],
-      pinboard: FieldOccurrence.pinned_by(user_id).where(project_id:).to_a,
+      pinboard: FieldOccurrence.pinned_by(user_id).where(project_id:).pinboard_ordered.to_a,
       recent: []
     }
 

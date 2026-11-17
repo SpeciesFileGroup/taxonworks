@@ -30,6 +30,11 @@
           :disabled="!list.length"
           :object-type="FIELD_OCCURRENCE"
         />
+        <DeleteFieldOccurrences
+          :ids="selectedIds"
+          :disabled="!selectedIds.length"
+          @delete="removeFromList"
+        />
         <span class="separate-left separate-right">|</span>
         <TableLayoutSelector
           v-model="currentLayout"
@@ -78,6 +83,7 @@
 <script setup>
 import FilterLayout from '@/components/layout/Filter/FilterLayout.vue'
 import FilterView from './components/FilterView.vue'
+import DeleteFieldOccurrences from './components/DeleteFieldOccurrences.vue'
 import FilterList from '@/components/Filter/Table/TableResults.vue'
 import RadialMatrix from '@/components/radials/matrix/radial.vue'
 import { useFilter, useCSVOptions } from '@/shared/Filter/composition'
@@ -129,4 +135,9 @@ const {
 } = useFilter(FieldOccurrence, { listParser, initParameters: { extend } })
 
 const csvOptions = useCSVOptions({ layout: currentLayout, list })
+
+function removeFromList(ids) {
+  list.value = list.value.filter((item) => !ids.includes(item.id))
+  selectedIds.value = selectedIds.value.filter((id) => !ids.includes(id))
+}
 </script>

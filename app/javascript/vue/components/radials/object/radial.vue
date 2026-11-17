@@ -101,7 +101,8 @@ import Icons from './images/icons.js'
 import { useShortcuts } from '@/components/radials/composables'
 import { SLICE, SLICES_BY_OBJECT_TYPE } from './constants/slices.js'
 import { Tag } from '@/routes/endpoints'
-import { ref, computed, onMounted, getCurrentInstance } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { randomUUID } from '@/helpers'
 
 const MIDDLE_RADIAL_BUTTON = 'circleButton'
 
@@ -162,7 +163,7 @@ const isVisible = ref(false)
 const metadata = ref(null)
 const title = ref('Quick forms')
 const defaultTag = ref(null)
-const headerRightTargetId = `radial-object-header-right-${getCurrentInstance().uid}`
+const headerRightTargetId = `radial-object-header-right-${randomUUID()}`
 const { removeListener, setShortcutsEvent } = useShortcuts({
   metadata,
   currentAnnotator

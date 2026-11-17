@@ -821,7 +821,7 @@ class Source::Bibtex < Source
     b
   end
 
-  # @return Hash
+  # @return [Hash]
   #   a to_citeproc with values updated for literal
   #   handling via `{}` in TaxonWorks
   def to_citeproc(normalize_names = true)
@@ -948,7 +948,7 @@ class Source::Bibtex < Source
     nil
   end
 
-  # @param [String] type either `author` or `editor`
+  # @param [String] role_type either `author` or `editor`
   # @return [String]
   #   The BibTeX version of the name strings created from People
   #   BibTeX format is 'lastname, firstname and lastname, firstname and lastname, firstname'
@@ -979,11 +979,7 @@ class Source::Bibtex < Source
   def validate_year_suffix
     a = get_author
     unless year_suffix.blank? || year.blank? || a.blank?
-      if new_record?
-        s = Source.where(author: a, year:, year_suffix:).first
-      else
-        s = Source.where(author: a, year:, year_suffix:).not_self(self).first
-      end
+      s = Source.where(author: a, year:, year_suffix:).not_self(self).first
       errors.add(:year_suffix, " '#{year_suffix}' is already used for #{a} #{year}") unless s.nil?
     end
   end

@@ -2,6 +2,7 @@
   <Transition name="modal">
     <div
       v-if="isVisible"
+      ref="modalMask"
       class="modal-mask"
       @mousedown="emit('close')"
       @key.esc.stop="emit('close')"
@@ -86,12 +87,27 @@ let listenerId
 const emit = defineEmits(['close'])
 
 const isVisible = ref(false)
+const modalMask = ref(null)
 
 const handleKeys = (e) => {
   if (e.key === 'Escape') {
     e.stopPropagation()
     emit('close')
   }
+}
+
+// Modals are frequently teleported to <body>. Turbolinks snapshots <body>
+// synchronously when caching a page, so a modal left open while navigating away
+// (e.g. following a task link from the radial navigator's "All tasks" list)
+// would be restored on "Back" as dead markup no component controls. Detach it
+// synchronously before the snapshot is taken.
+const handleBeforeCache = () => {
+  emit('close')
+  modalMask.value?.remove()
+  // onMounted's `overflow: hidden` scroll lock is an inline style on <body>, so
+  // it rides into the cached snapshot too; clear it unconditionally (every modal
+  // on this page dies in the navigation) or "Back" restores an unscrollable page.
+  document.body.style.removeProperty('overflow')
 }
 
 onMounted(() => {
@@ -101,10 +117,12 @@ onMounted(() => {
     stopPropagation: true
   })
 
+  document.addEventListener('turbolinks:before-cache', handleBeforeCache)
   document.body.style.setProperty('overflow', 'hidden')
 })
 onUnmounted(() => {
   ModalEventStack.removeListener(listenerId)
+  document.removeEventListener('turbolinks:before-cache', handleBeforeCache)
 
   if (ModalEventStack.isEmpty()) {
     document.body.style.removeProperty('overflow')

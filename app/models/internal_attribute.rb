@@ -37,7 +37,7 @@ class InternalAttribute < DataAttribute
     end
   end
 
-  # @params attribute_scope a Query::X::Filter instance
+  # @param attribute_scope a Query::X::Filter instance
   #   that is NOT Query::DataAttribute::Filter
   def self.update_value(attribute_scope, controlled_vocabulary_term_id, value_from, value_to)
     return false if controlled_vocabulary_term_id.nil? || value_from.nil? || value_to.nil?
@@ -98,7 +98,7 @@ class InternalAttribute < DataAttribute
   def self.batch_update_or_create(params)
     a = Queries::Query::Filter.base_filter(params)
 
-    q = params.keys.select{|z| z =~ /_query/}.first
+    q = Queries::Query::Filter.base_query_name(params)
 
     return false if q.nil?
 

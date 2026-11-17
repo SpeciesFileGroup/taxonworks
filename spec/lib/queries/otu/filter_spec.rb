@@ -25,6 +25,16 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
     expect(q.all).to contain_exactly(d.otu)
   end
 
+  specify '#asserted_environment_query_facet' do
+    FactoryBot.create(:asserted_environment, uri_label: 'temperate forest biome', asserted_environment_object: o1)
+    o2
+
+    q = Queries::Otu::Filter.new(
+      asserted_environment_query: {uri_label: 'temperate forest biome'}
+    )
+    expect(q.all).to contain_exactly(o1)
+  end
+
   context '#dwc_occurrences' do
     specify 'true via CollectionObject' do
       s = Specimen.create!
@@ -57,6 +67,38 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
       s.reload.set_dwc_occurrence # simulate background job updating otu_id
       q.dwc_occurrences = false
       expect(q.all).to contain_exactly(o2)
+    end
+  end
+
+  context '#genus_name' do
+    let!(:root) { FactoryBot.create(:root_taxon_name) }
+    let!(:g) { Protonym.create!(name: 'Aus', parent: root, rank_class: Ranks.lookup(:iczn, :genus)) }
+    let!(:s) { Protonym.create!(name: 'bus', parent: g, rank_class: Ranks.lookup(:iczn, :species)) }
+
+    let!(:o1) { Otu.create!(taxon_name: g, name: 'code1') }
+    let!(:o2) { Otu.create!(name: 'code2') }
+
+    specify 'exact match' do
+      q.genus_name = 'Aus'
+      expect(q.all).to contain_exactly(o1)
+    end
+
+    specify 'no match' do
+      q.genus_name = 'Bus'
+      expect(q.all).to be_empty
+    end
+
+    specify 'restricted to genus rank' do
+      s.update_column(:cached, 'Aus') # fake a non-genus rank name colliding with the genus string
+      Otu.create!(taxon_name: s, name: 'code3')
+
+      q.genus_name = 'Aus'
+      expect(q.all).to contain_exactly(o1)
+    end
+
+    specify 'blank is a no-op' do
+      q.genus_name = nil
+      expect(q.all).to contain_exactly(o1, o2)
     end
   end
 
@@ -231,6 +273,21 @@ describe Queries::Otu::Filter, type: :model, group: [:geo, :collection_objects, 
     e = FactoryBot.create(:valid_extract, origin: o1)
     q.extract_query = ::Queries::Extract::Filter.new(extract_id: e.id)
     o2
+    expect(q.all).to contain_exactly(o1)
+  end
+
+  specify '#anatomical_part_query' do
+    ap = FactoryBot.create(:valid_anatomical_part, ancestor: o1)
+    q.anatomical_part_query = ::Queries::AnatomicalPart::Filter.new(anatomical_part_id: ap.id)
+    o2
+    expect(q.all).to contain_exactly(o1)
+  end
+
+  specify '#anatomical_part_query ignores a non-AnatomicalPart descendant with a colliding id' do
+    ap = FactoryBot.create(:valid_anatomical_part, ancestor: o1)
+    FactoryBot.create(:valid_extract, origin: o2, id: ap.id)
+
+    q.anatomical_part_query = ::Queries::AnatomicalPart::Filter.new(anatomical_part_id: ap.id)
     expect(q.all).to contain_exactly(o1)
   end
 

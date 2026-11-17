@@ -68,14 +68,21 @@ function openFilterForBin(lon, lat) {
     // or flat (direct filter style). Flatten to match what the CO filter task expects.
     const { collection_object_query: coQuery, collecting_event_query: ceQuery, ...rest } = base;
     const flatBase = coQuery ? { ...rest, ...coQuery } : { ...rest };
+    const existingCeQuery = ceQuery || flatBase.collecting_event_query;
 
-    const combined = {
-        ...flatBase,
-        collecting_event_query: {
-            ...(ceQuery || {}),
-            wkt,
-        },
-    };
+    // Only one nested *_query is permitted per level (the server rejects
+    // more), and flatBase may already hold one (e.g. otu_query). The CO
+    // filter accepts collecting event params like wkt directly, so only nest
+    // wkt when there's already a collecting_event_query to scope, or a
+    // top-level wkt the bin must intersect with rather than replace.
+    let combined;
+    if (existingCeQuery) {
+        combined = { ...flatBase, collecting_event_query: { ...existingCeQuery, wkt } };
+    } else if (flatBase.wkt) {
+        combined = { ...flatBase, collecting_event_query: { wkt } };
+    } else {
+        combined = { ...flatBase, wkt };
+    }
 
     const queryString = qs.stringify(combined, {
         arrayFormat: "brackets",

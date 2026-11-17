@@ -145,7 +145,7 @@ class Person < ApplicationRecord
     roles.reload.any?
   end
 
-  # @return Boolean
+  # @return [Boolean]
   #   whether or not this Person is linked to any data in the project
   def used_in_project?(project_id)
     Role.where(person_id: id, project_id:).any? ||
@@ -385,23 +385,34 @@ class Person < ApplicationRecord
     true
   end
 
+  # @return [true]
+  # @raise [TaxonWorks::Error] with a human-readable message if the merge can not be completed
   def hard_merge(person_id_to_destroy)
-    return false if id == person_id_to_destroy
-    begin
-      person_to_destroy = Person.find(person_id_to_destroy)
+    if id == person_id_to_destroy
+      raise TaxonWorks::Error, 'A person can not be merged into itself.'
+    end
 
+    begin
+      person_to_destroy = Person.includes(:user).find(person_id_to_destroy)
+    rescue ActiveRecord::RecordNotFound
+      raise TaxonWorks::Error, 'The person to be removed could not be found.'
+    end
+
+    if person_to_destroy.user.present?
+      raise TaxonWorks::Error, 'The person to be removed is linked to a TaxonWorks user account and can not be destroyed. Merge in the other direction (keep that person), or reassign the user account first.'
+    end
+
+    begin
       Person.transaction do
         merge_with(person_to_destroy.id)
         person_to_destroy.destroy!
       end
-
     rescue ActiveRecord::RecordNotDestroyed
-      return false
-    rescue ActiveRecord::RecordInvalid
-      return false
-    rescue ActiveRecord::RecordNotFound
-      return false
+      raise TaxonWorks::Error, 'The person to be removed could not be destroyed. Check that both people are not linked to the same record, e.g. authors on the same Source.'
+    rescue ActiveRecord::RecordInvalid # may be dead code
+      raise TaxonWorks::Error, 'The merge could not be completed. Check that both people are not linked to the same record, e.g. authors on the same Source.'
     end
+
     true
   end
 
@@ -516,13 +527,13 @@ class Person < ApplicationRecord
     ).pluck(:person_id).uniq
   end
 
-  # @params Role [String] one the available roles
+  # @param role_type [String] one the available roles
   # @return [Hash] people optimized for user selection
   def self.select_optimized(user_id, project_id, role_type = 'SourceAuthor')
     r = used_recently(user_id, role_type)
     h = {
       quick: [],
-      pinboard: Person.pinned_by(user_id).where(pinboard_items: {project_id:}).to_a,
+      pinboard: Person.pinned_by(user_id).where(pinboard_items: {project_id:}).pinboard_ordered.to_a,
       recent: []
     }
 
@@ -598,7 +609,7 @@ class Person < ApplicationRecord
     end
   end
 
-  # @return Integer
+  # @return [Integer]
   #   the total objects updated
   def update_role_cached
     # don't update the same object many times (e.g. CE of many COs?)

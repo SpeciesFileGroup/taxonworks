@@ -35,6 +35,10 @@ describe Catalog::EntryItem, group: :catalogs, type: :spinup do
     expect(entry_item.origin).to eq('otu')
   end
 
+  specify '#base_data_attributes history-source-id is nil when uncited' do
+    expect(entry_item.base_data_attributes['history-source-id']).to eq(nil)
+  end
+
   context 'citations' do
     let!(:c) { Citation.create!(citation_object: otu1, source:, is_original: true) }
     let(:entry_item2) { Catalog::EntryItem.new(object: otu1, base_object: otu2, citation: c) }
@@ -45,6 +49,13 @@ describe Catalog::EntryItem, group: :catalogs, type: :spinup do
 
     specify '#cited?' do
       expect(entry_item2.cited?).to be_truthy
+    end
+
+    # Items sharing one object differ only by their source, so the source is
+    # what lets a client tell two citations of the same name apart.
+    specify '#base_data_attributes history-source-id' do
+      expect(entry_item2.base_data_attributes['history-source-id'])
+        .to eq(source.metamorphosize.to_global_id.to_s)
     end
   end
 

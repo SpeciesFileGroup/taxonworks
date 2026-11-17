@@ -1,5 +1,8 @@
 <template>
-  <VModal>
+  <VModal
+    :container-style="{ maxHeight: '80vh', overflowY: 'auto' }"
+    @close="emit('close')"
+  >
     <template #header>
       <h3>All tasks</h3>
     </template>
@@ -29,5 +32,5 @@ defineProps({
   }
 })
 
-const emit = defineEmits(['select'])
+const emit = defineEmits(['select', 'close'])
 </script>

@@ -121,7 +121,7 @@ class Sequence < ApplicationRecord
     end
   end
 
-  # @params target [String] one of nil, 'SequenceRelationship', 'GeneAttribute'
+  # @param target [String] one of nil, 'SequenceRelationship', 'GeneAttribute'
   # @return [Hash] otus optimized for user selection
   def self.select_optimized(user_id, project_id, target = nil)
     r = used_recently(user_id, project_id, target)
@@ -133,7 +133,7 @@ class Sequence < ApplicationRecord
           .limit(5)
     recent_sequences = Sequence.where(id: r.first(10) )
 
-    pinboard_sequences = Sequence.pinned_by(user_id).where(project_id: project_id)
+    pinboard_sequences = Sequence.pinned_by(user_id).where(project_id: project_id).pinboard_ordered
 
     h = {
       quick: [],

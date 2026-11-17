@@ -1,7 +1,5 @@
 <template>
-  <div>
-    <h1>Filter anatomical parts</h1>
-
+  <div class="margin-medium-top">
     <FilterLayout
       :url-request="urlRequest"
       :pagination="pagination"
@@ -51,6 +49,7 @@
           :preference-key="`tasks::filters::${ANATOMICAL_PART}`"
           :radial-object="true"
           @on-sort="(sorted) => (list = sorted)"
+          @remove="({ index }) => list.splice(index, 1)"
         >
           <template #graph="{ value }">
             <VBtn

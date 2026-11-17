@@ -87,7 +87,7 @@ module Material
     attr_accessor :preparation_type
     attr_accessor :note
 
-    # @param [Hash] args
+    # @param options [Hash]
     def initialize(options = {})
       @form_params = options
       build_models

@@ -45,21 +45,29 @@
         </div>
       </div>
 
-      <!-- Try without subgenus -->
-      <div class="field margin-medium-bottom">
-        <label class="middle" data-help="When a name fails to match, also tries matching against stored names stripped of their subgenus (e.g. input 'Aus cus' will match a stored name 'Aus (Bus) cus').">
-          <input
-            type="checkbox"
-            :checked="tryWithoutSubgenus"
-            @change="handleTryWithoutSubgenusChange"
-          />
-          Try without subgenus
-        </label>
-        <span class="subtle">
-          When checked and cached match fails, tries cached_secondary_homonym
-          then cached_primary_homonym.
-        </span>
-      </div>
+      <!-- Subgenus matching -->
+      <fieldset class="margin-medium-bottom">
+        <legend :data-help="SUBGENUS_MATCHING_HELP">
+          Subgenus
+        </legend>
+        <div
+          v-for="option in SUBGENUS_MATCHING_OPTIONS"
+          :key="option.value"
+          class="margin-small-bottom"
+        >
+          <label class="middle">
+            <input
+              type="radio"
+              name="subgenus-matching"
+              :value="option.value"
+              :checked="subgenusMatching === option.value"
+              @change="handleSubgenusMatchingChange(option.value)"
+            />
+            {{ option.label }}
+          </label>
+          <span class="subtle">{{ option.description }}</span>
+        </div>
+      </fieldset>
 
       <!-- Fuzzy match slider -->
       <div class="field margin-medium-bottom">
@@ -175,6 +183,11 @@
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import Autocomplete from '@/components/ui/Autocomplete.vue'
+import {
+  SUBGENUS_MATCHING,
+  SUBGENUS_MATCHING_HELP,
+  SUBGENUS_MATCHING_OPTIONS
+} from '../constants.js'
 
 const emit = defineEmits(['clear-all', 'update-options'])
 
@@ -186,9 +199,9 @@ const levenshteinDistance = defineModel('levenshteinDistance', {
   type: Number,
   default: 0
 })
-const tryWithoutSubgenus = defineModel('tryWithoutSubgenus', {
-  type: Boolean,
-  default: false
+const subgenusMatching = defineModel('subgenusMatching', {
+  type: String,
+  default: SUBGENUS_MATCHING.WITH
 })
 const resolveSynonyms = defineModel('resolveSynonyms', {
   type: Boolean,
@@ -236,8 +249,8 @@ function handleLevenshteinChange(event) {
   debouncedUpdate()
 }
 
-function handleTryWithoutSubgenusChange(event) {
-  tryWithoutSubgenus.value = event.target.checked
+function handleSubgenusMatchingChange(value) {
+  subgenusMatching.value = value
   emit('update-options')
 }
 

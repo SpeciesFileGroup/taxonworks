@@ -239,4 +239,113 @@ describe BatchLoad::Import::AssertedDistributions, type: :model do
     end
   end
 
+  context 'More than one citation for the same OTU and area' do
+    # line 1: new AD (otu 100, ga 110, source 120)
+    # line 2: same pair as line 1, new source -> citation on line 1's AD
+    # line 3: pair of an existing AD, new source -> citation on existing AD
+    # line 4: pair and source of an existing AD -> parse error
+    # line 5: repeats line 2 -> parse error
+    let(:file_name) { 'spec/files/batch/asserted_distribution/multiple_citations.tsv' }
+    let(:upload_file) { Rack::Test::UploadedFile.new(file_name) }
+    let(:import) { BatchLoad::Import::AssertedDistributions.new(
+      project_id: project.id,
+      user_id: user.id,
+      file: upload_file)
+    }
+
+    let!(:otu) { FactoryBot.create(:valid_otu, id: 100) }
+    let!(:ga1) { FactoryBot.create(:valid_geographic_area, id: 110) }
+    let!(:ga2) { FactoryBot.create(:valid_geographic_area, id: 111) }
+    let!(:source1) { FactoryBot.create(:valid_source, id: 120) }
+    let!(:source2) { FactoryBot.create(:valid_source, id: 121) }
+
+    let!(:existing_ad) {
+      AssertedDistribution.create!(
+        asserted_distribution_object: otu,
+        asserted_distribution_shape: ga2,
+        source: source2
+      )
+    }
+
+    let(:new_ad) {
+      AssertedDistribution.find_by(
+        asserted_distribution_object: otu, asserted_distribution_shape: ga1
+      )
+    }
+
+    context 'preview' do
+      before { import }
+
+      specify 'rows for an already seen pair are valid citations' do
+        expect(import.processed_rows[2].objects[:citations].first).to be_valid
+        expect(import.processed_rows[3].objects[:citations].first).to be_valid
+      end
+
+      specify 'existing citation is a parse error' do
+        expect(import.processed_rows[4].parse_errors).to contain_exactly(
+          'Source is already cited on the existing ' \
+            'asserted distribution for this OTU and area.'
+        )
+        expect(import.processed_rows[4].all_objects).to be_empty
+      end
+
+      specify 'repeated line is a parse error' do
+        expect(import.processed_rows[5].parse_errors).to contain_exactly(
+          'Duplicates the OTU, area and source of line 2.'
+        )
+        expect(import.processed_rows[5].all_objects).to be_empty
+      end
+
+      specify 'invalid citation does not invalidate the earlier line' do
+        import.processed_rows[2].objects[:citations].first.source = nil
+        expect(
+          import.processed_rows[1].objects[:asserted_distributions].first
+        ).to be_valid
+      end
+    end
+
+    context 'existing citation has pages' do
+      before do
+        existing_ad.citations.first.update!(pages: '12')
+        import
+      end
+
+      specify 'existing citation is still a parse error' do
+        expect(import.processed_rows[4].parse_errors).to contain_exactly(
+          'Source is already cited on the existing ' \
+            'asserted distribution for this OTU and area.'
+        )
+        expect(import.processed_rows[4].all_objects).to be_empty
+      end
+    end
+
+    context 'create' do
+      before { import.create }
+
+      specify '#total_records_created' do
+        expect(import.total_records_created).to eq(3)
+      end
+
+      specify '#asserted_distributions_created' do
+        expect(import.asserted_distributions_created).to eq(1)
+      end
+
+      specify '#citations_created' do
+        expect(import.citations_created).to eq(3)
+      end
+
+      specify 'does not duplicate asserted distributions' do
+        expect(AssertedDistribution.count).to eq(2)
+      end
+
+      specify 'adds citations to asserted distribution created from the file' do
+        expect(new_ad.sources).to contain_exactly(source1, source2)
+      end
+
+      specify 'adds citation to existing asserted distribution' do
+        expect(existing_ad.reload.sources).to contain_exactly(source1, source2)
+      end
+    end
+  end
+
 end

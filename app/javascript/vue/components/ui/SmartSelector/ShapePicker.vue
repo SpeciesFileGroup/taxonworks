@@ -2,6 +2,7 @@
   <div>
     <PolymorphicObjectPicker
       :object-types="PolymorphicShapes"
+      :target="ASSERTED_DISTRIBUTION"
       v-model="inputShape"
       :minimal="minimal"
       :autofocus="autofocus"
@@ -19,6 +20,7 @@
 </template>
 
 <script setup>
+import { ASSERTED_DISTRIBUTION } from '@/constants'
 import PolymorphicObjectPicker from './PolymorphicObjectPicker/PolymorphicObjectPicker.vue'
 import PolymorphicShapes from './PolymorphicObjectPicker/PolymorphismClasses/PolymorphicShapes.js'
 

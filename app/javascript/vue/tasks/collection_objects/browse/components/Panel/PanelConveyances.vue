@@ -17,7 +17,7 @@ import { computed } from 'vue'
 import { useStore } from 'vuex'
 import { GetterNames } from '../../store/getters/getters'
 import PanelContainer from './PanelContainer.vue'
-import ConveyanceRow from '@/tasks/otu/browse/components/Conveyance/ConveyanceRow.vue'
+import ConveyanceRow from '@/tasks/collection_objects/browse/components/Panel/PanelConveyances.vue'
 
 const store = useStore()
 const conveyances = computed(() => store.getters[GetterNames.GetConveyances])

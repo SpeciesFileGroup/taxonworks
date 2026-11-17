@@ -51,6 +51,10 @@ export const FILTER_ASSERTED_DISTRIBUTION = {
   label: 'Asserted distributions',
   link: '/tasks/asserted_distributions/filter'
 }
+export const FILTER_ASSERTED_ENVIRONMENT = {
+  label: 'Asserted environments',
+  link: '/tasks/asserted_environments/filter'
+}
 export const FILTER_BIOLOGICAL_ASSOCIATION = {
   label: 'Biological associations',
   link: '/tasks/biological_associations/filter'

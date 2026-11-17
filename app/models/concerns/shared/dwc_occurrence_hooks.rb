@@ -37,7 +37,8 @@ module Shared::DwcOccurrenceHooks
         end
 
         dwc_occurrences.in_batches do |b|
-          b.update_all(rebuild_set:) # Mark the set of records requiring rebuild
+          # Keep DISTINCT for batch selection; update_all does not support it.
+          b.distinct(false).update_all(rebuild_set:) # Mark the set of records requiring rebuild
         end
 
         priority = case t

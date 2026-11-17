@@ -70,14 +70,13 @@ class BiologicalRelationship < ApplicationRecord
     ).pluck(:biological_relationship_id).uniq
   end
 
-  # @params target [String] one of `Citation` or `Content`
   # @return [Hash] topics optimized for user selection
   def self.select_optimized(user_id, project_id)
     r = used_recently(user_id, project_id)
 
     h = {
       quick: [],
-      pinboard: BiologicalRelationship.pinned_by(user_id).where(project_id: project_id).to_a,
+      pinboard: BiologicalRelationship.pinned_by(user_id).where(project_id: project_id).pinboard_ordered.to_a,
       recent: []
     }
 

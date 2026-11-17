@@ -8,15 +8,16 @@ module Queries
         :geographic_area_id,
         :geographic_items,
         :name,
+        geographic_area_id: [],
         name: []
       ].freeze
 
-      # @return Array
+      # @return [Array]
       # @param name [String, Array]
       #   matches one or more named entities
       attr_accessor :name
 
-      # @return Array
+      # @return [Array]
       # @param geographic_area_id [Integer, Array]
       attr_accessor :geographic_area_id
 
@@ -34,6 +35,7 @@ module Queries
 
       def initialize(query_params)
         super
+        @geographic_area_id = params[:geographic_area_id]
         @name = params[:name]
         @containing_point = params[:containing_point]
         @geographic_items = boolean_param(params, :geographic_items)

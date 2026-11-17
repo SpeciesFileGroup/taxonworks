@@ -14,7 +14,7 @@ module Queries
         :name,
         :otu_id,
         :otu_scope,
-        :field_occurrence,
+        :field_occurrence_id,
         :with_name,
 
         field_occurrence_id: [],
@@ -42,11 +42,11 @@ module Queries
       attr_accessor :conveyances
 
       # @return [Array]
-      # @param conveyance_object_type
+      # @param conveyance_object_type [String, Array]
       #   one or more names of classes.
       attr_accessor :conveyance_object_type
 
-      # @return String
+      # @return [String]
       attr_accessor :name
 
       # @return [Boolean, nil]
@@ -61,13 +61,13 @@ module Queries
       # @return [Array]
       attr_accessor :sound_id
 
-      # @return Boolean
+      # @return [Boolean]
       #   true - has name
       #   false - has no name
       #   nil - both
       attr_accessor :with_name
 
-      # @param params [Hash]
+      # @param query_params [Hash]
       def initialize(query_params)
         super
 
@@ -144,6 +144,11 @@ module Queries
         else
           table[:name].matches('%' + name.strip.gsub(/\s/, '%') + '%')
         end
+      end
+
+      def sound_id_facet
+        return nil if sound_id.empty?
+        table[:id].in(sound_id)
       end
 
       def conveyance_object_type_facet
@@ -249,7 +254,9 @@ module Queries
 
         ::Sound
           .joins(:related_origin_relationships)
+          .where(origin_relationships: { old_object_type: 'AnatomicalPart' })
           .where("origin_relationships.old_object_id IN (#{ anatomical_part_query.all.select(:id).to_sql })")
+          .distinct
       end
 
       def otu_query_facet
@@ -284,12 +291,15 @@ module Queries
 
       def and_clauses
         [
-          name_facet
+          name_facet,
+          sound_id_facet
         ]
       end
 
       def merge_clauses
-        s = ::Queries::Query::Filter::SUBQUERIES.select{|k,v| v.include?(:sound)}.keys.map(&:to_s) - ['source', 'observation', 'otu', 'taxon_name']
+        # anatomical_part, observation, otu, taxon_name each have a dedicated
+        # facet below; the rest are resolved through conveyances.
+        s = ::Queries::Query::Filter::SUBQUERIES.select{|k,v| v.include?(:sound)}.keys.map(&:to_s) - ['source', 'anatomical_part', 'observation', 'otu', 'taxon_name']
         [
           *s.collect{|m| query_facets_facet(m)}, # Reference all the Sound referencing SUBQUERIES
           anatomical_part_query_facet,

@@ -58,12 +58,6 @@ RSpec.describe Tasks::FieldOccurrences::InaturalistImportController, type: :cont
       expect(row['status']).to eq('found')
     end
 
-    specify 'found row includes browse_url' do
-      do_find
-      row = response.parsed_body['summary'].find { |r| r['observation_id'] == '100' }
-      expect(row['browse_url']).to be_present
-    end
-
     specify 'returns not_imported for an observation not in the project' do
       do_find
       row = response.parsed_body['summary'].find { |r| r['observation_id'] == '200' }
@@ -81,10 +75,10 @@ RSpec.describe Tasks::FieldOccurrences::InaturalistImportController, type: :cont
       expect { do_find }.not_to have_enqueued_job(InaturalistImportJob)
     end
 
-    specify 'found row has a non-blank taxon_name from otu_tag' do
+    specify 'found row has a non-blank determination_label from otu_tag' do
       do_find
       row = response.parsed_body['summary'].find { |r| r['observation_id'] == '100' }
-      expect(row['taxon_name']).to be_present
+      expect(row['determination_label']).to be_present
     end
   end
 

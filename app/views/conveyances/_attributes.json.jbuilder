@@ -5,3 +5,9 @@ json.partial! '/shared/data/all/metadata', object: conveyance
 json.sound do
   json.partial! '/sounds/attributes', sound: conveyance.sound
 end
+
+if extend_response_with('conveyance_object')
+  json.conveyance_object do
+    json.partial! '/shared/data/all/metadata', object: conveyance.conveyance_object
+  end
+end

@@ -27,4 +27,5 @@ json.array! @result do |r|
 
   json.ambiguous r[:ambiguous]
   json.matched r[:matched]
+  json.match_source r[:match_source]
 end

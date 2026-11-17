@@ -4,7 +4,6 @@ import { defineStore } from 'pinia'
 export default defineStore('store', {
   state: () => ({
     sound: null,
-    citations: [],
     conveyances: []
   }),
   actions: {
@@ -15,7 +14,10 @@ export default defineStore('store', {
     },
 
     loadConveyances(soundId) {
-      return Conveyance.where({ sound_id: soundId }).then(({ body }) => {
+      return Conveyance.where({
+        sound_id: soundId,
+        extend: ['conveyance_object']
+      }).then(({ body }) => {
         this.conveyances = body
       })
     }

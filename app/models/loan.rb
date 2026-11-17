@@ -214,7 +214,7 @@ class Loan < ApplicationRecord
     r = used_recently(project_id)
     h = {
         quick: [],
-        pinboard: Loan.pinned_by(user_id).where(project_id:).to_a,
+        pinboard: Loan.pinned_by(user_id).where(project_id:).pinboard_ordered.to_a,
         recent: []
     }
 

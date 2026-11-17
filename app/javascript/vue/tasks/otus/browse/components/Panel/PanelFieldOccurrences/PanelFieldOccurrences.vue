@@ -1,0 +1,187 @@
+<template>
+  <PanelLayout
+    :status="status"
+    :name="title"
+    :title="`${title} ${pagination ? '(' + pagination.total + ')' : ''}`"
+    :spinner="isLoading"
+    :empty="!list.length"
+  >
+    <div
+      v-if="list.length"
+      class="separate-top"
+    >
+      <div class="flex-separate middle">
+        <VPagination
+          v-if="pagination"
+          class="margin-small-top margin-small-bottom"
+          :pagination="pagination"
+          @next-page="(e) => loadFieldOccurrences(e.page)"
+        />
+        <a :href="urlFilter"> Open filter </a>
+      </div>
+      <table class="full_width">
+        <thead>
+          <tr>
+            <th class="w-2" />
+            <th
+              v-for="attr in DWC_ATTRIBUTES"
+              :key="attr"
+              v-text="attr"
+            />
+            <th>Depictions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            v-for="item in list"
+            :key="item.id"
+          >
+            <td>
+              <div class="horizontal-left-content middle gap-small">
+                <RadialAnnotator :global-id="item.globalId" />
+                <RadialObject :global-id="item.globalId" />
+                <RadialNavigator :global-id="item.globalId" />
+              </div>
+            </td>
+            <td
+              v-for="attr in DWC_ATTRIBUTES"
+              :key="attr"
+              v-text="item[attr]"
+            />
+            <td>
+              <PanelFieldOccurrencesDepictions
+                :count="item.depictions"
+                :object-type="FIELD_OCCURRENCE"
+                :object-id="item.id"
+              />
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div v-else>No specimen records available</div>
+  </PanelLayout>
+</template>
+
+<script setup>
+import { computed, ref, watch } from 'vue'
+import { FieldOccurrence, Citation } from '@/routes/endpoints'
+import { RouteNames } from '@/routes/routes'
+import { getPagination } from '@/helpers'
+import { FIELD_OCCURRENCE } from '@/constants'
+import PanelLayout from '../PanelLayout.vue'
+import qs from 'qs'
+import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
+import RadialObject from '@/components/radials/object/radial.vue'
+import RadialNavigator from '@/components/radials/navigation/radial.vue'
+import VPagination from '@/components/pagination.vue'
+import PanelFieldOccurrencesDepictions from '../../Shared/ModalDepictions.vue'
+
+const DWC_ATTRIBUTES = [
+  'catalogNumber',
+  'recordNumber',
+  'otherCatalogNumbers',
+  'individualCount',
+  'country',
+  'stateProvince',
+  'verbatimLocality',
+  'year',
+  'citation'
+]
+
+const props = defineProps({
+  otu: {
+    type: Object,
+    required: true
+  },
+
+  otus: {
+    type: Array,
+    required: true
+  },
+
+  status: {
+    type: String,
+    default: 'unknown'
+  },
+
+  title: {
+    type: String,
+    default: 'Field occurrences'
+  }
+})
+
+const list = ref([])
+const pagination = ref()
+const isLoading = ref(false)
+
+const otuIds = computed(() => props.otus.map((o) => o.id))
+
+const filterParams = computed(() => ({
+  otu_id: otuIds.value
+}))
+
+async function listParser(items) {
+  const citations = (
+    await Citation.where({
+      citation_object_id: items.map((item) => item.id),
+      citation_object_type: [FIELD_OCCURRENCE]
+    })
+  ).body
+
+  const getCitations = (citations, objectId) => {
+    return citations
+      .filter((item) => item.citation_object_id === objectId)
+      .map((item) => item.citation_source_body)
+      .join('; ')
+  }
+
+  return items.map((item) => ({
+    ...item.dwc_occurrence,
+    id: item.id,
+    globalId: item.global_id,
+    repository: item.repository?.object_label,
+    citation: getCitations(citations, item.id),
+    depictions: item.dwc_occurrence?.associatedMedia?.split('|')?.length || 0
+  }))
+}
+
+function loadFieldOccurrences(page = 1) {
+  isLoading.value = true
+  FieldOccurrence.filter({
+    ...filterParams.value,
+    page,
+    per: 50,
+    extend: ['dwc_occurrence']
+  })
+    .then(async (response) => {
+      pagination.value = getPagination(response)
+      list.value = await listParser(response.body)
+    })
+    .finally(() => (isLoading.value = false))
+}
+
+const urlFilter = computed(() => {
+  const query = qs.stringify(
+    {
+      ...filterParams.value
+    },
+    {
+      arrayFormat: 'brackets',
+      skipNulls: true
+    }
+  )
+
+  return `${RouteNames.FilterFieldOccurrence}?${query}`
+})
+
+watch(
+  () => props.otus,
+  (newVal) => {
+    if (newVal.length > 0) {
+      loadFieldOccurrences()
+    }
+  },
+  { immediate: true }
+)
+</script>

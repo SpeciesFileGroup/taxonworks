@@ -124,4 +124,25 @@ describe Queries::Extract::Filter, type: :model, group: [:dna, :collection_objec
     expect(q.all.pluck(:id)).to contain_exactly(e.id)
   end
 
+  specify '#anatomical_part_query' do
+    ap = FactoryBot.create(:valid_anatomical_part, ancestor: FactoryBot.create(:valid_specimen))
+    e = FactoryBot.create(:valid_extract, origin: ap)
+    FactoryBot.create(:valid_extract) # not this
+
+    q.anatomical_part_query = ::Queries::AnatomicalPart::Filter.new(anatomical_part_id: ap.id)
+    expect(q.all.pluck(:id)).to contain_exactly(e.id)
+  end
+
+  specify '#anatomical_part_query ignores an origin CollectionObject whose id collides with the anatomical part id' do
+    shared_id = 91_000_002
+    ap = FactoryBot.create(:valid_anatomical_part, ancestor: FactoryBot.create(:valid_specimen), id: shared_id)
+    e = FactoryBot.create(:valid_extract, origin: ap)
+
+    colliding_co = FactoryBot.create(:valid_specimen, id: shared_id)
+    FactoryBot.create(:valid_extract, origin: colliding_co)
+
+    q.anatomical_part_query = ::Queries::AnatomicalPart::Filter.new(anatomical_part_id: ap.id)
+    expect(q.all.pluck(:id)).to contain_exactly(e.id)
+  end
+
 end

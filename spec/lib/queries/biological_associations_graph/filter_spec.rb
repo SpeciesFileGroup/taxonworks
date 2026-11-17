@@ -63,4 +63,18 @@ describe Queries::BiologicalAssociationsGraph::Filter, type: :model, group: [:fi
     expect(q.all.map(&:id)).to be_empty
   end
 
+
+  specify '#biological_association_query' do
+    other_bag = BiologicalAssociationsGraph.create!(name: 'Elsewhere')
+    other_bag.biological_associations << ba3
+
+    q = query.new(biological_association_query: { biological_association_id: [ba1.id] })
+    expect(q.all).to contain_exactly(bag)
+  end
+
+  specify '#biological_association_query matching nothing' do
+    q = query.new(biological_association_query: { biological_association_id: [0] })
+    expect(q.all).to be_empty
+  end
+
 end

@@ -83,10 +83,9 @@ RSpec.describe ObservationMatrixColumnItemsController, type: :controller do
 
       it 'updates the requested observation_matrix_column_item' do
         observation_matrix_column_item = ObservationMatrixColumnItem.create! valid_attributes
-        m = FactoryBot.create(:valid_observation_matrix)
-        put :update, params: {id: observation_matrix_column_item.to_param, observation_matrix_column_item: {observation_matrix_id: m.id}}, format: :json, session: valid_session
+        put :update, params: {id: observation_matrix_column_item.to_param, observation_matrix_column_item: {position: 5}}, format: :json, session: valid_session
         observation_matrix_column_item.reload
-        expect(observation_matrix_column_item.observation_matrix_id).to eq(m.id)
+        expect(observation_matrix_column_item.position).to eq(5)
       end
 
       it 'assigns the requested observation_matrix_column_item as @observation_matrix_column_item' do

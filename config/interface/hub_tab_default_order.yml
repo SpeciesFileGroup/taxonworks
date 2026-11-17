@@ -2,6 +2,7 @@
 :default:  
   - tasks
   - data
+  - render
   - favorite
 # - worker
 # - icons 

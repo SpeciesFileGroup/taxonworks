@@ -14,6 +14,26 @@ describe 'DatasetRecord::DarwinCore::Taxon', type: :model do
     DatabaseCleaner.clean
   end
 
+  it 'persists the latest exception when retrying a failed checklist record' do
+    dataset = ImportDataset::DarwinCore::Checklist.create!(
+      source: fixture_file_upload(Rails.root.join('spec/files/import_datasets/checklists/parent_child.tsv'), 'text/plain'),
+      description: 'Checklist exception retry regression'
+    )
+    record = DatasetRecord::DarwinCore::Taxon.new(import_dataset: dataset, status: 'Ready', metadata: {})
+    record.initialize_data_fields([])
+    record.save!
+
+    allow(record).to receive(:get_field_value).and_raise(StandardError, 'First import failure')
+    record.import
+    expect(record.reload.status).to eq('Failed')
+    expect(record.metadata.dig('exception_data', 'message')).to eq('First import failure')
+
+    allow(record).to receive(:get_field_value).and_raise(StandardError, 'Second import failure')
+    record.import
+    expect(record.reload.status).to eq('Failed')
+    expect(record.metadata.dig('exception_data', 'message')).to eq('Second import failure')
+  end
+
   context 'when importing a parent and child taxon from a text file' do
     before(:all) do
       import_checklist_tsv('parent_child.tsv', 2, 'parent_child')

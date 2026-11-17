@@ -13,7 +13,7 @@
                           object:     'taxon_determination',
                           method:     'taxon_determination_object_id',
                           tag_id:     'taxon_determination_object_id_for_taxon_determination',
-                          display:    collection_object_tag(@taxon_determination.taxon_determination_object)} %>
+                          display:    object_tag(@taxon_determination.taxon_determination_object)} %>
     </div>
 
     <%= render partial: '/people/role_picker', locals: {role: Determiner.new(), object: @taxon_determination, f: f} %>

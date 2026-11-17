@@ -17,11 +17,11 @@ module Queries
       #   like 'Download::DwcArchive', one of the models in app/models/download
       attr_accessor :download_type
 
-      # @params params [ActionController::Parameters]
+      # @param query_params [ActionController::Parameters]
       def initialize(query_params)
         super
         @download_type = params[:download_type]
-        @download_Id = params[:download_id]
+        @download_id = params[:download_id]
       end
 
       def download_id
@@ -33,7 +33,7 @@ module Queries
       end
 
       def download_type_facet
-        return nil if download_type.nil?
+        return nil if download_type.empty?
         table[:type].in(download_type)
       end
 

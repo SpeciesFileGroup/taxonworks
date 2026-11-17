@@ -34,6 +34,7 @@
           :hide-unfrozen="hideFrozen"
           :preference-key="`tasks::filters::${TAXON_NAME_RELATIONSHIP}`"
           @on-sort="(sorted) => (list = sorted)"
+          @remove="({ index }) => list.splice(index, 1)"
         />
       </template>
       <template #nav-settings-start>

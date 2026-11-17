@@ -5,11 +5,9 @@
     </template>
     <template #body>
       <custom-attributes
-        v-if="projectPreferences"
         :object-id="extractId"
         object-type="Extract"
         model="Extract"
-        :model-preferences="projectPreferences.model_predicate_sets.Extract"
         @onUpdate="setAttributes"
       />
     </template>
@@ -31,10 +29,6 @@ export default {
   },
 
   computed: {
-    projectPreferences() {
-      return this.$store.getters[GetterNames.GetProjectPreferences]
-    },
-
     extractId() {
       return this.$store.getters[GetterNames.GetExtract].id
     }

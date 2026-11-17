@@ -1,0 +1,87 @@
+class CompositionItemsController < ApplicationController
+  include RenderControllerConfiguration
+
+  before_action :set_composition_item,
+    only: [:show, :update, :destroy]
+
+  # GET /compositions/:composition_id/composition_items.json
+  # All items of the Composition, unpaged: a renderer needs them all.
+  def index
+    @composition_items = Composition
+      .visible_to_project(sessions_current_project_id)
+      .find(params.require(:composition_id))
+      .composition_items
+      .order(
+        CompositionItem.arel_table[:parent_id].asc.nulls_first, :position
+      )
+
+    # TODO: N+1 on the objects' own associations (e.g. Depiction#image) when
+    # rendering their attributes. Consider letting each item subclass declare
+    # a preload for its object, next to composition_item_object_permitted?.
+    if helpers.extend_response_with('composition_item_object')
+      @composition_items =
+        @composition_items.includes(:composition_item_object)
+    end
+  end
+
+  # GET /composition_items/1.json
+  def show
+  end
+
+  # POST /composition_items.json
+  def create
+    @composition_item = CompositionItem.new(
+      composition_item_params.merge(
+        type: params.dig(:composition_item, :type),
+        composition_id: params.dig(:composition_item, :composition_id)
+      )
+    )
+    if @composition_item.save
+      render :show, status: :created,
+        location: @composition_item.metamorphosize
+    else
+      render json: @composition_item.errors, status: :unprocessable_content
+    end
+  end
+
+  # PATCH/PUT /composition_items/1.json
+  def update
+    if @composition_item.update(composition_item_params)
+      render :show, status: :ok,
+        location: @composition_item.metamorphosize
+    else
+      render json: @composition_item.errors, status: :unprocessable_content
+    end
+  end
+
+  # DELETE /composition_items/1.json
+  def destroy
+    @composition_item.destroy
+    if @composition_item.destroyed?
+      head :no_content
+    else
+      render json: @composition_item.errors, status: :unprocessable_content
+    end
+  end
+
+  private
+
+  def set_composition_item
+    @composition_item = CompositionItem
+      .where(project_id: sessions_current_project_id)
+      .or(CompositionItem.where(
+        composition_id: Composition.where(is_community: true).select(:id)
+      ))
+      .find(params[:id])
+  end
+
+  # type and composition_id are set only on create
+  def composition_item_params
+    params.require(:composition_item).permit(
+      :parent_id,
+      :composition_item_object_id, :composition_item_object_type,
+      :text, :x, :y, :z, :position, :width, :height, :zoom, :rotation_z,
+      :svg_view_box, :svg_clip, :opacity, :is_visible, :total, :css_style
+    )
+  end
+end

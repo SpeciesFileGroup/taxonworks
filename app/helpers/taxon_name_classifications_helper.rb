@@ -15,7 +15,7 @@ module TaxonNameClassificationsHelper
     link_to(taxon_name_classification_tag(taxon_name_classification).html_safe, metamorphosize_if(taxon_name_classification.taxon_name))
   end
 
-  # @params[#taxon_name]
+  # @param taxon_name [#taxon_name]
   def taxon_name_classification_options(taxon_name)
     o = []
 

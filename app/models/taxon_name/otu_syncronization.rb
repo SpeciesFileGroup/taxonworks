@@ -8,8 +8,8 @@ module TaxonName::OtuSyncronization
 
   module ClassMethods
     # @return [Int, false]
-    # @params user_id [User#id] required
-    # @params user_id [TaxonName#id] required
+    # @param user_id [User#id] required
+    # @param taxon_name_id [TaxonName#id] required
     #    the number of names created
     def synchronize_otus(taxon_name_id: nil, user_id: nil, mode: :all_valid)
       return false if mode.nil? || taxon_name_id.nil? || user_id.nil?

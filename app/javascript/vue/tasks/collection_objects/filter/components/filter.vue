@@ -25,6 +25,7 @@
   <FacetImportAttribute v-model="params" />
   <FacetCurrentRepository v-model="params" />
   <FacetRepository v-model="params" />
+  <FacetContainers v-model="params" />
   <FacetPreparationTypes v-model="params" />
   <FacetTypeMaterial v-model="params" />
   <FacetInRelationship v-model="params" />
@@ -70,6 +71,7 @@ import FacetLoan from './filters/FacetLoan.vue'
 import FacetInRelationship from './filters/relationship/FacetInRelationship'
 import FacetBiocurations from '@/components/Filter/Facets/CollectionObject/FacetBiocurations.vue'
 import FacetRepository from '@/components/Filter/Facets/CollectionObject/FacetRepository.vue'
+import FacetContainers from '@/components/Filter/Facets/CollectionObject/FacetContainers.vue'
 import FacetWith from '@/components/Filter/Facets/shared/FacetWith.vue'
 import FacetBuffered from './filters/FacetBuffered.vue'
 import FacetPreparationTypes from '@/components/Filter/Facets/PreparationType/FacetPreparationTypes.vue'

@@ -2,10 +2,11 @@ module Queries
   module FieldOccurrence 
     class Autocomplete < Query::Autocomplete
 
-      # @params string [String]
-      # @params [Hash] args
-      def initialize(string, project_id: nil)
-        super
+      DEFAULT_LIMIT = 40
+
+      # @param string [String]
+      def initialize(string, project_id: nil, restrict_to: nil, limit: nil)
+        super(string, project_id:, restrict_to:, limit:)
       end
 
       # @return [Arel::Table]
@@ -56,7 +57,7 @@ module Queries
         queries.each_with_index do |q ,i|
           a = q.where(project_id: project_id) if project_id.present?
           a ||= q
-          updated_queries[i] = a
+          updated_queries[i] = apply_restriction(a)
         end
         updated_queries
       end
@@ -70,9 +71,9 @@ module Queries
         updated_queries.each do |q|
           result += q.to_a
           result.uniq!
-          break if result.count > 39
+          break if result.count >= limit
         end
-        result[0..39]
+        result.first(limit)
       end
 
     end
