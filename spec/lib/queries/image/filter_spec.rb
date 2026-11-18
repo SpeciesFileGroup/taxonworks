@@ -289,14 +289,14 @@ describe Queries::Image::Filter, type: :model, group: [:images] do
   specify '#biocuration_class_id id' do
     co.images << i1
     a = FactoryBot.create(:valid_biocuration_classification, biocuration_classification_object:  co)
-    q.biocuration_class_id = a.id
+    q.biocuration_class_id = a.biocuration_class_id
     expect(q.all.map(&:id)).to contain_exactly(i1.id)
   end
 
   specify '#biocuration_class_id array' do
     co.images << i1
     a = FactoryBot.create(:valid_biocuration_classification, biocuration_classification_object: co)
-    q.biocuration_class_id = [a.id]
+    q.biocuration_class_id = [a.biocuration_class_id]
     expect(q.all.map(&:id)).to contain_exactly(i1.id)
   end
 

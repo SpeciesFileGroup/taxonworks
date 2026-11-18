@@ -1,0 +1,102 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://api.checklistbank.org/dataset/3LR/nameusage?limit=20&q=Cicadula%20(Cyperana)
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Faraday/v2.15.1 Nasturtium/v0.1.2
+      Accept:
+      - application/json,*/*
+      X-User-Agent:
+      - Faraday/v2.15.1 Nasturtium/v0.1.2
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Accept-Ranges:
+      - bytes
+      Age:
+      - '0'
+      Cache-Control:
+      - public, max-age=604800, s-maxage=604800
+      Content-Length:
+      - '1079'
+      Content-Type:
+      - application/json
+      Date:
+      - Sat, 07 Nov 2026 02:45:52 GMT
+      Vary:
+      - Cookie, Accept, Accept-Encoding, Accept-Language, User-Agent
+      - Origin
+      Via:
+      - 1.1 varnish (Varnish/7.1)
+      - HTTP/1.1 git.gammaspectra.live/git/go-away@v0.0.0-20250904213329-95ac08540b8c+dirty
+      X-Backend:
+      - api_read_only
+      X-Cache:
+      - miss_cached
+      X-Varnish:
+      - '701947883'
+    body:
+      encoding: ASCII-8BIT
+      string: '{"offset":0,"limit":20,"total":1,"result":[{"created":"2026-10-05T14:25:43.866033","createdBy":102,"modified":"2026-10-05T14:25:43.866033","modifiedBy":102,"datasetKey":316595,"id":"8RGXW","sectorKey":2136,"verbatimSourceKey":361252508,"name":{"created":"2026-10-05T14:25:43.866033","createdBy":102,"modified":"2026-10-05T14:25:43.866033","modifiedBy":102,"datasetKey":316595,"id":"mNG9lU_s0lN5Cd2YRTONW","sectorKey":2136,"verbatimSourceKey":361252508,"namesIndexId":2032612,"scientificName":"Cicadula
+        (Cyperana)","authorship":"DeLong, 1936","rank":"subgenus","genus":"Cicadula","infragenericEpithet":"Cyperana","combinationAuthorship":{"authors":["DeLong"],"year":"1936"},"code":"zoological","publishedInId":"3298934f-9382-40fc-b72e-78580e113b2c","publishedInPage":"218","origin":"source","type":"scientific","parsed":true,"notho":[]},"status":"accepted","origin":"source","parentId":"8R4KD","link":"https://hoppers.speciesfile.org/otus/23402/overview","label":"Cicadula
+        (Cyperana) DeLong, 1936","labelHtml":"<i>Cicadula (Cyperana)</i> DeLong, 1936"}],"empty":false,"last":true}'
+  recorded_at: Sat, 07 Nov 2026 02:45:52 GMT
+- request:
+    method: get
+    uri: https://api.checklistbank.org/dataset/3LR/taxon/8RGXW/classification
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Faraday/v2.15.1 Nasturtium/v0.1.2
+      Accept:
+      - application/json,*/*
+      X-User-Agent:
+      - Faraday/v2.15.1 Nasturtium/v0.1.2
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Accept-Ranges:
+      - bytes
+      Age:
+      - '0'
+      Cache-Control:
+      - public, max-age=604800, s-maxage=604800
+      Content-Length:
+      - '2063'
+      Content-Type:
+      - application/json
+      Date:
+      - Sat, 07 Nov 2026 02:45:52 GMT
+      Vary:
+      - Cookie, Accept, Accept-Encoding, Accept-Language, User-Agent
+      - Origin
+      Via:
+      - 1.1 varnish (Varnish/7.1)
+      - HTTP/1.1 git.gammaspectra.live/git/go-away@v0.0.0-20250904213329-95ac08540b8c+dirty
+      X-Backend:
+      - api_read_only
+      X-Cache:
+      - miss_cached
+      X-Varnish:
+      - '702884897'
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        W3siaWQiOiJDUzVIRiIsIm5hbWUiOiJFdWthcnlvdGEiLCJhdXRob3JzaGlwIjoiKENoYXR0b24sIDE5MjUpIFdoaXR0YWtlciAmIE1hcmd1bGlzLCAxOTc4IiwicmFuayI6ImRvbWFpbiIsImxhYmVsIjoiRXVrYXJ5b3RhIChDaGF0dG9uLCAxOTI1KSBXaGl0dGFrZXIgJiBNYXJndWxpcywgMTk3OCIsImxhYmVsSHRtbCI6IkV1a2FyeW90YSAoQ2hhdHRvbiwgMTkyNSkgV2hpdHRha2VyICYgTWFyZ3VsaXMsIDE5NzgifSx7ImlkIjoiTiIsIm5hbWUiOiJBbmltYWxpYSIsInJhbmsiOiJraW5nZG9tIiwibGFiZWwiOiJBbmltYWxpYSIsImxhYmVsSHRtbCI6IkFuaW1hbGlhIn0seyJpZCI6IlJUIiwibmFtZSI6IkFydGhyb3BvZGEiLCJyYW5rIjoicGh5bHVtIiwibGFiZWwiOiJBcnRocm9wb2RhIiwibGFiZWxIdG1sIjoiQXJ0aHJvcG9kYSJ9LHsiaWQiOiJMMjY1NSIsIm5hbWUiOiJIZXhhcG9kYSIsInJhbmsiOiJzdWJwaHlsdW0iLCJsYWJlbCI6IkhleGFwb2RhIiwibGFiZWxIdG1sIjoiSGV4YXBvZGEifSx7ImlkIjoiSDYiLCJuYW1lIjoiSW5zZWN0YSIsInJhbmsiOiJjbGFzcyIsImxhYmVsIjoiSW5zZWN0YSIsImxhYmVsSHRtbCI6Ikluc2VjdGEifSx7ImlkIjoiQlhWV1YiLCJuYW1lIjoiSGVtaXB0ZXJhIiwiYXV0aG9yc2hpcCI6Ikxpbm5hZXVzLCAxNzU4IiwicmFuayI6Im9yZGVyIiwibGFiZWwiOiJIZW1pcHRlcmEgTGlubmFldXMsIDE3NTgiLCJsYWJlbEh0bWwiOiJIZW1pcHRlcmEgTGlubmFldXMsIDE3NTgifSx7ImlkIjoiQlhXQ1MiLCJuYW1lIjoiQXVjaGVub3JyaHluY2hhIiwiYXV0aG9yc2hpcCI6IkR1bcOpcmlsLCAxODA1IiwicmFuayI6InN1Ym9yZGVyIiwibGFiZWwiOiJBdWNoZW5vcnJoeW5jaGEgRHVtw6lyaWwsIDE4MDUiLCJsYWJlbEh0bWwiOiJBdWNoZW5vcnJoeW5jaGEgRHVtw6lyaWwsIDE4MDUifSx7ImlkIjoiQlhXRDgiLCJuYW1lIjoiQ2ljYWRvbW9ycGhhIiwiYXV0aG9yc2hpcCI6IkV2YW5zLCAxOTQ2IiwicmFuayI6ImluZnJhb3JkZXIiLCJsYWJlbCI6IkNpY2Fkb21vcnBoYSBFdmFucywgMTk0NiIsImxhYmVsSHRtbCI6IkNpY2Fkb21vcnBoYSBFdmFucywgMTk0NiJ9LHsiaWQiOiJDNjlRNyIsIm5hbWUiOiJDbHlwZWF0YSIsImF1dGhvcnNoaXAiOiJRYWRyaSwgMTk2NyIsInJhbmsiOiJwYXJ2b3JkZXIiLCJsYWJlbCI6IkNseXBlYXRhIFFhZHJpLCAxOTY3IiwibGFiZWxIdG1sIjoiQ2x5cGVhdGEgUWFkcmksIDE5NjcifSx7ImlkIjoiOEhCUDkiLCJuYW1lIjoiTWVtYnJhY29pZGVhIiwiYXV0aG9yc2hpcCI6IlJhZmluZXNxdWUsIDE4MTUiLCJyYW5rIjoic3VwZXJmYW1pbHkiLCJsYWJlbCI6Ik1lbWJyYWNvaWRlYSBSYWZpbmVzcXVlLCAxODE1IiwibGFiZWxIdG1sIjoiTWVtYnJhY29pZGVhIFJhZmluZXNxdWUsIDE4MTUifSx7ImlkIjoiOEhCUFgiLCJuYW1lIjoiQ2ljYWRlbGxpZGFlIiwiYXV0aG9yc2hpcCI6IkxhdHJlaWxsZSwgMTgyNSIsInJhbmsiOiJmYW1pbHkiLCJsYWJlbCI6IkNpY2FkZWxsaWRhZSBMYXRyZWlsbGUsIDE4MjUiLCJsYWJlbEh0bWwiOiJDaWNhZGVsbGlkYWUgTGF0cmVpbGxlLCAxODI1In0seyJpZCI6IkIzSEJaIiwibmFtZSI6IkRlbHRvY2VwaGFsaW5hZSIsImF1dGhvcnNoaXAiOiJGaWViZXIsIDE4NjkiLCJyYW5rIjoic3ViZmFtaWx5IiwibGFiZWwiOiJEZWx0b2NlcGhhbGluYWUgRmllYmVyLCAxODY5IiwibGFiZWxIdG1sIjoiRGVsdG9jZXBoYWxpbmFlIEZpZWJlciwgMTg2OSJ9LHsiaWQiOiI4Sks3QiIsIm5hbWUiOiJDaWNhZHVsaW5pIiwiYXV0aG9yc2hpcCI6IlZhbiBEdXplZSwgMTg5MiIsInJhbmsiOiJ0cmliZSIsImxhYmVsIjoiQ2ljYWR1bGluaSBWYW4gRHV6ZWUsIDE4OTIiLCJsYWJlbEh0bWwiOiJDaWNhZHVsaW5pIFZhbiBEdXplZSwgMTg5MiJ9LHsiaWQiOiI4UjRLRCIsIm5hbWUiOiJDaWNhZHVsYSIsImF1dGhvcnNoaXAiOiJaZXR0ZXJzdGVkdCwgMTgzNyIsInJhbmsiOiJnZW51cyIsImxhYmVsIjoiQ2ljYWR1bGEgWmV0dGVyc3RlZHQsIDE4MzciLCJsYWJlbEh0bWwiOiI8aT5DaWNhZHVsYTwvaT4gWmV0dGVyc3RlZHQsIDE4MzcifV0=
+  recorded_at: Sat, 07 Nov 2026 02:45:52 GMT
+recorded_with: VCR 6.4.1

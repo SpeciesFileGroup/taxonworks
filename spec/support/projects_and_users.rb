@@ -13,14 +13,22 @@ module ProjectsAndUsers
     # Current.project_id = nil
   end
 
-  # This is used before all tests of type :model, :helper
+  # This is used before all tests of type :model, :helper, :controller,
+  # :request and :spinup
   # id 1 matters!!
+  #
+  # Id sequences are not reset between spec files, so specs must not depend
+  # on particular ids, or on ids in different tables coinciding.
   def self.spin_up_projects_users_and_housekeeping
-    u = FactoryBot.create(:valid_user, id: 1, self_created: true)
-    FactoryBot.create(:valid_project, id: 1, without_root_taxon_name: true, by: u)
-    FactoryBot.create(:project_member, user_id: 1, project_id: 1, by: u)
+    user = FactoryBot.create(:valid_user, id: 1, self_created: true)
+    project = FactoryBot.create(:valid_project, id: 1, without_root_taxon_name: true, by: user)
+    FactoryBot.create(:project_member, user_id: 1, project_id: 1, by: user)
 
-    # TODO: Not sure why this is required, perhaps Spring related?!
-    ApplicationRecord.connection.tables.each { |t| ApplicationRecord.connection.reset_pk_sequence!(t) }
+    # A record created with an explicit id doesn't advance its table's id
+    # sequence, so the next record created in that table would collide with
+    # it. Reset the sequence of every table given an explicit id above.
+    [user, project].each do |record|
+      ApplicationRecord.connection.reset_pk_sequence!(record.class.table_name)
+    end
   end
 end

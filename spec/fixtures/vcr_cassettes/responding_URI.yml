@@ -1,0 +1,37 @@
+---
+http_interactions:
+- request:
+    method: head
+    uri: http://sfg.taxonworks.org/api/v1/ping
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 301
+      message: Moved Permanently
+    headers:
+      Server:
+      - nginx/1.18.0 (Ubuntu)
+      Date:
+      - Sat, 07 Nov 2026 02:45:45 GMT
+      Content-Type:
+      - text/html
+      Content-Length:
+      - '178'
+      Connection:
+      - keep-alive
+      Location:
+      - https://sfg.taxonworks.org/api/v1/ping
+    body:
+      encoding: UTF-8
+      string: ''
+  recorded_at: Sat, 07 Nov 2026 02:45:45 GMT
+recorded_with: VCR 6.4.1

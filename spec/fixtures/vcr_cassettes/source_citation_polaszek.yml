@@ -1,0 +1,231 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://api.crossref.org/works?query=Yoder,%20M.%20J.,%20A.%20A.%20Valerio,%20A.%20Polaszek,%20L.%20Masner,%20and%20N.%20F.%20Johnson.%202009.%20Revision%20of%20Scelio%20pulchripennis%20-%20group%20species%20(Hymenoptera,%20Platygastroidea,%20Platygastridae).%20ZooKeys%2020:53-118.&rows=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Faraday/v2.15.1 Serrano/v1.7
+      X-User-Agent:
+      - Faraday/v2.15.1 Serrano/v1.7
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Sat, 07 Nov 2026 02:46:13 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '2643'
+      Connection:
+      - keep-alive
+      Access-Control-Expose-Headers:
+      - Link
+      Access-Control-Allow-Headers:
+      - X-Requested-With, Accept, Accept-Encoding, Accept-Charset, Accept-Language,
+        Accept-Ranges, Cache-Control
+      Access-Control-Allow-Origin:
+      - "*"
+      Vary:
+      - Accept-Encoding
+      Server:
+      - Jetty(9.4.40.v20210413)
+      X-Rate-Limit-Limit:
+      - '1'
+      X-Rate-Limit-Interval:
+      - 1s
+      X-Concurrency-Limit:
+      - '1'
+      X-Api-Pool:
+      - public-array
+      Permissions-Policy:
+      - interest-cohort=()
+      Strict-Transport-Security:
+      - max-age=31536000;
+    body:
+      encoding: ASCII-8BIT
+      string: '{"status":"ok","message-type":"work-list","message-version":"1.0.0","message":{"facets":{},"total-results":30219,"items":[{"indexed":{"date-parts":[[2026,11,5]],"date-time":"2026-11-05T21:07:51Z","timestamp":1793912871424,"version":"4.8.0"},"reference-count":0,"publisher":"Pensoft
+        Publishers","license":[{"start":{"date-parts":[[2009,9,14]],"date-time":"2009-09-14T00:00:00Z","timestamp":1252886400000},"content-version":"vor","delay-in-days":0,"URL":"http:\/\/creativecommons.org\/licenses\/by\/3.0\/"}],"content-domain":{"domain":[],"crossmark-restriction":false},"short-container-title":["ZK"],"DOI":"10.3897\/zookeys.20.205","type":"journal-article","created":{"date-parts":[[2009,9,14]],"date-time":"2009-09-14T14:16:23Z","timestamp":1252937783000},"page":"53-118","source":"Crossref","is-referenced-by-count":6,"title":["Revision
+        of Scelio pulchripennis - group species (Hymenoptera, Platygastroidea, Platygastridae)"],"prefix":"10.3897","volume":"20","author":[{"given":"Norman","family":"Johnson","sequence":"first","affiliation":[],"role":[{"vocabulary":"crossref","role":"author"}]},{"given":"Matthew","family":"Yoder","sequence":"additional","affiliation":[],"role":[{"vocabulary":"crossref","role":"author"}]},{"given":"Andrew","family":"Polaszek","sequence":"additional","affiliation":[],"role":[{"vocabulary":"crossref","role":"author"}]},{"given":"Lubomir","family":"Masner","sequence":"additional","affiliation":[],"role":[{"vocabulary":"crossref","role":"author"}]},{"given":"Alejandro","family":"Valerio","sequence":"additional","affiliation":[],"role":[{"vocabulary":"crossref","role":"author"}]}],"member":"2258","published-online":{"date-parts":[[2009,9,14]]},"container-title":["ZooKeys"],"link":[{"URL":"http:\/\/zookeys.pensoft.net\/article_preview.php?id=2041&skip_redirect=1","content-type":"unspecified","content-version":"vor","intended-application":"similarity-checking"}],"deposited":{"date-parts":[[2016,9,14]],"date-time":"2016-09-14T02:57:15Z","timestamp":1473821835000},"score":170.84744,"resource":{"primary":{"URL":"http:\/\/zookeys.pensoft.net\/articles.php?id=2041"}},"issued":{"date-parts":[[2009,9,14]]},"references-count":0,"URL":"https:\/\/doi.org\/10.3897\/zookeys.20.205","ISSN":["1313-2970","1313-2989"],"issn-type":[{"value":"1313-2970","type":"electronic"},{"value":"1313-2989","type":"print"}],"published":{"date-parts":[[2009,9,14]]}}],"items-per-page":1,"query":{"start-index":0,"search-terms":"Yoder,
+        M. J., A. A. Valerio, A. Polaszek, L. Masner, and N. F. Johnson. 2009. Revision
+        of Scelio pulchripennis - group species (Hymenoptera, Platygastroidea, Platygastridae).
+        ZooKeys 20:53-118."}}}'
+  recorded_at: Sat, 07 Nov 2026 02:46:13 GMT
+- request:
+    method: get
+    uri: https://doi.org/10.3897%2Fzookeys.20.205
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Faraday/v2.15.1 Serrano/v1.7
+      Accept:
+      - application/x-bibtex
+      X-User-Agent:
+      - Faraday/v2.15.1 Serrano/v1.7
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 302
+      message: Found
+    headers:
+      Date:
+      - Sat, 07 Nov 2026 02:46:14 GMT
+      Content-Type:
+      - text/html;charset=utf-8
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Location:
+      - https://api.crossref.org/v1/works/10.3897%2Fzookeys.20.205/transform
+      Server:
+      - cloudflare
+      Vary:
+      - Accept
+      - Origin
+      Expires:
+      - Sat, 07 Nov 2026 03:14:43 GMT
+      Permissions-Policy:
+      - interest-cohort=(),browsing-topics=()
+      Cf-Cache-Status:
+      - DYNAMIC
+      Nel:
+      - '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}'
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Report-To:
+      - '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=3Q5Nmk5u2TKrgS6Vynm2IyUHBkNN1RWNao14HJ6Uj9AXTpsEyXS95Qb5nK%2FVPIRT65WXo2vr90Jbif5DuhQSalMILqslquvaxXLqNYhOpF6E%2Bb2ZE9RFcEc0bjfLkI5geRHSIPQ%3D"}]}'
+      Cf-Ray:
+      - a56901a25e39e26d-ORD
+      Alt-Svc:
+      - h3=":443"; ma=86400
+    body:
+      encoding: UTF-8
+      string: |-
+        <html><head><title>Handle Redirect</title></head>
+        <body><a href="https://api.crossref.org/v1/works/10.3897%2Fzookeys.20.205/transform">https://api.crossref.org/v1/works/10.3897%2Fzookeys.20.205/transform</a></body></html>
+  recorded_at: Sat, 07 Nov 2026 02:46:14 GMT
+- request:
+    method: get
+    uri: https://api.crossref.org/v1/works/10.3897%2Fzookeys.20.205/transform
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Faraday/v2.15.1 Serrano/v1.7
+      Accept:
+      - application/x-bibtex
+      X-User-Agent:
+      - Faraday/v2.15.1 Serrano/v1.7
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Sat, 07 Nov 2026 02:46:14 GMT
+      Content-Type:
+      - application/x-bibtex
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Vary:
+      - Accept
+      Access-Control-Expose-Headers:
+      - Link
+      Access-Control-Allow-Headers:
+      - X-Requested-With, Accept, Accept-Encoding, Accept-Charset, Accept-Language,
+        Accept-Ranges, Cache-Control
+      Access-Control-Allow-Origin:
+      - "*"
+      Server:
+      - Jetty(9.4.40.v20210413)
+      X-Rate-Limit-Limit:
+      - '5'
+      X-Rate-Limit-Interval:
+      - 1s
+      X-Concurrency-Limit:
+      - '1'
+      X-Api-Pool:
+      - public-single
+      Permissions-Policy:
+      - interest-cohort=()
+      Strict-Transport-Security:
+      - max-age=31536000;
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        IEBhcnRpY2xle0pvaG5zb25fMjAwOSwgdGl0bGU9e1JldmlzaW9uIG9mIFNjZWxpbyBwdWxjaHJpcGVubmlzIC0gZ3JvdXAgc3BlY2llcyAoSHltZW5vcHRlcmEsIFBsYXR5Z2FzdHJvaWRlYSwgUGxhdHlnYXN0cmlkYWUpfSwgdm9sdW1lPXsyMH0sIElTU049ezEzMTMtMjk4OX0sIHVybD17aHR0cDovL2R4LmRvaS5vcmcvMTAuMzg5Ny96b29rZXlzLjIwLjIwNX0sIERPST17MTAuMzg5Ny96b29rZXlzLjIwLjIwNX0sIGpvdXJuYWw9e1pvb0tleXN9LCBwdWJsaXNoZXI9e1BlbnNvZnQgUHVibGlzaGVyc30sIGF1dGhvcj17Sm9obnNvbiwgTm9ybWFuIGFuZCBZb2RlciwgTWF0dGhldyBhbmQgUG9sYXN6ZWssIEFuZHJldyBhbmQgTWFzbmVyLCBMdWJvbWlyIGFuZCBWYWxlcmlvLCBBbGVqYW5kcm99LCB5ZWFyPXsyMDA5fSwgbW9udGg9U2VwdCwgcGFnZXM9ezUz4oCTMTE4fSB9Cg==
+  recorded_at: Sat, 07 Nov 2026 02:46:14 GMT
+- request:
+    method: get
+    uri: https://api.crossref.org/works/10.3897%2Fzookeys.20.205/transform/application/vnd.citationstyles.csl+json
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Faraday/v2.15.1 Serrano/v1.7
+      X-User-Agent:
+      - Faraday/v2.15.1 Serrano/v1.7
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Sat, 07 Nov 2026 02:46:14 GMT
+      Content-Length:
+      - '2235'
+      Connection:
+      - keep-alive
+      Access-Control-Expose-Headers:
+      - Link
+      Access-Control-Allow-Headers:
+      - X-Requested-With, Accept, Accept-Encoding, Accept-Charset, Accept-Language,
+        Accept-Ranges, Cache-Control
+      Access-Control-Allow-Origin:
+      - "*"
+      Vary:
+      - Accept-Encoding
+      Server:
+      - Jetty(9.4.40.v20210413)
+      X-Rate-Limit-Limit:
+      - '5'
+      X-Rate-Limit-Interval:
+      - 1s
+      X-Concurrency-Limit:
+      - '1'
+      X-Api-Pool:
+      - public-single
+      Permissions-Policy:
+      - interest-cohort=()
+      Strict-Transport-Security:
+      - max-age=31536000;
+    body:
+      encoding: ASCII-8BIT
+      string: '{"indexed":{"date-parts":[[2026,11,5]],"date-time":"2026-11-05T21:07:51Z","timestamp":1793912871424,"version":"4.8.0"},"reference-count":0,"publisher":"Pensoft
+        Publishers","license":[{"start":{"date-parts":[[2009,9,14]],"date-time":"2009-09-14T00:00:00Z","timestamp":1252886400000},"content-version":"vor","delay-in-days":0,"URL":"http:\/\/creativecommons.org\/licenses\/by\/3.0\/"}],"content-domain":{"domain":[],"crossmark-restriction":false},"DOI":"10.3897\/zookeys.20.205","type":"journal-article","created":{"date-parts":[[2009,9,14]],"date-time":"2009-09-14T14:16:23Z","timestamp":1252937783000},"page":"53-118","source":"Crossref","is-referenced-by-count":6,"title":"Revision
+        of Scelio pulchripennis - group species (Hymenoptera, Platygastroidea, Platygastridae)","prefix":"10.3897","volume":"20","author":[{"given":"Norman","family":"Johnson","sequence":"first","affiliation":[],"role":[{"vocabulary":"crossref","role":"author"}]},{"given":"Matthew","family":"Yoder","sequence":"additional","affiliation":[],"role":[{"vocabulary":"crossref","role":"author"}]},{"given":"Andrew","family":"Polaszek","sequence":"additional","affiliation":[],"role":[{"vocabulary":"crossref","role":"author"}]},{"given":"Lubomir","family":"Masner","sequence":"additional","affiliation":[],"role":[{"vocabulary":"crossref","role":"author"}]},{"given":"Alejandro","family":"Valerio","sequence":"additional","affiliation":[],"role":[{"vocabulary":"crossref","role":"author"}]}],"member":"2258","published-online":{"date-parts":[[2009,9,14]]},"container-title":"ZooKeys","original-title":[],"link":[{"URL":"http:\/\/zookeys.pensoft.net\/article_preview.php?id=2041&skip_redirect=1","content-type":"unspecified","content-version":"vor","intended-application":"similarity-checking"}],"deposited":{"date-parts":[[2016,9,14]],"date-time":"2016-09-14T02:57:15Z","timestamp":1473821835000},"score":1,"resource":{"primary":{"URL":"http:\/\/zookeys.pensoft.net\/articles.php?id=2041"}},"subtitle":[],"short-title":[],"issued":{"date-parts":[[2009,9,14]]},"references-count":0,"URL":"http:\/\/dx.doi.org\/10.3897\/zookeys.20.205","relation":{},"ISSN":["1313-2970","1313-2989"],"subject":[],"container-title-short":"ZK","published":{"date-parts":[[2009,9,14]]}}'
+  recorded_at: Sat, 07 Nov 2026 02:46:14 GMT
+recorded_with: VCR 6.4.1

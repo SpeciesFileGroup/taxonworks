@@ -1,0 +1,17 @@
+# Used only by the CI "Run tests" step (SHAKAPACKER_CONFIG in
+# .github/workflows/build.yml); "Precompile assets" uses
+# config/shakapacker.yml as usual.
+#
+# CI precompiles the test packs before running specs, so on-demand compiling
+# is turned off: with `compile: true` every page lookup re-checks all watched
+# source files for changes.
+#
+# Shakapacker reads only this file's `test` section and fills every missing
+# key from the gem's bundled defaults (shakapacker/install/config/
+# shakapacker.yml), not from config/shakapacker.yml. So this lists the test
+# settings of config/shakapacker.yml that differ from those defaults; keep it
+# in step if they change.
+test:
+  source_entry_path: /packs
+  assets_bundler: rspack
+  compile: false

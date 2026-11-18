@@ -1,0 +1,627 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://api.checklistbank.org/dataset/9802/nameusage?limit=20&q=Mus%20musculus
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Faraday/v2.15.1 Nasturtium/v0.1.2
+      Accept:
+      - application/json,*/*
+      X-User-Agent:
+      - Faraday/v2.15.1 Nasturtium/v0.1.2
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Accept-Ranges:
+      - bytes
+      Age:
+      - '0'
+      Cache-Control:
+      - no-cache, no-store, must-revalidate, private
+      Content-Length:
+      - '1009'
+      Content-Type:
+      - application/json
+      Date:
+      - Sat, 07 Nov 2026 02:45:46 GMT
+      Pragma:
+      - no-cache
+      Vary:
+      - Cookie, Accept, Accept-Encoding, Accept-Language, User-Agent
+      - Origin
+      Via:
+      - 1.1 varnish (Varnish/7.1)
+      - HTTP/1.1 git.gammaspectra.live/git/go-away@v0.0.0-20250904213329-95ac08540b8c+dirty
+      X-Backend:
+      - api_read_only
+      X-Cache:
+      - miss_cached
+      X-Varnish:
+      - '706949171'
+    body:
+      encoding: ASCII-8BIT
+      string: '{"offset":0,"limit":20,"total":1,"result":[{"created":"2026-10-13T01:11:43.573125","createdBy":10,"modified":"2026-10-13T01:11:43.573125","modifiedBy":10,"datasetKey":9802,"id":"1003372","verbatimKey":65346,"name":{"created":"2026-10-13T01:09:43.486851","createdBy":10,"modified":"2026-10-13T01:09:43.486851","modifiedBy":10,"datasetKey":9802,"id":"1003372","verbatimKey":65346,"namesIndexId":5844077,"scientificName":"Mus
+        musculus","authorship":"Linnaeus, 1758","rank":"species","genus":"Mus","specificEpithet":"musculus","combinationAuthorship":{"authors":["Linnaeus"],"year":"1758"},"code":"zoological","publishedInId":"15","origin":"source","type":"scientific","link":"https://www.biodiversitylibrary.org/page/25033873","parsed":true,"notho":[]},"status":"accepted","origin":"source","parentId":"x4Q6","link":"https://www.biodiversitylibrary.org/page/25033873","ordinal":21,"extinct":false,"label":"Mus
+        musculus Linnaeus, 1758","labelHtml":"<i>Mus musculus</i> Linnaeus, 1758"}],"empty":false,"last":true}'
+  recorded_at: Sat, 07 Nov 2026 02:45:46 GMT
+- request:
+    method: get
+    uri: https://api.checklistbank.org/dataset/9802/taxon/1003372
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Faraday/v2.15.1 Nasturtium/v0.1.2
+      Accept:
+      - application/json,*/*
+      X-User-Agent:
+      - Faraday/v2.15.1 Nasturtium/v0.1.2
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Accept-Ranges:
+      - bytes
+      Age:
+      - '0'
+      Cache-Control:
+      - no-cache, no-store, must-revalidate, private
+      Content-Length:
+      - '938'
+      Content-Type:
+      - application/json
+      Date:
+      - Sat, 07 Nov 2026 02:45:46 GMT
+      Pragma:
+      - no-cache
+      Vary:
+      - Cookie, Accept, Accept-Encoding, Accept-Language, User-Agent
+      - Origin
+      Via:
+      - 1.1 varnish (Varnish/7.1)
+      - HTTP/1.1 git.gammaspectra.live/git/go-away@v0.0.0-20250904213329-95ac08540b8c+dirty
+      X-Backend:
+      - api_read_only
+      X-Cache:
+      - miss_cached
+      X-Varnish:
+      - '707209294'
+    body:
+      encoding: ASCII-8BIT
+      string: '{"created":"2026-10-13T01:11:43.573125","createdBy":10,"modified":"2026-10-13T01:11:43.573125","modifiedBy":10,"datasetKey":9802,"id":"1003372","verbatimKey":65346,"name":{"created":"2026-10-13T01:09:43.486851","createdBy":10,"modified":"2026-10-13T01:09:43.486851","modifiedBy":10,"datasetKey":9802,"id":"1003372","verbatimKey":65346,"namesIndexId":5844077,"scientificName":"Mus
+        musculus","authorship":"Linnaeus, 1758","rank":"species","genus":"Mus","specificEpithet":"musculus","combinationAuthorship":{"authors":["Linnaeus"],"year":"1758"},"code":"zoological","publishedInId":"15","origin":"source","type":"scientific","link":"https://www.biodiversitylibrary.org/page/25033873","parsed":true,"notho":[]},"status":"accepted","origin":"source","parentId":"x4Q6","link":"https://www.biodiversitylibrary.org/page/25033873","ordinal":21,"extinct":false,"label":"Mus
+        musculus Linnaeus, 1758","labelHtml":"<i>Mus musculus</i> Linnaeus, 1758"}'
+  recorded_at: Sat, 07 Nov 2026 02:45:46 GMT
+- request:
+    method: get
+    uri: https://api.checklistbank.org/dataset/9802/taxon/x4Q6
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Faraday/v2.15.1 Nasturtium/v0.1.2
+      Accept:
+      - application/json,*/*
+      X-User-Agent:
+      - Faraday/v2.15.1 Nasturtium/v0.1.2
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Accept-Ranges:
+      - bytes
+      Age:
+      - '0'
+      Cache-Control:
+      - no-cache, no-store, must-revalidate, private
+      Content-Length:
+      - '634'
+      Content-Type:
+      - application/json
+      Date:
+      - Sat, 07 Nov 2026 02:45:47 GMT
+      Pragma:
+      - no-cache
+      Vary:
+      - Cookie, Accept, Accept-Encoding, Accept-Language, User-Agent
+      - Origin
+      Via:
+      - 1.1 varnish (Varnish/7.1)
+      - HTTP/1.1 git.gammaspectra.live/git/go-away@v0.0.0-20250904213329-95ac08540b8c+dirty
+      X-Backend:
+      - api_read_only
+      X-Cache:
+      - miss_cached
+      X-Varnish:
+      - '702233983'
+    body:
+      encoding: ASCII-8BIT
+      string: '{"created":"2026-10-13T01:11:43.573125","createdBy":10,"modified":"2026-10-13T01:11:43.573125","modifiedBy":10,"datasetKey":9802,"id":"x4Q6","verbatimKey":152371,"name":{"created":"2026-10-13T01:10:22.41014","createdBy":10,"modified":"2026-10-13T01:10:22.41014","modifiedBy":10,"datasetKey":9802,"id":"x4Q5","verbatimKey":152371,"namesIndexId":5843961,"scientificName":"Mus","rank":"subgenus","infragenericEpithet":"Mus","code":"zoological","origin":"denormed
+        classification","type":"scientific","parsed":true,"notho":[]},"status":"accepted","origin":"denormed
+        classification","parentId":"x4Q2","label":"Mus","labelHtml":"<i>Mus</i>"}'
+  recorded_at: Sat, 07 Nov 2026 02:45:47 GMT
+- request:
+    method: get
+    uri: https://api.checklistbank.org/dataset/9802/taxon/x4Q2
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Faraday/v2.15.1 Nasturtium/v0.1.2
+      Accept:
+      - application/json,*/*
+      X-User-Agent:
+      - Faraday/v2.15.1 Nasturtium/v0.1.2
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Accept-Ranges:
+      - bytes
+      Age:
+      - '0'
+      Cache-Control:
+      - no-cache, no-store, must-revalidate, private
+      Content-Length:
+      - '619'
+      Content-Type:
+      - application/json
+      Date:
+      - Sat, 07 Nov 2026 02:45:47 GMT
+      Pragma:
+      - no-cache
+      Vary:
+      - Cookie, Accept, Accept-Encoding, Accept-Language, User-Agent
+      - Origin
+      Via:
+      - 1.1 varnish (Varnish/7.1)
+      - HTTP/1.1 git.gammaspectra.live/git/go-away@v0.0.0-20250904213329-95ac08540b8c+dirty
+      X-Backend:
+      - api_read_only
+      X-Cache:
+      - miss_cached
+      X-Varnish:
+      - '702234002'
+    body:
+      encoding: ASCII-8BIT
+      string: '{"created":"2026-10-13T01:11:43.573125","createdBy":10,"modified":"2026-10-13T01:11:43.573125","modifiedBy":10,"datasetKey":9802,"id":"x4Q2","verbatimKey":24458,"name":{"created":"2026-10-13T01:10:22.41014","createdBy":10,"modified":"2026-10-13T01:10:22.41014","modifiedBy":10,"datasetKey":9802,"id":"x4PZ","verbatimKey":24458,"namesIndexId":5843961,"scientificName":"Mus","rank":"genus","uninomial":"Mus","code":"zoological","origin":"denormed
+        classification","type":"scientific","parsed":true,"notho":[]},"status":"accepted","origin":"denormed
+        classification","parentId":"x4PY","label":"Mus","labelHtml":"<i>Mus</i>"}'
+  recorded_at: Sat, 07 Nov 2026 02:45:47 GMT
+- request:
+    method: get
+    uri: https://api.checklistbank.org/dataset/9802/taxon/x4PY
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Faraday/v2.15.1 Nasturtium/v0.1.2
+      Accept:
+      - application/json,*/*
+      X-User-Agent:
+      - Faraday/v2.15.1 Nasturtium/v0.1.2
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Accept-Ranges:
+      - bytes
+      Age:
+      - '0'
+      Cache-Control:
+      - no-cache, no-store, must-revalidate, private
+      Content-Length:
+      - '624'
+      Content-Type:
+      - application/json
+      Date:
+      - Sat, 07 Nov 2026 02:45:48 GMT
+      Pragma:
+      - no-cache
+      Vary:
+      - Cookie, Accept, Accept-Encoding, Accept-Language, User-Agent
+      - Origin
+      Via:
+      - 1.1 varnish (Varnish/7.1)
+      - HTTP/1.1 git.gammaspectra.live/git/go-away@v0.0.0-20250904213329-95ac08540b8c+dirty
+      X-Backend:
+      - api_read_only
+      X-Cache:
+      - miss_cached
+      X-Varnish:
+      - '708879006'
+    body:
+      encoding: ASCII-8BIT
+      string: '{"created":"2026-10-13T01:11:43.573125","createdBy":10,"modified":"2026-10-13T01:11:43.573125","modifiedBy":10,"datasetKey":9802,"id":"x4PY","verbatimKey":103459,"name":{"created":"2026-10-13T01:09:54.8304","createdBy":10,"modified":"2026-10-13T01:09:54.8304","modifiedBy":10,"datasetKey":9802,"id":"x4PX","verbatimKey":103459,"namesIndexId":5841850,"scientificName":"Murini","rank":"tribe","uninomial":"Murini","code":"zoological","origin":"denormed
+        classification","type":"scientific","parsed":true,"notho":[]},"status":"accepted","origin":"denormed
+        classification","parentId":"x4HM","label":"Murini","labelHtml":"Murini"}'
+  recorded_at: Sat, 07 Nov 2026 02:45:48 GMT
+- request:
+    method: get
+    uri: https://api.checklistbank.org/dataset/9802/taxon/x4HM
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Faraday/v2.15.1 Nasturtium/v0.1.2
+      Accept:
+      - application/json,*/*
+      X-User-Agent:
+      - Faraday/v2.15.1 Nasturtium/v0.1.2
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Accept-Ranges:
+      - bytes
+      Age:
+      - '0'
+      Cache-Control:
+      - no-cache, no-store, must-revalidate, private
+      Content-Length:
+      - '632'
+      Content-Type:
+      - application/json
+      Date:
+      - Sat, 07 Nov 2026 02:45:48 GMT
+      Pragma:
+      - no-cache
+      Vary:
+      - Cookie, Accept, Accept-Encoding, Accept-Language, User-Agent
+      - Origin
+      Via:
+      - 1.1 varnish (Varnish/7.1)
+      - HTTP/1.1 git.gammaspectra.live/git/go-away@v0.0.0-20250904213329-95ac08540b8c+dirty
+      X-Backend:
+      - api_read_only
+      X-Cache:
+      - miss_cached
+      X-Varnish:
+      - '688803242'
+    body:
+      encoding: ASCII-8BIT
+      string: '{"created":"2026-10-13T01:11:43.573125","createdBy":10,"modified":"2026-10-13T01:11:43.573125","modifiedBy":10,"datasetKey":9802,"id":"x4HM","verbatimKey":105839,"name":{"created":"2026-10-13T01:09:54.8304","createdBy":10,"modified":"2026-10-13T01:09:54.8304","modifiedBy":10,"datasetKey":9802,"id":"x4HL","verbatimKey":105839,"namesIndexId":5841804,"scientificName":"Murinae","rank":"subfamily","uninomial":"Murinae","code":"zoological","origin":"denormed
+        classification","type":"scientific","parsed":true,"notho":[]},"status":"accepted","origin":"denormed
+        classification","parentId":"x4DD","label":"Murinae","labelHtml":"Murinae"}'
+  recorded_at: Sat, 07 Nov 2026 02:45:48 GMT
+- request:
+    method: get
+    uri: https://api.checklistbank.org/dataset/9802/taxon/x4DD
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Faraday/v2.15.1 Nasturtium/v0.1.2
+      Accept:
+      - application/json,*/*
+      X-User-Agent:
+      - Faraday/v2.15.1 Nasturtium/v0.1.2
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Accept-Ranges:
+      - bytes
+      Age:
+      - '0'
+      Cache-Control:
+      - no-cache, no-store, must-revalidate, private
+      Content-Length:
+      - '631'
+      Content-Type:
+      - application/json
+      Date:
+      - Sat, 07 Nov 2026 02:45:49 GMT
+      Pragma:
+      - no-cache
+      Vary:
+      - Cookie, Accept, Accept-Encoding, Accept-Language, User-Agent
+      - Origin
+      Via:
+      - 1.1 varnish (Varnish/7.1)
+      - HTTP/1.1 git.gammaspectra.live/git/go-away@v0.0.0-20250904213329-95ac08540b8c+dirty
+      X-Backend:
+      - api_read_only
+      X-Cache:
+      - miss_cached
+      X-Varnish:
+      - '688803247'
+    body:
+      encoding: ASCII-8BIT
+      string: '{"created":"2026-10-13T01:11:43.573125","createdBy":10,"modified":"2026-10-13T01:11:43.573125","modifiedBy":10,"datasetKey":9802,"id":"x4DD","verbatimKey":22075,"name":{"created":"2026-10-13T01:09:43.486851","createdBy":10,"modified":"2026-10-13T01:09:43.486851","modifiedBy":10,"datasetKey":9802,"id":"x4DC","verbatimKey":22075,"namesIndexId":5273245,"scientificName":"Muridae","rank":"family","uninomial":"Muridae","code":"zoological","origin":"denormed
+        classification","type":"scientific","parsed":true,"notho":[]},"status":"accepted","origin":"denormed
+        classification","parentId":"x3TJ","label":"Muridae","labelHtml":"Muridae"}'
+  recorded_at: Sat, 07 Nov 2026 02:45:49 GMT
+- request:
+    method: get
+    uri: https://api.checklistbank.org/dataset/9802/taxon/x3TJ
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Faraday/v2.15.1 Nasturtium/v0.1.2
+      Accept:
+      - application/json,*/*
+      X-User-Agent:
+      - Faraday/v2.15.1 Nasturtium/v0.1.2
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Accept-Ranges:
+      - bytes
+      Age:
+      - '0'
+      Cache-Control:
+      - no-cache, no-store, must-revalidate, private
+      Content-Length:
+      - '640'
+      Content-Type:
+      - application/json
+      Date:
+      - Sat, 07 Nov 2026 02:45:49 GMT
+      Pragma:
+      - no-cache
+      Vary:
+      - Cookie, Accept, Accept-Encoding, Accept-Language, User-Agent
+      - Origin
+      Via:
+      - 1.1 varnish (Varnish/7.1)
+      - HTTP/1.1 git.gammaspectra.live/git/go-away@v0.0.0-20250904213329-95ac08540b8c+dirty
+      X-Backend:
+      - api_read_only
+      X-Cache:
+      - miss_cached
+      X-Varnish:
+      - '696466656'
+    body:
+      encoding: ASCII-8BIT
+      string: '{"created":"2026-10-13T01:11:37.847802","createdBy":10,"modified":"2026-10-13T01:11:37.847802","modifiedBy":10,"datasetKey":9802,"id":"x3TJ","verbatimKey":149992,"name":{"created":"2026-10-13T01:10:22.41014","createdBy":10,"modified":"2026-10-13T01:10:22.41014","modifiedBy":10,"datasetKey":9802,"id":"x3TH","verbatimKey":149992,"namesIndexId":5842166,"scientificName":"Muroidea","rank":"superfamily","uninomial":"Muroidea","code":"zoological","origin":"denormed
+        classification","type":"scientific","parsed":true,"notho":[]},"status":"accepted","origin":"denormed
+        classification","parentId":"x3NP","label":"Muroidea","labelHtml":"Muroidea"}'
+  recorded_at: Sat, 07 Nov 2026 02:45:49 GMT
+- request:
+    method: get
+    uri: https://api.checklistbank.org/dataset/9802/taxon/x3NP
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Faraday/v2.15.1 Nasturtium/v0.1.2
+      Accept:
+      - application/json,*/*
+      X-User-Agent:
+      - Faraday/v2.15.1 Nasturtium/v0.1.2
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Accept-Ranges:
+      - bytes
+      Age:
+      - '0'
+      Cache-Control:
+      - no-cache, no-store, must-revalidate, private
+      Content-Length:
+      - '661'
+      Content-Type:
+      - application/json
+      Date:
+      - Sat, 07 Nov 2026 02:45:49 GMT
+      Pragma:
+      - no-cache
+      Vary:
+      - Cookie, Accept, Accept-Encoding, Accept-Language, User-Agent
+      - Origin
+      Via:
+      - 1.1 varnish (Varnish/7.1)
+      - HTTP/1.1 git.gammaspectra.live/git/go-away@v0.0.0-20250904213329-95ac08540b8c+dirty
+      X-Backend:
+      - api_read_only
+      X-Cache:
+      - miss_cached
+      X-Varnish:
+      - '710185574'
+    body:
+      encoding: ASCII-8BIT
+      string: '{"created":"2026-10-13T01:11:37.847802","createdBy":10,"modified":"2026-10-13T01:11:37.847802","modifiedBy":10,"datasetKey":9802,"id":"x3NP","verbatimKey":56981,"name":{"created":"2026-10-13T01:10:04.814788","createdBy":10,"modified":"2026-10-13T01:10:04.814788","modifiedBy":10,"datasetKey":9802,"id":"x3NN","verbatimKey":56981,"namesIndexId":8768478,"scientificName":"Supramyomorpha","rank":"suborder","uninomial":"Supramyomorpha","code":"zoological","origin":"denormed
+        classification","type":"scientific","parsed":true,"notho":[]},"status":"accepted","origin":"denormed
+        classification","parentId":"x343","label":"Supramyomorpha","labelHtml":"Supramyomorpha"}'
+  recorded_at: Sat, 07 Nov 2026 02:45:49 GMT
+- request:
+    method: get
+    uri: https://api.checklistbank.org/dataset/9802/taxon/x343
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Faraday/v2.15.1 Nasturtium/v0.1.2
+      Accept:
+      - application/json,*/*
+      X-User-Agent:
+      - Faraday/v2.15.1 Nasturtium/v0.1.2
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Accept-Ranges:
+      - bytes
+      Age:
+      - '0'
+      Cache-Control:
+      - no-cache, no-store, must-revalidate, private
+      Content-Length:
+      - '630'
+      Content-Type:
+      - application/json
+      Date:
+      - Sat, 07 Nov 2026 02:45:50 GMT
+      Pragma:
+      - no-cache
+      Vary:
+      - Cookie, Accept, Accept-Encoding, Accept-Language, User-Agent
+      - Origin
+      Via:
+      - 1.1 varnish (Varnish/7.1)
+      - HTTP/1.1 git.gammaspectra.live/git/go-away@v0.0.0-20250904213329-95ac08540b8c+dirty
+      X-Backend:
+      - api_read_only
+      X-Cache:
+      - miss_cached
+      X-Varnish:
+      - '709625831'
+    body:
+      encoding: ASCII-8BIT
+      string: '{"created":"2026-10-13T01:11:27.001054","createdBy":10,"modified":"2026-10-13T01:11:27.001054","modifiedBy":10,"datasetKey":9802,"id":"x343","verbatimKey":70933,"name":{"created":"2026-10-13T01:10:16.829753","createdBy":10,"modified":"2026-10-13T01:10:16.829753","modifiedBy":10,"datasetKey":9802,"id":"x342","verbatimKey":70933,"namesIndexId":18025,"scientificName":"Rodentia","rank":"order","uninomial":"Rodentia","code":"zoological","origin":"denormed
+        classification","type":"scientific","parsed":true,"notho":[]},"status":"accepted","origin":"denormed
+        classification","parentId":"xN","label":"Rodentia","labelHtml":"Rodentia"}'
+  recorded_at: Sat, 07 Nov 2026 02:45:50 GMT
+- request:
+    method: get
+    uri: https://api.checklistbank.org/dataset/9802/taxon/xN
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Faraday/v2.15.1 Nasturtium/v0.1.2
+      Accept:
+      - application/json,*/*
+      X-User-Agent:
+      - Faraday/v2.15.1 Nasturtium/v0.1.2
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Accept-Ranges:
+      - bytes
+      Age:
+      - '0'
+      Cache-Control:
+      - no-cache, no-store, must-revalidate, private
+      Content-Length:
+      - '625'
+      Content-Type:
+      - application/json
+      Date:
+      - Sat, 07 Nov 2026 02:45:50 GMT
+      Pragma:
+      - no-cache
+      Vary:
+      - Cookie, Accept, Accept-Encoding, Accept-Language, User-Agent
+      - Origin
+      Via:
+      - 1.1 varnish (Varnish/7.1)
+      - HTTP/1.1 git.gammaspectra.live/git/go-away@v0.0.0-20250904213329-95ac08540b8c+dirty
+      X-Backend:
+      - api_read_only
+      X-Cache:
+      - miss_cached
+      X-Varnish:
+      - '701947864'
+    body:
+      encoding: ASCII-8BIT
+      string: '{"created":"2026-10-13T01:10:58.508462","createdBy":10,"modified":"2026-10-13T01:10:58.508462","modifiedBy":10,"datasetKey":9802,"id":"xN","verbatimKey":166233,"name":{"created":"2026-10-13T01:09:59.834133","createdBy":10,"modified":"2026-10-13T01:09:59.834133","modifiedBy":10,"datasetKey":9802,"id":"xM","verbatimKey":166233,"namesIndexId":9043350,"scientificName":"Theria","rank":"subclass","uninomial":"Theria","code":"zoological","origin":"denormed
+        classification","type":"scientific","parsed":true,"notho":[]},"status":"accepted","origin":"denormed
+        classification","parentId":"x4","label":"Theria","labelHtml":"Theria"}'
+  recorded_at: Sat, 07 Nov 2026 02:45:50 GMT
+- request:
+    method: get
+    uri: https://api.checklistbank.org/dataset/9802/taxon/x4
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Faraday/v2.15.1 Nasturtium/v0.1.2
+      Accept:
+      - application/json,*/*
+      X-User-Agent:
+      - Faraday/v2.15.1 Nasturtium/v0.1.2
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Accept-Ranges:
+      - bytes
+      Age:
+      - '0'
+      Cache-Control:
+      - no-cache, no-store, must-revalidate, private
+      Content-Length:
+      - '610'
+      Content-Type:
+      - application/json
+      Date:
+      - Sat, 07 Nov 2026 02:45:51 GMT
+      Pragma:
+      - no-cache
+      Vary:
+      - Cookie, Accept, Accept-Encoding, Accept-Language, User-Agent
+      - Origin
+      Via:
+      - 1.1 varnish (Varnish/7.1)
+      - HTTP/1.1 git.gammaspectra.live/git/go-away@v0.0.0-20250904213329-95ac08540b8c+dirty
+      X-Backend:
+      - api_read_only
+      X-Cache:
+      - miss_cached
+      X-Varnish:
+      - '709924786'
+    body:
+      encoding: ASCII-8BIT
+      string: '{"created":"2026-10-13T01:10:58.508462","createdBy":10,"modified":"2026-10-13T01:10:58.508462","modifiedBy":10,"datasetKey":9802,"id":"x4","verbatimKey":38318,"name":{"created":"2026-10-13T01:09:49.944256","createdBy":10,"modified":"2026-10-13T01:09:49.944256","modifiedBy":10,"datasetKey":9802,"id":"x3","verbatimKey":38318,"namesIndexId":17558,"scientificName":"Mammalia","rank":"class","uninomial":"Mammalia","code":"zoological","origin":"denormed
+        classification","type":"scientific","parsed":true,"notho":[]},"status":"accepted","origin":"denormed
+        classification","label":"Mammalia","labelHtml":"Mammalia"}'
+  recorded_at: Sat, 07 Nov 2026 02:45:51 GMT
+recorded_with: VCR 6.4.1

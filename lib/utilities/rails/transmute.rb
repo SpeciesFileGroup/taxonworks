@@ -72,8 +72,12 @@ module Utilities::Rails::Transmute
     # Skip dwc_occurrence - target will get its own
     return if reflection.name.to_s == 'dwc_occurrence'
 
-    # Update the foreign key to point to target
-    associated.update!(reflection.foreign_key => target.id)
+    if reflection.options[:as]
+      # Polymorphic: set both the _id and the _type
+      associated.update!(reflection.options[:as] => target)
+    else
+      associated.update!(reflection.foreign_key => target.id)
+    end
   end
 
   def self.move_has_many(source, target, reflection)

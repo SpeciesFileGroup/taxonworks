@@ -1,0 +1,80 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://www.wikidata.org/w/api.php?action=wbgetentities&format=json&ids=Q9999999999999&sites=enwiki
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Faraday v2.15.1
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Sat, 07 Nov 2026 02:46:25 GMT
+      Server:
+      - mw-api-ext.eqiad.main-6d6554d764-mr2c4
+      X-Content-Type-Options:
+      - nosniff
+      Mediawiki-Api-Error:
+      - no-such-entity
+      Content-Security-Policy:
+      - default-src 'self'; script-src 'none'; object-src 'none'
+      X-Frame-Options:
+      - DENY
+      Content-Disposition:
+      - inline; filename=api-result.json
+      Cache-Control:
+      - private, must-revalidate, max-age=0
+      Content-Type:
+      - application/json; charset=utf-8
+      Age:
+      - '0'
+      Accept-Ranges:
+      - bytes
+      X-Cache:
+      - cp1112 miss, cp1112 pass
+      X-Cache-Status:
+      - pass
+      Strict-Transport-Security:
+      - max-age=106384710; includeSubDomains; preload
+      Report-To:
+      - '{ "group": "wm_nel", "max_age": 604800, "endpoints": [{ "url": "https://intake-logging.wikimedia.org/v1/events?stream=w3c.reportingapi.network_error&schema_uri=/w3c/reportingapi/network_error/1.0.0"
+        }] }'
+      Nel:
+      - '{ "report_to": "wm_nel", "max_age": 604800, "failure_fraction": 0.05, "success_fraction":
+        0.0}'
+      Set-Cookie:
+      - WMF-Last-Access=07-Nov-2026;Path=/;HttpOnly;secure;Expires=Wed, 09 Dec 2026
+        00:00:00 GMT, WMF-Last-Access-Global=07-Nov-2026;Path=/;Domain=.wikidata.org;HttpOnly;secure;Expires=Wed,
+        09 Dec 2026 00:00:00 GMT, GeoIP=US:IL:Urbana:40.10:-88.21:v4; Path=/; secure;
+        Domain=.wikidata.org, NetworkProbeLimit=0.001;Path=/;Secure;SameSite=None;Max-Age=3600,
+        WMF-Uniq=1xofIAk9vVmfLZpZzkV4eQQRAAAAAFvdlKMIUEbilRVluldjKJbVJi8ABWwJfb_W;Domain=.wikidata.org;Path=/;HttpOnly;secure;SameSite=None;Expires=Sun,
+        07 Nov 2027 00:00:00 GMT
+      X-Client-Ip:
+      - 2601:240:8300:a340::f26e
+      Vary:
+      - Accept-Encoding,User-Agent
+      Content-Length:
+      - '596'
+      X-Request-Id:
+      - 5b24681d-035d-4d7f-8ea9-85976b083dfc
+      X-Analytics:
+      - ''
+      Server-Timing:
+      - cache;desc="pass", host;desc="cp1112",co_id;desc="4175681874"
+    body:
+      encoding: ASCII-8BIT
+      string: '{"error":{"code":"no-such-entity","info":"Could not find an entity
+        with the ID \"Q9999999999999\".","id":"Q9999999999999","messages":[{"name":"wikibase-api-no-such-entity","parameters":["Q9999999999999"],"html":{"*":"Could
+        not find an entity with the ID \"Q9999999999999\"."}}],"*":"See https://www.wikidata.org/w/api.php
+        for API usage. Subscribe to the mediawiki-api-announce mailing list at &lt;https://lists.wikimedia.org/postorius/lists/mediawiki-api-announce.lists.wikimedia.org/&gt;
+        for notice of API deprecations and breaking changes."},"servedby":"mw-api-ext.eqiad.main-6d6554d764-mr2c4"}'
+  recorded_at: Sat, 07 Nov 2026 02:46:25 GMT
+recorded_with: VCR 6.4.1

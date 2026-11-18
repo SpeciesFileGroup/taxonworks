@@ -88,8 +88,7 @@ describe Tag, type: :model, group: [:annotators, :tags] do
 
       specify 'checks uniqueness when tag_object_type changes but id stays the same' do
         pt = FactoryBot.create(:valid_preparation_type)
-        br = FactoryBot.create(:valid_biological_relationship)
-        expect(pt.id).to eq(br.id), "PreparationType id #{pt.id} != BiologicalRelationship id #{br.id} — pick different types"
+        br = FactoryBot.create(:valid_biological_relationship, id: pt.id)
 
         Tag.create!(tag_object: pt, keyword: k)
 
