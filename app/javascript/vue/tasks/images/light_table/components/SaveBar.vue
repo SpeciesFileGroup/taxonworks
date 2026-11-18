@@ -1,12 +1,14 @@
 <template>
-  <div class="panel content margin-medium-bottom rounded-tr-none rounded-tl-none">
+  <div
+    class="panel content margin-medium-bottom rounded-tr-none rounded-tl-none"
+  >
     <div class="horizontal-left-content middle gap-small">
       <input
         v-if="store.isNew"
         v-model="store.draftName"
         type="text"
         class="light-table-save-bar__name-input"
-        placeholder="Name this light table to save it"
+        placeholder="Name this light table to unlock save"
         aria-label="Light table name"
       />
       <template v-else-if="isEditing">
@@ -34,7 +36,9 @@
         </VBtn>
       </template>
       <template v-else>
-        <span class="light-table-save-bar__name">{{ store.composition.name }}</span>
+        <span class="light-table-save-bar__name">{{
+          store.composition.name
+        }}</span>
         <VBtn
           circle
           color="primary"
