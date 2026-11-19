@@ -13,20 +13,41 @@ module Utilities::AuthorNames
   AUTHOR_SEPARATOR_PATTERN = /\s*(?:&|;|\band\b|\bund\b|\bet\b)\s*/i
 
   # `R`, `g.`, `R.`, `C.M.`, `F.G.A.M.`, `J.-P.`, `J-M.`, `Y-L`, `Ch.`,
-  # `KB.`
+  # `KB.`, `G.-qiu`
   INITIALS_PATTERN = /\A(?:
     [[:alpha:]](?:-[[:upper:]])*\.*|
     (?:[[:upper:]][[:lower:]]?\.-?)+\.*|
-    [[:upper:]]{2}\.
+    [[:upper:]]{2}\.|
+    [[:upper:]]\.-[[:lower:]]+
   )\z/x
 
   NAME_SUFFIX_PATTERN = /\A(?:jr|sr|ii|iii|iv)\.?\z/i
 
+  # Surname particles, as written after the initials in `León, J.H.de`.
+  PARTICLES = %w{
+    d da das de del della den der des di do dos du la le ten ter van von zu
+  }.to_set.freeze
+
   # @return [Array<String>]
-  #   surnames in author order, initials and name suffixes removed
+  #   surnames in author order, initials and name suffixes removed; a
+  #   particle written after the initials (`León, J.H.de`) is put back in
+  #   front of its surname (`de León`)
   def self.surnames(author_string)
     author_chunks(author_string).flat_map { |chunk|
-      chunk.split(',').filter_map { |token| surname_from_token(token) }
+      chunk.split(',').each_with_object([]) { |token, names|
+        name = surname_from_token(token)
+        next if name.nil?
+
+        particles = names.any? && surname_particles(token)
+        if !particles
+          names << name
+        elsif particles.empty? # a given name's particle, `M.dos S.`
+          next
+        elsif !names[-1].downcase.start_with?("#{particles.downcase} ")
+          # (sometimes written twice: `de Mello, F.A.de`)
+          names[-1] = "#{particles} #{names[-1]}"
+        end
+      }
     }
   end
 
@@ -61,7 +82,10 @@ module Utilities::AuthorNames
     words = initials_words(token_words(tokens[i]))
     if words.empty? && tokens[i + 1]
       following = token_words(tokens[i + 1])
-      words = following if initials_words(following) == following
+      following_initials = initials_words(following)
+      if (following - following_initials).all? { |w| particle?(w) }
+        words = following_initials
+      end
     end
 
     initials(words.join(' '))
@@ -139,6 +163,27 @@ module Utilities::AuthorNames
     words.select { |w| w.match?(INITIALS_PATTERN) }
   end
 
+  def self.particle?(word)
+    PARTICLES.include?(word)
+  end
+
+  # A token of initials and particles only follows a surname: `León,
+  # J.H.de`, `Walt, A.van der`, `Schrank, F.von P.`. Particles at its end
+  # are the surname's (`de León`, `van der Walt`); any before an initial are
+  # a given name's (Franz von Paula Schrank).
+  #
+  # @return [String, nil] the surname's particles, '' when there are none;
+  #   nil when token isn't initials and particles only
+  def self.surname_particles(token)
+    words = token_words(token)
+    initials = initials_words(words)
+    rest = words - initials
+    return nil if initials.empty? || rest.empty?
+    return nil if !rest.all? { |w| particle?(w) }
+
+    words.reverse.take_while { |w| particle?(w) }.reverse.join(' ')
+  end
+
   def self.surname_from_token(token)
     words = token_words(token).reject { |w|
       w.match?(INITIALS_PATTERN) || w.match?(NAME_SUFFIX_PATTERN)
@@ -149,6 +194,6 @@ module Utilities::AuthorNames
   end
 
   private_class_method :author_chunks, :token_words, :initials_words,
-    :surname_from_token
+    :particle?, :surname_particles, :surname_from_token
 
 end

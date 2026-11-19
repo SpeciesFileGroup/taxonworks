@@ -34,6 +34,31 @@ describe Utilities::AuthorNames do
       'Guerra, A.S., KB.Agwanda' => %w{Guerra Agwanda},
       'Dittmar, K. de la Cruz & M.F. Whiting' =>
         ['Dittmar', 'de la Cruz', 'Whiting'],
+      # Source#cached style: a particle written after the initials belongs
+      # to the surname before them.
+      'León, J.H.de & Morgan, D.J.W.' => ['de León', 'Morgan'],
+      'Veen, J.C.van & Wijk, M.L.E.van' => ['van Veen', 'van Wijk'],
+      'Silva, I.M.da, Silva, R.O., Andrade, G.S.' =>
+        ['da Silva', 'Silva', 'Andrade'],
+      'Ralec, A.le & Wajnberg, E.' => ['le Ralec', 'Wajnberg'],
+      # A particle followed by an initial is a given name's: Franz von
+      # Paula Schrank, Maria das Graças Fonseca.
+      'Schrank, F.von P.' => ['Schrank'],
+      'Fonseca, M.das G., Auad, A.M.' => ['Fonseca', 'Auad'],
+      'Veloso, R.von dos S., Castro, A.C.R.de' => ['Veloso', 'de Castro'],
+      'de Souza, M.dos S., do Nascimento, I.N.' => ['de Souza', 'do Nascimento'],
+      'Burckhardt, D. & de Queiroz, D.L.' => ['Burckhardt', 'de Queiroz'],
+      'Centeno, E., de Mello, F.de A.G. & Zefa, E.' =>
+        ['Centeno', 'de Mello', 'Zefa'],
+      'Walt, A.van der, Plessis, H.du & Berg, J.van den' =>
+        ['van der Walt', 'du Plessis', 'van den Berg'],
+      # Particles in the given names too: only a run at the end is the
+      # surname's (Jean-Baptiste ... de Monet de Lamarck).
+      'Lamarck, J.B.P.A.de M. de' => ['de Lamarck'],
+      'Correia, M.de L.M.de A.' => ['Correia'],
+      'Liang, G.-qiu, Chen, Y.-Q., Li, Q. & Chen, Y.-L.' =>
+        %w{Liang Chen Li Chen},
+      'Akimoto, S.-ichi' => %w{Akimoto},
       '' => [],
       nil => []
     }.each do |author_string, expected|
@@ -60,6 +85,7 @@ describe Utilities::AuthorNames do
       'Jean-Pierre' => %w{J P},
       'Y-L' => %w{Y L},
       'Ch.' => %w{C},
+      'G.-qiu' => %w{G Q},
       'KB.' => %w{K B},
       'g.' => %w{G},
       'Émile' => %w{E},
@@ -85,6 +111,8 @@ describe Utilities::AuthorNames do
       'Wu, Y-L., S-F. Hu' => %w{Y L},
       'Ayala-Barajas, R., et al.' => %w{R},
       'Huang, g. et al.' => %w{G},
+      'León, J.H.de & Morgan, D.J.W.' => %w{J H},
+      'Liang, G.-qiu, Chen, Y.-Q.' => %w{G Q},
       # Comma-separated surnames, no initials.
       'Huang, Liu, Chen, Chen, Li & Hu' => [],
       # Ambiguous: K. may be Dittmar's or de la Cruz's.
