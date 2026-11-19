@@ -65,6 +65,31 @@ describe Match::Source::InputRow do
     end
   end
 
+  context 'HTML entities, as in Source#cached' do
+    specify 'are decoded in structured fields' do
+      r = Match::Source::InputRow.new(
+        authors: 'Drees, B.M. &amp; Rice, M.E.',
+        title: 'Soybean &quot;pests&quot; &lt;Texas&gt;'
+      )
+      expect(r.surnames).to eq(%w{Drees Rice})
+      expect(r.title).to eq('Soybean "pests" <Texas>')
+    end
+
+    specify 'are decoded in verbatim' do
+      r = Match::Source::InputRow.new(
+        verbatim: 'Drees, B.M. &amp; Rice, M.E. (1990a) Population ' \
+          'dynamics. <i>Southwestern Entomologist</i>, 15(1), 49–56.'
+      )
+      expect(r.surnames).to eq(%w{Drees Rice})
+      expect(r.year).to eq(1990)
+    end
+
+    specify 'numeric entities' do
+      r = Match::Source::InputRow.new(authors: 'Kone&#269;n&#253;, A.')
+      expect(r.surnames).to eq(['Konečný'])
+    end
+  end
+
   context 'first author initials' do
     specify 'from structured authors' do
       r = Match::Source::InputRow.new(authors: 'Smit, F.G.A.M.')

@@ -199,6 +199,27 @@ describe Match::Source::Candidates, type: :model do
       expect(c[:first_page_match]).to be true
     end
 
+    context 'when the Source volume includes the issue' do
+      def volume_match(source_volume, row_volume)
+        source.update_column(:volume, source_volume)
+        candidate_for(
+          candidates([{
+            authors: 'Müller', year: '1990', volume: row_volume
+          }]).first,
+          source
+        )[:volume_match]
+      end
+
+      specify 'the same volume matches' do
+        expect(volume_match('96(2)', '96(2):285-298')).to be true
+        expect(volume_match(' 96 (2)', '96')).to be true
+      end
+
+      specify 'a different volume does not' do
+        expect(volume_match('97(2)', '96(2):285-298')).to be false
+      end
+    end
+
     specify 'fields missing from the input are nil' do
       c = candidate_for(
         candidates([{ authors: 'Müller', year: '1990' }]).first, source

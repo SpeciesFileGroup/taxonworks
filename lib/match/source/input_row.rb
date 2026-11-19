@@ -51,7 +51,7 @@ module Match
       )
         verbatim_parts = parse_verbatim(verbatim)
 
-        author_string = authors.presence || verbatim_parts[:authors]
+        author_string = clean(authors) || verbatim_parts[:authors]
         @surnames = ::Utilities::AuthorNames.surnames(author_string)
         @first_author_initials =
           ::Utilities::AuthorNames.first_author_initials(author_string)
@@ -72,6 +72,13 @@ module Match
         @text = verbatim_parts[:text]
       end
 
+      # @param value [String, nil] a volume, optionally followed by issue
+      #   and pages, e.g. `10(2):149-158`, `65(1)`, `10 (2)`
+      # @return [String, nil] the volume alone, e.g. `10`
+      def self.volume_number(value)
+        value.to_s.strip[/\A([^\s(:]+)/, 1]
+      end
+
       def empty?
         surnames.empty? && year.nil? && title.nil? && journal.nil? &&
           volume.nil? && first_page.nil? && doi.nil? && text.nil?
@@ -79,8 +86,10 @@ module Match
 
       private
 
+      # Removes HTML tags, then decodes entities: text copied from
+      # Source#cached has `&amp;` for `&`.
       def clean(string)
-        string.to_s.gsub(/<[^>]*>/, ' ').squish.presence
+        CGI.unescapeHTML(string.to_s.gsub(/<[^>]*>/, ' ')).squish.presence
       end
 
       # @return [Array] [year (Integer), suffix (String)] or [nil, nil]
@@ -100,7 +109,7 @@ module Match
           return [nil, parse_first_page(s)]
         end
 
-        volume = s[/\A([^\s(:]+)/, 1]
+        volume = self.class.volume_number(s)
         first_page = s[/:\s*(\d+)/, 1]
         [volume, first_page]
       end

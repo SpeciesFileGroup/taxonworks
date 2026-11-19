@@ -229,7 +229,8 @@ module Match
       RANK_SQL = <<~SQL.squish.freeze
         (CASE WHEN s.year = q.year THEN 1 ELSE 0 END)
         + COALESCE(word_similarity(q.term, s.cached_author_string), 0)
-        + (CASE WHEN lower(s.volume) = q.volume THEN 1 ELSE 0 END)
+        + (CASE WHEN lower(substring(trim(s.volume) from '^[^\\s(:]+'))
+          = q.volume THEN 1 ELSE 0 END)
         + (CASE WHEN substring(s.pages from '\\d+') = q.first_page
           THEN 1 ELSE 0 END)
         + COALESCE(similarity(q.title, s.title), 0)
@@ -305,6 +306,7 @@ module Match
         first_input = row.surnames.first
         first_source = source_surnames.first
         source_initials = source_first_author_initials_for(source)
+        source_volume = InputRow.volume_number(source.volume)
 
         {
           source:,
@@ -325,8 +327,9 @@ module Match
           source_author_count: source_surnames.size,
           title_similarity: similarities[:title],
           journal_similarity: similarities[:journal],
-          volume_match: (row.volume && source.volume.present?) ?
-            row.volume.casecmp?(source.volume.strip) : nil,
+          # Source#volume often includes the issue, `65(1)`.
+          volume_match: (row.volume && source_volume) ?
+            row.volume.casecmp?(source_volume) : nil,
           first_page_match: (row.first_page && source.pages.present?) ?
             row.first_page == source.pages[/\d+/] : nil,
           doi_match: (row.doi && @dois.key?(source.id)) ?
