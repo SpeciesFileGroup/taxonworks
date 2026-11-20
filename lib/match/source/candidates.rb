@@ -112,7 +112,7 @@ module Match
             index:,
             input: row,
             candidates: candidates
-              .sort_by { |c| -score(c) }
+              .sort_by { |c| [-score(c), c[:source].id] }
               .first(CANDIDATES_LIMIT)
           }
         end
@@ -214,7 +214,7 @@ module Match
             LEFT JOIN serials ser ON ser.id = s.serial_id
             WHERE #{condition}
               #{project_condition}
-            ORDER BY #{RANK_SQL} DESC
+            ORDER BY #{RANK_SQL} DESC, s.id
             LIMIT #{GATHER_LIMIT}
           ) c
         SQL

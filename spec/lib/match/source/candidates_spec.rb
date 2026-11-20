@@ -295,6 +295,21 @@ describe Match::Source::Candidates, type: :model do
       expect(candidate_for(r, source)).to be_nil
     end
 
+    specify 'breaks ties the same way every time' do
+      tied = 3.times.map { |i|
+        Source::Bibtex.create!(
+          bibtex_type: 'article', author: 'Weber, K.', year: 2001,
+          title: "Tied #{i}"
+        )
+      }
+
+      ids = 3.times.map {
+        candidates([{ authors: 'Weber', year: '2001' }])
+          .first[:candidates].map { |c| c[:source].id }
+      }
+      expect(ids.uniq).to eq([[tied.map(&:id).min]])
+    end
+
     specify 'compares the journal to the Source\'s serial' do
       serial = Serial.create!(name: 'Zootaxa')
       in_zootaxa = Source::Bibtex.create!(
