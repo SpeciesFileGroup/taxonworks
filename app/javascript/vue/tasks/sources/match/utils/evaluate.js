@@ -5,6 +5,7 @@ import {
   CHECK,
   STATUS
 } from '../constants.js'
+import { pluralize } from '../../../../helpers/strings.js'
 
 // One entry per compared field: how a candidate is checked, and what that
 // check requires under the options, in words (shown in Match options). Keep
@@ -277,7 +278,7 @@ function authorRequirements(options) {
   const spelling = {
     [AUTHOR_MATCHING.EXACT]: 'spelled identically',
     [AUTHOR_MATCHING.FOLDED]: 'ignoring diacritics and case',
-    [AUTHOR_MATCHING.FUZZY]: `allowing up to ${options.authorMaxEdits} misspelling(s) per surname`
+    [AUTHOR_MATCHING.FUZZY]: `allowing up to ${options.authorMaxEdits} ${pluralize(options.authorMaxEdits, 'misspelling')} per surname`
   }[options.authorMatching]
 
   const authors = {

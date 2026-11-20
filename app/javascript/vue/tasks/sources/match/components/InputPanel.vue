@@ -71,7 +71,7 @@
     </div>
 
     <div class="flex-row flex-separate middle margin-small-top">
-      <span class="subtle">{{ rowCount }} row(s)</span>
+      <span class="subtle">{{ rowCount }} {{ pluralize(rowCount, 'row') }}</span>
       <VBtn
         color="primary"
         medium
@@ -89,6 +89,7 @@ import { ref, computed, watch } from 'vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import TextFileDropArea from '@/components/BatchLoad/TextFileDropArea.vue'
 import { parseDelimited } from '@/helpers/parseDelimited.js'
+import { pluralize } from '@/helpers/strings.js'
 import { FIELD, FIELD_LABELS, HEADER_ALIASES, MAX_ROWS } from '../constants.js'
 
 const emit = defineEmits(['submit'])

@@ -3,7 +3,8 @@
     <div class="flex-row flex-separate middle gap-medium">
       <div class="horizontal-left-content gap-medium flex-wrap-row">
         <span>
-          <strong>{{ total.toLocaleString() }}</strong> {{ totalLabel }}
+          <strong>{{ total.toLocaleString() }}</strong>
+          {{ pluralize(total, totalLabel) }}
         </span>
         <VBadge
           v-for="item in shownItems"
@@ -27,6 +28,7 @@
 // button) and one for notes below.
 import { computed } from 'vue'
 import VBadge from '@/components/ui/VBadge/VBadge.vue'
+import { pluralize } from '@/helpers/strings.js'
 
 const props = defineProps({
   total: {
@@ -34,12 +36,14 @@ const props = defineProps({
     required: true
   },
 
+  // singular, pluralized by count
   totalLabel: {
     type: String,
-    default: 'rows'
+    default: 'row'
   },
 
-  // [{ key, label, color (a VBadge color), count }]
+  // [{ key, label, color (a VBadge color), count }], label already
+  // pluralized for count
   items: {
     type: Array,
     required: true

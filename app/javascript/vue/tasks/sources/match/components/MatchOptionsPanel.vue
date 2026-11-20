@@ -137,7 +137,10 @@
           v-if="options.authorMatching === AUTHOR_MATCHING.FUZZY"
           class="margin-small-top"
         >
-          <label>Up to {{ options.authorMaxEdits }} edit(s) per surname</label>
+          <label>
+            Up to {{ options.authorMaxEdits }}
+            {{ pluralize(options.authorMaxEdits, 'edit') }} per surname
+          </label>
           <input
             type="range"
             min="1"
@@ -224,6 +227,7 @@
 <script setup>
 import { computed } from 'vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import { pluralize } from '@/helpers/strings.js'
 import { describeRequirements } from '../utils/evaluate.js'
 import {
   AUTHOR_MATCHING,

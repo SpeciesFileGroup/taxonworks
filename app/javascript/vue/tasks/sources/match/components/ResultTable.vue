@@ -163,7 +163,8 @@
               medium
               @click="toggleExpanded(row.index)"
             >
-              {{ passingCount(row) }} of {{ row.candidates.length }} pass
+              {{ passingCount(row) }} of {{ row.candidates.length }}
+              {{ pluralize(passingCount(row), 'passes', 'pass') }}
               {{ expanded.has(row.index) ? '▴' : '▾' }}
             </VBtn>
           </td>
@@ -267,6 +268,7 @@
 import { ref } from 'vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
+import { pluralize } from '@/helpers/strings.js'
 import VBadge from '@/components/ui/VBadge/VBadge.vue'
 import Autocomplete from '@/components/ui/Autocomplete.vue'
 import ButtonClipboard from '@/components/ui/Button/ButtonClipboard.vue'
@@ -388,9 +390,10 @@ function hiddenToggleLabel(row) {
       ? 'Hide those that fail a requirement'
       : 'Hide those where nothing but the authors agrees'
   }
+  const count = hiddenCount(row)
   return passing
-    ? `Show ${hiddenCount(row)} that fail a requirement`
-    : `Show ${hiddenCount(row)} where nothing but the authors agrees`
+    ? `Show ${count} that ${pluralize(count, 'fails', 'fail')} a requirement`
+    : `Show ${count} where nothing but the authors agrees`
 }
 
 function isAutomaticPick(row, candidate) {

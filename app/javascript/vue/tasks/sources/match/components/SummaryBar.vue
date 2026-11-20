@@ -7,7 +7,7 @@
     <div class="horizontal-left-content gap-small middle">
       <div
         class="horizontal-left-content middle"
-        :data-help="`The ${sourceIds.length} matched and user selected Sources (${notInProjectCount} not in this project), sent to the Source filter - where they can be added to the project, among other things - or to filters of what cites them.`"
+        :data-help="`The ${sourceIds.length} matched and user selected ${pluralize(sourceIds.length, 'Source')} (${notInProjectCount} not in this project), sent to the Source filter - where they can be added to the project, among other things - or to filters of what cites them.`"
       >
         <span class="margin-small-right">Sources</span>
         <div class="square-brackets">
@@ -51,6 +51,7 @@ import RadialFilter from '@/components/radials/filter/radial.vue'
 import { FILTER_SOURCE } from '@/components/radials/filter/constants/filterLinks'
 import { SOURCE } from '@/constants'
 import StatusSummary from '@/components/BatchLoad/StatusSummary.vue'
+import { pluralize } from '@/helpers/strings.js'
 import { STATUS, STATUS_BADGE_COLORS, STATUS_LABELS } from '../constants.js'
 
 const COUNTED_STATUSES = [
