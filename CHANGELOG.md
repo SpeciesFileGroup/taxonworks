@@ -7,6 +7,10 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 ## [unreleased]
 
+### Added
+
+- Light table task
+
 ### Changed
 
 - Replaced the jQuery tablesorter plugin with a native sorter.
