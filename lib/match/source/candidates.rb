@@ -211,6 +211,7 @@ module Match
           CROSS JOIN LATERAL (
             SELECT s.id
             FROM sources s
+            LEFT JOIN serials ser ON ser.id = s.serial_id
             WHERE #{condition}
               #{project_condition}
             ORDER BY #{RANK_SQL} DESC
@@ -219,16 +220,29 @@ module Match
         SQL
       end
 
-      VALUES_ALIAS = 'q(idx, term, year, volume, first_page, title, ' \
-        'journal, text, full_text)'.freeze
+      VALUES_ALIAS = 'q(idx, term, first_surname, year, volume, first_page, ' \
+        'title, journal, text, full_text)'.freeze
 
       TITLE_SQL = "regexp_replace(s.title, '<[^>]*>', '', 'g')".freeze
 
+      # The Source's first author's surname: cached_author_string is
+      # `A`, `A & B`, or `A, B & C`.
+      FIRST_AUTHOR_SQL =
+        "split_part(split_part(s.cached_author_string, ',', 1), ' & ', 1)"
+          .freeze
+
       # Only used to pick which candidates are kept, see #score for the
-      # final order.
+      # final order. The term matches anywhere in the author string, so the
+      # first-author and journal terms keep a common surname's co-authored
+      # and other-journal Sources from crowding out the row's.
       RANK_SQL = <<~SQL.squish.freeze
         (CASE WHEN s.year = q.year THEN 1 ELSE 0 END)
         + COALESCE(word_similarity(q.term, s.cached_author_string), 0)
+        + (CASE WHEN lower(#{FIRST_AUTHOR_SQL}) = lower(q.first_surname)
+          THEN 1 ELSE 0 END)
+        + COALESCE(GREATEST(
+          similarity(q.journal, s.journal), similarity(q.journal, ser.name)
+        ), 0)
         + (CASE WHEN lower(substring(trim(s.volume) from '^[^\\s(:]+'))
           = q.volume THEN 1 ELSE 0 END)
         + (CASE WHEN substring(s.pages from '\\d+') = q.first_page
@@ -279,6 +293,7 @@ module Match
           '(' + [
             i.to_i,
             "#{quote(term)}::text",
+            "#{quote(r.surnames.first)}::text",
             "#{r.year.nil? ? 'NULL' : r.year.to_i}::int",
             "#{quote(r.volume&.downcase)}::text",
             "#{quote(r.first_page)}::text",

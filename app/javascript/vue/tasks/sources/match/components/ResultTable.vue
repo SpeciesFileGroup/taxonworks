@@ -112,7 +112,7 @@
                 {{ STATUS_LABELS[evaluations[row.index].status] }}
               </VBadge>
               <VBtn
-                v-if="row.fixedSource"
+                v-if="row.fixedSource || row.noMatch"
                 circle
                 color="primary"
                 title="Clear selection, use the automatic match"
@@ -201,7 +201,7 @@
               <input
                 type="radio"
                 :name="`candidate-${row.index}`"
-                :checked="row.fixedSource?.id === candidate.source.id"
+                :checked="exportedSourceIds[row.index] === candidate.source.id"
                 title="Select this Source for the row"
                 @click="emit('select-candidate', { index: row.index, candidate })"
               />
@@ -237,6 +237,16 @@
                 <CheckChips :evaluation="evaluations[row.index].evaluations[i]" />
               </div>
             </div>
+            <label class="candidate">
+              <input
+                type="radio"
+                :name="`candidate-${row.index}`"
+                :checked="row.noMatch"
+                title="None of these Sources is the row's"
+                @click="emit('select-none', { index: row.index })"
+              />
+              <span>None of these</span>
+            </label>
             <VBtn
               v-if="hiddenCount(row)"
               class="margin-xsmall-top"
@@ -309,6 +319,7 @@ const props = defineProps({
 const emit = defineEmits([
   'select-candidate',
   'select-source',
+  'select-none',
   'clear-selection',
   'update:filter'
 ])

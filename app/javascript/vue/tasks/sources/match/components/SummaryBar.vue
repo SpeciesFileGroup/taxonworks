@@ -34,8 +34,8 @@
       <VBtn
         color="primary"
         medium
-        :disabled="!counts[STATUS.UNMATCHED]"
-        title="Download only the unmatched rows, e.g. for DOI lookup"
+        :disabled="!counts[STATUS.UNMATCHED] && !counts[STATUS.NO_MATCH]"
+        title="Download only the unmatched rows (including those you marked No match), e.g. for DOI lookup"
         @click="emit('download-unmatched')"
       >
         Download unmatched
@@ -57,7 +57,8 @@ const COUNTED_STATUSES = [
   STATUS.MATCHED,
   STATUS.SELECTED,
   STATUS.AMBIGUOUS,
-  STATUS.UNMATCHED
+  STATUS.UNMATCHED,
+  STATUS.NO_MATCH
 ]
 
 const props = defineProps({

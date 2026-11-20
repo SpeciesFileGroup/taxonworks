@@ -89,7 +89,9 @@ export function evaluateCandidate(candidate, parsed, options) {
 // is set aside, not forgotten - the row is evaluated as if nothing were
 // selected, and the selection is back when the scope allows it.
 //
-// @param row - { parsed, candidates, fixedSource, isEmpty }
+// "None of these" (row.noMatch) is a selection too, and never set aside.
+//
+// @param row - { parsed, candidates, fixedSource, noMatch, isEmpty }
 // @return { status, source, evaluations, selectionOutOfScope } - source is
 //   the chosen candidate's `source` (or the user's pick), evaluations
 //   parallel row.candidates
@@ -101,6 +103,10 @@ export function evaluateRow(row, options) {
   const evaluations = (row.candidates || []).map((candidate) =>
     evaluateCandidate(candidate, row.parsed || {}, options)
   )
+
+  if (row.noMatch) {
+    return { status: STATUS.NO_MATCH, source: null, evaluations }
+  }
 
   const selectionOutOfScope =
     !!row.fixedSource &&

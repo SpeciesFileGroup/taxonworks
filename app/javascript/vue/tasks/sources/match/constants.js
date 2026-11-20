@@ -56,6 +56,7 @@ export const STATUS = {
   AMBIGUOUS: 'ambiguous',
   UNMATCHED: 'unmatched',
   SELECTED: 'selected',
+  NO_MATCH: 'no_match', // the user said none of the candidates is it
   EMPTY: 'empty'
 }
 
@@ -64,6 +65,7 @@ export const STATUS_LABELS = {
   [STATUS.AMBIGUOUS]: 'Ambiguous',
   [STATUS.UNMATCHED]: 'Unmatched',
   [STATUS.SELECTED]: 'User selected',
+  [STATUS.NO_MATCH]: 'No match (user)',
   [STATUS.EMPTY]: 'Empty'
 }
 
@@ -72,6 +74,7 @@ export const STATUS_BADGE_COLORS = {
   [STATUS.AMBIGUOUS]: 'yellow',
   [STATUS.UNMATCHED]: 'red',
   [STATUS.SELECTED]: 'blue',
+  [STATUS.NO_MATCH]: 'red',
   [STATUS.EMPTY]: 'default'
 }
 
@@ -81,6 +84,7 @@ export const ROW_FILTER = {
   AMBIGUOUS: STATUS.AMBIGUOUS,
   UNMATCHED: STATUS.UNMATCHED,
   SELECTED: STATUS.SELECTED,
+  NO_MATCH: STATUS.NO_MATCH,
   NOT_IN_PROJECT: 'not_in_project'
 }
 
@@ -90,6 +94,7 @@ export const ROW_FILTER_LABELS = {
   [ROW_FILTER.AMBIGUOUS]: 'Ambiguous',
   [ROW_FILTER.UNMATCHED]: 'Unmatched',
   [ROW_FILTER.SELECTED]: 'User selected',
+  [ROW_FILTER.NO_MATCH]: 'No match (user)',
   [ROW_FILTER.NOT_IN_PROJECT]: 'Source not in project'
 }
 

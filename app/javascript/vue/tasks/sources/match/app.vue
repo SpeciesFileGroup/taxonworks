@@ -62,6 +62,7 @@
           v-model:filter="filter"
           @select-candidate="selectCandidate"
           @select-source="selectSource"
+          @select-none="selectNone"
           @clear-selection="clearSelection"
         />
       </div>
@@ -143,7 +144,8 @@ async function handleSubmit({ rows: submitted, headers: submittedHeaders }) {
     isEmpty: !Object.values(input).some((v) => v?.trim()),
     parsed: null,
     candidates: [],
-    fixedSource: null
+    fixedSource: null,
+    noMatch: false // the user said none of the candidates is it
   }))
 
   stage.value = 'results'
@@ -223,13 +225,20 @@ async function refreshSelectionsInProject() {
 }
 
 function selectCandidate({ index, candidate }) {
+  rows.value[index].noMatch = false
   rows.value[index].fixedSource = {
     ...candidate.source,
     in_project: candidate.in_project
   }
 }
 
+function selectNone({ index }) {
+  rows.value[index].fixedSource = null
+  rows.value[index].noMatch = true
+}
+
 function selectSource({ index, item }) {
+  rows.value[index].noMatch = false
   rows.value[index].fixedSource = {
     id: item.id,
     object_label: item.label,
@@ -239,6 +248,7 @@ function selectSource({ index, item }) {
 
 function clearSelection({ index }) {
   rows.value[index].fixedSource = null
+  rows.value[index].noMatch = false
 }
 
 // The Source each row resolves to for export: ambiguous rows resolve to
@@ -314,7 +324,11 @@ function download() {
 
 function downloadUnmatched() {
   const records = rows.value
-    .filter((row) => evaluations.value[row.index].status === STATUS.UNMATCHED)
+    .filter((row) =>
+      [STATUS.UNMATCHED, STATUS.NO_MATCH].includes(
+        evaluations.value[row.index].status
+      )
+    )
     .map(originalColumns)
 
   downloadTextFile(toCsv(records), 'text/csv', 'unmatched_sources.csv')

@@ -259,6 +259,59 @@ describe Match::Source::Candidates, type: :model do
     end
   end
 
+  context 'when more Sources match than are gathered' do
+    before { stub_const('Match::Source::Candidates::GATHER_LIMIT', 1) }
+
+    specify 'prefers Sources whose first author is the row\'s' do
+      co_authored = Source::Bibtex.create!(
+        bibtex_type: 'article',
+        author: 'Smith, A. and Müller, J.',
+        year: 1990,
+        title: 'Ticks of Ohio and Kentucky'
+      )
+
+      # The title partly agrees with the co-authored Source, so only the
+      # first author tips it.
+      r = candidates(
+        [{ authors: 'Müller, J.', year: '1990', title: 'Ticks of Ohio' }]
+      ).first
+      expect(candidate_for(r, source)).to be_truthy
+      expect(candidate_for(r, co_authored)).to be_nil
+    end
+
+    specify 'prefers Sources in the row\'s journal' do
+      in_zootaxa = Source::Bibtex.create!(
+        bibtex_type: 'article',
+        author: 'Müller, J.',
+        year: 1990,
+        title: 'In Zootaxa',
+        journal: 'Zootaxa'
+      )
+
+      r = candidates(
+        [{ authors: 'Müller, J.', year: '1990', journal: 'Zootaxa' }]
+      ).first
+      expect(candidate_for(r, in_zootaxa)).to be_truthy
+      expect(candidate_for(r, source)).to be_nil
+    end
+
+    specify 'compares the journal to the Source\'s serial' do
+      serial = Serial.create!(name: 'Zootaxa')
+      in_zootaxa = Source::Bibtex.create!(
+        bibtex_type: 'article',
+        author: 'Müller, J.',
+        year: 1990,
+        title: 'In Zootaxa',
+        serial:
+      )
+
+      r = candidates(
+        [{ authors: 'Müller, J.', year: '1990', journal: 'Zootaxa' }]
+      ).first
+      expect(candidate_for(r, in_zootaxa)).to be_truthy
+    end
+  end
+
   context 'project scope' do
     specify 'all Sources by default, flagging those in the project' do
       r = candidates([{ authors: 'Müller', year: '1990' }]).first
