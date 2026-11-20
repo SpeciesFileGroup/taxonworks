@@ -41,8 +41,8 @@
       <div class="full_width">
         <SummaryBar
           :evaluations="evaluations"
-          :not-in-project-count="sourcesToAddToProject().length"
-          v-model:add-to-project="addToProject"
+          :source-ids="exportedSourceIdSet"
+          :not-in-project-count="notInProjectCount"
           @download="download"
           @download-unmatched="downloadUnmatched"
         />
@@ -57,6 +57,8 @@
         <ResultTable
           :rows="pageItems"
           :evaluations="evaluations"
+          :exported-source-ids="exportedSourceIds"
+          :column-texts="columnTexts"
           v-model:filter="filter"
           @select-candidate="selectCandidate"
           @select-source="selectSource"
@@ -70,7 +72,7 @@
 <script setup>
 import { computed, ref } from 'vue'
 import { Parser } from '@json2csv/plainjs'
-import { Source, ProjectSource } from '@/routes/endpoints'
+import { Source } from '@/routes/endpoints'
 import { downloadTextFile } from '@/helpers/files'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
@@ -102,7 +104,6 @@ const progressLegend = ref('')
 const rows = ref([])
 const headers = ref(null) // CSV headers, null for verbatim lines
 const options = ref(defaultOptions())
-const addToProject = ref(false)
 
 // Parallel to rows.
 const evaluations = computed(() =>
@@ -120,7 +121,9 @@ function matchesFilter(row, filterValue) {
 
 // Which rows a filter shows is captured when the filter or options change
 // (or matching finishes), not recomputed live, so that selecting a Source
-// doesn't make the row disappear from under the curator.
+// doesn't make the row disappear from under the curator. Options apply
+// first: an option change re-captures, and a selected row that no longer
+// matches the filter leaves the view (its selection is kept).
 const { filter, pageItems, pagination, setPage, refresh } = usePagedList(
   rows,
   {
@@ -186,12 +189,37 @@ async function fetchCandidates() {
         })
       })
     }
+
+    await refreshSelectionsInProject()
   } catch {
     TW.workbench.alert.create('Error matching sources.', 'error')
   } finally {
     isProcessing.value = false
     refresh()
   }
+}
+
+// Whether a selected Source is in the project is recorded when it's
+// selected; it may have been added (e.g. from the Source filter) since, and
+// the project scope sets aside selections that aren't.
+async function refreshSelectionsInProject() {
+  const ids = [
+    ...new Set(rows.value.map((row) => row.fixedSource?.id).filter(Boolean))
+  ]
+  if (!ids.length) return
+
+  const inProject = await Source.filter({ source_id: ids, per: ids.length })
+    .then(({ body }) =>
+      new Map(body.map((source) => [source.id, source.source_in_project]))
+    )
+    .catch(() => null)
+  if (!inProject) return
+
+  rows.value.forEach((row) => {
+    if (row.fixedSource && inProject.has(row.fixedSource.id)) {
+      row.fixedSource.in_project = inProject.get(row.fixedSource.id)
+    }
+  })
 }
 
 function selectCandidate({ index, candidate }) {
@@ -222,43 +250,38 @@ function exportedSource(row) {
     : null
 }
 
-function sourcesToAddToProject() {
+// Parallel to rows.
+const exportedSourceIds = computed(() =>
+  rows.value.map((row) => exportedSource(row)?.id ?? null)
+)
+
+// Copyable columns: one line per row, every row in input order (whatever
+// the filter or page), so they paste back alongside the original sheet.
+const columnTexts = computed(() => {
+  const lines = (value) => rows.value.map(value).join('\n')
+
+  return {
+    status: lines((row) => evaluations.value[row.index].status),
+    source: lines((row) =>
+      plainText(exportedSource(row)?.object_label).replace(/\s+/g, ' ').trim()
+    ),
+    sourceId: lines((row) => exportedSource(row)?.id ?? '')
+  }
+})
+
+// Matched and user selected Sources, each once.
+const exportedSourceIdSet = computed(() => [
+  ...new Set(exportedSourceIds.value.filter((id) => id != null))
+])
+
+const notInProjectCount = computed(() => {
   const ids = new Set()
   rows.value.forEach((row) => {
     const source = exportedSource(row)
-    if (source && source.in_project === false) ids.add(source.id)
+    if (source?.in_project === false) ids.add(source.id)
   })
-  return [...ids]
-}
-
-async function addSourcesToProject() {
-  const ids = sourcesToAddToProject()
-  if (!ids.length) return true
-
-  try {
-    await ProjectSource.batchSyncToProject({
-      source_query: { source_id: ids },
-      operation: 'add'
-    })
-  } catch {
-    TW.workbench.alert.create('Error adding Sources to the project.', 'error')
-    return false
-  }
-
-  const added = new Set(ids)
-  rows.value.forEach((row) => {
-    row.candidates.forEach((c) => {
-      if (added.has(c.source.id)) c.in_project = true
-    })
-    if (added.has(row.fixedSource?.id)) row.fixedSource.in_project = true
-  })
-
-  TW.workbench.alert.create(
-    `${ids.length} Source(s) added to the project.`,
-    'notice'
-  )
-  return true
-}
+  return ids.size
+})
 
 function plainText(html) {
   return new DOMParser().parseFromString(html || '', 'text/html').body
@@ -275,9 +298,7 @@ function toCsv(records) {
   return new Parser().parse(records)
 }
 
-async function download() {
-  if (addToProject.value && !(await addSourcesToProject())) return
-
+function download() {
   const records = rows.value.map((row) => {
     const source = exportedSource(row)
     return {
@@ -311,7 +332,6 @@ function reset() {
   headers.value = null
   filter.value = ROW_FILTER.ALL
   options.value = defaultOptions()
-  addToProject.value = false
 }
 </script>
 

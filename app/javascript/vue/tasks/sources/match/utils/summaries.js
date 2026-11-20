@@ -18,20 +18,22 @@ export function inputSummary(input) {
     .join(' · ')
 }
 
-// What the server made of the row, for spotting bad parses.
+// What the server read from the row - the values compared to each
+// candidate - for spotting bad parses.
 export function parsedSummary(parsed) {
   if (!parsed) return ''
 
-  const volumePage = [parsed.volume, parsed.first_page]
-    .filter(Boolean)
-    .join(':')
+  const parts = [
+    ['authors', parsed.surnames?.join(', ')],
+    ['year', parsed.year ? `${parsed.year}${parsed.year_suffix || ''}` : null],
+    ['volume', parsed.volume],
+    ['first page', parsed.first_page],
+    ['DOI', parsed.doi]
+  ].filter(([, value]) => value)
 
-  return [
-    parsed.surnames?.join(', '),
-    parsed.year ? `${parsed.year}${parsed.year_suffix || ''}` : null,
-    volumePage,
-    parsed.doi
-  ]
-    .filter(Boolean)
-    .join(' · ')
+  if (!parts.length) return 'Read as: nothing recognized'
+
+  return (
+    'Read as: ' + parts.map(([label, value]) => `${label} ${value}`).join(' · ')
+  )
 }

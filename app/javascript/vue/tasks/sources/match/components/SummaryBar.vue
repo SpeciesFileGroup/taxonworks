@@ -5,18 +5,26 @@
     :hide-zero="false"
   >
     <div class="horizontal-left-content gap-small middle">
-      <label
-        class="middle"
-        :data-help="`Matched and user selected Sources not yet in this project (${notInProjectCount} now) are added to it when downloading.`"
+      <div
+        class="horizontal-left-content middle"
+        :data-help="`The ${sourceIds.length} matched and user selected Sources (${notInProjectCount} not in this project), sent to the Source filter - where they can be added to the project, among other things - or to filters of what cites them.`"
       >
-        <input
-          type="checkbox"
-          v-model="addToProject"
-        />
-        Add Sources to project
-      </label>
+        <span class="margin-small-right">Sources</span>
+        <div class="square-brackets">
+          <ul class="no_bullets context-menu">
+            <li>
+              <RadialFilter
+                :disabled="!sourceIds.length"
+                :ids="sourceIds"
+                :object-type="SOURCE"
+                :extended-slices="EXTENDED_SLICES"
+              />
+            </li>
+          </ul>
+        </div>
+      </div>
       <VBtn
-        :color="addToProject && notInProjectCount ? 'create' : 'primary'"
+        color="primary"
         medium
         title="Download the rows with source_id and match_status columns added. Ambiguous rows get no source_id unless a Source was selected."
         @click="emit('download')"
@@ -39,6 +47,9 @@
 <script setup>
 import { computed } from 'vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import RadialFilter from '@/components/radials/filter/radial.vue'
+import { FILTER_SOURCE } from '@/components/radials/filter/constants/filterLinks'
+import { SOURCE } from '@/constants'
 import StatusSummary from '@/components/BatchLoad/StatusSummary.vue'
 import { STATUS, STATUS_BADGE_COLORS, STATUS_LABELS } from '../constants.js'
 
@@ -56,18 +67,22 @@ const props = defineProps({
     required: true
   },
 
+  // matched and user selected, unique
+  sourceIds: {
+    type: Array,
+    default: () => []
+  },
+
   notInProjectCount: {
     type: Number,
     default: 0
   }
 })
 
-const emit = defineEmits(['download', 'download-unmatched'])
+// The Source filter itself, besides the filters of what cites Sources.
+const EXTENDED_SLICES = [{ ...FILTER_SOURCE, flattenQuery: true }]
 
-const addToProject = defineModel('addToProject', {
-  type: Boolean,
-  default: false
-})
+const emit = defineEmits(['download', 'download-unmatched'])
 
 const counts = computed(() => {
   const result = {}

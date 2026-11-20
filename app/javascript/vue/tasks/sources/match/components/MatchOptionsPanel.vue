@@ -105,10 +105,29 @@
           </div>
         </div>
 
+        <div class="margin-small-top">
+          <label class="middle">
+            <input
+              type="checkbox"
+              :checked="options.requireFirstAuthorInitials"
+              @change="
+                update('requireFirstAuthorInitials', $event.target.checked)
+              "
+            />
+            First author initials must share a letter when both present
+          </label>
+          <div class="subtle">
+            Smit, F.G.A.M. is not Smit, B.; Jordan, K. can be Jordan, Heinrich
+            Ernst Karl.
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Surname spelling</legend>
         <div
           v-for="option in AUTHOR_MATCHING_OPTIONS"
           :key="option.value"
-          class="margin-small-top"
         >
           <label class="middle">
             <input
@@ -136,28 +155,11 @@
             @input="update('authorMaxEdits', Number($event.target.value))"
           />
         </div>
-
-        <div class="margin-small-top">
-          <label class="middle">
-            <input
-              type="checkbox"
-              :checked="options.requireFirstAuthorInitials"
-              @change="
-                update('requireFirstAuthorInitials', $event.target.checked)
-              "
-            />
-            First author initials must share a letter when both present
-          </label>
-          <div class="subtle">
-            Smit, F.G.A.M. is not Smit, B.; Jordan, K. can be Jordan, Heinrich
-            Ernst Karl.
-          </div>
-        </div>
       </fieldset>
 
       <fieldset>
         <legend
-          data-help="Trigram similarity, 0-100%. For verbatim rows, how much of the Source's title (or journal) appears in the citation. At 0 the field is shown but never required."
+          data-help="How alike the two texts are, 0-100%, by the share of three-letter sequences they have in common (trigram similarity), so small differences in spelling, punctuation, or abbreviation only lower it a little. For a citation pasted as one line: how much of the Source's title (or journal) appears in it. At 0 the field is still compared and shown, but never required."
         >
           Title and journal
         </legend>
@@ -207,16 +209,30 @@
         </label>
       </fieldset>
 
-      <p class="subtle">
-        A row matches when exactly one candidate passes every requirement. A
-        DOI shared by row and Source always matches; different DOIs never do.
-      </p>
+      <div class="requirements">
+        <p>A candidate passes when:</p>
+        <ul>
+          <li
+            v-for="requirement in requirements"
+            :key="requirement"
+          >
+            {{ requirement }}
+          </li>
+        </ul>
+        <p class="subtle">
+          A field missing from the row or the Source isn't compared. A DOI
+          shared by row and Source always passes; different DOIs never do. A
+          row is matched when exactly one candidate passes.
+        </p>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
+import { computed } from 'vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import { describeRequirements } from '../utils/evaluate.js'
 import {
   AUTHOR_MATCHING,
   AUTHOR_MATCHING_OPTIONS,
@@ -228,6 +244,8 @@ import {
 const emit = defineEmits(['reset', 'refetch'])
 
 const options = defineModel('options', { type: Object, required: true })
+
+const requirements = computed(() => describeRequirements(options.value))
 
 const yearTolerances = Array.from(
   { length: MAX_YEAR_TOLERANCE + 1 },
@@ -253,6 +271,11 @@ function percent(value) {
 .match-options-panel {
   min-width: 320px;
   max-width: 360px;
+}
+
+.requirements ul {
+  margin: 4px 0;
+  padding-left: 20px;
 }
 
 fieldset {

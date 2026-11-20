@@ -3,10 +3,18 @@
     <thead>
       <tr>
         <th>#</th>
-        <th>Row</th>
+        <th
+          data-help="The row as given. Below it, what was read from it: the authors' surnames, year, volume, first page, and DOI that are compared to each candidate. A wrong reading there explains a wrong match."
+        >
+          Row
+        </th>
         <th>
           <div class="horizontal-left-content middle gap-small">
             <span>Status</span>
+            <ButtonClipboard
+              :text="columnTexts.status"
+              title="Copy the status column: every row, in input order"
+            />
             <select
               class="normal-input"
               :value="filter"
@@ -26,15 +34,51 @@
         <th
           data-help="The matched (or, when ambiguous, best) Source. Chips compare it to the row: green agrees, yellow differs but is not required to agree, red fails a requirement. Hover a chip for details."
         >
-          Source
+          <div class="horizontal-left-content middle gap-small">
+            <span>Source</span>
+            <ButtonClipboard
+              :text="columnTexts.source"
+              title="Copy the Source column: every row, in input order; empty unless matched or selected"
+            />
+          </div>
         </th>
-        <th>Candidates</th>
+        <th
+          data-help="How many of the Sources found for the row pass every requirement - the ones listed at the bottom of Match options, which change with the options. Open a row to compare them and pick one."
+        >
+          <div class="horizontal-left-content middle gap-small">
+            <span>Candidates</span>
+            <VBtn
+              color="primary"
+              medium
+              title="Open the candidates of every row on this page"
+              @click="expandAll"
+            >
+              Open all
+            </VBtn>
+            <VBtn
+              color="primary"
+              medium
+              title="Close the candidates of every row"
+              @click="expanded = new Set()"
+            >
+              Close all
+            </VBtn>
+          </div>
+        </th>
         <th
           data-help="Search for and select a Source, overriding the automatic match."
         >
           Refine
         </th>
-        <th>Source id</th>
+        <th>
+          <div class="horizontal-left-content middle gap-small">
+            <span>Source id</span>
+            <ButtonClipboard
+              :text="columnTexts.sourceId"
+              title="Copy the Source id column: every row, in input order; empty unless matched or selected"
+            />
+          </div>
+        </th>
       </tr>
     </thead>
     <tbody>
@@ -53,42 +97,49 @@
             >
             <template v-else>
               <div>{{ inputSummary(row.input) }}</div>
-              <div
-                class="subtle"
-                title="How the row was read"
-              >
+              <div class="subtle">
                 {{ parsedSummary(row.parsed) }}
               </div>
             </template>
           </td>
 
           <td>
-            <VBadge :color="STATUS_BADGE_COLORS[evaluations[row.index].status]">
-              {{ STATUS_LABELS[evaluations[row.index].status] }}
-            </VBadge>
+            <div class="horizontal-left-content gap-small">
+              <VBadge
+                class="line-nowrap"
+                :color="STATUS_BADGE_COLORS[evaluations[row.index].status]"
+              >
+                {{ STATUS_LABELS[evaluations[row.index].status] }}
+              </VBadge>
+              <VBtn
+                v-if="row.fixedSource"
+                circle
+                color="primary"
+                title="Clear selection, use the automatic match"
+                @click="emit('clear-selection', { index: row.index })"
+              >
+                <VIcon
+                  x-small
+                  name="reset"
+                />
+              </VBtn>
+            </div>
+            <div
+              v-if="evaluations[row.index].selectionOutOfScope"
+              class="subtle margin-xsmall-top"
+            >
+              Your selection isn't in this project; set aside while only
+              this project's Sources are matched.
+            </div>
           </td>
 
           <td class="source-cell">
             <template v-if="evaluations[row.index].source">
-              <div class="horizontal-left-content gap-small">
-                <a
-                  :href="browseSourceUrl(evaluations[row.index].source.id)"
-                  target="_blank"
-                  v-html="evaluations[row.index].source.object_label"
-                />
-                <VBtn
-                  v-if="row.fixedSource"
-                  circle
-                  color="primary"
-                  title="Clear selection, use the automatic match"
-                  @click="emit('clear-selection', { index: row.index })"
-                >
-                  <VIcon
-                    x-small
-                    name="reset"
-                  />
-                </VBtn>
-              </div>
+              <a
+                :href="sourceUrl(evaluations[row.index].source.id)"
+                target="_blank"
+                v-html="evaluations[row.index].source.object_label"
+              />
               <div class="horizontal-left-content gap-small margin-xsmall-top">
                 <VBadge
                   v-if="evaluations[row.index].source.in_project === false"
@@ -112,7 +163,7 @@
               medium
               @click="toggleExpanded(row.index)"
             >
-              {{ passingCount(row) }} / {{ row.candidates.length }}
+              {{ passingCount(row) }} of {{ row.candidates.length }} pass
               {{ expanded.has(row.index) ? '▴' : '▾' }}
             </VBtn>
           </td>
@@ -130,7 +181,7 @@
             />
           </td>
 
-          <td>{{ evaluations[row.index].source?.id }}</td>
+          <td>{{ exportedSourceIds[row.index] }}</td>
         </tr>
 
         <tr
@@ -140,7 +191,7 @@
           <td />
           <td colspan="6">
             <div
-              v-for="(candidate, i) in row.candidates"
+              v-for="{ candidate, i } in listed(row)"
               :key="candidate.source.id"
               :class="[
                 'candidate',
@@ -150,15 +201,32 @@
               <input
                 type="radio"
                 :name="`candidate-${row.index}`"
-                :checked="evaluations[row.index].source?.id === candidate.source.id"
-                @change="emit('select-candidate', { index: row.index, candidate })"
+                :checked="row.fixedSource?.id === candidate.source.id"
+                title="Select this Source for the row"
+                @click="emit('select-candidate', { index: row.index, candidate })"
               />
               <a
-                :href="browseSourceUrl(candidate.source.id)"
+                :href="sourceUrl(candidate.source.id)"
                 target="_blank"
                 v-html="candidate.source.object_label"
               />
               <div class="candidate-checks">
+                <VBadge
+                  v-if="isAutomaticPick(row, candidate)"
+                  class="line-nowrap"
+                  :color="STATUS_BADGE_COLORS[evaluations[row.index].status]"
+                  :title="
+                    evaluations[row.index].status === STATUS.MATCHED
+                      ? 'The automatic match; select it to keep it whatever the options'
+                      : 'The best of the candidates that pass; select one to resolve the row'
+                  "
+                >
+                  {{
+                    evaluations[row.index].status === STATUS.MATCHED
+                      ? 'Match'
+                      : 'Best guess'
+                  }}
+                </VBadge>
                 <VBadge
                   v-if="!candidate.in_project"
                   class="line-nowrap"
@@ -169,6 +237,15 @@
                 <CheckChips :evaluation="evaluations[row.index].evaluations[i]" />
               </div>
             </div>
+            <VBtn
+              v-if="hiddenCount(row)"
+              class="margin-xsmall-top"
+              color="primary"
+              medium
+              @click="toggleShowAll(row.index)"
+            >
+              {{ hiddenToggleLabel(row) }}
+            </VBtn>
           </td>
         </tr>
       </template>
@@ -178,17 +255,23 @@
 
 <script setup>
 import { ref } from 'vue'
-import { SOURCE } from '@/constants'
-import { makeBrowseUrl } from '@/helpers'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
 import VBadge from '@/components/ui/VBadge/VBadge.vue'
 import Autocomplete from '@/components/ui/Autocomplete.vue'
+import ButtonClipboard from '@/components/ui/Button/ButtonClipboard.vue'
 import CheckChips from './CheckChips.vue'
 import { inputSummary, parsedSummary } from '../utils/summaries.js'
 import {
+  anyPasses,
+  isAutomaticPick as isAutomaticPickFor,
+  listedCandidates,
+  unlistedCount
+} from '../utils/listing.js'
+import {
   ROW_FILTER,
   ROW_FILTER_LABELS,
+  STATUS,
   STATUS_BADGE_COLORS,
   STATUS_LABELS
 } from '../constants.js'
@@ -201,6 +284,18 @@ const props = defineProps({
 
   // row index => evaluateRow() result, for every row
   evaluations: {
+    type: Object,
+    required: true
+  },
+
+  // row index => the id the row exports (matched or selected), else null
+  exportedSourceIds: {
+    type: Array,
+    required: true
+  },
+
+  // { status:, source:, sourceId: } copyable columns, one line per row
+  columnTexts: {
     type: Object,
     required: true
   },
@@ -244,8 +339,55 @@ function selectedEvaluation(row) {
   return i < 0 ? null : evaluation.evaluations[i]
 }
 
-function browseSourceUrl(id) {
-  return makeBrowseUrl({ id, type: SOURCE })
+function expandAll() {
+  expanded.value = new Set(
+    props.rows.filter((row) => row.candidates.length).map((row) => row.index)
+  )
+}
+
+// Rows whose unlisted candidates are shown too.
+const showAll = ref(new Set())
+
+function toggleShowAll(index) {
+  const next = new Set(showAll.value)
+  if (next.has(index)) {
+    next.delete(index)
+  } else {
+    next.add(index)
+  }
+  showAll.value = next
+}
+
+function listed(row) {
+  return listedCandidates(
+    row,
+    props.evaluations[row.index],
+    showAll.value.has(row.index)
+  )
+}
+
+function hiddenCount(row) {
+  return unlistedCount(row, props.evaluations[row.index])
+}
+
+function hiddenToggleLabel(row) {
+  const passing = anyPasses(props.evaluations[row.index])
+  if (showAll.value.has(row.index)) {
+    return passing
+      ? 'Hide those that fail a requirement'
+      : 'Hide those where nothing but the authors agrees'
+  }
+  return passing
+    ? `Show ${hiddenCount(row)} that fail a requirement`
+    : `Show ${hiddenCount(row)} where nothing but the authors agrees`
+}
+
+function isAutomaticPick(row, candidate) {
+  return isAutomaticPickFor(props.evaluations[row.index], candidate)
+}
+
+function sourceUrl(id) {
+  return `/sources/${id}`
 }
 </script>
 

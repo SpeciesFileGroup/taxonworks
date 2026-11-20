@@ -1,5 +1,67 @@
 import { AUTHOR_MATCHING, AUTHOR_SCOPE, CHECK, STATUS } from '../constants.js'
 
+// One entry per compared field: how a candidate is checked, and what that
+// check requires under the options, in words (shown in Match options). Keep
+// each `requirements` in step with its `check` - they read the same options.
+//
+// check: (candidate, parsed, options) => [CHECK, detail]
+// requirements: options => [String], empty when nothing is required
+const FIELD_RULES = [
+  {
+    field: 'doi',
+    check: (candidate) => doiCheck(candidate),
+    requirements: () => []
+  },
+  {
+    field: 'year',
+    check: yearCheck,
+    requirements: yearRequirements
+  },
+  {
+    field: 'authors',
+    check: authorCheck,
+    requirements: authorRequirements
+  },
+  {
+    field: 'title',
+    check: (candidate, _, options) =>
+      similarityCheck(candidate.title_similarity, options.minTitleSimilarity),
+    requirements: (options) =>
+      similarityRequirements('title', options.minTitleSimilarity)
+  },
+  {
+    field: 'journal',
+    check: (candidate, _, options) =>
+      similarityCheck(
+        candidate.journal_similarity,
+        options.minJournalSimilarity
+      ),
+    requirements: (options) =>
+      similarityRequirements('journal', options.minJournalSimilarity)
+  },
+  {
+    field: 'volume',
+    check: (candidate, _, options) =>
+      equalityCheck(candidate.volume_match, options.requireVolume),
+    requirements: (options) =>
+      equalityRequirements('volume', options.requireVolume)
+  },
+  {
+    field: 'firstPage',
+    check: (candidate, _, options) =>
+      equalityCheck(candidate.first_page_match, options.requireFirstPage),
+    requirements: (options) =>
+      equalityRequirements('first page', options.requireFirstPage)
+  }
+]
+
+// What a candidate has to satisfy under the options, in words.
+//
+// @return [String]
+export function describeRequirements(options) {
+  return FIELD_RULES.flatMap(({ requirements }) => requirements(options))
+}
+
 // Compares one candidate to its row, field by field, under the current
 // options. A candidate passes when no field FAILs - or when its DOI agrees,
 // which wins over everything else.
@@ -11,25 +73,9 @@ export function evaluateCandidate(candidate, parsed, options) {
   const checks = {}
   const details = {}
 
-  ;[checks.doi, details.doi] = doiCheck(candidate)
-  ;[checks.year, details.year] = yearCheck(candidate, parsed, options)
-  ;[checks.authors, details.authors] = authorCheck(candidate, parsed, options)
-  ;[checks.title, details.title] = similarityCheck(
-    candidate.title_similarity,
-    options.minTitleSimilarity
-  )
-  ;[checks.journal, details.journal] = similarityCheck(
-    candidate.journal_similarity,
-    options.minJournalSimilarity
-  )
-  ;[checks.volume, details.volume] = equalityCheck(
-    candidate.volume_match,
-    options.requireVolume
-  )
-  ;[checks.firstPage, details.firstPage] = equalityCheck(
-    candidate.first_page_match,
-    options.requireFirstPage
-  )
+  FIELD_RULES.forEach(({ field, check }) => {
+    ;[checks[field], details[field]] = check(candidate, parsed, options)
+  })
 
   const passes =
     checks.doi === CHECK.PASS ||
@@ -38,9 +84,15 @@ export function evaluateCandidate(candidate, parsed, options) {
   return { checks, details, passes }
 }
 
+// Options apply before the user's selection: a selected Source outside the
+// scope (not in the project, when only this project's Sources are matched)
+// is set aside, not forgotten - the row is evaluated as if nothing were
+// selected, and the selection is back when the scope allows it.
+//
 // @param row - { parsed, candidates, fixedSource, isEmpty }
-// @return { status, source, evaluations } - source is the chosen candidate's
-//   `source` (or the user's pick), evaluations parallel row.candidates
+// @return { status, source, evaluations, selectionOutOfScope } - source is
+//   the chosen candidate's `source` (or the user's pick), evaluations
+//   parallel row.candidates
 export function evaluateRow(row, options) {
   if (row.isEmpty) {
     return { status: STATUS.EMPTY, source: null, evaluations: [] }
@@ -50,10 +102,19 @@ export function evaluateRow(row, options) {
     evaluateCandidate(candidate, row.parsed || {}, options)
   )
 
-  if (row.fixedSource) {
+  const selectionOutOfScope =
+    !!row.fixedSource &&
+    options.limitToProject &&
+    row.fixedSource.in_project === false
+
+  if (row.fixedSource && !selectionOutOfScope) {
     return { status: STATUS.SELECTED, source: row.fixedSource, evaluations }
   }
 
+  return { ...automaticResult(row, evaluations, options), selectionOutOfScope }
+}
+
+function automaticResult(row, evaluations, options) {
   const passing = row.candidates.filter((_, i) => evaluations[i].passes)
   const byDoi = row.candidates.filter(
     (_, i) => evaluations[i].checks.doi === CHECK.PASS
@@ -123,6 +184,19 @@ function yearCheck(candidate, parsed, options) {
     : [CHECK.DIFFERS, `Years differ by ${difference}`]
 }
 
+function yearRequirements(options) {
+  const year = options.yearTolerance
+    ? `the year is within ±${options.yearTolerance}`
+    : 'the year is the same'
+
+  return [
+    options.requireYear ? `${year} (the Source must have one)` : year,
+    options.matchYearSuffix
+      ? 'year suffixes (1990a, 1990b) agree, when both have one'
+      : null
+  ].filter(Boolean)
+}
+
 function authorCheck(candidate, parsed, options) {
   if (!parsed.surnames?.length) return [CHECK.NONE, 'No authors in row']
   if (!candidate.source_author_count) return [CHECK.FAIL, 'Source has no authors']
@@ -186,6 +260,28 @@ function authorCheck(candidate, parsed, options) {
   ]
 }
 
+function authorRequirements(options) {
+  const spelling = {
+    [AUTHOR_MATCHING.EXACT]: 'spelled identically',
+    [AUTHOR_MATCHING.FOLDED]: 'ignoring diacritics and case',
+    [AUTHOR_MATCHING.FUZZY]: `allowing up to ${options.authorMaxEdits} misspelling(s) per surname`
+  }[options.authorMatching]
+
+  const authors = {
+    [AUTHOR_SCOPE.FIRST]: 'the first author is the same',
+    [AUTHOR_SCOPE.ROW]:
+      'the first author is the same, and every other author in the row is in the Source',
+    [AUTHOR_SCOPE.ALL]: 'the authors are the same'
+  }[options.authorScope]
+
+  return [
+    `${authors} (${spelling})`,
+    options.requireFirstAuthorInitials
+      ? "the first author's initials share a letter, when both have initials"
+      : null
+  ].filter(Boolean)
+}
+
 // ['F', 'G'] -> 'F.G.'
 function formatInitials(initials) {
   return (initials || []).map((letter) => `${letter}.`).join('')
@@ -215,8 +311,18 @@ function similarityCheck(similarity, minimum) {
   return [CHECK.DIFFERS, detail]
 }
 
+function similarityRequirements(label, minimum) {
+  return minimum > 0
+    ? [`the ${label} is at least ${Math.round(minimum * 100)}% similar`]
+    : []
+}
+
 function equalityCheck(match, required) {
   if (match == null) return [CHECK.NONE, 'Not compared']
   if (match) return [CHECK.PASS, 'Same']
   return required ? [CHECK.FAIL, 'Differs'] : [CHECK.DIFFERS, 'Differs']
+}
+
+function equalityRequirements(label, required) {
+  return required ? [`the ${label} is the same, when both have one`] : []
 }
