@@ -3,8 +3,9 @@
     <h3>Provide citations</h3>
     <p class="subtle">
       Paste verbatim citations (one per line), paste spreadsheet columns
-      including a header row, or drag &amp; drop a CSV/TSV file. Maximum
-      {{ MAX_ROWS.toLocaleString() }} rows.
+      including a header row, or drag &amp; drop a CSV/TSV file. A file of
+      citations, one per line, needs <code>verbatim</code> as its first line.
+      Maximum {{ MAX_ROWS.toLocaleString() }} rows.
     </p>
 
     <TextFileDropArea
@@ -96,9 +97,21 @@ const text = ref('')
 const fileName = ref(null)
 const mapping = ref({})
 
-// Tab separated text (a spreadsheet paste) or a loaded file is a table with
-// a header row; anything else is one verbatim citation per line.
+// A first line naming the verbatim column alone (`verbatim`, `citation`,
+// ...) heads one citation per line. Otherwise tab separated text (a
+// spreadsheet paste) or a loaded file is a table with a header row, and
+// anything else is one verbatim citation per line.
+const hasVerbatimHeader = computed(() => {
+  const firstLine = text.value.trimStart().split(/\r?\n/, 1)[0]
+  return (
+    !firstLine.includes('\t') &&
+    HEADER_ALIASES[normalizeHeader(firstLine)] === FIELD.VERBATIM
+  )
+})
+
 const table = computed(() => {
+  if (hasVerbatimHeader.value) return null
+
   if (fileName.value || isTabular(text.value)) {
     const parsed = parseDelimited(text.value)
     return parsed.headers.length ? parsed : null
@@ -106,12 +119,13 @@ const table = computed(() => {
   return null
 })
 
-const verbatimLines = computed(() =>
-  text.value
+const verbatimLines = computed(() => {
+  const lines = text.value
     .split(/\r?\n/)
-    .map((l) => l.trim())
+    .map((l) => unquote(l.trim()))
     .filter(Boolean)
-)
+  return hasVerbatimHeader.value ? lines.slice(1) : lines
+})
 
 const rawRowCount = computed(() =>
   table.value ? table.value.rows.length : verbatimLines.value.length
@@ -125,14 +139,23 @@ const canSubmit = computed(
     (!table.value || Object.values(mapping.value).some(Boolean))
 )
 
+// Runs when the headers change, not on every edit of the text (which
+// builds a new headers array): the curator's choices are kept for headers
+// that are still there, new ones get a guess.
 watch(
-  () => table.value?.headers,
-  (headers) => {
+  () => (table.value?.headers || []).join('\u0000'),
+  () => {
+    const headers = table.value?.headers || []
     const next = {}
-    const used = new Set()
+    headers.forEach((header) => {
+      if (header in mapping.value) next[header] = mapping.value[header]
+    })
 
-    ;(headers || []).forEach((header) => {
-      const guess = HEADER_ALIASES[header.toLowerCase().replace(/[^a-z]/g, '')]
+    const used = new Set(Object.values(next).filter(Boolean))
+    headers.forEach((header) => {
+      if (header in next) return
+
+      const guess = HEADER_ALIASES[normalizeHeader(header)]
       next[header] = guess && !used.has(guess) ? guess : ''
       if (guess) used.add(guess)
     })
@@ -140,6 +163,17 @@ watch(
     mapping.value = next
   }
 )
+
+function normalizeHeader(header) {
+  return header.toLowerCase().replace(/[^a-z]/g, '')
+}
+
+// A spreadsheet saves a one-column CSV with quotes around values that have
+// commas: `"Smith, J. (1990) ..."`.
+function unquote(line) {
+  const m = line.match(/^"(.*)"$/)
+  return m ? m[1].replaceAll('""', '"') : line
+}
 
 function isTabular(value) {
   return (value.split(/\r?\n/, 1)[0] || '').includes('\t')

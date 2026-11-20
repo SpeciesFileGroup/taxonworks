@@ -27,6 +27,8 @@
 #           first_author_distance: 0, # edit distance, diacritics/case
 #             # folded, capped at AUTHOR_DISTANCE_CAP
 #           author_distances: [0, 0], # per row surname, closest Source author
+#           author_distance_matrix: [[0, 3], [3, 0]], # per row surname, to
+#             # each Source surname, in order
 #           first_author_initials_match: true, # nil when either has none;
 #             # false when they share no initial (F.G.A.M. vs B.)
 #           source_first_author_initials: ['C', 'M'],
@@ -170,7 +172,9 @@ module Match
 
         dois = with_doi.map { |_, r| quote(r.doi) }.uniq.join(', ')
 
-        found = ::Source.connection.select_rows(<<~SQL).to_h { |id, doi| [doi, id] }
+        # A DOI can be on several Sources (e.g. one per project).
+        found = Hash.new { |h, k| h[k] = [] }
+        ::Source.connection.select_rows(<<~SQL).each { |id, doi|
           SELECT s.id, lower(trim(i.identifier))
           FROM identifiers i
           JOIN sources s ON s.id = i.identifier_object_id
@@ -178,9 +182,11 @@ module Match
             AND lower(trim(i.identifier)) IN (#{dois})
             #{project_condition}
         SQL
+          found[doi] << id
+        }
 
         with_doi.each do |i, r|
-          result[i] << found[r.doi] if found[r.doi]
+          result[i].concat(found[r.doi]) if found.key?(r.doi)
         end
       end
 
@@ -225,6 +231,14 @@ module Match
 
       TITLE_SQL = "regexp_replace(s.title, '<[^>]*>', '', 'g')".freeze
 
+      # As InputRow.volume_number, lowercased.
+      VOLUME_NUMBER_SQL = <<~SQL.squish.freeze
+        lower(substring(
+          regexp_replace(trim(s.volume), '^vol(ume)?\\.?\\s*', '', 'i')
+          from '^[^\\s(:,;]+'
+        ))
+      SQL
+
       # The Source's first author's surname: cached_author_string is
       # `A`, `A & B`, or `A, B & C`.
       FIRST_AUTHOR_SQL =
@@ -243,8 +257,7 @@ module Match
         + COALESCE(GREATEST(
           similarity(q.journal, s.journal), similarity(q.journal, ser.name)
         ), 0)
-        + (CASE WHEN lower(substring(trim(s.volume) from '^[^\\s(:]+'))
-          = q.volume THEN 1 ELSE 0 END)
+        + (CASE WHEN #{VOLUME_NUMBER_SQL} = q.volume THEN 1 ELSE 0 END)
         + (CASE WHEN substring(s.pages from '\\d+') = q.first_page
           THEN 1 ELSE 0 END)
         + COALESCE(similarity(q.title, s.title), 0)
@@ -322,6 +335,10 @@ module Match
         first_source = source_surnames.first
         source_initials = source_first_author_initials_for(source)
         source_volume = InputRow.volume_number(source.volume)
+        # row surname => [distance to each Source surname]
+        distances = row.surnames.map { |s|
+          source_surnames.map { |t| surname_distance(s, t) }
+        }
 
         {
           source:,
@@ -333,9 +350,8 @@ module Match
             first_input.squish == first_source.squish : nil,
           first_author_distance: (first_input && first_source) ?
             surname_distance(first_input, first_source) : nil,
-          author_distances: row.surnames.map { |s|
-            source_surnames.map { |t| surname_distance(s, t) }.min
-          },
+          author_distances: distances.map(&:min),
+          author_distance_matrix: distances,
           first_author_initials_match:
             initials_match(row.first_author_initials, source_initials),
           source_first_author_initials: source_initials,
@@ -384,7 +400,7 @@ module Match
       def source_first_author_initials_for(source)
         @source_initials ||= {}
         @source_initials[source.id] ||= ::Utilities::AuthorNames.initials(
-          BibTeX::Names.parse(source.author.to_s).first&.first
+          BibTeX::Names.parse(source.author.to_s)&.first&.first
         )
       end
 

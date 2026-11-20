@@ -1,4 +1,10 @@
-import { AUTHOR_MATCHING, AUTHOR_SCOPE, CHECK, STATUS } from '../constants.js'
+import {
+  AUTHOR_DISTANCE_CAP,
+  AUTHOR_MATCHING,
+  AUTHOR_SCOPE,
+  CHECK,
+  STATUS
+} from '../constants.js'
 
 // One entry per compared field: how a candidate is checked, and what that
 // check requires under the options, in words (shown in Match options). Keep
@@ -169,10 +175,10 @@ function doiCheck(candidate) {
 function yearCheck(candidate, parsed, options) {
   if (parsed.year == null) return [CHECK.NONE, 'No year in row']
 
+  // Only DOI and whole-text matches gather a Source without a year for a
+  // row with one.
   if (candidate.year_difference == null) {
-    return options.requireYear
-      ? [CHECK.FAIL, 'Source has no year']
-      : [CHECK.NONE, 'Source has no year']
+    return [CHECK.FAIL, 'Source has no year']
   }
 
   const difference = candidate.year_difference
@@ -196,7 +202,7 @@ function yearRequirements(options) {
     : 'the year is the same'
 
   return [
-    options.requireYear ? `${year} (the Source must have one)` : year,
+    `${year} (the Source must have one, when the row has)`,
     options.matchYearSuffix
       ? 'year suffixes (1990a, 1990b) agree, when both have one'
       : null
@@ -233,9 +239,10 @@ function authorCheck(candidate, parsed, options) {
     return [CHECK.FAIL, initialsDetail]
   }
 
-  const matchedCount = candidate.author_distances.filter(
-    (d) => d != null && d <= maxEdits
-  ).length
+  const matchedCount = matchedAuthorCount(
+    candidate.author_distance_matrix,
+    maxEdits
+  )
   const allDetail =
     `${matchedCount} of ${parsed.surnames.length} row authors found, ` +
     `Source has ${candidate.source_author_count}`
@@ -288,6 +295,34 @@ function authorRequirements(options) {
   ].filter(Boolean)
 }
 
+// How many row authors can each be paired with a different Source author,
+// within maxEdits: `Emery, Emery & Popple` finds 2 in `Emery, Popple &
+// Smith`, not 3.
+//
+// @param matrix - per row author, the distance to each Source author
+// @return Number
+function matchedAuthorCount(matrix, maxEdits) {
+  const pairedRowBySourceAuthor = new Map()
+
+  // Kuhn's augmenting paths; author lists are short.
+  const pair = (row, visited) =>
+    matrix[row].some((distance, sourceAuthor) => {
+      if (distance == null || distance > maxEdits || visited.has(sourceAuthor)) {
+        return false
+      }
+      visited.add(sourceAuthor)
+
+      const pairedRow = pairedRowBySourceAuthor.get(sourceAuthor)
+      if (pairedRow === undefined || pair(pairedRow, visited)) {
+        pairedRowBySourceAuthor.set(sourceAuthor, row)
+        return true
+      }
+      return false
+    })
+
+  return matrix.filter((_, row) => pair(row, new Set())).length
+}
+
 // ['F', 'G'] -> 'F.G.'
 function formatInitials(initials) {
   return (initials || []).map((letter) => `${letter}.`).join('')
@@ -297,7 +332,7 @@ function firstAuthorDetail(candidate) {
   if (candidate.first_author_exact) return 'identical'
   const distance = candidate.first_author_distance
   if (distance === 0) return 'same ignoring diacritics/case'
-  return `${distance}${distance >= 4 ? '+' : ''} edit${distance === 1 ? '' : 's'}`
+  return `${distance}${distance >= AUTHOR_DISTANCE_CAP ? '+' : ''} edit${distance === 1 ? '' : 's'}`
 }
 
 // Trigram similarity is noisy for short strings, so anything at or above

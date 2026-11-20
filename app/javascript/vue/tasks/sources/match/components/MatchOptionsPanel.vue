@@ -67,14 +67,6 @@
         <label class="middle">
           <input
             type="checkbox"
-            :checked="options.requireYear"
-            @change="update('requireYear', $event.target.checked)"
-          />
-          Source must have a year
-        </label>
-        <label class="middle">
-          <input
-            type="checkbox"
             :checked="options.matchYearSuffix"
             @change="update('matchYearSuffix', $event.target.checked)"
           />

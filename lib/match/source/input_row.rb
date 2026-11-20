@@ -29,6 +29,13 @@ module Match
 
       DOI_PREFIX_PATTERN = %r{\A(?:https?://(?:dx\.)?doi\.org/|doi:\s*)}i
 
+      # What's left before a DOI once it's removed from a verbatim citation.
+      DOI_LEAD_PATTERN =
+        %r{[(\[<]?\s*(?:https?://(?:dx\.)?doi\.org/|\bdoi:?)?\s*\z}i
+
+      # A volume's label, `Vol. 10`, `Volume 10`.
+      VOLUME_LABEL_PATTERN = /\Avol(?:ume)?\.?\s*/i
+
       # `96(2):285-298`, `1027: 55-63`, `, 16, 81–97`, `, 58(3), 529–536`
       VOLUME_PAGES_PATTERNS = [
         /\b(\d+)\s*(?:\([^)]*\))?\s*:\s*(\d+)/,
@@ -76,7 +83,18 @@ module Match
       #   and pages, e.g. `10(2):149-158`, `65(1)`, `10 (2)`
       # @return [String, nil] the volume alone, e.g. `10`
       def self.volume_number(value)
-        value.to_s.strip[/\A([^\s(:]+)/, 1]
+        value.to_s.strip.sub(VOLUME_LABEL_PATTERN, '')[/\A([^\s(:,;]+)/, 1]
+      end
+
+      # @return [String] the DOI without brackets it was written in,
+      #   `(doi:10.1/x)` -> `10.1/x`, keeping balanced ones, `10.1/a(1)b`
+      def self.unbracket_doi(doi)
+        { ')' => '(', ']' => '[', '>' => '<' }.each do |close, open|
+          while doi.end_with?(close) && doi.count(close) > doi.count(open)
+            doi = doi[0..-2]
+          end
+        end
+        doi
       end
 
       def empty?
@@ -119,7 +137,9 @@ module Match
       end
 
       def normalize_doi(value)
-        s = value.to_s.strip.sub(DOI_PREFIX_PATTERN, '')
+        s = self.class.unbracket_doi(
+          value.to_s.strip.sub(DOI_PREFIX_PATTERN, '')
+        )
         s.empty? ? nil : s.downcase
       end
 
@@ -130,9 +150,11 @@ module Match
         result = {}
 
         if (m = s.match(DOI_PATTERN))
-          result[:doi] = m[1].downcase
-          s = (m.pre_match + ' ' + m.post_match).sub(/\bdoi:?\s*\z/i, '')
-            .squish
+          doi = self.class.unbracket_doi(m[1])
+          result[:doi] = doi.downcase
+          rest = m[1].delete_prefix(doi) + m.post_match
+          s = (m.pre_match.sub(DOI_LEAD_PATTERN, '') + ' ' +
+            rest.sub(/\A[)\]>.,;]+/, '')).squish
         end
 
         if (m = s.match(VERBATIM_YEAR_PATTERN))

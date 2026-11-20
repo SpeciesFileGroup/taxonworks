@@ -148,8 +148,13 @@ export const AUTHOR_MATCHING_OPTIONS = [
   }
 ]
 
-// The server reports author edit distances up to this.
-export const MAX_AUTHOR_EDITS = 3
+// The server caps author edit distances at this (AUTHOR_DISTANCE_CAP): a
+// distance of 4 means 4 or more.
+export const AUTHOR_DISTANCE_CAP = 4
+
+// The most the fuzzy option allows; below the cap, whose value is
+// open-ended.
+export const MAX_AUTHOR_EDITS = AUTHOR_DISTANCE_CAP - 1
 
 // The server gathers candidates up to this many years from a row's year.
 export const MAX_YEAR_TOLERANCE = 2
@@ -160,7 +165,6 @@ export function defaultOptions() {
     limitToProject: false,
     preferProjectSources: true,
     yearTolerance: 0,
-    requireYear: true,
     matchYearSuffix: false,
     authorScope: AUTHOR_SCOPE.ROW,
     authorMatching: AUTHOR_MATCHING.FOLDED,

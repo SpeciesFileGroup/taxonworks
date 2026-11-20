@@ -46,7 +46,11 @@ describe Match::Source::InputRow do
       '37' => ['37', nil],
       '1638' => ['1638', nil],
       'pp. 357-370' => [nil, '357'],
-      '100(2)' => ['100', nil]
+      '100(2)' => ['100', nil],
+      'Vol. 10' => ['10', nil],
+      'Volume 10(2): 5-9' => ['10', '5'],
+      'vol.10' => ['10', nil],
+      '10, 149-158' => ['10', nil]
     }.each do |volume_string, (volume, first_page)|
       specify "volume #{volume_string.inspect}" do
         r = Match::Source::InputRow.new(volume: volume_string)
@@ -62,6 +66,15 @@ describe Match::Source::InputRow do
     specify 'doi is normalized' do
       r = Match::Source::InputRow.new(doi: 'https://doi.org/10.1645/GE-2251.1')
       expect(r.doi).to eq('10.1645/ge-2251.1')
+    end
+
+    {
+      '10.1645/GE-2251.1)' => '10.1645/ge-2251.1',
+      'https://doi.org/10.1016/0001(99)00012-X' => '10.1016/0001(99)00012-x'
+    }.each do |doi, normalized|
+      specify "doi #{doi.inspect} loses only an unbalanced bracket" do
+        expect(Match::Source::InputRow.new(doi:).doi).to eq(normalized)
+      end
     end
   end
 
@@ -144,6 +157,23 @@ describe Match::Source::InputRow do
       specify "volume and first page, comma separated: #{verbatim[0, 30]}" do
         r = Match::Source::InputRow.new(verbatim:)
         expect([r.volume, r.first_page]).to eq([volume, first_page])
+      end
+    end
+
+    {
+      'Smith, J. (2005) Title. Zootaxa 1027: 55-63 ' \
+        '(doi:10.11646/zootaxa.1027.1.5)' => '10.11646/zootaxa.1027.1.5',
+      'Smith, J. (2005) Title. Zootaxa 1027: 55-63. ' \
+        '[https://doi.org/10.11646/zootaxa.1027.1.5].' =>
+        '10.11646/zootaxa.1027.1.5',
+      'Smith, J. (2005) Title. J. 1: 1-9. https://doi.org/10.1016/0001(99)0001-X' =>
+        '10.1016/0001(99)0001-x'
+    }.each do |verbatim, doi|
+      specify "doi in brackets or as a link: #{verbatim[-40..]}" do
+        r = Match::Source::InputRow.new(verbatim:)
+        expect(r.doi).to eq(doi)
+        expect(r.text).not_to match(/doi|[(\[]\s*\z|\A\s*[)\]]/i)
+        expect(r.text).to start_with('Title.')
       end
     end
 

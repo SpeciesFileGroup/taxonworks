@@ -327,6 +327,47 @@ describe Match::Source::Candidates, type: :model do
     end
   end
 
+  context 'a DOI on several Sources' do
+    # DOIs are unique per project, the copy's is in another project.
+    let!(:copy) do
+      s = Source::Bibtex.create!(
+        bibtex_type: 'article', author: 'Müller, J.', year: 1990,
+        title: 'Fleas of the Peromyscus of Indiana'
+      )
+      Identifier::Global::Doi.create!(
+        identifier_object: s, identifier: '10.1645/GE-2251.1',
+        project_id: FactoryBot.create(:valid_project).id
+      )
+      s
+    end
+
+    specify 'gathers every one' do
+      r = candidates([{ doi: '10.1645/GE-2251.1' }]).first
+      expect(r[:candidates].map { |c| c[:source].id })
+        .to contain_exactly(source.id, copy.id)
+    end
+  end
+
+  specify 'a volume label is not part of the volume' do
+    r = candidates(
+      [{ authors: 'Müller', year: '1990', volume: 'Vol. 96' }]
+    ).first
+    expect(candidate_for(r, source)[:volume_match]).to be true
+  end
+
+  specify 'reports each row author\'s distance to each Source author' do
+    r = candidates([{ authors: 'Müller & Smith', year: '1990' }]).first
+    expect(candidate_for(r, source)[:author_distance_matrix].map(&:size))
+      .to eq([3, 3])
+    expect(candidate_for(r, source)[:author_distance_matrix][1][2]).to eq(0)
+  end
+
+  specify 'a Source author BibTeX can\'t parse has no initials' do
+    allow(BibTeX::Names).to receive(:parse).and_return(nil)
+    r = candidates([{ authors: 'Müller, J.', year: '1990' }]).first
+    expect(candidate_for(r, source)[:source_first_author_initials]).to eq([])
+  end
+
   context 'project scope' do
     specify 'all Sources by default, flagging those in the project' do
       r = candidates([{ authors: 'Müller', year: '1990' }]).first
