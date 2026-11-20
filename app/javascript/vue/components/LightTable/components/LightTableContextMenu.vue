@@ -22,7 +22,7 @@
       </div>
       <template v-if="!readonly">
         <div class="lt-context-menu__section">
-          <LightTableSubmenu label="Arrange">
+          <LightTableSubmenu label="Order">
             <LightTableMenuItem
               label="Bring to front"
               @click="lightTable.bringToFront()"

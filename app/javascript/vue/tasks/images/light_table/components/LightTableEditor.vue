@@ -21,6 +21,21 @@
         @select="(ids) => (selectedIds = ids)"
         @drop-external="onDrop"
       >
+        <template #toolbar-append>
+          <LightTableToolbarGroup>
+            <ArrangeControl
+              :items="layoutItems"
+              @arrange="arrangeStacks"
+            />
+          </LightTableToolbarGroup>
+          <LightTableToolbarGroup end>
+            <ExportControl
+              :light-table="lightTableRef"
+              :file-name="store.composition?.name || store.draftName"
+              :disabled="!layoutItems.length"
+            />
+          </LightTableToolbarGroup>
+        </template>
         <template #item-context-menu="{ items }">
           <ItemContextMenu
             :items="items"
@@ -57,9 +72,9 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, nextTick } from 'vue'
 import { Image } from '@/routes/endpoints'
-import { LightTable } from '@/components/LightTable'
+import { LightTable, LightTableToolbarGroup } from '@/components/LightTable'
 import { ANATOMICAL_PART, IMAGE } from '@/constants'
 import { DETERMINABLE_TYPES } from '../adapters/applyOtu'
 import { DRAG_TYPE, LABELS } from '../constants'
@@ -70,6 +85,8 @@ import SelectionPanel from './SelectionPanel.vue'
 import SourcePanel from './sources/SourcePanel.vue'
 import ItemContextMenu from './ItemContextMenu.vue'
 import ApplyOtuModal from './ApplyOtuModal.vue'
+import ArrangeControl from './ArrangeControl.vue'
+import ExportControl from './ExportControl.vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator.vue'
 import RadialNavigator from '@/components/radials/navigation/radial.vue'
 import { useRadialOpener } from '../composables/useRadialOpener'
@@ -184,6 +201,11 @@ function onOtuApplied({ hasDeterminations }) {
 
   isApplyOtuVisible.value = false
   loadDepictions([...ids])
+}
+
+function arrangeStacks(stacks) {
+  lightTableRef.value.arrangeStacks(stacks)
+  nextTick(() => lightTableRef.value.fitAll())
 }
 
 function openItemRadial({ type, globalId }) {

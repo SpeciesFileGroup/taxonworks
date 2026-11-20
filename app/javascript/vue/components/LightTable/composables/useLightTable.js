@@ -11,6 +11,7 @@ import {
   unionBounds
 } from '../utils/geometry.js'
 import { parseViewBox } from '../utils/svg.js'
+import { layoutToSvg, svgToRasterBlob } from '../utils/exportImage.js'
 
 let _idSeq = 0
 let _ridSeq = 0
@@ -24,6 +25,9 @@ const PLACEMENT_GAP = 40
 const PLACEMENT_COLS = 4
 const START_X = 40
 const START_Y = 40
+const STACK_OFFSET = 16
+const STACK_MAX_SPREAD = 120
+const STACK_GAP = 80
 
 const DEFAULT_PALETTE = [
   '#e63946',
@@ -494,6 +498,83 @@ export function useLightTable() {
     })
   }
 
+  function arrangeStacks(
+    stacks,
+    { offset = STACK_OFFSET, maxSpread = STACK_MAX_SPREAD, gap = STACK_GAP } = {}
+  ) {
+    const decks = stacks
+      .map((ids) => ids.map(findById).filter(Boolean))
+      .filter((cards) => cards.length)
+      .map((cards) => {
+        const step =
+          cards.length > 1 ? Math.min(offset, maxSpread / (cards.length - 1)) : 0
+        const boxes = cards.map(itemAABB)
+        const spread = step * (cards.length - 1)
+
+        return {
+          cards,
+          boxes,
+          step,
+          w: Math.max(...boxes.map((b) => b.w)) + spread,
+          h: Math.max(...boxes.map((b) => b.h)) + spread
+        }
+      })
+
+    if (!decks.length) return
+
+    const origin = unionBounds(decks.flatMap((d) => d.boxes))
+    const deckW = Math.max(...decks.map((d) => d.w))
+    const deckH = Math.max(...decks.map((d) => d.h))
+    const { cols } = gridDimsForCount(decks.length, (16 / 9) * (deckH / deckW))
+    let z = maxZ()
+    let rowY = origin.y
+    let rowH = 0
+    let cursorX = origin.x
+
+    decks.forEach((deck, i) => {
+      if (i && i % cols === 0) {
+        rowY += rowH + gap
+        rowH = 0
+        cursorX = origin.x
+      }
+
+      deck.cards.forEach((it, c) => {
+        const b = deck.boxes[c]
+
+        it.x = cursorX + deck.step * c + b.w / 2
+        it.y = rowY + deck.step * c + b.h / 2
+        it.z = ++z
+      })
+
+      cursorX += deck.w + gap
+      rowH = Math.max(rowH, deck.h)
+    })
+  }
+
+  async function exportImage({
+    format = 'png',
+    unnamedRegion = 'Unnamed region'
+  } = {}) {
+    const result = await layoutToSvg({
+      items,
+      regions: regions.map((r) => ({
+        area: regionArea(r.id),
+        color: regionColor(r),
+        name: r.name || unnamedRegion,
+        count: membersOfRegion(r.id).length
+      }))
+    })
+
+    if (!result) return null
+
+    const blob =
+      format === 'svg'
+        ? new Blob([result.svg], { type: 'image/svg+xml' })
+        : await svgToRasterBlob(result, { type: `image/${format}` })
+
+    return { blob, failed: result.failed }
+  }
+
   function regionColorFor(item) {
     if (!item?.regionId) return null
 
@@ -674,6 +755,8 @@ export function useLightTable() {
     unassignSelected,
     claimSelected,
     packRegion,
+    arrangeStacks,
+    exportImage,
     regionArea,
     regionColor,
     regionColorFor,

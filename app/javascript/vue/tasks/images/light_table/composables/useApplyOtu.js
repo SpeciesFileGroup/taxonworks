@@ -36,7 +36,7 @@ function chunk(list, size) {
   return chunks
 }
 
-async function loadAnatomicalPartOrigins(ids) {
+export async function loadAnatomicalPartOrigins(ids) {
   const origins = new Map()
 
   await runAll([...new Set(ids)], async (id) => {
@@ -49,7 +49,7 @@ async function loadAnatomicalPartOrigins(ids) {
   return origins
 }
 
-async function loadCurrentOtuIds(objects) {
+export async function loadCurrentOtuIds(objects, otuLabels = null) {
   const currentOtuIds = new Map()
 
   for (const type of DETERMINABLE_TYPES) {
@@ -71,6 +71,7 @@ async function loadCurrentOtuIds(objects) {
             objectKey(type, d.taxon_determination_object_id),
             d.otu_id
           )
+          otuLabels?.set(d.otu_id, d.otu.object_label)
         })
     })
   }

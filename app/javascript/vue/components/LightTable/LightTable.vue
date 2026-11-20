@@ -233,6 +233,12 @@ defineExpose({
   removeRegion: lightTable.removeRegion,
   assignToRegion: lightTable.assignToRegion,
   packRegion: lightTable.packRegion,
+  arrangeStacks: lightTable.arrangeStacks,
+  exportImage: (opts) =>
+    lightTable.exportImage({
+      unnamedRegion: `Unnamed ${labels.value.region.toLowerCase()}`,
+      ...opts
+    }),
   membersOfRegion: lightTable.membersOfRegion,
   getRegionOfItem: lightTable.getRegionOfItem,
   selectOnly: lightTable.selectOnly,
