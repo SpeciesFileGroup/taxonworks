@@ -67,12 +67,7 @@ class Document < ApplicationRecord
   has_attached_file :document_file,
     filename_cleaner:  Utilities::CleanseFilename
 
-  # Don't require uniqueness for shapefile .prj or .cpg files, which are small
-  # and almost always have the same content.
-  # TODO: Revisit when Gazetteer shapefile upload moves away from using
-  # Documents.
-  validates_uniqueness_of :document_file_fingerprint, scope: :project_id,
-    conditions: -> { where.not("document_file_file_name ILIKE '%.prj' OR document_file_file_name ILIKE '%.cpg'")}
+  validate :document_file_fingerprint_is_unique
 
   validates_attachment_content_type :document_file,
     content_type: ['application/octet-stream', 'application/pdf', 'text/plain',
@@ -213,6 +208,27 @@ class Document < ApplicationRecord
   end
 
   protected
+
+  # Don't require uniqueness against shapefile .prj or .cpg files, which are
+  # small and almost always have the same content.
+  # TODO: Revisit when Gazetteer shapefile upload moves away from using
+  # Documents.
+  def document_file_fingerprint_is_unique
+    return if document_file_fingerprint.blank?
+    return if persisted? &&
+      !will_save_change_to_document_file_fingerprint? &&
+      !will_save_change_to_project_id?
+
+    existing_id = Document
+      .where(project_id:, document_file_fingerprint:)
+      .where.not("document_file_file_name ILIKE '%.prj' OR document_file_file_name ILIKE '%.cpg'")
+      .where.not(id: id_in_database)
+      .pick(:id)
+
+    if existing_id
+      errors.add(:document_file_fingerprint, :taken, message: "has already been taken (Document #{existing_id})")
+    end
+  end
 
   def check_for_documentation
     if documentation.count > 1
