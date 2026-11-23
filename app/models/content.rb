@@ -49,10 +49,6 @@ class Content < ApplicationRecord
   validates_uniqueness_of :topic_id, scope: [:otu_id]
   validates_presence_of :text, :topic_id, :otu_id
 
-  # scope :for_otu_page_layout, -> (otu_page_layout_id) {
-  #   where('otu_page_layout_id = ?', otu_page_layout.od)
-  # }
-
   def to_html
     MARKDOWN_HTML.render(text).chomp.gsub(/\n/, '<br>')
   end
@@ -76,23 +72,6 @@ class Content < ApplicationRecord
 
   def unpublish
     public_content&.destroy
-  end
-
-  # OTU_PAGE_LAYOUTS
-  #       V
-  # OTU_PAGE_LAYOUT_SECTIONS ^ .otu_page_layout_id v .topic_id
-  #       V
-  #     TOPICS
-  #       V
-  #    CONTENTS              v otu_id              ^ .topic_id
-  #       ^
-  #      OTU
-  #
-  # Given an otu_page_layout id. find all the topics
-  # For this otu_page_layout, find the topics (ControlledVocabularyTerm.of_type(:topic))
-
-  def self.for_page_layout(otu_page_layout_id)
-    where('topic_id in (?)', OtuPageLayout.where(id: otu_page_layout_id).first.topics.pluck(:id))
   end
 
   def self.find_for_autocomplete(params)

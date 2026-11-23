@@ -2,7 +2,8 @@ json.extract! pinboard_item, :id, :user_id, :pinned_object_type,
   :pinned_object_id, :position, :is_inserted, :is_cross_project,
   :inserted_count 
 
-json.pinned_object_section pinboard_item.pinned_object.class.name.pluralize # Object.pinned_object_type.pluralize
+section_name = pinboard_item.pinned_object_type == 'ControlledVocabularyTerm' ? pinboard_item.pinned_object.class.name : pinboard_item.pinned_object_type
+json.pinned_object_section section_name.pluralize
 
 if pinboard_item.pinned_object.kind_of?(Source)
   json.pinned_object_documents do

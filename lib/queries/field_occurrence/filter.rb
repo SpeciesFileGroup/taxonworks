@@ -53,7 +53,7 @@ module Queries
       #   nil - not applied
       attr_accessor :biological_associations
 
-      # @return Array
+      # @return [Array]
       #   Matching records in this BiologicalAssociation
       attr_accessor :biological_association_id
 
@@ -125,13 +125,13 @@ module Queries
       #   'true' - treat the ids in determiner_id as "and" (only collection objects with all and only all will match)
       attr_accessor :determiner_id_all
 
-      # @return String
+      # @return [String]
       # A PostgreSQL valid regular expression. Note that
       # simple strings evaluate as wildcard matches.
       # !! Probably shouldn't expose to external API.
       attr_accessor :determiner_name_regex
 
-      # @return Boolean
+      # @return [Boolean]
       #    true - any of start/end date or verbatim date are populated
       #    false - none of start/end date or verbatim date are populated
       #    nil - ignored
@@ -415,6 +415,7 @@ module Queries
         ::FieldOccurrence.from('(' + s + ') as field_occurrences').distinct
       end
 
+      # Overrides Queries::Concerns::Depictions#image_query_facet (applied via its merge_clauses)
       def image_query_facet
         return nil if image_query.nil?
 
@@ -465,7 +466,6 @@ module Queries
           biological_association_query_facet,
           collecting_event_query_facet,
           dwc_occurrence_query_facet,
-          image_query_facet,
           observation_query_facet,
           otu_query_facet,
           taxon_name_query_facet,

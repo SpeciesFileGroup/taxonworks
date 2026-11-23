@@ -16,6 +16,15 @@ describe Queries::Identifier::Filter, type: :model, group: :identifiers do
     expect(query.all.map(&:id)).to contain_exactly(o.id)
   end
 
+  specify '#old_object_id' do
+    o = OriginRelationship.create!(old_object: s1, new_object: s2)
+    OriginRelationship.create!(old_object: s2, new_object: e)
+
+    query.old_object_id = s1.id
+    query.old_object_type = 'CollectionObject'
+    expect(query.all.map(&:id)).to contain_exactly(o.id)
+  end
+
   specify '#new_object_global_id' do
     o = OriginRelationship.create!(old_object: s1, new_object: s2)
 

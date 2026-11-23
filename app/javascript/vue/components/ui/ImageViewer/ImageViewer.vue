@@ -45,6 +45,15 @@
                 placeholder="Caption"
               />
             </div>
+            <div class="separate-bottom">
+              <label>
+                <input
+                  type="checkbox"
+                  v-model="depiction.is_metadata_depiction"
+                />
+                Is data depiction
+              </label>
+            </div>
           </div>
           <div class="flex-separate">
             <div>
@@ -186,9 +195,8 @@ import SvgViewer from '@/components/Svg/SvgViewer.vue'
 import { Depiction, Citation, Attribution } from '@/routes/endpoints'
 import { imageSVGViewBox, imageScale } from '@/helpers/images'
 import { computed, reactive, ref, watch } from 'vue'
-import { IMAGE } from '@/constants'
+import { CONVERT_IMAGE_TYPES, IMAGE } from '@/constants'
 
-const CONVERT_IMAGE_TYPES = ['image/tiff', 'image/heic']
 const IMG_MAX_SIZES = {
   thumb: 100,
   medium: 300
@@ -301,7 +309,8 @@ const loadAttributions = async () => {
 const updateDepiction = () => {
   const depiction = {
     caption: props.depiction.caption,
-    figure_label: props.depiction.figure_label
+    figure_label: props.depiction.figure_label,
+    is_metadata_depiction: props.depiction.is_metadata_depiction
   }
 
   Depiction.update(props.depiction.id, { depiction }).then(() => {

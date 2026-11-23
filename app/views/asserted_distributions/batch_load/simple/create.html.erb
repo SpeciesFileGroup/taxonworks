@@ -1,2 +1,42 @@
-<%= render partial: '/shared/data/all/batch_load/create' -%>
+<%# As the shared line breakdown, but new asserted distributions are shown by
+    their origin citation, so the line's source shows too. -%>
+<% content_for :line_breakdown do -%>
+  <table class="top_align_text" border="1">
+    <tr>
+      <th>line</th>
+      <th>data created</th>
+      <th>data errors</th>
+      <th>parse errors</th>
+    </tr>
 
+    <% @result.sorted_processed_rows.each do |i, rp| -%>
+      <tr>
+        <%= batch_line_link_td(i) -%>
+        <td>
+          <table>
+            <% rp.objects.each do |klass, objects| -%>
+              <tr class="underlined_elements"><td><%= klass %></td></tr>
+              <% objects.each do |o| -%>
+                <tr>
+                  <td>
+                    <% if !o.persisted? -%>
+                      <span class="feedback feedback-warning"><%= object_tag(o) %></span>
+                    <% elsif o.is_a?(AssertedDistribution) -%>
+                      <%= object_link(o.origin_citation) %>
+                    <% else -%>
+                      <%= object_link(o) %>
+                    <% end -%>
+                  </td>
+                </tr>
+              <% end -%>
+            <% end -%>
+          </table>
+        </td>
+        <%= batch_data_errors_td(rp) -%>
+        <%= batch_parse_errors_td(rp) -%>
+      </tr>
+    <% end -%>
+  </table>
+<% end -%>
+
+<%= render partial: '/shared/data/all/batch_load/create' -%>

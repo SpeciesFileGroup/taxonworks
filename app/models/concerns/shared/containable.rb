@@ -38,7 +38,7 @@ module Shared::Containable
     put_in_container(c)
   end
 
-  # @return Array
+  # @return [Array]
   def contained_siblings
     reload_container_item&.siblings&.map(&:contained_object) || []
   end

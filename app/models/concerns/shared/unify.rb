@@ -39,7 +39,7 @@ module Shared::Unify
     []
   end
 
-  # @return Array of ActiveRecord::Reflection
+  # @return [Array] of ActiveRecord::Reflection
   # Perhaps used_inferred to hash
   def merge_relations(only: [], except: [])
     o = (only_relations + [only&.map(&:to_sym)].flatten).uniq
@@ -51,7 +51,7 @@ module Shared::Unify
     end
   end
 
-  # @return Array of ActiveRecord::Reflection
+  # @return [Array] of ActiveRecord::Reflection
   #
   # Our target is a list of relations that we can
   # iterate through and, by inspection, update
@@ -76,7 +76,7 @@ module Shared::Unify
       .delete_if{|r| !r.name.match(/related/) && ( r.options[:through].present? || r.options[:class_name].present? )}
   end
 
-  # @return Array of ActiveRecord::Reflection
+  # @return [Array] of ActiveRecord::Reflection
   # Keep separated from inferred_relations so we can better audit all models in rake linting
   def used_inferred_relations
     (inferred_relations.select{|r| !r.options[:inverse_of].nil?} + unify_relations).uniq
@@ -89,7 +89,7 @@ module Shared::Unify
 
   # See header.
   #
-  # @return Hash
+  # @return [Hash]
   #   a result
   #
   # @param remove_object

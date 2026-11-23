@@ -353,6 +353,10 @@ scope :tasks do
   end
 
   scope :images do
+    scope :light_table, controller: 'tasks/images/light_table' do
+      get '/', action: :index, as: 'light_table_task'
+    end
+
     scope :browse, controller: 'tasks/images/browse' do
       get '', action: :index, as: 'browse_images_task'
     end
@@ -693,11 +697,6 @@ scope :tasks do
     end
   end
 
-  scope :contents, controller: 'tasks/content/preview' do
-    get 'otu_content_for_layout/:otu_id', action: :otu_content_for_layout, as: 'preview_otu_content_for_layout'
-    get ':otu_id', action: 'otu_content', as: 'preview_otu_content'
-  end
-
   scope :controlled_vocabularies do
     scope :manage, controller: 'tasks/controlled_vocabularies/manage' do
       get '/', action: :index, as: 'manage_controlled_vocabulary_terms_task'
@@ -842,7 +841,7 @@ scope :tasks do
     end
 
     scope :browse, controller: 'tasks/otus/browse' do
-      get '/(:otu_id)', action: :index, as: 'browse_otus_task'
+      get '/', action: :index, as: 'browse_otus_task'
     end
 
     scope :match_by_taxon_name, controller: 'tasks/otus/match_by_taxon_name' do

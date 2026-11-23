@@ -18,7 +18,7 @@
     <template #body>
       <SmartSelector
         model="contents"
-        :extend="['otu', 'topic']"
+        :extend="['otu', 'topic', 'public_content']"
         @selected="setContent"
       />
     </template>

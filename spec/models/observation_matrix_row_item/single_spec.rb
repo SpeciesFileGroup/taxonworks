@@ -38,6 +38,49 @@ RSpec.describe ObservationMatrixRowItem::Single, type: :model, group: :observati
         observation_matrix_row_item.destroy
         expect(ObservationMatrixRow.count).to eq 0
       end
+
+      specify 'updating an attribute other than observation_object does not change reference_count' do
+        observation_matrix_row_item.update!(position: 5)
+        expect(ObservationMatrixRow.first.reference_count).to eq 1
+      end
+
+      # As unify does, moving the item off of the object it unifies away
+      context 'changing the observation_object' do
+        let(:collection_object) { FactoryBot.create(:valid_collection_object) }
+
+        before {
+          observation_matrix_row_item.update!(observation_object: collection_object)
+        }
+
+        specify 'removes the previous observation_object row' do
+          expect(ObservationMatrixRow.where(observation_object: otu).count).to eq 0
+        end
+
+        specify 'adds a row for the new observation_object' do
+          r = ObservationMatrixRow.where(observation_object: collection_object).first
+          expect(r.reference_count).to eq 1
+          expect(r.cached_observation_matrix_row_item_id).to eq observation_matrix_row_item.id
+        end
+      end
+
+      context 'changing the observation_matrix' do
+        let(:other_observation_matrix) { FactoryBot.create(:valid_observation_matrix) }
+
+        before {
+          observation_matrix_row_item.update!(observation_matrix: other_observation_matrix)
+        }
+
+        specify 'removes the row from the previous matrix' do
+          expect(ObservationMatrixRow.where(observation_matrix:).count).to eq 0
+        end
+
+        specify 'adds a row to the new matrix' do
+          r = ObservationMatrixRow.where(observation_matrix: other_observation_matrix).first
+          expect(r.observation_object).to eq otu
+          expect(r.reference_count).to eq 1
+          expect(r.cached_observation_matrix_row_item_id).to eq observation_matrix_row_item.id
+        end
+      end
     end
 
     specify 'observation can only be added once to observation_matrix_row_item' do

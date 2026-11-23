@@ -160,7 +160,7 @@ module Queries
       #    only return names where the field provided is nil
       attr_accessor :without
 
-      # @params params [ActionController::Parameters]
+      # @param query_params [ActionController::Parameters]
       def initialize(query_params = {})
         super
 

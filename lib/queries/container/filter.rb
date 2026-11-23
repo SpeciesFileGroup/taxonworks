@@ -16,7 +16,7 @@ module Queries
 
       attr_accessor :name
 
-      # @param params [Hash]
+      # @param query_params [Hash]
       def initialize(query_params)
         super
 

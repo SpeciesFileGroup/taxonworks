@@ -65,7 +65,12 @@ class LeadsController < ApplicationController
     @leads = Lead
       .roots_with_data(sessions_current_project_id, true, is_virtual:)
       .where(is_public: true)
-      .page(params[:page]).per(params[:per])
+
+    if helpers.extend_response_with('citations')
+      @leads = @leads.includes(citations: [:source, :topics, { citation_topics: :topic }])
+    end
+
+    @leads = @leads.page(params[:page]).per(params[:per])
 
     render '/leads/api/v1/index'
   end

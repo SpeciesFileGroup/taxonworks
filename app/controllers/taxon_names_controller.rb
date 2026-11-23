@@ -226,7 +226,11 @@ class TaxonNamesController < ApplicationController
   end
 
   def parse
-    @combination = Combination.where(project_id: sessions_current_project_id).find(params[:combination_id]) if params[:combination_id]
+    if params[:combination_id]
+      @combination = Combination
+        .where(project_id: sessions_current_project_id)
+        .find(params[:combination_id])
+    end
     @result = Vendor::Biodiversity::Result.new(
       query_string: params.require(:query_string),
       project_id: sessions_current_project_id,
@@ -260,10 +264,14 @@ class TaxonNamesController < ApplicationController
     ).call
 
     @result = if match_params[:match_otu_names] == 'true'
-      otu_results = Match::Otu::MorphospeciesName.new(names:, project_id:, taxon_name_id:).call
+      otu_results = Match::Otu::MorphospeciesName.new(
+        names:, project_id:, taxon_name_id:
+      ).call
       Match::Otu::MergeResults.new(tn_results:, otu_results:).call
     else
-      tn_results.map { |r| r.merge(match_source: r[:matched] ? 'taxon_name' : nil) }
+      tn_results.map { |r|
+        r.merge(match_source: r[:matched] ? 'taxon_name' : nil)
+      }
     end
 
     render :match
@@ -321,7 +329,8 @@ class TaxonNamesController < ApplicationController
   # GET /api/v1/taxon_names/:id/monograph
   def api_monograph
     if helpers.extend_response_with('descendants')
-      @descendants_scope = TaxonName.with_project_id(sessions_current_project_id)
+      @descendants_scope = TaxonName
+        .with_project_id(sessions_current_project_id)
         .find(params[:id])
         .descendants
         .order('taxon_names.id')
@@ -337,13 +346,19 @@ class TaxonNamesController < ApplicationController
   # Contains stats block
   def api_catalog
     @data = helpers.recursive_catalog_json(
-      taxon_name: @taxon_name, target_depth: params[:target_depth] || 0, include_distribution: false
+      taxon_name: @taxon_name,
+      target_depth: params[:target_depth] || 0,
+      include_distribution: false
     )
     render '/taxon_names/api/v1/catalog'
   end
 
   def api_parse
-    @combination = Combination.where(project_id: sessions_current_project_id).find(params[:combination_id]) if params[:combination_id]
+    if params[:combination_id]
+      @combination = Combination
+        .where(project_id: sessions_current_project_id)
+        .find(params[:combination_id])
+    end
     @result = Vendor::Biodiversity::Result.new(
       query_string: params.require(:query_string),
       project_id: sessions_current_project_id,
@@ -410,28 +425,33 @@ class TaxonNamesController < ApplicationController
 
   # POST
   def autoselect_col_create
-    result = ::Autoselect::TaxonName::ColCreator.new(
-      rows:       autoselect_col_create_params,
-      col_code:   params[:col_code],
+    result = ::Autoselect::TaxonName::CatalogueOfLifeCreator.new(
+      rows: autoselect_col_create_params,
+      col_code: params[:col_code],
       project_id: sessions_current_project_id,
-      user_id:    sessions_current_user_id
+      user_id: sessions_current_user_id
     ).call
     tn = ::TaxonName.find(result[:taxon_name_id])
     render json: result.merge(global_id: tn.to_global_id.to_s)
-  rescue ::Autoselect::TaxonName::ColCreator::CreationError => e
+  rescue ::Autoselect::TaxonName::CatalogueOfLifeCreator::CreationError => e
     render json: {
-      error:          e.message,
+      error: e.message,
       failed_col_name: e.col_name,
-      failed_col_id:   e.col_id
+      failed_col_id: e.col_id
     }, status: :unprocessable_entity
   end
 
   private
 
   def autoselect_col_create_params
-    params.permit(rows: [:col_name, :col_rank, :col_id, :dataset_id, :taxonworks_id, :col_authorship, :col_year, :col_status])
-          .fetch(:rows, [])
-          .map(&:to_h)
+    params.permit(
+      rows: [
+        :col_name, :col_rank, :col_id, :dataset_id, :taxonworks_id,
+        :col_authorship, :col_year, :col_status
+      ]
+    )
+      .fetch(:rows, [])
+      .map(&:to_h)
   end
 
   def autoselect_params
@@ -442,7 +462,10 @@ class TaxonNamesController < ApplicationController
   end
 
   def set_taxon_name
-    @taxon_name = TaxonName.with_project_id(sessions_current_project_id).includes(:creator, :updater).find(params[:id])
+    @taxon_name = TaxonName
+      .with_project_id(sessions_current_project_id)
+      .includes(:creator, :updater)
+      .find(params[:id])
     @recent_object = @taxon_name
   end
 

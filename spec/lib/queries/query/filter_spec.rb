@@ -352,6 +352,102 @@ describe Queries::Query::Filter, type: [:model] do
     expect(q.count).to eq(1)
   end
 
+  # An ignored nested query would leave the filter unscoped (e.g. a batch
+  # update touching every record in the project), so nesting problems raise.
+  context 'nested query problems' do
+    specify 'unregistered nested query raises (ActionController::Parameters)' do
+      expect {
+        ::Queries::DataAttribute::Filter.new(ActionController::Parameters.new(image_query: { image_id: [1] }))
+      }.to raise_error(TaxonWorks::Error::NestedQuery)
+    end
+
+    specify 'unregistered nested query raises (Hash)' do
+      expect {
+        ::Queries::DataAttribute::Filter.new(image_query: { image_id: [1] })
+      }.to raise_error(TaxonWorks::Error::NestedQuery)
+    end
+
+    specify 'unregistered deeper nested query raises' do
+      expect {
+        ::Queries::DataAttribute::Filter.new(
+          ActionController::Parameters.new(otu_query: { image_query: { image_id: [1] }, otu_id: [1] })
+        )
+      }.not_to raise_error # otu <- image is registered
+
+      expect {
+        ::Queries::DataAttribute::Filter.new(
+          ActionController::Parameters.new(source_query: { loan_query: { loan_id: [1] } })
+        )
+      }.to raise_error(TaxonWorks::Error::NestedQuery)
+    end
+
+    specify 'multiple nested queries at one level raise (ActionController::Parameters)' do
+      expect {
+        ::Queries::DataAttribute::Filter.new(
+          ActionController::Parameters.new(otu_query: { otu_id: [1] }, source_query: { source_id: [1] })
+        )
+      }.to raise_error(TaxonWorks::Error::NestedQuery)
+    end
+
+    specify 'multiple nested queries at one level raise (Hash)' do
+      expect {
+        ::Queries::DataAttribute::Filter.new(otu_query: { otu_id: [1] }, source_query: { source_id: [1] })
+      }.to raise_error(TaxonWorks::Error::NestedQuery)
+    end
+
+    # Tag has no SUBQUERIES entry, i.e. accepts no nested query.
+    specify 'nested query to a filter with no SUBQUERIES entry raises (ActionController::Parameters)' do
+      expect {
+        ::Queries::Tag::Filter.new(ActionController::Parameters.new(otu_query: { otu_id: [1] }))
+      }.to raise_error(TaxonWorks::Error::NestedQuery)
+    end
+
+    specify 'nested query to a filter with no SUBQUERIES entry raises (Hash)' do
+      expect {
+        ::Queries::Tag::Filter.new(otu_query: { otu_id: [1] })
+      }.to raise_error(TaxonWorks::Error::NestedQuery)
+    end
+
+    # Batch entry points pick their scope with base_query_name; ignoring a
+    # second top-level query would run the batch without that scope.
+    specify '.base_query_name raises on more than one top-level query' do
+      expect {
+        ::Queries::Query::Filter.base_query_name(otu_query: { otu_id: [1] }, collection_object_query: { collection_object_id: [1] })
+      }.to raise_error(TaxonWorks::Error::NestedQuery)
+    end
+
+    specify '.base_query_name returns the single top-level query' do
+      expect(::Queries::Query::Filter.base_query_name(otu_query: { otu_id: [1] }, mode: 'add')).to eq(:otu_query)
+    end
+
+    specify 'registered nested query is applied' do
+      a = ::Queries::DataAttribute::Filter.new(ActionController::Parameters.new(otu_query: { otu_id: [1] }))
+      expect(a.otu_query.otu_id).to eq([1])
+    end
+  end
+
+  context 'api excluded params' do
+    specify 'are not permitted at the top level' do
+      a = ::Queries::Person::Filter.new(ActionController::Parameters.new(api: true, regex: '^A'))
+      expect(a.regex).to eq(nil)
+    end
+
+    specify 'are not permitted in a nested query' do
+      a = ::Queries::DataAttribute::Filter.new(
+        ActionController::Parameters.new(api: true, person_query: { regex: '^A', person_id: [1] })
+      )
+      expect(a.person_query.regex).to eq(nil)
+      expect(a.person_query.person_id).to eq([1])
+    end
+
+    specify 'are permitted in a nested query when not api' do
+      a = ::Queries::DataAttribute::Filter.new(
+        ActionController::Parameters.new(person_query: { regex: '^A' })
+      )
+      expect(a.person_query.regex).to eq('^A')
+    end
+  end
+
   context 'PARAMS defined' do
     filters.each do |f|
       specify "#{f.name}" do

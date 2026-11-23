@@ -2,7 +2,8 @@
   <NavBar navbar-class="panel content rounded-tl-none rounded-tr-none">
     <div
       id="browse-otu-header"
-      class="container-2xl w-full mx-auto"
+      class="w-full mx-auto"
+      :class="containerClass"
     >
       <div class="flex-separate align-start gap-medium">
         <template v-if="navigation">
@@ -63,16 +64,15 @@
           :rows="1"
         />
       </div>
-      <div class="flex-separate middle">
-        <div class="padding-large-top padding-large-bottom">
-          <h3
-            class="text-lg"
-            :class="{ 'browse-otu-invalid-name': isInvalid }"
+      <div class="flex-separate align-start">
+        <div class="margin-large-top margin-large-bottom">
+          <div 
+            class="text-lg margin-small-bottom"
             v-html="otu.object_tag"
           />
           <CoordinateOtus />
         </div>
-        <div class="horizontal-left-content middle gap-small">
+        <div class="horizontal-left-content padding-large-top gap-small">
           <QuickForms :global-id="otu.global_id" />
           <RadialAnnotator
             :global-id="otu.global_id"
@@ -168,6 +168,12 @@ const browseTaxonRef = ref(null)
 const navigation = ref()
 const showLayoutSettings = ref(false)
 const isLoading = ref(true)
+
+const containerClass = computed(() =>
+  props.preferences?.layout?.[props.storageKey]?.fullWidth
+    ? 'container-full'
+    : 'container-2xl'
+)
 
 const taxonName = computed(() => otuStore.taxonName)
 const isInvalid = computed(

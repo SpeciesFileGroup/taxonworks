@@ -10,7 +10,14 @@
         :key="index"
       >
         <li
-          v-if="item.label_html"
+          v-if="item.kind === TIMELINE_ITEM_BIOLOGY"
+          class="history__record horizontal-left-content middle gap-small"
+        >
+          <RadialAnnotator :global-id="getGlobalId(item)" />
+          <PanelTimelineBiologyCitation :item="item" />
+        </li>
+        <li
+          v-else-if="item.label_html"
           class="history__record horizontal-left-content middle gap-small"
         >
           <RadialAnnotator :global-id="getGlobalId(item)" />
@@ -45,6 +52,8 @@
 import { computed } from 'vue'
 import RadialAnnotator from '@/components/radials/annotator/annotator'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import PanelTimelineBiologyCitation from './PanelTimelineBiologyCitation.vue'
+import { TIMELINE_ITEM_BIOLOGY } from './utils/biologyItems'
 
 const props = defineProps({
   citations: {

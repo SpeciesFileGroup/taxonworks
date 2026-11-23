@@ -136,7 +136,7 @@ module Workbench::SessionsHelper
   end
 
   def authorize_project_selection(user, project)
-    project.project_members.exists?(user:)
+    user.is_administrator? || project.project_members.exists?(user:)
   end
 
   def require_sign_in
@@ -195,8 +195,8 @@ module Workbench::SessionsHelper
   end
 
   # TODO: NOT here
-  # @param [String]
-  # @param [String]
+  # @param kind [String]
+  # @param name [String]
   def favorite_page_link(kind, name)
     if favorites?(kind, name)
       link_to('Unfavorite page', unfavorite_page_path(kind:, name:), method: :post, remote: true, id: "unfavorite_link_#{kind}-#{name}", class: :unfavorite_link, 'data-tooltip-content': 'Remove from favorites')
@@ -206,11 +206,12 @@ module Workbench::SessionsHelper
   end
 
   def has_hub_favorites?
-    sessions_current_user.hub_favorites[sessions_current_project_id.to_s] ? true : false
+    favorites = sessions_current_user.hub_favorites[sessions_current_project_id.to_s]
+    favorites.present? && (favorites['data'].present? || favorites['tasks'].present?)
   end
 
-  # @param [String]
-  # @param [String]
+  # @param kind [String]
+  # @param name [String]
   def favorites?(kind, name)
     has_hub_favorites? && sessions_current_user.hub_favorites[sessions_current_project_id.to_s][kind].include?(name)
   end

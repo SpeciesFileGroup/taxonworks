@@ -14,7 +14,7 @@ module Queries
         :name,
         :otu_id,
         :otu_scope,
-        :field_occurrence,
+        :field_occurrence_id,
         :with_name,
 
         field_occurrence_id: [],
@@ -42,11 +42,11 @@ module Queries
       attr_accessor :conveyances
 
       # @return [Array]
-      # @param conveyance_object_type
+      # @param conveyance_object_type [String, Array]
       #   one or more names of classes.
       attr_accessor :conveyance_object_type
 
-      # @return String
+      # @return [String]
       attr_accessor :name
 
       # @return [Boolean, nil]
@@ -61,13 +61,13 @@ module Queries
       # @return [Array]
       attr_accessor :sound_id
 
-      # @return Boolean
+      # @return [Boolean]
       #   true - has name
       #   false - has no name
       #   nil - both
       attr_accessor :with_name
 
-      # @param params [Hash]
+      # @param query_params [Hash]
       def initialize(query_params)
         super
 

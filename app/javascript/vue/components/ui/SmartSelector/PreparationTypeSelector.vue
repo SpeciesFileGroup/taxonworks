@@ -46,7 +46,7 @@
                       :checked="preparationType?.id === item.id"
                     />
                     <span
-                      :title="item.name"
+                      v-tooltip="`${item.name}: ${item.definition}`"
                       v-html="item.object_tag"
                     />
                   </label>
@@ -70,6 +70,7 @@
 <script setup>
 import { computed, ref, watch, useTemplateRef } from 'vue'
 import { PreparationType } from '@/routes/endpoints'
+import { vTooltip } from '@/directives'
 import { chunkArray, sortArray } from '@/helpers'
 import SmartSelector from '@/components/ui/SmartSelector'
 import SmartSelectorItem from '@/components/ui/SmartSelectorItem.vue'

@@ -451,4 +451,108 @@ describe Otus::GisHelper, type: :helper do
     end
   end
 
+  describe 'distribution for an array of OTUs' do
+    let!(:species_name)    { FactoryBot.create(:relationship_species) }
+    let!(:subspecies_name) { Protonym.create!(name: 'subspeciosa', rank_class: Ranks.lookup(:iczn, :subspecies), parent: species_name) }
+
+    let!(:otu)            { FactoryBot.create(:valid_otu, taxon_name: species_name) }
+    let!(:coord_otu)      { Otu.create!(taxon_name: species_name) }
+    let!(:subspecies_otu) { Otu.create!(taxon_name: subspecies_name) }
+
+    let!(:ga) { FactoryBot.create(:valid_geographic_area) }
+
+    before do
+      FactoryBot.create(:valid_geographic_areas_geographic_item, geographic_area: ga)
+    end
+
+    def target_otu_ids(h)
+      h['features'].map { |f| f.dig('properties', 'target', 'id') }.uniq
+    end
+
+    def add_ad(object, is_absent: false)
+      FactoryBot.create(:valid_geographic_area_asserted_distribution,
+        asserted_distribution_object: object,
+        asserted_distribution_shape: ga,
+        is_absent:)
+    end
+
+    describe '#otu_distribution (existing behaviour)' do
+      specify 'includes coordinate and descendant OTUs' do
+        [otu, coord_otu, subspecies_otu].each { |o| add_ad(o) }
+
+        expect(target_otu_ids(helper.otu_distribution(otu)))
+          .to contain_exactly(otu.id, coord_otu.id, subspecies_otu.id)
+      end
+    end
+
+    describe '#otus_distribution_geo_json' do
+      before { [otu, coord_otu, subspecies_otu].each { |o| add_ad(o) } }
+
+      specify 'only includes the OTUs passed' do
+        h = helper.otus_distribution_geo_json(Otu.where(id: otu.id))
+        expect(target_otu_ids(h)).to contain_exactly(otu.id)
+      end
+
+      specify 'returns a FeatureCollection' do
+        h = helper.otus_distribution_geo_json(Otu.where(id: otu.id))
+        expect(h['type']).to eq('FeatureCollection')
+      end
+    end
+
+    describe '#otus_distribution_is_absent_geo_json' do
+      specify 'only includes the OTUs passed' do
+        other_otu = FactoryBot.create(:valid_otu, taxon_name: FactoryBot.create(:relationship_species))
+        ad_otu = add_ad(otu, is_absent: true)
+        ad_other = add_ad(other_otu, is_absent: true)
+
+        h = helper.otus_distribution_is_absent_geo_json(Otu.where(id: otu.id))
+        ad_ids = h['features'].map { |f| f.dig('properties', 'base', 'id') }
+
+        expect(ad_ids).to include(ad_otu.id)
+        expect(ad_ids).not_to include(ad_other.id)
+      end
+
+      specify 'excludes descendant OTUs' do
+        ad = add_ad(subspecies_otu, is_absent: true)
+
+        h = helper.otus_distribution_is_absent_geo_json(Otu.where(id: otu.id))
+        expect(h['features'].map { |f| f.dig('properties', 'base', 'id') }).not_to include(ad.id)
+      end
+
+      context 'only_requested: true' do
+        def absent_fo_for(o)
+          ce = FactoryBot.create(:valid_collecting_event)
+          FactoryBot.create(:valid_georeference, collecting_event: ce)
+          fo = FactoryBot.create(:valid_field_occurrence, is_absent: true, total: 0, collecting_event: ce)
+          fo.taxon_determinations.first.update!(otu: o)
+          fo
+        end
+
+        def base_ids(otu_ids)
+          helper.otus_distribution_is_absent_geo_json(Otu.where(id: otu_ids), only_requested: true)['features']
+            .map { |f| f.dig('properties', 'base', 'id') }
+        end
+
+        specify 'excludes absences of coordinate OTUs not requested' do
+          ad = add_ad(coord_otu, is_absent: true)
+          fo = absent_fo_for(coord_otu)
+          expect(base_ids(otu.id)).not_to include(ad.id, fo.id)
+        end
+
+        specify 'includes absences of coordinate OTUs requested' do
+          ad = add_ad(coord_otu, is_absent: true)
+          fo = absent_fo_for(coord_otu)
+          expect(base_ids([otu.id, coord_otu.id])).to include(ad.id, fo.id)
+        end
+
+        specify 'includes absences of ancestor OTUs' do
+          genus_otu = Otu.create!(taxon_name: species_name.parent)
+          ad = add_ad(genus_otu, is_absent: true)
+          fo = absent_fo_for(genus_otu)
+          expect(base_ids(otu.id)).to include(ad.id, fo.id)
+        end
+      end
+    end
+  end
+
 end

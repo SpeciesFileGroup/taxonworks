@@ -40,7 +40,10 @@ class Autoselect::Base
   # @param user_id [Integer, nil]
   # @param show_info [Boolean, String] when false/'false', record_info_html is skipped
   # @param kwargs [Hash] any level-specific filter params
-  def initialize(term: nil, level: nil, project_id: nil, user_id: nil, show_info: true, **kwargs)
+  def initialize(
+    term: nil, level: nil, project_id: nil, user_id: nil, show_info: true,
+    **kwargs
+  )
     @raw_term = term.presence
     @requested_level = level.presence
     @project_id = project_id
@@ -100,7 +103,8 @@ class Autoselect::Base
     results = execute_level(level_instance, effective_term, operator)
     formatted = format_results(results, level_instance)
 
-    suppress_escalation = %i[pinboard pinboard_top].include?(operator)
+    suppress_escalation =
+      %i[pinboard pinboard_top].include?(operator) || nothing_to_search?
 
     Autoselect::Response.new(
       config: nil,
@@ -138,6 +142,8 @@ class Autoselect::Base
   end
 
   def execute_level(level_instance, effective_term, operator)
+    return [] if nothing_to_search?
+
     # Record-list operators are disabled on external levels (e.g. CoL)
     return [] if level_instance.external? && record_list_operator?(operator)
 
@@ -156,6 +162,14 @@ class Autoselect::Base
       user_id:,
       **level_params
     )
+  end
+
+  # @return [Boolean]
+  #   true when the term is only an operator that needs a term after it
+  #   (e.g. "!2", "!n" sent before the client strips it), so no level is
+  #   searched; record-list operators (!r, !b, ...) need no term
+  def nothing_to_search?
+    effective_term.blank? && !record_list_operator?(operator)
   end
 
   def record_list_operator?(operator)

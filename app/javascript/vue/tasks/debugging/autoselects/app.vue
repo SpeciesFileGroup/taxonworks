@@ -26,15 +26,14 @@
         >
             <h2>{{ model.label }}</h2>
             <AutoselectField
+                class="autoselects-task__field"
                 :id="model.id"
                 :url="model.url"
                 :param="model.param"
                 :placeholder="`Search ${model.label}...`"
                 :level-delay="levelDelay"
                 :new-record-component="model.newRecordComponent ?? null"
-                :preferences-options-component="
-                    model.preferencesOptionsComponent ?? null
-                "
+                :preferences-options-component="model.preferencesOptionsComponent"
                 :reset-on-select="model.resetOnSelect ?? false"
                 v-model="selectedItems[model.id]"
                 @select="onSelect(model, $event)"
@@ -47,7 +46,10 @@
                     :global-id="lastGlobalIds[model.id]"
                 />
             </div>
-            <pre v-if="selections[model.label]">{{
+            <pre
+                v-if="selections[model.label]"
+                class="autoselects-task__field"
+            >{{
                 JSON.stringify(selections[model.label], null, 2)
             }}</pre>
         </section>
@@ -63,7 +65,7 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, shallowRef } from "vue";
 import AutoselectField from "@/components/ui/AutoselectField.vue";
 import RadialNavigator from "@/components/radials/navigation/radial.vue";
 import OtuNewModal from "@/components/ui/AutoselectField/OtuNewModal.vue";
@@ -73,8 +75,11 @@ import ColDatasetPicker from "@/components/ui/AutoselectField/ColDatasetPicker.v
 // Models are registered here by the autoselect generator.
 // id: stable unique identifier used for preferences storage and the DOM id attribute
 // newRecordComponent: Vue component to mount when !n is typed (null = disabled)
-// preferencesOptionsComponent: Vue component rendered inside PreferencesModal for model-specific options
-const registeredModels = ref([
+// preferencesOptionsComponent: Vue component rendered inside PreferencesModal for
+//   model-specific options (null = none). AutoselectField itself defaults to null,
+//   so the Playground (intentionally raw AutoselectField, not AutoselectPicker) wires
+//   it explicitly per model, same as newRecordComponent below.
+const registeredModels = shallowRef([
     {
         id: "playground-taxon-name-1",
         url: "/taxon_names/autoselect",
@@ -119,6 +124,18 @@ function onSelect(model, item) {
 </script>
 
 <style scoped>
+/* About the width an autoselect gets in a real task's panel, rather than
+   the whole page; the selection's JSON below it matches. */
+.autoselects-task__field {
+    max-width: 400px;
+}
+
+pre.autoselects-task__field {
+    box-sizing: border-box;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
 .autoselects-task__radial {
     display: inline-block;
     margin-top: 4px;

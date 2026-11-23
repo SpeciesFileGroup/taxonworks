@@ -39,7 +39,7 @@ module Queries
       # @return [Boolean, nil]
       attr_accessor :is_material
 
-      # @return String
+      # @return [String]
       attr_accessor :name
 
       # @return [Boolean, nil]
@@ -58,19 +58,19 @@ module Queries
       # OTU id of the ancestor origin OTU or CO/FO taxon determination.
       attr_accessor :otu_id
 
-      # @return String
+      # @return [String]
       attr_accessor :uri
 
-      # @return String
+      # @return [String]
       attr_accessor :uri_exact
 
-      # @return String
+      # @return [String]
       attr_accessor :uri_label
 
-      # @return String
+      # @return [String]
       attr_accessor :uri_label_exact
 
-      # @param params [Hash]
+      # @param query_params [Hash]
       def initialize(query_params)
         super
 

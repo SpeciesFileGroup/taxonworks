@@ -23,6 +23,15 @@ A level is `external?` when it reaches outside the local database.  External
 levels get a longer default fuse (`EXTERNAL_FUSE_MS = 2000` vs
 `DEFAULT_FUSE_MS = 600`).
 
+A level is `is_default` (true unless overridden) when it should start out checked
+(visible in the fuse bar) in the preferences modal, absent any stored user
+preference.  A level can be a normal, always-present member of a model's `levels`
+stack and still be niche enough to want opt-in visibility — e.g.
+`Autoselect::Otu::Levels::ColValidName` is always the 4th OTU level but overrides
+this to `false`, so it stays present-but-unchecked until a user opts in, rather
+than cluttering the fuse bar by default.  See `is_default` under Preferences below
+for how the client applies it.
+
 Example external call:
 
 | Type | Class | Description |
@@ -90,30 +99,48 @@ the `extension.hook` hash sent to the client:
 
 ```
 lib/autoselect/
-  autoselect.rb              # namespace module (Zeitwerk compatibility)
-  base.rb                    # Autoselect::Base — all model autoselects inherit this
-  level.rb                   # Autoselect::Level — base class for all levels
+  base.rb                         # Autoselect::Base, all autoselects inherit
+  level.rb                        # Autoselect::Level, base for all levels
+  hook.rb                         # Autoselect::Hook, cross-model level chains
+  operators.rb                    # `!` operator parsing, OPERATORS
+  response.rb                     # Autoselect::Response, JSON envelope
   levels/
-    smart.rb                 # Autoselect::Levels::Smart — Queries delegation
-  operators.rb               # Autoselect::Operators — parsing + OPERATORS constant
-  response.rb                # Autoselect::Response — JSON envelope
-  hook.rb                    # Autoselect::Hook — cross-model level chain base
+    smart.rb                      # Delegates to Queries::<Model>::Autocomplete
+    col_record_info.rb            # CoL levels' record_info mixin
+    col_record_label.rb           # TaxonName CoL levels' record_label mixin
+    col_resolved_name.rb          # col_valid_name levels' record_info
+    col_source_mark.rb            # TaxonWorks/CoL source icon on CoL results
+    col_code_badge.rb             # Code badge when CoL results span codes
 
   taxon_name/
-    autoselect.rb            # Autoselect::TaxonName::Autoselect (3 levels: fast→smart→CoL)
-    operators.rb             # TaxonName operator overrides (currently inherits default)
+    autoselect.rb                 # Levels: fast→smart→CoL→CoL valid name
+    operators.rb                  # Overrides (not included anywhere)
+    col_match.rb                  # Matches a CoL name usage to TaxonNames
+    col_ancestry_comparator.rb    # Diffs TaxonWorks/CoL ancestor chains
+    catalogue_of_life_creator.rb  # Creates TaxonNames from a CoL selection
     levels/
-      fast.rb                # Prefix match on cached column
-      smart.rb               # Delegates to Queries::TaxonName::Autocomplete
-      catalogue_of_life.rb     # External CoL search
-    col_creator.rb           # TaxonName creation logic from CoL alignment data
+      fast.rb                     # Prefix match on cached
+      smart.rb                    # Queries::TaxonName::Autocomplete
+      catalogue_of_life.rb        # External CoL search
+      col_valid_name.rb           # Resolves CoL synonyms to accepted names
 
   otu/
-    autoselect.rb            # Autoselect::Otu::Autoselect (2 levels: smart→CoL)
-    operators.rb             # OTU operator overrides (currently inherits default)
+    autoselect.rb                 # Levels: fast→smart→CoL→CoL valid name
+    operators.rb                  # Overrides (none yet, inherits default)
+    col_existing_otu.rb           # Existing Otu a CoL result reuses
     levels/
-      smart.rb               # Delegates to Queries::Otu::Autocomplete; handles !n sentinel
-      catalogue_of_life.rb     # Delegates to TaxonName CoL level; wraps with hook metadata
+      fast.rb                     # Prefix match on Otu/TaxonName names
+      smart.rb                    # Queries::Otu::Autocomplete; !n sentinel
+      catalogue_of_life.rb        # TaxonName CoL level + OTU hook
+      col_valid_name.rb           # TaxonName ColValidName level + OTU hook
+
+  asserted_environment/
+    autoselect.rb                 # Levels: fast→smart→ENVO
+    operators.rb                  # Drops !n (no new-record modal)
+    levels/
+      fast.rb                     # Prefix match on uri_label
+      smart.rb                    # Queries::AssertedEnvironment::Autocomplete
+      envo.rb                     # External ENVO search
 ```
 
 ## Request / response flow
@@ -133,7 +160,7 @@ Client (AutoselectField.vue)
 ```json
 {
   "resource": "/otus/autoselect",
-  "levels": [ { "key": "smart", "label": "Smart", "external": false, "fuse_ms": 600 }, ... ],
+  "levels": [ { "key": "smart", "label": "Smart", "external": false, "fuse_ms": 600, "is_default": true }, ... ],
   "operators": [ { "key": "new_record", "trigger": "!n", ... }, ... ],
   "map": ["smart", "catalogue_of_life"]
 }
@@ -211,6 +238,13 @@ tw_autoselect_prefs → {
 }
 ```
 
+A level with no `"hide"` entry (the user has never touched its checkbox) falls
+back to that level's own `is_default` (see Levels above) rather than a hardcoded
+default — so a niche level added with `is_default` false starts out unchecked
+without needing a stored preference, while everything else starts out checked.
+Once the user toggles a level's checkbox, the stored `hide` value takes over and
+`is_default` is no longer consulted for that level/instance.
+
 ### `id` attribute
 
 Every `<div class="autoselect">` element should carry a globally unique `id`
@@ -244,7 +278,8 @@ models.  It shows:
 1. **Levels section** — one checkbox per level; hiding a level removes its segment
    from the fuse bar and renumbers the `!N` jump shortcuts dynamically.
 2. **Options section** (optional) — rendered via the `preferencesOptionsComponent`
-   prop; the caller provides a model-specific component (e.g. `ColDatasetPicker`).
+   prop; `AutoselectField` itself defaults this to `null` (no section) to stay fully
+   generic. `AutoselectPicker` (see below) defaults it to `ColDatasetPicker` instead.
 
 ### Level options → server
 
@@ -258,19 +293,54 @@ GET /taxon_names/autoselect?term=Rattus&level=catalogue_of_life&dataset_id=9830
 The controller must explicitly permit any option keys (e.g. `dataset_id` in
 `autoselect_params`), and the level's `call` method must accept them.
 
+A level can instead search with another level's options by overriding
+`Autoselect::Level#options_level` (sent as `options_level` in the level
+metadata). The CoL `col_valid_name` levels do this with `:catalogue_of_life`,
+so the one CoL dataset preference applies to every CoL level.
+
 ### CoL dataset selection (`ColDatasetPicker`)
 
 `ColDatasetPicker` is the preferences options component for autoselects that include
 a `catalogue_of_life` level.  It searches CoL datasets via
 `GET /taxon_names/autoselect_col_datasets?q=...` and stores the chosen dataset id in
-`options.dataset_id` for the `catalogue_of_life` level preference.  When no dataset
+`options.dataset_id` for the `catalogue_of_life` level preference; other CoL
+levels read it from there via `options_level` (see above).  When no dataset
 is chosen the `Vendor::Colrapi::DATASETS[:col]` default is used.
+
+### `AutoselectPicker` (opinionated wrapper)
+
+`AutoselectField` is deliberately generic — no model knowledge, no opinionated
+defaults — mirroring `Autocomplete.vue`'s role as the bare, reusable input primitive.
+`AutoselectPicker` is a thin wrapper around it (`components/ui/AutoselectPicker.vue`,
+a peer of `AutoselectField.vue` and `SmartSelector.vue`) that supplies the sensible
+per-model defaults most callers actually want:
+
+- `model` (e.g. `'otus'`, `'taxon_names'`) drives the autoselect `url`
+  (`` `/${model}/autoselect` ``), the same convention `SmartSelector` uses for the
+  legacy `` `/${model}/autocomplete` ``. `param` stays an explicit prop.
+- `preferencesOptionsComponent` defaults to `ColDatasetPicker`.
+- `create` (default `true`) resolves the `!n` modal from
+  `AUTOSELECT_NEW_RECORD_COMPONENTS` (`AutoselectField/newRecordComponents.js`),
+  keyed by `model`; `createComponent` overrides the lookup, `create: false` disables
+  it outright.
+- `getObject` (default `false`) — when true, `select` (the picker's only event)
+  receives the full fetched record (`GET /${model}/${id}.json`, or `getUrl` if given) instead of
+  the lightweight autoselect response item, mirroring `SmartSelector`'s own
+  `getObject`/`getUrl`/`extend` (here `fetchParams`). Off by default since most
+  callers only need `response_values`, not an extra round trip per selection.
+
+It is still **not** a full `SmartSelector` clone: no broadcast/lock, no tabs.
+`AutoselectField`'s own operators (`!u`/`!r`/`!b`/`!!`) already cover the
+pinboard/recent ground `SmartSelector` exists to bolt onto `Autocomplete.vue`, so
+there's nothing analogous left for this wrapper to add there.
 
 ## Client-side components
 
 | File | Purpose |
 |------|---------|
 | `app/javascript/vue/components/ui/AutoselectField.vue` | Main autocomplete input with fuse bar, dropdown, operator handling, extension panels |
+| `app/javascript/vue/components/ui/AutoselectPicker.vue` | Opinionated model-aware wrapper (ColDatasetPicker + create-by-model defaults, opt-in getObject upgrade) |
+| `app/javascript/vue/components/ui/AutoselectField/newRecordComponents.js` | Shared `model → !n component` map, consumed by `AutoselectPicker` and the ERB initializer |
 | `app/javascript/vue/components/ui/AutoselectField/useAutoselect.js` | Composable: config fetch + cache, level/operator helpers |
 | `app/javascript/vue/components/ui/AutoselectField/ColConfirmModal.vue` | CoL TaxonName creation confirmation modal |
 | `app/javascript/vue/components/ui/AutoselectField/OtuNewModal.vue` | OTU new-record modal (passed via `newRecordComponent` prop) |

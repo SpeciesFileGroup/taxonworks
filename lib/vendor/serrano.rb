@@ -165,7 +165,7 @@ module Vendor
       end
     end
 
-    # @return Boolean
+    # @return [Boolean]
     #   use our global identifier class to determined if value is DOI
     #   this isn't super robust, but maybe OK
     def self.citation_is_valid_doi?(citation)

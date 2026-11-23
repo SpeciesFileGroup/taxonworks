@@ -29,8 +29,8 @@ class ImportDataset::DarwinCore < ImportDataset
     dataset_record_fields.with_record_class(core_records_class)
   end
 
-  # @param [string] file_path
-  #   Path to DwC-A file
+  # @param params [Hash]
+  #   params[:source] is the path to the DwC-A file
   # @return [Checklist, Occurrences, Unknown]
   # Returns the appropriate ImportDataset::DarwinCore subclass instantiated (not saved) for the supplied params
   def self.create_with_subtype_detection(params)
@@ -204,7 +204,7 @@ class ImportDataset::DarwinCore < ImportDataset
   # Sets import settings for this dataset
   def set_import_settings(import_settings)
     metadata['import_settings'] ||= {}
-    import_settings.each { |k, v| metadata['import_settings'].merge!({k => v}) }
+    import_settings.each { |key, value| metadata['import_settings'][key.to_s] = value }
 
     metadata['import_settings']
   end

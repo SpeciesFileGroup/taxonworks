@@ -290,7 +290,7 @@ class User < ApplicationRecord
     project_member.is_project_administrator
   end
 
-  # @param [Project, Integer]
+  # @param project [Project, Integer]
   # @return [Boolean]
   def member_of?(project)
     ProjectMember.where(project_id: project, user_id: self.id).any?
@@ -433,7 +433,8 @@ class User < ApplicationRecord
 
   # rubocop:disable Metrics/MethodLength
   # @return [Hash]
-  # @user.get_class_created_updated # => { "projects" => {created: 10, first_created: datetime, updated: 10, last_updated: datetime} }
+  # @example
+  #   @user.get_class_created_updated # => { "projects" => {created: 10, first_created: datetime, updated: 10, last_updated: datetime} }
   def get_class_created_updated
     #  Rails.application.eager_load! if Rails.env.development?
     data = {}
@@ -492,7 +493,7 @@ class User < ApplicationRecord
     person.identifiers.where(type: 'Identifier::Global::Wikidata').first&.identifier
   end
 
-  # @return Array of Projects
+  # @return [Array] of Projects
   #   A quick, not comprehensive check of what projects User has touched data in
   def data_in_projects
     scan = [TaxonName, Citation, CollectionObject, CollectingEvent, Image, AssertedDistribution, Role]

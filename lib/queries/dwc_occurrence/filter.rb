@@ -34,7 +34,7 @@ module Queries
         taxon_name_id: []
       ].inject([{}]){|ary, k| k.is_a?(Hash) ? ary.last.merge!(k) : ary.unshift(k); ary}.freeze
 
-      # @params dwc_occurrence_id [Integer, Array, nil]
+      # @param dwc_occurrence_id [Integer, Array, nil]
       #   the TW native id, *not* the occurrenceID
       attr_accessor :dwc_occurrence_id
 
@@ -42,7 +42,7 @@ module Queries
       attr_accessor :person_id
       attr_accessor :taxon_name_id
 
-      # @return Array
+      # @return [Array]
       #   of labels of ranks in DwcOccurrence
       attr_accessor :empty_rank
 

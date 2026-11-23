@@ -54,6 +54,7 @@ end
 if !@taxon_name.cached_is_valid && !@taxon_name.is_ambiguously_invalid?
   json.valid_name do
     json.id @taxon_name.cached_valid_taxon_name_id
+    json.otu_id @taxon_name.valid_taxon_name.otus.first&.id
     json.valid_name @taxon_name.valid_taxon_name.name
     json.valid_full_name label_for_taxon_name(@taxon_name.valid_taxon_name)
 

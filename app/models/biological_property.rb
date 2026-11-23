@@ -6,6 +6,16 @@ class BiologicalProperty < ControlledVocabularyTerm
   has_many :biological_relationships, through: :biological_relationship_types
 
   # @return [ActiveRecord::Relation]
+  #   BiologicalAssociations whose relationship uses this property (as subject
+  #   and/or object), each once
+  def biological_associations
+    BiologicalAssociation.where(
+      biological_relationship_id:
+        biological_relationship_types.select(:biological_relationship_id)
+    )
+  end
+
+  # @return [ActiveRecord::Relation]
   #   BiologicalAssociationIndex records for associations with relationships that use this property
   def biological_association_indices
     BiologicalAssociationIndex

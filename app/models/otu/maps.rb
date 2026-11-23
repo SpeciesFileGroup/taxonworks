@@ -34,7 +34,7 @@ module Otu::Maps
     end
   end
 
-  # @return CachedMap
+  # @return [CachedMap]
   #   !! Geometry is included in these objects
   # If the CachedMap is not yet built it is built here.
   def cached_map(cached_map_type = 'CachedMapItem::WebLevel1')
@@ -56,7 +56,7 @@ module Otu::Maps
     s.present? ? JSON.parse( s ) : nil
   end
 
-  # @return String
+  # @return [String]
   #   A string representation of the geo json
   def cached_map_string(cached_map_type = 'CachedMapItem::WebLevel1')
     mid = cached_map_id # don't load the whole object

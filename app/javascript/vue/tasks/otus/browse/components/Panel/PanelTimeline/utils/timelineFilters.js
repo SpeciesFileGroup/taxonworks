@@ -5,7 +5,7 @@ const matchSingle = ({ key, value, equal }, attrs) => {
 }
 
 const matchTab = (tab, attrs) => {
-  if (!tab || tab.label === 'All') return true
+  if (!tab) return true
 
   return matchSingle(tab, attrs)
 }
@@ -34,6 +34,16 @@ export function matchItem(item, { tab, filterSections, selectedTopics }) {
     matchAndGroups(filterSections.and, attrs) &&
     matchOrGroups(filterSections.or, attrs) &&
     matchTopics(selectedTopics, item.topics)
+  )
+}
+
+export function itemsForTaxonNames(taxonNameIds, items) {
+  const ids = new Set(taxonNameIds)
+
+  return items.filter((item) =>
+    (item.data_attributes['history-protonym-ids'] ?? []).some((id) =>
+      ids.has(id)
+    )
   )
 }
 
@@ -68,4 +78,21 @@ export function sourceTopics(sourceId, items) {
   return [
     ...new Set(itemsForSources([sourceId], items).flatMap((i) => i.topics))
   ]
+}
+
+const yearOf = (item) => {
+  const year = item.data_attributes['history-year']
+
+  return Number.isInteger(year) ? year : Infinity
+}
+
+export function sortChronologically(items) {
+  return [...items].sort((a, b) => yearOf(a) - yearOf(b))
+}
+
+export function matchBiologyItem(item, { filterSections, selectedTopics }) {
+  return (
+    matchAndGroups({ year: filterSections.and.year }, item.data_attributes) &&
+    matchTopics(selectedTopics, item.topics)
+  )
 }

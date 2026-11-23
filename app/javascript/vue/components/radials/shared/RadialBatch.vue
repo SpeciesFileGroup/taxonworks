@@ -49,6 +49,7 @@
                 :ids="ids"
                 :parameters="params"
                 :count="count"
+                :object-type="objectType"
                 @close="handleClose"
               />
             </div>
@@ -56,6 +57,7 @@
         </template>
       </VModal>
       <VBtn
+        v-if="showBottom"
         class="circle-button"
         :title="title"
         circle
@@ -87,6 +89,11 @@ defineOptions({
 })
 
 const props = defineProps({
+  showBottom: {
+    type: Boolean,
+    default: true
+  },
+
   ids: {
     type: Array,
     default: () => []
@@ -161,4 +168,6 @@ const {
   props,
   slices: props.slices
 })
+
+defineExpose({ openRadialMenu: openRadialBatch })
 </script>

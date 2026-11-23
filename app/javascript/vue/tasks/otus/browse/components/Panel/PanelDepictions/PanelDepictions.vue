@@ -170,7 +170,7 @@ async function loadDepictions(otuId) {
   try {
     const { body } = await Depiction.filter({
       otu_id: otuId,
-      otu_scope: ['all'],
+      otu_scope: ['otus', 'otu_observations'],
       per: 500
     })
 
@@ -206,8 +206,7 @@ watch(
 }
 
 .depictions-gallery__tile {
-  display: grid;
-  place-items: center;
+  position: relative;
   aspect-ratio: 1;
   overflow: hidden;
   border-radius: var(--border-radius-small);
@@ -215,10 +214,11 @@ watch(
 }
 
 .depictions-gallery__image {
-  max-width: 100%;
-  max-height: 100%;
-  width: auto;
-  height: auto;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
 .depictions-gallery__more {

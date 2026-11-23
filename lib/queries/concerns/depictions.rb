@@ -15,7 +15,7 @@ module Queries::Concerns::Depictions
 
   included do
     # @return [Array]
-    # @params image_id
+    # @param image_id [Integer, Array]
     attr_accessor :image_id
 
     # @return [Boolean, nil]

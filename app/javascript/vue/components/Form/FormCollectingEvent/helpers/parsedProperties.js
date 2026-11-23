@@ -47,8 +47,12 @@ export const parsedProperties = {
 
   CollectorsComponent: ({ ce }) =>
     ce.roles_attributes
+      .filter((role) => !role._destroy)
       .map(
         (role) =>
+          role?.organization?.name ||
+          role?.name ||
+          role?.cached ||
           role?.person?.cached ||
           [role?.last_name, role?.first_name].filter(Boolean).join(', ')
       )

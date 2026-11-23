@@ -18,7 +18,7 @@ module Workbench::TableHelper
   #
   def fancy_metadata_cells_tag(object)
     content_tag(:td, object_tag(object.updater)) +
-      content_tag(:td, object_time_since_update_tag(object)) +
+      content_tag(:td, object_time_since_update_tag(object), data: { sort_value: object.updated_at.to_i }) +
       fancy_options_cells_tag(object)
   end
 
@@ -41,7 +41,7 @@ module Workbench::TableHelper
   end
 
   def fancy_pin_tag(object)
-    if object.respond_to?(:pinned?)
+    if pinnable?(object)
       content_tag(:td, pin_item_to_pinboard_link(object, sessions_current_user), class: 'table-options', data: {pin: true})
     end
   end

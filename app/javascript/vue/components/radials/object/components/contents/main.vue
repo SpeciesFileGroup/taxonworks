@@ -87,6 +87,7 @@
       :contents="list"
       @delete="removeItem"
       @edit="setContent"
+      @publish="({ item, value }) => (item.is_public = value)"
     />
   </div>
 </template>
@@ -121,7 +122,7 @@ const props = defineProps({
   }
 })
 
-const extend = ['otu', 'topic']
+const extend = ['otu', 'topic', 'public_content']
 
 const config = {
   status: false,
@@ -153,7 +154,7 @@ onBeforeMount(async () => {
     otu_id: props.objectId,
     extend
   }).then(({ body }) => {
-    list.value = body
+    list.value = body.map(makePublishState)
   })
 })
 
@@ -165,7 +166,8 @@ function saveContent() {
       text,
       topic_id: topic.value.id,
       otu_id: props.objectId,
-      type: props.objectType
+      type: props.objectType,
+      is_public: content.value.is_public
     },
     extend
   }
@@ -173,10 +175,17 @@ function saveContent() {
   const saveRecord = id ? Content.update(id, payload) : Content.create(payload)
 
   saveRecord.then(({ body }) => {
-    addToList(body)
+    addToList(makePublishState(body))
     TW.workbench.alert.create('Content was successfully saved.', 'notice')
     content.value = makeContent()
   })
+}
+
+function makePublishState(item) {
+  return {
+    ...item,
+    is_public: !!item.public_content
+  }
 }
 
 function makeContent() {

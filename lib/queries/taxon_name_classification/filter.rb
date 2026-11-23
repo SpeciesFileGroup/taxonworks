@@ -29,7 +29,7 @@ module Queries
       #     `exceptions`
       attr_accessor :taxon_name_classification_set
 
-      # @param params [Params]
+      # @param query_params [Params]
       def initialize(query_params)
         super
         @taxon_name_id = params[:taxon_name_id]

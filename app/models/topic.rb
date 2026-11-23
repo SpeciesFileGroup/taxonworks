@@ -15,12 +15,6 @@ class Topic < ControlledVocabularyTerm
   has_many :public_contents, inverse_of: :topic, dependent: :destroy
   has_many :otus, through: :contents
 
-  # TODO: Layout handling as a concern
-  has_many :otu_page_layout_sections, -> {
-    where(otu_page_layout_sections:
-          {type: 'OtuPageLayoutSection::StandardSection'}) }, inverse_of: :topic
-  has_many :otu_page_layouts, through: :otu_page_layout_sections
-
   scope :used_on_klass, -> (klass) { joins(:citations).where(citations: {citation_object_type: klass}) }
 
   # TODO: Deprecate for CVT + params (if not already done)
@@ -68,10 +62,9 @@ class Topic < ControlledVocabularyTerm
     end
   end
 
-  # @params klass [String] if target is `Citation` then if provided limits to those classes with citations,
-  # if `Content` then not used
-  # @params target [String] one of `Citation` or `Content`
-  # @params klass [String] like TaxonName, required if target == `Citation`
+  # @param klass [String] like TaxonName, required if target is `Citation`,
+  #   limits to those classes with citations; if `Content` then not used
+  # @param target [String] one of `Citation` or `Content`
   # @return [Hash] topics optimized for user selection
   def self.select_optimized(user_id, project_id, klass, target = 'Citation')
     r = used_recently(user_id, project_id, klass, target)

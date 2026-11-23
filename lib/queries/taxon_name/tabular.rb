@@ -232,7 +232,7 @@ module Queries
         ranks.collect{|r| Ranks.lookup(ancestor.nomenclatural_code, r)}
       end
 
-      # @return t[:id] for the finest rank, t is aliased
+      # @return [Arel::Nodes::NamedFunction] t[:id] for the finest rank, t is aliased
       def finest_rank_id
         coalesce_ranks(rank_id_fields.reverse)
       end

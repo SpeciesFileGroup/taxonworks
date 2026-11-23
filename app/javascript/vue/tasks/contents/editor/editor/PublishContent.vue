@@ -22,17 +22,22 @@ const props = defineProps({
   }
 })
 
+const emit = defineEmits(['change'])
+
 const isPublic = ref(false)
 const isLoading = ref(false)
 
 function makeContentPublish() {
+  const value = !isPublic.value
   const payload = {
     content: {
-      is_public: !isPublic.value
+      is_public: value
     }
   }
 
-  Content.update(props.contentId, payload)
+  Content.update(props.contentId, payload).then(() => {
+    emit('change', value)
+  })
 }
 
 watch(

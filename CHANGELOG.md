@@ -9,6 +9,123 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 ### Added
 
+- Light table task
+
+### Changed
+
+- Replaced the jQuery tablesorter plugin with a native sorter.
+- System news bar: titles are now always underlined and the whole bar is clickable, making it clear that news items are links
+
+### Fixed
+
+- Darwin Core Media Extension Preview
+- Browse OTU link in OTU show page (Report) and taxon determination links not loading the OTU in the task
+- Pinboard buttons do not synchronize across browser tabs [#5167]
+- Fix some table columns sorting by text rather than number (Project page's 'last seen', 'time in project'; Data tab list tables' 'last updated'; Downloads list table's 'expires') [#5175]
+- Keyboard shortcuts: Alt key stays active after typing a character with an Alt + number [#5181]
+- Asserted distribution batch load only imported one citation per OTU/area pair [#5131]
+
+[#5131]: https://github.com/SpeciesFileGroup/taxonworks/issues/5131
+[#5167]: https://github.com/SpeciesFileGroup/taxonworks/issues/5167
+[#5175]: https://github.com/SpeciesFileGroup/taxonworks/issues/5175
+[#5181]: https://github.com/SpeciesFileGroup/taxonworks/issues/5181
+
+## [0.67.0] - 2026-11-4
+
+### Added
+
+- Support organizations as collectors in collecting events [#5164].
+- Occurrences importer: Import people and organizations via `TW:TaxonDetermination:determiner_ids` (e.g. `Person/123 | Organization/456`).
+- Occurrences importer: Import people and organizations as collectors via `TW:CollectingEvent:collector_ids` (e.g. `Person/123 | Organization/456`).
+- Composition and CompositionItem models, the first Render models for tracking display of Data items in the UI [#5116] [#5117]
+- `coordinate_otus` parameter to `/api/v1/otus/<id>/inventory/content`
+- `coordinate_otus` parameter to `/api/v1/otus/<id>/inventory/distribution.geojson`
+- `coordinate_otus` parameter to `/api/v1/otus/<id>/inventory/distribution_is_absent.geojson`
+- Browse OTUs: `All` tab in Timeline panel
+- extend[]=citations param to /api/v1/leads
+- Batch add/remove AssertedEnvironments from Filter OTU and Collecting Event [#5128]
+- Citations by source: Add depictions to summarize OTUs list [#5141]
+- "Is data depiction" checkbox to Image viewer [#5144]
+- Radial mass navigator: Edit slice
+- New source: Italic button to Abstract field
+- Taxon name pills to OTU tags
+- `/taxon_names/<id>/inventory/catalog` includes `nomenclatural_synonyms_otu_id`
+
+### Changed
+
+- `/api/v1/otus/<id>/inventory/type_material` includes type material of synonyms
+- Browse OTUs: Contents are now grouped by OTU when there is more than one. [#5136]
+- `/taxon_names/<id>/inventory/catalog` sends sources in chronological order [#200]
+- Autocompletes: Removed bold and softened the yellow highlight for matching text [#5151]
+- Filter Biological Associations: change default taxon name search to `or` mode [#5153]
+- New observation matrix: replaced OTU autocompletes by autoselects
+- New image: Replaced OTU autocomplete by autoselect in "Depict some" panel [#5143]
+- Updated RubyGems and Node packages
+
+### Fixed
+
+- Batch update of Data Attributes - from filters _other than_ Collection Objects, Collecting Events, Field Occurrences, OTUs, or Taxon Names - updated Data Attributes on every record in the project, not just the filtered ones [#5163]
+- Batch remove protocol in filters removed all protocols from the selected records instead of just the selected protocol [#5163]
+- Batch remove source from project removed sources from a project even when they were cited in that project [#5163]
+- Batch add sources to a project used to stop at the first source already in the project [#5163]
+- Contents are not republished after saving content that was already published [#5133]
+- Browse OTUs: Timeline shows citations for all taxon names when it should only show the current one
+- Biological Properties usage count now returns the number of Biological Associations using a Biological Relationship that has that property on its subject, object, or both sides
+- Filter TNR: After destroying a record in filter taxon name relationships the record still displays [#5137]
+- Browse OTU: OTU distribution map does not load for Combinations [#5152]
+- Field Occurrences don't fill in taxonomy columns (family, genus, etc.) when included in Darwin Core exports
+- CSD: Saving a CO with a CE that has multiple uses displays a confirmation modal even if it has not been modified [#5146]
+- Unify issues related to matrices [#5129]
+- The PDF toolbar overlaps the scroll button
+- Outdated Names linker task from Filter Collection Objects reported wrong results for invalid names under a subgenus [#5115]
+- Improved coverage at https://rdoc.taxonworks.org/
+
+[#200]: https://github.com/SpeciesFileGroup/taxonpages/issues/200
+[#5115]: https://github.com/SpeciesFileGroup/taxonworks/issues/5115
+[#5116]: https://github.com/SpeciesFileGroup/taxonworks/issues/5116
+[#5117]: https://github.com/SpeciesFileGroup/taxonworks/issues/5117
+[#5128]: https://github.com/SpeciesFileGroup/taxonworks/issues/5128
+[#5129]: https://github.com/SpeciesFileGroup/taxonworks/issues/5129
+[#5133]: https://github.com/SpeciesFileGroup/taxonworks/issues/5133
+[#5136]: https://github.com/SpeciesFileGroup/taxonworks/issues/5136
+[#5137]: https://github.com/SpeciesFileGroup/taxonworks/issues/5137
+[#5141]: https://github.com/SpeciesFileGroup/taxonworks/issues/5141
+[#5143]: https://github.com/SpeciesFileGroup/taxonworks/issues/5143
+[#5144]: https://github.com/SpeciesFileGroup/taxonworks/issues/5144
+[#5146]: https://github.com/SpeciesFileGroup/taxonworks/issues/5146
+[#5151]: https://github.com/SpeciesFileGroup/taxonworks/issues/5151
+[#5152]: https://github.com/SpeciesFileGroup/taxonworks/issues/5152
+[#5153]: https://github.com/SpeciesFileGroup/taxonworks/issues/5153
+[#5163]: https://github.com/SpeciesFileGroup/taxonworks/issues/5163
+[#5164]: https://github.com/SpeciesFileGroup/taxonworks/pull/5164
+
+## [0.66.1] - 2026-10-09
+
+### Added
+
+- Browse OTUs: preference to display the task in full width
+- Browse OTUs: links to OTUs coordinate
+
+### Changed
+
+- Filter sources: search sources in project by default
+- Browse OTUs: Distribution panel only loads data for the selected OTUs [#4453]
+- Browse OTUs: The image panel displays only OTU and observation images [#5130]
+- Browse OTUs: Replace per-OTU selection with All / Current / Coordinates only scope
+
+### Fixed
+
+- Browse OTUs: Thumbnails may be cropped in the images panel
+- "Internal error" screen instead of error toast when error occurs during Batch Asserted Distribution upload
+- New collecting events: Fix CORS error and allow free text in CE Group/Formation fields
+
+[#4453]: https://github.com/SpeciesFileGroup/taxonworks/issues/4453
+[#5130]: https://github.com/SpeciesFileGroup/taxonworks/issues/5130
+
+## [0.66.0] - 2026-10-07
+
+### Added
+
 - Autocomplete for Organization
 - `/api/v1/alternate_values` and `/api/v1/alternate_values/<id>` endpoints
 - Adds extend[]=citations to /api/v1/common_names endpoint
@@ -18,6 +135,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Status (i.e. Classification) slice to Filter Taxon Names radial (ids side only); replaces/extends separate Fossil slice [#5088]
 - Filter descriptors: Modal to update descriptors position
 - Filter field occurrences: Add mass delete (Up to a maximun of 25 records)
+- Browse OTU: Map now display absent distribution.
 
 ### Changed
 
@@ -25,6 +143,9 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Updated attribution label in `/api/v1/leads/key/<id>`
 - Radial annotator: Replace background color by badge when citation is original [#4979]
 - Add support for setting a Taxon Determination for a batch import of iNaturalist observations [#4912]
+- Browse OTU: Refactor BA panel [#4487]
+- Updated Ruby gems
+- Updated NPM packages
 
 ### Fixed
 
@@ -38,11 +159,19 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Bug allowing to create more than one type genus, type family, etc. [#5106]
 - iNaturalist OTU matching fails on subgenera [#5086]
 - Match OTU to Taxon Name can fail to label ambiguity when an input name matches both a name with subgenus and a name without subgenus [#5066]
+- Browse OTU page of higher level taxa does not list collection objects/field observations [#5070]
+- Browse OTU errors on GETs requests that are too long. [#5082]
+- In some cases, Browse OTU displays duplicated type specimens. [#4875]
 
 [#114]: https://github.com/SpeciesFileGroup/taxonworks/issues/114
+[#4487]: https://github.com/SpeciesFileGroup/taxonworks/issues/4487
+[#4875]: https://github.com/SpeciesFileGroup/taxonworks/issues/4875
 [#4912]: https://github.com/SpeciesFileGroup/taxonworks/issues/4912
 [#4979]: https://github.com/SpeciesFileGroup/taxonworks/issues/4979
 [#5066]: https://github.com/SpeciesFileGroup/taxonworks/issues/5066
+[#5067]: https://github.com/SpeciesFileGroup/taxonworks/issues/5067
+[#5070]: https://github.com/SpeciesFileGroup/taxonworks/issues/5070
+[#5082]: https://github.com/SpeciesFileGroup/taxonworks/issues/5082
 [#5086]: https://github.com/SpeciesFileGroup/taxonworks/issues/5086
 [#5088]: https://github.com/SpeciesFileGroup/taxonworks/issues/5088
 [#5090]: https://github.com/SpeciesFileGroup/taxonworks/issues/5090
@@ -6574,7 +6703,10 @@ _Special thanks to Tom Klein for his amazing open-source contributions on this r
 - Loosing input page numbers when switching tabs on New Taxon Name task
 
 [#1532]: https://github.com/SpeciesFileGroup/taxonworks/issues/1532
-[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.65.0...development
+[unreleased]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.67.0...development
+[0.67.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.66.1...v0.67.0
+[0.66.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.66.0...v0.66.1
+[0.66.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.65.0...v0.66.0
 [0.65.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.64.0...v0.65.0
 [0.64.0]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.63.1...v0.64.0
 [0.63.1]: https://github.com/SpeciesFileGroup/taxonworks/compare/v0.63.0...v0.63.1

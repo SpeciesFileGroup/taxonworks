@@ -44,7 +44,7 @@ class ProtocolRelationship < ApplicationRecord
       else
         ProtocolRelationship
           .where(
-            protocol_relationship_object_id: query.pluck(:id),
+            protocol_relationship_object_id: query.unscope(:select, :order).select(:id),
             protocol_relationship_object_type: query.klass.name,
             protocol_id: params[:replace_protocol_id]
           ).find_each do |o|
@@ -61,8 +61,9 @@ class ProtocolRelationship < ApplicationRecord
       # Just delete, async or not
       ProtocolRelationship
         .where(
-          protocol_relationship_object_id: query.pluck(:id),
-          protocol_relationship_object_type: query.klass.name
+          protocol_relationship_object_id: query.unscope(:select, :order).select(:id),
+          protocol_relationship_object_type: query.klass.name,
+          protocol_id: params[:protocol_id]
         ).delete_all
 
     when :add

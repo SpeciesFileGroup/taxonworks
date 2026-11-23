@@ -8,7 +8,7 @@ module RecordNavigationHelper
     return Object.new.extend(helper_module)
   end
 
-  # @return Array
+  # @return [Array]
   def parent_records(object)
     []
   end

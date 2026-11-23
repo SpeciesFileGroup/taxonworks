@@ -36,7 +36,11 @@ module Queries
 
       attr_accessor :data_attribute_id
 
-      # @params params [ActionController::Parameters]
+      # TODO: untangle this
+      # Not provided by Query::Filter, see Queries::Concerns::Citations
+      attr_accessor :source_query
+
+      # @param query_params [ActionController::Parameters]
       def initialize(query_params)
         super
 
@@ -101,16 +105,17 @@ module Queries
         controlled_vocabulary_term_id.empty? ? nil : table[:controlled_vocabulary_term_id].in(controlled_vocabulary_term_id)
       end
 
-      # Replaces things like `otu_query_facet)
+      # Replaces things like `otu_query_facet`
       def from_filter_facet(query, project_ids = [])
         return nil if query.nil?
         t = "query_#{query.table.name}_da"
 
-        k = query.referenced_klass.name
+        k = query.referenced_klass.base_class.name
 
         q = query
 
-        if !project_ids.empty?
+        # e.g. Source, Person are not project scoped
+        if !project_ids.empty? && query.referenced_klass.column_names.include?('project_id')
           q = q.all.select(:id).where(project_id: project_ids)
         else
           q = q.all.select(:id)
@@ -126,13 +131,9 @@ module Queries
       end
 
       def merge_clauses
-        [
-          from_filter_facet(otu_query, project_id),
-          from_filter_facet(taxon_name_query, project_id),
-          from_filter_facet(collecting_event_query, project_id),
-          from_filter_facet(collection_object_query, project_id),
-          from_filter_facet(field_occurrence_query, project_id),
-        ]
+        ::Queries::Query::Filter::SUBQUERIES[:data_attribute].collect { |m|
+          from_filter_facet(send("#{m}_query"), project_id)
+        }
       end
 
       def and_clauses

@@ -115,21 +115,11 @@ const list = ref([])
 const pagination = ref()
 const isLoading = ref(false)
 
-const filterParams = computed(() => {
-  const taxonNameId = props.otu?.taxon_name_id
-  const params = {}
+const otuIds = computed(() => props.otus.map((o) => o.id))
 
-  if (taxonNameId) {
-    params.taxon_name_id = taxonNameId
-    params.descendants = true
-  } else {
-    params.otu_id = otuIds.value
-  }
-
-  return {
-    ...params
-  }
-})
+const filterParams = computed(() => ({
+  otu_id: otuIds.value
+}))
 
 async function listParser(items) {
   const citations = (
@@ -186,9 +176,9 @@ const urlFilter = computed(() => {
 })
 
 watch(
-  () => props.otu?.id,
+  () => props.otus,
   (newVal) => {
-    if (newVal) {
+    if (newVal.length > 0) {
       loadFieldOccurrences()
     }
   },

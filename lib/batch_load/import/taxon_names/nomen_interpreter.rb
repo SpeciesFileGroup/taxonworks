@@ -10,7 +10,7 @@ module BatchLoad
     # The code (Rank Class) that new names will use. Required.
     attr_accessor :nomenclature_code
 
-    # @return Boolean
+    # @return [Boolean]
     # Whether to create an OTU as well
     attr_accessor :also_create_otu
 
@@ -56,7 +56,8 @@ module BatchLoad
       i = 0
       taxon_names = {}
 
-      csv.each_with_index do |row, i|
+      csv.each do |row|
+        i += 1
 
         parse_result = BatchLoad::RowParse.new
         parse_result.row_number = i # check vs. header etc.

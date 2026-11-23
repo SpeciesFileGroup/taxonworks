@@ -24,7 +24,7 @@ module Queries
         namespace_id: [],
       ].freeze
 
-      # @return Array
+      # @return [Array]
       attr_accessor :identifier_id
 
       # TODO: Renamed `cached`
@@ -45,16 +45,16 @@ module Queries
       #      or ['Otu', 'Specimen']
       attr_accessor :identifier_object_type
 
-      # @return Array
+      # @return [Array]
       attr_accessor :identifier_object_id
 
-      # @return Array
+      # @return [Array]
       attr_accessor :type
 
       # TODO: community likely broken/intercept somewhere
       # attr_accessor :project_id
 
-      # @params params [ActionController::Parameters]
+      # @param query_params [ActionController::Parameters]
       def initialize(query_params)
         super
 

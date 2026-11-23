@@ -24,20 +24,15 @@ module Shared::Dwc::TaxonDeterminationExtensions
 
   def dwc_identified_by
     # TaxonWorks allows for groups of determiners to collaborate on a single determination if they collectively came to a conclusion.
-    target_taxon_determination&.determiners&.map(&:name)&.join(Export::Dwca::DELIMITER).presence
+    target_taxon_determination&.determiner_roles&.order(:position)&.map { |role| role.agent.name }&.join(Export::Dwca::DELIMITER).presence
   end
 
   def dwc_identified_by_id
     # TaxonWorks allows for groups of determiners to collaborate on a single determination if they collectively came to a conclusion.
     if target_taxon_determination
-      target_taxon_determination&.determiners
-        .joins(:identifiers)
-        .where(identifiers: {type: ['Identifier::Global::Orcid', 'Identifier::Global::Wikidata']})
-        .select('identifiers.identifier_object_id, identifiers.cached')
-        .unscope(:order)
-        .distinct
-        .pluck('identifiers.cached')
-        .join(Export::Dwca::DELIMITER)&.presence
+      target_taxon_determination.determiner_roles.order(:position).flat_map do |role|
+        role.agent.identifiers.where(type: ['Identifier::Global::Orcid', 'Identifier::Global::Wikidata']).pluck(:cached)
+      end.uniq.join(Export::Dwca::DELIMITER).presence
     end
   end
 

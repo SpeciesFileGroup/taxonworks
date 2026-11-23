@@ -310,10 +310,6 @@ Supporting:
       - CollectionObject
       - Sequence
       - Extract
-  OtuPageLayout:
-    status: :prototype
-    related_models:
-      - ControlledVocabularyTerm
   OtuRelationship:
     status: :prototype
     categories:
@@ -434,4 +430,7 @@ Annotations:
       - ControlledVocabularyTerm
 Communication:
   News:
+    status: :prototype
+Render:
+  Composition:
     status: :prototype

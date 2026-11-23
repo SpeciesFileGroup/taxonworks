@@ -21,6 +21,9 @@ const controller = 'asserted_environments'
 export const AssertedEnvironment = {
   ...baseCRUD(controller, permitParams),
 
+  batchByFilter: (params) =>
+    AjaxCall('post', `/${controller}/batch_by_filter_scope`, params),
+
   filter: (params) => AjaxCall('post', `/${controller}/filter.json`, params),
   objectTypes: () => AjaxCall('get', `/${controller}/object_types.json`)
 }

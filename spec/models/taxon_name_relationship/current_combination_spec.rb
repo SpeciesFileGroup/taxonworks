@@ -55,6 +55,18 @@ describe TaxonNameRelationship::CurrentCombination, type: :model, group: [:nomen
     expect(species1.cached_author_year).to eq('Ivanoff')
   end
 
+  xspecify 'misspelling author string' do # TODO in TaxonName#icn_author_and_year
+    species1.update!(verbatim_author: 'Ivanov')
+    misspelling = Protonym.create!(
+      name: 'ivanowi', rank_class: Ranks.lookup(:icn, :species),
+      parent: genus1, verbatim_author: 'Ivanov'
+    )
+    TaxonNameRelationship::Icn::Unaccepting::Usage::Misspelling.create!(
+      subject_taxon_name: misspelling, object_taxon_name: species1
+    )
+    expect(misspelling.reload.cached_author_year).to eq('Ivanov')
+  end
+
   specify 'combination author string' do
     species1.verbatim_author = 'Ivanov'
     species1.save

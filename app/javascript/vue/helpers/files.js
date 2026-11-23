@@ -1,5 +1,9 @@
 function downloadTextFile (text, fileType, fileName) {
-  const blob = new Blob([text], { type: fileType })
+  downloadBlob(new Blob([text], { type: fileType }), fileName)
+}
+
+function downloadBlob (blob, fileName) {
+  const fileType = blob.type
   const a = document.createElement('a')
 
   a.download = fileName
@@ -26,5 +30,6 @@ function blobToArrayBuffer (blob) {
 
 export {
   blobToArrayBuffer,
+  downloadBlob,
   downloadTextFile
 }

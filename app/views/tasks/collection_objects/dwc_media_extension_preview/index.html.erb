@@ -13,7 +13,7 @@
       <th>id</th>
       <th>has media?</th>
       <%=
-        Export::CSV::Dwc::Extension::Media::HEADERS.collect{|c| fancy_th_tag(name: c)}.join.html_safe
+        ::Export::CSV::Dwc::Extension::Occurrence::Media::HEADERS.collect{|c| fancy_th_tag(name: c)}.join.html_safe
       %>
   </thead>
 
@@ -32,7 +32,7 @@
         <tr>
           <%= tag.td(co.id) %>
           <td>no</td>
-          <% Export::CSV::Dwc::Extension::Media::HEADERS.each do %>
+          <% Export::CSV::Dwc::Extension::Occurrence::Media::HEADERS.each do %>
             <td></td>
           <% end %>
         </tr>

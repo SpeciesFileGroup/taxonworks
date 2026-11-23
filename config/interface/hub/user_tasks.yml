@@ -1327,3 +1327,12 @@ match_sources_task:
     - source
   status: prototype
   description: 'Match a list of citations (structured columns or verbatim strings) to existing Sources, with fuzzy author, year, title, and journal comparisons. Export the list with a Source id column.'
+
+light_table_task:
+  hub: true
+  name: 'Light table'
+  related:
+  categories:
+    - image
+  status: prototype
+  description: 'Lay out depictions and images side by side to compare them: move, rotate, scale, and group them, and save the arrangement.'

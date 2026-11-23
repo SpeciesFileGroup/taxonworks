@@ -1,6 +1,7 @@
 import { Otu, CachedMap } from '@/routes/endpoints'
 import { ref, computed } from 'vue'
 import {
+  COMBINATION,
   MAP_SHAPE_AGGREGATE,
   MAP_SHAPE_ASSERTED_DISTRIBUTION_ABSENT,
   TAXON_RANK_SPECIES_GROUP,
@@ -31,7 +32,7 @@ function sortFeaturesByType(arr, reference) {
   })
 }
 
-function isRankInSpeciesGroups(rank) {
+export function isRankInSpeciesGroups(rank) {
   const rankGroup = rank.split('::').at(2)
 
   return [
@@ -40,9 +41,11 @@ function isRankInSpeciesGroups(rank) {
   ].includes(rankGroup)
 }
 
-async function loadAbsentFeatures(otuId) {
+async function loadAbsentFeatures(otuIds) {
   try {
-    const { body } = await Otu.geoJsonDistributionAbsent(otuId)
+    const { body } = await Otu.geoJsonDistributionIsAbsentByOtus({
+      otu_id: otuIds
+    })
     const features = (body.features || []).map((feature) => ({
       ...feature,
       properties: {
@@ -59,9 +62,11 @@ async function loadAbsentFeatures(otuId) {
   }
 }
 
-async function loadAggregateMap(otuId) {
+async function loadGeoJSONDistribution(otuIds) {
   try {
-    const { body } = await Otu.geoJsonDistribution(otuId)
+    const { body } = await Otu.geoJsonDistributionByOtus({
+      otu_id: otuIds
+    })
     const { features, shapeTypes } = removeDuplicateShapes(
       sortFeaturesByType(body.features, Object.keys(MAP_LEGEND))
     )
@@ -73,7 +78,7 @@ async function loadAggregateMap(otuId) {
   } catch {}
 }
 
-async function loadGeoJSONDistribution(otuId) {
+async function loadAggregateMap(otuId) {
   try {
     const { body } = await Otu.distribution(otuId)
     const { body: cached } = await CachedMap.find(body.cached_map.id)
@@ -93,6 +98,7 @@ export default () => {
   const geojson = ref([])
   const cachedMap = ref()
   const isLoading = ref(false)
+  let requestId = 0
   const isAggregateMap = computed(() =>
     shapeTypes.value.includes(MAP_SHAPE_AGGREGATE)
   )
@@ -103,18 +109,22 @@ export default () => {
     cachedMap.value = undefined
   }
 
-  const loadMapData = async (otuId, rank) => {
+  const loadMapData = async ({ otuId, otuIds, rank }) => {
     const isSpeciesGroup = rank && isRankInSpeciesGroups(rank)
+    const isRankEmpty = !rank
+    const currentRequestId = ++requestId
 
     isLoading.value = true
 
     try {
       const [data, absentFeatures] = await Promise.all([
-        isSpeciesGroup
-          ? loadAggregateMap(otuId)
-          : loadGeoJSONDistribution(otuId),
-        loadAbsentFeatures(otuId)
+        isSpeciesGroup || isRankEmpty
+          ? loadGeoJSONDistribution(otuIds)
+          : loadAggregateMap(otuId),
+        loadAbsentFeatures(otuIds)
       ])
+
+      if (currentRequestId !== requestId) return
 
       const baseShapeTypes = data?.shapeTypes ?? []
       const baseFeatures = data?.features ?? []
@@ -126,7 +136,9 @@ export default () => {
       cachedMap.value = data?.cachedMap
     } catch {
     } finally {
-      isLoading.value = false
+      if (currentRequestId === requestId) {
+        isLoading.value = false
+      }
     }
   }
 

@@ -16,7 +16,7 @@ module Shared::DualAnnotator
       always_community? ||  (is_community_annotation == true) || is_community_annotation.to_s == 'true'
     end
 
-    # @return Boolean
+    # @return [Boolean]
     def always_community?
 
       case self.class.base_class.name

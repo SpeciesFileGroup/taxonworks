@@ -20,7 +20,6 @@ module Queries
         :extract_origin,
         :extract_start_date_range,
         :otu_id,
-        :protocol_id,
         :repository_id,
         :sequences,
         :taxon_name_id,
@@ -75,12 +74,12 @@ module Queries
       #    'true', 'false', nil
       attr_accessor :exact_verbatim_anatomical_origin
 
-      # @return Array
+      # @return [Array]
       # @param extract_id [Numeric, String, Array]
       #   a set of extract#id
       attr_accessor :extract_id
 
-      # @param [Hash] args are permitted params
+      # @param query_params [Hash] are permitted params
       def initialize(query_params)
         super
 

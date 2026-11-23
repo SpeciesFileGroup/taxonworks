@@ -99,7 +99,7 @@ module ApplicationEnumeration
     }
   end
 
-  # @return Array of AR associations
+  # @return [Array] of AR associations
   # !! Does NOT return associations on subtypes of klass - see sti_reflections
   # for that.
   def self.klass_reflections(klass, relationship_type = :all)
@@ -126,7 +126,7 @@ module ApplicationEnumeration
   # !! Relies on descendants being loaded, i.e. call
   # Rails.application.eager_load! first in rake tasks.
   #
-  # @return Array of AR associations
+  # @return [Array] of AR associations
   #   unique by macro, name, foreign key and target class, base class
   #   reflections first
   def self.sti_reflections(klass, relationship_type = :all)

@@ -80,4 +80,38 @@ RSpec.describe ImportDataset::DarwinCore, type: :model do
       expect(dataset.core_records.order(:id).map { |r| r.get_field_value('verbatimLocality') }).to eq(localities)
     end
   end
+
+  it 'stages a checklist after persistence without duplicate metadata keys' do
+    dataset = ImportDataset::DarwinCore::Checklist.create!(
+      source: fixture_file_upload(Rails.root.join('spec/files/import_datasets/checklists/parent_child.tsv'), 'text/plain'),
+      description: 'Checklist staging regression'
+    )
+    dataset.reload
+    dataset.stage
+
+    expect(dataset.reload.status).to eq('Ready')
+    expect(dataset.metadata['core_headers']).to include('taxonID', 'scientificName')
+    expect(dataset.metadata['extensions_headers']).to eq({})
+    expect(dataset.core_records.count).to eq(2)
+  end
+
+  [ImportDataset::DarwinCore::Occurrences, ImportDataset::DarwinCore::Checklist].each do |klass|
+    it "updates persisted #{klass.name.demodulize} settings using symbol and string keys" do
+      fixture = klass == ImportDataset::DarwinCore::Checklist ? 'checklists/parent_child.tsv' : 'occurrences/collector_ids.tsv'
+      dataset = klass.create!(
+        source: fixture_file_upload(Rails.root.join('spec/files/import_datasets', fixture), 'text/plain'),
+        description: 'Import settings key regression',
+        import_settings: { quote_char: 'none', nomenclatural_code: 'iczn' }
+      )
+      dataset.reload
+      dataset.set_import_settings(quote_char: '"')
+      dataset.save!
+      expect(dataset.reload.metadata['import_settings']).to eq({ 'quote_char' => '"', 'nomenclatural_code' => 'iczn' })
+
+      dataset.set_import_settings('quote_char' => "'")
+      dataset.save!
+      expect(dataset.reload.metadata['import_settings']).to eq({ 'quote_char' => "'", 'nomenclatural_code' => 'iczn' })
+    end
+  end
+
 end

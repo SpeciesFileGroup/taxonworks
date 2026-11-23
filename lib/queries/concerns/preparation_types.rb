@@ -15,12 +15,12 @@ module Queries::Concerns::PreparationTypes
 
   included do
     # @return [Array]
-    # @params preparation_type_id
+    # @param preparation_type_id [Integer, Array]
     #   match any objects linked to any preparation_types referenced here
     attr_accessor :preparation_type_id
 
     # @return [Boolean, nil]
-    # @params preparation_type ['true', 'false', nil]
+    # @param preparation_type ['true', 'false', nil]
     #   true - return objects that reference a preparation_type
     #   false - return objects that reference no preparation_type
     #   nil - ignored

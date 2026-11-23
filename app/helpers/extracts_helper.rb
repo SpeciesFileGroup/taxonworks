@@ -45,7 +45,7 @@ module ExtractsHelper
     mark_tag(s, term)
   end
 
-  # @return [String, nil\
+  # @return [String, nil]
   #   no HTML
   def extract_made_tag(extract)
     [extract.year_made,

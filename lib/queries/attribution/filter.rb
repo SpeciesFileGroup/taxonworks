@@ -15,10 +15,10 @@ module Queries
 
       attr_accessor :attribution_id
 
-            # @return Array
+            # @return [Array]
       attr_accessor :attribution_level_id
 
-      # @return Array
+      # @return [Array]
       attr_accessor :attribution_object_type
 
       def initialize(query_params)

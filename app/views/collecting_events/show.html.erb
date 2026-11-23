@@ -23,11 +23,11 @@ end %>
     <h3>Georeferences</h3>
     <%= simple_map(@collecting_event.georeferences) -%>
   <% end %>
-  <% if @collecting_event.collectors.any? %>
+  <% if @collecting_event.collector_roles.any? %>
     <h3>Collectors</h3>
     <ul>
-      <% @collecting_event.collectors.each do |collector| %>
-        <%= content_tag(:li, object_link(collector)) %>
+      <% @collecting_event.collector_roles.sort_by { |role| role.position || Float::INFINITY }.each do |role| %>
+        <%= content_tag(:li, object_link(role.agent)) %>
       <% end %>
     </ul>
   <% end %>
