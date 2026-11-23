@@ -874,6 +874,12 @@ module Utilities::Dates
       date[:start_date_day] = matchdata1[2]
       date[:start_date_month] = matchdata1[1]
       date[:start_date_year] = matchdata1[3]
+      # 1947.X.2
+    elsif matchdata1 = text.match(/\W(\d{4})[-–—_\.,\/\s]\s?(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec|viii|vii|iv|vi|v|ix|xii|xi|x|iii|ii|i)[\.,\/]?\s?[-–—,]?\s?(\d\d?)\W/)
+      date[:verbatim_date] = matchdata1[0].strip
+      date[:start_date_day] = matchdata1[3]
+      date[:start_date_month] = matchdata1[2]
+      date[:start_date_year] = matchdata1[1]
       # 1947-6-29
     elsif matchdata1 = text.match(/\W(\d{4})[-–—_\.,\/\s]\s?(\d\d?)[-–—_\.,\/\s]\s?(\d\d?)\W/)
       date[:verbatim_date] = matchdata1[0].strip
