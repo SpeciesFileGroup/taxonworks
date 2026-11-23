@@ -344,14 +344,15 @@ module Match
       def surname_keys(name)
         @surname_keys ||= {}
         @surname_keys[name] ||=
-          [InputRow.fold(name), InputRow.fold(name.split.last)]
+          [name, name.split.last]
+            .map { |n| ::Utilities::AuthorNames.fold(n) }
             .reject(&:empty?).uniq
       end
 
       def source_surnames_for(source)
         @source_surnames ||= {}
         @source_surnames[source.id] ||=
-          InputRow.surnames(source.cached_author_string)
+          ::Utilities::AuthorNames.surnames(source.cached_author_string)
       end
 
       def score(c)

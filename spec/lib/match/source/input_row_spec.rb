@@ -2,53 +2,6 @@ require 'rails_helper'
 
 describe Match::Source::InputRow do
 
-  context '.surnames' do
-    # Author strings as they come in from real match lists.
-    {
-      'Ritzi, C.M. & J.O. Whitaker, Jr.' => %w{Ritzi Whitaker},
-      '<html>Ritzi, C.M. & <b>J.O. Whitaker, Jr.</b></html>' =>
-        %w{Ritzi Whitaker},
-      'Good, N.E.' => %w{Good},
-      'Smit, F.G.A.M.' => %w{Smit},
-      'Abbot, P., A.E. Aviles, L. Eller & L.A. Durden' =>
-        %w{Abbot Aviles Eller Durden},
-      'Acosta, R, J.A. Fernandez, & J.Falcon-Ordaz' =>
-        %w{Acosta Fernandez Falcon-Ordaz},
-      'Abreu, M.H. (Traub & Starcke)' => %w{Abreu},
-      'Ayala-Barajas, R., et al.' => %w{Ayala-Barajas},
-      'Acosta, R..' => %w{Acosta},
-      # Source#cached_author_string style
-      'Huang, Liu, Chen, Chen, Li & Hu' => %w{Huang Liu Chen Chen Li Hu},
-      'Emery, Emery & Popple' => %w{Emery Emery Popple},
-      'Creão-Duarte & Sakakibara' => %w{Creão-Duarte Sakakibara},
-      'van der Merwe, A. & B. Smith' => ['van der Merwe', 'Smith'],
-      'Smith and Jones' => %w{Smith Jones},
-      'Wang, Yiguan, et. al.' => %w{Wang Yiguan},
-      'Trolle, L. & J-K. Jensen' => %w{Trolle Jensen},
-      'Wu, Y-L., S-F. Hu' => %w{Wu Hu},
-      'Amin, O.M./1976' => %w{Amin},
-      'Huang, g. et al.' => %w{Huang},
-      'Rahelinirina, S, M . Harimalala' => %w{Rahelinirina Harimalala},
-      'Guerra, A.S., KB.Agwanda' => %w{Guerra Agwanda},
-      'Dittmar, K. de la Cruz & M.F. Whiting' =>
-        ['Dittmar', 'de la Cruz', 'Whiting'],
-      '' => [],
-      nil => []
-    }.each do |author_string, expected|
-      specify author_string.inspect do
-        expect(Match::Source::InputRow.surnames(author_string)).to eq(expected)
-      end
-    end
-  end
-
-  context '.fold' do
-    specify 'removes diacritics, case, and non-letters' do
-      expect(Match::Source::InputRow.fold('Creão-Duarte')).to eq('creaoduarte')
-      expect(Match::Source::InputRow.fold('De Long')).to eq('delong')
-      expect(Match::Source::InputRow.fold('Müller')).to eq('muller')
-    end
-  end
-
   context 'structured fields' do
     let(:row) do
       Match::Source::InputRow.new(

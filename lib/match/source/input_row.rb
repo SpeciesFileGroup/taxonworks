@@ -34,18 +34,6 @@ module Match
         /,\s*(\d+)\s*(?:\([^)]*\))?\s*,\s*(?:pp?\.\s*)?(\d+)\s*[-–—]\s*\d+/
       ].freeze
 
-      AUTHOR_SEPARATOR_PATTERN = /\s*(?:&|;|\band\b|\bund\b)\s*/i
-
-      # `R`, `g.`, `R.`, `C.M.`, `F.G.A.M.`, `J.-P.`, `J-M.`, `Y-L`, `Ch.`,
-      # `KB.`
-      INITIALS_PATTERN = /\A(?:
-        [[:alpha:]](?:-[[:upper:]])*\.*|
-        (?:[[:upper:]][[:lower:]]?\.-?)+\.*|
-        [[:upper:]]{2}\.
-      )\z/x
-
-      NAME_SUFFIX_PATTERN = /\A(?:jr|sr|ii|iii|iv)\.?\z/i
-
       attr_reader :surnames, :year, :year_suffix, :title, :journal, :volume,
         :first_page, :doi, :text
 
@@ -63,7 +51,7 @@ module Match
         verbatim_parts = parse_verbatim(verbatim)
 
         @surnames = authors.present? ?
-          self.class.surnames(authors) : verbatim_parts[:surnames]
+          ::Utilities::AuthorNames.surnames(authors) : verbatim_parts[:surnames]
 
         parsed_year, parsed_suffix = parse_year(year)
         @year = parsed_year || verbatim_parts[:year]
@@ -85,42 +73,6 @@ module Match
         surnames.empty? && year.nil? && title.nil? && journal.nil? &&
           volume.nil? && first_page.nil? && doi.nil? && text.nil?
       end
-
-      # @return [Array<String>]
-      #   surnames in author order, initials and name suffixes removed
-      def self.surnames(author_string)
-        s = author_string.to_s
-          .gsub(/<[^>]*>/, ' ')
-          .gsub(/\([^)]*\)/, ' ')
-          .gsub(/\bet\.?\s*al\b\.?/i, ' ')
-          .gsub(%r{/\s*\d{4}\b}, ' ')
-
-        s.split(AUTHOR_SEPARATOR_PATTERN).flat_map { |chunk|
-          chunk.split(',').filter_map { |token| surname_from_token(token) }
-        }
-      end
-
-      # @return [String] for comparing names: no diacritics, case, spaces, or
-      #   punctuation
-      def self.fold(string)
-        I18n.transliterate(string.to_s).downcase.gsub(/[^a-z]/, '')
-      end
-
-      def self.surname_from_token(token)
-        words = token
-          .sub(/\A[^[:alpha:]]+/, '')
-          .split(/\s+|(?<=\.)(?=[[:alpha:]])/)
-          .map(&:strip)
-          .reject { |w|
-            !w.match?(/[[:alpha:]]/) || w.match?(INITIALS_PATTERN) ||
-              w.match?(NAME_SUFFIX_PATTERN)
-          }
-
-        name = words.join(' ').sub(/[.\s]+\z/, '')
-        name.presence
-      end
-
-      private_class_method :surname_from_token
 
       private
 
@@ -174,7 +126,7 @@ module Match
         if (m = s.match(VERBATIM_YEAR_PATTERN))
           result[:year] = m[1].to_i
           result[:year_suffix] = m[2]
-          result[:surnames] = self.class.surnames(m.pre_match)
+          result[:surnames] = ::Utilities::AuthorNames.surnames(m.pre_match)
           rest = m.post_match
         else
           result[:surnames] = []
