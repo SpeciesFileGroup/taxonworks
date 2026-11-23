@@ -16,39 +16,16 @@ export const FIELD = {
   DOI: 'doi'
 }
 
-export const FIELD_LABELS = {
-  [FIELD.VERBATIM]: 'Verbatim citation',
-  [FIELD.AUTHORS]: 'Authors',
-  [FIELD.YEAR]: 'Year',
-  [FIELD.TITLE]: 'Title',
-  [FIELD.JOURNAL]: 'Journal',
-  [FIELD.VOLUME]: 'Volume (may include issue and pages)',
-  [FIELD.PAGES]: 'Pages',
-  [FIELD.DOI]: 'DOI'
-}
-
-// Column headers, lowercased with non-letters removed, that are mapped to a
-// field by default.
-export const HEADER_ALIASES = {
-  verbatim: FIELD.VERBATIM,
-  citation: FIELD.VERBATIM,
-  reference: FIELD.VERBATIM,
-  bibliographiccitation: FIELD.VERBATIM,
-  author: FIELD.AUTHORS,
-  authors: FIELD.AUTHORS,
-  authorship: FIELD.AUTHORS,
-  year: FIELD.YEAR,
-  title: FIELD.TITLE,
-  journal: FIELD.JOURNAL,
-  serial: FIELD.JOURNAL,
-  periodical: FIELD.JOURNAL,
-  volume: FIELD.VOLUME,
-  vol: FIELD.VOLUME,
-  volissue: FIELD.VOLUME,
-  volumeissue: FIELD.VOLUME,
-  pages: FIELD.PAGES,
-  page: FIELD.PAGES,
-  doi: FIELD.DOI
+// Input columns are recognized by these names only (see InputPanel's
+// `normalizeHeader`); any other column is ignored. Tooltips for the example
+// table, only where they add something the example rows don't show.
+export const FIELD_HELP = {
+  [FIELD.VERBATIM]:
+    'Split into authors, year, and the rest where possible',
+  [FIELD.YEAR]: 'May have a letter suffix, e.g. 1936a',
+  [FIELD.VOLUME]: 'May include issue and pages, e.g. 10(2):149-158',
+  [FIELD.PAGES]: 'Only the first page is compared',
+  [FIELD.DOI]: 'With or without https://doi.org/'
 }
 
 export const STATUS = {

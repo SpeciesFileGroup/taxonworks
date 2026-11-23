@@ -16,6 +16,7 @@
               <RadialFilter
                 :disabled="!sourceIds.length"
                 :ids="sourceIds"
+                ids-description="matched and user selected Sources"
                 :object-type="SOURCE"
                 :extended-slices="EXTENDED_SLICES"
               />

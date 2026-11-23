@@ -3,10 +3,23 @@
     <h3>Provide citations</h3>
     <p class="subtle">
       Paste verbatim citations (one per line), paste spreadsheet columns
-      including a header row, or drag &amp; drop a CSV/TSV file. A file of
-      citations, one per line, needs <code>verbatim</code> as its first line.
-      Maximum {{ MAX_ROWS.toLocaleString() }} rows.
+      including a header row, or drag &amp; drop a CSV/TSV file or a file of
+      citations, one per line. Maximum {{ MAX_ROWS.toLocaleString() }} rows.
     </p>
+
+    <SampleTable
+      class="margin-medium-bottom"
+      :groups="SAMPLE_GROUPS"
+      :rows="SAMPLE_ROWS"
+      :help="FIELD_HELP"
+    >
+      <p class="subtle">
+        Columns are found by these names (case, spaces, and punctuation don't
+        matter); other columns are ignored. Give a full citation, its parts,
+        or both; a part in its own column is used instead of the one found
+        in the full citation.
+      </p>
+    </SampleTable>
 
     <TextFileDropArea
       v-model:text="text"
@@ -15,52 +28,30 @@
       autofocus
     />
 
-    <div
-      v-if="table"
-      class="margin-medium-top"
+    <p
+      v-if="table && recognizedColumns.length"
+      class="subtle margin-small-top"
     >
-      <h3>Columns</h3>
-      <p class="subtle">
-        Choose what each column holds. Structured columns are compared field
-        by field; a verbatim column is split into authors, year, and the rest
-        where possible.
-        <span v-if="fileName">Loaded from {{ fileName }}.</span>
-      </p>
-      <table class="table-striped column-mapping">
-        <thead>
-          <tr>
-            <th>Column</th>
-            <th>Holds</th>
-            <th>First value</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr
-            v-for="header in table.headers"
-            :key="header"
-          >
-            <td>{{ header }}</td>
-            <td>
-              <select
-                class="normal-input"
-                v-model="mapping[header]"
-              >
-                <option value="">(ignore)</option>
-                <option
-                  v-for="field in Object.values(FIELD)"
-                  :key="field"
-                  :value="field"
-                  :disabled="isMappedElsewhere(field, header)"
-                >
-                  {{ FIELD_LABELS[field] }}
-                </option>
-              </select>
-            </td>
-            <td class="subtle">{{ table.rows[0]?.[header] }}</td>
-          </tr>
-        </tbody>
-      </table>
+      {{ fileName ? `From ${fileName}: using` : 'Using' }}
+      <b>{{ Object.keys(recognizedColumns.byHeader).join(', ') }}</b>{{
+        ignoredHeaders.length ? `; ignoring ${ignoredHeaders.join(', ')}` : ''
+      }}.
+    </p>
+    <div
+      v-else-if="table"
+      class="feedback feedback-warning feedback-thin margin-small-top"
+    >
+      None of the column names in the first line ({{
+        table.headers.map(truncate).join(', ')
+      }}) is one of the names above.
     </div>
+    <p
+      v-else-if="isLinesFile"
+      class="subtle margin-small-top"
+    >
+      {{ fileName }} has no column names in its first line, so each line is
+      read as a citation.
+    </p>
 
     <div
       v-if="rawRowCount > MAX_ROWS"
@@ -85,32 +76,55 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed } from 'vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
+import SampleTable from '@/components/BatchLoad/SampleTable.vue'
 import TextFileDropArea from '@/components/BatchLoad/TextFileDropArea.vue'
 import { parseDelimited } from '@/helpers/parseDelimited.js'
 import { pluralize } from '@/helpers/strings.js'
-import { FIELD, FIELD_LABELS, HEADER_ALIASES, MAX_ROWS } from '../constants.js'
+import { FIELD, FIELD_HELP, MAX_ROWS } from '../constants.js'
 
 const emit = defineEmits(['submit'])
 
+const SAMPLE_GROUPS = [
+  { label: 'a full citation', fields: [FIELD.VERBATIM] },
+  {
+    label: 'and/or its parts',
+    fields: Object.values(FIELD).filter((f) => f !== FIELD.VERBATIM)
+  }
+]
+
+const SAMPLE_ROWS = [
+  {
+    [FIELD.VERBATIM]:
+      'Ritzi, C.M. & Whitaker, J.O., Jr. (2003) Ectoparasites of small mammals from the Newport Chemical Depot, Vermillion County, Indiana. Northeastern Naturalist, 10(2), 149-158.'
+  },
+  {
+    [FIELD.AUTHORS]: 'Ritzi, C.M. & J.O. Whitaker, Jr.',
+    [FIELD.YEAR]: '2003',
+    [FIELD.JOURNAL]: 'Northeastern Naturalist',
+    [FIELD.VOLUME]: '10(2)',
+    [FIELD.PAGES]: '149-158'
+  }
+]
+
+const FIELDS = new Set(Object.values(FIELD))
+
 const text = ref('')
 const fileName = ref(null)
-const mapping = ref({})
 
-// A first line naming the verbatim column alone (`verbatim`, `citation`,
-// ...) heads one citation per line. Otherwise tab separated text (a
-// spreadsheet paste) or a loaded file is a table with a header row, and
-// anything else is one verbatim citation per line.
+// A first line of just `verbatim` heads one citation per line. Otherwise
+// tab separated text (a spreadsheet paste) is a table with a header row, as
+// is a loaded file whose first line has a recognized column name; anything
+// else is one verbatim citation per line.
 const hasVerbatimHeader = computed(() => {
   const firstLine = text.value.trimStart().split(/\r?\n/, 1)[0]
   return (
-    !firstLine.includes('\t') &&
-    HEADER_ALIASES[normalizeHeader(firstLine)] === FIELD.VERBATIM
+    !firstLine.includes('\t') && normalizeHeader(firstLine) === FIELD.VERBATIM
   )
 })
 
-const table = computed(() => {
+const parsedTable = computed(() => {
   if (hasVerbatimHeader.value) return null
 
   if (fileName.value || isTabular(text.value)) {
@@ -119,6 +133,42 @@ const table = computed(() => {
   }
   return null
 })
+
+// { byHeader: { header: field }, length }; when two headers name the same
+// field the first one is used.
+const recognizedColumns = computed(() => {
+  const byHeader = {}
+  const used = new Set()
+
+  ;(parsedTable.value?.headers || []).forEach((header) => {
+    const field = normalizeHeader(header)
+    if (FIELDS.has(field) && !used.has(field)) {
+      byHeader[header] = field
+      used.add(field)
+    }
+  })
+
+  return { byHeader, length: used.size }
+})
+
+// A loaded file of citations without a header row: the parser reads its
+// first citation as comma separated "headers", none of them recognized. A
+// year in that first line tells it from a header row of unknown names.
+const isLinesFile = computed(
+  () =>
+    !!parsedTable.value &&
+    !isTabular(text.value) &&
+    recognizedColumns.value.length === 0 &&
+    /\b(1[5-9]|20)\d{2}\b/.test(text.value.trimStart().split(/\r?\n/, 1)[0])
+)
+
+const table = computed(() => (isLinesFile.value ? null : parsedTable.value))
+
+const ignoredHeaders = computed(() =>
+  (table.value?.headers || []).filter(
+    (h) => !(h in recognizedColumns.value.byHeader)
+  )
+)
 
 const verbatimLines = computed(() => {
   const lines = text.value
@@ -136,34 +186,12 @@ const rowCount = computed(() => Math.min(rawRowCount.value, MAX_ROWS))
 
 const canSubmit = computed(
   () =>
-    rowCount.value > 0 &&
-    (!table.value || Object.values(mapping.value).some(Boolean))
+    rowCount.value > 0 && (!table.value || recognizedColumns.value.length > 0)
 )
 
-// Runs when the headers change, not on every edit of the text (which
-// builds a new headers array): the curator's choices are kept for headers
-// that are still there, new ones get a guess.
-watch(
-  () => (table.value?.headers || []).join('\u0000'),
-  () => {
-    const headers = table.value?.headers || []
-    const next = {}
-    headers.forEach((header) => {
-      if (header in mapping.value) next[header] = mapping.value[header]
-    })
-
-    const used = new Set(Object.values(next).filter(Boolean))
-    headers.forEach((header) => {
-      if (header in next) return
-
-      const guess = HEADER_ALIASES[normalizeHeader(header)]
-      next[header] = guess && !used.has(guess) ? guess : ''
-      if (guess) used.add(guess)
-    })
-
-    mapping.value = next
-  }
-)
+function truncate(value) {
+  return value.length > 30 ? `${value.slice(0, 30)}…` : value
+}
 
 function normalizeHeader(header) {
   return header.toLowerCase().replace(/[^a-z]/g, '')
@@ -180,17 +208,11 @@ function isTabular(value) {
   return (value.split(/\r?\n/, 1)[0] || '').includes('\t')
 }
 
-function isMappedElsewhere(field, header) {
-  return Object.entries(mapping.value).some(
-    ([h, f]) => f === field && h !== header
-  )
-}
-
 function submit() {
   let rows
 
   if (table.value) {
-    const fieldByHeader = Object.entries(mapping.value).filter(([, f]) => f)
+    const fieldByHeader = Object.entries(recognizedColumns.value.byHeader)
 
     rows = table.value.rows.slice(0, MAX_ROWS).map((csvRow) => {
       const input = {}
