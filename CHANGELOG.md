@@ -10,6 +10,14 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 ### Added
 
 - Light table task
+- Solid Cache (`Rails.cache`) and Solid Cable (Action Cable) on a new `solid` database [#5195]
+
+### Upgrade notes
+
+- BREAKING: `config/database.yml` is now multi-database (`primary`, `solid`) in every environment. Update your local, untracked `database.yml` from `config/database.yml.example`, then run `bin/rails db:create db:migrate` (creates and migrates the new `taxonworks_solid_<environment>` databases). In test also run `RAILS_ENV=test bin/rails db:create db:migrate`.
+- `TW_SOLID_DB=sqlite3` optionally puts the `solid` database in SQLite (development/test only)
+- Production (Kubernetes, see `config/docker/database.yml.erb`): create a dedicated role and a `taxonworks_solid` database owned by it on the `POSTGRES_HOST` server (or grant the role `CREATEDB`), then set `POSTGRES_SOLID_USER`, `POSTGRES_SOLID_PASSWORD` (and optionally `POSTGRES_SOLID_DB`). Check `max_connections`, each replica now connects to two databases.
+- The `solid` database holds only cache/cable data. It is not backed up and `tw:db:dump`/`tw:db:restore` never touch it.
 
 ### Changed
 
@@ -27,6 +35,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Include id of the existing Document when error message "Error uploading document: has already been taken" is shown
 
 [#5131]: https://github.com/SpeciesFileGroup/taxonworks/issues/5131
+[#5195]: https://github.com/SpeciesFileGroup/taxonworks/issues/5195
 [#5167]: https://github.com/SpeciesFileGroup/taxonworks/issues/5167
 [#5175]: https://github.com/SpeciesFileGroup/taxonworks/issues/5175
 [#5181]: https://github.com/SpeciesFileGroup/taxonworks/issues/5181

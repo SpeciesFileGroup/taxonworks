@@ -31,6 +31,9 @@ TaxonWorks::Application.configure do
   config.consider_all_requests_local = true
   config.action_controller.perform_caching = false
 
+  # Always Solid Cache (independent of `rails dev:cache`), features such as task_token need a real cache
+  config.cache_store = :solid_cache_store
+
   # Don't care if the mailer can't send.
   config.action_mailer.raise_delivery_errors = false
 

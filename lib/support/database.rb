@@ -1,5 +1,14 @@
 module Support
   module Database
+
+    # @return [Hash]
+    #   the primary database configuration for the current environment (symbol keys).
+    #   database.yml is multi-database (primary, solid), so read configs by name,
+    #   never as database_configuration[Rails.env].
+    def self.primary_config
+      ActiveRecord::Base.configurations.configs_for(env_name: Rails.env, name: 'primary').configuration_hash
+    end
+
     # Extracts DB settings to be used for pg_dump, pg_restore and psql.
     def self.pg_env_args(database_arg = '-d')
       config = ActiveRecord::Base.connection_db_config.configuration_hash

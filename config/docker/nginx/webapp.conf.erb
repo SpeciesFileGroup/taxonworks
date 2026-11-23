@@ -27,4 +27,12 @@ server {
 
     client_max_body_size 300M;
 
+    # Action Cable (Solid Cable), mounted in-app at /cable. Passenger upgrades the
+    # websocket itself; a separate process group with unlimited concurrency keeps
+    # long-lived sockets from consuming the app's request slots.
+    location /cable {
+        passenger_app_group_name taxonworks_cable;
+        passenger_force_max_concurrent_requests_per_process 0;
+    }
+
 }

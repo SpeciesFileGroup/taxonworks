@@ -1,0 +1,17 @@
+# Solid Cache, the Rails.cache store in development and production (test uses :memory_store,
+# see spec/support/solid_cache.rb). Consumers use Rails.cache only, with keys prefixed per feature.
+default: &default
+  database: solid
+  store_options:
+    max_age: <%= 1.week.to_i %>
+    max_size: <%= 256.megabytes %>
+    namespace: <%= Rails.env %>
+
+development:
+  <<: *default
+
+test:
+  <<: *default
+
+production:
+  <<: *default

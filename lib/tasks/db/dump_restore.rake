@@ -59,7 +59,7 @@ namespace :tw do
     #    Remedy: Ensure your database is not used by other processes. Check to see how many connections to the database exist.
     #    Do not modify this task to make that check, nest this in checks if needed
     desc "Restores a database generated from dump 'rake tw:db:restore backup_directory=/your/path/ database_host=0.0.0.0 file=2017-07-10_154344UTC.dump'"
-    task restore: [:environment, :backup_exists, :database_user, :database_host, 'db:drop', 'db:create'] do
+    task restore: [:environment, :backup_exists, :database_user, :database_host, 'db:drop:primary', 'db:create:primary'] do
       puts Rainbow("Initializing restore for #{Rails.env} environment").yellow
       database = ApplicationRecord.connection.current_database
       puts Rainbow("Restoring #{database} from #{@args[:tw_backup_file]}").yellow
@@ -85,7 +85,7 @@ namespace :tw do
     end
 
     desc "Drops, recreates and loads DB with data from a SQL file 'rake tw:db:load file=/your/path/dump.sql'"
-    task load: [:environment, 'tw:file', 'db:drop', 'db:create'] do
+    task load: [:environment, 'tw:file', 'db:drop:primary', 'db:create:primary'] do
       puts Rainbow("Initializing restore for #{Rails.env} environment").yellow
       database = ApplicationRecord.connection.current_database
       puts Rainbow("Restoring #{database} from #{@args[:file]}").yellow

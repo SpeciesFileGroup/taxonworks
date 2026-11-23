@@ -1,0 +1,16 @@
+solid: &solid
+  adapter: solid_cable
+  connects_to:
+    database:
+      writing: solid
+  polling_interval: <%= ENV.fetch('TW_CABLE_POLLING_INTERVAL', '0.1.seconds') %>
+  message_retention: <%= ENV.fetch('TW_CABLE_MESSAGE_RETENTION', '1.day') %>
+
+development:
+  <<: *solid
+
+test:
+  adapter: test
+
+production:
+  <<: *solid

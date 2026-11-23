@@ -1,31 +1,57 @@
 development:
-  adapter: postgis
-  encoding: utf8 
-  postgis_extension: true
-  pool: 5
-  database: taxonworks_development 
-  password:
-  username: postgres 
-  host: db
+  primary:
+    adapter: postgis
+    encoding: utf8 
+    postgis_extension: true
+    pool: 5
+    database: taxonworks_development 
+    password:
+    username: postgres 
+    host: db
+  solid:
+    adapter: postgresql
+    encoding: utf8
+    pool: 5
+    database: taxonworks_solid_development
+    password:
+    username: postgres
+    host: db
+    migrations_paths: db/solid_migrate
+    schema_dump: false # built from migrations only, see db/solid_migrate
 test: 
-  adapter: postgis
-  encoding: utf8 
-  postgis_extension: true
-  pool: 5
-  database: taxonworks_test<%= ENV['TEST_ENV_NUMBER'] %>
-  username: taxonworks_development
-  password:
-#  host: db
+  primary:
+    adapter: postgis
+    encoding: utf8 
+    postgis_extension: true
+    pool: 5
+    database: taxonworks_test<%= ENV['TEST_ENV_NUMBER'] %>
+    username: taxonworks_development
+    password:
+  #  host: db
+  solid:
+    adapter: postgresql
+    encoding: utf8
+    pool: 5
+    database: taxonworks_solid_test<%= ENV['TEST_ENV_NUMBER'] %>
+    username: taxonworks_development
+    password:
+    migrations_paths: db/solid_migrate
+    schema_dump: false # built from migrations only, see db/solid_migrate
 production:
-  adapter: postgis
-  encoding: utf8 
-  postgis_extension: true
-  pool: 5
-  database: <%= ENV['DB_DATABASE'] %>
-  username: <%= ENV['DB_USERNAME'] %>
-  password: <%= ENV['DB_PASSWORD'] %>
-
-
-
-
-
+  primary:
+    adapter: postgis
+    encoding: utf8 
+    postgis_extension: true
+    pool: 5
+    database: <%= ENV['DB_DATABASE'] %>
+    username: <%= ENV['DB_USERNAME'] %>
+    password: <%= ENV['DB_PASSWORD'] %>
+  solid:
+    adapter: postgresql
+    encoding: utf8
+    pool: 5
+    database: <%= ENV['DB_SOLID_DATABASE'] || 'taxonworks_solid' %>
+    username: <%= ENV['DB_SOLID_USERNAME'] %>
+    password: <%= ENV['DB_SOLID_PASSWORD'] %>
+    migrations_paths: db/solid_migrate
+    schema_dump: false # built from migrations only, see db/solid_migrate
