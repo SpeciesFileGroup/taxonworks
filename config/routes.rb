@@ -8,6 +8,7 @@ TaxonWorks::Application.routes.draw do
   draw :base
   draw :data
   draw :tasks
+  draw :task_token
   draw :api_v1
   draw :annotations
 end

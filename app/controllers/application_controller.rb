@@ -7,6 +7,7 @@ class ApplicationController < ActionController::Base
   
   include ProjectsHelper # /helpers/projects_helper.rb
   include SetHousekeeping
+  include TaskTokenAuthentication
   include Tracking::UserTime
   include Whitelist
   include Cookies

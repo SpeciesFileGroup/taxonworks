@@ -530,6 +530,16 @@ scope :tasks do
   end
 
   scope :collection_objects do
+    scope :quick_mobile_material, controller: 'tasks/collection_objects/quick_mobile_material' do
+      get '/', action: :index, as: 'quick_mobile_material_task'
+      scope as: :quick_mobile_material do
+        get :task_token, action: :token_status, defaults: {format: :json}
+        post :task_token, action: :issue, defaults: {format: :json}
+        delete :task_token, action: :invalidate, defaults: {format: :json}
+        get :items, defaults: {format: :json}
+      end
+    end
+
     scope :freeform_digitize, controller: 'tasks/collection_objects/freeform_digitize' do
       get '/', action: :index, as: 'freeform_digitize_task'
     end

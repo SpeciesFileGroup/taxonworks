@@ -65,6 +65,7 @@ const RouteNames = {
   InteractiveKeys: '/tasks/observation_matrices/interactive_key',
   LeadsHub: '/tasks/leads/hub',
   LightTable: '/tasks/images/light_table',
+  QuickMobileMaterial: '/tasks/collection_objects/quick_mobile_material',
   ManageBiocurationTask:
     '/tasks/controlled_vocabularies/biocuration/build_collection',
   ManageControlledVocabularyTask: '/tasks/controlled_vocabularies/manage',

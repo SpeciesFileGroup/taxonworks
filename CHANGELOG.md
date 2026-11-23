@@ -11,6 +11,10 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 
 - Light table task
 - Solid Cache (`Rails.cache`) and Solid Cable (Action Cable) on a new `solid` database [#5195]
+- Quick mobile material task: stub collection objects (optionally with catalog numbers) from images sent by a mobile app [#2326]
+- `task_token` authentication: short-lived, encrypted, throttled QR code tokens that let a mobile app POST to a specific task [#2326]
+- `Layout::Task` and `LayoutItem::TaskItem` compositions (a table of collection objects in a task) [#2326]
+- `Mobile` hub task category [#2326]
 
 ### Upgrade notes
 
@@ -18,6 +22,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - `TW_SOLID_DB=sqlite3` optionally puts the `solid` database in SQLite (development/test only)
 - Production (Kubernetes, see `config/docker/database.yml.erb`): create a dedicated role and a `taxonworks_solid` database owned by it on the `POSTGRES_HOST` server (or grant the role `CREATEDB`), then set `POSTGRES_SOLID_USER`, `POSTGRES_SOLID_PASSWORD` (and optionally `POSTGRES_SOLID_DB`). Check `max_connections`, each replica now connects to two databases.
 - The `solid` database holds only cache/cable data. It is not backed up and `tw:db:dump`/`tw:db:restore` never touch it.
+- Signing out, or selecting a project, now ends all of that user's mobile (`task_token`) sessions [#2326]
 
 ### Changed
 

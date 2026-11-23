@@ -12,7 +12,8 @@
 #   name* - a friendly human readable name describing the task
 #   description - a sentence or two further defining what the task will do for the user
 #   hub - true if this tasks should appear at the hub, these tasks MAY NOT require parameters
-#   categories - an array of one ore more of [nomenclature, source, collection_object, collecting_event, biology, matrix, dna, image]
+#   categories - an array of one ore more of [nomenclature, source, collection_object, collecting_event, biology, matrix, dna, image, mobile]
+#               mobile: the task syncs with, or reports the status of, a mobile app (see task_token)
 #   status - one of [complete, stable, prototype,  unknown (default) ]
 #               complete: users can expect the interfaces to remain in their present form
 #               stable: primary elements are complete, but minor changes (CSS, feedback etc.) may change
@@ -1327,3 +1328,14 @@ light_table_task:
     - image
   status: prototype
   description: 'Lay out depictions and images side by side to compare them: move, rotate, scale, and group them, and save the arrangement.'
+
+quick_mobile_material_task:
+  hub: true
+  name: 'Quick mobile material'
+  related:
+  categories:
+    - mobile
+    - occurrences
+    - new
+  status: prototype
+  description: 'Stub collection objects, optionally with catalog numbers, from images sent by a mobile app. Scan a QR code to connect the app, then watch new records arrive.'

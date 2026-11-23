@@ -44,6 +44,7 @@ module Workbench::SessionsHelper
   end
 
   def sessions_sign_out
+    TaskToken.invalidate_user(sessions_current_user_id) if sessions_current_user_id
     self.sessions_current_user = nil
     sessions_clear_selected_project
     cookies.delete(:remember_token)
@@ -94,7 +95,9 @@ module Workbench::SessionsHelper
       @sessions_current_project
   end
 
+  # Ends all of the User's task_tokens, see TaskToken.invalidate_user
   def sessions_select_project(project)
+    TaskToken.invalidate_user(sessions_current_user_id) if sessions_current_user_id
     self.sessions_current_project_id = project.id
    sessions_current_project
   end
