@@ -328,23 +328,26 @@ describe Match::Source::Candidates, type: :model do
   end
 
   context 'a DOI on several Sources' do
-    # DOIs are unique per project, the copy's is in another project.
+    # A case variant gets past the uniqueness validation.
     let!(:copy) do
-      s = Source::Bibtex.create!(
+      Source::Bibtex.create!(
         bibtex_type: 'article', author: 'Müller, J.', year: 1990,
-        title: 'Fleas of the Peromyscus of Indiana'
+        title: 'Fleas of the Peromyscus of Indiana',
+        doi: '10.1645/ge-2251.1'
       )
-      Identifier::Global::Doi.create!(
-        identifier_object: s, identifier: '10.1645/GE-2251.1',
-        project_id: FactoryBot.create(:valid_project).id
-      )
-      s
     end
 
     specify 'gathers every one' do
       r = candidates([{ doi: '10.1645/GE-2251.1' }]).first
       expect(r[:candidates].map { |c| c[:source].id })
         .to contain_exactly(source.id, copy.id)
+    end
+
+    specify 'limit_to_project gathers only the project\'s' do
+      r = candidates(
+        [{ doi: '10.1645/GE-2251.1' }], limit_to_project: true
+      ).first
+      expect(r[:candidates].map { |c| c[:source].id }).to eq([source.id])
     end
   end
 

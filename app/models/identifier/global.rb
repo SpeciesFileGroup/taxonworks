@@ -19,11 +19,17 @@ class Identifier::Global < Identifier
   include Shared::DwcOccurrenceHooks
 
   validates :namespace_id, absence: true
- 
+
   # DEPRECATED: unused in 10 years, benefit seems doubtful.
   validates :relation, inclusion: {in: ::SKOS_RELATIONS.keys}, allow_nil: true
 
   # Identifier can only be used once, i.e. mapped to a single TW concept
+  # TODO: DOIs are case-insensitive for ASCII letters only (DOI Handbook
+  # 4.3.4: `A`-`Z` equal `a`-`z`, but `Á` does not equal `á`), so
+  # `10.1007/BF02372110` and `10.1007/bf02372110` are the same DOI, but this
+  # check is case-sensitive and lets both through. Make it ASCII
+  # case-insensitive for Identifier::Global::Doi, and resolve the existing
+  # case-variant duplicates.
   validates_uniqueness_of :identifier, scope: [:project_id]
 
   soft_validate(:sv_resolves?, set: :resolved)

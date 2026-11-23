@@ -10,7 +10,6 @@ json.array! @result do |r|
     json.source do
       json.extract! c[:source], :id, :cached_author_string, :year,
         :year_suffix, :volume, :pages
-      # Rendered with v-html; source_tag sanitizes to <i> only.
       json.object_label source_tag(c[:source])
       json.global_id c[:source].to_global_id.to_s
     end

@@ -65,6 +65,14 @@ module Match
       # reported as this.
       AUTHOR_DISTANCE_CAP = 4
 
+      # Row keys accepted, as Match::Source::InputRow#initialize.
+      INPUT_KEYS = %i{authors year title journal volume pages doi verbatim}.freeze
+
+      # Source columns loaded for comparing.
+      SOURCE_COLUMNS = %i{
+        id type cached cached_author_string author year year_suffix volume pages
+      }.freeze
+
       attr_reader :rows, :project_id, :limit_to_project, :year_window
 
       # @param rows [Array<Hash>] keys as Match::Source::InputRow#initialize
@@ -79,12 +87,6 @@ module Match
         @limit_to_project = limit_to_project
         @year_window = year_window.to_i
       end
-
-      INPUT_KEYS = %i{authors year title journal volume pages doi verbatim}.freeze
-
-      SOURCE_COLUMNS = %i{
-        id type cached cached_author_string author year year_suffix volume pages
-      }.freeze
 
       def call
         ids_by_row = gather
@@ -164,24 +166,32 @@ module Match
           .reject { |_, r| r.empty? }
       end
 
+      DOI_SQL = 'lower(trim(identifiers.identifier))'.freeze
+
       # DOIs are stored canonically as Identifier::Global::Doi (Source#doi
       # reads from there, the doi column is not normalized).
       def gather_by_doi(result)
         with_doi = indexed_rows.select { |_, r| r.doi }
         return if with_doi.empty?
 
-        dois = with_doi.map { |_, r| quote(r.doi) }.uniq.join(', ')
+        scope = source_dois
+          .where("#{DOI_SQL} IN (?)", with_doi.map { |_, r| r.doi }.uniq)
+        if limit_to_project
+          scope = scope.where(
+            identifier_object_id:
+              ::ProjectSource.where(project_id:).select(:source_id)
+          )
+        end
 
-        # A DOI can be on several Sources (e.g. one per project).
+        # A DOI should be on at most one Source, but the uniqueness validation
+        # misses case variants (`10.1007/BF02372110` vs `10.1007/bf02372110`)
+        # and some exact duplicates exist anyway; gather them all, so the row
+        # shows as ambiguous.
+        # TODO: remove the several-Sources handling here (and the 'a DOI on
+        # several Sources' spec) once the Identifier::Global DOI validation is
+        # case-insensitive and the existing duplicates are resolved.
         found = Hash.new { |h, k| h[k] = [] }
-        ::Source.connection.select_rows(<<~SQL).each { |id, doi|
-          SELECT s.id, lower(trim(i.identifier))
-          FROM identifiers i
-          JOIN sources s ON s.id = i.identifier_object_id
-          WHERE #{DOI_IDENTIFIER_CONDITION}
-            AND lower(trim(i.identifier)) IN (#{dois})
-            #{project_condition}
-        SQL
+        scope.pluck(:identifier_object_id, Arel.sql(DOI_SQL)).each { |id, doi|
           found[doi] << id
         }
 
@@ -190,40 +200,20 @@ module Match
         end
       end
 
-      DOI_IDENTIFIER_CONDITION = "i.type = 'Identifier::Global::Doi' " \
-        "AND i.identifier_object_type = 'Source'".freeze
+      def source_dois
+        ::Identifier::Global::Doi.where(identifier_object_type: 'Source')
+      end
 
       # @return [Hash] source_id => Set of lowercased DOIs
       def dois_for(source_ids)
         return {} if rows.none?(&:doi) || source_ids.empty?
 
-        ::Source.connection.select_rows(<<~SQL)
-          SELECT i.identifier_object_id, lower(trim(i.identifier))
-          FROM identifiers i
-          WHERE #{DOI_IDENTIFIER_CONDITION}
-            AND i.identifier_object_id IN (#{source_ids.map(&:to_i).join(', ')})
-        SQL
+        source_dois
+          .where(identifier_object_id: source_ids)
+          .pluck(:identifier_object_id, Arel.sql(DOI_SQL))
           .each_with_object(Hash.new { |h, k| h[k] = Set.new }) { |(id, doi), h|
             h[id] << doi
           }
-      end
-
-      def gather_lateral(result, indexed, condition)
-        return if indexed.empty?
-
-        ::Source.connection.select_rows(<<~SQL).each { |i, id| result[i] << id }
-          SELECT q.idx, c.id
-          FROM (VALUES #{values_sql(indexed)}) AS #{VALUES_ALIAS}
-          CROSS JOIN LATERAL (
-            SELECT s.id
-            FROM sources s
-            LEFT JOIN serials ser ON ser.id = s.serial_id
-            WHERE #{condition}
-              #{project_condition}
-            ORDER BY #{RANK_SQL} DESC, s.id
-            LIMIT #{GATHER_LIMIT}
-          ) c
-        SQL
       end
 
       VALUES_ALIAS = 'q(idx, term, first_surname, year, volume, first_page, ' \
@@ -263,6 +253,24 @@ module Match
         + COALESCE(similarity(q.title, s.title), 0)
         + COALESCE(word_similarity(s.title, q.text), 0)
       SQL
+
+      def gather_lateral(result, indexed, condition)
+        return if indexed.empty?
+
+        ::Source.connection.select_rows(<<~SQL).each { |i, id| result[i] << id }
+          SELECT q.idx, c.id
+          FROM (VALUES #{values_sql(indexed)}) AS #{VALUES_ALIAS}
+          CROSS JOIN LATERAL (
+            SELECT s.id
+            FROM sources s
+            LEFT JOIN serials ser ON ser.id = s.serial_id
+            WHERE #{condition}
+              #{project_condition}
+            ORDER BY #{RANK_SQL} DESC, s.id
+            LIMIT #{GATHER_LIMIT}
+          ) c
+        SQL
+      end
 
       # @return [Hash] [row index, source_id] => { title:, journal: }
       def similarities_for(ids_by_row)

@@ -36,7 +36,7 @@
         color="primary"
         medium
         :disabled="!counts[STATUS.UNMATCHED] && !counts[STATUS.NO_MATCH]"
-        title="Download only the unmatched rows (including those you marked No match), e.g. for DOI lookup"
+        title="Download only the unmatched rows (including those you marked No match)"
         @click="emit('download-unmatched')"
       >
         Download unmatched
