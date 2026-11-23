@@ -104,7 +104,7 @@ import {
 } from 'vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import { useDropzonePasteManager } from '@/composables/useDropzonePasteManager'
-import { parseDelimited } from '../utils/parseDelimited.js'
+import { parseDelimited } from '@/helpers/parseDelimited.js'
 import { FIELD, FIELD_LABELS, HEADER_ALIASES, MAX_ROWS } from '../constants.js'
 
 const emit = defineEmits(['submit'])

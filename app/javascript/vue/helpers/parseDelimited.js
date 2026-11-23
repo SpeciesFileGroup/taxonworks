@@ -1,12 +1,20 @@
 // Parses CSV or TSV text (delimiter guessed from the header line) into
 // { headers: [...], rows: [{ header: value }, ...] }. Quoted fields may
 // contain delimiters, doubled quotes, and newlines.
-export function parseDelimited(text) {
+//
+// Blank rows are dropped unless keepBlankRows, in which case only trailing
+// blank rows are, so that rows line up with the input's lines.
+export function parseDelimited(text, { keepBlankRows = false } = {}) {
   const firstLine = text.split(/\r?\n/, 1)[0] || ''
   const delimiter = firstLine.includes('\t') ? '\t' : ','
-  const records = parseRecords(text, delimiter).filter((fields) =>
-    fields.some((f) => f.trim())
-  )
+  const isBlank = (fields) => !fields.some((f) => f.trim())
+  let records = parseRecords(text, delimiter)
+
+  if (keepBlankRows) {
+    while (records.length && isBlank(records.at(-1))) records.pop()
+  } else {
+    records = records.filter((fields) => !isBlank(fields))
+  }
 
   if (!records.length) {
     return { headers: [], rows: [] }
