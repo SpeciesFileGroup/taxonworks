@@ -152,7 +152,20 @@ describe Match::Source::InputRow do
         'Annales Zoologici, Warszaw, 58(3), 529–536.' => ['58', '529'],
       'Smith, J. (1990) Title. Journal, 12, pp. 5-9.' => ['12', '5'],
       # A comma-separated number with no page range is not taken as volume.
-      'Smith, J. (1990) Notes, 3, on things. Journal.' => [nil, nil]
+      'Smith, J. (1990) Notes, 3, on things. Journal.' => [nil, nil],
+      # Single page
+      'Questel, D.D. & Genung, W.G. (1961) Effects of a severe winter. ' \
+        'Florida Entomologist, 44(3), 115.' => ['44', '115'],
+      'Smith, J. (1990) Title. Journal, 54(19), 1011.' => ['54', '1011'],
+      'Smith, J. (1990) Title. Journal, 12, p. 5.' => ['12', '5'],
+      'Smith, J. (1990) Title. Journal, 12, 5' => ['12', '5'],
+      'Smith, J. (1990) Title. Journal, 12, 5. [in English]' => ['12', '5'],
+      # A page count or a figure count is not a page.
+      'Smith, J. (1990) Title. Publisher, 2, 248 pp.' => [nil, nil],
+      'Smith, J. (1990) Title. Publisher, 70, 248pp.' => [nil, nil],
+      'Smith, J. (1990) Title. Journal, 12, 3 figs.' => [nil, nil],
+      # Separate pages, not a volume and a page
+      'Smith, J. (1990) Title. Journal, 25, 167,179.' => [nil, nil]
     }.each do |verbatim, (volume, first_page)|
       specify "volume and first page, comma separated: #{verbatim[0, 30]}" do
         r = Match::Source::InputRow.new(verbatim:)

@@ -36,10 +36,14 @@ module Match
       # A volume's label, `Vol. 10`, `Volume 10`.
       VOLUME_LABEL_PATTERN = /\Avol(?:ume)?\.?\s*/i
 
-      # `96(2):285-298`, `1027: 55-63`, `, 16, 81–97`, `, 58(3), 529–536`
+      # `96(2):285-298`, `1027: 55-63`, `, 16, 81–97`, `, 58(3), 529–536`,
+      # and a single page, `, 44(3), 115.`, `, 12, p. 5`: one ending the
+      # citation or followed by `.`/`;`, so `, 2, 248 pp.` and `, 12, 3 figs.`
+      # aren't read as pages, nor is a list of pages, `, 25, 167,179.`
       VOLUME_PAGES_PATTERNS = [
         /\b(\d+)\s*(?:\([^)]*\))?\s*:\s*(\d+)/,
-        /,\s*(\d+)\s*(?:\([^)]*\))?\s*,\s*(?:pp?\.\s*)?(\d+)\s*[-–—]\s*\d+/
+        /,\s*(\d+)\s*(?:\([^)]*\))?\s*,\s*(?:pp?\.\s*)?(\d+)\s*[-–—]\s*\d+/,
+        /,\s*(\d+)\s*(?:\([^)]*\))?\s*,\s+(?:p\.\s*)?(\d+)\s*(?:[.;]|\z)/
       ].freeze
 
       attr_reader :surnames, :first_author_initials, :year, :year_suffix,
