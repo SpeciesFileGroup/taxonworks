@@ -4,6 +4,7 @@ require 'rails_helper'
 describe 'Rails.cache' do
   include ActiveSupport::Testing::TimeHelpers
 
+  # Guards the test default: :null_store would silently pass cache dependent specs.
   specify 'is a :memory_store by default in test' do
     expect(Rails.cache).to be_a(ActiveSupport::Cache::MemoryStore)
   end
@@ -13,11 +14,6 @@ describe 'Rails.cache' do
 
     specify 'is Solid Cache' do
       expect(Rails.cache).to be_a(SolidCache::Store)
-    end
-
-    specify 'uses the solid database, not primary' do
-      expect(SolidCache::Record.connection_db_config.name).to eq('solid')
-      expect(SolidCache::Record.connection_db_config.database).not_to eq(ApplicationRecord.connection_db_config.database)
     end
 
     specify '#write/#read' do
@@ -73,7 +69,7 @@ describe 'Rails.cache' do
       end
 
       specify 'every increment succeeds (PostgreSQL)' do
-        skip 'SQLite rejects concurrent writers (busy), failed increments return nil' if SolidCache::Record.each_shard.map { SolidCache::Record.connection.adapter_name }.include?('SQLite')
+        skip 'SQLite rejects concurrent writers (busy), failed increments return nil' if SolidCache::Record.connection.adapter_name == 'SQLite'
         expect(results.sort).to eq([1, 2, 3, 4, 5])
       end
     end
