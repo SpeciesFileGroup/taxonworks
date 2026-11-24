@@ -242,4 +242,134 @@ module Utilities::Strings
     author_year_string[0...author_end_index]
   end
 
+  # The set of trigrams PostgreSQL's `pg_trgm` would extract from `string`:
+  # case-folded, split on non-alphanumerics into words, each word padded with two
+  # leading and one trailing space, then every 3-character window.
+  #
+  # @param [String] string
+  # @return [Set<String>]
+  def self.trigram_set(string)
+    string.to_s.downcase.scan(/[[:alnum:]]+/).flat_map { |word|
+      padded = "  #{word} "
+      (0..padded.length - 3).map { |i| padded[i, 3] }
+    }.to_set
+  end
+
+  # A Jaccard approximation of `pg_trgm`'s `similarity()` - close enough to order
+  # by, not to compare against PostgreSQL's own value.
+  #
+  # @return [Float] 0.0 .. 1.0
+  def self.trigram_similarity(a, b)
+    trigram_set_similarity(trigram_set(a), trigram_set(b))
+  end
+
+  # Same as `trigram_similarity`, from two already computed `trigram_set`s -
+  # compute a fixed string's once when comparing it against many.
+  #
+  # @param [Set<String>] x
+  # @param [Set<String>] y
+  # @return [Float] 0.0 .. 1.0
+  def self.trigram_set_similarity(x, y)
+    return 0.0 if x.empty? || y.empty?
+
+    (x & y).size.to_f / (x | y).size
+  end
+
+  # Trigrams as `trigram_set`, but in the order they occur, repeats kept, each
+  # as an integer: `index` numbers the distinct trigrams, `sequence` is the
+  # string's trigrams by number. Prepared once for a text that's searched by
+  # `trigram_word_similarity` many times.
+  #
+  # @param [String] string
+  # @return [Hash] { index: { trigram => Integer }, sequence: [Integer, ...] }
+  def self.trigram_sequence(string)
+    index = {}
+    sequence = string.to_s.downcase.scan(/[[:alnum:]]+/).flat_map { |word|
+      padded = "  #{word} "
+      (0..padded.length - 3).map { |i| index[padded[i, 3]] ||= index.size }
+    }
+    { index:, sequence: }
+  end
+
+  # `pg_trgm`'s `word_similarity(part, text)`: the greatest similarity between
+  # `part`'s trigrams and any contiguous stretch of `text`'s, e.g. how well a
+  # title appears in a whole citation. A port of PostgreSQL's
+  # `iterate_word_similarity` (non-strict), including its greedy choice of
+  # where a stretch starts, so the values are PostgreSQL's.
+  #
+  # @param [Set<String>] part `trigram_set(part)`
+  # @param [Hash] text `trigram_sequence(text)`
+  # @return [Float] 0.0 .. 1.0
+  def self.trigram_word_similarity(part, text)
+    index = text[:index]
+    sequence = text[:sequence]
+
+    in_part = Array.new(index.size, false)
+    part.each do |trigram|
+      i = index[trigram]
+      in_part[i] = true if i
+    end
+    return 0.0 if !in_part.include?(true)
+
+    part_size = part.size
+    last_position = Array.new(index.size, -1)
+    lower = -1
+    count = 0 # distinct trigrams of the stretch in part
+    stretch_size = 0 # distinct trigrams of the stretch
+    best = 0.0
+
+    sequence.each_with_index do |trigram, upper|
+      found = in_part[trigram]
+      if lower >= 0 || found
+        if last_position[trigram] < 0
+          stretch_size += 1
+          count += 1 if found
+        end
+        last_position[trigram] = upper
+      end
+      next if !found
+
+      if lower == -1
+        lower = upper
+        stretch_size = 1
+      end
+      current = count.to_f / (part_size + stretch_size - count)
+
+      # Try starting the stretch later.
+      try_count = count
+      try_size = stretch_size
+      previous_lower = lower
+      try_lower = lower
+      while try_lower <= upper
+        # A stretch's similarity is at most try_count / part_size, and
+        # try_count only falls from here on, so no later start beats current.
+        # (PostgreSQL keeps scanning; it only takes a strictly greater one.)
+        break if try_count.to_f / part_size <= current
+
+        similarity = try_count.to_f / (part_size + try_size - try_count)
+        if similarity > current
+          current = similarity
+          stretch_size = try_size
+          lower = try_lower
+          count = try_count
+        end
+
+        t = sequence[try_lower]
+        if last_position[t] == try_lower
+          try_size -= 1
+          try_count -= 1 if in_part[t]
+        end
+        try_lower += 1
+      end
+      best = current if current > best
+
+      (previous_lower...lower).each do |i|
+        t = sequence[i]
+        last_position[t] = -1 if last_position[t] == i
+      end
+    end
+
+    best
+  end
+
 end

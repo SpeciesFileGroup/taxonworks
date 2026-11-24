@@ -260,7 +260,7 @@ describe Match::Source::Candidates, type: :model do
   end
 
   context 'when more Sources match than are gathered' do
-    before { stub_const('Match::Source::Candidates::GATHER_LIMIT', 1) }
+    before { stub_const('Match::Source::Gather::GATHER_LIMIT', 1) }
 
     specify 'prefers Sources whose first author is the row\'s' do
       co_authored = Source::Bibtex.create!(

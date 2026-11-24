@@ -33,9 +33,6 @@ module Match
       DOI_LEAD_PATTERN =
         %r{[(\[<]?\s*(?:https?://(?:dx\.)?doi\.org/|\bdoi:?)?\s*\z}i
 
-      # A volume's label, `Vol. 10`, `Volume 10`.
-      VOLUME_LABEL_PATTERN = /\Avol(?:ume)?\.?\s*/i
-
       # `96(2):285-298`, `1027: 55-63`, `, 16, 81–97`, `, 58(3), 529–536`,
       # and a single page, `, 44(3), 115.`, `, 12, p. 5`: one ending the
       # citation or followed by `.`/`;`, so `, 2, 248 pp.` and `, 12, 3 figs.`
@@ -62,7 +59,7 @@ module Match
       )
         verbatim_parts = parse_verbatim(verbatim)
 
-        author_string = clean(authors) || verbatim_parts[:authors]
+        author_string = self.class.plain_text(authors) || verbatim_parts[:authors]
         @surnames = ::Utilities::AuthorNames.surnames(author_string)
         @first_author_initials =
           ::Utilities::AuthorNames.first_author_initials(author_string)
@@ -71,23 +68,27 @@ module Match
         @year = parsed_year || verbatim_parts[:year]
         @year_suffix = parsed_year ? parsed_suffix : verbatim_parts[:year_suffix]
 
-        @title = clean(title)
-        @journal = clean(journal)
+        @title = self.class.plain_text(title)
+        @journal = self.class.plain_text(journal)
 
         parsed_volume, volume_first_page = parse_volume(volume)
         @volume = parsed_volume || verbatim_parts[:volume]
-        @first_page = parse_first_page(pages) || volume_first_page ||
+        @first_page = Field::FirstPage.number(pages) || volume_first_page ||
           verbatim_parts[:first_page]
 
         @doi = normalize_doi(doi) || verbatim_parts[:doi]
         @text = verbatim_parts[:text]
       end
 
-      # @param value [String, nil] a volume, optionally followed by issue
-      #   and pages, e.g. `10(2):149-158`, `65(1)`, `10 (2)`
-      # @return [String, nil] the volume alone, e.g. `10`
-      def self.volume_number(value)
-        value.to_s.strip.sub(VOLUME_LABEL_PATTERN, '')[/\A([^\s(:,;]+)/, 1]
+      # Removes HTML tags, then decodes entities: text copied from
+      # Source#cached has `&amp;` for `&`. Used for a Source's text fields
+      # too, so both sides of a comparison are read the same way.
+      # @return [String, nil]
+      def self.plain_text(string)
+        s = string.to_s
+        s = s.gsub(/<[^>]*>/, ' ') if s.include?('<')
+        s = CGI.unescapeHTML(s) if s.include?('&')
+        s.squish.presence
       end
 
       # @return [String] the DOI without brackets it was written in,
@@ -108,12 +109,6 @@ module Match
 
       private
 
-      # Removes HTML tags, then decodes entities: text copied from
-      # Source#cached has `&amp;` for `&`.
-      def clean(string)
-        CGI.unescapeHTML(string.to_s.gsub(/<[^>]*>/, ' ')).squish.presence
-      end
-
       # @return [Array] [year (Integer), suffix (String)] or [nil, nil]
       def parse_year(value)
         m = value.to_s.match(/\A\s*(\d{4})\s*([a-z])?\s*\z/)
@@ -128,16 +123,12 @@ module Match
         return [nil, nil] if s.empty?
 
         if s.match?(/\Ap{1,2}\.?\s*\d/i)
-          return [nil, parse_first_page(s)]
+          return [nil, Field::FirstPage.number(s)]
         end
 
-        volume = self.class.volume_number(s)
+        volume = Field::Volume.number(s)
         first_page = s[/:\s*(\d+)/, 1]
         [volume, first_page]
-      end
-
-      def parse_first_page(value)
-        value.to_s[/\d+/]
       end
 
       def normalize_doi(value)
@@ -148,7 +139,7 @@ module Match
       end
 
       def parse_verbatim(verbatim)
-        s = clean(verbatim)
+        s = self.class.plain_text(verbatim)
         return {} if s.nil?
 
         result = {}
