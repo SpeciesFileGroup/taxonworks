@@ -7,10 +7,6 @@ module Match
       # counts for little.
       class Year < Field
 
-        def self.source_columns
-          %i{year year_suffix}
-        end
-
         def compare(row, source)
           {
             year_difference: (row.year && source.year) ?

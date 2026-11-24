@@ -16,10 +16,6 @@ module Match
           value.to_s.strip.sub(LABEL_PATTERN, '')[/\A([^\s(:,;]+)/, 1]
         end
 
-        def self.source_columns
-          %i{volume}
-        end
-
         def compare(row, source)
           volume = self.class.number(source.volume)
 

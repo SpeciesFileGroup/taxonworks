@@ -14,10 +14,6 @@ module Match
         # open-ended.
         MAX_EDITS = DISTANCE_CAP - 1
 
-        def self.source_columns
-          %i{cached_author_string author}
-        end
-
         def compare(row, source)
           source_surnames = surnames(source)
           first_input = row.surnames.first
@@ -95,6 +91,11 @@ module Match
         end
 
         # A Source's `author` is BibTeX ("Last, Given and Last, Given").
+        # `BibTeX::Names.parse` gives the list of names (nil if it can't
+        # parse); its `.first` is the first author (a BibTeX::Name), whose
+        # `.first` is that author's given names, e.g. "Franciscus Gerardus
+        # Albertus Maria" from "Smit, Franciscus Gerardus Albertus Maria and
+        # Jones, A."; nil when there are none ("Smit").
         def first_author_initials(source)
           @initials ||= {}
           @initials[source.id] ||= ::Utilities::AuthorNames.initials(

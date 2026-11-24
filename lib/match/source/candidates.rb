@@ -64,10 +64,6 @@ module Match
         Field::Volume, Field::FirstPage
       ].freeze
 
-      # Source columns loaded, beyond those the FIELDS compare: what's
-      # rendered for a candidate.
-      SOURCE_COLUMNS = %i{id type cached}.freeze
-
       attr_reader :rows, :project_id, :limit_to_project, :year_window
 
       # @param rows [Array<Hash>] keys as Match::Source::InputRow#initialize
@@ -91,7 +87,6 @@ module Match
         all_ids = ids_by_row.values.flatten.uniq
         sources = ::Source
           .where(id: all_ids)
-          .select(*(SOURCE_COLUMNS + FIELDS.flat_map(&:source_columns)).uniq)
           .index_by(&:id)
         in_project = ::ProjectSource
           .where(project_id:, source_id: all_ids)

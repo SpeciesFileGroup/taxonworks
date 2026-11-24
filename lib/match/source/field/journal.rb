@@ -7,10 +7,6 @@ module Match
       # otherwise looked for in the rest of a verbatim citation.
       class Journal < Field
 
-        def self.source_columns
-          %i{journal serial_id}
-        end
-
         def prepare(_rows, sources)
           serial_names = ::Serial
             .where(id: sources.filter_map(&:serial_id).uniq)

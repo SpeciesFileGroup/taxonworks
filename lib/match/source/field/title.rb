@@ -6,10 +6,6 @@ module Match
       # looked for in the rest of a verbatim citation.
       class Title < Field
 
-        def self.source_columns
-          %i{title}
-        end
-
         def compare(row, source)
           title = plain_title(source)
 

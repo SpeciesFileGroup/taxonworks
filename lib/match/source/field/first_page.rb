@@ -11,10 +11,6 @@ module Match
           value.to_s[/\d+/]
         end
 
-        def self.source_columns
-          %i{pages}
-        end
-
         # Source pages with no number (`i-iv`) disagree with a row's page.
         def compare(row, source)
           {

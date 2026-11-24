@@ -2,9 +2,9 @@ module Match
   module Source
 
     # One field of a citation (year, authors, title, ...) and everything
-    # Match::Source::Candidates knows about comparing it: which Source
-    # columns it reads, how a row's value compares to a Source's, and how
-    # much an agreement counts when ordering candidates.
+    # Match::Source::Candidates knows about comparing it: how a row's value
+    # compares to a Source's, and how much an agreement counts when ordering
+    # candidates.
     #
     # Subclasses implement #compare and #score; #prepare is for a field that
     # needs more than the Source's own columns (e.g. its DOIs), loaded once
@@ -12,11 +12,6 @@ module Match
     #
     # A field instance lives for one Candidates#call, so it may memoize.
     class Field
-
-      # @return [Array<Symbol>] Source columns #compare reads
-      def self.source_columns
-        []
-      end
 
       # @param rows [Array<Match::Source::InputRow>]
       # @param sources [Array<Source>] every gathered candidate
