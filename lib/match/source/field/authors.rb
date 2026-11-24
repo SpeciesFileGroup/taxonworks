@@ -58,8 +58,8 @@ module Match
 
         private
 
-        # Folded edit distance, also trying the last word of each name so that
-        # `van der Merwe` matches `Merwe`; capped at DISTANCE_CAP.
+        # Folded edit distance between the closest of each name's keys;
+        # capped at DISTANCE_CAP.
         def distance(a, b)
           keys(a).product(keys(b)).map { |x, y|
             if x == y
@@ -72,10 +72,18 @@ module Match
           }.min
         end
 
+        # The whole name and each of its words, particles aside: one side may
+        # cite only part of a compound surname (`García López` as `García`,
+        # `Gomes Alves` as `Alves`, `van der Merwe` as `Merwe`).
         def keys(name)
           @keys ||= {}
           @keys[name] ||=
-            [name, name.split.last]
+            [
+              name,
+              *name.split.reject { |w|
+                ::Utilities::AuthorNames::PARTICLES.include?(w.downcase)
+              }
+            ]
               .map { |n| ::Utilities::AuthorNames.fold(n) }
               .reject(&:empty?).uniq
         end

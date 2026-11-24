@@ -31,6 +31,14 @@ module Match
 
       TEXT_SIMILARITY_THRESHOLD = 0.3
 
+      # The row's first surname is in the Source's authors. Either its first
+      # or its last word will do, since one side may cite only part of a
+      # compound surname (`García López` as `García`, `Gomes Alves` as
+      # `Alves`); a particle is never a surname's word (`van der Merwe`).
+      SURNAME_CONDITION =
+        '(input_row.first_word <% s.cached_author_string OR ' \
+          'input_row.last_word <% s.cached_author_string)'.freeze
+
       attr_reader :indexed_rows, :project_id, :limit_to_project, :year_window
 
       # @param indexed_rows [Array] [[row index, Match::Source::InputRow], ...]
@@ -66,15 +74,13 @@ module Match
             result, with_year,
             's.year BETWEEN input_row.year - ' \
               "#{year_window} AND input_row.year + #{year_window} AND " \
-              'input_row.term <% s.cached_author_string'
+              "#{SURNAME_CONDITION}"
           )
 
           without_year = indexed_rows.select { |_, r|
             r.surnames.any? && r.year.nil?
           }
-          lateral(
-            result, without_year, 'input_row.term <% s.cached_author_string'
-          )
+          lateral(result, without_year, SURNAME_CONDITION)
 
           # Rows nothing was found for yet (no DOI, no surname match): match
           # the whole citation text against each Source's `cached`.
@@ -130,15 +136,15 @@ module Match
           end
 
         # `input_row` is one row of the input, see #values_sql. The ORDER BY
-        # scores how well a Source agrees with it; the author term matches
+        # scores how well a Source agrees with it; the surname words match
         # anywhere in the author string, so the first-author and journal terms
         # keep a common surname's co-authored and other-journal Sources from
         # crowding out the row's.
         ::Source.connection.select_rows(<<~SQL).each { |i, id| result[i] << id }
           SELECT input_row.idx, candidate.id
           FROM (VALUES #{values_sql(indexed)})
-            AS input_row(idx, term, first_surname, year, volume, first_page,
-              title, journal, text, full_text)
+            AS input_row(idx, first_word, last_word, first_surname, year,
+              volume, first_page, title, journal, text, full_text)
           CROSS JOIN LATERAL (
             SELECT s.id
             FROM sources s
@@ -148,9 +154,10 @@ module Match
             ORDER BY
               -- add up column matching scores against multiple columns:
               (CASE WHEN s.year = input_row.year THEN 1 ELSE 0 END)
-              + COALESCE(
-                word_similarity(input_row.term, s.cached_author_string), 0
-              )
+              + COALESCE(GREATEST(
+                word_similarity(input_row.first_word, s.cached_author_string),
+                word_similarity(input_row.last_word, s.cached_author_string)
+              ), 0)
               -- the first author; cached_author_string is `A`, `A & B`,
               -- or `A, B & C`
               + (CASE WHEN lower(split_part(
@@ -178,12 +185,16 @@ module Match
 
       def values_sql(indexed)
         indexed.map { |i, r|
-          term = r.surnames.first.to_s.split.last
+          # the first surname's words, particles aside
+          words = r.surnames.first.to_s.split.reject { |w|
+            ::Utilities::AuthorNames::PARTICLES.include?(w.downcase)
+          }
           full_text = [r.title, r.text].compact.join(' ').presence
 
           '(' + [
             i.to_i,
-            "#{quote(term)}::text",
+            "#{quote(words.first)}::text",
+            "#{quote(words.last)}::text",
             "#{quote(r.surnames.first)}::text",
             "#{r.year.nil? ? 'NULL' : r.year.to_i}::int",
             "#{quote(r.volume&.downcase)}::text",

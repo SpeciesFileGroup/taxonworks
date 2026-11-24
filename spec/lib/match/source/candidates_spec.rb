@@ -112,6 +112,44 @@ describe Match::Source::Candidates, type: :model do
     end
   end
 
+  context 'compound surnames' do
+    let!(:garcia_lopez) do
+      Source::Bibtex.create!(
+        bibtex_type: 'article', author: 'García López, J.', year: 2001,
+        title: 'Cicadellidae of Spain'
+      )
+    end
+
+    let!(:ravizza) do
+      Source::Bibtex.create!(
+        bibtex_type: 'article', author: 'Ravizza, C.', year: 2002,
+        title: 'Plecoptera of Italy'
+      )
+    end
+
+    specify 'a row citing only the first surname finds the Source' do
+      r = candidates([{ authors: 'García, J.', year: '2001' }]).first
+      expect(candidate_for(r, garcia_lopez)[:first_author_distance]).to eq(0)
+    end
+
+    specify 'a row citing only the last surname finds the Source' do
+      r = candidates([{ authors: 'López, J.', year: '2001' }]).first
+      expect(candidate_for(r, garcia_lopez)[:first_author_distance]).to eq(0)
+    end
+
+    specify 'a row with the compound finds a Source with its first surname' do
+      r = candidates(
+        [{ authors: 'Ravizza Dematteis, C.', year: '2002' }]
+      ).first
+      expect(candidate_for(r, ravizza)[:first_author_distance]).to eq(0)
+    end
+
+    specify 'a particle is not a surname word' do
+      r = candidates([{ authors: 'van, A.', year: '1990' }]).first
+      expect(candidate_for(r, source)).to be_nil
+    end
+  end
+
   context 'first author initials' do
     let!(:smit_b) do
       Source::Bibtex.create!(bibtex_type: 'article', author: 'Smit, B.', year: 1964)
