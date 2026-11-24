@@ -9,9 +9,9 @@ gem 'rails', '~> 8.1.0'
 gem 'pg', '~> 1.1'
 gem 'activerecord-postgis-adapter', '~> 11.0'
 
-# action_cable use may re-introduce this
-# gem 'hiredis', '~> 0.6.1'
-# gem 'redis', '~> 4.5'
+# Rails.cache and Action Cable adapters, see config/cache.yml, config/cable.yml
+gem 'solid_cache', '~> 1.0'
+gem 'solid_cable', '~> 3.0'
 
 gem 'bootsnap', require: false
 
@@ -179,6 +179,9 @@ group :test, :development do
   gem 'rspec-activemodel-mocks', '~> 1.1.0'
   gem 'rspec-rails', '~> 8.0'
   gem 'selenium-webdriver', '~> 4.6', '>= 4.6.1'
+
+  # Optional Solid Cache/Cable database, see TW_SOLID_DB in config/database.yml.example
+  gem 'sqlite3', '~> 2.1'
 end
 
 gem 'parallel_tests', group: [:development, :test]

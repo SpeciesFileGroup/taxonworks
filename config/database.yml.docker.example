@@ -1,9 +1,21 @@
 production:
-  adapter: postgis
-  encoding: utf8 
-  postgis_extension: true
-  pool: 5
-  host: <%= ENV['POSTGRES_HOST'] %>
-  database: <%= ENV['POSTGRES_DB'] %>
-  username: <%= ENV['POSTGRES_USER'] %>
-  password: <%= ENV['POSTGRES_PASSWORD'] %>
+  primary:
+    adapter: postgis
+    encoding: utf8 
+    postgis_extension: true
+    pool: 5
+    host: <%= ENV['POSTGRES_HOST'] %>
+    database: <%= ENV['POSTGRES_DB'] %>
+    username: <%= ENV['POSTGRES_USER'] %>
+    password: <%= ENV['POSTGRES_PASSWORD'] %>
+  # Solid Cache and Solid Cable, dedicated role, see config/cache.yml, config/cable.yml
+  solid:
+    adapter: postgresql
+    encoding: utf8
+    pool: 5
+    host: <%= ENV['POSTGRES_HOST'] %>
+    database: <%= ENV['POSTGRES_SOLID_DB'] || 'taxonworks_solid' %>
+    username: <%= ENV['POSTGRES_SOLID_USER'] %>
+    password: <%= ENV['POSTGRES_SOLID_PASSWORD'] %>
+    migrations_paths: db/solid_migrate
+    schema_dump: false # built from migrations only, see db/solid_migrate

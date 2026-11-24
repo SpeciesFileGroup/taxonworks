@@ -1,12 +1,23 @@
 #
-# This is for travis configuration only.
+# This is for CI configuration only.
 #
 test: 
-  adapter: postgis
-  encoding: utf8 
-  postgis_extension: true
-  pool: 5
-  database: taxonworks_test<%= ENV['TEST_ENV_NUMBER'] %>
-  username: <%= ENV['PGUSER'] %>
-  password:
-  port: <%= ENV['PGPORT'] %>
+  primary:
+    adapter: postgis
+    encoding: utf8 
+    postgis_extension: true
+    pool: 5
+    database: taxonworks_test<%= ENV['TEST_ENV_NUMBER'] %>
+    username: <%= ENV['PGUSER'] %>
+    password:
+    port: <%= ENV['PGPORT'] %>
+  solid:
+    adapter: postgresql
+    encoding: utf8
+    pool: 5
+    database: taxonworks_solid_test<%= ENV['TEST_ENV_NUMBER'] %>
+    username: <%= ENV['PGUSER'] %>
+    password:
+    port: <%= ENV['PGPORT'] %>
+    migrations_paths: db/solid_migrate
+    schema_dump: false # built from migrations only, see db/solid_migrate

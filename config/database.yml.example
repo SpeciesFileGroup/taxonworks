@@ -2,24 +2,57 @@
 # This example is for development only.
 # See config/docker/database.yml.erb for a potential production example.
 #
+# Multi-database:
+#   primary - TaxonWorks data (PostGIS)
+#   solid   - Solid Cache and Solid Cable (config/cache.yml, config/cable.yml), built from db/solid_migrate
+#             TW_SOLID_DB=sqlite3 uses SQLite (development/test only)
+#
+<% solid_sqlite = ENV['TW_SOLID_DB'] == 'sqlite3' %>
 development:
-  adapter: postgis
-  encoding: utf8 
-  postgis_extension: true
-  pool: 5
-  database: taxonworks_development 
-  username: taxonworks_development
-  password:
-#  host: db
+  primary:
+    adapter: postgis
+    encoding: utf8 
+    postgis_extension: true
+    pool: 5
+    database: taxonworks_development 
+    username: taxonworks_development
+    password:
+  #  host: db
+  solid:
+<% if solid_sqlite %>
+    adapter: sqlite3
+    database: storage/taxonworks_solid_development.sqlite3
+<% else %>
+    adapter: postgresql
+    encoding: utf8
+    pool: 5
+    database: taxonworks_solid_development
+    username: taxonworks_development
+    password:
+<% end %>
+    migrations_paths: db/solid_migrate
+    schema_dump: false # built from migrations only, see db/solid_migrate
 test: 
-  adapter: postgis
-  encoding: utf8 
-  postgis_extension: true
-  pool: 5
-  database: taxonworks_test<%= ENV['TEST_ENV_NUMBER'] %>
-  username: taxonworks_development 
-  password:
-#  host: db
-
-
-
+  primary:
+    adapter: postgis
+    encoding: utf8 
+    postgis_extension: true
+    pool: 5
+    database: taxonworks_test<%= ENV['TEST_ENV_NUMBER'] %>
+    username: taxonworks_development 
+    password:
+  #  host: db
+  solid:
+<% if solid_sqlite %>
+    adapter: sqlite3
+    database: storage/taxonworks_solid_test<%= ENV['TEST_ENV_NUMBER'] %>.sqlite3
+<% else %>
+    adapter: postgresql
+    encoding: utf8
+    pool: 5
+    database: taxonworks_solid_test<%= ENV['TEST_ENV_NUMBER'] %>
+    username: taxonworks_development
+    password:
+<% end %>
+    migrations_paths: db/solid_migrate
+    schema_dump: false # built from migrations only, see db/solid_migrate

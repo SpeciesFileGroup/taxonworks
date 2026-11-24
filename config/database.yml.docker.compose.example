@@ -1,22 +1,39 @@
 default: &default 
-  adapter: postgis 
   encoding: utf8
-  postgis_extension: true 
   pool: 5 
   timeout: 5000 
   username: postgres 
   host: db
   port: 5432
 
+primary: &primary
+  <<: *default
+  adapter: postgis 
+  postgis_extension: true 
+
+# Solid Cache and Solid Cable, see config/cache.yml, config/cable.yml
+solid: &solid
+  <<: *default
+  adapter: postgresql
+  migrations_paths: db/solid_migrate
+  schema_dump: false # built from migrations only, see db/solid_migrate
+
 development: 
-  <<: *default 
-  database: taxonworks_development 
+  primary:
+    <<: *primary
+    database: taxonworks_development 
+  solid:
+    <<: *solid
+    database: taxonworks_solid_development
 
 # Warning: The database defined as "test" will be erased and
 # re-generated from your development database when you run 
 # "rake". Do not set this db to the same as development or
 # production.
 test: 
-  <<: *default 
-  database: taxonworks_test<%= ENV['TEST_ENV_NUMBER'] %>
-
+  primary:
+    <<: *primary
+    database: taxonworks_test<%= ENV['TEST_ENV_NUMBER'] %>
+  solid:
+    <<: *solid
+    database: taxonworks_solid_test<%= ENV['TEST_ENV_NUMBER'] %>

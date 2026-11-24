@@ -24,14 +24,14 @@ namespace :tw do
   task database_user: [:environment] do
     @args ||= {}
     @args[:database_user] = ENV['database_user']
-    @args[:database_user] ||= Rails.configuration.database_configuration[Rails.env]['username']
+    @args[:database_user] ||= Support::Database.primary_config[:username]
   end
 
   desc 'set the database_host to ENV of database_host or use "0.0.0.0"'
-  task :database_host do |t|
+  task database_host: [:environment] do |t|
     @args ||= {}
     @args[:database_host] = ENV['database_host']
-    @args[:database_host] ||= Rails.configuration.database_configuration[Rails.env]['host'] || '0.0.0.0'
+    @args[:database_host] ||= Support::Database.primary_config[:host] || '0.0.0.0'
   end
 
   desc 'Sets Current.user_id via "user_id=1" option. checks to see it exists.'

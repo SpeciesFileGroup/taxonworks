@@ -3,31 +3,64 @@
 #
 # development/test here not verified to work in kubernetes
 #
+# solid - Solid Cache and Solid Cable (config/cache.yml, config/cable.yml), on the
+#   primary's server (POSTGRES_HOST) with a dedicated role, built from db/solid_migrate
 #
 development:
-  adapter: postgis
-  encoding: utf8 
-  postgis_extension: true
-  pool: <%= ENV['POSTGRES_POOL_SIZE'] || 5 %>
-  database: taxonworks_development 
-  username: taxonworks_development
-  password:
-#  host: db
+  primary:
+    adapter: postgis
+    encoding: utf8 
+    postgis_extension: true
+    pool: <%= ENV['POSTGRES_POOL_SIZE'] || 5 %>
+    database: taxonworks_development 
+    username: taxonworks_development
+    password:
+  #  host: db
+  solid:
+    adapter: postgresql
+    encoding: utf8
+    pool: <%= ENV['POSTGRES_POOL_SIZE'] || 5 %>
+    database: taxonworks_solid_development
+    username: taxonworks_development
+    password:
+    migrations_paths: db/solid_migrate
+    schema_dump: false # built from migrations only, see db/solid_migrate
 test: 
-  adapter: postgis
-  encoding: utf8 
-  postgis_extension: true
-  pool: <%= ENV['POSTGRES_POOL_SIZE'] || 5 %>
-  database: taxonworks_test<%= ENV['TEST_ENV_NUMBER'] %>
-  username: taxonworks_test 
-  password:
-#  host: db
+  primary:
+    adapter: postgis
+    encoding: utf8 
+    postgis_extension: true
+    pool: <%= ENV['POSTGRES_POOL_SIZE'] || 5 %>
+    database: taxonworks_test<%= ENV['TEST_ENV_NUMBER'] %>
+    username: taxonworks_test 
+    password:
+  #  host: db
+  solid:
+    adapter: postgresql
+    encoding: utf8
+    pool: <%= ENV['POSTGRES_POOL_SIZE'] || 5 %>
+    database: taxonworks_solid_test<%= ENV['TEST_ENV_NUMBER'] %>
+    username: taxonworks_test
+    password:
+    migrations_paths: db/solid_migrate
+    schema_dump: false # built from migrations only, see db/solid_migrate
 production:
-  adapter: postgis
-  encoding: utf8 
-  postgis_extension: true
-  pool: <%= ENV['POSTGRES_POOL_SIZE'] || 5 %>
-  host: <%= ENV['POSTGRES_HOST'] %>
-  database: <%= ENV['POSTGRES_DB'] %>
-  username: <%= ENV['POSTGRES_USER'] %>
-  password: <%= ENV['POSTGRES_PASSWORD'] %>
+  primary:
+    adapter: postgis
+    encoding: utf8 
+    postgis_extension: true
+    pool: <%= ENV['POSTGRES_POOL_SIZE'] || 5 %>
+    host: <%= ENV['POSTGRES_HOST'] %>
+    database: <%= ENV['POSTGRES_DB'] %>
+    username: <%= ENV['POSTGRES_USER'] %>
+    password: <%= ENV['POSTGRES_PASSWORD'] %>
+  solid:
+    adapter: postgresql
+    encoding: utf8
+    pool: <%= ENV['POSTGRES_POOL_SIZE'] || 5 %>
+    host: <%= ENV['POSTGRES_HOST'] %>
+    database: <%= ENV['POSTGRES_SOLID_DB'] || 'taxonworks_solid' %>
+    username: <%= ENV['POSTGRES_SOLID_USER'] %>
+    password: <%= ENV['POSTGRES_SOLID_PASSWORD'] %>
+    migrations_paths: db/solid_migrate
+    schema_dump: false # built from migrations only, see db/solid_migrate

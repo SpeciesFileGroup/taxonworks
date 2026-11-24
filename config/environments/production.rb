@@ -59,8 +59,14 @@ TaxonWorks::Application.configure do
   # Use a different logger for distributed setups.
   # config.logger = ActiveSupport::TaggedLogging.new(SyslogLogger.new)
 
-  # Use a different cache store in production.
-  # config.cache_store = :mem_cache_store
+  # Solid Cache, shared by all replicas, see config/cache.yml
+  config.cache_store = :solid_cache_store
+
+  # Action Cable accepts same-origin requests by default; TW_CABLE_ALLOWED_ORIGINS
+  # (comma separated) replaces that, e.g. when served behind a different host name.
+  if ENV['TW_CABLE_ALLOWED_ORIGINS'].present?
+    config.action_cable.allowed_request_origins = ENV['TW_CABLE_ALLOWED_ORIGINS'].split(',').map(&:strip)
+  end
 
   # Enable serving of images, stylesheets, and JavaScripts from an asset server.
   # config.action_controller.asset_host = "http://assets.example.com"
