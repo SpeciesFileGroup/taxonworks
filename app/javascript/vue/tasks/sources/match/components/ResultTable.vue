@@ -191,72 +191,13 @@
         >
           <td />
           <td colspan="6">
-            <div
-              v-for="{ candidate, i } in listed(row)"
-              :key="candidate.source.id"
-              :class="[
-                'candidate',
-                { 'candidate-failing': !evaluations[row.index].evaluations[i].passes }
-              ]"
-            >
-              <input
-                type="radio"
-                :name="`candidate-${row.index}`"
-                :checked="exportedSourceIds[row.index] === candidate.source.id"
-                title="Select this Source for the row"
-                @click="emit('select-candidate', { index: row.index, candidate })"
-              />
-              <a
-                :href="sourceUrl(candidate.source.id)"
-                target="_blank"
-                v-html="candidate.source.object_label"
-              />
-              <div class="candidate-checks">
-                <VBadge
-                  v-if="isAutomaticPick(row, candidate)"
-                  class="line-nowrap"
-                  :color="STATUS_BADGE_COLORS[evaluations[row.index].status]"
-                  :title="
-                    evaluations[row.index].status === STATUS.MATCHED
-                      ? 'The automatic match; select it to keep it whatever the options'
-                      : 'The best of the candidates that pass; select one to resolve the row'
-                  "
-                >
-                  {{
-                    evaluations[row.index].status === STATUS.MATCHED
-                      ? 'Match'
-                      : 'Best guess'
-                  }}
-                </VBadge>
-                <VBadge
-                  v-if="!candidate.in_project"
-                  class="line-nowrap"
-                  color="purple"
-                >
-                  Not in project
-                </VBadge>
-                <CheckChips :evaluation="evaluations[row.index].evaluations[i]" />
-              </div>
-            </div>
-            <label class="candidate">
-              <input
-                type="radio"
-                :name="`candidate-${row.index}`"
-                :checked="row.noMatch"
-                title="None of these Sources is the row's"
-                @click="emit('select-none', { index: row.index })"
-              />
-              <span>None of these</span>
-            </label>
-            <VBtn
-              v-if="hiddenCount(row)"
-              class="margin-xsmall-top"
-              color="primary"
-              medium
-              @click="toggleShowAll(row.index)"
-            >
-              {{ hiddenToggleLabel(row) }}
-            </VBtn>
+            <CandidateList
+              :row="row"
+              :evaluation="evaluations[row.index]"
+              :exported-source-id="exportedSourceIds[row.index]"
+              @select-candidate="emit('select-candidate', $event)"
+              @select-none="emit('select-none', $event)"
+            />
           </td>
         </tr>
       </template>
@@ -272,18 +213,12 @@ import { pluralize } from '@/helpers/strings.js'
 import VBadge from '@/components/ui/VBadge/VBadge.vue'
 import Autocomplete from '@/components/ui/Autocomplete.vue'
 import ButtonClipboard from '@/components/ui/Button/ButtonClipboard.vue'
+import CandidateList from './CandidateList.vue'
 import CheckChips from './CheckChips.vue'
 import { inputSummary, parsedSummary } from '../utils/summaries.js'
 import {
-  anyPasses,
-  isAutomaticPick as isAutomaticPickFor,
-  listedCandidates,
-  unlistedCount
-} from '../utils/listing.js'
-import {
   ROW_FILTER,
   ROW_FILTER_LABELS,
-  STATUS,
   STATUS_BADGE_COLORS,
   STATUS_LABELS
 } from '../constants.js'
@@ -358,48 +293,6 @@ function expandAll() {
   )
 }
 
-// Rows whose unlisted candidates are shown too.
-const showAll = ref(new Set())
-
-function toggleShowAll(index) {
-  const next = new Set(showAll.value)
-  if (next.has(index)) {
-    next.delete(index)
-  } else {
-    next.add(index)
-  }
-  showAll.value = next
-}
-
-function listed(row) {
-  return listedCandidates(
-    row,
-    props.evaluations[row.index],
-    showAll.value.has(row.index)
-  )
-}
-
-function hiddenCount(row) {
-  return unlistedCount(row, props.evaluations[row.index])
-}
-
-function hiddenToggleLabel(row) {
-  const passing = anyPasses(props.evaluations[row.index])
-  if (showAll.value.has(row.index)) {
-    return passing
-      ? 'Hide those that fail a requirement'
-      : 'Hide those where nothing but the authors agrees'
-  }
-  const count = hiddenCount(row)
-  return passing
-    ? `Show ${count} that ${pluralize(count, 'fails', 'fail')} a requirement`
-    : `Show ${count} where nothing but the authors agrees`
-}
-
-function isAutomaticPick(row, candidate) {
-  return isAutomaticPickFor(props.evaluations[row.index], candidate)
-}
-
 function sourceUrl(id) {
   return `/sources/${id}`
 }
@@ -436,24 +329,5 @@ thead th {
 
 .row-empty td {
   opacity: 0.5;
-}
-
-.candidate {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) 320px;
-  align-items: center;
-  gap: 8px;
-  padding: 2px 0;
-}
-
-.candidate-checks {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.candidate-failing,
-.candidate-failing a {
-  color: var(--text-muted-color);
 }
 </style>
