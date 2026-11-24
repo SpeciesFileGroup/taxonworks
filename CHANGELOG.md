@@ -10,6 +10,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 ### Added
 
 - Light table task
+- Occurrences importer: Cite imported Otu, TaxonName, CollectionObject, FieldOccurrence, CollectingEvent, and TypeMaterial records via `TW:<Model>:source_id`, `TW:<Model>:source_pages`, and `TW:<Model>:source_is_original` (e.g. `TW:TaxonName:source_id`) [#2153]
 
 ### Changed
 
@@ -26,6 +27,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Asserted distribution batch load only imported one citation per OTU/area pair [#5131]
 - Include id of the existing Document when error message "Error uploading document: has already been taken" is shown
 
+[#2153]: https://github.com/SpeciesFileGroup/taxonworks/issues/2153
 [#5131]: https://github.com/SpeciesFileGroup/taxonworks/issues/5131
 [#5167]: https://github.com/SpeciesFileGroup/taxonworks/issues/5167
 [#5175]: https://github.com/SpeciesFileGroup/taxonworks/issues/5175

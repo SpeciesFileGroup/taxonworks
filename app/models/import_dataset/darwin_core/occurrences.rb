@@ -1,7 +1,8 @@
 class ImportDataset::DarwinCore::Occurrences < ImportDataset::DarwinCore
   is_origin_for Person::Unvetted.to_s
 
-  has_many :core_records, foreign_key: 'import_dataset_id', class_name: 'DatasetRecord::DarwinCore::Occurrence'
+  # inverse_of so records loaded in an import batch share this instance (and its memoized lookups, e.g. #citation_source)
+  has_many :core_records, foreign_key: 'import_dataset_id', class_name: 'DatasetRecord::DarwinCore::Occurrence', inverse_of: :import_dataset
   has_many :extension_records, foreign_key: 'import_dataset_id', class_name: 'DatasetRecord::DarwinCore::Extension'
 
   # TODO: Can occurrenceID requirement be dropped? Should other fields be added here?
@@ -40,6 +41,29 @@ class ImportDataset::DarwinCore::Occurrences < ImportDataset::DarwinCore
     end
 
     @event_id_identifier_namespace
+  end
+
+  # @return [Hash{String => Hash{String => Integer}}]
+  #   citation (TW:<Model>:source_*) column indexes by model, see DatasetRecord::DarwinCore::Occurrence::CitationColumns
+  def citation_columns
+    @citation_columns ||= core_records_class.citation_columns(metadata['core_headers'])
+  end
+
+  # Pre-assesses all distinct values in TW:<Model>:source_id columns once (per instance), then serves lookups from that.
+  # Values not seen (e.g. records edited since) are resolved individually.
+  # @param value [String] a normalized source_id cell value
+  # @return [Source, String] the Source, or an error message
+  def citation_source(value)
+    @citation_sources ||= begin
+      positions = citation_columns.values.filter_map { |c| c['source_id'] }
+      values = positions.empty? ? [] : core_records_fields.where(position: positions).distinct.pluck(:value)
+      core_records_class.resolve_citation_sources(values)
+    end
+
+    @citation_sources.fetch(value) do
+      @citation_sources.merge!(core_records_class.resolve_citation_sources([value]))
+      @citation_sources[value]
+    end
   end
 
   # Stages core (Occurrence) records and all extension records.

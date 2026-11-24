@@ -1924,6 +1924,143 @@ describe 'DatasetRecord::DarwinCore::Occurrence', type: :model do
     end
   end
 
+  context 'when importing citations via TW:<Model>:source_* columns' do
+    after(:all) { DatabaseCleaner.clean }
+
+    before :all do
+      @citation_dataset = prepare_occurrence_tsv('citations.tsv', import_settings: { 'restrict_to_existing_nomenclature' => false })
+
+      @source = FactoryBot.create(:valid_source_bibtex, id: 814001)
+      @other_source = FactoryBot.create(:valid_source_bibtex, id: 814002, title: 'Other source')
+
+      kingdom = Protonym.create!(parent_id: 1, name: 'Animalia', rank_class: Ranks.lookup(:iczn, :kingdom))
+      phylum = Protonym.create!(parent: kingdom, name: 'Arthropoda', rank_class: Ranks.lookup(:iczn, :phylum))
+      klass = Protonym.create!(parent: phylum, name: 'Insecta', rank_class: Ranks.lookup(:iczn, :class))
+      order = Protonym.create!(parent: klass, name: 'Hymenoptera', rank_class: Ranks.lookup(:iczn, :order))
+      family = Protonym.create!(parent: order, name: 'Formicidae', rank_class: Ranks.lookup(:iczn, :family))
+      subfamily = Protonym.create!(parent: family, name: 'Ponerinae', rank_class: Ranks.lookup(:iczn, :subfamily))
+      tribe = Protonym.create!(parent: subfamily, name: 'Ponerini', rank_class: Ranks.lookup(:iczn, :tribe))
+      genus = Protonym.create!(parent: tribe, name: 'Bothroponera', rank_class: Ranks.lookup(:iczn, :genus), also_create_otu: true)
+      @existing_species = Protonym.create!(parent: genus, name: 'cambouei', rank_class: Ranks.lookup(:iczn, :species), also_create_otu: true)
+
+      @citation_dataset.import(50_000, 100)
+      @citation_rows = @citation_dataset.core_records.order(:id).to_h do |record|
+        [record.get_field_value(:occurrenceID), record.reload]
+      end
+    end
+
+    def citation_collection_object(row_name)
+      CollectionObject.find(@citation_rows.fetch(row_name).metadata.dig('imported_objects', 'collection_object', 'id'))
+    end
+
+    def citation_error_keys(row_name)
+      @citation_rows.fetch(row_name).metadata.dig('error_data', 'messages').keys
+    end
+
+    it 'recognizes citation columns as mapped' do
+      %w{TW:Otu:source_id TW:TaxonName:source_is_original TW:CollectionObject:source_pages TW:CollectingEvent:source_id TW:TypeMaterial:source_pages TW:FieldOccurrence:source_id}.each do |field|
+        index = @citation_rows['all-models'].send(:get_field_mapping, field)
+        expect(@citation_dataset.core_records_mapped_fields).to include(index)
+      end
+    end
+
+    it 'pre-assesses source_id values once per dataset, shared by its records' do
+      dataset = ImportDataset::DarwinCore::Occurrences.find(@citation_dataset.id)
+      expect(dataset.citation_source('814001')).to eq(@source)
+      expect(dataset.citation_source('999999')).to eq('Source with id 999999 not found')
+      expect(dataset.citation_source('abc')).to eq("'abc' is not a valid integer value")
+      expect(dataset.core_records.where(status: %w{Imported Errored}).first.import_dataset).to equal(dataset)
+    end
+
+    context 'with citations for every supported model' do
+      let(:collection_object) { citation_collection_object('all-models') }
+      let(:protonym) { collection_object.taxon_determinations.first.otu.taxon_name }
+
+      it 'imports the row' do
+        expect(@citation_rows['all-models'].status).to eq('Imported')
+      end
+
+      it 'cites the CollectionObject' do
+        expect(collection_object.citations.pluck(:source_id, :pages, :is_original)).to eq([[@source.id, '12', nil]])
+      end
+
+      it 'cites the CollectingEvent' do
+        expect(collection_object.collecting_event.citations.pluck(:source_id, :pages)).to eq([[@source.id, nil]])
+      end
+
+      it 'cites the determination Otu' do
+        expect(collection_object.taxon_determinations.first.otu.citations.pluck(:source_id, :pages, :is_original)).to eq([[@source.id, '10', false]])
+      end
+
+      it 'cites the newly created finest TaxonName as original' do
+        expect(protonym.name).to eq('novus')
+        expect(protonym.citations.pluck(:source_id, :pages, :is_original)).to eq([[@source.id, '11', true]])
+      end
+
+      it 'does not cite ancestors of the finest TaxonName' do
+        expect(protonym.parent.citations).to be_empty
+      end
+
+      it 'cites the TypeMaterial' do
+        type_material = collection_object.type_materials.first
+        expect(type_material.citations.pluck(:source_id, :pages)).to eq([[@source.id, '13']])
+      end
+
+      it 'adds the Source to the project' do
+        expect(ProjectSource.where(source: @source, project_id: Current.project_id)).to exist
+      end
+    end
+
+    it 'reuses citations on shared existing objects instead of duplicating them' do
+      expect(@citation_rows.values_at('shared-1', 'shared-2').map(&:status)).to all(eq('Imported'))
+      event = citation_collection_object('shared-1').collecting_event
+      expect(citation_collection_object('shared-2').collecting_event).to eq(event)
+      expect(event.citations.pluck(:source_id)).to eq([@other_source.id])
+
+      otu = citation_collection_object('shared-1').taxon_determinations.first.otu
+      expect(otu.citations.pluck(:source_id, :pages)).to eq([[@other_source.id, '5']])
+    end
+
+    it 'cites a FieldOccurrence and ignores CollectionObject citation columns for HumanObservation' do
+      record = @citation_rows['observation']
+      expect(record.status).to eq('Imported')
+      field_occurrence = FieldOccurrence.find(record.metadata.dig('imported_objects', 'field_occurrence', 'id'))
+      expect(field_occurrence.citations.pluck(:source_id, :pages)).to eq([[@source.id, '20']])
+    end
+
+    it 'ignores FieldOccurrence citation columns for physical specimens' do
+      expect(@citation_rows['specimen-ignores-field-occurrence'].status).to eq('Imported')
+      expect(citation_collection_object('specimen-ignores-field-occurrence').citations).to be_empty
+    end
+
+    it 'errors when citing a TaxonName that already exists' do
+      expect(@citation_rows['existing-name'].status).to eq('Errored')
+      expect(citation_error_keys('existing-name')).to eq(['TW:TaxonName:source_id'])
+      expect(@existing_species.citations).to be_empty
+    end
+
+    {
+      'missing-source' => 'TW:CollectionObject:source_id',
+      'non-integer' => 'TW:Otu:source_id',
+      'pages-without-id' => 'TW:Otu:source_pages',
+      'bad-is-original' => 'TW:Otu:source_is_original',
+      'no-type-material' => 'TW:TypeMaterial:source_id',
+      'observation-missing-source' => 'TW:FieldOccurrence:source_id'
+    }.each do |row_name, field|
+      it "errors #{row_name} rows on #{field} without importing" do
+        record = @citation_rows.fetch(row_name)
+        expect(record.status).to eq('Errored')
+        expect(citation_error_keys(row_name)).to eq([field])
+        expect(record.metadata['imported_objects']).to be_nil
+      end
+    end
+
+    it 'creates no data for errored rows' do
+      expect(CollectionObject.count + FieldOccurrence.count).to eq(@citation_rows.values.count { |r| r.status == 'Imported' })
+      expect(Citation.where(source_id: 999999)).to be_empty
+    end
+  end
+
   context 'when importing an occurrence with scientificNameAuthorship' do
 
     after(:all) { DatabaseCleaner.clean }

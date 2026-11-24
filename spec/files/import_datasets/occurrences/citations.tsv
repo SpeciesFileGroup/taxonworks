@@ -1,0 +1,13 @@
+occurrenceID	basisOfRecord	scientificName	genus	specificEpithet	subfamily	family	order	class	phylum	kingdom	typeStatus	eventID	TW:Otu:source_id	TW:Otu:source_pages	TW:Otu:source_is_original	TW:TaxonName:source_id	TW:TaxonName:source_pages	TW:TaxonName:source_is_original	TW:CollectionObject:source_id	TW:CollectionObject:source_pages	TW:CollectingEvent:source_id	TW:TypeMaterial:source_id	TW:TypeMaterial:source_pages	TW:FieldOccurrence:source_id	TW:FieldOccurrence:source_pages
+all-models	PreservedSpecimen	Bothroponera novus	Bothroponera	novus	Ponerinae	Formicidae	Hymenoptera	Insecta	Arthropoda	Animalia	Holotype	CIT-1	814001	10	false	814001	11	true	814001	12	814001	814001	13		
+shared-1	PreservedSpecimen	Bothroponera cambouei	Bothroponera	cambouei	Ponerinae	Formicidae	Hymenoptera	Insecta	Arthropoda	Animalia		CIT-2	814002	5							814002				
+shared-2	PreservedSpecimen	Bothroponera cambouei	Bothroponera	cambouei	Ponerinae	Formicidae	Hymenoptera	Insecta	Arthropoda	Animalia		CIT-2	814002	5							814002				
+existing-name	PreservedSpecimen	Bothroponera cambouei	Bothroponera	cambouei	Ponerinae	Formicidae	Hymenoptera	Insecta	Arthropoda	Animalia						814001									
+missing-source	PreservedSpecimen	Bothroponera cambouei	Bothroponera	cambouei	Ponerinae	Formicidae	Hymenoptera	Insecta	Arthropoda	Animalia									999999						
+non-integer	PreservedSpecimen	Bothroponera cambouei	Bothroponera	cambouei	Ponerinae	Formicidae	Hymenoptera	Insecta	Arthropoda	Animalia			abc												
+pages-without-id	PreservedSpecimen	Bothroponera cambouei	Bothroponera	cambouei	Ponerinae	Formicidae	Hymenoptera	Insecta	Arthropoda	Animalia				5											
+bad-is-original	PreservedSpecimen	Bothroponera cambouei	Bothroponera	cambouei	Ponerinae	Formicidae	Hymenoptera	Insecta	Arthropoda	Animalia			814001		maybe										
+no-type-material	PreservedSpecimen	Bothroponera cambouei	Bothroponera	cambouei	Ponerinae	Formicidae	Hymenoptera	Insecta	Arthropoda	Animalia												814001			
+observation	HumanObservation	Bothroponera cambouei	Bothroponera	cambouei	Ponerinae	Formicidae	Hymenoptera	Insecta	Arthropoda	Animalia									999999					814001	20
+specimen-ignores-field-occurrence	PreservedSpecimen	Bothroponera cambouei	Bothroponera	cambouei	Ponerinae	Formicidae	Hymenoptera	Insecta	Arthropoda	Animalia														999999	
+observation-missing-source	HumanObservation	Bothroponera cambouei	Bothroponera	cambouei	Ponerinae	Formicidae	Hymenoptera	Insecta	Arthropoda	Animalia														999999	

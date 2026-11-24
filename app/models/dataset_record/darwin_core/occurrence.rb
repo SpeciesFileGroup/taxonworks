@@ -5,6 +5,8 @@
 # See app/javascript/vue/tasks/dwca_import/components/settings/Occurrences/OccurrenceSettings.vue for UI defined parameters
 #
 class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
+  include CitationColumns
+
   SUPPORTED_DWC_TERMS = %w{
     basisOfRecord
     catalogNumber
@@ -263,7 +265,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
       get_tw_tag_fields_for('CollectingEvent')
     ).map { |f| get_field_mapping(f[:field]) }.compact
 
-    (super + project_dwc_data_attributes + tw_namespaces + tw_data).uniq.sort
+    (super + project_dwc_data_attributes + tw_namespaces + tw_data + citation_field_indexes).uniq.sort
   end
 
   def ignored_fields
@@ -272,7 +274,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     fields << 'institutionCode' if human_observation?
     fields << 'identifiedBy' if get_field_value(DETERMINER_IDS_FIELD).present?
 
-    ignored_model = human_observation? ? 'CollectionObject' : 'FieldOccurrence'
+    ignored_model = ignored_occurrence_model
     model_fields = (
       get_tw_data_attribute_fields_for(ignored_model) +
       get_tw_fields_for(ignored_model) +
@@ -314,6 +316,8 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
       DatasetRecord.transaction(requires_new: true) do
         self.metadata.delete('error_data')
 
+        citations = parse_citations
+
         if otu_id = get_otu_id
           otu = Otu.find_by(id: otu_id, project_id: Current.project_id)
           raise DarwinCore::InvalidData.new({ 'TW:TaxonDetermination:otu_id' => ["OTU with id #{otu_id} not found"] }) unless otu
@@ -338,6 +342,8 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
             end
           end
         end
+
+        check_taxon_name_citation!(citations, innermost_protonym)
 
         attributes = parse_record_level_class
         record_level_biocuration_classifications = attributes.dig(:specimen, :biocuration_classifications)
@@ -380,6 +386,7 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
           occurrence_object.taxon_determinations.create!(taxon_determination_attributes)
         end
 
+        type_material = nil
         if !human_observation? && attributes[:type_material] && (innermost_otu&.name).nil?
 
           type_material = TypeMaterial.new(
@@ -567,6 +574,12 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
         human_observation? ? occurrence_object.save! : occurrence_object.update!(collecting_event:)
 
         attach_occurrence_identifiers(occurrence_object, attributes[:catalog_number])
+
+        add_citation(citations, occurrence_model, occurrence_object)
+        add_citation(citations, 'CollectingEvent', collecting_event)
+        add_citation(citations, 'Otu', otu)
+        add_citation(citations, 'TaxonName', innermost_protonym)
+        add_citation(citations, 'TypeMaterial', type_material) if type_material&.persisted?
 
         DwcOccurrenceUpsertJob.perform_later(occurrence_object)
 
@@ -1862,6 +1875,8 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     attributes = {}
 
     get_tw_fields_for('CollectionObject').each do |attribute|
+      next if citation_field?(attribute[:name])
+
       value = get_field_value(attribute[:field])
       if value
         if !ACCEPTED_ATTRIBUTES[:CollectionObject].include?(attribute[:name])
@@ -1883,6 +1898,8 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     attributes = {}
 
     get_tw_fields_for('FieldOccurrence').each do |attribute|
+      next if citation_field?(attribute[:name])
+
       value = get_field_value(attribute[:field])
       if value
         unless ACCEPTED_ATTRIBUTES[:FieldOccurrence].include?(attribute[:name])
@@ -1936,6 +1953,8 @@ class DatasetRecord::DarwinCore::Occurrence < DatasetRecord::DarwinCore
     attributes = {}
 
     get_tw_fields_for('CollectingEvent').each do |attribute|
+      next if citation_field?(attribute[:name])
+
       value = get_field_value(attribute[:field])
       if value
         if !ACCEPTED_ATTRIBUTES[:CollectingEvent].include?(attribute[:name])
