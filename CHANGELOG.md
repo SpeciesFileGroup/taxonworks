@@ -15,6 +15,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - `task_token` authentication: short-lived, encrypted, throttled QR code tokens that let a mobile app POST to a specific task [#2326]
 - `Layout::Task` and `LayoutItem::TaskItem` compositions (a table of collection objects in a task) [#2326]
 - `Mobile` hub task category [#2326]
+- `Utilities::CatalogNumbers`: splits a catalog number string (e.g. `INHS 122345`) into namespace and identifier, with or without known namespaces [#2326]
 
 ### Upgrade notes
 

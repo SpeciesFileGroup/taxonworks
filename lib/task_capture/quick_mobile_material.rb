@@ -37,6 +37,9 @@ class TaskCapture::QuickMobileMaterial
 
   attr_reader :ignored
 
+  # [Array of String] non-fatal notes returned to the Mobile app
+  attr_reader :warnings
+
   # @param composition_id [Integer] from the token
   # @param repository_id [Integer, nil] from the token settings
   # @param namespace_id [Integer, nil] from the token settings
@@ -53,6 +56,7 @@ class TaskCapture::QuickMobileMaterial
     @text = params[:text].to_s.strip.presence
 
     @ignored = []
+    @warnings = []
   end
 
   # @return [Response]
@@ -131,7 +135,7 @@ class TaskCapture::QuickMobileMaterial
       cn = catalog_number_of(co)
       if cn.nil?
         ignored.push('catalog_number')
-      elsif cn.identifier != catalog_number || (namespace_id && cn.namespace_id != namespace_id.to_i)
+      elsif cn.identifier != catalog_identifier(namespace || cn.namespace) || (namespace_id && cn.namespace_id != namespace_id.to_i)
         raise Unprocessable, 'catalog_number differs from that of the collection object'
       end
     end
@@ -147,7 +151,7 @@ class TaskCapture::QuickMobileMaterial
     return nil if catalog_number.nil?
     raise Unprocessable, 'catalog_number requires a namespace setting' if namespace_id.nil?
 
-    cn = Identifier::Local::CatalogNumber.where(project_id: Current.project_id, namespace_id:, identifier: catalog_number).first
+    cn = Identifier::Local::CatalogNumber.where(project_id: Current.project_id, namespace_id:, identifier: catalog_identifier(namespace)).first
     return nil if cn.nil?
 
     co = cn.identifier_object
@@ -165,7 +169,7 @@ class TaskCapture::QuickMobileMaterial
     co = Specimen.create!(repository_id:, buffered_collecting_event: text)
 
     if catalog_number
-      Identifier::Local::CatalogNumber.create!(identifier_object: co, namespace_id:, identifier: catalog_number)
+      Identifier::Local::CatalogNumber.create!(identifier_object: co, namespace_id:, identifier: catalog_identifier(namespace))
     end
 
     image, depiction = depict(co)
@@ -182,6 +186,37 @@ class TaskCapture::QuickMobileMaterial
 
   def add_item(co)
     LayoutItem::TaskItem.create!(composition_id:, composition_item_object: co)
+  end
+
+  def namespace
+    return nil if namespace_id.nil?
+    @namespace ||= Namespace.find_by(id: namespace_id)
+  end
+
+  # The Mobile app sends the catalog number as read from the label, e.g.
+  # "INHS 122345"; the Namespace (from the token settings) is split off,
+  # leaving the CatalogNumber#identifier "122345". Memoized per Namespace,
+  # so a warning is added at most once.
+  # @return [String]
+  def catalog_identifier(target_namespace)
+    @catalog_identifiers ||= {}
+    @catalog_identifiers[target_namespace&.id] ||= begin
+      if target_namespace.nil? || target_namespace.is_virtual?
+        catalog_number
+      else
+        priors = [target_namespace.verbatim_short_name, target_namespace.short_name, target_namespace.name]
+        r = Utilities::CatalogNumbers.parse(catalog_number, namespaces: priors)
+
+        if r[:prior]
+          r[:identifier]
+        else
+          if r[:namespace]
+            warnings.push("catalog_number '#{catalog_number}' may include a namespace ('#{r[:namespace]}') other than '#{target_namespace.short_name}', it was used as is")
+          end
+          catalog_number
+        end
+      end
+    end
   end
 
   def task_items
@@ -204,7 +239,7 @@ class TaskCapture::QuickMobileMaterial
       composition_item_id: item.id,
       image_md5: image.image_file_fingerprint,
       ignored:,
-      warnings: []
+      warnings:
     }
   end
 

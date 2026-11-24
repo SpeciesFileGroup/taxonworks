@@ -216,6 +216,51 @@ describe TaskCapture::QuickMobileMaterial, type: :model, group: [:images, :colle
     end
   end
 
+  context 'catalog_number including the Namespace (as on a label)' do
+    let(:namespace) { FactoryBot.create(:valid_namespace, short_name: 'INHS', verbatim_short_name: nil) }
+
+    specify 'the Namespace is split off on create' do
+      r = capture(catalog_number: 'INHS 122345')
+      cn = Identifier::Local::CatalogNumber.find(r.body[:catalog_number][:identifier_id])
+      expect(cn.identifier).to eq('122345')
+      expect(cn.cached).to eq('INHS 122345')
+      expect(r.body[:warnings]).to eq([])
+    end
+
+    specify 'the verbatim_short_name is split off' do
+      namespace.update!(short_name: 'INHS2', verbatim_short_name: 'INHS')
+      r = capture(catalog_number: 'inhs:122345')
+      expect(r.body[:catalog_number][:identifier]).to eq('122345')
+    end
+
+    specify 'matches an existing CatalogNumber' do
+      co = FactoryBot.create(:valid_collection_object)
+      Identifier::Local::CatalogNumber.create!(identifier_object: co, namespace:, identifier: '122345')
+      r = capture(catalog_number: 'INHS 122345')
+      expect(r.body[:result]).to eq('matched')
+      expect(r.body[:collection_object_id]).to eq(co.id)
+    end
+
+    specify 'compares on append' do
+      first = capture(catalog_number: '122345')
+      r = capture(image: upload(other_png), collection_object_id: first.body[:collection_object_id], catalog_number: 'INHS 122345')
+      expect(r.body[:result]).to eq('appended')
+    end
+
+    specify 'an apparent other Namespace is kept whole, with a warning' do
+      r = capture(catalog_number: 'FMNH 1')
+      expect(r.body[:catalog_number][:identifier]).to eq('FMNH 1')
+      expect(r.body[:warnings].first).to match(/FMNH/)
+    end
+
+    specify 'a virtual Namespace is never split off' do
+      namespace.update!(is_virtual: true)
+      r = capture(catalog_number: 'INHS 122345')
+      expect(r.body[:catalog_number][:identifier]).to eq('INHS 122345')
+      expect(r.body[:warnings]).to eq([])
+    end
+  end
+
   context 'ignored params' do
     after { Rails.cache.clear }
 
