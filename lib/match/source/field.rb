@@ -25,8 +25,10 @@ module Match
         raise NotImplementedError
       end
 
+      # How well this field agrees, for ordering candidates; how much that
+      # counts against the other fields is Candidates::FIELD_WEIGHTS.
       # @param comparison [Hash] a candidate's merged comparisons
-      # @return [Float] this field's part of the candidate's order score
+      # @return [Float] 0 (no agreement, or not compared) .. 1 (full agreement)
       def score(comparison)
         raise NotImplementedError
       end

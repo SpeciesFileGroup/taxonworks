@@ -7,8 +7,8 @@
 # thresholds it wants to those.
 #
 # Candidates are found by Match::Source::Gather (SQL), then compared in Ruby
-# by each Match::Source::Field in FIELDS, which also gives its part of the
-# score candidates are ordered by.
+# by each Match::Source::Field in FIELD_WEIGHTS, and ordered by the fields'
+# weighted agreement.
 #
 # Usage:
 #   Match::Source::Candidates.new(
@@ -59,10 +59,18 @@ module Match
       # Row keys accepted, as Match::Source::InputRow#initialize.
       INPUT_KEYS = %i{authors year title journal volume pages doi verbatim}.freeze
 
-      FIELDS = [
-        Field::Doi, Field::Year, Field::Authors, Field::Title, Field::Journal,
-        Field::Volume, Field::FirstPage
-      ].freeze
+      # The fields compared, and how much each one's agreement (0..1, see
+      # Field#score) counts when ordering candidates. A shared DOI outweighs
+      # most other agreement.
+      FIELD_WEIGHTS = {
+        Field::Doi => 4.0,
+        Field::Year => 1.5,
+        Field::Authors => 1.5,
+        Field::Title => 1.0,
+        Field::Journal => 1.0,
+        Field::Volume => 1.0,
+        Field::FirstPage => 1.0
+      }.freeze
 
       attr_reader :rows, :project_id, :limit_to_project, :year_window
 
@@ -93,7 +101,8 @@ module Match
           .pluck(:source_id)
           .to_set
 
-        fields = FIELDS.map(&:new)
+        weights = FIELD_WEIGHTS.to_h { |klass, weight| [klass.new, weight] }
+        fields = weights.keys
         fields.each { |f| f.prepare(rows, sources.values) }
 
         rows.each_with_index.map do |row, index|
@@ -108,7 +117,10 @@ module Match
             index:,
             input: row,
             candidates: candidates
-              .sort_by { |c| [-fields.sum { |f| f.score(c) }, c[:source].id] }
+              .sort_by { |c|
+                score = weights.sum { |f, weight| weight * f.score(c) }
+                [-score, c[:source].id]
+              }
               .first(CANDIDATES_LIMIT)
           }
         end

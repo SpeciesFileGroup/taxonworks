@@ -136,10 +136,12 @@ module Match
           end
 
         # `input_row` is one row of the input, see #values_sql. The ORDER BY
-        # scores how well a Source agrees with it; the surname words match
-        # anywhere in the author string, so the first-author and journal terms
-        # keep a common surname's co-authored and other-journal Sources from
-        # crowding out the row's.
+        # scores how well a Source agrees with it, each term 0..1, all counting
+        # the same: it only has to keep the row's Source among those gathered
+        # (Candidates orders them, by Candidates::FIELD_WEIGHTS). The surname
+        # words match anywhere in the author string, so the first-author and
+        # journal terms keep a common surname's co-authored and other-journal
+        # Sources from crowding out the row's.
         ::Source.connection.select_rows(<<~SQL).each { |i, id| result[i] << id }
           SELECT input_row.idx, candidate.id
           FROM (VALUES #{values_sql(indexed)})

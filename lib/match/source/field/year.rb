@@ -16,10 +16,11 @@ module Match
           }
         end
 
+        # The year is two thirds (half that a year apart), the suffix a third.
         def score(c)
-          s = { 0 => 1.0, 1 => 0.5 }[c[:year_difference]].to_f
-          s += 0.5 if c[:year_suffix_match]
-          s
+          s = { 0 => 2, 1 => 1 }[c[:year_difference]].to_i
+          s += 1 if c[:year_suffix_match]
+          s / 3.0
         end
 
       end

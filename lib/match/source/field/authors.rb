@@ -41,21 +41,25 @@ module Match
           }
         end
 
+        # The first author is two thirds (half that with 1-2 edits), the share
+        # of authors that agree a third.
         def score(c)
           s = 0.0
-          s += 1.0 if c[:first_author_distance] == 0
-          s += 0.5 if c[:first_author_distance]&.between?(1, 2)
+          s += 2 if c[:first_author_distance] == 0
+          s += 1 if c[:first_author_distance]&.between?(1, 2)
           if c[:author_distances].any?
-            s += 0.5 * c[:author_distances].count { |d| d&.zero? } /
+            s += c[:author_distances].count { |d| d&.zero? }.to_f /
               [c[:author_distances].size, c[:source_author_count]].max
           end
-          s
+          s / 3.0
         end
 
         private
 
-        # Folded edit distance between the closest of each name's keys;
-        # capped at DISTANCE_CAP.
+        # Edit distance between two surnames, ignoring diacritics, case,
+        # spaces, and punctuation (`Müller` = `Muller`, `De Long` = `DeLong`;
+        # see #keys): the smallest distance between any key of `a` and any key
+        # of `b`, capped at DISTANCE_CAP.
         def distance(a, b)
           keys(a).product(keys(b)).map { |x, y|
             if x == y
@@ -105,8 +109,15 @@ module Match
 
         # How many row authors can each be paired with a different Source
         # author, within max_edits: `Emery, Emery & Popple` finds 2 in `Emery,
-        # Popple & Smith`, not 3. Kuhn's augmenting paths; author lists are
-        # short.
+        # Popple & Smith`, not 3.
+        #
+        # Pairing each row author with the first close Source author can
+        # undercount: with 1 edit allowed, row `Smith, Smyth` against Source
+        # `Smyth, Smit` pairs Smith-Smyth, leaving Smyth nothing. So when a row
+        # author's Source author is taken, the row author holding it tries to
+        # move to another (Smith to Smit), freeing it (Smyth-Smyth): 2 pairs.
+        # (Kuhn's algorithm for bipartite matching; fine for author lists'
+        # sizes.)
         #
         # @param distances [Array<Array>] per row author, the distance to each
         #   Source author

@@ -45,7 +45,7 @@ module Match
         end
 
         def score(c)
-          c[:doi_match] ? 4.0 : 0.0
+          c[:doi_match] ? 1.0 : 0.0
         end
 
       end
