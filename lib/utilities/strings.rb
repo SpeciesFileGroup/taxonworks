@@ -69,6 +69,17 @@ module Utilities::Strings
     a
   end
 
+  # HTML as plain text: tags removed (each leaving a space), then entities
+  # decoded (`&amp;` -> `&`), whitespace squished.
+  # @param [String, nil] string
+  # @return [String, nil] nil when nothing is left
+  def self.plain_text(string)
+    s = string.to_s
+    s = s.gsub(/<[^>]*>/, ' ') if s.include?('<')
+    s = CGI.unescapeHTML(s) if s.include?('&')
+    s.squish.presence
+  end
+
   # @param [String] text
   # @return [Digest::MD5]
   def self.generate_md5(text)

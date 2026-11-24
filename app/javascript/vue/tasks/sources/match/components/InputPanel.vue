@@ -227,10 +227,7 @@ function submit() {
       .map((line) => ({ input: { [FIELD.VERBATIM]: line }, csvRow: null }))
   }
 
-  emit('submit', {
-    rows,
-    headers: table.value ? table.value.headers : null
-  })
+  emit('submit', { rows })
 }
 </script>
 

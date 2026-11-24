@@ -1,3 +1,5 @@
+import { FILTER_ALL } from '@/composables/usePagedList.js'
+
 export const MAX_ROWS = 3000
 
 // Rows sent per /sources/match request; the server allows at most 500.
@@ -56,7 +58,7 @@ export const STATUS_BADGE_COLORS = {
 }
 
 export const ROW_FILTER = {
-  ALL: 'all',
+  ALL: FILTER_ALL,
   MATCHED: STATUS.MATCHED,
   AMBIGUOUS: STATUS.AMBIGUOUS,
   UNMATCHED: STATUS.UNMATCHED,

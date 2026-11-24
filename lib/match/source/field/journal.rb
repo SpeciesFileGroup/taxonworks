@@ -20,7 +20,7 @@ module Match
             [
               s.id,
               [s[:journal], serial_names[s.serial_id]]
-                .filter_map { |n| InputRow.plain_text(n) }.uniq
+                .filter_map { |n| ::Utilities::Strings.plain_text(n) }.uniq
             ]
           }
 

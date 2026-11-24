@@ -184,4 +184,20 @@ describe Utilities::Strings do
     expect(l.only_integers?('1922 0 123')).to eq(true)
   end
 
+  context '#plain_text' do
+    specify 'removes tags, decodes entities, squishes' do
+      expect(l.plain_text('Fleas of <i>Peromyscus</i>  &amp; mice '))
+        .to eq('Fleas of Peromyscus & mice')
+    end
+
+    specify 'a tag leaves a space' do
+      expect(l.plain_text('a<br>b')).to eq('a b')
+    end
+
+    specify 'nothing left is nil' do
+      expect(l.plain_text(' <i></i> ')).to be_nil
+      expect(l.plain_text(nil)).to be_nil
+    end
+  end
+
 end

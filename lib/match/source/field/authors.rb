@@ -27,8 +27,7 @@ module Match
           {
             first_author_exact: (first_input && first_source) ?
               first_input.squish == first_source.squish : nil,
-            first_author_distance: (first_input && first_source) ?
-              distance(first_input, first_source) : nil,
+            first_author_distance: distances.first&.first,
             author_distances: distances.map(&:min),
             # max edits => row authors paired with a Source author
             matched_author_counts: (0..MAX_EDITS).map { |edits|
@@ -61,7 +60,8 @@ module Match
         # see #keys): the smallest distance between any key of `a` and any key
         # of `b`, capped at DISTANCE_CAP.
         def distance(a, b)
-          keys(a).product(keys(b)).map { |x, y|
+          @distances ||= {}
+          @distances[[a, b]] ||= keys(a).product(keys(b)).map { |x, y|
             if x == y
               0
             elsif (x.length - y.length).abs >= DISTANCE_CAP
@@ -78,12 +78,7 @@ module Match
         def keys(name)
           @keys ||= {}
           @keys[name] ||=
-            [
-              name,
-              *name.split.reject { |w|
-                ::Utilities::AuthorNames::PARTICLES.include?(w.downcase)
-              }
-            ]
+            [name, *::Utilities::AuthorNames.surname_words(name)]
               .map { |n| ::Utilities::AuthorNames.fold(n) }
               .reject(&:empty?).uniq
         end

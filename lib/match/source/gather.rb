@@ -187,10 +187,7 @@ module Match
 
       def values_sql(indexed)
         indexed.map { |i, r|
-          # the first surname's words, particles aside
-          words = r.surnames.first.to_s.split.reject { |w|
-            ::Utilities::AuthorNames::PARTICLES.include?(w.downcase)
-          }
+          words = ::Utilities::AuthorNames.surname_words(r.surnames.first)
           full_text = [r.title, r.text].compact.join(' ').presence
 
           '(' + [

@@ -16,7 +16,7 @@ import { pluralize } from '../../../../helpers/strings.js'
 const FIELD_RULES = [
   {
     field: 'doi',
-    check: (candidate) => doiCheck(candidate),
+    check: doiCheck,
     requirements: () => []
   },
   {
@@ -141,14 +141,12 @@ function automaticResult(row, evaluations, options) {
     return { status: STATUS.MATCHED, source: sourceOf(passing[0]), evaluations }
   }
 
-  if (passing.length > 1 && options.preferProjectSources) {
+  if (passing.length > 1) {
     const inProject = passing.filter((c) => c.in_project)
-    if (inProject.length === 1) {
+    if (options.preferProjectSources && inProject.length === 1) {
       return { status: STATUS.MATCHED, source: sourceOf(inProject[0]), evaluations }
     }
-  }
 
-  if (passing.length > 1) {
     // Candidates arrive best first.
     return {
       status: STATUS.AMBIGUOUS,
@@ -161,7 +159,7 @@ function automaticResult(row, evaluations, options) {
 }
 
 // The candidate's Source, with whether it is in the project.
-function sourceOf(candidate) {
+export function sourceOf(candidate) {
   return { ...candidate.source, in_project: candidate.in_project }
 }
 
@@ -306,7 +304,7 @@ function firstAuthorDetail(candidate) {
   if (candidate.first_author_exact) return 'identical'
   const distance = candidate.first_author_distance
   if (distance === 0) return 'same ignoring diacritics/case'
-  return `${distance}${distance > MAX_AUTHOR_EDITS ? '+' : ''} edit${distance === 1 ? '' : 's'}`
+  return `${distance}${distance > MAX_AUTHOR_EDITS ? '+' : ''} ${pluralize(distance, 'edit')}`
 }
 
 // Trigram similarity is noisy for short strings, so anything at or above

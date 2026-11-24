@@ -51,6 +51,13 @@ module Utilities::AuthorNames
     }
   end
 
+  # @param surname [String, nil] one surname, e.g. from .surnames
+  # @return [Array<String>] its words, particles aside: `García López` =>
+  #   ['García', 'López'], `van der Merwe` => ['Merwe']
+  def self.surname_words(surname)
+    surname.to_s.split.reject { |w| PARTICLES.include?(w.downcase) }
+  end
+
   # @param given_names [String, nil]
   #   e.g. `F.G.A.M.`, `Franciscus Gerardus Albertus Maria`, `J.-P.`
   # @return [Array<String>] the initial of each given name, upcased, without

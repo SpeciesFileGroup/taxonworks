@@ -71,10 +71,11 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, markRaw, ref } from 'vue'
 import { Parser } from '@json2csv/plainjs'
 import { Source } from '@/routes/endpoints'
 import { downloadTextFile } from '@/helpers/files'
+import { stringInline } from '@/helpers/strings.js'
 import VSpinner from '@/components/ui/VSpinner.vue'
 import VBtn from '@/components/ui/VBtn/index.vue'
 import VIcon from '@/components/ui/VIcon/index.vue'
@@ -84,7 +85,7 @@ import InputPanel from './components/InputPanel.vue'
 import MatchOptionsPanel from './components/MatchOptionsPanel.vue'
 import SummaryBar from './components/SummaryBar.vue'
 import ResultTable from './components/ResultTable.vue'
-import { evaluateRow } from './utils/evaluate.js'
+import { evaluateRow, sourceOf } from './utils/evaluate.js'
 import {
   CHUNK_SIZE,
   FIELD,
@@ -103,7 +104,6 @@ const stage = ref('input') // 'input' or 'results'
 const isProcessing = ref(false)
 const progressLegend = ref('')
 const rows = ref([])
-const headers = ref(null) // CSV headers, null for verbatim lines
 const options = ref(defaultOptions())
 
 // Parallel to rows.
@@ -135,8 +135,7 @@ const { filter, pageItems, pagination, setPage, refresh } = usePagedList(
   }
 )
 
-async function handleSubmit({ rows: submitted, headers: submittedHeaders }) {
-  headers.value = submittedHeaders
+async function handleSubmit({ rows: submitted }) {
   rows.value = submitted.map(({ input, csvRow }, index) => ({
     index,
     input,
@@ -187,7 +186,8 @@ async function fetchCandidates() {
       body.forEach((result) => {
         rowsByKey.get(chunk[result.index]).forEach((row) => {
           row.parsed = result.parsed
-          row.candidates = result.candidates
+          // Never changed here; not made reactive (thousands of objects).
+          row.candidates = markRaw(result.candidates)
         })
       })
     }
@@ -226,10 +226,7 @@ async function refreshSelectionsInProject() {
 
 function selectCandidate({ index, candidate }) {
   rows.value[index].noMatch = false
-  rows.value[index].fixedSource = {
-    ...candidate.source,
-    in_project: candidate.in_project
-  }
+  rows.value[index].fixedSource = sourceOf(candidate)
 }
 
 function selectNone({ index }) {
@@ -273,7 +270,7 @@ const columnTexts = computed(() => {
   return {
     status: lines((row) => evaluations.value[row.index].status),
     source: lines((row) =>
-      plainText(exportedSource(row)?.object_label).replace(/\s+/g, ' ').trim()
+      stringInline(plainText(exportedSource(row)?.object_label))
     ),
     sourceId: lines((row) => exportedSource(row)?.id ?? '')
   }
@@ -293,13 +290,23 @@ const notInProjectCount = computed(() => {
   return ids.size
 })
 
+// Labels repeat across rows, and the copyable columns are rebuilt on every
+// change.
+const plainTexts = new Map()
+
 function plainText(html) {
-  return new DOMParser().parseFromString(html || '', 'text/html').body
-    .textContent
+  if (!plainTexts.has(html)) {
+    plainTexts.set(
+      html,
+      new DOMParser().parseFromString(html || '', 'text/html').body.textContent
+    )
+  }
+  return plainTexts.get(html)
 }
 
+// Tabular input keeps its columns (csvRow); verbatim lines have none.
 function originalColumns(row) {
-  return headers.value
+  return row.csvRow
     ? { ...row.csvRow }
     : { [FIELD.VERBATIM]: row.input[FIELD.VERBATIM] || '' }
 }
@@ -343,7 +350,6 @@ function resetOptions() {
 function reset() {
   stage.value = 'input'
   rows.value = []
-  headers.value = null
   filter.value = ROW_FILTER.ALL
   options.value = defaultOptions()
 }

@@ -59,7 +59,7 @@ module Match
       )
         verbatim_parts = parse_verbatim(verbatim)
 
-        author_string = self.class.plain_text(authors) || verbatim_parts[:authors]
+        author_string = ::Utilities::Strings.plain_text(authors) || verbatim_parts[:authors]
         @surnames = ::Utilities::AuthorNames.surnames(author_string)
         @first_author_initials =
           ::Utilities::AuthorNames.first_author_initials(author_string)
@@ -68,8 +68,8 @@ module Match
         @year = parsed_year || verbatim_parts[:year]
         @year_suffix = parsed_year ? parsed_suffix : verbatim_parts[:year_suffix]
 
-        @title = self.class.plain_text(title)
-        @journal = self.class.plain_text(journal)
+        @title = ::Utilities::Strings.plain_text(title)
+        @journal = ::Utilities::Strings.plain_text(journal)
 
         parsed_volume, volume_first_page = parse_volume(volume)
         @volume = parsed_volume || verbatim_parts[:volume]
@@ -78,17 +78,6 @@ module Match
 
         @doi = normalize_doi(doi) || verbatim_parts[:doi]
         @text = verbatim_parts[:text]
-      end
-
-      # Removes HTML tags, then decodes entities: text copied from
-      # Source#cached has `&amp;` for `&`. Used for a Source's text fields
-      # too, so both sides of a comparison are read the same way.
-      # @return [String, nil]
-      def self.plain_text(string)
-        s = string.to_s
-        s = s.gsub(/<[^>]*>/, ' ') if s.include?('<')
-        s = CGI.unescapeHTML(s) if s.include?('&')
-        s.squish.presence
       end
 
       # @return [String] the DOI without brackets it was written in,
@@ -139,7 +128,7 @@ module Match
       end
 
       def parse_verbatim(verbatim)
-        s = self.class.plain_text(verbatim)
+        s = ::Utilities::Strings.plain_text(verbatim)
         return {} if s.nil?
 
         result = {}

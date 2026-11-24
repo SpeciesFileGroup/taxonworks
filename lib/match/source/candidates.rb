@@ -31,8 +31,8 @@
 #           first_author_distance: 0, # edit distance, diacritics/case
 #             # folded, capped at Field::Authors::DISTANCE_CAP
 #           author_distances: [0, 0], # per row surname, closest Source author
-#           author_distance_matrix: [[0, 3], [3, 0]], # per row surname, to
-#             # each Source surname, in order
+#           matched_author_counts: [2, 2, 2, 2], # row authors paired with
+#             # a Source author, per max edits 0..Field::Authors::MAX_EDITS
 #           first_author_initials_match: true, # nil when either has none;
 #             # false when they share no initial (F.G.A.M. vs B.)
 #           source_first_author_initials: ['C', 'M'],

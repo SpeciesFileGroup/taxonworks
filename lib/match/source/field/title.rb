@@ -41,7 +41,7 @@ module Match
           @plain_titles ||= {}
           return @plain_titles[source.id] if @plain_titles.key?(source.id)
 
-          @plain_titles[source.id] = InputRow.plain_text(source.title)
+          @plain_titles[source.id] = ::Utilities::Strings.plain_text(source.title)
         end
 
       end

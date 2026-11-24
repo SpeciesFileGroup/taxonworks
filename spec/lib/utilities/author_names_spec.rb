@@ -183,4 +183,18 @@ describe Utilities::AuthorNames do
     end
   end
 
+
+  context '.surname_words' do
+    {
+      'García López' => %w{García López},
+      'van der Merwe' => %w{Merwe},
+      'De Long' => %w{Long},
+      'Smith' => %w{Smith},
+      nil => []
+    }.each do |surname, words|
+      specify surname.inspect do
+        expect(Utilities::AuthorNames.surname_words(surname)).to eq(words)
+      end
+    end
+  end
 end
