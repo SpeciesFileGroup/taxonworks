@@ -71,6 +71,11 @@ module Utilities::Strings
 
   # HTML as plain text: tags removed (each leaving a space), then entities
   # decoded (`&amp;` -> `&`), whitespace squished.
+  #
+  # Only the XML entities (`&amp; &lt; &gt; &quot; &apos;`) and numeric ones
+  # (`&#246;`) are decoded; named HTML ones (`&ouml;`, `&ndash;`) are left as
+  # they are. TaxonWorks' Source text has none of those (checked 2026-11);
+  # decode with Nokogiri if that changes.
   # @param [String, nil] string
   # @return [String, nil] nil when nothing is left
   def self.plain_text(string)

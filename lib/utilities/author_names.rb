@@ -104,7 +104,7 @@ module Utilities::AuthorNames
     I18n.transliterate(string.to_s).downcase.gsub(/[^a-z]/, '')
   end
 
-  YEAR_PATTERN = /\b(1[5-9]\d{2}|20\d{2})\b/
+  YEAR_PATTERN = /\b(#{Utilities::Bibliography::YEAR})\b/
 
   # The comparison key of a taxon name's authorship string, e.g. TaxonWorks
   # #cached_author_year or CoL's #authorship:

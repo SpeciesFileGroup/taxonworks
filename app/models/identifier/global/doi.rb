@@ -35,15 +35,27 @@ class Identifier::Global::Doi < Identifier::Global
 
   before_validation :handle_prefixes
 
+  # The preambles a DOI may be written with: 'doi:', 'doi: ',
+  # 'http://dx.doi.org/', 'https://doi.org/'
+  DOI_MATCH = /^(doi:\s*|http(s)?:\/\/(dx\.)?doi\.org\/)/i
+
+  # @param raw [String, nil] a DOI as written, e.g.
+  #   'https://doi.org/10.1645/GE-2251.1', ' doi:10.1645/GE-2251.1'
+  # @return [String, nil] the DOI as stored: without surrounding whitespace
+  #   or a preamble, e.g. '10.1645/GE-2251.1'
+  def self.normalize(raw)
+    return raw if raw.blank?
+
+    raw.strip.gsub(DOI_MATCH, '')
+  end
+
   protected
 
-  DOI_MATCH = /^(doi:|http(s)?:\/\/(dx\.)?doi\.org\/)/i
-
-  # permit and remove various preambles: 'doi:', 'http://dx.doi.org/', 'https://doi.org/'
+  # permit and remove various preambles, see DOI_MATCH
   def handle_prefixes
     return identifier if identifier.blank?
-    identifier.strip!
-    identifier.gsub!(DOI_MATCH, '') if identifier
+
+    self.identifier = self.class.normalize(identifier)
   end
 
   def self.preface_doi(raw)

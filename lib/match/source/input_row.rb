@@ -20,28 +20,15 @@ module Match
   module Source
     class InputRow
 
-      YEAR_PATTERN = /\b(1[5-9]\d{2}|20\d{2})\s*([a-z])?\b/
-
       # The year in a verbatim citation, optionally wrapped in parentheses.
-      VERBATIM_YEAR_PATTERN = /\(?\s*#{YEAR_PATTERN}\s*\)?/
+      VERBATIM_YEAR_PATTERN =
+        /\(?\s*#{::Utilities::Bibliography::YEAR_WITH_SUFFIX}\s*\)?/
 
       DOI_PATTERN = %r{\b(10\.\d{4,9}/\S+?)[.,;]?(?=\s|\z)}
-
-      DOI_PREFIX_PATTERN = %r{\A(?:https?://(?:dx\.)?doi\.org/|doi:\s*)}i
 
       # What's left before a DOI once it's removed from a verbatim citation.
       DOI_LEAD_PATTERN =
         %r{[(\[<]?\s*(?:https?://(?:dx\.)?doi\.org/|\bdoi:?)?\s*\z}i
-
-      # `96(2):285-298`, `1027: 55-63`, `, 16, 81–97`, `, 58(3), 529–536`,
-      # and a single page, `, 44(3), 115.`, `, 12, p. 5`: one ending the
-      # citation or followed by `.`/`;`, so `, 2, 248 pp.` and `, 12, 3 figs.`
-      # aren't read as pages, nor is a list of pages, `, 25, 167,179.`
-      VOLUME_PAGES_PATTERNS = [
-        /\b(\d+)\s*(?:\([^)]*\))?\s*:\s*(\d+)/,
-        /,\s*(\d+)\s*(?:\([^)]*\))?\s*,\s*(?:pp?\.\s*)?(\d+)\s*[-–—]\s*\d+/,
-        /,\s*(\d+)\s*(?:\([^)]*\))?\s*,\s+(?:p\.\s*)?(\d+)\s*(?:[.;]|\z)/
-      ].freeze
 
       attr_reader :surnames, :first_author_initials, :year, :year_suffix,
         :title, :journal, :volume, :first_page, :doi, :text
@@ -59,22 +46,24 @@ module Match
       )
         verbatim_parts = parse_verbatim(verbatim)
 
-        author_string = ::Utilities::Strings.plain_text(authors) || verbatim_parts[:authors]
+        author_string =
+          ::Utilities::Strings.plain_text(authors) || verbatim_parts[:authors]
         @surnames = ::Utilities::AuthorNames.surnames(author_string)
         @first_author_initials =
           ::Utilities::AuthorNames.first_author_initials(author_string)
 
         parsed_year, parsed_suffix = parse_year(year)
         @year = parsed_year || verbatim_parts[:year]
-        @year_suffix = parsed_year ? parsed_suffix : verbatim_parts[:year_suffix]
+        @year_suffix =
+          parsed_year ? parsed_suffix : verbatim_parts[:year_suffix]
 
         @title = ::Utilities::Strings.plain_text(title)
         @journal = ::Utilities::Strings.plain_text(journal)
 
         parsed_volume, volume_first_page = parse_volume(volume)
         @volume = parsed_volume || verbatim_parts[:volume]
-        @first_page = Field::FirstPage.number(pages) || volume_first_page ||
-          verbatim_parts[:first_page]
+        @first_page = ::Utilities::Bibliography.first_page(pages) ||
+          volume_first_page || verbatim_parts[:first_page]
 
         @doi = normalize_doi(doi) || verbatim_parts[:doi]
         @text = verbatim_parts[:text]
@@ -112,17 +101,17 @@ module Match
         return [nil, nil] if s.empty?
 
         if s.match?(/\Ap{1,2}\.?\s*\d/i)
-          return [nil, Field::FirstPage.number(s)]
+          return [nil, ::Utilities::Bibliography.first_page(s)]
         end
 
-        volume = Field::Volume.number(s)
+        volume = ::Utilities::Bibliography.volume_number(s)
         first_page = s[/:\s*(\d+)/, 1]
         [volume, first_page]
       end
 
       def normalize_doi(value)
         s = self.class.unbracket_doi(
-          value.to_s.strip.sub(DOI_PREFIX_PATTERN, '')
+          ::Identifier::Global::Doi.normalize(value.to_s)
         )
         s.empty? ? nil : s.downcase
       end
@@ -150,7 +139,7 @@ module Match
           rest = s
         end
 
-        VOLUME_PAGES_PATTERNS.each do |pattern|
+        ::Utilities::Bibliography::VOLUME_PAGES_PATTERNS.each do |pattern|
           next if (m = rest.match(pattern)).nil?
 
           result[:volume] = m[1]

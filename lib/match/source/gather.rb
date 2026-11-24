@@ -169,7 +169,7 @@ module Match
                 similarity(input_row.journal, s.journal),
                 similarity(input_row.journal, ser.name)
               ), 0)
-              -- the volume number, as Field::Volume.number
+              -- the volume number, as Utilities::Bibliography.volume_number
               + (CASE WHEN lower(substring(
                   regexp_replace(trim(s.volume), '^vol(ume)?\\.?\\s*', '', 'i')
                   from '^[^\\s(:,;]+'

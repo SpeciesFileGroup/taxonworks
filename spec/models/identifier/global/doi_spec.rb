@@ -51,6 +51,27 @@ describe Identifier::Global::Doi, type: :model, group: :identifiers do
         id.valid? # trigger refactor
         expect(id.identifier).to eq('10.2105/AJPH.2009.160184')
       end
+
+      specify 'with doi: and a space' do
+        id.identifier = 'doi: 10.2105/AJPH.2009.160184'
+        expect(id.valid?).to be_truthy
+        expect(id.identifier).to eq('10.2105/AJPH.2009.160184')
+      end
+    end
+
+    context '.normalize' do
+      {
+        '10.2105/AJPH.2009.160184' => '10.2105/AJPH.2009.160184',
+        ' doi:10.2105/AJPH.2009.160184 ' => '10.2105/AJPH.2009.160184',
+        'DOI: 10.2105/AJPH.2009.160184' => '10.2105/AJPH.2009.160184',
+        'https://dx.doi.org/10.2105/AJPH.2009.160184' => '10.2105/AJPH.2009.160184',
+        '' => '',
+        nil => nil
+      }.each do |raw, normalized|
+        specify raw.inspect do
+          expect(Identifier::Global::Doi.normalize(raw)).to eq(normalized)
+        end
+      end
     end
 
     specify 'restoring URL from identifier' do
