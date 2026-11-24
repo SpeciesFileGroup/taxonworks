@@ -61,12 +61,15 @@ module Match
 
       # The fields compared, and how much each one's agreement (0..1, see
       # Field#score) counts when ordering candidates. A shared DOI outweighs
-      # most other agreement.
+      # most other agreement. The title counts a little more than the journal:
+      # an author's works of a year are often in the same journal, rarely
+      # under similar titles. (Measured on real data, the weights barely
+      # change outcomes; they order the candidates that pass.)
       FIELD_WEIGHTS = {
         Field::Doi => 4.0,
         Field::Year => 1.5,
         Field::Authors => 1.5,
-        Field::Title => 1.0,
+        Field::Title => 1.25,
         Field::Journal => 1.0,
         Field::Volume => 1.0,
         Field::FirstPage => 1.0

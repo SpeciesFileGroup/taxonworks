@@ -24,6 +24,11 @@ module Match
 
         private
 
+        # A verbatim citation's title isn't split out (see
+        # InputRow#unparsed_text), so the Source's title is looked for in all
+        # of the row's unparsed text: word_similarity scores the stretch most
+        # like the title, so the journal etc. around it don't count against it.
+        #
         # @return [Array, nil] the comparison (see Trigrams.evaluate), nil when
         #   either side has no title to compare
         def compared(row, source)
@@ -32,8 +37,8 @@ module Match
 
           if row.title
             [row.title, title, :similarity]
-          elsif row.text
-            [title, row.text, :word_similarity]
+          elsif row.unparsed_text
+            [title, row.unparsed_text, :word_similarity]
           end
         end
 

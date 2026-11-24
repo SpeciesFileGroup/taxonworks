@@ -48,14 +48,19 @@ module Match
 
         private
 
+        # As the title (see Field::Title#compared), a verbatim citation's
+        # journal is looked for in all of the row's unparsed text. A journal
+        # name that also appears in the title can score high here; the journal
+        # isn't required to agree by default.
+        #
         # @return [Array<Array>] the comparisons (see Trigrams.evaluate), one
         #   per journal name of the Source; empty when either side has none
         def compared(row, source)
           @names[source.id].filter_map { |name|
             if row.journal
               [row.journal, name, :similarity]
-            elsif row.text
-              [name, row.text, :word_similarity]
+            elsif row.unparsed_text
+              [name, row.unparsed_text, :word_similarity]
             end
           }
         end

@@ -3,18 +3,31 @@ require 'rails_helper'
 describe Utilities::Bibliography do
   let(:b) { Utilities::Bibliography }
 
-  context 'YEAR_WITH_SUFFIX' do
+  context 'YEAR_SUFFIX, as stored' do
+    %w{a B ab AA}.each do |suffix|
+      specify suffix do
+        expect(suffix).to match(/\A#{b::YEAR_SUFFIX}\z/)
+      end
+    end
+  end
+
+  context 'YEAR_WITH_SUFFIX, in running text' do
     {
       'Smith 1936a. Title' => ['1936', 'a'],
+      'Smith 1936A. Title' => ['1936', 'A'],
+      'Smith 1936ab. Title' => ['1936', 'ab'],
       'Smith (1936 b) Title' => ['1936', 'b'],
       'Smith 2001, Title' => ['2001', nil],
+      'Smith 1990 A new species' => ['1990', nil],
+      'Smith 1990 Annales' => ['1990', nil],
+      'Smith 1990 bc' => ['1990', nil],
       'Smith 1499' => nil,
       'Smith 2100' => nil,
-      'Smith 12001' => nil,
-      'Smith 1936ab' => nil
+      'Smith 12001' => nil
     }.each do |text, captures|
       specify text do
-        expect(text.match(b::YEAR_WITH_SUFFIX)&.captures).to eq(captures)
+        m = text.match(b::YEAR_WITH_SUFFIX)
+        expect(m && [m[1], m[2]&.strip]).to eq(captures)
       end
     end
   end

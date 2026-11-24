@@ -141,8 +141,8 @@ describe Match::Source::InputRow do
     end
 
     specify 'the remainder is kept as text to compare against' do
-      expect(row.text).to include('Two new species of Strepsylla')
-      expect(row.text).to include('Zootaxa')
+      expect(row.unparsed_text).to include('Two new species of Strepsylla')
+      expect(row.unparsed_text).to include('Zootaxa')
     end
 
     {
@@ -185,8 +185,8 @@ describe Match::Source::InputRow do
       specify "doi in brackets or as a link: #{verbatim[-40..]}" do
         r = Match::Source::InputRow.new(verbatim:)
         expect(r.doi).to eq(doi)
-        expect(r.text).not_to match(/doi|[(\[]\s*\z|\A\s*[)\]]/i)
-        expect(r.text).to start_with('Title.')
+        expect(r.unparsed_text).not_to match(/doi|[(\[]\s*\z|\A\s*[)\]]/i)
+        expect(r.unparsed_text).to start_with('Title.')
       end
     end
 
@@ -210,5 +210,48 @@ describe Match::Source::InputRow do
   specify '#empty?' do
     expect(Match::Source::InputRow.new(verbatim: '  ').empty?).to be true
     expect(Match::Source::InputRow.new(year: '1900').empty?).to be false
+  end
+
+  context 'year suffixes' do
+    {
+      '1936a' => [1936, 'a'],
+      '1936A' => [1936, 'A'],
+      '1936ab' => [1936, 'ab'],
+      ' 1936 b ' => [1936, 'b'],
+      '1936' => [1936, nil]
+    }.each do |year, (y, suffix)|
+      specify "year column #{year.inspect}" do
+        r = Match::Source::InputRow.new(authors: 'Smith', year:)
+        expect([r.year, r.year_suffix]).to eq([y, suffix])
+      end
+    end
+
+    {
+      'Smith 1936A. Title. Journal 1: 5.' => [1936, 'A'],
+      'Smith 1936ab. Title. Journal 1: 5.' => [1936, 'ab'],
+      'Smith (1936 b) Title. Journal 1: 5.' => [1936, 'b'],
+      'Smith 1990 A new species. Journal 1: 5.' => [1990, nil]
+    }.each do |verbatim, (y, suffix)|
+      specify "verbatim #{verbatim[0, 30]}" do
+        r = Match::Source::InputRow.new(verbatim:)
+        expect([r.year, r.year_suffix]).to eq([y, suffix])
+      end
+    end
+  end
+
+  context 'unparsed text' do
+    specify 'what may be title and journal, without volume and pages' do
+      r = Match::Source::InputRow.new(
+        verbatim: 'Ritzi, C.M. (2003) Fleas of Indiana. ' \
+          'J. Parasitology 96(2): 285-298.'
+      )
+      expect(r.unparsed_text).to eq('Fleas of Indiana. J. Parasitology')
+    end
+
+    specify 'nil when only authors, year, volume and pages are given' do
+      ['Smith 1990. 12: 5-9.', 'Smith 1990'].each do |verbatim|
+        expect(Match::Source::InputRow.new(verbatim:).unparsed_text).to be_nil
+      end
+    end
   end
 end

@@ -85,7 +85,7 @@ module Match
           # Rows nothing was found for yet (no DOI, no surname match): match
           # the whole citation text against each Source's `cached`.
           by_text = indexed_rows.select { |i, r|
-            result[i].empty? && (r.text || r.title)
+            result[i].empty? && (r.unparsed_text || r.title)
           }
           lateral(result, by_text, 's.cached % input_row.full_text')
         end
@@ -146,7 +146,7 @@ module Match
           SELECT input_row.idx, candidate.id
           FROM (VALUES #{values_sql(indexed)})
             AS input_row(idx, first_word, last_word, first_surname, year,
-              volume, first_page, title, journal, text, full_text)
+              volume, first_page, title, journal, unparsed_text, full_text)
           CROSS JOIN LATERAL (
             SELECT s.id
             FROM sources s
@@ -177,7 +177,7 @@ module Match
               + (CASE WHEN substring(s.pages from '\\d+') = input_row.first_page
                 THEN 1 ELSE 0 END)
               + COALESCE(similarity(input_row.title, s.title), 0)
-              + COALESCE(word_similarity(s.title, input_row.text), 0)
+              + COALESCE(word_similarity(s.title, input_row.unparsed_text), 0)
               DESC,
               s.id
             LIMIT #{GATHER_LIMIT}
@@ -188,7 +188,7 @@ module Match
       def values_sql(indexed)
         indexed.map { |i, r|
           words = ::Utilities::AuthorNames.surname_words(r.surnames.first)
-          full_text = [r.title, r.text].compact.join(' ').presence
+          full_text = [r.title, r.unparsed_text].compact.join(' ').presence
 
           '(' + [
             i.to_i,
@@ -200,7 +200,7 @@ module Match
             "#{quote(r.first_page)}::text",
             "#{quote(r.title)}::text",
             "#{quote(r.journal)}::text",
-            "#{quote(r.text)}::text",
+            "#{quote(r.unparsed_text)}::text",
             "#{quote(full_text)}::text"
           ].join(', ') + ')'
         }.join(', ')

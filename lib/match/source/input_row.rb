@@ -24,14 +24,24 @@ module Match
       VERBATIM_YEAR_PATTERN =
         /\(?\s*#{::Utilities::Bibliography::YEAR_WITH_SUFFIX}\s*\)?/
 
+      # A DOI in a verbatim citation, without punctuation that ends it.
       DOI_PATTERN = %r{\b(10\.\d{4,9}/\S+?)[.,;]?(?=\s|\z)}
 
-      # What's left before a DOI once it's removed from a verbatim citation.
+      # What a DOI was written with in front of it, `(doi:`, `https://doi.org/`.
       DOI_LEAD_PATTERN =
         %r{[(\[<]?\s*(?:https?://(?:dx\.)?doi\.org/|\bdoi:?)?\s*\z}i
 
       attr_reader :surnames, :first_author_initials, :year, :year_suffix,
-        :title, :journal, :volume, :first_page, :doi, :text
+        :title, :journal, :volume, :first_page, :doi
+
+      # @return [String, nil] for a verbatim citation, what's left once the
+      #   parts that can be told apart (authors, year, DOI, volume and pages)
+      #   are taken out: what may be its title and journal, not told apart,
+      #   e.g. `Fleas of Indiana. J. Parasitology`. Nil when nothing is left,
+      #   e.g. for `Smith 1990. 12: 5-9.`, so that title and journal aren't
+      #   compared (rather than failing against what's there) and the citation
+      #   isn't searched for as a whole. Nil for a row given as fields.
+      attr_reader :unparsed_text
 
       # @param authors [String, nil]
       #   e.g. `Ritzi, C.M. & J.O. Whitaker, Jr.`, `Emery, Emery & Popple`
@@ -66,19 +76,22 @@ module Match
           volume_first_page || verbatim_parts[:first_page]
 
         @doi = normalize_doi(doi) || verbatim_parts[:doi]
-        @text = verbatim_parts[:text]
+        @unparsed_text = verbatim_parts[:unparsed_text]
       end
 
       def empty?
         surnames.empty? && year.nil? && title.nil? && journal.nil? &&
-          volume.nil? && first_page.nil? && doi.nil? && text.nil?
+          volume.nil? && first_page.nil? && doi.nil? &&
+          unparsed_text.nil?
       end
 
       private
 
       # @return [Array] [year (Integer), suffix (String)] or [nil, nil]
       def parse_year(value)
-        m = value.to_s.match(/\A\s*(\d{4})\s*([a-z])?\s*\z/)
+        m = value.to_s.match(
+          /\A\s*(\d{4})\s*(#{::Utilities::Bibliography::YEAR_SUFFIX})?\s*\z/o
+        )
         return [nil, nil] if m.nil?
 
         [m[1].to_i, m[2]]
@@ -102,41 +115,73 @@ module Match
         ::Identifier::Global::Doi.normalize(value.to_s).presence&.downcase
       end
 
+      # Reads what can be told apart reliably in a verbatim citation:
+      #
+      #   Ritzi, C.M. (2003) Fleas of Indiana. J. Parasitology 96(2): 285-298.
+      #   doi:10.1/x
+      #
+      #   doi            `10.1/x`, wherever it is
+      #   authors        `Ritzi, C.M.`, before the year
+      #   year           2003 (year_suffix nil)
+      #   volume         `96` and first_page `285`, from after the year
+      #   unparsed_text  `Fleas of Indiana. J. Parasitology`, see #unparsed_text
+      #
+      # Title and journal aren't split out: where one ends and the next begins
+      # can't be told reliably (`Notes on Ctenophthalmus. II.`, `J.
+      # Parasitol.`, books with no journal).
+      #
+      # @return [Hash] the parts found, nil values for those that aren't
       def parse_verbatim(verbatim)
         s = ::Utilities::Strings.plain_text(verbatim)
         return {} if s.nil?
 
-        result = {}
-
-        if (m = s.match(DOI_PATTERN))
-          # A DOI written in brackets is read up to the next space, so it
-          # may end with the closing bracket.
-          doi = ::Identifier::Global::Doi.normalize(m[1])
-          result[:doi] = doi.downcase
-          rest = m[1].delete_prefix(doi) + m.post_match
-          s = (m.pre_match.sub(DOI_LEAD_PATTERN, '') + ' ' +
-            rest.sub(/\A[)\]>.,;]+/, '')).squish
-        end
+        doi, s = take_doi(s)
 
         if (m = s.match(VERBATIM_YEAR_PATTERN))
-          result[:year] = m[1].to_i
-          result[:year_suffix] = m[2]
-          result[:authors] = m.pre_match
+          authors, year, year_suffix = m.pre_match, m[1].to_i, m[2]&.strip
           rest = m.post_match
         else
           rest = s
         end
 
+        volume, first_page, rest = take_volume_and_first_page(rest)
+
+        {
+          doi:, authors:, year:, year_suffix:, volume:, first_page:,
+          # Without the punctuation that separated it from the year, `(2003).`,
+          # or that's left at the end, where volume and pages were.
+          unparsed_text:
+            rest.sub(/\A[\s.,:;)]+/, '').sub(/[\s.,:;]+\z/, '').squish.presence
+        }
+      end
+
+      # @return [Array] [the DOI, lowercased, or nil; the citation without it
+      #   or what it was written with]
+      def take_doi(citation)
+        m = citation.match(DOI_PATTERN)
+        return [nil, citation] if m.nil?
+
+        # A DOI written in brackets is read up to the next space, so it may
+        # end with the closing bracket; normalize drops it.
+        doi = ::Identifier::Global::Doi.normalize(m[1])
+        after = m[1].delete_prefix(doi) + m.post_match
+        rest = (m.pre_match.sub(DOI_LEAD_PATTERN, '') + ' ' +
+          after.sub(/\A[)\]>.,;]+/, '')).squish
+
+        [doi.downcase, rest]
+      end
+
+      # @return [Array] [volume, first page (nil when not found), text without
+      #   them, the rest of a page range included]
+      def take_volume_and_first_page(text)
         ::Utilities::Bibliography::VOLUME_PAGES_PATTERNS.each do |pattern|
-          next if (m = rest.match(pattern)).nil?
+          m = text.match(pattern)
+          next if m.nil?
 
-          result[:volume] = m[1]
-          result[:first_page] = m[2]
-          break
+          after = m.post_match.sub(/\A\s*[-–—]\s*\d+/, '')
+          return [*m.captures, "#{m.pre_match} #{after}"]
         end
-
-        result[:text] = rest.sub(/\A[\s.,:;)]+/, '').squish.presence
-        result
+        [nil, nil, text]
       end
 
     end
