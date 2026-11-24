@@ -29,6 +29,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates
                          zip \
                          nodejs \
                          redis-server libhiredis-dev \
+                         fonts-liberation fonts-droid-fallback \
                          imagemagick libmagickwand-dev && \
       apt-get autoremove -y && apt clean && \
       rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/src/*
