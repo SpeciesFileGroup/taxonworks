@@ -39,15 +39,33 @@ class Identifier::Global::Doi < Identifier::Global
   # 'http://dx.doi.org/', 'https://doi.org/'
   DOI_MATCH = /^(doi:\s*|http(s)?:\/\/(dx\.)?doi\.org\/)/i
 
+  # Closing bracket => its opening one, for brackets a DOI is written in.
+  BRACKETS = { ')' => '(', ']' => '[', '>' => '<' }.freeze
+
   # @param raw [String, nil] a DOI as written, e.g.
-  #   'https://doi.org/10.1645/GE-2251.1', ' doi:10.1645/GE-2251.1'
-  # @return [String, nil] the DOI as stored: without surrounding whitespace
-  #   or a preamble, e.g. '10.1645/GE-2251.1'
+  #   'https://doi.org/10.1645/GE-2251.1', ' doi:10.1645/GE-2251.1',
+  #   '(doi:10.1645/GE-2251.1)'
+  # @return [String, nil] the DOI as stored, e.g. '10.1645/GE-2251.1':
+  #   without surrounding whitespace, a preamble, or brackets it was written
+  #   in. A DOI's own brackets stay, '10.1016/0001(99)00012-X'.
   def self.normalize(raw)
     return raw if raw.blank?
 
-    raw.strip.gsub(DOI_MATCH, '')
+    # A DOI starts with `10.`, so anything in front is a bracket or preamble.
+    doi = raw.strip.sub(/\A[(\[<]+\s*/, '').gsub(DOI_MATCH, '').strip
+
+    # Closing brackets at the end go while there are more of them than their
+    # opening one.
+    while (close = BRACKETS.keys.find { |c| unbalanced_at_end?(doi, c) })
+      doi = doi.delete_suffix(close)
+    end
+    doi
   end
+
+  def self.unbalanced_at_end?(doi, close)
+    doi.end_with?(close) && doi.count(close) > doi.count(BRACKETS[close])
+  end
+  private_class_method :unbalanced_at_end?
 
   protected
 

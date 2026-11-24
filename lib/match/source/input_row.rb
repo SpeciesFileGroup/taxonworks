@@ -69,22 +69,6 @@ module Match
         @text = verbatim_parts[:text]
       end
 
-      # A DOI written in brackets, `(doi:10.1/x)`, is read up to the next
-      # space, so it ends with the closing bracket, `10.1/x)`. That bracket is
-      # dropped: closing brackets at the end go while there are more of them
-      # than their opening one, so a DOI's own stay, `10.1/a(1)b`.
-      #
-      # @param doi [String] e.g. `10.1/x)`, `10.1016/0001(99)00012-X`
-      # @return [String] e.g. `10.1/x`, `10.1016/0001(99)00012-X`
-      def self.drop_closing_brackets(doi)
-        { ')' => '(', ']' => '[', '>' => '<' }.each do |close, open|
-          while doi.end_with?(close) && doi.count(close) > doi.count(open)
-            doi = doi[0..-2]
-          end
-        end
-        doi
-      end
-
       def empty?
         surnames.empty? && year.nil? && title.nil? && journal.nil? &&
           volume.nil? && first_page.nil? && doi.nil? && text.nil?
@@ -115,10 +99,7 @@ module Match
       end
 
       def normalize_doi(value)
-        s = self.class.drop_closing_brackets(
-          ::Identifier::Global::Doi.normalize(value.to_s)
-        )
-        s.empty? ? nil : s.downcase
+        ::Identifier::Global::Doi.normalize(value.to_s).presence&.downcase
       end
 
       def parse_verbatim(verbatim)
@@ -128,7 +109,9 @@ module Match
         result = {}
 
         if (m = s.match(DOI_PATTERN))
-          doi = self.class.drop_closing_brackets(m[1])
+          # A DOI written in brackets is read up to the next space, so it
+          # may end with the closing bracket.
+          doi = ::Identifier::Global::Doi.normalize(m[1])
           result[:doi] = doi.downcase
           rest = m[1].delete_prefix(doi) + m.post_match
           s = (m.pre_match.sub(DOI_LEAD_PATTERN, '') + ' ' +
