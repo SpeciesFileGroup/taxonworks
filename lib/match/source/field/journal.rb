@@ -7,7 +7,8 @@ module Match
       # otherwise looked for in the rest of a verbatim citation.
       class Journal < Field
 
-        def prepare(_rows, sources)
+        def prepare(candidates)
+          sources = candidates.values.flatten.uniq
           serial_names = ::Serial
             .where(id: sources.filter_map(&:serial_id).uniq)
             .pluck(:id, :name)
@@ -22,23 +23,41 @@ module Match
                 .filter_map { |n| InputRow.plain_text(n) }.uniq
             ]
           }
+
+          @similarities = Trigrams.evaluate(
+            candidates.flat_map { |row, sources_of_row|
+              sources_of_row.flat_map { |source| compared(row, source) }
+            }
+          )
         end
 
         def compare(row, source)
-          names = @names[source.id]
+          comparisons = compared(row, source)
 
           {
             journal_similarity:
-              if row.journal
-                names.map { |n| similarity(row.journal, n) }.max
-              elsif row.text
-                names.map { |n| word_similarity(n, row.text) }.max
+              if comparisons.any?
+                comparisons.map { |c| @similarities[c] }.max
               end
           }
         end
 
         def score(c)
           c[:journal_similarity].to_f
+        end
+
+        private
+
+        # @return [Array<Array>] the comparisons (see Trigrams.evaluate), one
+        #   per journal name of the Source; empty when either side has none
+        def compared(row, source)
+          @names[source.id].filter_map { |name|
+            if row.journal
+              [row.journal, name, :similarity]
+            elsif row.text
+              [name, row.text, :word_similarity]
+            end
+          }
         end
 
       end

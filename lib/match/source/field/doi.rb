@@ -26,10 +26,11 @@ module Match
             }
         end
 
-        def prepare(rows, sources)
+        def prepare(candidates)
           # source_id => Set of DOIs
           @dois = Hash.new { |h, k| h[k] = Set.new }
-          return if rows.none?(&:doi) || sources.empty?
+          sources = candidates.values.flatten.uniq
+          return if candidates.keys.none?(&:doi) || sources.empty?
 
           self.class.identifiers
             .where(identifier_object_id: sources.map(&:id))

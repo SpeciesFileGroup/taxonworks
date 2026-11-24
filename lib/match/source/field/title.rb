@@ -6,17 +6,16 @@ module Match
       # looked for in the rest of a verbatim citation.
       class Title < Field
 
-        def compare(row, source)
-          title = plain_title(source)
+        def prepare(candidates)
+          @similarities = Trigrams.evaluate(
+            candidates.flat_map { |row, sources|
+              sources.filter_map { |source| compared(row, source) }
+            }
+          )
+        end
 
-          {
-            title_similarity:
-              if row.title
-                similarity(row.title, title)
-              elsif row.text
-                word_similarity(title, row.text)
-              end
-          }
+        def compare(row, source)
+          { title_similarity: @similarities[compared(row, source)] }
         end
 
         def score(c)
@@ -24,6 +23,19 @@ module Match
         end
 
         private
+
+        # @return [Array, nil] the comparison (see Trigrams.evaluate), nil when
+        #   either side has no title to compare
+        def compared(row, source)
+          title = plain_title(source)
+          return nil if title.nil?
+
+          if row.title
+            [row.title, title, :similarity]
+          elsif row.text
+            [title, row.text, :word_similarity]
+          end
+        end
 
         def plain_title(source)
           @plain_titles ||= {}

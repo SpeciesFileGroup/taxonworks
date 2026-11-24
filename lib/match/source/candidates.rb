@@ -101,16 +101,19 @@ module Match
           .pluck(:source_id)
           .to_set
 
+        # row => [Source, ...]
+        sources_by_row = rows.each_with_index.to_h { |row, index|
+          [row, (ids_by_row[index] || []).filter_map { |id| sources[id] }]
+        }
+
         weights = FIELD_WEIGHTS.to_h { |klass, weight| [klass.new, weight] }
         fields = weights.keys
-        fields.each { |f| f.prepare(rows, sources.values) }
+        fields.each { |f| f.prepare(sources_by_row) }
 
         rows.each_with_index.map do |row, index|
-          candidates = (ids_by_row[index] || []).filter_map { |id|
-            next if sources[id].nil?
-
-            compare(row, sources[id], fields)
-              .merge(in_project: in_project.include?(id))
+          candidates = sources_by_row[row].map { |source|
+            compare(row, source, fields)
+              .merge(in_project: in_project.include?(source.id))
           }
 
           {
