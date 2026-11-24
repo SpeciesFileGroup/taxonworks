@@ -10,6 +10,10 @@ module Match
         # reported as this.
         DISTANCE_CAP = 4
 
+        # Max edits a match may allow: below the cap, whose value is
+        # open-ended.
+        MAX_EDITS = DISTANCE_CAP - 1
+
         def self.source_columns
           %i{cached_author_string author}
         end
@@ -30,7 +34,10 @@ module Match
             first_author_distance: (first_input && first_source) ?
               distance(first_input, first_source) : nil,
             author_distances: distances.map(&:min),
-            author_distance_matrix: distances,
+            # max edits => row authors paired with a Source author
+            matched_author_counts: (0..MAX_EDITS).map { |edits|
+              paired_count(distances, edits)
+            },
             first_author_initials_match:
               initials_match(row.first_author_initials, source_initials),
             source_first_author_initials: source_initials,
@@ -85,6 +92,36 @@ module Match
           @initials[source.id] ||= ::Utilities::AuthorNames.initials(
             BibTeX::Names.parse(source.author.to_s)&.first&.first
           )
+        end
+
+        # How many row authors can each be paired with a different Source
+        # author, within max_edits: `Emery, Emery & Popple` finds 2 in `Emery,
+        # Popple & Smith`, not 3. Kuhn's augmenting paths; author lists are
+        # short.
+        #
+        # @param distances [Array<Array>] per row author, the distance to each
+        #   Source author
+        # @return [Integer]
+        def paired_count(distances, max_edits)
+          paired_row = {} # Source author => row author paired with it
+
+          pair = lambda do |row, visited|
+            distances[row].each_with_index.any? do |distance, source_author|
+              next false if distance.nil? || distance > max_edits ||
+                visited.include?(source_author)
+
+              visited << source_author
+              if !paired_row.key?(source_author) ||
+                  pair.call(paired_row[source_author], visited)
+                paired_row[source_author] = row
+                true
+              else
+                false
+              end
+            end
+          end
+
+          distances.each_index.count { |row| pair.call(row, Set.new) }
         end
 
         # Lenient on purpose: people go by a later given name (Jordan, K. is

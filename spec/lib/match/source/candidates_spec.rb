@@ -358,11 +358,24 @@ describe Match::Source::Candidates, type: :model do
     expect(candidate_for(r, source)[:volume_match]).to be true
   end
 
-  specify 'reports each row author\'s distance to each Source author' do
-    r = candidates([{ authors: 'Müller & Smith', year: '1990' }]).first
-    expect(candidate_for(r, source)[:author_distance_matrix].map(&:size))
-      .to eq([3, 3])
-    expect(candidate_for(r, source)[:author_distance_matrix][1][2]).to eq(0)
+  context 'matched author counts, per max edits' do
+    def counts(authors)
+      candidate_for(
+        candidates([{ authors:, year: '1990' }]).first, source
+      )[:matched_author_counts]
+    end
+
+    specify 'row authors found in the Source' do
+      expect(counts('Müller & Smith')).to eq([2, 2, 2, 2])
+    end
+
+    specify 'misspellings are found once enough edits are allowed' do
+      expect(counts('Mueller & Smyth')).to eq([0, 2, 2, 2])
+    end
+
+    specify 'each Source author pairs with one row author' do
+      expect(counts('Müller, Müller & Smith')).to eq([2, 2, 2, 2])
+    end
   end
 
   specify 'a Source author BibTeX can\'t parse has no initials' do

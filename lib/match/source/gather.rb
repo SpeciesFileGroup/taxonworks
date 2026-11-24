@@ -1,19 +1,27 @@
 module Match
   module Source
 
-    # Finds the Sources worth comparing to each row: at most GATHER_LIMIT per
-    # row and strategy, out of every Source, so the choice is made in the
-    # database, in one lateral query per strategy for all rows.
+    # Finds the Sources worth comparing to each row, out of every Source, so
+    # the choice is made in the database: one query per strategy, for all the
+    # rows it applies to.
+    #
+    # Strategies, in order:
+    # - DOI: every Source with the row's DOI
+    # - surname and year, or surname alone when the row has no year: the
+    #   row's best GATHER_LIMIT
+    # - whole text, only for rows nothing was found for yet: the row's best
+    #   GATHER_LIMIT
+    # A row goes through at most one of the limited strategies, so it gets at
+    # most GATHER_LIMIT Sources plus its DOI's.
     #
     # The SQL ranking (ORDER BY in #lateral) only decides which Sources are
-    # kept; it
-    # deliberately repeats a rough version of some field comparisons so
-    # that the row's own Source isn't crowded out by a common surname's other
-    # works. What a field comparison *means* is in Match::Source::Field
+    # kept; it deliberately repeats a rough version of some field comparisons
+    # so that the row's own Source isn't crowded out by a common surname's
+    # other works. What a field comparison *means* is in Match::Source::Field
     # and its subclasses, in Ruby, on what's gathered here.
     class Gather
 
-      # Candidates gathered per row and per gather strategy.
+      # Sources gathered per row by a surname or whole-text strategy.
       GATHER_LIMIT = 40
 
       # Low enough to gather misspelled and diacritic-variant surnames
@@ -68,7 +76,8 @@ module Match
             result, without_year, 'input_row.term <% s.cached_author_string'
           )
 
-          # Nothing found from structured fields, try the text as a whole.
+          # Rows nothing was found for yet (no DOI, no surname match): match
+          # the whole citation text against each Source's `cached`.
           by_text = indexed_rows.select { |i, r|
             result[i].empty? && (r.text || r.title)
           }
@@ -137,6 +146,7 @@ module Match
             WHERE #{condition}
               #{project_filter}
             ORDER BY
+              -- add up column matching scores against multiple columns:
               (CASE WHEN s.year = input_row.year THEN 1 ELSE 0 END)
               + COALESCE(
                 word_similarity(input_row.term, s.cached_author_string), 0

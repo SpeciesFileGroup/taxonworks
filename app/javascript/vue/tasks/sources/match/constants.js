@@ -125,13 +125,10 @@ export const AUTHOR_MATCHING_OPTIONS = [
   }
 ]
 
-// The server caps author edit distances at this (AUTHOR_DISTANCE_CAP): a
-// distance of 4 means 4 or more.
-export const AUTHOR_DISTANCE_CAP = 4
-
-// The most the fuzzy option allows; below the cap, whose value is
-// open-ended.
-export const MAX_AUTHOR_EDITS = AUTHOR_DISTANCE_CAP - 1
+// The most the fuzzy option allows, as the server's
+// Match::Source::Field::Authors::MAX_EDITS: a candidate's
+// matched_author_counts has one entry for each of 0..MAX_AUTHOR_EDITS.
+export const MAX_AUTHOR_EDITS = 3
 
 // The server gathers candidates up to this many years from a row's year.
 export const MAX_YEAR_TOLERANCE = 2

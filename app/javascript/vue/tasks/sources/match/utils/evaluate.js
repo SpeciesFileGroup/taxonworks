@@ -1,6 +1,6 @@
 import {
-  AUTHOR_DISTANCE_CAP,
   AUTHOR_MATCHING,
+  MAX_AUTHOR_EDITS,
   AUTHOR_SCOPE,
   CHECK,
   STATUS
@@ -176,8 +176,7 @@ function doiCheck(candidate) {
 function yearCheck(candidate, parsed, options) {
   if (parsed.year == null) return [CHECK.NONE, 'No year in row']
 
-  // Only DOI and whole-text matches gather a Source without a year for a
-  // row with one.
+  // The row has a year the Source doesn't.
   if (candidate.year_difference == null) {
     return [CHECK.FAIL, 'Source has no year']
   }
@@ -225,7 +224,10 @@ function authorCheck(candidate, parsed, options) {
       : candidate.first_author_distance <= maxEdits
 
   if (!firstPasses) {
-    return [CHECK.FAIL, `First author differs (${firstAuthorDetail(candidate)})`]
+    return [
+      CHECK.FAIL,
+      `First author differs (${firstAuthorDetail(candidate)})`
+    ]
   }
 
   // Same surname, different person: Smit, F.G.A.M. vs Smit, B.
@@ -240,10 +242,8 @@ function authorCheck(candidate, parsed, options) {
     return [CHECK.FAIL, initialsDetail]
   }
 
-  const matchedCount = matchedAuthorCount(
-    candidate.author_distance_matrix,
-    maxEdits
-  )
+  // Row authors each paired with a different Source author, within maxEdits.
+  const matchedCount = candidate.matched_author_counts[maxEdits]
   const allDetail =
     `${matchedCount} of ${parsed.surnames.length} row authors found, ` +
     `Source has ${candidate.source_author_count}`
@@ -296,44 +296,17 @@ function authorRequirements(options) {
   ].filter(Boolean)
 }
 
-// How many row authors can each be paired with a different Source author,
-// within maxEdits: `Emery, Emery & Popple` finds 2 in `Emery, Popple &
-// Smith`, not 3.
-//
-// @param matrix - per row author, the distance to each Source author
-// @return Number
-function matchedAuthorCount(matrix, maxEdits) {
-  const pairedRowBySourceAuthor = new Map()
-
-  // Kuhn's augmenting paths; author lists are short.
-  const pair = (row, visited) =>
-    matrix[row].some((distance, sourceAuthor) => {
-      if (distance == null || distance > maxEdits || visited.has(sourceAuthor)) {
-        return false
-      }
-      visited.add(sourceAuthor)
-
-      const pairedRow = pairedRowBySourceAuthor.get(sourceAuthor)
-      if (pairedRow === undefined || pair(pairedRow, visited)) {
-        pairedRowBySourceAuthor.set(sourceAuthor, row)
-        return true
-      }
-      return false
-    })
-
-  return matrix.filter((_, row) => pair(row, new Set())).length
-}
-
 // ['F', 'G'] -> 'F.G.'
 function formatInitials(initials) {
   return (initials || []).map((letter) => `${letter}.`).join('')
 }
 
+// The server caps distances above MAX_AUTHOR_EDITS: 4 means 4 or more.
 function firstAuthorDetail(candidate) {
   if (candidate.first_author_exact) return 'identical'
   const distance = candidate.first_author_distance
   if (distance === 0) return 'same ignoring diacritics/case'
-  return `${distance}${distance >= AUTHOR_DISTANCE_CAP ? '+' : ''} edit${distance === 1 ? '' : 's'}`
+  return `${distance}${distance > MAX_AUTHOR_EDITS ? '+' : ''} edit${distance === 1 ? '' : 's'}`
 }
 
 // Trigram similarity is noisy for short strings, so anything at or above
