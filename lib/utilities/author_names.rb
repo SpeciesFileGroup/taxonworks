@@ -53,9 +53,12 @@ module Utilities::AuthorNames
 
   # @param surname [String, nil] one surname, e.g. from .surnames
   # @return [Array<String>] its words, particles aside: `García López` =>
-  #   ['García', 'López'], `van der Merwe` => ['Merwe']
+  #   ['García', 'López'], `van der Merwe` => ['Merwe']; all of them when
+  #   every word is a particle, which is then the surname itself (`Du`, `Le`)
   def self.surname_words(surname)
-    surname.to_s.split.reject { |w| PARTICLES.include?(w.downcase) }
+    words = surname.to_s.split
+    non_particles = words.reject { |w| PARTICLES.include?(w.downcase) }
+    non_particles.empty? ? words : non_particles
   end
 
   # @param given_names [String, nil]

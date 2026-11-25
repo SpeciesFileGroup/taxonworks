@@ -6,6 +6,10 @@ class SourcesController < ApplicationController
   # Candidates returned by api_match.
   API_MATCH_CANDIDATES_LIMIT = 5
 
+  # Longest `citation` (or field) api_match accepts, in characters: well
+  # beyond any citation, short enough that matching stays cheap.
+  API_MATCH_MAX_LENGTH = 2000
+
   before_action :set_source, only: [:show, :edit, :update, :destroy, :clone, :api_show]
   after_action -> { set_pagination_headers(:sources) }, only: [:index, :api_index, :api_bibliography], if: :json_request?
 
@@ -347,6 +351,15 @@ class SourcesController < ApplicationController
     row = params.permit(
       *(Match::Source::Candidates::INPUT_KEYS - [:verbatim]), :citation
     ).to_h.symbolize_keys
+
+    if row.values.any? { |v| v.to_s.length > API_MATCH_MAX_LENGTH }
+      render json: {
+        error: "citation and fields are at most #{API_MATCH_MAX_LENGTH} " \
+          'characters.'
+      }, status: :unprocessable_content
+      return
+    end
+
     row[:verbatim] = row.delete(:citation)
 
     result = Match::Source::Candidates.new(

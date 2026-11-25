@@ -12,7 +12,7 @@ module Match
             year_difference: (row.year && source.year) ?
               (row.year - source.year).abs : nil,
             year_suffix_match: (row.year_suffix && source.year_suffix) ?
-              row.year_suffix == source.year_suffix : nil
+              row.year_suffix.casecmp?(source.year_suffix) : nil
           }
         end
 

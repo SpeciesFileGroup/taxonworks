@@ -82,7 +82,8 @@ module Utilities::Strings
     s = string.to_s
     s = s.gsub(/<[^>]*>/, ' ') if s.include?('<')
     s = CGI.unescapeHTML(s) if s.include?('&')
-    s.squish.presence
+    s = s.gsub(/[[:space:]]+/, ' ').strip
+    s.empty? ? nil : s
   end
 
   # @param [String] text

@@ -190,6 +190,10 @@ describe Utilities::AuthorNames do
       'van der Merwe' => %w{Merwe},
       'De Long' => %w{Long},
       'Smith' => %w{Smith},
+      # A surname that is all particle words is itself
+      'Du' => %w{Du},
+      'Le' => %w{Le},
+      'De La' => %w{De La},
       nil => []
     }.each do |surname, words|
       specify surname.inspect do

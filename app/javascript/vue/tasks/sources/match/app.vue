@@ -114,8 +114,10 @@ const evaluations = computed(() =>
 function matchesFilter(row, filterValue) {
   const evaluation = evaluations.value[row.index]
 
+  // As notInProjectCount: only a Source the row resolves to for export, not
+  // an ambiguous row's best guess.
   if (filterValue === ROW_FILTER.NOT_IN_PROJECT) {
-    return evaluation.source?.in_project === false
+    return exportedSource(row)?.in_project === false
   }
   return evaluation.status === filterValue
 }
@@ -194,7 +196,10 @@ async function fetchCandidates() {
 
     await refreshSelectionsInProject()
   } catch {
-    TW.workbench.alert.create('Error matching sources.', 'error')
+    TW.workbench.alert.create(
+      'Matching failed; results may be out of date. Please try again.',
+      'error'
+    )
   } finally {
     isProcessing.value = false
     refresh()

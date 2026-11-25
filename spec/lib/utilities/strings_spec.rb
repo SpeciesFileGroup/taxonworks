@@ -194,6 +194,10 @@ describe Utilities::Strings do
       expect(l.plain_text('a<br>b')).to eq('a b')
     end
 
+    specify 'any whitespace, a non-breaking space too, is one space' do
+      expect(l.plain_text("\u00A0a\u00A0 \n\tb\u2009")).to eq('a b')
+    end
+
     specify 'nothing left is nil' do
       expect(l.plain_text(' <i></i> ')).to be_nil
       expect(l.plain_text(nil)).to be_nil

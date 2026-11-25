@@ -149,6 +149,32 @@ describe Match::Source::Candidates, type: :model do
     end
   end
 
+  specify 'finds a Source whose first surname is also a particle' do
+    du = Source::Bibtex.create!(
+      bibtex_type: 'article', author: 'Du, X. and Ding, Y.', year: 1991,
+      title: 'Notes'
+    )
+    r = candidates([{ authors: 'Du & Ding', year: '1991' }]).first
+    expect(candidate_for(r, du)).to be_truthy
+  end
+
+  context 'year suffix' do
+    def suffix_match(row_year)
+      source.update_column(:year_suffix, 'a')
+      r = candidates([{ authors: 'Müller', year: row_year }]).first
+      candidate_for(r, source)[:year_suffix_match]
+    end
+
+    specify 'agrees whatever the case' do
+      expect(suffix_match('1990a')).to be true
+      expect(suffix_match('1990A')).to be true
+    end
+
+    specify 'disagrees when different' do
+      expect(suffix_match('1990b')).to be false
+    end
+  end
+
   context 'compound surnames' do
     let!(:garcia_lopez) do
       Source::Bibtex.create!(

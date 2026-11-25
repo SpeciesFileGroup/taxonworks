@@ -113,12 +113,12 @@ const hiddenToggleLabel = computed(() => {
   if (showAll.value) {
     return passing
       ? 'Hide those that fail a requirement'
-      : 'Hide those where nothing but the authors agrees'
+      : 'Hide those with too little agreement'
   }
   const count = hiddenCount.value
   return passing
     ? `Show ${count} that ${pluralize(count, 'fails', 'fail')} a requirement`
-    : `Show ${count} where nothing but the authors agrees`
+    : `Show ${count} with too little agreement`
 })
 
 function sourceUrl(id) {

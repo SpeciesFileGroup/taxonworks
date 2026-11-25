@@ -140,6 +140,20 @@ describe 'Api::V1::Sources match', type: :request do
     expect(response).to have_http_status(:unprocessable_content)
   end
 
+  context 'input longer than API_MATCH_MAX_LENGTH' do
+    let(:too_long) { 'x' * (SourcesController::API_MATCH_MAX_LENGTH + 1) }
+
+    specify 'a citation is refused' do
+      get path, params: { citation: too_long }
+      expect(response).to have_http_status(:unprocessable_content)
+    end
+
+    specify 'a field is refused' do
+      get path, params: { citation:, title: too_long }
+      expect(response).to have_http_status(:unprocessable_content)
+    end
+  end
+
   specify 'an invalid project token is unauthorized' do
     get path, params: { citation:, project_token: 'nope' }
     expect(response).to be_unauthorized

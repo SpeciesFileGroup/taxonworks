@@ -13,6 +13,7 @@
         class="full_width"
         :placeholder="placeholder"
         :rows="rows"
+        @input="fileName = null"
         @paste="handlePaste"
       />
     </div>
@@ -64,7 +65,9 @@ const emit = defineEmits(['file'])
 
 const text = defineModel('text', { type: String, required: true })
 
-// The name of the file the text was loaded from, null when typed or pasted.
+// The name of the file the text was loaded from, null when typed or pasted;
+// cleared once the text is edited (a loaded file sets `text` without an
+// `input` event).
 const fileName = defineModel('fileName', { type: String, default: null })
 
 const { registerPaster, unregisterPaster } = useDropzonePasteManager()
