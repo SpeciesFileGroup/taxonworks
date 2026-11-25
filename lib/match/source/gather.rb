@@ -31,15 +31,6 @@ module Match
 
       TEXT_SIMILARITY_THRESHOLD = 0.3
 
-      # The row's first surname is in the Source's authors. Either its first
-      # or its last word will do, since one side may cite only part of a
-      # compound surname (`García López` as `García`, `Gomes Alves` as
-      # `Alves`); a particle is never a surname's word (`van der Merwe`).
-      SURNAME_CONDITION =
-        # (<% is trigram includes: is LHS trigram-similar to a substring of RHS?)
-        '(input_row.first_word <% s.cached_author_string OR ' \
-          'input_row.last_word <% s.cached_author_string)'.freeze
-
       attr_reader :indexed_rows, :project_id, :limit_to_project, :year_window
 
       # @param indexed_rows [Array] [[row index, Match::Source::InputRow], ...]
@@ -71,17 +62,12 @@ module Match
           by_doi(result)
 
           with_year = indexed_rows.select { |_, r| r.surnames.any? && r.year }
-          lateral(
-            result, with_year,
-            's.year BETWEEN input_row.year - ' \
-              "#{year_window} AND input_row.year + #{year_window} AND " \
-              "#{SURNAME_CONDITION}"
-          )
+          lateral(result, with_year, surname_condition(with_year: true))
 
           without_year = indexed_rows.select { |_, r|
             r.surnames.any? && r.year.nil?
           }
-          lateral(result, without_year, SURNAME_CONDITION)
+          lateral(result, without_year, surname_condition(with_year: false))
 
           # Rows nothing was found for yet (no DOI, no surname match): match
           # the whole citation text against each Source's `cached`.
@@ -122,6 +108,23 @@ module Match
         with_doi.each do |i, r|
           result[i].concat(found[r.doi]) if found.key?(r.doi)
         end
+      end
+
+      # The row's first surname is in the Source's authors, and its year within
+      # year_window when it has one. Either the surname's first or last word
+      # will do, since one side may cite only part of a compound surname
+      # (`García López` as `García`, `Gomes Alves` as `Alves`); a particle is
+      # never a surname's word (`van der Merwe`).
+      # @return [String] SQL for #lateral
+      def surname_condition(with_year:)
+        surname =
+          # (<% is trigram includes: is LHS trigram-similar to a substring of RHS?)
+          '(input_row.first_word <% s.cached_author_string OR ' \
+            'input_row.last_word <% s.cached_author_string)'
+        return surname if !with_year
+
+        's.year BETWEEN input_row.year - ' \
+          "#{year_window} AND input_row.year + #{year_window} AND #{surname}"
       end
 
       # @param indexed [Array] [[row index, InputRow], ...] to gather for
