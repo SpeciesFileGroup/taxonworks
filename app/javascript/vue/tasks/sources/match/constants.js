@@ -143,7 +143,7 @@ export function defaultOptions() {
     yearTolerance: 0,
     matchYearSuffix: false,
     authorScope: AUTHOR_SCOPE.ROW,
-    authorMatching: AUTHOR_MATCHING.FOLDED,
+    authorMatching: AUTHOR_MATCHING.FUZZY,
     authorMaxEdits: 1,
     requireFirstAuthorInitials: true,
     minTitleSimilarity: 0.6,

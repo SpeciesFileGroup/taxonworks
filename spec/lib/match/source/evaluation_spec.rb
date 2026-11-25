@@ -49,6 +49,12 @@ describe Match::Source::Evaluation, type: :model do
       expect(qualifies?(disagrees: [:journal])).to be true
     end
 
+    specify 'when the DOI agrees, whatever disagrees' do
+      expect(
+        qualifies?(agrees: [:doi], disagrees: [:year], corroborated: true)
+      ).to be true
+    end
+
     context 'authors' do
       specify 'when the first author is one edit off' do
         expect(
@@ -56,8 +62,20 @@ describe Match::Source::Evaluation, type: :model do
         ).to be true
       end
 
-      specify 'not when another row author is misspelled' do
-        expect(qualifies?(author_distances: [0, 1])).to be false
+      specify 'when another row author is one edit off' do
+        expect(qualifies?(author_distances: [0, 1])).to be true
+      end
+
+      specify 'not when a row author is two edits off' do
+        expect(
+          qualifies?(
+            author_distances: [0, 2], matched_author_counts: [1, 1, 2, 2]
+          )
+        ).to be false
+      end
+
+      specify 'not when the first author\'s initials share no letter' do
+        expect(qualifies?(first_author_initials_match: false)).to be false
       end
 
       specify 'not when a row author is not in the Source' do
@@ -116,6 +134,37 @@ describe Match::Source::Evaluation, type: :model do
         [candidate(1, agrees: [:doi]), candidate(2, agrees: [:doi])]
       )
       expect([e.status, e.match]).to eq([:ambiguous, nil])
+    end
+
+    context 'when several qualify' do
+      specify 'matched by the only one in the project' do
+        b = candidate(2, in_project: true)
+        e = evaluation([candidate(1), b, candidate(3)])
+        expect([e.status, e.match]).to eq([:matched, b])
+      end
+
+      specify 'ambiguous when several are in the project' do
+        e = evaluation(
+          [candidate(1, in_project: true), candidate(2, in_project: true)]
+        )
+        expect([e.status, e.match]).to eq([:ambiguous, nil])
+      end
+
+      specify 'matched by the only one in the project among a shared DOI' do
+        b = candidate(2, agrees: [:doi], in_project: true)
+        e = evaluation([candidate(1, agrees: [:doi]), b])
+        expect([e.status, e.match]).to eq([:matched, b])
+      end
+
+      specify 'not matched by one in the project that doesn\'t qualify' do
+        e = evaluation(
+          [
+            candidate(1), candidate(2),
+            candidate(3, in_project: true, disagrees: [:year])
+          ]
+        )
+        expect([e.status, e.match]).to eq([:ambiguous, nil])
+      end
     end
   end
 

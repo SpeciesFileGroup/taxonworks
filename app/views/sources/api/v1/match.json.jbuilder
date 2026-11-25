@@ -22,4 +22,5 @@ json.candidates(
   json.agrees c[:agrees]
   json.disagrees c[:disagrees]
   json.corroborated c[:corroborated]
+  json.in_project c[:in_project] if @in_project
 end

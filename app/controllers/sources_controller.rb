@@ -330,11 +330,20 @@ class SourcesController < ApplicationController
   #   citation - a citation string; the fields of `match` (authors, year,
   #     ...) may be given as well, or instead, and win over what's parsed
   #     out of the citation
-  # With a project_token only the project's Sources are considered.
+  #   limit_to_project - 'true' to only consider the project's Sources,
+  #     requires a project_token
   # The match if there is one, and the best API_MATCH_CANDIDATES_LIMIT
   # candidates worth showing, each with the fields that agree and disagree;
-  # see Match::Source::Evaluation (not the Match sources task's judgment).
+  # see Match::Source::Evaluation. With a project_token, of several that
+  # qualify the project's is the match, and `in_project` is reported.
   def api_match
+    limit_to_project = params[:limit_to_project] == 'true'
+    if limit_to_project && sessions_current_project_id.nil?
+      render json: { error: 'limit_to_project requires a project_token.' },
+        status: :unprocessable_content
+      return
+    end
+
     row = params.permit(
       *(Match::Source::Candidates::INPUT_KEYS - [:verbatim]), :citation
     ).to_h.symbolize_keys
@@ -343,10 +352,11 @@ class SourcesController < ApplicationController
     result = Match::Source::Candidates.new(
       rows: [row],
       project_id: sessions_current_project_id,
-      limit_to_project: sessions_current_project_id.present?
+      limit_to_project:
     ).call.first
 
     @evaluation = Match::Source::Evaluation.new(result)
+    @in_project = sessions_current_project_id.present?
     render '/sources/api/v1/match'
   end
 

@@ -67,15 +67,16 @@ module Match
           !c[:first_author_distance].nil?
         end
 
-        # Stricter than #agrees?: every row author is in the Source, each
-        # paired with a different Source author (see #paired_count); the first
-        # as #agrees?, the others spelled the same (ignoring diacritics, case
-        # etc.).
+        # Stricter than #agrees?: the first author agrees, its initials (when
+        # both have some) share a letter, and every row author is in the
+        # Source within AGREEING_DISTANCE edits, each paired with a different
+        # Source author (see #paired_count). As the Match sources task's
+        # default author options (fuzzy, 1 edit, initials required).
         def all_agree?(c)
-          distances = c[:author_distances]
           agrees?(c) &&
-            distances.drop(1).all?(0) &&
-            c[:matched_author_counts][AGREEING_DISTANCE] == distances.size
+            c[:first_author_initials_match] != false &&
+            c[:matched_author_counts][AGREEING_DISTANCE] ==
+              c[:author_distances].size
         end
 
         private

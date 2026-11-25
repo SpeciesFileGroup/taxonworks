@@ -90,19 +90,54 @@ describe 'Api::V1::Sources match', type: :request do
   end
 
   context 'with a project token' do
-    before do
-      ProjectSource.create!(project:, source: other_volume, by: user)
-      get path, params: { citation:, project_token: project.api_access_token }
+    let(:token_params) do
+      { citation:, project_token: project.api_access_token }
     end
 
-    specify 'only considers the project\'s Sources' do
+    before { ProjectSource.create!(project:, source: other_volume, by: user) }
+
+    specify 'considers every Source, reporting in_project' do
+      get path, params: token_params
+      expect(json['match']['id']).to eq(source.id)
+      expect(json['candidates'].map { |c| [c['id'], c['in_project']] })
+        .to eq([[source.id, false], [other_volume.id, true]])
+    end
+
+    specify 'limit_to_project only considers the project\'s Sources' do
+      get path, params: token_params.merge(limit_to_project: 'true')
       expect(candidate_ids).to eq([other_volume.id])
       expect(json['status']).to eq('unmatched')
     end
 
-    specify 'does not report in_project (all are)' do
-      expect(json['candidates'].first).not_to have_key('in_project')
+    context 'when the Source is duplicated' do
+      let!(:duplicate) do
+        article(
+          'Ritzi, C.M. and Whitaker, J.O.', 2003, 'Fleas of Indiana', '10'
+        )
+      end
+
+      specify 'matches the project\'s copy' do
+        ProjectSource.create!(project:, source: duplicate, by: user)
+        get path, params: token_params
+        expect(json['status']).to eq('matched')
+        expect(json['match']['id']).to eq(duplicate.id)
+      end
+
+      specify 'is ambiguous without a project to prefer' do
+        get path, params: { citation: }
+        expect(json['status']).to eq('ambiguous')
+      end
     end
+  end
+
+  specify 'does not report in_project without a project token' do
+    get path, params: { citation: }
+    expect(json['candidates'].first).not_to have_key('in_project')
+  end
+
+  specify 'limit_to_project requires a project token' do
+    get path, params: { citation:, limit_to_project: 'true' }
+    expect(response).to have_http_status(:unprocessable_content)
   end
 
   specify 'an invalid project token is unauthorized' do

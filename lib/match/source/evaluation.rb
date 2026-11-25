@@ -6,10 +6,12 @@ module Match
     # judges without options: each candidate's `agrees` and `disagrees`
     # (Field#agrees?, Field#compared?) and `corroborated`.
     #
-    # Not the Match sources task's judgment: the task applies the options the
-    # user sets, in the browser (app/javascript/vue/tasks/sources/match/
-    # utils/evaluate.js), and may decide differently; this is for callers that
-    # can't, e.g. the API.
+    # For callers that can't apply the Match sources task's options, e.g. the
+    # API. The task judges in the browser, under the options the user sets
+    # (app/javascript/vue/tasks/sources/match/utils/evaluate.js); this agrees
+    # with its defaults on authors (Field::Authors#all_agree?), a shared DOI,
+    # and preferring the project's Source, but requires corroboration, and
+    # doesn't count a field missing on either side against a candidate.
     #
     # Usage:
     #   result = Match::Source::Candidates.new(...).call.first
@@ -38,32 +40,40 @@ module Match
       # @return [Symbol]
       #   :empty - the row has nothing to match on
       #   :matched - see #match
-      #   :ambiguous - several candidates share the row's DOI, or qualify
+      #   :ambiguous - several candidates qualify, none stands out
       #   :unmatched - none do
       def status
         return :empty if input.empty?
         return :matched if match
 
-        by_doi.any? || qualifying.any? ? :ambiguous : :unmatched
+        qualifying.any? ? :ambiguous : :unmatched
       end
 
       # @return [Hash, nil] the candidate the row matches: the only one with
-      #   the row's DOI, whatever else disagrees; otherwise the only one that
-      #   qualifies
+      #   the row's DOI; otherwise the only one that qualifies; otherwise, of
+      #   several that qualify, the only one in the project (as the Match
+      #   sources task's default "prefer project Sources")
       def match
         return @match if defined?(@match)
 
+        in_project = qualifying.select { |c| c[:in_project] }
+
         @match =
-          if by_doi.any?
-            by_doi.first if by_doi.one?
+          if by_doi.one?
+            by_doi.first
           elsif qualifying.one?
             qualifying.first
+          elsif in_project.one?
+            in_project.first
           end
       end
 
-      # Corroborated, disagreeing on nothing REQUIRED, and, when the row has
-      # authors, all of them in the Source (Field::Authors#all_agree?).
+      # The DOI agrees, whatever else disagrees; or corroborated, disagreeing
+      # on nothing REQUIRED, and, when the row has authors, all of them in
+      # the Source (Field::Authors#all_agree?).
       def qualifies?(candidate)
+        return true if candidate[:agrees].include?(:doi)
+
         candidate[:corroborated] &&
           (candidate[:disagrees] & REQUIRED).empty? &&
           (input.surnames.empty? || @authors.all_agree?(candidate))
