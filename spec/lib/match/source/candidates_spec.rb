@@ -530,6 +530,19 @@ describe Match::Source::Candidates, type: :model do
     specify 'each Source author pairs with one row author' do
       expect(counts('Müller, Müller & Smith')).to eq([2, 2, 2, 2])
     end
+
+    # With 1 edit, Smith is close to both Source authors, Smyth only to Smyth:
+    # pairing Smith with the first close one (Smyth) would leave Smyth
+    # nothing, so Smith has to move to Smit.
+    specify 'a row author moves to another Source author to free one' do
+      smyth_smit = Source::Bibtex.create!(
+        bibtex_type: 'article', author: 'Smyth, A. and Smit, B.',
+        year: 1990, title: 'Smyth and Smit'
+      )
+      r = candidates([{ authors: 'Smith & Smyth', year: '1990' }]).first
+      expect(candidate_for(r, smyth_smit)[:matched_author_counts])
+        .to eq([1, 2, 2, 2])
+    end
   end
 
   specify 'a Source author BibTeX can\'t parse has no initials' do

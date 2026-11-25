@@ -121,8 +121,15 @@ module Match
         # `Smyth, Smit` pairs Smith-Smyth, leaving Smyth nothing. So when a row
         # author's Source author is taken, the row author holding it tries to
         # move to another (Smith to Smit), freeing it (Smyth-Smyth): 2 pairs.
-        # (Kuhn's algorithm for bipartite matching; fine for author lists'
-        # sizes.)
+        #
+        # This is Kuhn's algorithm for maximum bipartite matching, and the
+        # count is guaranteed to be the largest possible: each row author gets
+        # one search (#pair) for a chain of such moves ending at a free Source
+        # author (an augmenting path), and by Berge's theorem the pairs are as
+        # many as possible once no row author has such a chain. Which pairs it
+        # settles on may vary; the count doesn't. The work is at most (row
+        # authors) x (row x Source author distances), usually less than
+        # computing the distances themselves.
         #
         # @param distances [Array<Array>] per row author, the distance to each
         #   Source author
@@ -150,6 +157,11 @@ module Match
 
             tried << source_author
             holder = paired_row[source_author]
+            # Taken: ask its holder to move to some other Source author,
+            # recursively (the holder may displace another holder in turn, the
+            # chain of moves an augmenting path). `tried` is shared down the
+            # chain: a Source author no move could free once in this search
+            # can't be freed by trying it again, which also ends the recursion.
             if holder.nil? ||
                 pair(holder, distances, max_edits, paired_row, tried)
               paired_row[source_author] = row
