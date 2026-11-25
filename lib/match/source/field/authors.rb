@@ -114,61 +114,22 @@ module Match
 
         # How many row authors can each be paired with a different Source
         # author, within max_edits: `Emery, Emery & Popple` finds 2 in `Emery,
-        # Popple & Smith`, not 3.
-        #
-        # Pairing each row author with the first close Source author can
-        # undercount: with 1 edit allowed, row `Smith, Smyth` against Source
-        # `Smyth, Smit` pairs Smith-Smyth, leaving Smyth nothing. So when a row
-        # author's Source author is taken, the row author holding it tries to
-        # move to another (Smith to Smit), freeing it (Smyth-Smyth): 2 pairs.
-        #
-        # This is Kuhn's algorithm for maximum bipartite matching, and the
-        # count is guaranteed to be the largest possible: each row author gets
-        # one search (#pair) for a chain of such moves ending at a free Source
-        # author (an augmenting path), and by Berge's theorem the pairs are as
-        # many as possible once no row author has such a chain. Which pairs it
-        # settles on may vary; the count doesn't. The work is at most (row
-        # authors) x (row x Source author distances), usually less than
-        # computing the distances themselves.
+        # Popple & Smith`, not 3. As many as possible, see
+        # Utilities::BipartiteMatching: with 1 edit, row `Smith, Smyth` against
+        # Source `Smyth, Smit` pairs Smith-Smit so that Smyth gets Smyth.
         #
         # @param distances [Array<Array>] per row author, the distance to each
         #   Source author
         # @return [Integer]
         def paired_count(distances, max_edits)
-          paired_row = {} # Source author => row author paired with it
-
-          distances.each_index.count { |row|
-            pair(row, distances, max_edits, paired_row, Set.new)
+          # per row author, the Source authors within max_edits
+          candidates = distances.map { |to_source_authors|
+            to_source_authors.each_with_index.filter_map { |d, source_author|
+              source_author if d && d <= max_edits
+            }
           }
-        end
 
-        # Pairs `row` with a Source author within max_edits: a free one, or one
-        # whose row author can move to another (Smith takes Smit so that Smyth
-        # gets Smyth).
-        #
-        # @param paired_row [Hash] Source author => row author, updated
-        # @param tried [Set] Source authors already tried while pairing this
-        #   row, so that moves don't go round in circles
-        # @return [Boolean] whether `row` was paired
-        def pair(row, distances, max_edits, paired_row, tried)
-          distances[row].each_with_index do |distance, source_author|
-            next if distance.nil? || distance > max_edits ||
-              tried.include?(source_author)
-
-            tried << source_author
-            holder = paired_row[source_author]
-            # Taken: ask its holder to move to some other Source author,
-            # recursively (the holder may displace another holder in turn, the
-            # chain of moves an augmenting path). `tried` is shared down the
-            # chain: a Source author no move could free once in this search
-            # can't be freed by trying it again, which also ends the recursion.
-            if holder.nil? ||
-                pair(holder, distances, max_edits, paired_row, tried)
-              paired_row[source_author] = row
-              return true
-            end
-          end
-          false
+          ::Utilities::BipartiteMatching.maximum(candidates).size
         end
 
         # Lenient on purpose: people go by a later given name (Jordan, K. is
