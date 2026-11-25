@@ -305,6 +305,85 @@ describe Match::Source::Candidates, type: :model do
     end
   end
 
+  context 'corroborated' do
+    # Both Sources are by Müller, within the year window of 1992, so they're
+    # gathered for each row here; neither has the same year. The first author
+    # agrees, so one more agreeing field corroborates.
+    context 'when the first author agrees' do
+      def corroborated(row)
+        r = candidates([{ authors: 'Müller', year: '1992', **row }]).first
+        [source, other_source].map { |s| candidate_for(r, s)[:corroborated] }
+      end
+
+      specify 'not by the authors alone' do
+        expect(corroborated({})).to eq([false, false])
+      end
+
+      specify 'not when other fields are compared but disagree' do
+        expect(
+          corroborated(title: 'A monograph of the moths', volume: '12')
+        ).to eq([false, false])
+      end
+
+      specify 'by the same year' do
+        expect(corroborated(year: '1991')).to eq([false, true])
+      end
+
+      specify 'by a similar journal' do
+        expect(corroborated(journal: 'Journal of Parasitology'))
+          .to eq([true, false])
+      end
+
+      specify 'by the same volume' do
+        expect(corroborated(volume: '96')).to eq([true, false])
+      end
+
+      specify 'by the same first page' do
+        expect(corroborated(pages: '285-298')).to eq([true, false])
+      end
+
+      specify 'within one edit' do
+        r = candidates([{ authors: 'Müler', year: '1991' }]).first
+        expect(candidate_for(r, other_source)[:corroborated]).to be true
+      end
+    end
+
+    # `Smith` is the Source's third author, not its first.
+    context 'when the first author does not agree' do
+      def corroborated(row)
+        r = candidates([{ authors: 'Smith', **row }]).first
+        candidate_for(r, source)[:corroborated]
+      end
+
+      specify 'not by one field' do
+        expect(corroborated(year: '1990')).to be false
+        expect(corroborated(year: '1992', volume: '96')).to be false
+      end
+
+      specify 'by two fields' do
+        expect(corroborated(year: '1990', volume: '96')).to be true
+        expect(corroborated(year: '1992', volume: '96', pages: '285'))
+          .to be true
+      end
+
+      specify 'by a similar title alone' do
+        expect(
+          corroborated(
+            year: '1992', title: 'Fleas of the Peromyscus of Indiana'
+          )
+        ).to be true
+      end
+
+      specify 'not by a title only somewhat similar' do
+        expect(corroborated(year: '1992', title: 'Fleas of Ohio')).to be false
+      end
+
+      specify 'by the same DOI alone' do
+        expect(corroborated(year: '1992', doi: '10.1645/ge-2251.1')).to be true
+      end
+    end
+  end
+
   context 'doi' do
     specify 'matches with no author or year' do
       c = candidate_for(

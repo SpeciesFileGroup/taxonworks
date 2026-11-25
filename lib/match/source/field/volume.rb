@@ -19,6 +19,10 @@ module Match
           c[:volume_match] ? 1.0 : 0.0
         end
 
+        def agrees?(c)
+          c[:volume_match] == true
+        end
+
       end
     end
   end

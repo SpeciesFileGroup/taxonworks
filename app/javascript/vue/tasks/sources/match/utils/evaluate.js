@@ -7,6 +7,11 @@ import {
 } from '../constants.js'
 import { pluralize } from '../../../../helpers/strings.js'
 
+// The server (Match::Source::Candidates) gathers candidates, measures how
+// each compares to its row, and judges what doesn't depend on the options
+// (e.g. `corroborated`). Only the user's Match options are applied here, so
+// that changing them re-evaluates every row without matching again.
+
 // One entry per compared field: how a candidate is checked, and what that
 // check requires under the options, in words (shown in Match options). Keep
 // each `requirements` in step with its `check` - they read the same options.

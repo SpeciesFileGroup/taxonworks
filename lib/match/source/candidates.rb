@@ -42,7 +42,9 @@
 #           journal_similarity: 0.61,
 #           volume_match: true,
 #           first_page_match: true,
-#           doi_match: nil
+#           doi_match: nil,
+#           corroborated: true # enough fields agree to list the candidate
+#             # when none pass, see CORROBORATING_ALONE
 #         }, ...
 #       ]
 #     }, ...
@@ -74,6 +76,24 @@ module Match
         Field::Volume => 1.0,
         Field::FirstPage => 1.0
       }.freeze
+
+      # A candidate is `corroborated` when one of these fields agrees (see
+      # Field#agrees?): each is strong evidence on its own.
+      CORROBORATING_ALONE = [Field::Doi, Field::Title].freeze
+
+      # ... or when CORROBORATING_COUNT of these agree: each is weak evidence
+      # on its own. The year is shared by an author's works of a year, and the
+      # journal by many of them; a volume or first page may agree by chance
+      # (`1`). The authors count, but never alone: most candidates are
+      # gathered by the row's first surname (see Match::Source::Gather), so
+      # their first author agreeing is expected; with one more field it tells
+      # a candidate apart from the author's other works.
+      CORROBORATING_TOGETHER = [
+        Field::Authors, Field::Year, Field::Journal, Field::Volume,
+        Field::FirstPage
+      ].freeze
+
+      CORROBORATING_COUNT = 2
 
       attr_reader :rows, :project_id, :limit_to_project, :year_window
 
@@ -112,11 +132,19 @@ module Match
         weights = FIELD_WEIGHTS.to_h { |klass, weight| [klass.new, weight] }
         fields = weights.keys
         fields.each { |f| f.prepare(sources_by_row) }
+        alone = fields.select { |f| CORROBORATING_ALONE.include?(f.class) }
+        together = fields.select { |f|
+          CORROBORATING_TOGETHER.include?(f.class)
+        }
 
         rows.each_with_index.map do |row, index|
           candidates = sources_by_row[row].map { |source|
-            compare(row, source, fields)
-              .merge(in_project: in_project.include?(source.id))
+            c = compare(row, source, fields)
+            c.merge(
+              in_project: in_project.include?(source.id),
+              corroborated: alone.any? { |f| f.agrees?(c) } ||
+                together.count { |f| f.agrees?(c) } >= CORROBORATING_COUNT
+            )
           }
 
           {

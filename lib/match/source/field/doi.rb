@@ -49,6 +49,10 @@ module Match
           c[:doi_match] ? 1.0 : 0.0
         end
 
+        def agrees?(c)
+          c[:doi_match] == true
+        end
+
       end
     end
   end

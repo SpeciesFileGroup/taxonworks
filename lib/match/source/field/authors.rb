@@ -14,6 +14,9 @@ module Match
         # open-ended.
         MAX_EDITS = DISTANCE_CAP - 1
 
+        # The first authors agree within this many edits, see #agrees?.
+        AGREEING_DISTANCE = 1
+
         def compare(row, source)
           source_surnames = surnames(source)
           first_input = row.surnames.first
@@ -51,6 +54,13 @@ module Match
               [c[:author_distances].size, c[:source_author_count]].max
           end
           s / 3.0
+        end
+
+        # The first author agrees, ignoring diacritics, case etc. (see
+        # #distance) and up to AGREEING_DISTANCE edits (`Müler` / `Müller`).
+        def agrees?(c)
+          c[:first_author_distance].present? &&
+            c[:first_author_distance] <= AGREEING_DISTANCE
         end
 
         private

@@ -23,6 +23,10 @@ module Match
           s / 3.0
         end
 
+        def agrees?(c)
+          c[:year_difference] == 0
+        end
+
       end
     end
   end

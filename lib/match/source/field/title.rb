@@ -6,6 +6,10 @@ module Match
       # looked for in the rest of a verbatim citation.
       class Title < Field
 
+        # Similar enough to agree, as the Match sources task's default
+        # minimum title similarity.
+        AGREEING_SIMILARITY = 0.6
+
         def prepare(candidates)
           @similarities = Trigrams.evaluate(
             candidates.flat_map { |row, sources|
@@ -20,6 +24,10 @@ module Match
 
         def score(c)
           c[:title_similarity].to_f
+        end
+
+        def agrees?(c)
+          c[:title_similarity].to_f >= AGREEING_SIMILARITY
         end
 
         private

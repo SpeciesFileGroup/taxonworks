@@ -1,11 +1,10 @@
-import { CHECK, STATUS } from '../constants.js'
+import { STATUS } from '../constants.js'
 
 // Which of a row's candidates are listed when the row is opened.
 //
-// Candidates that pass are listed; when none do, those where a field other
-// than the authors agrees - candidates are found by author, so authors
-// agreeing alone says nothing. The user's selection is always listed. The
-// rest are shown on request.
+// Candidates that pass are listed; when none do, those the server marks
+// `corroborated` (see Match::Source::Candidates::CORROBORATING_ALONE). The
+// user's selection is always listed. The rest are shown on request.
 //
 // @param row - { candidates, fixedSource }
 // @param evaluation - evaluateRow(row) result
@@ -20,9 +19,7 @@ export function isUnlisted(row, evaluation, i) {
   if (row.fixedSource?.id === candidate.source.id) return false
   if (anyPasses(evaluation)) return !evaluation.evaluations[i].passes
 
-  return !Object.entries(evaluation.evaluations[i].checks).some(
-    ([field, check]) => field !== 'authors' && check === CHECK.PASS
-  )
+  return !candidate.corroborated
 }
 
 // @param showAll - list the unlisted ones too

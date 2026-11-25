@@ -20,6 +20,6 @@ json.array! @result do |r|
       :first_author_initials_match, :source_first_author_initials,
       :source_author_count,
       :title_similarity, :journal_similarity, :volume_match,
-      :first_page_match, :doi_match
+      :first_page_match, :doi_match, :corroborated
   end
 end

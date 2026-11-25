@@ -7,6 +7,11 @@ module Match
       # otherwise looked for in the rest of a verbatim citation.
       class Journal < Field
 
+        # Similar enough to agree, as the Match sources task's similarity that
+        # agrees when no minimum is set (there's no default minimum journal
+        # similarity).
+        AGREEING_SIMILARITY = 0.8
+
         def prepare(candidates)
           sources = candidates.values.flatten.uniq
           serial_names = ::Serial
@@ -44,6 +49,10 @@ module Match
 
         def score(c)
           c[:journal_similarity].to_f
+        end
+
+        def agrees?(c)
+          c[:journal_similarity].to_f >= AGREEING_SIMILARITY
         end
 
         private
