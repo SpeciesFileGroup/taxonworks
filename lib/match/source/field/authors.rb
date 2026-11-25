@@ -63,6 +63,21 @@ module Match
             c[:first_author_distance] <= AGREEING_DISTANCE
         end
 
+        def compared?(c)
+          !c[:first_author_distance].nil?
+        end
+
+        # Stricter than #agrees?: every row author is in the Source, each
+        # paired with a different Source author (see #paired_count); the first
+        # as #agrees?, the others spelled the same (ignoring diacritics, case
+        # etc.).
+        def all_agree?(c)
+          distances = c[:author_distances]
+          agrees?(c) &&
+            distances.drop(1).all?(0) &&
+            c[:matched_author_counts][AGREEING_DISTANCE] == distances.size
+        end
+
         private
 
         # Edit distance between two surnames, ignoring diacritics, case,

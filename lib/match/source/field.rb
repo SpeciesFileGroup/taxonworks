@@ -6,13 +6,18 @@ module Match
     # compares to a Source's, and how much an agreement counts when ordering
     # candidates.
     #
-    # Subclasses implement #compare, #score and #agrees?; #prepare is for a
-    # field that needs more than the Source's own columns (e.g. its DOIs), or
-    # that compares in the database (Match::Source::Trigrams), done once for
-    # all candidates.
+    # Subclasses implement #compare, #score, #agrees? and #compared?; #prepare
+    # is for a field that needs more than the Source's own columns (e.g. its
+    # DOIs), or that compares in the database (Match::Source::Trigrams), done
+    # once for all candidates.
     #
     # A field instance lives for one Candidates#call, so it may memoize.
     class Field
+
+      # @return [Symbol] the field's name, e.g. :first_page
+      def self.key
+        name.demodulize.underscore.to_sym
+      end
 
       # @param candidates [Hash] Match::Source::InputRow => [Source, ...], each
       #   row's gathered candidates
@@ -39,6 +44,12 @@ module Match
       # @param comparison [Hash] a candidate's merged comparisons
       # @return [Boolean] false when not compared
       def agrees?(comparison)
+        raise NotImplementedError
+      end
+
+      # Whether this field was compared: both the row and the Source have it.
+      # @param comparison [Hash] a candidate's merged comparisons
+      def compared?(comparison)
         raise NotImplementedError
       end
 

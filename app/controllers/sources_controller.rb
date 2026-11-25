@@ -3,6 +3,9 @@ class SourcesController < ApplicationController
 
   MATCH_ROWS_LIMIT = 500
 
+  # Candidates returned by api_match.
+  API_MATCH_CANDIDATES_LIMIT = 5
+
   before_action :set_source, only: [:show, :edit, :update, :destroy, :clone, :api_show]
   after_action -> { set_pagination_headers(:sources) }, only: [:index, :api_index, :api_bibliography], if: :json_request?
 
@@ -321,6 +324,30 @@ class SourcesController < ApplicationController
       limit_to_project: match_params[:limit_to_project] == 'true',
       year_window: (match_params[:year_window] || 2).to_i.clamp(0, 5)
     ).call
+  end
+
+  # GET /api/v1/sources/match
+  #   citation - a citation string; the fields of `match` (authors, year,
+  #     ...) may be given as well, or instead, and win over what's parsed
+  #     out of the citation
+  # With a project_token only the project's Sources are considered.
+  # The match if there is one, and the best API_MATCH_CANDIDATES_LIMIT
+  # candidates worth showing, each with the fields that agree and disagree;
+  # see Match::Source::Evaluation (not the Match sources task's judgment).
+  def api_match
+    row = params.permit(
+      *(Match::Source::Candidates::INPUT_KEYS - [:verbatim]), :citation
+    ).to_h.symbolize_keys
+    row[:verbatim] = row.delete(:citation)
+
+    result = Match::Source::Candidates.new(
+      rows: [row],
+      project_id: sessions_current_project_id,
+      limit_to_project: sessions_current_project_id.present?
+    ).call.first
+
+    @evaluation = Match::Source::Evaluation.new(result)
+    render '/sources/api/v1/match'
   end
 
   # GET /api/v1/sources/:id

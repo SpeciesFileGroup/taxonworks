@@ -55,16 +55,20 @@ module Match
           c[:journal_similarity].to_f >= AGREEING_SIMILARITY
         end
 
+        def compared?(c)
+          !c[:journal_similarity].nil?
+        end
+
         private
 
-        # As the title (see Field::Title#compared), a verbatim citation's
-        # journal is looked for in all of the row's unparsed text. A journal
-        # name that also appears in the title can score high here; the journal
-        # isn't required to agree by default.
+        # Each of the Source's journal names against the row's journal or,
+        # for a verbatim citation, its unparsed text (as Title#compared). A
+        # name that's also in the title can score high that way; little harm,
+        # as the journal isn't required to agree (Match::Source::Evaluation)
+        # and corroborates only with another field.
         #
-        # @return [Array<Array>] the comparisons (see Trigrams.evaluate), one
-        #   per journal name of the Source; empty when the Source has no journal
-        #   name, or the row has neither a journal nor unparsed text
+        # @return [Array<Array>] one comparison (see Trigrams.evaluate) per
+        #   journal name; empty when there's nothing to compare
         def compared(row, source)
           @names[source.id].filter_map { |name|
             if row.journal

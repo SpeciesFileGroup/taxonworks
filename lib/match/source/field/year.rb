@@ -27,6 +27,10 @@ module Match
           c[:year_difference] == 0
         end
 
+        def compared?(c)
+          !c[:year_difference].nil?
+        end
+
       end
     end
   end

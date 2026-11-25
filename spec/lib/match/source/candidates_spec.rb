@@ -305,6 +305,27 @@ describe Match::Source::Candidates, type: :model do
     end
   end
 
+  context 'agrees and disagrees' do
+    let(:c) do
+      candidate_for(
+        candidates([{ authors: 'Müller', year: '1990', volume: '12' }]).first,
+        source
+      )
+    end
+
+    specify 'lists the fields that agree' do
+      expect(c[:agrees]).to contain_exactly(:authors, :year)
+    end
+
+    specify 'lists the fields compared that do not agree' do
+      expect(c[:disagrees]).to eq([:volume])
+    end
+
+    specify 'a field not compared is in neither' do
+      expect(c[:agrees] + c[:disagrees]).not_to include(:title, :doi)
+    end
+  end
+
   context 'corroborated' do
     # Both Sources are by Müller, within the year window of 1992, so they're
     # gathered for each row here; neither has the same year. The first author

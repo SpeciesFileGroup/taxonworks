@@ -30,6 +30,10 @@ module Match
           c[:title_similarity].to_f >= AGREEING_SIMILARITY
         end
 
+        def compared?(c)
+          !c[:title_similarity].nil?
+        end
+
         private
 
         # A verbatim citation's title isn't split out (see

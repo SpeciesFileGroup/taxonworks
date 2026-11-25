@@ -22,6 +22,10 @@ module Match
           c[:first_page_match] == true
         end
 
+        def compared?(c)
+          !c[:first_page_match].nil?
+        end
+
       end
     end
   end

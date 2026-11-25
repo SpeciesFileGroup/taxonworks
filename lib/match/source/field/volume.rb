@@ -23,6 +23,10 @@ module Match
           c[:volume_match] == true
         end
 
+        def compared?(c)
+          !c[:volume_match].nil?
+        end
+
       end
     end
   end

@@ -4,7 +4,9 @@
 # No decision is made here as to which candidate (if any) *is* the match -
 # each candidate carries per-field comparisons (year difference, author edit
 # distances, title similarity, ...) and the caller applies whatever
-# thresholds it wants to those.
+# thresholds it wants to those (the Match sources task, under the user's
+# options), or judges from `agrees`, `disagrees` and `corroborated`, which
+# don't depend on options (Match::Source::Evaluation).
 #
 # Candidates are found by Match::Source::Gather (SQL), then compared in Ruby
 # by each Match::Source::Field in FIELD_WEIGHTS, and ordered by the fields'
@@ -43,6 +45,8 @@
 #           volume_match: true,
 #           first_page_match: true,
 #           doi_match: nil,
+#           agrees: [:year, :authors, ...], # see Field#agrees?, by Field.key
+#           disagrees: [:volume], # compared (Field#compared?), don't agree
 #           corroborated: true # enough fields agree to list the candidate
 #             # when none pass, see CORROBORATING_ALONE
 #         }, ...
@@ -140,8 +144,12 @@ module Match
         rows.each_with_index.map do |row, index|
           candidates = sources_by_row[row].map { |source|
             c = compare(row, source, fields)
+            agreeing, disagreeing = fields.select { |f| f.compared?(c) }
+              .partition { |f| f.agrees?(c) }
             c.merge(
               in_project: in_project.include?(source.id),
+              agrees: agreeing.map { |f| f.class.key },
+              disagrees: disagreeing.map { |f| f.class.key },
               corroborated: alone.any? { |f| f.agrees?(c) } ||
                 together.count { |f| f.agrees?(c) } >= CORROBORATING_COUNT
             )

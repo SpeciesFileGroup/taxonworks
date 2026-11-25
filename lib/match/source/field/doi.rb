@@ -53,6 +53,10 @@ module Match
           c[:doi_match] == true
         end
 
+        def compared?(c)
+          !c[:doi_match].nil?
+        end
+
       end
     end
   end
