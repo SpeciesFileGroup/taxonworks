@@ -207,9 +207,29 @@ describe Match::Source::InputRow do
     end
   end
 
-  specify '#empty?' do
-    expect(Match::Source::InputRow.new(verbatim: '  ').empty?).to be true
-    expect(Match::Source::InputRow.new(year: '1900').empty?).to be false
+  context '#empty?' do
+    specify 'when blank' do
+      expect(Match::Source::InputRow.new(verbatim: '  ').empty?).to be true
+      expect(Match::Source::InputRow.new(year: '1900').empty?).to be false
+    end
+
+    specify 'when every field is blank' do
+      r = Match::Source::InputRow.new(
+        authors: '', year: ' ', title: '', journal: "\t", volume: '',
+        pages: '', doi: '', verbatim: ''
+      )
+      expect(r.empty?).to be true
+    end
+
+    specify 'when nothing in it can be read' do
+      expect(Match::Source::InputRow.new(year: 'n.d.').empty?).to be true
+      expect(Match::Source::InputRow.new(verbatim: '<br>').empty?).to be true
+      expect(Match::Source::InputRow.new(verbatim: ' . ; ').empty?).to be true
+    end
+
+    specify 'not when only a title is given' do
+      expect(Match::Source::InputRow.new(title: 'Fleas').empty?).to be false
+    end
   end
 
   context 'year suffixes' do

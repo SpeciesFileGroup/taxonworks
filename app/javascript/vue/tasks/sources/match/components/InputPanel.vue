@@ -128,7 +128,8 @@ const parsedTable = computed(() => {
   if (hasVerbatimHeader.value) return null
 
   if (fileName.value || isTabular(text.value)) {
-    const parsed = parseDelimited(text.value)
+    // Blank rows are kept, so that copied columns line up with the input.
+    const parsed = parseDelimited(text.value, { keepBlankRows: true })
     return parsed.headers.length ? parsed : null
   }
   return null
@@ -170,12 +171,16 @@ const ignoredHeaders = computed(() =>
   )
 )
 
+// Blank lines between citations are kept (as empty rows), so that copied
+// columns line up with the input; trailing ones, and those before a
+// `verbatim` header, aren't.
 const verbatimLines = computed(() => {
-  const lines = text.value
-    .split(/\r?\n/)
-    .map((l) => unquote(l.trim()))
-    .filter(Boolean)
-  return hasVerbatimHeader.value ? lines.slice(1) : lines
+  const lines = text.value.split(/\r?\n/).map((l) => unquote(l.trim()))
+  while (lines.length && !lines.at(-1)) lines.pop()
+  if (hasVerbatimHeader.value) {
+    return lines.slice(lines.findIndex(Boolean) + 1)
+  }
+  return lines
 })
 
 const rawRowCount = computed(() =>
@@ -205,7 +210,7 @@ function unquote(line) {
 }
 
 function isTabular(value) {
-  return (value.split(/\r?\n/, 1)[0] || '').includes('\t')
+  return (value.split(/\r?\n/).find((l) => l.trim()) || '').includes('\t')
 }
 
 function submit() {

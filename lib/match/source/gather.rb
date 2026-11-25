@@ -36,6 +36,7 @@ module Match
       # compound surname (`García López` as `García`, `Gomes Alves` as
       # `Alves`); a particle is never a surname's word (`van der Merwe`).
       SURNAME_CONDITION =
+        # (<% is trigram includes: is LHS trigram-similar to a substring of RHS?)
         '(input_row.first_word <% s.cached_author_string OR ' \
           'input_row.last_word <% s.cached_author_string)'.freeze
 

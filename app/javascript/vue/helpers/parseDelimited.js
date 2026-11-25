@@ -2,15 +2,17 @@
 // { headers: [...], rows: [{ header: value }, ...] }. Quoted fields may
 // contain delimiters, doubled quotes, and newlines.
 //
-// Blank rows are dropped unless keepBlankRows, in which case only trailing
-// blank rows are, so that rows line up with the input's lines.
+// Blank rows are dropped unless keepBlankRows, in which case only those
+// before the header and trailing ones are, so that rows line up with the
+// input's lines.
 export function parseDelimited(text, { keepBlankRows = false } = {}) {
-  const firstLine = text.split(/\r?\n/, 1)[0] || ''
-  const delimiter = firstLine.includes('\t') ? '\t' : ','
+  const headerLine = text.split(/\r?\n/).find((l) => l.trim()) || ''
+  const delimiter = headerLine.includes('\t') ? '\t' : ','
   const isBlank = (fields) => !fields.some((f) => f.trim())
   let records = parseRecords(text, delimiter)
 
   if (keepBlankRows) {
+    while (records.length && isBlank(records[0])) records.shift()
     while (records.length && isBlank(records.at(-1))) records.pop()
   } else {
     records = records.filter((fields) => !isBlank(fields))

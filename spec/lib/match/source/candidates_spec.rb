@@ -47,6 +47,43 @@ describe Match::Source::Candidates, type: :model do
     expect(r.last[:candidates]).to eq([])
   end
 
+  context 'empty rows' do
+    specify 'when every row is empty, each is returned without candidates' do
+      r = candidates([{ verbatim: '' }, { authors: ' ', year: '' }])
+      expect(r.map { |x| x[:index] }).to eq([0, 1])
+      expect(r.map { |x| x[:candidates] }).to eq([[], []])
+    end
+
+    specify 'a row empty once parsed gets no candidates' do
+      r = candidates([{ year: 'n.d.' }, { verbatim: '<br>' }])
+      expect(r.map { |x| x[:candidates] }).to eq([[], []])
+    end
+
+    specify 'blank fields are ignored beside given ones' do
+      r = candidates(
+        [{ authors: 'Müller, J.', year: '1990', title: '', doi: ' ' }]
+      ).first
+      expect(r[:candidates].first[:source].id).to eq(source.id)
+      expect(r[:candidates].first[:title_similarity]).to be_nil
+      expect(r[:candidates].first[:doi_match]).to be_nil
+    end
+
+    specify 'an empty row between others keeps every row aligned' do
+      r = candidates([
+        { authors: 'Müller, J.', year: '1991' },
+        { verbatim: '' },
+        { authors: 'Müller, J.', year: '1990' }
+      ])
+      expect(r[1][:candidates]).to eq([])
+      expect(r[0][:candidates].first[:source].id).to eq(other_source.id)
+      expect(r[2][:candidates].first[:source].id).to eq(source.id)
+    end
+
+    specify 'with no rows' do
+      expect(candidates([])).to eq([])
+    end
+  end
+
   context 'author and year' do
     let(:result) { candidates([{ authors: 'Müller, J.', year: '1990' }]).first }
 

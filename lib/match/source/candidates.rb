@@ -53,7 +53,7 @@ module Match
   module Source
     class Candidates
 
-      # Candidates returned per row.
+      # Max candidates returned per row.
       CANDIDATES_LIMIT = 15
 
       # Row keys accepted, as Match::Source::InputRow#initialize.
