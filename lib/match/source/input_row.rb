@@ -123,7 +123,8 @@ module Match
       #   doi            `10.1/x`, wherever it is
       #   authors        `Ritzi, C.M.`, before the year
       #   year           2003 (year_suffix nil)
-      #   volume         `96` and first_page `285`, from after the year
+      #   volume         `96` and first_page `285`, from after the year (or a
+      #                  first page alone from labelled pages, `pp. 20–34`)
       #   unparsed_text  `Fleas of Indiana. J. Parasitology`, see #unparsed_text
       #
       # Title and journal aren't split out: where one ends and the next begins
@@ -172,7 +173,8 @@ module Match
       end
 
       # @return [Array] [volume, first page (nil when not found), text without
-      #   them, the rest of a page range included]
+      #   them, the rest of a page range included]; labelled pages with no
+      #   volume (a book chapter's, `pp. 20–34`) give a first page alone
       def take_volume_and_first_page(text)
         ::Utilities::Bibliography::VOLUME_PAGES_PATTERNS.each do |pattern|
           m = text.match(pattern)
@@ -181,6 +183,11 @@ module Match
           after = m.post_match.sub(/\A\s*[-–—]\s*\d+/, '')
           return [*m.captures, "#{m.pre_match} #{after}"]
         end
+
+        if (m = text.match(::Utilities::Bibliography::LABELLED_PAGES_PATTERN))
+          return [nil, m[1], "#{m.pre_match} #{m.post_match}"]
+        end
+
         [nil, nil, text]
       end
 

@@ -171,7 +171,8 @@ module Match
                 )) = lower(input_row.first_surname) THEN 1 ELSE 0 END)
               + COALESCE(GREATEST(
                 similarity(input_row.journal, s.journal),
-                similarity(input_row.journal, ser.name)
+                similarity(input_row.journal, ser.name),
+                similarity(input_row.journal, s.booktitle)
               ), 0)
               -- the volume number, as Utilities::Bibliography.volume_number
               + (CASE WHEN lower(substring(

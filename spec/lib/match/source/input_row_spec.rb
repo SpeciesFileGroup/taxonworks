@@ -173,6 +173,33 @@ describe Match::Source::InputRow do
       end
     end
 
+    # Pages labelled `p.`/`pp.`, with no volume, as a book chapter's.
+    {
+      'Abdurakhimov, K.A. (1982a) Title. In Harmful and Beneficial ' \
+        'Insects. Tashkent. pp. 20–34. [in Russian]' => '20',
+      'Smith, J. (1990) Title. In Book, pp. 20-34' => '20',
+      'Smith, J. (1990) Title. In Book, p. 5.' => '5',
+      # A page count is not a page.
+      'Smith, J. (1990) Title. Publisher. 248 pp.' => nil,
+      'Smith, J. (1990) Title. Publisher. xii + 248 pp.' => nil,
+      # ... nor what follows a page count
+      'Smith, J. (1990) Title. Publisher. xii + 248 pp. 12 figs.' => nil,
+      'Smith, J. (1990) Title. Publisher, 248pp. 4 pls.' => nil,
+      'Smith, J. (1990) Title. In Book, pp. 20-34, 3 figs.' => '20'
+    }.each do |verbatim, first_page|
+      specify "labelled pages, no volume: #{verbatim[0, 30]}" do
+        r = Match::Source::InputRow.new(verbatim:)
+        expect([r.volume, r.first_page]).to eq([nil, first_page])
+      end
+    end
+
+    specify 'labelled pages are not left in the text' do
+      r = Match::Source::InputRow.new(
+        verbatim: 'Smith, J. (1990) Title. In Book. Tashkent. pp. 20–34.'
+      )
+      expect(r.unparsed_text).to eq('Title. In Book. Tashkent')
+    end
+
     {
       'Smith, J. (2005) Title. Zootaxa 1027: 55-63 ' \
         '(doi:10.11646/zootaxa.1027.1.5)' => '10.11646/zootaxa.1027.1.5',

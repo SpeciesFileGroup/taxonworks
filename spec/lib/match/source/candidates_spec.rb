@@ -488,6 +488,38 @@ describe Match::Source::Candidates, type: :model do
     end
   end
 
+  # A book chapter is in a book, not a journal: its booktitle is compared
+  # as the journal is. Its `journal` here holds something else, as found.
+  context 'a book chapter\'s booktitle' do
+    let!(:chapter) do
+      Source::Bibtex.create!(
+        bibtex_type: 'inbook', author: 'Abdurakhimov, K.A.', year: 1982,
+        title: 'Feeding relationships of Auchenorrhyncha', pages: '20-34',
+        booktitle: 'Harmful and Beneficial Insects: Collected Scientific Papers',
+        journal: "Vredny'e i polezny'e nasekomy'e: Sb. nauchn. tr. S.20-34"
+      )
+    end
+
+    specify 'is compared with the row\'s journal' do
+      r = candidates([{
+        authors: 'Abdurakhimov', year: '1982',
+        journal: 'Harmful and Beneficial Insects: Collected Scientific Papers'
+      }]).first
+      expect(candidate_for(r, chapter)[:journal_similarity]).to eq(1.0)
+    end
+
+    specify 'is looked for in a verbatim citation' do
+      r = candidates([{
+        verbatim: 'Abdurakhimov, K.A. (1982) Feeding relationships of ' \
+          'Auchenorrhyncha. In Harmful and Beneficial Insects: Collected ' \
+          'Scientific Papers. Tashkent. pp. 20–34.'
+      }]).first
+      c = candidate_for(r, chapter)
+      expect(c[:journal_similarity]).to be > 0.9
+      expect(c[:page_match]).to be true
+    end
+  end
+
   context 'doi' do
     specify 'matches with no author or year' do
       c = candidate_for(

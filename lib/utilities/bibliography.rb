@@ -41,6 +41,12 @@ module Utilities::Bibliography
     /,\s*(\d+)\s*(?:\([^)]*\))?\s*,\s+(?:p\.\s*)?(\d+)\s*(?:[.;]|\z)/
   ].freeze
 
+  # Pages labelled `p.`/`pp.` with no volume before them, as a book
+  # chapter's: `pp. 20–34`, `p. 5`; captures the first page. The label comes
+  # before the number, so a page count (`248 pp.`) isn't read as a page, nor
+  # is what follows one (`248 pp. 12 figs.`): no label right after a number.
+  LABELLED_PAGES_PATTERN = /(?<!\d)(?<!\d\s)\bpp?\.\s*(\d+)(?:\s*[-–—]\s*\d+)?/
+
   # @param value [String, nil] a volume, optionally labelled and followed by
   #   issue and pages, e.g. `10(2):149-158`, `65(1)`, `Vol. 10 (2)`
   # @return [String, nil] the volume alone, e.g. `10`

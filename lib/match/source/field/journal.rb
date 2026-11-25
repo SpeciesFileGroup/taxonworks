@@ -2,9 +2,10 @@ module Match
   module Source
     class Field
 
-      # The journal, as either the Source's `journal` or its Serial's name,
-      # whichever is closer: compared to the row's journal when it has one,
-      # otherwise looked for in the rest of a verbatim citation.
+      # Where the work was published: the Source's `journal`, its Serial's
+      # name, or its `booktitle` (a book chapter's book), whichever is
+      # closest; compared to the row's journal when it has one, otherwise
+      # looked for in the rest of a verbatim citation.
       class Journal < Field
 
         # Similar enough to agree, as the Match sources task's similarity that
@@ -24,7 +25,7 @@ module Match
           @names = sources.to_h { |s|
             [
               s.id,
-              [s[:journal], serial_names[s.serial_id]]
+              [s[:journal], serial_names[s.serial_id], s[:booktitle]]
                 .filter_map { |n| ::Utilities::Strings.plain_text(n) }.uniq
             ]
           }
