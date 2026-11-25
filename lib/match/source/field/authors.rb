@@ -120,23 +120,33 @@ module Match
         def paired_count(distances, max_edits)
           paired_row = {} # Source author => row author paired with it
 
-          pair = lambda do |row, visited|
-            distances[row].each_with_index.any? do |distance, source_author|
-              next false if distance.nil? || distance > max_edits ||
-                visited.include?(source_author)
+          distances.each_index.count { |row|
+            pair(row, distances, max_edits, paired_row, Set.new)
+          }
+        end
 
-              visited << source_author
-              if !paired_row.key?(source_author) ||
-                  pair.call(paired_row[source_author], visited)
-                paired_row[source_author] = row
-                true
-              else
-                false
-              end
+        # Pairs `row` with a Source author within max_edits: a free one, or one
+        # whose row author can move to another (Smith takes Smit so that Smyth
+        # gets Smyth).
+        #
+        # @param paired_row [Hash] Source author => row author, updated
+        # @param tried [Set] Source authors already tried while pairing this
+        #   row, so that moves don't go round in circles
+        # @return [Boolean] whether `row` was paired
+        def pair(row, distances, max_edits, paired_row, tried)
+          distances[row].each_with_index do |distance, source_author|
+            next if distance.nil? || distance > max_edits ||
+              tried.include?(source_author)
+
+            tried << source_author
+            holder = paired_row[source_author]
+            if holder.nil? ||
+                pair(holder, distances, max_edits, paired_row, tried)
+              paired_row[source_author] = row
+              return true
             end
           end
-
-          distances.each_index.count { |row| pair.call(row, Set.new) }
+          false
         end
 
         # Lenient on purpose: people go by a later given name (Jordan, K. is
