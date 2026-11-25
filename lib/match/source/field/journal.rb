@@ -54,7 +54,8 @@ module Match
         # isn't required to agree by default.
         #
         # @return [Array<Array>] the comparisons (see Trigrams.evaluate), one
-        #   per journal name of the Source; empty when either side has none
+        #   per journal name of the Source; empty when the Source has no journal
+        #   name, or the row has neither a journal nor unparsed text
         def compared(row, source)
           @names[source.id].filter_map { |name|
             if row.journal

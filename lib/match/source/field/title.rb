@@ -29,8 +29,9 @@ module Match
         # of the row's unparsed text: word_similarity scores the stretch most
         # like the title, so the journal etc. around it don't count against it.
         #
-        # @return [Array, nil] the comparison (see Trigrams.evaluate), nil when
-        #   either side has no title to compare
+        # @return [Array, nil] the comparison (see Trigrams.evaluate); nil when
+        #   the Source has no title, or the row has neither a title nor unparsed
+        #   text
         def compared(row, source)
           title = plain_title(source)
           return nil if title.nil?
