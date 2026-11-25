@@ -1,7 +1,7 @@
 require 'rails_helper'
 
-describe Match::Source::Trigrams, type: :model do
-  let(:t) { Match::Source::Trigrams }
+describe Utilities::Rails::Trigrams, type: :model do
+  let(:t) { Utilities::Rails::Trigrams }
 
   specify 'similarity' do
     c = ['Fleas of Indiana', 'Fleas of Indiana', :similarity]

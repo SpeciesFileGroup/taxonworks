@@ -8,8 +8,8 @@ module Match
     #
     # Subclasses implement #compare, #score, #agrees? and #compared?; #prepare
     # is for a field that needs more than the Source's own columns (e.g. its
-    # DOIs), or that compares in the database (Match::Source::Trigrams), done
-    # once for all candidates.
+    # DOIs), or that compares in the database (Utilities::Rails::Trigrams),
+    # done once for all candidates.
     #
     # A field instance lives for one Candidates#call, so it may memoize.
     class Field

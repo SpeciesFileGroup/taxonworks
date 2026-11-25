@@ -11,7 +11,7 @@ module Match
         AGREEING_SIMILARITY = 0.6
 
         def prepare(candidates)
-          @similarities = Trigrams.evaluate(
+          @similarities = ::Utilities::Rails::Trigrams.evaluate(
             candidates.flat_map { |row, sources|
               sources.filter_map { |source| compared(row, source) }
             }
@@ -41,9 +41,9 @@ module Match
         # of the row's unparsed text: word_similarity scores the stretch most
         # like the title, so the journal etc. around it don't count against it.
         #
-        # @return [Array, nil] the comparison (see Trigrams.evaluate); nil when
-        #   the Source has no title, or the row has neither a title nor unparsed
-        #   text
+        # @return [Array, nil] the comparison (see
+        #   Utilities::Rails::Trigrams.evaluate); nil when the Source has no
+        #   title, or the row has neither a title nor unparsed text
         def compared(row, source)
           title = plain_title(source)
           return nil if title.nil?

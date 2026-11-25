@@ -29,7 +29,7 @@ module Match
             ]
           }
 
-          @similarities = Trigrams.evaluate(
+          @similarities = ::Utilities::Rails::Trigrams.evaluate(
             candidates.flat_map { |row, sources_of_row|
               sources_of_row.flat_map { |source| compared(row, source) }
             }
@@ -67,8 +67,9 @@ module Match
         # as the journal isn't required to agree (Match::Source::Evaluation)
         # and corroborates only with another field.
         #
-        # @return [Array<Array>] one comparison (see Trigrams.evaluate) per
-        #   journal name; empty when there's nothing to compare
+        # @return [Array<Array>] one comparison (see
+        #   Utilities::Rails::Trigrams.evaluate) per journal name; empty when
+        #   there's nothing to compare
         def compared(row, source)
           @names[source.id].filter_map { |name|
             if row.journal
