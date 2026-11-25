@@ -76,6 +76,15 @@ describe 'Api::V1::Sources match', type: :request do
     end
   end
 
+  # As in catalogs: the page the name is on, no title.
+  specify 'a citation without a title, placed by volume and page' do
+    get path, params: {
+      citation: 'Ritzi & Whitaker 2003. J. Parasitology 10: 152.'
+    }
+    expect(json['status']).to eq('matched')
+    expect(json['match']['id']).to eq(source.id)
+  end
+
   specify 'lists at most 5 candidates' do
     6.times { |i| article('Ritzi, C.M.', 2003, "Fleas #{i}", (20 + i).to_s) }
     get path, params: { citation: 'Ritzi 2003' }

@@ -431,6 +431,63 @@ describe Match::Source::Candidates, type: :model do
     end
   end
 
+  # `source`'s pages are 285-298.
+  context 'a page within the Source\'s range' do
+    def page_match(pages)
+      r = candidates(
+        [{ authors: 'Müller', year: '1990', volume: '96', pages: }]
+      ).first
+      candidate_for(r, source)[:first_page_match]
+    end
+
+    specify 'agrees' do
+      expect(page_match('290')).to be true
+      expect(page_match('298')).to be true
+    end
+
+    specify 'past the range disagrees' do
+      expect(page_match('299')).to be false
+      expect(page_match('284')).to be false
+    end
+  end
+
+  # A citation without a title (`Author year. Journal vol: page`): what's
+  # left of it is the journal, not the title.
+  context 'a verbatim citation without a title' do
+    def candidate(verbatim)
+      candidate_for(candidates([{ verbatim: }]).first, source)
+    end
+
+    specify 'the title is not required when volume and page agree' do
+      c = candidate('Müller 1990. Journal of Parasitology 96: 290.')
+      expect(c[:title_required]).to be false
+      expect(c[:disagrees]).not_to include(:title)
+    end
+
+    specify 'the title is required without a volume and page' do
+      c = candidate('Müller 1990. Journal of Parasitology.')
+      expect(c[:title_required]).to be true
+      expect(c[:disagrees]).to include(:title)
+    end
+
+    specify 'the title is required when the page disagrees' do
+      c = candidate('Müller 1990. Journal of Parasitology 96: 400.')
+      expect(c[:title_required]).to be true
+    end
+
+    specify 'a title given as a field is required' do
+      c = candidate_for(
+        candidates([{
+          authors: 'Müller', year: '1990', title: 'Something else',
+          volume: '96', pages: '285'
+        }]).first,
+        source
+      )
+      expect(c[:title_required]).to be true
+      expect(c[:disagrees]).to include(:title)
+    end
+  end
+
   context 'doi' do
     specify 'matches with no author or year' do
       c = candidate_for(

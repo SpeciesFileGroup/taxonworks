@@ -42,10 +42,12 @@ const FIELD_RULES = [
   },
   {
     field: 'title',
-    check: (candidate, _, options) =>
-      similarityCheck(candidate.title_similarity, options.minTitleSimilarity),
+    check: titleCheck,
     requirements: (options) =>
-      similarityRequirements('title', options.minTitleSimilarity)
+      similarityRequirements('title', options.minTitleSimilarity).map(
+        (text) =>
+          `${text} (not required of a citation without one, when its volume and page agree)`
+      )
   },
   {
     field: 'journal',
@@ -333,6 +335,21 @@ function similarityCheck(similarity, minimum) {
   }
 
   return [CHECK.DIFFERS, detail]
+}
+
+// The server says when the title isn't required (`title_required`, see
+// Match::Source::Candidates#title_required?): a verbatim citation without
+// one, placed by its volume and page. Then a title below the minimum only
+// differs.
+function titleCheck(candidate, _, options) {
+  const [check, detail] = similarityCheck(
+    candidate.title_similarity,
+    options.minTitleSimilarity
+  )
+
+  return check === CHECK.FAIL && candidate.title_required === false
+    ? [CHECK.DIFFERS, `${detail}; not required, volume and page agree`]
+    : [check, detail]
 }
 
 function similarityRequirements(label, minimum) {

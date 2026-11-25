@@ -43,7 +43,8 @@
 #             # verbatim row the share of the title found in it
 #           journal_similarity: 0.61,
 #           volume_match: true,
-#           first_page_match: true,
+#           first_page_match: true, # the first page, or within the range
+#           title_required: true, # see #title_required?
 #           doi_match: nil,
 #           agrees: [:year, :authors, ...], # see Field#agrees?, by Field.key
 #           disagrees: [:volume], # compared (Field#compared?), don't agree
@@ -144,8 +145,13 @@ module Match
         rows.each_with_index.map do |row, index|
           candidates = sources_by_row[row].map { |source|
             c = compare(row, source, fields)
+            c[:title_required] = title_required?(row, c)
             agreeing, disagreeing = fields.select { |f| f.compared?(c) }
               .partition { |f| f.agrees?(c) }
+            # A title not found, when not required, says nothing.
+            if !c[:title_required]
+              disagreeing.reject! { |f| f.is_a?(Field::Title) }
+            end
             c.merge(
               in_project: in_project.include?(source.id),
               agrees: agreeing.map { |f| f.class.key },
@@ -169,6 +175,17 @@ module Match
       end
 
       private
+
+      # A verbatim citation's title isn't told apart from its journal (see
+      # InputRow#unparsed_text), so one written without a title (`Author
+      # year. Journal vol: page`, as in catalogs) has only the journal to
+      # compare with the Source's title. When the volume and page agree,
+      # they place the work, and the title isn't required; it still counts
+      # when it agrees. Required when given as a field.
+      def title_required?(row, comparison)
+        !row.title.nil? ||
+          !(comparison[:volume_match] && comparison[:first_page_match])
+      end
 
       def indexed_rows
         rows.each_with_index.map { |r, i| [i, r] }.reject { |_, r| r.empty? }
