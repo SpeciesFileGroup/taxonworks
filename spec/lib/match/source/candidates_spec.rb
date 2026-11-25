@@ -295,9 +295,9 @@ describe Match::Source::Candidates, type: :model do
       expect(c[:journal_similarity]).to be_between(0.3, 1.0)
     end
 
-    specify 'volume and first page' do
+    specify 'volume and page' do
       expect(c[:volume_match]).to be true
-      expect(c[:first_page_match]).to be true
+      expect(c[:page_match]).to be true
     end
 
     context 'when the Source volume includes the issue' do
@@ -437,7 +437,7 @@ describe Match::Source::Candidates, type: :model do
       r = candidates(
         [{ authors: 'Müller', year: '1990', volume: '96', pages: }]
       ).first
-      candidate_for(r, source)[:first_page_match]
+      candidate_for(r, source)[:page_match]
     end
 
     specify 'agrees' do

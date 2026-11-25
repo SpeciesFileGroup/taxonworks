@@ -43,7 +43,7 @@
 #             # verbatim row the share of the title found in it
 #           journal_similarity: 0.61,
 #           volume_match: true,
-#           first_page_match: true, # the first page, or within the range
+#           page_match: true, # the first page, or within the range
 #           title_required: true, # see #title_required?
 #           doi_match: nil,
 #           agrees: [:year, :authors, ...], # see Field#agrees?, by Field.key
@@ -79,7 +79,7 @@ module Match
         Field::Title => 1.25,
         Field::Journal => 1.0,
         Field::Volume => 1.0,
-        Field::FirstPage => 1.0
+        Field::Page => 1.0
       }.freeze
 
       # A candidate is `corroborated` when one of these fields agrees (see
@@ -88,14 +88,14 @@ module Match
 
       # ... or when CORROBORATING_COUNT of these agree: each is weak evidence
       # on its own. The year is shared by an author's works of a year, and the
-      # journal by many of them; a volume or first page may agree by chance
+      # journal by many of them; a volume or page may agree by chance
       # (`1`). The authors count, but never alone: most candidates are
       # gathered by the row's first surname (see Match::Source::Gather), so
       # their first author agreeing is expected; with one more field it tells
       # a candidate apart from the author's other works.
       CORROBORATING_TOGETHER = [
         Field::Authors, Field::Year, Field::Journal, Field::Volume,
-        Field::FirstPage
+        Field::Page
       ].freeze
 
       CORROBORATING_COUNT = 2
@@ -184,7 +184,7 @@ module Match
       # when it agrees. Required when given as a field.
       def title_required?(row, comparison)
         !row.title.nil? ||
-          !(comparison[:volume_match] && comparison[:first_page_match])
+          !(comparison[:volume_match] && comparison[:page_match])
       end
 
       def indexed_rows

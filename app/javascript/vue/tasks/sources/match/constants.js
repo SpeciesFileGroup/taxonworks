@@ -26,7 +26,7 @@ export const FIELD_HELP = {
     'Split into authors, year, and the rest where possible',
   [FIELD.YEAR]: 'May have a letter suffix, e.g. 1936a',
   [FIELD.VOLUME]: 'May include issue and pages, e.g. 10(2):149-158',
-  [FIELD.PAGES]: 'Only the first page is compared',
+  [FIELD.PAGES]: "The first page is compared: it agrees with the Source's first page, or a page within its range",
   [FIELD.DOI]: 'With or without https://doi.org/'
 }
 
@@ -149,6 +149,6 @@ export function defaultOptions() {
     minTitleSimilarity: 0.6,
     minJournalSimilarity: 0,
     requireVolume: true,
-    requireFirstPage: true
+    requirePage: true
   }
 }

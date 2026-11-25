@@ -14,7 +14,7 @@ module Match
     # A field instance lives for one Candidates#call, so it may memoize.
     class Field
 
-      # @return [Symbol] the field's name, e.g. :first_page
+      # @return [Symbol] the field's name, e.g. :page
       def self.key
         name.demodulize.underscore.to_sym
       end

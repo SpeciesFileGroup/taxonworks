@@ -197,10 +197,10 @@
         <label class="middle">
           <input
             type="checkbox"
-            :checked="options.requireFirstPage"
-            @change="update('requireFirstPage', $event.target.checked)"
+            :checked="options.requirePage"
+            @change="update('requirePage', $event.target.checked)"
           />
-          First page must agree when both present
+          Page must agree when both present
         </label>
       </fieldset>
 

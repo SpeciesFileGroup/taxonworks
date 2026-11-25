@@ -61,7 +61,7 @@ describe 'Api::V1::Sources match', type: :request do
     specify 'states what agrees and disagrees' do
       c = json['candidates'].last
       expect(c['agrees'])
-        .to contain_exactly('authors', 'year', 'journal', 'first_page')
+        .to contain_exactly('authors', 'year', 'journal', 'page')
       expect(c['disagrees']).to contain_exactly('title', 'volume')
     end
 

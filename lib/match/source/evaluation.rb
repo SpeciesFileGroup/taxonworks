@@ -25,7 +25,7 @@ module Match
       # differently (`J. Parasitol.`, `Journal of Parasitology`).
       REQUIRED = [
         Field::Doi, Field::Year, Field::Authors, Field::Title, Field::Volume,
-        Field::FirstPage
+        Field::Page
       ].map(&:key).freeze
 
       attr_reader :input, :candidates

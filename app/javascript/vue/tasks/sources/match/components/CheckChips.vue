@@ -33,7 +33,7 @@ const CHIP_FIELDS = [
   { key: 'title', label: 'Title' },
   { key: 'journal', label: 'Journal' },
   { key: 'volume', label: 'Volume' },
-  { key: 'firstPage', label: 'Page' }
+  { key: 'page', label: 'Page' }
 ]
 
 defineProps({

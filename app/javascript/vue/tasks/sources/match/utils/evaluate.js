@@ -67,11 +67,15 @@ const FIELD_RULES = [
       equalityRequirements('volume', options.requireVolume)
   },
   {
-    field: 'firstPage',
+    field: 'page',
     check: (candidate, _, options) =>
-      equalityCheck(candidate.first_page_match, options.requireFirstPage),
+      equalityCheck(candidate.page_match, options.requirePage),
     requirements: (options) =>
-      equalityRequirements('first page', options.requireFirstPage)
+      options.requirePage
+        ? [
+            "the page is the Source's first page, or within its range, when both have one"
+          ]
+        : []
   }
 ]
 
