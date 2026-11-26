@@ -17,6 +17,7 @@ namespace :api, defaults: {format: :json} do
       get '/sources/bibliography', to: '/sources#api_bibliography'
       get '/sources', to: '/sources#api_index'
       get '/sources/autocomplete', to: '/sources#autocomplete'
+      get '/sources/match', to: '/sources#api_match'
       get '/sources/:id', to: '/sources#api_show'
 
       get '/people', to: '/people#api_index'

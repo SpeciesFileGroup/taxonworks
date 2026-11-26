@@ -51,6 +51,41 @@ describe Identifier::Global::Doi, type: :model, group: :identifiers do
         id.valid? # trigger refactor
         expect(id.identifier).to eq('10.2105/AJPH.2009.160184')
       end
+
+      specify 'in brackets' do
+        id.identifier = '(doi:10.2105/AJPH.2009.160184)'
+        expect(id.valid?).to be_truthy
+        expect(id.identifier).to eq('10.2105/AJPH.2009.160184')
+      end
+
+      specify 'with doi: and a space' do
+        id.identifier = 'doi: 10.2105/AJPH.2009.160184'
+        expect(id.valid?).to be_truthy
+        expect(id.identifier).to eq('10.2105/AJPH.2009.160184')
+      end
+    end
+
+    context '.normalize' do
+      {
+        '10.2105/AJPH.2009.160184' => '10.2105/AJPH.2009.160184',
+        ' doi:10.2105/AJPH.2009.160184 ' => '10.2105/AJPH.2009.160184',
+        'DOI: 10.2105/AJPH.2009.160184' => '10.2105/AJPH.2009.160184',
+        'https://dx.doi.org/10.2105/AJPH.2009.160184' => '10.2105/AJPH.2009.160184',
+        '(doi:10.2105/AJPH.2009.160184)' => '10.2105/AJPH.2009.160184',
+        '[https://doi.org/10.2105/AJPH.2009.160184]' => '10.2105/AJPH.2009.160184',
+        '<10.2105/AJPH.2009.160184>' => '10.2105/AJPH.2009.160184',
+        '[(doi:10.2105/AJPH.2009.160184)]' => '10.2105/AJPH.2009.160184',
+        '10.11646/zootaxa.5543.3.9)' => '10.11646/zootaxa.5543.3.9',
+        '10.1016/0001(99)00012-X' => '10.1016/0001(99)00012-X',
+        '10.1002/(SICI)1097-4636(199706)35:4<513::AID-JBM12>3.0.CO;2-B' =>
+          '10.1002/(SICI)1097-4636(199706)35:4<513::AID-JBM12>3.0.CO;2-B',
+        '' => '',
+        nil => nil
+      }.each do |raw, normalized|
+        specify raw.inspect do
+          expect(Identifier::Global::Doi.normalize(raw)).to eq(normalized)
+        end
+      end
     end
 
     specify 'restoring URL from identifier' do

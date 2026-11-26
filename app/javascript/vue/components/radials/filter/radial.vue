@@ -92,6 +92,13 @@ const props = defineProps({
   ids: {
     type: Array,
     default: undefined
+  },
+
+  // What `ids` are, for the button's tooltip, e.g. where the ids don't come
+  // from checked rows.
+  idsDescription: {
+    type: String,
+    default: 'checked rows'
   }
 })
 
@@ -99,7 +106,7 @@ const emit = defineEmits(['close'])
 
 const title = computed(() =>
   isOnlyIds.value
-    ? `${props.title} (Send checked rows to filter)`
+    ? `${props.title} (Send ${props.idsDescription} to filter)`
     : `${props.title} (Send full request to filter)`
 )
 

@@ -88,5 +88,7 @@ export const Source = {
   generateLinks: (params) => AjaxCall('get', `/${model}/generate`, { params }),
 
   batchUpdate: (params) =>
-    AjaxCall('patch', `/${model}/batch_update.json`, params)
+    AjaxCall('patch', `/${model}/batch_update.json`, params),
+
+  match: (params) => AjaxCall('post', `/${model}/match.json`, params)
 }

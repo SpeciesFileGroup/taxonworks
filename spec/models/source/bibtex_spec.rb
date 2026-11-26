@@ -1505,4 +1505,24 @@ describe Source::Bibtex, type: :model, group: :sources do
       end
     end
   end
+
+  context '#year= with a suffix' do
+    {
+      '1936' => [1936, ''],
+      '1936a' => [1936, 'a'],
+      '1936B' => [1936, 'B'],
+      '1936ab' => [1936, 'ab']
+    }.each do |value, (year, suffix)|
+      specify value do
+        s = Source::Bibtex.new(year: value)
+        expect([s.year, s.year_suffix]).to eq([year, suffix])
+      end
+    end
+
+    specify 'a year without a suffix clears a previous one' do
+      s = Source::Bibtex.new(year: '1936a')
+      s.year = '1936'
+      expect(s.year_suffix).to eq('')
+    end
+  end
 end

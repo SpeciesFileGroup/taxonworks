@@ -66,6 +66,12 @@ function isEmpty(stringVar) {
   return stringVar == null || stringVar === ''
 }
 
+// pluralize(1, 'row') => 'row', pluralize(2, 'row') => 'rows',
+// pluralize(2, 'already exists', 'already exist') => 'already exist'
+function pluralize(count, singular, plural = `${singular}s`) {
+  return count === 1 ? singular : plural
+}
+
 export {
   capitalize,
   decapitalize,
@@ -75,5 +81,6 @@ export {
   stringInline,
   humanize,
   isEmpty,
+  pluralize,
   toPascalCase
 }

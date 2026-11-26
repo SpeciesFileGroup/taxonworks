@@ -593,9 +593,11 @@ class Source::Bibtex < Source
   # @return [Integer] value of year
   def year=(value)
     if value.class == String
-      value =~ /\A(\d\d\d\d)([a-zA-Z]*)\z/
-      write_attribute(:year, $1.to_i) if $1
-      self[:year_suffix] = $2 if $2
+      value =~ /\A(\d\d\d\d)(#{Utilities::Bibliography::YEAR_SUFFIX})?\z/o
+      if $1
+        write_attribute(:year, $1.to_i)
+        self[:year_suffix] = $2.to_s # '' clears a previous suffix
+      end
       write_attribute(:year, value) if self.year.blank?
     else
       write_attribute(:year, value)

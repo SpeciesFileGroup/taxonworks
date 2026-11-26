@@ -1,6 +1,15 @@
 class SourcesController < ApplicationController
   include DataControllerConfiguration::SharedDataControllerConfiguration
 
+  MATCH_ROWS_LIMIT = 500
+
+  # Candidates returned by api_match.
+  API_MATCH_CANDIDATES_LIMIT = 5
+
+  # Longest `citation` (or field) api_match accepts, in characters: well
+  # beyond any citation, short enough that matching stays cheap.
+  API_MATCH_MAX_LENGTH = 2000
+
   before_action :set_source, only: [:show, :edit, :update, :destroy, :clone, :api_show]
   after_action -> { set_pagination_headers(:sources) }, only: [:index, :api_index, :api_bibliography], if: :json_request?
 
@@ -299,6 +308,71 @@ class SourcesController < ApplicationController
     render json: @sources
   end
 
+  # POST /sources/match.json
+  #   rows - [{authors:, year:, title:, journal:, volume:, pages:, doi:,
+  #     verbatim:}, ...], at most MATCH_ROWS_LIMIT
+  #   limit_to_project - 'true' to only consider Sources in the project
+  #   year_window - gather Sources up to this many years from a row's year
+  def match
+    rows = match_params[:rows] || []
+
+    if rows.size > MATCH_ROWS_LIMIT
+      render json: { error: "At most #{MATCH_ROWS_LIMIT} rows per request." },
+        status: :unprocessable_content
+      return
+    end
+
+    @result = Match::Source::Candidates.new(
+      rows: rows.map(&:to_h),
+      project_id: sessions_current_project_id,
+      limit_to_project: match_params[:limit_to_project] == 'true',
+      year_window: (match_params[:year_window] || 2).to_i.clamp(0, 5)
+    ).call
+  end
+
+  # GET /api/v1/sources/match
+  #   citation - a citation string; the fields of `match` (authors, year,
+  #     ...) may be given as well, or instead, and win over what's parsed
+  #     out of the citation
+  #   limit_to_project - 'true' to only consider the project's Sources,
+  #     requires a project_token
+  # The match if there is one, and the best API_MATCH_CANDIDATES_LIMIT
+  # candidates worth showing, each with the fields that agree and disagree;
+  # see Match::Source::Evaluation. With a project_token, of several that
+  # qualify the project's is the match, and `in_project` is reported.
+  def api_match
+    limit_to_project = params[:limit_to_project] == 'true'
+    if limit_to_project && sessions_current_project_id.nil?
+      render json: { error: 'limit_to_project requires a project_token.' },
+        status: :unprocessable_content
+      return
+    end
+
+    row = params.permit(
+      *(Match::Source::Candidates::INPUT_KEYS - [:verbatim]), :citation
+    ).to_h.symbolize_keys
+
+    if row.values.any? { |v| v.to_s.length > API_MATCH_MAX_LENGTH }
+      render json: {
+        error: "citation and fields are at most #{API_MATCH_MAX_LENGTH} " \
+          'characters.'
+      }, status: :unprocessable_content
+      return
+    end
+
+    row[:verbatim] = row.delete(:citation)
+
+    result = Match::Source::Candidates.new(
+      rows: [row],
+      project_id: sessions_current_project_id,
+      limit_to_project:
+    ).call.first
+
+    @evaluation = Match::Source::Evaluation.new(result)
+    @in_project = sessions_current_project_id.present?
+    render '/sources/api/v1/match'
+  end
+
   # GET /api/v1/sources/:id
   def api_show
     render '/sources/api/v1/show'
@@ -312,6 +386,14 @@ class SourcesController < ApplicationController
     else
       Source::Bibtex.new_from_bibtex_text(params[:bibtex_input], sessions_current_project_id)
     end
+  end
+
+  def match_params
+    params.permit(
+      :limit_to_project,
+      :year_window,
+      rows: Match::Source::Candidates::INPUT_KEYS
+    )
   end
 
   def autocomplete_params

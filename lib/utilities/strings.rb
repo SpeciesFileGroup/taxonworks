@@ -69,6 +69,23 @@ module Utilities::Strings
     a
   end
 
+  # HTML as plain text: tags removed (each leaving a space), then entities
+  # decoded (`&amp;` -> `&`), whitespace squished.
+  #
+  # Only the XML entities (`&amp; &lt; &gt; &quot; &apos;`) and numeric ones
+  # (`&#246;`) are decoded; named HTML ones (`&ouml;`, `&ndash;`) are left as
+  # they are. TaxonWorks' Source text has none of those (checked 2026-11);
+  # decode with Nokogiri if that changes.
+  # @param [String, nil] string
+  # @return [String, nil] nil when nothing is left
+  def self.plain_text(string)
+    s = string.to_s
+    s = s.gsub(/<[^>]*>/, ' ') if s.include?('<')
+    s = CGI.unescapeHTML(s) if s.include?('&')
+    s = s.gsub(/[[:space:]]+/, ' ').strip
+    s.empty? ? nil : s
+  end
+
   # @param [String] text
   # @return [Digest::MD5]
   def self.generate_md5(text)

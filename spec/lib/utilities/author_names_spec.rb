@@ -34,6 +34,31 @@ describe Utilities::AuthorNames do
       'Guerra, A.S., KB.Agwanda' => %w{Guerra Agwanda},
       'Dittmar, K. de la Cruz & M.F. Whiting' =>
         ['Dittmar', 'de la Cruz', 'Whiting'],
+      # Source#cached style: a particle written after the initials belongs
+      # to the surname before them.
+      'León, J.H.de & Morgan, D.J.W.' => ['de León', 'Morgan'],
+      'Veen, J.C.van & Wijk, M.L.E.van' => ['van Veen', 'van Wijk'],
+      'Silva, I.M.da, Silva, R.O., Andrade, G.S.' =>
+        ['da Silva', 'Silva', 'Andrade'],
+      'Ralec, A.le & Wajnberg, E.' => ['le Ralec', 'Wajnberg'],
+      # A particle followed by an initial is a given name's: Franz von
+      # Paula Schrank, Maria das Graças Fonseca.
+      'Schrank, F.von P.' => ['Schrank'],
+      'Fonseca, M.das G., Auad, A.M.' => ['Fonseca', 'Auad'],
+      'Veloso, R.von dos S., Castro, A.C.R.de' => ['Veloso', 'de Castro'],
+      'de Souza, M.dos S., do Nascimento, I.N.' => ['de Souza', 'do Nascimento'],
+      'Burckhardt, D. & de Queiroz, D.L.' => ['Burckhardt', 'de Queiroz'],
+      'Centeno, E., de Mello, F.de A.G. & Zefa, E.' =>
+        ['Centeno', 'de Mello', 'Zefa'],
+      'Walt, A.van der, Plessis, H.du & Berg, J.van den' =>
+        ['van der Walt', 'du Plessis', 'van den Berg'],
+      # Particles in the given names too: only a run at the end is the
+      # surname's (Jean-Baptiste ... de Monet de Lamarck).
+      'Lamarck, J.B.P.A.de M. de' => ['de Lamarck'],
+      'Correia, M.de L.M.de A.' => ['Correia'],
+      'Liang, G.-qiu, Chen, Y.-Q., Li, Q. & Chen, Y.-L.' =>
+        %w{Liang Chen Li Chen},
+      'Akimoto, S.-ichi' => %w{Akimoto},
       '' => [],
       nil => []
     }.each do |author_string, expected|
@@ -48,6 +73,59 @@ describe Utilities::AuthorNames do
       expect(Utilities::AuthorNames.fold('Creão-Duarte')).to eq('creaoduarte')
       expect(Utilities::AuthorNames.fold('De Long')).to eq('delong')
       expect(Utilities::AuthorNames.fold('Müller')).to eq('muller')
+    end
+  end
+
+  context '.initials' do
+    {
+      'F.G.A.M.' => %w{F G A M},
+      'Franciscus Gerardus Albertus Maria' => %w{F G A M},
+      'C. M.' => %w{C M},
+      'J.-P.' => %w{J P},
+      'Jean-Pierre' => %w{J P},
+      'Y-L' => %w{Y L},
+      'Ch.' => %w{C},
+      'G.-qiu' => %w{G Q},
+      'KB.' => %w{K B},
+      'g.' => %w{G},
+      'Émile' => %w{E},
+      '' => [],
+      nil => []
+    }.each do |given_names, expected|
+      specify given_names.inspect do
+        expect(Utilities::AuthorNames.initials(given_names)).to eq(expected)
+      end
+    end
+  end
+
+  context '.first_author_initials' do
+    # Author strings as they come in from real match lists.
+    {
+      'Smit, F.G.A.M.' => %w{F G A M},
+      'Smit F.G.A.M.' => %w{F G A M},
+      'Ritzi, C.M. & J.O. Whitaker, Jr.' => %w{C M},
+      '<html>Ritzi, C.M. & <b>J.O. Whitaker, Jr.</b></html>' => %w{C M},
+      'C.M. Ritzi & J.O. Whitaker' => %w{C M},
+      'Abbot, P., A.E. Aviles, L. Eller & L.A. Durden' => %w{P},
+      'Acosta, R, J.A. Fernandez, & J.Falcon-Ordaz' => %w{R},
+      'Wu, Y-L., S-F. Hu' => %w{Y L},
+      'Ayala-Barajas, R., et al.' => %w{R},
+      'Huang, g. et al.' => %w{G},
+      'León, J.H.de & Morgan, D.J.W.' => %w{J H},
+      'Liang, G.-qiu, Chen, Y.-Q.' => %w{G Q},
+      # Comma-separated surnames, no initials.
+      'Huang, Liu, Chen, Chen, Li & Hu' => [],
+      # Ambiguous: K. may be Dittmar's or de la Cruz's.
+      'Dittmar, K. de la Cruz & M.F. Whiting' => [],
+      'Amyot et Serville' => [],
+      'Smit' => [],
+      '' => [],
+      nil => []
+    }.each do |author_string, expected|
+      specify author_string.inspect do
+        expect(Utilities::AuthorNames.first_author_initials(author_string))
+          .to eq(expected)
+      end
     end
   end
 
@@ -105,4 +183,22 @@ describe Utilities::AuthorNames do
     end
   end
 
+
+  context '.surname_words' do
+    {
+      'García López' => %w{García López},
+      'van der Merwe' => %w{Merwe},
+      'De Long' => %w{Long},
+      'Smith' => %w{Smith},
+      # A surname that is all particle words is itself
+      'Du' => %w{Du},
+      'Le' => %w{Le},
+      'De La' => %w{De La},
+      nil => []
+    }.each do |surname, words|
+      specify surname.inspect do
+        expect(Utilities::AuthorNames.surname_words(surname)).to eq(words)
+      end
+    end
+  end
 end

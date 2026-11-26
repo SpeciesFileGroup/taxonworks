@@ -1,0 +1,304 @@
+require 'rails_helper'
+
+describe Match::Source::InputRow do
+
+  context 'structured fields' do
+    let(:row) do
+      Match::Source::InputRow.new(
+        authors: '<html>Ritzi, C.M. & <b>J.O. Whitaker, Jr.</b></html>',
+        year: '2003',
+        journal: 'Northeastern Naturalist',
+        volume: '10(2):149-158'
+      )
+    end
+
+    specify 'year' do
+      expect(row.year).to eq(2003)
+    end
+
+    specify 'surnames' do
+      expect(row.surnames).to eq(%w{Ritzi Whitaker})
+    end
+
+    specify 'volume, issue, and pages are split out of a combined field' do
+      expect(row.volume).to eq('10')
+      expect(row.first_page).to eq('149')
+    end
+
+    specify 'journal' do
+      expect(row.journal).to eq('Northeastern Naturalist')
+    end
+
+    specify 'year suffix' do
+      r = Match::Source::InputRow.new(authors: 'Nast', year: '1936a')
+      expect(r.year).to eq(1936)
+      expect(r.year_suffix).to eq('a')
+    end
+
+    specify 'non-numeric year' do
+      expect(Match::Source::InputRow.new(year: 'n.d.').year).to be_nil
+    end
+
+    {
+      '96(2):285-298' => ['96', '285'],
+      '3(1-4):135-151' => ['3', '135'],
+      '89: 39-53' => ['89', '39'],
+      '37' => ['37', nil],
+      '1638' => ['1638', nil],
+      'pp. 357-370' => [nil, '357'],
+      '100(2)' => ['100', nil],
+      'Vol. 10' => ['10', nil],
+      'Volume 10(2): 5-9' => ['10', '5'],
+      'vol.10' => ['10', nil],
+      '10, 149-158' => ['10', nil]
+    }.each do |volume_string, (volume, first_page)|
+      specify "volume #{volume_string.inspect}" do
+        r = Match::Source::InputRow.new(volume: volume_string)
+        expect([r.volume, r.first_page]).to eq([volume, first_page])
+      end
+    end
+
+    specify 'explicit pages win over pages parsed from volume' do
+      r = Match::Source::InputRow.new(volume: '96(2):285-298', pages: '286-298')
+      expect(r.first_page).to eq('286')
+    end
+
+    specify 'doi is normalized' do
+      r = Match::Source::InputRow.new(doi: 'https://doi.org/10.1645/GE-2251.1')
+      expect(r.doi).to eq('10.1645/ge-2251.1')
+    end
+
+    {
+      '10.1645/GE-2251.1)' => '10.1645/ge-2251.1',
+      'https://doi.org/10.1016/0001(99)00012-X' => '10.1016/0001(99)00012-x'
+    }.each do |doi, normalized|
+      specify "doi #{doi.inspect} loses only an unbalanced bracket" do
+        expect(Match::Source::InputRow.new(doi:).doi).to eq(normalized)
+      end
+    end
+  end
+
+  context 'HTML entities, as in Source#cached' do
+    specify 'are decoded in structured fields' do
+      r = Match::Source::InputRow.new(
+        authors: 'Drees, B.M. &amp; Rice, M.E.',
+        title: 'Soybean &quot;pests&quot; &lt;Texas&gt;'
+      )
+      expect(r.surnames).to eq(%w{Drees Rice})
+      expect(r.title).to eq('Soybean "pests" <Texas>')
+    end
+
+    specify 'are decoded in verbatim' do
+      r = Match::Source::InputRow.new(
+        verbatim: 'Drees, B.M. &amp; Rice, M.E. (1990a) Population ' \
+          'dynamics. <i>Southwestern Entomologist</i>, 15(1), 49–56.'
+      )
+      expect(r.surnames).to eq(%w{Drees Rice})
+      expect(r.year).to eq(1990)
+    end
+
+    specify 'numeric entities' do
+      r = Match::Source::InputRow.new(authors: 'Kone&#269;n&#253;, A.')
+      expect(r.surnames).to eq(['Konečný'])
+    end
+  end
+
+  context 'first author initials' do
+    specify 'from structured authors' do
+      r = Match::Source::InputRow.new(authors: 'Smit, F.G.A.M.')
+      expect(r.first_author_initials).to eq(%w{F G A M})
+    end
+
+    specify 'from verbatim' do
+      r = Match::Source::InputRow.new(verbatim: 'Smit, F.G.A.M. 1964. Fleas.')
+      expect(r.first_author_initials).to eq(%w{F G A M})
+    end
+  end
+
+  context 'verbatim' do
+    let(:row) do
+      Match::Source::InputRow.new(
+        verbatim: 'Acosta, R. & Morrone, J.J. 2005. Two new species of ' \
+          'Strepsylla. Zootaxa 1027: 55-63. doi:10.11646/zootaxa.1027.1.5'
+      )
+    end
+
+    specify 'year' do
+      expect(row.year).to eq(2005)
+    end
+
+    specify 'surnames come from before the year' do
+      expect(row.surnames).to eq(%w{Acosta Morrone})
+    end
+
+    specify 'volume and first page' do
+      expect(row.volume).to eq('1027')
+      expect(row.first_page).to eq('55')
+    end
+
+    specify 'doi' do
+      expect(row.doi).to eq('10.11646/zootaxa.1027.1.5')
+    end
+
+    specify 'the remainder is kept as text to compare against' do
+      expect(row.unparsed_text).to include('Two new species of Strepsylla')
+      expect(row.unparsed_text).to include('Zootaxa')
+    end
+
+    {
+      'Horváth, G. (1897a) Description d\'Hémiptères nouveaux. Revue ' \
+        'Française d\'Entomologie, 16, 81–97.' => ['16', '81'],
+      'Stroiński, A. & Szwedo, J. (2008a) Thionia douglundbergi sp. nov. ' \
+        'Annales Zoologici, Warszaw, 58(3), 529–536.' => ['58', '529'],
+      'Smith, J. (1990) Title. Journal, 12, pp. 5-9.' => ['12', '5'],
+      # A comma-separated number with no page range is not taken as volume.
+      'Smith, J. (1990) Notes, 3, on things. Journal.' => [nil, nil],
+      # Single page
+      'Questel, D.D. & Genung, W.G. (1961) Effects of a severe winter. ' \
+        'Florida Entomologist, 44(3), 115.' => ['44', '115'],
+      'Smith, J. (1990) Title. Journal, 54(19), 1011.' => ['54', '1011'],
+      'Smith, J. (1990) Title. Journal, 12, p. 5.' => ['12', '5'],
+      'Smith, J. (1990) Title. Journal, 12, 5' => ['12', '5'],
+      'Smith, J. (1990) Title. Journal, 12, 5. [in English]' => ['12', '5'],
+      # A page count or a figure count is not a page.
+      'Smith, J. (1990) Title. Publisher, 2, 248 pp.' => [nil, nil],
+      'Smith, J. (1990) Title. Publisher, 70, 248pp.' => [nil, nil],
+      'Smith, J. (1990) Title. Journal, 12, 3 figs.' => [nil, nil],
+      # Separate pages, not a volume and a page
+      'Smith, J. (1990) Title. Journal, 25, 167,179.' => [nil, nil]
+    }.each do |verbatim, (volume, first_page)|
+      specify "volume and first page, comma separated: #{verbatim[0, 30]}" do
+        r = Match::Source::InputRow.new(verbatim:)
+        expect([r.volume, r.first_page]).to eq([volume, first_page])
+      end
+    end
+
+    # Pages labelled `p.`/`pp.`, with no volume, as a book chapter's.
+    {
+      'Abdurakhimov, K.A. (1982a) Title. In Harmful and Beneficial ' \
+        'Insects. Tashkent. pp. 20–34. [in Russian]' => '20',
+      'Smith, J. (1990) Title. In Book, pp. 20-34' => '20',
+      'Smith, J. (1990) Title. In Book, p. 5.' => '5',
+      # A page count is not a page.
+      'Smith, J. (1990) Title. Publisher. 248 pp.' => nil,
+      'Smith, J. (1990) Title. Publisher. xii + 248 pp.' => nil,
+      # ... nor what follows a page count
+      'Smith, J. (1990) Title. Publisher. xii + 248 pp. 12 figs.' => nil,
+      'Smith, J. (1990) Title. Publisher, 248pp. 4 pls.' => nil,
+      'Smith, J. (1990) Title. In Book, pp. 20-34, 3 figs.' => '20'
+    }.each do |verbatim, first_page|
+      specify "labelled pages, no volume: #{verbatim[0, 30]}" do
+        r = Match::Source::InputRow.new(verbatim:)
+        expect([r.volume, r.first_page]).to eq([nil, first_page])
+      end
+    end
+
+    specify 'labelled pages are not left in the text' do
+      r = Match::Source::InputRow.new(
+        verbatim: 'Smith, J. (1990) Title. In Book. Tashkent. pp. 20–34.'
+      )
+      expect(r.unparsed_text).to eq('Title. In Book. Tashkent')
+    end
+
+    {
+      'Smith, J. (2005) Title. Zootaxa 1027: 55-63 ' \
+        '(doi:10.11646/zootaxa.1027.1.5)' => '10.11646/zootaxa.1027.1.5',
+      'Smith, J. (2005) Title. Zootaxa 1027: 55-63. ' \
+        '[https://doi.org/10.11646/zootaxa.1027.1.5].' =>
+        '10.11646/zootaxa.1027.1.5',
+      'Smith, J. (2005) Title. J. 1: 1-9. https://doi.org/10.1016/0001(99)0001-X' =>
+        '10.1016/0001(99)0001-x'
+    }.each do |verbatim, doi|
+      specify "doi in brackets or as a link: #{verbatim[-40..]}" do
+        r = Match::Source::InputRow.new(verbatim:)
+        expect(r.doi).to eq(doi)
+        expect(r.unparsed_text).not_to match(/doi|[(\[]\s*\z|\A\s*[)\]]/i)
+        expect(r.unparsed_text).to start_with('Title.')
+      end
+    end
+
+    specify 'year in parentheses' do
+      r = Match::Source::InputRow.new(
+        verbatim: 'Smit, F.G.A.M. (1953a) Am Mus Novitates 1638'
+      )
+      expect(r.year).to eq(1953)
+      expect(r.year_suffix).to eq('a')
+      expect(r.surnames).to eq(%w{Smit})
+    end
+
+    specify 'structured fields win over verbatim parsing' do
+      r = Match::Source::InputRow.new(
+        verbatim: 'Smit, F.G.A.M. 1953. Am Mus Novitates 1638', year: '1954'
+      )
+      expect(r.year).to eq(1954)
+    end
+  end
+
+  context '#empty?' do
+    specify 'when blank' do
+      expect(Match::Source::InputRow.new(verbatim: '  ').empty?).to be true
+      expect(Match::Source::InputRow.new(year: '1900').empty?).to be false
+    end
+
+    specify 'when every field is blank' do
+      r = Match::Source::InputRow.new(
+        authors: '', year: ' ', title: '', journal: "\t", volume: '',
+        pages: '', doi: '', verbatim: ''
+      )
+      expect(r.empty?).to be true
+    end
+
+    specify 'when nothing in it can be read' do
+      expect(Match::Source::InputRow.new(year: 'n.d.').empty?).to be true
+      expect(Match::Source::InputRow.new(verbatim: '<br>').empty?).to be true
+      expect(Match::Source::InputRow.new(verbatim: ' . ; ').empty?).to be true
+    end
+
+    specify 'not when only a title is given' do
+      expect(Match::Source::InputRow.new(title: 'Fleas').empty?).to be false
+    end
+  end
+
+  context 'year suffixes' do
+    {
+      '1936a' => [1936, 'a'],
+      '1936A' => [1936, 'A'],
+      '1936ab' => [1936, 'ab'],
+      ' 1936 b ' => [1936, 'b'],
+      '1936' => [1936, nil]
+    }.each do |year, (y, suffix)|
+      specify "year column #{year.inspect}" do
+        r = Match::Source::InputRow.new(authors: 'Smith', year:)
+        expect([r.year, r.year_suffix]).to eq([y, suffix])
+      end
+    end
+
+    {
+      'Smith 1936A. Title. Journal 1: 5.' => [1936, 'A'],
+      'Smith 1936ab. Title. Journal 1: 5.' => [1936, 'ab'],
+      'Smith (1936 b) Title. Journal 1: 5.' => [1936, 'b'],
+      'Smith 1990 A new species. Journal 1: 5.' => [1990, nil]
+    }.each do |verbatim, (y, suffix)|
+      specify "verbatim #{verbatim[0, 30]}" do
+        r = Match::Source::InputRow.new(verbatim:)
+        expect([r.year, r.year_suffix]).to eq([y, suffix])
+      end
+    end
+  end
+
+  context 'unparsed text' do
+    specify 'what may be title and journal, without volume and pages' do
+      r = Match::Source::InputRow.new(
+        verbatim: 'Ritzi, C.M. (2003) Fleas of Indiana. ' \
+          'J. Parasitology 96(2): 285-298.'
+      )
+      expect(r.unparsed_text).to eq('Fleas of Indiana. J. Parasitology')
+    end
+
+    specify 'nil when only authors, year, volume and pages are given' do
+      ['Smith 1990. 12: 5-9.', 'Smith 1990'].each do |verbatim|
+        expect(Match::Source::InputRow.new(verbatim:).unparsed_text).to be_nil
+      end
+    end
+  end
+end
