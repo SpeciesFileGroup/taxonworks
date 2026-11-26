@@ -7,7 +7,7 @@
     <div class="horizontal-left-content gap-small middle">
       <div
         class="horizontal-left-content middle"
-        :data-help="`The ${sourceIds.length} matched and user selected ${pluralize(sourceIds.length, 'Source')} (${notInProjectCount} not in this project), sent to the Source filter - where they can be added to the project, among other things - or to filters of what cites them.`"
+        :data-help="`The ${sourceIds.length} matched and user selected ${pluralize(sourceIds.length, 'Source')} of the rows the row filter shows, on every page (${notInProjectCount} not in this project), sent to the Source filter - where they can be added to the project, among other things - or to filters of what cites them.`"
       >
         <span class="margin-small-right">Sources</span>
         <div class="square-brackets">
@@ -16,7 +16,7 @@
               <RadialFilter
                 :disabled="!sourceIds.length"
                 :ids="sourceIds"
-                ids-description="matched and user selected Sources"
+                ids-description="matched and user selected Sources of the filtered rows"
                 :object-type="SOURCE"
                 :extended-slices="EXTENDED_SLICES"
               />

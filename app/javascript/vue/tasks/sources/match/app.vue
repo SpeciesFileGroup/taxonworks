@@ -127,15 +127,13 @@ function matchesFilter(row, filterValue) {
 // doesn't make the row disappear from under the curator. Options apply
 // first: an option change re-captures, and a selected row that no longer
 // matches the filter leaves the view (its selection is kept).
-const { filter, pageItems, pagination, setPage, refresh } = usePagedList(
-  rows,
-  {
+const { filter, visibleItems, pageItems, pagination, setPage, refresh } =
+  usePagedList(rows, {
     matches: matchesFilter,
     perPage: ROWS_PER_PAGE,
     frozen: true,
     refreshOn: [options]
-  }
-)
+  })
 
 async function handleSubmit({ rows: submitted }) {
   rows.value = submitted.map(({ input, csvRow }, index) => ({
@@ -281,14 +279,19 @@ const columnTexts = computed(() => {
   }
 })
 
-// Matched and user selected Sources, each once.
+// Matched and user selected Sources of the rows the row filter shows, on
+// every page (all rows when unfiltered), each once: what the radial sends.
 const exportedSourceIdSet = computed(() => [
-  ...new Set(exportedSourceIds.value.filter((id) => id != null))
+  ...new Set(
+    visibleItems.value
+      .map((row) => exportedSourceIds.value[row.index])
+      .filter((id) => id != null)
+  )
 ])
 
 const notInProjectCount = computed(() => {
   const ids = new Set()
-  rows.value.forEach((row) => {
+  visibleItems.value.forEach((row) => {
     const source = exportedSource(row)
     if (source?.in_project === false) ids.add(source.id)
   })

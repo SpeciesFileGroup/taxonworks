@@ -41,9 +41,11 @@
       v-else-if="table"
       class="feedback feedback-warning feedback-thin margin-small-top"
     >
-      None of the column names in the first line ({{
+      The first line was read as column names ({{
         table.headers.map(truncate).join(', ')
-      }}) is one of the names above.
+      }}), but none of them is one of the names above. For a table, name its
+      columns in the first line; for one citation per line, make the first
+      line <b>verbatim</b>.
     </div>
     <p
       v-else-if="isLinesFile"
@@ -160,7 +162,8 @@ const isLinesFile = computed(
     !!parsedTable.value &&
     !isTabular(text.value) &&
     recognizedColumns.value.length === 0 &&
-    /\b(1[5-9]|20)\d{2}\b/.test(text.value.trimStart().split(/\r?\n/, 1)[0])
+    // A year, with or without a suffix (1900, 1900b)
+    /\b(1[5-9]|20)\d{2}(?!\d)/.test(text.value.trimStart().split(/\r?\n/, 1)[0])
 )
 
 const table = computed(() => (isLinesFile.value ? null : parsedTable.value))

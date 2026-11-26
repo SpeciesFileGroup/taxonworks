@@ -127,12 +127,23 @@ function sourceUrl(id) {
 </script>
 
 <style scoped>
+/* Striped and ruled as .table-striped, so a candidate can be followed across
+   to its chips. */
 .candidate {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) 320px;
   align-items: center;
   gap: 8px;
-  padding: 2px 0;
+  padding: 2px 4px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.candidate:nth-of-type(odd) {
+  background: var(--table-row-bg-odd);
+}
+
+.candidate:nth-of-type(even) {
+  background: var(--table-row-bg-even);
 }
 
 .candidate-checks {
