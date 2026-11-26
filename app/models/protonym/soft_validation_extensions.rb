@@ -1685,7 +1685,7 @@ module Protonym::SoftValidationExtensions
       if self.id == self.cached_valid_taxon_name_id && self.cached_is_valid == false
         if !self.cached_secondary_homonym_alternative_spelling.nil?
           possible_available = Protonym.where(cached_secondary_homonym_alternative_spelling: self.cached_secondary_homonym_alternative_spelling).not_self(self).with_project(self.project_id).any?
-          soft_validations.add(:base, "An available protonym with the same original combination,  #{self.cached_html}, exits.") if possible_available
+          soft_validations.add(:base, "An available protonym with the same original combination,  #{self.cached_html}, exists.") if possible_available
         elsif !self.cached_primary_homonym_alternative_spelling.nil?
           possible_available = Protonym.where(cached_primary_homonym_alternative_spelling: self.cached_primary_homonym_alternative_spelling).not_self(self).with_project(self.project_id).any?
           soft_validations.add(:base, "An available protonym with the same name,  #{self.cached_html}, exits.") if possible_available

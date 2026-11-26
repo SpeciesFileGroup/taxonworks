@@ -47,6 +47,26 @@ RSpec.describe Document, type: :model, group: :documentation do
 
   end
 
+  context 'duplicate file' do
+    specify 'error message includes the id of the existing document' do
+      duplicate = Document.new(document_file: Rack::Test::UploadedFile.new(document.document_file.path, 'application/pdf'))
+      expect(duplicate.valid?).to be_falsey
+      expect(duplicate.errors[:document_file_fingerprint].join).to include("Document #{document.id}")
+    end
+
+    specify 'an existing document can be re-saved' do
+      expect(document.reload.valid?).to be_truthy
+    end
+
+    specify 'duplicates of .prj documents are allowed' do
+      prj = "#{Rails.configuration.x.test_tmp_file_dir}a.prj"
+      File.write(prj, 'GEOGCS["GCS_WGS_1984"]')
+      FactoryBot.create(:valid_document, document_file: Rack::Test::UploadedFile.new(prj, 'text/plain'))
+      duplicate = Document.new(document_file: Rack::Test::UploadedFile.new(prj, 'text/plain'))
+      expect(duplicate.valid?).to be_truthy
+    end
+  end
+
   context 'pages' do
 
     context 'setting on create()' do

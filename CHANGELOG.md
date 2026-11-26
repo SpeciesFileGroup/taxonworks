@@ -24,6 +24,7 @@ This project <em>does not yet</em> adhere to [Semantic Versioning](https://semve
 - Fix some table columns sorting by text rather than number (Project page's 'last seen', 'time in project'; Data tab list tables' 'last updated'; Downloads list table's 'expires') [#5175]
 - Keyboard shortcuts: Alt key stays active after typing a character with an Alt + number [#5181]
 - Asserted distribution batch load only imported one citation per OTU/area pair [#5131]
+- Include id of the existing Document when error message "Error uploading document: has already been taken" is shown
 
 [#5131]: https://github.com/SpeciesFileGroup/taxonworks/issues/5131
 [#5167]: https://github.com/SpeciesFileGroup/taxonworks/issues/5167
