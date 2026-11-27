@@ -17,9 +17,17 @@ describe Queries::Note::Filter, type: :model do
     expect(query.all.map(&:id)).to contain_exactly(n2.id)
   end
 
+  # The id alone matches notes on any type of object with that id, so only
+  # the type together with the id pins down a single object.
   specify '#note_object_id' do
     query.note_object_id = specimen.id
-    expect(query.all.map(&:id)).to contain_exactly(n1.id, n2.id, n3.id)
+    expect(query.all.map(&:id)).to include(n2.id)
+  end
+
+  specify '#note_object_id, #note_object_type' do
+    query.note_object_id = specimen.id
+    query.note_object_type = 'CollectionObject'
+    expect(query.all.map(&:id)).to contain_exactly(n2.id)
   end
 
   specify '#note_object_type' do

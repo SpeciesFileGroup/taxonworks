@@ -1,0 +1,232 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://api.crossref.org/works?query=Brauer,%20A.%20(1909)%20Die%20S%C3%BCsswasserfauna%20Deutschlands.%20Eine%20Exkursionsfauna%20bearb.%20...%20und%20hrsg.%20von%20Dr.%20Brauer.%20Smithsonian%20Institution.&rows=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Faraday/v2.15.1 Serrano/v1.7
+      X-User-Agent:
+      - Faraday/v2.15.1 Serrano/v1.7
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Sat, 07 Nov 2026 02:46:17 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '1436'
+      Connection:
+      - keep-alive
+      Access-Control-Expose-Headers:
+      - Link
+      Access-Control-Allow-Headers:
+      - X-Requested-With, Accept, Accept-Encoding, Accept-Charset, Accept-Language,
+        Accept-Ranges, Cache-Control
+      Access-Control-Allow-Origin:
+      - "*"
+      Vary:
+      - Accept-Encoding
+      Server:
+      - Jetty(9.4.40.v20210413)
+      X-Rate-Limit-Limit:
+      - '1'
+      X-Rate-Limit-Interval:
+      - 1s
+      X-Concurrency-Limit:
+      - '1'
+      X-Api-Pool:
+      - public-array
+      Permissions-Policy:
+      - interest-cohort=()
+      Strict-Transport-Security:
+      - max-age=31536000;
+    body:
+      encoding: ASCII-8BIT
+      string: '{"status":"ok","message-type":"work-list","message-version":"1.0.0","message":{"facets":{},"total-results":331951,"items":[{"indexed":{"date-parts":[[2024,5,27]],"date-time":"2024-05-27T17:55:46Z","timestamp":1716832546531},"publisher-location":"Jena,","reference-count":0,"publisher":"G.
+        Fischer,","content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[1909]]},"DOI":"10.5962\/bhl.title.1086","type":"monograph","created":{"date-parts":[[2011,11,11]],"date-time":"2011-11-11T17:50:41Z","timestamp":1321033841000},"source":"Crossref","is-referenced-by-count":5,"title":["Die
+        S\u00fcsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg.
+        von Dr. Brauer."],"prefix":"10.5962","author":[{"given":"August","family":"Brauer","sequence":"first","affiliation":[],"role":[{"role":"author","vocabulary":"crossref"}]}],"member":"3444","deposited":{"date-parts":[[2011,11,11]],"date-time":"2011-11-11T17:50:51Z","timestamp":1321033851000},"score":156.0799,"resource":{"primary":{"URL":"http:\/\/www.biodiversitylibrary.org\/bibliography\/1086"}},"issued":{"date-parts":[[1909]]},"references-count":0,"URL":"https:\/\/doi.org\/10.5962\/bhl.title.1086","published":{"date-parts":[[1909]]}}],"items-per-page":1,"query":{"start-index":0,"search-terms":"Brauer,
+        A. (1909) Die S\u00fcsswasserfauna Deutschlands. Eine Exkursionsfauna bearb.
+        ... und hrsg. von Dr. Brauer. Smithsonian Institution."}}}'
+  recorded_at: Sat, 07 Nov 2026 02:46:17 GMT
+- request:
+    method: get
+    uri: https://doi.org/10.5962%2Fbhl.title.1086
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Faraday/v2.15.1 Serrano/v1.7
+      Accept:
+      - application/x-bibtex
+      X-User-Agent:
+      - Faraday/v2.15.1 Serrano/v1.7
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 302
+      message: Found
+    headers:
+      Date:
+      - Sat, 07 Nov 2026 02:46:17 GMT
+      Content-Type:
+      - text/html;charset=utf-8
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Location:
+      - https://api.crossref.org/v1/works/10.5962%2Fbhl.title.1086/transform
+      Server:
+      - cloudflare
+      Vary:
+      - Accept
+      - Origin
+      Expires:
+      - Sat, 07 Nov 2026 02:54:04 GMT
+      Permissions-Policy:
+      - interest-cohort=(),browsing-topics=()
+      Cf-Cache-Status:
+      - DYNAMIC
+      Nel:
+      - '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}'
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Report-To:
+      - '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=F3wAjwSQm1MkP4mW9WXFV6RadtC47qYlj84Nuz1UIgH6B4fWJOalLnRZpZIHx85F7sK46mvbbWGNSlcirz%2FtPQJvWm5JusJsLsAxLF7OY95T8E7jVu1ix4Od%2FVZYv9liP6RZBS4%3D"}]}'
+      Cf-Ray:
+      - a56901ba092a10fd-ORD
+      Alt-Svc:
+      - h3=":443"; ma=86400
+    body:
+      encoding: UTF-8
+      string: |-
+        <html><head><title>Handle Redirect</title></head>
+        <body><a href="https://api.crossref.org/v1/works/10.5962%2Fbhl.title.1086/transform">https://api.crossref.org/v1/works/10.5962%2Fbhl.title.1086/transform</a></body></html>
+  recorded_at: Sat, 07 Nov 2026 02:46:17 GMT
+- request:
+    method: get
+    uri: https://api.crossref.org/v1/works/10.5962%2Fbhl.title.1086/transform
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Faraday/v2.15.1 Serrano/v1.7
+      Accept:
+      - application/x-bibtex
+      X-User-Agent:
+      - Faraday/v2.15.1 Serrano/v1.7
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Sat, 07 Nov 2026 02:46:18 GMT
+      Content-Type:
+      - application/x-bibtex
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Vary:
+      - Accept
+      Access-Control-Expose-Headers:
+      - Link
+      Access-Control-Allow-Headers:
+      - X-Requested-With, Accept, Accept-Encoding, Accept-Charset, Accept-Language,
+        Accept-Ranges, Cache-Control
+      Access-Control-Allow-Origin:
+      - "*"
+      Server:
+      - Jetty(9.4.40.v20210413)
+      X-Rate-Limit-Limit:
+      - '5'
+      X-Rate-Limit-Interval:
+      - 1s
+      X-Concurrency-Limit:
+      - '1'
+      X-Api-Pool:
+      - public-single
+      Permissions-Policy:
+      - interest-cohort=()
+      Strict-Transport-Security:
+      - max-age=31536000;
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        IEBib29re0JyYXVlcl8xOTA5LCB0aXRsZT17RGllIFPDvHNzd2Fzc2VyZmF1bmEgRGV1dHNjaGxhbmRzLiBFaW5lIEV4a3Vyc2lvbnNmYXVuYSBiZWFyYi4gLi4uIHVuZCBocnNnLiB2b24gRHIuIEJyYXVlci59LCB1cmw9e2h0dHA6Ly9keC5kb2kub3JnLzEwLjU5NjIvYmhsLnRpdGxlLjEwODZ9LCBET0k9ezEwLjU5NjIvYmhsLnRpdGxlLjEwODZ9LCBwdWJsaXNoZXI9e0cuIEZpc2NoZXIsfSwgYXV0aG9yPXtCcmF1ZXIsIEF1Z3VzdH0sIHllYXI9ezE5MDl9IH0K
+  recorded_at: Sat, 07 Nov 2026 02:46:18 GMT
+- request:
+    method: get
+    uri: https://api.crossref.org/works/10.5962%2Fbhl.title.1086/transform/application/vnd.citationstyles.csl+json
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Faraday/v2.15.1 Serrano/v1.7
+      X-User-Agent:
+      - Faraday/v2.15.1 Serrano/v1.7
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Sat, 07 Nov 2026 02:46:18 GMT
+      Content-Length:
+      - '1200'
+      Connection:
+      - keep-alive
+      Access-Control-Expose-Headers:
+      - Link
+      Access-Control-Allow-Headers:
+      - X-Requested-With, Accept, Accept-Encoding, Accept-Charset, Accept-Language,
+        Accept-Ranges, Cache-Control
+      Access-Control-Allow-Origin:
+      - "*"
+      Vary:
+      - Accept-Encoding
+      Server:
+      - Jetty(9.4.40.v20210413)
+      X-Rate-Limit-Limit:
+      - '5'
+      X-Rate-Limit-Interval:
+      - 1s
+      X-Concurrency-Limit:
+      - '1'
+      X-Api-Pool:
+      - public-single
+      Permissions-Policy:
+      - interest-cohort=()
+      Strict-Transport-Security:
+      - max-age=31536000;
+    body:
+      encoding: ASCII-8BIT
+      string: '{"indexed":{"date-parts":[[2024,5,27]],"date-time":"2024-05-27T17:55:46Z","timestamp":1716832546531},"publisher-location":"Jena,","reference-count":0,"publisher":"G.
+        Fischer,","content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[1909]]},"DOI":"10.5962\/bhl.title.1086","type":"monograph","created":{"date-parts":[[2011,11,11]],"date-time":"2011-11-11T17:50:41Z","timestamp":1321033841000},"source":"Crossref","is-referenced-by-count":5,"title":"Die
+        S\u00fcsswasserfauna Deutschlands. Eine Exkursionsfauna bearb. ... und hrsg.
+        von Dr. Brauer.","prefix":"10.5962","author":[{"given":"August","family":"Brauer","sequence":"first","affiliation":[],"role":[{"role":"author","vocabulary":"crossref"}]}],"member":"3444","container-title":[],"original-title":[],"deposited":{"date-parts":[[2011,11,11]],"date-time":"2011-11-11T17:50:51Z","timestamp":1321033851000},"score":1,"resource":{"primary":{"URL":"http:\/\/www.biodiversitylibrary.org\/bibliography\/1086"}},"subtitle":[],"short-title":[],"issued":{"date-parts":[[1909]]},"references-count":0,"URL":"http:\/\/dx.doi.org\/10.5962\/bhl.title.1086","relation":{},"subject":[],"published":{"date-parts":[[1909]]}}'
+  recorded_at: Sat, 07 Nov 2026 02:46:18 GMT
+recorded_with: VCR 6.4.1

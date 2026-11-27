@@ -20,7 +20,7 @@ class Tools::InteractiveKey
 
   # @!attribute keyword_ids
   #   @return [String or null]
-  # Optional attribute to provide a list of tagIDs to limit the set of descriptors to those taged: "keyword_ids=1|5|15"
+  # Optional attribute to provide a list of keyword IDs to limit the set of descriptors to those tagged with them: "keyword_ids=1|5|15"
   attr_accessor :keyword_ids
 
   # @!attribute row_filter

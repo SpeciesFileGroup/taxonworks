@@ -1,0 +1,52 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://api.checklistbank.org/dataset/3LR/nameusage?limit=20&q=Crayracion
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Faraday/v2.15.1 Nasturtium/v0.1.2
+      Accept:
+      - application/json,*/*
+      X-User-Agent:
+      - Faraday/v2.15.1 Nasturtium/v0.1.2
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Accept-Ranges:
+      - bytes
+      Age:
+      - '0'
+      Cache-Control:
+      - public, max-age=604800, s-maxage=604800
+      Content-Length:
+      - '3343'
+      Content-Type:
+      - application/json
+      Date:
+      - Sat, 07 Nov 2026 02:45:53 GMT
+      Vary:
+      - Cookie, Accept, Accept-Encoding, Accept-Language, User-Agent
+      - Origin
+      Via:
+      - 1.1 varnish (Varnish/7.1)
+      - HTTP/1.1 git.gammaspectra.live/git/go-away@v0.0.0-20250904213329-95ac08540b8c+dirty
+      X-Backend:
+      - api_read_only
+      X-Cache:
+      - miss_cached
+      X-Varnish:
+      - '692386321'
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        eyJvZmZzZXQiOjAsImxpbWl0IjoyMCwidG90YWwiOjIsInJlc3VsdCI6W3siY3JlYXRlZCI6IjIwMjYtMTAtMDdUMjA6MDM6NDQuMDUzODc5IiwiY3JlYXRlZEJ5IjozMDQsIm1vZGlmaWVkIjoiMjAyNi0xMC0wN1QyMDowMzo0NC4wNTM4NzkiLCJtb2RpZmllZEJ5IjozMDQsImRhdGFzZXRLZXkiOjMxNjU5NSwiaWQiOiJLVjZUTiIsInNlY3RvcktleSI6NjA0MjcsInZlcmJhdGltU291cmNlS2V5IjozNjIyNjE5MzksIm5hbWUiOnsiY3JlYXRlZCI6IjIwMjYtMTAtMDdUMjA6MDM6NDQuMDUzODc5IiwiY3JlYXRlZEJ5IjozMDQsIm1vZGlmaWVkIjoiMjAyNi0xMC0wN1QyMDowMzo0NC4wNTM4NzkiLCJtb2RpZmllZEJ5IjozMDQsImRhdGFzZXRLZXkiOjMxNjU5NSwiaWQiOiJrLXdlclZmcE5YOGhCbFlESkp0RzEiLCJzZWN0b3JLZXkiOjYwNDI3LCJ2ZXJiYXRpbVNvdXJjZUtleSI6MzYyMjYxOTM5LCJuYW1lc0luZGV4SWQiOjI0MzIyNjEsInNjaWVudGlmaWNOYW1lIjoiQ3JheXJhY2lvbiIsImF1dGhvcnNoaXAiOiJCbGVla2VyIChleCBLbGVpbiksIDE4NjUiLCJyYW5rIjoiZ2VudXMiLCJ1bmlub21pYWwiOiJDcmF5cmFjaW9uIiwiY29tYmluYXRpb25BdXRob3JzaGlwIjp7ImF1dGhvcnMiOlsiS2xlaW4iXSwiZXhBdXRob3JzIjpbIkJsZWVrZXIiXSwieWVhciI6IjE4NjUifSwiY29kZSI6Inpvb2xvZ2ljYWwiLCJvcmlnaW4iOiJzb3VyY2UiLCJ0eXBlIjoic2NpZW50aWZpYyIsImxpbmsiOiJodHRwczovL3d3dy5tYXJpbmVzcGVjaWVzLm9yZy9hcGhpYS5waHA/cD10YXhkZXRhaWxzJmlkPTI5NjQxNiIsInJlbWFya3MiOiJzeW5vbnltIiwicGFyc2VkIjp0cnVlLCJub3RobyI6W119LCJzdGF0dXMiOiJhbWJpZ3VvdXMgc3lub255bSIsIm9yaWdpbiI6InNvdXJjZSIsInBhcmVudElkIjoiS1ZUVEciLCJhY2NlcHRlZCI6eyJjcmVhdGVkIjoiMjAyNi0xMC0wN1QyMDowMDozNS43ODg5NTIiLCJjcmVhdGVkQnkiOjMwNCwibW9kaWZpZWQiOiIyMDI2LTEwLTA3VDIwOjAwOjM1Ljc4ODk1MiIsIm1vZGlmaWVkQnkiOjMwNCwiZGF0YXNldEtleSI6MzE2NTk1LCJpZCI6IktWVFRHIiwic2VjdG9yS2V5Ijo2MDQyNywidmVyYmF0aW1Tb3VyY2VLZXkiOjM2MjIxMzI4NSwibmFtZSI6eyJjcmVhdGVkIjoiMjAyNi0xMC0wN1QyMDowMDozNS43ODg5NTIiLCJjcmVhdGVkQnkiOjMwNCwibW9kaWZpZWQiOiIyMDI2LTEwLTA3VDIwOjAwOjM1Ljc4ODk1MiIsIm1vZGlmaWVkQnkiOjMwNCwiZGF0YXNldEtleSI6MzE2NTk1LCJpZCI6IkM5ME5yakZMZW1RdjRkdVRNUUpUSTAiLCJzZWN0b3JLZXkiOjYwNDI3LCJ2ZXJiYXRpbVNvdXJjZUtleSI6MzYyMjEzMjg1LCJuYW1lc0luZGV4SWQiOjg1NTM5NjgsInNjaWVudGlmaWNOYW1lIjoiU3Bob2Vyb2lkZXMiLCJhdXRob3JzaGlwIjoiQW5vbnltb3VzIFtMYWNlcMOoZGVdLCAxNzk4IiwicmFuayI6ImdlbnVzIiwidW5pbm9taWFsIjoiU3Bob2Vyb2lkZXMiLCJjb21iaW5hdGlvbkF1dGhvcnNoaXAiOnsiYXV0aG9ycyI6WyJBbm9ueW1vdXMgTGFjZXDDqGRlIl0sInllYXIiOiIxNzk4In0sImNvZGUiOiJ6b29sb2dpY2FsIiwibm9tU3RhdHVzIjoiZXN0YWJsaXNoZWQiLCJvcmlnaW4iOiJzb3VyY2UiLCJ0eXBlIjoic2NpZW50aWZpYyIsImxpbmsiOiJodHRwczovL3d3dy5tYXJpbmVzcGVjaWVzLm9yZy9hcGhpYS5waHA/cD10YXhkZXRhaWxzJmlkPTEyNjI0MSIsInBhcnNlZCI6dHJ1ZSwibm90aG8iOltdfSwic3RhdHVzIjoiYWNjZXB0ZWQiLCJvcmlnaW4iOiJzb3VyY2UiLCJwYXJlbnRJZCI6IktWVjNZIiwibGluayI6Imh0dHBzOi8vd3d3Lm1hcmluZXNwZWNpZXMub3JnL2FwaGlhLnBocD9wPXRheGRldGFpbHMmaWQ9MTI2MjQxIiwic2NydXRpbml6ZXIiOiJCYWlsbHksIE5pY29sYXMiLCJzY3J1dGluaXplckRhdGUiOiIyMDE0LTExLTIxIiwiZW52aXJvbm1lbnRzIjpbImJyYWNraXNoIiwibWFyaW5lIl0sImxhYmVsIjoiU3Bob2Vyb2lkZXMgQW5vbnltb3VzIFtMYWNlcMOoZGVdLCAxNzk4IiwibGFiZWxIdG1sIjoiPGk+U3Bob2Vyb2lkZXM8L2k+IEFub255bW91cyBbTGFjZXDDqGRlXSwgMTc5OCJ9LCJsYWJlbCI6IkNyYXlyYWNpb24gQmxlZWtlciAoZXggS2xlaW4pLCAxODY1IiwibGFiZWxIdG1sIjoiPGk+Q3JheXJhY2lvbjwvaT4gQmxlZWtlciAoZXggS2xlaW4pLCAxODY1In0seyJjcmVhdGVkIjoiMjAyNi0xMC0wN1QyMDowMDozNS43ODg5NTIiLCJjcmVhdGVkQnkiOjMwNCwibW9kaWZpZWQiOiIyMDI2LTEwLTA3VDIwOjAwOjM1Ljc4ODk1MiIsIm1vZGlmaWVkQnkiOjMwNCwiZGF0YXNldEtleSI6MzE2NTk1LCJpZCI6IktWNlRQIiwic2VjdG9yS2V5Ijo2MDQyNywidmVyYmF0aW1Tb3VyY2VLZXkiOjM2MjIxMzI2NywibmFtZSI6eyJjcmVhdGVkIjoiMjAyNi0xMC0wN1QyMDowMDozNS43ODg5NTIiLCJjcmVhdGVkQnkiOjMwNCwibW9kaWZpZWQiOiIyMDI2LTEwLTA3VDIwOjAwOjM1Ljc4ODk1MiIsIm1vZGlmaWVkQnkiOjMwNCwiZGF0YXNldEtleSI6MzE2NTk1LCJpZCI6IkV4SV9SMlUwVlo5ZjQwQ2RZWmxDSDEiLCJzZWN0b3JLZXkiOjYwNDI3LCJ2ZXJiYXRpbVNvdXJjZUtleSI6MzYyMjEzMjY3LCJuYW1lc0luZGV4SWQiOjI0MzIyNjEsInNjaWVudGlmaWNOYW1lIjoiQ3JheXJhY2lvbiIsImF1dGhvcnNoaXAiOiJCbGVla2VyIChleCBLbGVpbiksIDE4NjUiLCJyYW5rIjoiZ2VudXMiLCJ1bmlub21pYWwiOiJDcmF5cmFjaW9uIiwiY29tYmluYXRpb25BdXRob3JzaGlwIjp7ImF1dGhvcnMiOlsiS2xlaW4iXSwiZXhBdXRob3JzIjpbIkJsZWVrZXIiXSwieWVhciI6IjE4NjUifSwiY29kZSI6Inpvb2xvZ2ljYWwiLCJvcmlnaW4iOiJzb3VyY2UiLCJ0eXBlIjoic2NpZW50aWZpYyIsImxpbmsiOiJodHRwczovL3d3dy5tYXJpbmVzcGVjaWVzLm9yZy9hcGhpYS5waHA/cD10YXhkZXRhaWxzJmlkPTI5NjQxNiIsInJlbWFya3MiOiJzeW5vbnltIiwicGFyc2VkIjp0cnVlLCJub3RobyI6W119LCJzdGF0dXMiOiJwcm92aXNpb25hbGx5IGFjY2VwdGVkIiwib3JpZ2luIjoic291cmNlIiwicGFyZW50SWQiOiJLVlYzWSIsImxpbmsiOiJodHRwczovL3d3dy5tYXJpbmVzcGVjaWVzLm9yZy9hcGhpYS5waHA/cD10YXhkZXRhaWxzJmlkPTI5NjQxNiIsInNjcnV0aW5pemVyIjoiQmFpbGx5LCBOaWNvbGFzIiwic2NydXRpbml6ZXJEYXRlIjoiMjAxMy0wMy0xMiIsImVudmlyb25tZW50cyI6WyJtYXJpbmUiXSwibGFiZWwiOiJDcmF5cmFjaW9uIEJsZWVrZXIgKGV4IEtsZWluKSwgMTg2NSIsImxhYmVsSHRtbCI6IjxpPkNyYXlyYWNpb248L2k+IEJsZWVrZXIgKGV4IEtsZWluKSwgMTg2NSJ9XSwiZW1wdHkiOmZhbHNlLCJsYXN0Ijp0cnVlfQ==
+  recorded_at: Sat, 07 Nov 2026 02:45:53 GMT
+recorded_with: VCR 6.4.1

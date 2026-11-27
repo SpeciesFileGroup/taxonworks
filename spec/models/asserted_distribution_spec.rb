@@ -20,10 +20,9 @@ describe AssertedDistribution, type: :model, group: [:geo, :shared_geo] do
   end
 
   specify '#unique on object_id *and* object_type' do
-    bag = FactoryBot.create(:valid_biological_associations_graph)
-
     a = FactoryBot.create(:valid_biological_association_asserted_distribution)
-    expect(a.asserted_distribution_object_id).to eq(bag.id)
+    FactoryBot.create(:valid_biological_associations_graph,
+      id: a.asserted_distribution_object_id)
 
     # Same as a except for object type.
     b = FactoryBot.build(:valid_asserted_distribution, asserted_distribution_shape_id: a.asserted_distribution_shape_id, asserted_distribution_shape_type: a.asserted_distribution_shape_type, asserted_distribution_object_id: a.asserted_distribution_object_id,

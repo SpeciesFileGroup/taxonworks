@@ -69,9 +69,9 @@ describe Tools::InteractiveKey, type: :model, group: :observation_matrix do
       k2 = Keyword.create(name: 'zzz2', definition: 'zzzzzzzzzzzzzzzzzzzzzzzzzz')
       t1 = descriptor1.tags.create(keyword: k1)
       t2 = descriptor2.tags.create(keyword: k2)
-      interactive_key = key.new(observation_matrix_id: observation_matrix.id, project_id: observation_matrix.project_id, keyword_ids: t1.id)
+      interactive_key = key.new(observation_matrix_id: observation_matrix.id, project_id: observation_matrix.project_id, keyword_ids: k1.id)
       expect(interactive_key.list_of_descriptors.count).to eq(1)
-      interactive_key = key.new(observation_matrix_id: observation_matrix.id, project_id: observation_matrix.project_id, keyword_ids: t1.id.to_s + '|' + t2.id.to_s)
+      interactive_key = key.new(observation_matrix_id: observation_matrix.id, project_id: observation_matrix.project_id, keyword_ids: k1.id.to_s + '|' + k2.id.to_s)
       expect(interactive_key.list_of_descriptors.count).to eq(2)
     end
 
@@ -130,10 +130,15 @@ describe Tools::InteractiveKey, type: :model, group: :observation_matrix do
     end
 
     specify 'row_filter' do
+      # ObservationMatrixRow ids, not the row items'
+      row_ids = observation_matrix.observation_matrix_rows
+        .where(observation_object: [otu1, otu2, collection_object])
+        .pluck(:id)
+
       ik = key.new(
           observation_matrix_id: observation_matrix.id,
           project_id: observation_matrix.project_id,
-          row_filter: r1.id.to_s + '|' + r2.id.to_s + '|' + r10.id.to_s)
+          row_filter: row_ids.join('|'))
       expect(ik.remaining.count).to eq(3)
       expect(ik.eliminated.count).to eq(7)
     end

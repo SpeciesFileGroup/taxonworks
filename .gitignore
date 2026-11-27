@@ -58,7 +58,6 @@ config/initializers/vendor/better_errors.rb
 /public/system
 /public/images/tmp
 /public/assets/
-/spec/fixtures/vcr_cassettes
 /spec/test_files/
 spec/tmp/
 

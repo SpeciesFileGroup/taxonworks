@@ -125,7 +125,7 @@ RSpec.configure do |config|
     Faker::UniqueGenerator.clear # Clears used values for all generators
   end
 
-  # Capybara requires truncation strategy!!
+  # Capybara requires a non-transaction strategy!!
   config.before(:each, type: :feature) do
     # Feature specs frequently request a connection multiple times over the
     # course of a spec (even rack_test specs, which run from a single thread,
@@ -134,7 +134,12 @@ RSpec.configure do |config|
     # connection other than the original holding the transaction state is
     # used from the pool of connections, auth fails immediately (usually
     # with "woah there, sign in": an intermittent failure).
-    DatabaseCleaner.strategy = :truncation, {except: %w(spatial_ref_sys)}
+    #
+    # :deletion (DELETE FROM) rather than :truncation: on the near-empty
+    # tables a feature example leaves, it's several times faster than
+    # TRUNCATE across all tables. Unlike truncation it doesn't restart id
+    # sequences.
+    DatabaseCleaner.strategy = :deletion, {except: %w(spatial_ref_sys)}
     #Capybara.current_driver  = Capybara.javascript_driver
     Features::Downloads.clear_downloads # TODO, this should be downloads: true strategy to eliminate need to call everytime
     FileUtils.rm_rf(Download.storage_path)

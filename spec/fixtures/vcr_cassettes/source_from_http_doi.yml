@@ -1,0 +1,233 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://doi.org/10.11646%2Fzootaxa.4674.4.8
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Faraday/v2.15.1 Serrano/v1.7
+      Accept:
+      - application/x-bibtex
+      X-User-Agent:
+      - Faraday/v2.15.1 Serrano/v1.7
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 302
+      message: Found
+    headers:
+      Date:
+      - Sat, 07 Nov 2026 02:46:17 GMT
+      Content-Type:
+      - text/html;charset=utf-8
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Location:
+      - https://api.crossref.org/v1/works/10.11646%2Fzootaxa.4674.4.8/transform
+      Server:
+      - cloudflare
+      Vary:
+      - Accept
+      - Origin
+      Expires:
+      - Sat, 07 Nov 2026 03:41:57 GMT
+      Permissions-Policy:
+      - interest-cohort=(),browsing-topics=()
+      Cf-Cache-Status:
+      - DYNAMIC
+      Nel:
+      - '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}'
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Report-To:
+      - '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=1zBhZRf%2FzisT7Rd3T4AgfRVoxwuka0SOKUtUlr4ix%2FGXU%2B3BObZoaK0ineuu2kr9o17qK3JU0qYLbVJ%2BfIWdBt2vQjoQHimh7rjdJg6jzurhw1jcDT%2FW5QomRUpNRW5hcXZ6AAM%3D"}]}'
+      Cf-Ray:
+      - a56901b46cf8140a-ORD
+      Alt-Svc:
+      - h3=":443"; ma=86400
+    body:
+      encoding: UTF-8
+      string: |-
+        <html><head><title>Handle Redirect</title></head>
+        <body><a href="https://api.crossref.org/v1/works/10.11646%2Fzootaxa.4674.4.8/transform">https://api.crossref.org/v1/works/10.11646%2Fzootaxa.4674.4.8/transform</a></body></html>
+  recorded_at: Sat, 07 Nov 2026 02:46:17 GMT
+- request:
+    method: get
+    uri: https://api.crossref.org/v1/works/10.11646%2Fzootaxa.4674.4.8/transform
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Faraday/v2.15.1 Serrano/v1.7
+      Accept:
+      - application/x-bibtex
+      X-User-Agent:
+      - Faraday/v2.15.1 Serrano/v1.7
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Sat, 07 Nov 2026 02:46:17 GMT
+      Content-Type:
+      - application/x-bibtex
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Vary:
+      - Accept
+      Access-Control-Expose-Headers:
+      - Link
+      Access-Control-Allow-Headers:
+      - X-Requested-With, Accept, Accept-Encoding, Accept-Charset, Accept-Language,
+        Accept-Ranges, Cache-Control
+      Access-Control-Allow-Origin:
+      - "*"
+      Server:
+      - Jetty(9.4.40.v20210413)
+      X-Rate-Limit-Limit:
+      - '5'
+      X-Rate-Limit-Interval:
+      - 1s
+      X-Concurrency-Limit:
+      - '1'
+      X-Api-Pool:
+      - public-single
+      Permissions-Policy:
+      - interest-cohort=()
+      Strict-Transport-Security:
+      - max-age=31536000;
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        IEBhcnRpY2xle0ZFTkdfMjAxOSwgdGl0bGU9e0EgbmV3IHNwZWNpZXMgb2YgdGhlIHN1YmdlbnVzIFRhY2h5Y2luZXMgKEd5bW5hZXRhKSAoT3J0aG9wdGVyYTrCoFJoYXBoaWRvcGhvcmlkYWUpIGZyb20ga2Fyc3QgY2F2ZXMgb2Ygc291dGhlcm4gR3VpemhvdSwgQ2hpbmF9LCB2b2x1bWU9ezQ2NzR9LCBJU1NOPXsxMTc1LTUzMjZ9LCB1cmw9e2h0dHA6Ly9keC5kb2kub3JnLzEwLjExNjQ2L3pvb3RheGEuNDY3NC40Ljh9LCBET0k9ezEwLjExNjQ2L3pvb3RheGEuNDY3NC40Ljh9LCBudW1iZXI9ezR9LCBqb3VybmFsPXtab290YXhhfSwgcHVibGlzaGVyPXtNYWdub2xpYSBQcmVzc30sIGF1dGhvcj17RkVORywgWFVFTEkgYW5kIEhVQU5HLCBTSElIVUkgYW5kIExVTywgQ0hBTkdRSU5HfSwgeWVhcj17MjAxOX0sIG1vbnRoPVNlcHQgfQo=
+  recorded_at: Sat, 07 Nov 2026 02:46:17 GMT
+- request:
+    method: get
+    uri: https://api.crossref.org/works/10.11646%2Fzootaxa.4674.4.8/transform/application/vnd.citationstyles.csl+json
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Faraday/v2.15.1 Serrano/v1.7
+      X-User-Agent:
+      - Faraday/v2.15.1 Serrano/v1.7
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Sat, 07 Nov 2026 02:46:17 GMT
+      Content-Length:
+      - '7112'
+      Connection:
+      - keep-alive
+      Access-Control-Expose-Headers:
+      - Link
+      Access-Control-Allow-Headers:
+      - X-Requested-With, Accept, Accept-Encoding, Accept-Charset, Accept-Language,
+        Accept-Ranges, Cache-Control
+      Access-Control-Allow-Origin:
+      - "*"
+      Vary:
+      - Accept-Encoding
+      Server:
+      - Jetty(9.4.40.v20210413)
+      X-Rate-Limit-Limit:
+      - '5'
+      X-Rate-Limit-Interval:
+      - 1s
+      X-Concurrency-Limit:
+      - '1'
+      X-Api-Pool:
+      - public-single
+      Permissions-Policy:
+      - interest-cohort=()
+      Strict-Transport-Security:
+      - max-age=31536000;
+    body:
+      encoding: ASCII-8BIT
+      string: '{"indexed":{"date-parts":[[2026,3,9]],"date-time":"2026-03-09T23:03:45Z","timestamp":1773097425484,"version":"3.50.1"},"reference-count":1,"publisher":"Magnolia
+        Press","issue":"4","content-domain":{"domain":[],"crossmark-restriction":false},"abstract":"<jats:p>Some
+        species of the subgenus Tachycines (Gymnaeta) inhabit caves. In this study,
+        a new species of, Gymnaeta namely Tachycines (Gymnaeta) lalinus sp. nov.,
+        from two karst caves in Guizhou Province, China is described. This new species
+        resembles the cave species Tachycines (Gymnaeta) zorzini from Guizhou Province,
+        but can be separated from the latter by morphological characters of the male
+        genitalia, the number of spines on hind tibiae, and coloration.\u00a0<\/jats:p>","DOI":"10.11646\/zootaxa.4674.4.8","type":"journal-article","created":{"date-parts":[[2019,9,26]],"date-time":"2019-09-26T18:20:25Z","timestamp":1569522025000},"source":"Crossref","is-referenced-by-count":8,"title":"A
+        new species of the subgenus Tachycines (Gymnaeta) (Orthoptera:\u00a0Rhaphidophoridae)
+        from karst caves of southern Guizhou, China","prefix":"10.11646","volume":"4674","author":[{"given":"XUELI","family":"FENG","sequence":"first","affiliation":[],"role":[{"role":"author","vocabulary":"crossref"}]},{"given":"SHIHUI","family":"HUANG","sequence":"additional","affiliation":[],"role":[{"role":"author","vocabulary":"crossref"}]},{"given":"CHANGQING","family":"LUO","sequence":"additional","affiliation":[],"role":[{"role":"author","vocabulary":"crossref"}]}],"member":"4913","published-online":{"date-parts":[[2019,9,26]]},"reference":[{"key":"47328","unstructured":"<p
+        class=\"Reference\">Adelung, N. (1902) Beitrag zur Kenntnis der palaarktischen
+        Stenopelmatiden (Orthoptera, Locustodea). <em>Extrait L\u2019Annuaire Musee
+        Zoologique L\u2019Academie Imperiale Science St. Petersbourg<\/em>, 7, 55\u201375.<\/p><p
+        class=\"Reference\">Chopard, L. (1916) Diagnoses d\u2019Orthopt\u00e8res cavernicoles
+        nouveaux [Stenopelmatidae]. <em>Bulletin de la Soci\u00e9t\u00e9 entomologique
+        de France<\/em>, 20, 276\u2013279.<\/p><p class=\"Reference\">Chopard, L.
+        (1921) On some cavernicolous Dermaptera and Orthoptera from Assam. <em>Records
+        of the Indian Museum<\/em>, 22, 515\u2013527.<\/p><p class=\"Reference\">Chopard,
+        L. (1929) Note sur les Orthopt\u00e8res cavernicoles du Tonkin. <em>Bulletin
+        de la Societ\u00e9 de Zoologie de France<\/em>, 54, 424\u2013438.<\/p><p class=\"Reference\">Cigliano,
+        M.M., Braun, H., Eades, D.C. &amp; Otte, D. (2019) Orthoptera Species File.
+        Version 5.0\/5.0. Available from: http:\/\/Orthoptera.SpeciesFile.org (17
+        August 2019)<\/p><p class=\"Reference\">Gorochov, A.V. (1990) New and little
+        known taxa of Orthopterans of the suborder Ensifera (Orthoptera) from tropics
+        and subtropics. <em>Entomologicheskoe Obozrenie<\/em>, 69 (4), 820\u2013834.<\/p><p
+        class=\"Reference\">Gorochov, A.V. (1994) News of systematics and faunistics
+        of Vietnam insects Part 4. <em>Proceedings of the Zoological Institute of
+        the Russian Academy of Science<\/em>, 257, 37\u201350.<\/p><p class=\"Reference\">Gorochov,
+        A.V., Rampini, M. &amp; Di Russo, C. (2006) New species of the genus <em>Diestrammena<\/em>
+        (Orthoptera: Rhaphidophoridae: Aemodogryllinae) from caves of China. <em>Russian
+        Entomological Journal<\/em>, 15 (4), 355\u2013360.<\/p><p class=\"Reference\">Gorochov,
+        A.V. &amp; Storozhenko, S.Y. (1992) On the fauna of the subfamily Aemodogryllinae
+        (Orthoptera, Rhaphidophoridae) in Vietnam. <em>Proceedings of the Zoological
+        Institute of the Russian Academy of Science<\/em>, 245, 17\u201334.<\/p><p
+        class=\"Reference\">Gorochov, A.V. (2010a) New species of the families Anostostomatidae
+        and Rhaphidophoridae (Orthoptera: Stenopelmatoidea) from China. <em>Far Eastern
+        Entomologist<\/em>, 206, 1\u201316.<\/p><p class=\"Reference\">Gorochov, A.V.
+        (2010b) New data on the Chinese representatives of the genus <em>Diestrammena<\/em>
+        (Orthoptera: Rhaphidophoridae: Aemodogryllinae). <em>Far Eastern Entomologist<\/em>,
+        212, 12\u201315.<\/p><p class=\"Reference\">Jiao, Z.J., Niu, C.Y., Liu, X.W.,
+        Lei, C.L. &amp; Bi, W.X. (2008) Descriptions of Chinese species of the subgenus
+        <em>Diestrammena (Gymnaeta)<\/em> Adelung (Orthoptera: Rhaphidophoridae).
+        <em>Zootaxa<\/em>, 1917 (1), 55\u201360.<\/p><p class=\"Reference\"> https:\/\/doi.org\/10.11646\/zootaxa.1917.1.4<\/p><p
+        class=\"Reference\">Karny, H.H. (1934a) Zur Kenntnis der ostasiatischen Rhaphidophorinen
+        (Orth. Salt. Gryllacrididae). <em>Konowia, Zeitschrift f\u00fcr Systematische
+        Insektenkunde<\/em>, 13, 216\u2013218.<\/p><p class=\"Reference\">Karny, H.H.
+        (1934b) Schwedisch-chinesische wissenschaftliche Expedition nach den nordwestlichen
+        Provinzen Chinas, unter Leitung von Dr. Sven Hedin und Prof. S\u00fc Ping-chang.
+        Insekten gesammelt vom schwedischen Arzt der Expedition Dr. David Hummel 1927\u20131930.
+        6. Rhaphidophorinae. <em>Aukiv f\u00f6r Zoologi<\/em>, 26 (2), 1\u20138.<\/p><p
+        class=\"Reference\">Qin, Y.Y., Liu, X.W. &amp; Li, K. (2019) Review of the
+        subgenus <em>Tachycines (Gymnaeta)<\/em> Adelung, 1902 (Orthoptera, Rhaphidophoridae,
+        Aemodogryllinae, Aemodogryllini). <em>Zootaxa<\/em>, 4560 (2), 273\u2013310.<\/p><p
+        class=\"Reference\"> https:\/\/doi.org\/10.11646\/zootaxa.4560.2.3<\/p><p
+        class=\"Reference\">Qin, Y.Y., Wang, H.Q., Liu, X.W. &amp; Li, K. (2018) Divided
+        the genus <em>Tachycines<\/em> Adelung (Orthoptera, Rhaphidophoridae: Aemodogryllinae;
+        Aemodogryllini) from China. <em>Zootaxa<\/em>, 4374 (4), 451\u2013475.<\/p><p
+        class=\"Reference\"> https:\/\/doi.org\/10.11646\/zootaxa.4374.4.1<\/p><p
+        class=\"Reference\">Rampini, M., Di Russo, C. &amp; Cobolli, M. (2008) The
+        Aemodogryllinae cave crickets from Guizhou, Southern China (Orthoptera, Rhaphidophoridae).
+        <em>Monografie Naturalistiche<\/em>, 3, 129\u2013141.<\/p><p class=\"Reference\">Zhang,
+        F. &amp; Liu, X.W. (2009) A review of the subgenus <em>Diestrammena (Gymnaeta)<\/em>
+        from China (Orthoptera: Rhaphidophoridae Aemodogryllinae). <em>Zootaxa<\/em>,
+        2272 (1), 21\u201336.<\/p><p class=\"Reference\"> https:\/\/doi.org\/10.11646\/zootaxa.2272.1.2<\/p><p
+        class=\"NormalParagraphStyle\"> <\/p><p> <\/p>"}],"container-title":"Zootaxa","original-title":[],"link":[{"URL":"https:\/\/www.mapress.com\/zt\/article\/download\/zootaxa.4674.4.8\/33316","content-type":"application\/pdf","content-version":"vor","intended-application":"text-mining"},{"URL":"https:\/\/www.mapress.com\/zt\/article\/download\/zootaxa.4674.4.8\/33316","content-type":"unspecified","content-version":"vor","intended-application":"similarity-checking"}],"deposited":{"date-parts":[[2023,4,19]],"date-time":"2023-04-19T00:21:45Z","timestamp":1681863705000},"score":1,"resource":{"primary":{"URL":"https:\/\/www.mapress.com\/zt\/article\/view\/zootaxa.4674.4.8"}},"subtitle":[],"short-title":[],"issued":{"date-parts":[[2019,9,26]]},"references-count":1,"journal-issue":{"issue":"4","published-online":{"date-parts":[[2019,9,26]]}},"URL":"http:\/\/dx.doi.org\/10.11646\/zootaxa.4674.4.8","relation":{},"ISSN":["1175-5334","1175-5326"],"subject":[],"container-title-short":"Zootaxa","published":{"date-parts":[[2019,9,26]]}}'
+  recorded_at: Sat, 07 Nov 2026 02:46:17 GMT
+recorded_with: VCR 6.4.1

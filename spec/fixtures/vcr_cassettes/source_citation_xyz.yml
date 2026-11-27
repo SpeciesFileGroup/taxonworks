@@ -1,0 +1,85 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://api.crossref.org/works?query=ABCDE%20XYZ&rows=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Faraday/v2.15.1 Serrano/v1.7
+      X-User-Agent:
+      - Faraday/v2.15.1 Serrano/v1.7
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Sat, 07 Nov 2026 02:46:12 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '3741'
+      Connection:
+      - keep-alive
+      Access-Control-Expose-Headers:
+      - Link
+      Access-Control-Allow-Headers:
+      - X-Requested-With, Accept, Accept-Encoding, Accept-Charset, Accept-Language,
+        Accept-Ranges, Cache-Control
+      Access-Control-Allow-Origin:
+      - "*"
+      Vary:
+      - Accept-Encoding
+      Server:
+      - Jetty(9.4.40.v20210413)
+      X-Rate-Limit-Limit:
+      - '1'
+      X-Rate-Limit-Interval:
+      - 1s
+      X-Concurrency-Limit:
+      - '1'
+      X-Api-Pool:
+      - public-array
+      Permissions-Policy:
+      - interest-cohort=()
+      Strict-Transport-Security:
+      - max-age=31536000;
+    body:
+      encoding: ASCII-8BIT
+      string: '{"status":"ok","message-type":"work-list","message-version":"1.0.0","message":{"facets":{},"total-results":10727,"items":[{"indexed":{"date-parts":[[2026,6,19]],"date-time":"2026-06-19T14:06:20Z","timestamp":1781877980511,"version":"3.54.5"},"reference-count":0,"publisher":"LPPM
+        ITN Malang","issue":"1","content-domain":{"domain":[],"crossmark-restriction":false},"short-container-title":["seniati"],"abstract":"<jats:p>PT
+        XYZ merupakan perusahaan di bidang manufaktur komponen otomotif yang proses
+        produksinya dilakukan dengan bantuan mesin dan peran manusia untuk melakukan
+        pekerjaan Manual Material Handling, khususnya pekerja Logistik di area Pulling
+        &amp; Shipping yang melakukan kegiatan mengambil palet kayu, mengambil Kanban,
+        menukar Kanban pada box produk, mengangkat box produk, mendorong troli ke
+        home position, dan mengemas produk, serta memindahkan box kosong dengan handlift.
+        Pekerja tersebut melakukan kegiatan mengangkat dan mendorong beban berat dalam
+        waktu lama dan memiliki postur kerja yang janggal, sehingga perlu dilakukan
+        analisis menggunakan metode RULA dan QEC untuk menilai risiko ergonomi pada
+        postur tubuh pekerja dan mencegah terjadinya Musculoskeletal Disorders (MSDs).
+        Dari hasil analisis diketahui bahwa beberapa langkah kegiatan Pulling &amp;
+        Shipping berisiko tinggi, yaitu kegiatan mengangkat box produk, mendorong
+        troli, dan mendorong handlift, dimana kegiatan ini melibatkan kegiatan mengangkat
+        dan mendorong beban berat sebesar 14,45 kg. Setiap kegiatan ini memiliki action
+        level 4 dengan tingkat prioritas perbaikan paling tinggi. Untuk memperbaiki
+        hal ini, diberikan usulan perbaikan berupa usulan postur kerja yang aman,
+        perbaikan cara kerja pekerja yang sebelumnya bekerja secara terus menerus
+        (repetitive) menjadi terputus (intermittent), dan usulan penyediaan fasilitas
+        yang dapat mendukung kegiatan material handling, seperti handlift, penggantian
+        box, dan penggunaan korset.<\/jats:p>","DOI":"10.36040\/seniati.v6i1.4962","type":"journal-article","created":{"date-parts":[[2022,8,9]],"date-time":"2022-08-09T05:47:36Z","timestamp":1660024056000},"page":"226-242","source":"Crossref","is-referenced-by-count":1,"title":["Analisis
+        Postur Kerja pada Pekerja di Area Pulling &amp; Shipping (Customer PT ABCDE)
+        PT XYZ dengan Metode Rapid Upper Limb Assessment dan Quick Exposure Checklist"],"prefix":"10.36040","volume":"6","author":[{"given":"Rania
+        Dwita","family":"Indriani","sequence":"first","affiliation":[],"role":[{"vocabulary":"crossref","role":"author"}]},{"given":"Susatyo
+        Nugroho Widyo","family":"Pramono","sequence":"additional","affiliation":[],"role":[{"vocabulary":"crossref","role":"author"}]}],"member":"21811","published-online":{"date-parts":[[2022,7,14]]},"container-title":["Prosiding
+        SENIATI"],"link":[{"URL":"https:\/\/ejournal.itn.ac.id\/index.php\/seniati\/article\/download\/4962\/3179","content-type":"application\/pdf","content-version":"vor","intended-application":"text-mining"},{"URL":"https:\/\/ejournal.itn.ac.id\/index.php\/seniati\/article\/download\/4962\/3179","content-type":"unspecified","content-version":"vor","intended-application":"similarity-checking"}],"deposited":{"date-parts":[[2022,8,9]],"date-time":"2022-08-09T05:49:26Z","timestamp":1660024166000},"score":21.52669,"resource":{"primary":{"URL":"https:\/\/ejournal.itn.ac.id\/index.php\/seniati\/article\/view\/4962"}},"issued":{"date-parts":[[2022,7,14]]},"references-count":0,"journal-issue":{"issue":"1","published-online":{"date-parts":[[2022,7,25]]}},"URL":"https:\/\/doi.org\/10.36040\/seniati.v6i1.4962","ISSN":["2085-4218"],"issn-type":[{"value":"2085-4218","type":"print"}],"published":{"date-parts":[[2022,7,14]]}}],"items-per-page":1,"query":{"start-index":0,"search-terms":"ABCDE
+        XYZ"}}}'
+  recorded_at: Sat, 07 Nov 2026 02:46:12 GMT
+recorded_with: VCR 6.4.1
