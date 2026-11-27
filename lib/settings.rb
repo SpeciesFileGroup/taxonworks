@@ -22,7 +22,8 @@ module Settings
     :mail_domain,
     :capistrano,
     :interface,
-    :selenium
+    :selenium,
+    :allowed_hosts
   ].freeze
 
   @@backup_directory = nil
